@@ -22,8 +22,12 @@ const BASE_INPUT = {
 function expectRequiredEnding(caption: string) {
   expect(caption).toContain("Book now through ServiceFlow and claim your spot today.");
   expect(caption).toContain(`www.serviceflow.store/${BASE_INPUT.businessSlug}`);
-  expect(caption).toContain("and see everything they offer.");
-  expect(caption.trim().endsWith("and see everything they offer.")).toBe(true);
+  expect(caption).toMatch(
+    /You can book yourselves in and see all services they offer\.|and see everything they offer\./,
+  );
+  expect(caption.trim().endsWith(`www.serviceflow.store/${BASE_INPUT.businessSlug}`)).toBe(
+    true,
+  );
 }
 
 afterEach(() => {
@@ -37,9 +41,21 @@ describe("generateSocialCaptionDraft", () => {
     delete process.env.GEMINI_KEY;
     const output = await generateSocialCaptionDraft(BASE_INPUT);
 
-    expect(output.caption).toContain("Deserve mo pa rin ng reset, bes.");
+    expect(output.caption).toContain("Glow Studio has a feel-good promo for you this season.");
     expectRequiredEnding(output.caption);
     expect(output.hashtags).toContain("#ServiceFlow");
+  });
+
+  it("uses natural one-day timing language in rescue caption", async () => {
+    delete process.env.GEMINI_KEY;
+    const output = await generateSocialCaptionDraft({
+      ...BASE_INPUT,
+      startDate: new Date("2026-02-14T00:00:00.000Z"),
+      endDate: new Date("2026-02-14T23:59:59.000Z"),
+    });
+
+    expect(output.caption).toContain("One-day promo on");
+    expect(output.caption).not.toMatch(/from\s+\w+\s+\d+\s+to\s+\w+\s+\d+/i);
   });
 
   it("uses Gemini JSON output when quality is acceptable", async () => {
@@ -163,7 +179,7 @@ describe("generateSocialCaptionDraft", () => {
     );
 
     const output = await generateSocialCaptionDraft(BASE_INPUT);
-    expect(output.caption).toContain("Deserve mo pa rin ng reset, bes.");
+    expect(output.caption).toContain("Glow Studio has a feel-good promo for you this season.");
     expectRequiredEnding(output.caption);
     expect(output.hashtags).toContain("#ServiceFlow");
   });
@@ -239,7 +255,7 @@ describe("generateSocialCaptionDraft", () => {
               {
                 text: JSON.stringify({
                   caption:
-                    'Single ka ba this season?\nHoliday season vibe ito, based on your "Christmas Sale" promo.\nFocused categories: Eyelash.\nBeautyFeel has your back for your holiday glow-up.\n\nTry these crowd favorites:\n- Cat eye\n- Classic eyelash extensions\n\nLimited slots lang, reserve now.',
+                    'Single ka ba this season?\nHoliday season vibe ito, based on your "Christmas Sale" promo.\nFocused categories: Eyelash.\n15% OFF on Holiday Stress-Off Package from Feb 14 to Feb 14.\nUpcoming Valentine\'s Day on 2026-02-14 can drive prep bookings.\nBeautyFeel has your back for your holiday glow-up.\n\nTry these crowd favorites:\n- Cat eye\n- Classic eyelash extensions\n\nLimited slots lang, reserve now.',
                   hashtags: ["#BeautyFeel", "#Eyelash", "#ServiceFlow"],
                 }),
               },
@@ -288,6 +304,8 @@ describe("generateSocialCaptionDraft", () => {
     const output = await generateSocialCaptionDraft(BASE_INPUT);
     expect(output.caption.toLowerCase()).not.toContain("focused categories:");
     expect(output.caption.toLowerCase()).not.toContain("based on your");
+    expect(output.caption.toLowerCase()).not.toContain("can drive prep bookings");
+    expect(output.caption.toLowerCase()).not.toContain("from feb 14 to feb 14");
     expectRequiredEnding(output.caption);
   });
 });

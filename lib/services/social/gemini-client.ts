@@ -2,6 +2,7 @@ import { logger } from "@/lib/logger";
 
 const GEMINI_API_BASE =
   "https://generativelanguage.googleapis.com/v1beta/models";
+const DEFAULT_GEMINI_TIMEOUT_MS = 12_000;
 
 type GeminiInlineData = {
   data?: string;
@@ -46,6 +47,18 @@ function getGeminiApiKey() {
   return process.env.GEMINI_KEY || process.env.GEMINI_API_KEY || "";
 }
 
+function getGeminiRequestTimeoutMs() {
+  const value = Number(process.env.GEMINI_REQUEST_TIMEOUT_MS);
+  if (!Number.isFinite(value) || value <= 0) {
+    return DEFAULT_GEMINI_TIMEOUT_MS;
+  }
+  return Math.floor(value);
+}
+
+function isAbortError(error: unknown) {
+  return error instanceof Error && error.name === "AbortError";
+}
+
 export function isGeminiConfigured() {
   return !!getGeminiApiKey();
 }
@@ -56,25 +69,40 @@ async function generateGeminiContent(input: GenerateGeminiContentInput) {
     throw new Error("GEMINI_KEY is not configured");
   }
 
-  const response = await fetch(
-    `${GEMINI_API_BASE}/${encodeURIComponent(input.model)}:generateContent`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
+  const timeoutMs = getGeminiRequestTimeoutMs();
+  const controller = new AbortController();
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response: Response;
+  try {
+    response = await fetch(
+      `${GEMINI_API_BASE}/${encodeURIComponent(input.model)}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: input.prompt }],
+            },
+          ],
+          generationConfig: input.generationConfig,
+        }),
+        signal: controller.signal,
       },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: input.prompt }],
-          },
-        ],
-        generationConfig: input.generationConfig,
-      }),
-    },
-  );
+    );
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw new Error(`Gemini request timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
 
   const payload = (await response.json()) as GeminiGenerateContentResponse;
 

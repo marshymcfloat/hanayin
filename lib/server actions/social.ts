@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 import {
   requireOwnerTenantWriteAccess,
   requireTenantAccess,
@@ -29,7 +30,15 @@ function normalizeHashtags(hashtags: string[]) {
   );
 }
 
-function ensureFeatureEnabled(businessSlug: string) {
+async function ensureSocialPublishingAccess(businessSlug: string) {
+  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
+  if (!entitlements.social) {
+    return {
+      success: false as const,
+      error: "Social publishing is available on the Pro plan.",
+    };
+  }
+
   if (!isSocialPublishingEnabledForBusiness(businessSlug)) {
     return {
       success: false as const,
@@ -37,6 +46,19 @@ function ensureFeatureEnabled(businessSlug: string) {
         "Social publishing is not enabled for this business yet. Contact support to join the pilot.",
     };
   }
+
+  return null;
+}
+
+async function ensureAiAccess(businessSlug: string) {
+  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
+  if (!entitlements.ai) {
+    return {
+      success: false as const,
+      error: "AI social generation is available on the Pro plan.",
+    };
+  }
+
   return null;
 }
 
@@ -44,7 +66,7 @@ export async function getSocialConnectionsAction(businessSlug: string) {
   const auth = await requireTenantAccess(businessSlug);
   if (!auth.success) return auth;
 
-  const featureError = ensureFeatureEnabled(businessSlug);
+  const featureError = await ensureSocialPublishingAccess(businessSlug);
   if (featureError) return featureError;
 
   try {
@@ -70,7 +92,7 @@ export async function disconnectSocialConnectionAction(params: {
   const auth = await requireOwnerTenantWriteAccess(params.businessSlug);
   if (!auth.success) return auth;
 
-  const featureError = ensureFeatureEnabled(params.businessSlug);
+  const featureError = await ensureSocialPublishingAccess(params.businessSlug);
   if (featureError) return featureError;
 
   try {
@@ -127,8 +149,10 @@ export async function generateSocialCaptionAction(input: {
   const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
 
-  const featureError = ensureFeatureEnabled(input.businessSlug);
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
   if (featureError) return featureError;
+  const aiError = await ensureAiAccess(input.businessSlug);
+  if (aiError) return aiError;
 
   try {
     const startDate = new Date(input.startDate);
@@ -185,7 +209,7 @@ export async function updateSocialPostDraftAction(input: {
   const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
 
-  const featureError = ensureFeatureEnabled(input.businessSlug);
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
   if (featureError) return featureError;
 
   try {
@@ -226,6 +250,71 @@ export async function updateSocialPostDraftAction(input: {
   }
 }
 
+export async function deleteSocialPostDraftAction(input: {
+  businessSlug: string;
+  postId: string;
+}) {
+  const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
+  if (!auth.success) return auth;
+
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
+  if (featureError) return featureError;
+
+  try {
+    const post = await prisma.socialPost.findFirst({
+      where: {
+        id: input.postId,
+        business: { slug: input.businessSlug },
+      },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        business_id: true,
+      },
+    });
+
+    if (!post) {
+      return { success: false as const, error: "Social post draft not found." };
+    }
+
+    if (post.status !== "DRAFT") {
+      return {
+        success: false as const,
+        error: "Only saved draft posts can be deleted.",
+      };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.socialPost.delete({
+        where: { id: post.id },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          entity_type: "SocialPost",
+          entity_id: post.id,
+          action: "DRAFT_DELETED",
+          actor_id: auth.session.user.id,
+          actor_type: "USER",
+          business_id: post.business_id,
+          changes: {
+            title: post.title,
+            status: post.status,
+          },
+        },
+      });
+    });
+
+    revalidatePath(`/app/${input.businessSlug}/social-posts`);
+    revalidatePath(`/app/${input.businessSlug}/sale-events`);
+    return { success: true as const };
+  } catch (error) {
+    console.error("Error deleting social post draft:", error);
+    return { success: false as const, error: "Failed to delete social draft." };
+  }
+}
+
 export async function generateSocialPostImageAction(input: {
   businessSlug: string;
   postId: string;
@@ -234,8 +323,10 @@ export async function generateSocialPostImageAction(input: {
   const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
 
-  const featureError = ensureFeatureEnabled(input.businessSlug);
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
   if (featureError) return featureError;
+  const aiError = await ensureAiAccess(input.businessSlug);
+  if (aiError) return aiError;
 
   try {
     const post = await prisma.socialPost.findFirst({
@@ -348,6 +439,92 @@ export async function generateSocialPostImageAction(input: {
   }
 }
 
+export async function regenerateSocialPostCaptionAction(input: {
+  businessSlug: string;
+  postId: string;
+}) {
+  const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
+  if (!auth.success) return auth;
+
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
+  if (featureError) return featureError;
+  const aiError = await ensureAiAccess(input.businessSlug);
+  if (aiError) return aiError;
+
+  try {
+    const post = await prisma.socialPost.findFirst({
+      where: {
+        id: input.postId,
+        business: { slug: input.businessSlug },
+      },
+      include: {
+        business: {
+          select: {
+            name: true,
+            slug: true,
+            description: true,
+          },
+        },
+        sale_event: {
+          select: {
+            title: true,
+            description: true,
+            discount_type: true,
+            discount_value: true,
+            start_date: true,
+            end_date: true,
+            applicable_services: { select: { name: true, category: true } },
+            applicable_packages: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!post) {
+      return { success: false as const, error: "Social post draft not found." };
+    }
+
+    if (!post.sale_event) {
+      return {
+        success: false as const,
+        error: "Caption regeneration is currently available for sale-event drafts only.",
+      };
+    }
+
+    const generated = await generateSocialCaptionDraft({
+      businessSlug: post.business.slug,
+      businessName: post.business.name,
+      businessDescription: post.business.description,
+      saleTitle: post.sale_event.title,
+      saleDescription: post.sale_event.description,
+      discountType: post.sale_event.discount_type,
+      discountValue: post.sale_event.discount_value,
+      startDate: post.sale_event.start_date,
+      endDate: post.sale_event.end_date,
+      serviceNames: post.sale_event.applicable_services.map(
+        (service) => service.name,
+      ),
+      serviceCategories: Array.from(
+        new Set(post.sale_event.applicable_services.map((service) => service.category)),
+      ),
+      packageNames: post.sale_event.applicable_packages.map(
+        (pkg) => pkg.name,
+      ),
+    });
+
+    return {
+      success: true as const,
+      data: generated,
+    };
+  } catch (error) {
+    console.error("Error regenerating social caption:", error);
+    return {
+      success: false as const,
+      error: "Unable to regenerate social caption.",
+    };
+  }
+}
+
 export async function publishSocialPostAction(input: {
   businessSlug: string;
   postId: string;
@@ -355,7 +532,7 @@ export async function publishSocialPostAction(input: {
   const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
 
-  const featureError = ensureFeatureEnabled(input.businessSlug);
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
   if (featureError) return featureError;
 
   try {
@@ -387,6 +564,12 @@ export async function publishSocialPostAction(input: {
 
       if (post.status === "PUBLISHING") {
         throw new Error("This post is already being published.");
+      }
+
+      if (post.targets.length === 0) {
+        throw new Error(
+          "No connected channels on this draft. Connect Facebook/Instagram or choose channels first.",
+        );
       }
 
       const targetsToQueue = post.targets.filter(
@@ -474,7 +657,7 @@ export async function retrySocialPostTargetAction(input: {
   const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
 
-  const featureError = ensureFeatureEnabled(input.businessSlug);
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
   if (featureError) return featureError;
 
   try {

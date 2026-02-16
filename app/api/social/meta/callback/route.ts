@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
 import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 import {
   exchangeCodeForMetaUserToken,
   getManagedMetaPages,
@@ -38,6 +39,11 @@ export async function GET(request: Request) {
   }
 
   const settingsUrl = buildBusinessSettingsUrl(request, parsedState.businessSlug);
+  const entitlements = await getBusinessEntitlementsBySlug(parsedState.businessSlug);
+  if (!entitlements.social) {
+    settingsUrl.searchParams.set("socialError", "plan_not_entitled");
+    return NextResponse.redirect(settingsUrl);
+  }
 
   if (oauthError) {
     settingsUrl.searchParams.set("socialError", "oauth_denied");
