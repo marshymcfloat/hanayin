@@ -11,11 +11,13 @@ import {
   assignReferralAttributionOnOnboarding,
   createCheckoutForInvoice,
   createInvoiceForSubscription,
+  DEFAULT_SUBSCRIPTION_PLAN_CODE,
   ensureBusinessSubscription,
   ensureDefaultPlans,
   ensureReferralCode,
   getDefaultTrialMonths,
   getPeriodEnd,
+  SUBSCRIPTION_PLAN_CODES,
   getSubscriptionEnforcementMode,
   markInvoicePaid,
   qualifyAndRewardReferralForBusiness,
@@ -33,7 +35,7 @@ const createBusinessWithSubscriptionSchema = z.object({
   ownerName: z.string().min(2),
   ownerEmail: z.string().email(),
   ownerPassword: z.string().min(8).optional(),
-  planCode: z.enum(["PRO_MONTHLY", "PRO_ANNUAL"]).default("PRO_MONTHLY"),
+  planCode: z.enum(SUBSCRIPTION_PLAN_CODES).default(DEFAULT_SUBSCRIPTION_PLAN_CODE),
   trialMonths: z.number().int().min(1).max(12).optional(),
   referralCode: z.string().min(3).optional(),
 });
@@ -46,8 +48,20 @@ const updateOnboardingApplicationStatusSchema = z.object({
 
 const convertOnboardingApplicationSchema = z.object({
   applicationId: z.string().min(1),
-  planCode: z.enum(["PRO_MONTHLY", "PRO_ANNUAL"]).default("PRO_MONTHLY"),
+  planCode: z.enum(SUBSCRIPTION_PLAN_CODES).default(DEFAULT_SUBSCRIPTION_PLAN_CODE),
   trialMonths: z.number().int().min(1).max(12).optional(),
+  ownerPassword: z.string().min(8),
+});
+
+const changeBusinessSubscriptionPlanSchema = z.object({
+  businessId: z.string().min(1),
+  planCode: z.enum(SUBSCRIPTION_PLAN_CODES),
+});
+
+const reviewSubscriptionPlanUpgradeRequestSchema = z.object({
+  requestId: z.string().min(1),
+  decision: z.enum(["APPROVE", "REJECT"]),
+  reviewNote: z.string().trim().max(1000).optional(),
 });
 
 const markInvoicePaidManuallySchema = z.object({
@@ -80,6 +94,10 @@ async function logPlatformAction(input: {
       metadata: input.metadata as Prisma.InputJsonValue | undefined,
     },
   });
+}
+
+function isCanonicalSubscriptionPlanCode(code: string) {
+  return SUBSCRIPTION_PLAN_CODES.includes(code as (typeof SUBSCRIPTION_PLAN_CODES)[number]);
 }
 
 function makeOwnerPassword() {
@@ -124,13 +142,20 @@ function generateBusinessInitials(name: string) {
 }
 
 export async function createBusinessWithSubscriptionAction(
-  rawInput: z.infer<typeof createBusinessWithSubscriptionSchema>,
+  rawInput: z.input<typeof createBusinessWithSubscriptionSchema>,
 ) {
   const auth = await requirePlatformAdmin();
   if (!auth.success) return auth;
 
   const input = createBusinessWithSubscriptionSchema.parse(rawInput);
   await ensureDefaultPlans();
+  const selectedPlan = await prisma.subscriptionPlan.findUnique({
+    where: { code: input.planCode },
+    select: { is_active: true },
+  });
+  if (!selectedPlan || !selectedPlan.is_active) {
+    return { success: false as const, error: "Selected plan is not active" };
+  }
 
   const ownerPassword = input.ownerPassword || makeOwnerPassword();
   const hashedPassword = await hash(ownerPassword, 12);
@@ -208,6 +233,12 @@ export async function grantTrialMonthsAction(businessId: string, months: number)
   const subscription = await ensureBusinessSubscription(businessId, {
     trialMonths: safeMonths,
   });
+  if (subscription.status !== SubscriptionStatus.TRIALING) {
+    return {
+      success: false as const,
+      error: "Trial months can only be granted to trialing subscriptions.",
+    };
+  }
 
   const nextTrialEndsAt = subscription.trial_ends_at
     ? addMonths(subscription.trial_ends_at, safeMonths)
@@ -351,6 +382,7 @@ export async function applyCreditAdjustmentAction(
     amountOrMonths.amountCentavos ??
     Math.max(1, amountOrMonths.months ?? 1) * plan.price_amount;
 
+  // Credits are applied during invoice creation; this action must not mutate subscription dates/status.
   const credit = await prisma.subscriptionCreditLedger.create({
     data: {
       business_subscription_id: subscription.id,
@@ -429,6 +461,190 @@ export async function reactivateBusinessAction(businessId: string) {
   return { success: true as const, data: updated };
 }
 
+export async function changeBusinessSubscriptionPlanAction(
+  businessId: string,
+  planCode: z.infer<typeof changeBusinessSubscriptionPlanSchema>["planCode"],
+) {
+  const auth = await requirePlatformAdmin();
+  if (!auth.success) return auth;
+
+  const input = changeBusinessSubscriptionPlanSchema.parse({ businessId, planCode });
+  await ensureDefaultPlans();
+
+  const subscription = await ensureBusinessSubscription(input.businessId);
+  if (subscription.plan.code === input.planCode) {
+    return { success: true as const, data: subscription };
+  }
+
+  const nextPlan = await prisma.subscriptionPlan.findUnique({
+    where: { code: input.planCode },
+    select: { id: true, code: true, is_active: true },
+  });
+  if (!nextPlan || !nextPlan.is_active) {
+    return { success: false as const, error: "Selected plan is not active" };
+  }
+
+  const updated = await prisma.businessSubscription.update({
+    where: { id: subscription.id },
+    data: {
+      plan_id: nextPlan.id,
+    },
+    include: {
+      plan: true,
+    },
+  });
+
+  await logPlatformAction({
+    action: "BUSINESS_SUBSCRIPTION_PLAN_CHANGED",
+    targetType: "BusinessSubscription",
+    targetId: updated.id,
+    businessId: input.businessId,
+    metadata: {
+      previousPlanCode: subscription.plan.code,
+      nextPlanCode: updated.plan.code,
+    },
+  });
+
+  revalidatePath("/platform/businesses");
+  revalidatePath("/platform/plans");
+  revalidatePath("/platform/invoices");
+  return { success: true as const, data: updated };
+}
+
+export async function reviewSubscriptionPlanUpgradeRequestAction(
+  rawInput: z.input<typeof reviewSubscriptionPlanUpgradeRequestSchema>,
+) {
+  const auth = await requirePlatformAdmin();
+  if (!auth.success) return auth;
+
+  const input = reviewSubscriptionPlanUpgradeRequestSchema.parse(rawInput);
+  const request = await prisma.subscriptionPlanUpgradeRequest.findUnique({
+    where: { id: input.requestId },
+    include: {
+      business: {
+        select: {
+          id: true,
+          slug: true,
+        },
+      },
+      target_plan: {
+        select: {
+          id: true,
+          code: true,
+          is_active: true,
+        },
+      },
+      current_plan: {
+        select: {
+          code: true,
+        },
+      },
+    },
+  });
+  if (!request) {
+    return { success: false as const, error: "Upgrade request not found" };
+  }
+  if (request.status !== "PENDING") {
+    return {
+      success: false as const,
+      error: "Upgrade request is already reviewed.",
+    };
+  }
+
+  if (input.decision === "APPROVE") {
+    if (!request.target_plan.is_active) {
+      return {
+        success: false as const,
+        error: "Target plan is not active.",
+      };
+    }
+
+    const approved = await prisma.$transaction(async (tx) => {
+      const liveSubscription = await tx.businessSubscription.findUnique({
+        where: { id: request.business_subscription_id },
+        select: {
+          id: true,
+          plan_id: true,
+        },
+      });
+      if (!liveSubscription) {
+        throw new Error("Subscription not found for this upgrade request.");
+      }
+      if (
+        liveSubscription.plan_id !== request.current_plan_id &&
+        liveSubscription.plan_id !== request.target_plan.id
+      ) {
+        throw new Error(
+          "Subscription plan changed after request creation. Ask the owner to submit a new request.",
+        );
+      }
+
+      if (liveSubscription.plan_id !== request.target_plan.id) {
+        await tx.businessSubscription.update({
+          where: { id: liveSubscription.id },
+          data: {
+            plan_id: request.target_plan.id,
+          },
+        });
+      }
+
+      return tx.subscriptionPlanUpgradeRequest.update({
+        where: { id: request.id },
+        data: {
+          status: "APPROVED",
+          review_note: input.reviewNote || null,
+          reviewed_by_user_id: auth.session.user.id,
+          reviewed_at: new Date(),
+        },
+      });
+    });
+
+    await logPlatformAction({
+      action: "SUBSCRIPTION_UPGRADE_REQUEST_APPROVED",
+      targetType: "SubscriptionPlanUpgradeRequest",
+      targetId: approved.id,
+      businessId: request.business.id,
+      metadata: {
+        previousPlanCode: request.current_plan.code,
+        nextPlanCode: request.target_plan.code,
+        hasReviewNote: Boolean(input.reviewNote),
+      },
+    });
+
+    revalidatePath("/platform");
+    revalidatePath("/platform/businesses");
+    revalidatePath("/platform/invoices");
+    revalidatePath(`/app/${request.business.slug}/billing`);
+    return { success: true as const, data: approved };
+  }
+
+  const rejected = await prisma.subscriptionPlanUpgradeRequest.update({
+    where: { id: request.id },
+    data: {
+      status: "REJECTED",
+      review_note: input.reviewNote || null,
+      reviewed_by_user_id: auth.session.user.id,
+      reviewed_at: new Date(),
+    },
+  });
+
+  await logPlatformAction({
+    action: "SUBSCRIPTION_UPGRADE_REQUEST_REJECTED",
+    targetType: "SubscriptionPlanUpgradeRequest",
+    targetId: rejected.id,
+    businessId: request.business.id,
+    metadata: {
+      requestedPlanCode: request.target_plan.code,
+      hasReviewNote: Boolean(input.reviewNote),
+    },
+  });
+
+  revalidatePath("/platform");
+  revalidatePath("/platform/businesses");
+  revalidatePath(`/app/${request.business.slug}/billing`);
+  return { success: true as const, data: rejected };
+}
+
 export async function runReferralRewardQualificationAction() {
   const auth = await requirePlatformAdmin();
   if (!auth.success) return auth;
@@ -467,11 +683,21 @@ export async function updateSubscriptionPlanAction(params: {
   const auth = await requirePlatformAdmin();
   if (!auth.success) return auth;
 
-  const updated = await prisma.subscriptionPlan.update({
+  const existing = await prisma.subscriptionPlan.findUnique({
     where: { id: params.planId },
+    select: { id: true, code: true },
+  });
+  if (!existing) {
+    return { success: false as const, error: "Plan not found" };
+  }
+  const isCanonical = isCanonicalSubscriptionPlanCode(existing.code);
+  const nextIsActive = isCanonical ? params.isActive : false;
+
+  const updated = await prisma.subscriptionPlan.update({
+    where: { id: existing.id },
     data: {
       price_amount: Math.max(1, Math.round(params.priceAmount)),
-      is_active: params.isActive,
+      is_active: nextIsActive,
     },
   });
 
@@ -482,6 +708,7 @@ export async function updateSubscriptionPlanAction(params: {
     metadata: {
       priceAmount: updated.price_amount,
       isActive: updated.is_active,
+      isCanonicalPlan: isCanonical,
     },
   });
 
@@ -586,7 +813,7 @@ export async function updateOnboardingApplicationStatusAction(
 }
 
 export async function convertOnboardingApplicationToBusinessAction(
-  rawInput: z.infer<typeof convertOnboardingApplicationSchema>,
+  rawInput: z.input<typeof convertOnboardingApplicationSchema>,
 ) {
   const auth = await requirePlatformAdmin();
   if (!auth.success) return auth;
@@ -629,6 +856,7 @@ export async function convertOnboardingApplicationToBusinessAction(
     initials,
     ownerName: application.owner_name,
     ownerEmail: application.owner_email,
+    ownerPassword: input.ownerPassword,
     planCode: input.planCode,
     trialMonths: input.trialMonths,
     referralCode,
