@@ -26,6 +26,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import {
+  BusinessType,
   SocialConnectionStatus,
   SocialPlatform,
 } from "@/prisma/generated/prisma/enums";
@@ -41,6 +42,14 @@ interface BusinessSettingsFormProps {
     imageUrl: string | null;
     latitude: number | null;
     longitude: number | null;
+    growth_settings: {
+      business_type: BusinessType;
+      max_discount_percent: number;
+      enable_student_promo: boolean;
+      avoid_cheap_wording: boolean;
+      weather_hooks_enabled: boolean;
+      tone_profile: string;
+    } | null;
     social_connections: {
       id: string;
       platform: SocialPlatform;
@@ -50,11 +59,13 @@ interface BusinessSettingsFormProps {
       token_expires_at: Date | null;
     }[];
   };
+  socialEntitled: boolean;
   socialPublishingEnabled: boolean;
 }
 
 export function BusinessSettingsForm({
   business,
+  socialEntitled,
   socialPublishingEnabled,
 }: BusinessSettingsFormProps) {
   const router = useRouter();
@@ -106,6 +117,7 @@ export function BusinessSettingsForm({
   const connectHref = `/api/social/meta/connect?businessSlug=${encodeURIComponent(
     business.slug,
   )}`;
+  const socialActionsDisabled = !socialEntitled || !socialPublishingEnabled;
 
   return (
     <form action={onSubmit} className="space-y-6">
@@ -218,6 +230,82 @@ export function BusinessSettingsForm({
       <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-white border-b border-zinc-100 p-6">
           <CardTitle className="text-xl font-bold text-zinc-900">
+            Growth Engine Settings
+          </CardTitle>
+          <CardDescription className="text-zinc-500">
+            Configure defaults for opportunity and campaign generation.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 bg-white space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="growthBusinessType">Business Type</Label>
+              <select
+                id="growthBusinessType"
+                name="growthBusinessType"
+                defaultValue={business.growth_settings?.business_type || "SALON"}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="SALON">Salon</option>
+                <option value="SPA">Spa</option>
+                <option value="CLINIC">Clinic</option>
+                <option value="BARBERSHOP">Barbershop</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="growthMaxDiscountPercent">Max Discount %</Label>
+              <Input
+                id="growthMaxDiscountPercent"
+                name="growthMaxDiscountPercent"
+                type="number"
+                min={1}
+                max={80}
+                step="1"
+                defaultValue={business.growth_settings?.max_discount_percent ?? 20}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex items-center gap-2 text-sm text-zinc-700">
+              <input
+                type="checkbox"
+                name="growthEnableStudentPromo"
+                defaultChecked={business.growth_settings?.enable_student_promo || false}
+              />
+              Enable student promo templates
+            </label>
+            <label className="flex items-center gap-2 text-sm text-zinc-700">
+              <input
+                type="checkbox"
+                name="growthAvoidCheapWording"
+                defaultChecked={business.growth_settings?.avoid_cheap_wording || false}
+              />
+              Avoid “cheap” wording
+            </label>
+            <label className="flex items-center gap-2 text-sm text-zinc-700">
+              <input
+                type="checkbox"
+                name="growthWeatherHooksEnabled"
+                defaultChecked={business.growth_settings?.weather_hooks_enabled || false}
+              />
+              Enable weather hooks (optional)
+            </label>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="growthToneProfile">Tone Profile</Label>
+            <Input
+              id="growthToneProfile"
+              name="growthToneProfile"
+              defaultValue={business.growth_settings?.tone_profile || "taglish-natural"}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
+        <CardHeader className="bg-white border-b border-zinc-100 p-6">
+          <CardTitle className="text-xl font-bold text-zinc-900">
             Social Channels
           </CardTitle>
           <CardDescription className="text-zinc-500">
@@ -226,12 +314,17 @@ export function BusinessSettingsForm({
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 bg-white space-y-4">
-          {!socialPublishingEnabled && (
+          {!socialEntitled ? (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5" />
+              Social publishing is available on the Pro plan.
+            </div>
+          ) : !socialPublishingEnabled ? (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 flex items-start gap-2">
               <AlertCircle className="h-4 w-4 mt-0.5" />
               Social publishing is currently limited to pilot businesses.
             </div>
-          )}
+          ) : null}
 
           {[facebookConnection, instagramConnection].map((connection, index) => {
             const platform = index === 0 ? "FACEBOOK_PAGE" : "INSTAGRAM_BUSINESS";
@@ -272,7 +365,7 @@ export function BusinessSettingsForm({
                     type="button"
                     variant="outline"
                     asChild
-                    disabled={!socialPublishingEnabled}
+                    disabled={socialActionsDisabled}
                   >
                     <Link href={connectHref}>
                       {connection ? (
@@ -293,7 +386,7 @@ export function BusinessSettingsForm({
                       type="button"
                       variant="ghost"
                       className="text-red-600 hover:text-red-700"
-                      disabled={!socialPublishingEnabled}
+                      disabled={socialActionsDisabled}
                       onClick={() => disconnectConnection(connection.id)}
                     >
                       {disconnectingId ? (

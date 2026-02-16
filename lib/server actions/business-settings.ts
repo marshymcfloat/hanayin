@@ -47,7 +47,20 @@ export async function updateBusinessAction(
     const latitude = latStr ? parseFloat(latStr) : null;
     const longitude = lngStr ? parseFloat(lngStr) : null;
 
-    await prisma.business.update({
+    const growthBusinessType = (formData.get("growthBusinessType") as string) || "SALON";
+    const growthMaxDiscountPercentRaw = formData.get("growthMaxDiscountPercent") as string;
+    const growthMaxDiscountPercent = Math.min(
+      80,
+      Math.max(1, Number.parseFloat(growthMaxDiscountPercentRaw || "20") || 20),
+    );
+    const growthEnableStudentPromo = formData.get("growthEnableStudentPromo") === "on";
+    const growthAvoidCheapWording = formData.get("growthAvoidCheapWording") === "on";
+    const growthWeatherHooksEnabled = formData.get("growthWeatherHooksEnabled") === "on";
+    const growthToneProfile =
+      ((formData.get("growthToneProfile") as string) || "taglish-natural").trim() ||
+      "taglish-natural";
+
+    const updatedBusiness = await prisma.business.update({
       where: { slug: businessSlug },
       data: {
         name,
@@ -56,6 +69,27 @@ export async function updateBusinessAction(
         imageUrl,
         latitude: latitude,
         longitude: longitude,
+      },
+    });
+
+    await prisma.businessGrowthSettings.upsert({
+      where: { business_id: updatedBusiness.id },
+      create: {
+        business_id: updatedBusiness.id,
+        business_type: growthBusinessType as "SALON" | "SPA" | "CLINIC" | "BARBERSHOP",
+        max_discount_percent: growthMaxDiscountPercent,
+        enable_student_promo: growthEnableStudentPromo,
+        avoid_cheap_wording: growthAvoidCheapWording,
+        weather_hooks_enabled: growthWeatherHooksEnabled,
+        tone_profile: growthToneProfile,
+      },
+      update: {
+        business_type: growthBusinessType as "SALON" | "SPA" | "CLINIC" | "BARBERSHOP",
+        max_discount_percent: growthMaxDiscountPercent,
+        enable_student_promo: growthEnableStudentPromo,
+        avoid_cheap_wording: growthAvoidCheapWording,
+        weather_hooks_enabled: growthWeatherHooksEnabled,
+        tone_profile: growthToneProfile,
       },
     });
 

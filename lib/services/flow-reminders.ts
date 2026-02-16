@@ -6,14 +6,20 @@ import {
   getStartOfDayPH,
 } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 const FLOW_REMINDER_EVENT_TYPE = "FLOW_REMINDER_SENT";
 const FLOW_REMINDER_SEND_CONCURRENCY = 5;
 
-function getPublicBookingLink(businessSlug: string) {
+function getPublicBaseUrl() {
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://serviceflow.store")
     .replace(/\/$/, "");
-  return `${baseUrl}/${businessSlug}`;
+  return baseUrl;
+}
+
+function toPublicBusinessLink(baseUrl: string, businessSlug: string, websiteEnabled: boolean) {
+  const suffix = websiteEnabled ? "" : "/booking";
+  return `${baseUrl}/${businessSlug}${suffix}`;
 }
 
 async function runInChunks<T>(
@@ -41,6 +47,8 @@ function readPayloadString(
 
 export async function sendFlowReminders() {
   const resend = new Resend(process.env.RESEND_API_KEY);
+  const baseUrl = getPublicBaseUrl();
+  const businessLinkCache = new Map<string, string>();
 
   try {
     // Use Philippine timezone for "today"
@@ -76,6 +84,16 @@ export async function sendFlowReminders() {
 
     let sentCount = 0;
     let duplicateSkips = 0;
+
+    async function getPublicBookingLink(businessSlug: string) {
+      const cached = businessLinkCache.get(businessSlug);
+      if (cached) return cached;
+
+      const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
+      const link = toPublicBusinessLink(baseUrl, businessSlug, entitlements.website);
+      businessLinkCache.set(businessSlug, link);
+      return link;
+    }
 
     // 2. For each flow, find bookings that trigger it today
     for (const flow of activeFlows) {
@@ -222,7 +240,7 @@ export async function sendFlowReminders() {
           const serviceName = flow.trigger_service.name;
           const nextServiceName = flow.suggested_service.name;
 
-          const bookingLink = getPublicBookingLink(item.booking.business.slug);
+          const bookingLink = await getPublicBookingLink(item.booking.business.slug);
 
           const isRequired = flow.type === "REQUIRED";
 

@@ -5,6 +5,7 @@ const loggerMock = vi.hoisted(() => ({
   info: vi.fn(),
   error: vi.fn(),
 }));
+const getBusinessEntitlementsBySlugMock = vi.hoisted(() => vi.fn());
 const prismaMock = vi.hoisted(() => ({
   serviceFlow: {
     findMany: vi.fn(),
@@ -34,12 +35,22 @@ vi.mock("@/prisma/prisma", () => ({
   prisma: prismaMock,
 }));
 
+vi.mock("@/lib/features/plan-entitlements", () => ({
+  getBusinessEntitlementsBySlug: getBusinessEntitlementsBySlugMock,
+}));
+
 import { sendFlowReminders } from "./flow-reminders";
 
 describe("sendFlowReminders", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     resendSendMock.mockResolvedValue({ error: null });
+    getBusinessEntitlementsBySlugMock.mockResolvedValue({
+      website: true,
+      growth: false,
+      social: false,
+      ai: false,
+    });
   });
 
   it("skips sending when same flow/customer was already reminded today", async () => {
@@ -67,6 +78,7 @@ describe("sendFlowReminders", () => {
           },
           business: {
             name: "Beauty Spot",
+            slug: "beauty-spot",
           },
           business_id: "biz_1",
         },
@@ -93,4 +105,3 @@ describe("sendFlowReminders", () => {
     );
   });
 });
-

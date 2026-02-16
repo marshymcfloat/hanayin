@@ -8,6 +8,7 @@ import { prisma } from "@/prisma/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { requireOwnerTenantWriteAccess, requireTenantAccess } from "@/lib/auth/guards";
 import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 import { generateSocialCaptionDraft } from "@/lib/services/social/caption-generator";
 import { generateAndUploadPromoImage } from "@/lib/services/social/promo-image";
 import { type SocialImageProfile } from "@/lib/services/social/image-profiles";
@@ -28,6 +29,19 @@ export type CreateSaleEventParams = {
   socialCaptionOverride?: string;
   socialMediaUrl?: string;
   socialImageProfile?: SocialImageProfile;
+};
+
+export type UpdateSaleEventParams = {
+  id: number;
+  businessSlug: string;
+  title: string;
+  description?: string;
+  startDate: Date;
+  endDate: Date;
+  discountType: DiscountType;
+  discountValue: number;
+  serviceIds: number[];
+  packageIds: number[];
 };
 
 export async function getSaleEvents(businessSlug: string) {
@@ -119,6 +133,14 @@ export async function createSaleEvent(params: CreateSaleEventParams) {
     let captionFinal: string | null = null;
 
     if (shouldCreateSocialDraft) {
+      const entitlements = await getBusinessEntitlementsBySlug(params.businessSlug);
+      if (!entitlements.social) {
+        return {
+          success: false,
+          error: "Social publishing is available on the Pro plan.",
+        };
+      }
+
       if (!isSocialPublishingEnabledForBusiness(params.businessSlug)) {
         return {
           success: false,
@@ -267,6 +289,97 @@ export async function createSaleEvent(params: CreateSaleEventParams) {
   } catch (error) {
     console.error("Error creating sale event:", error);
     return { success: false, error: "Failed to create sale event" };
+  }
+}
+
+export async function updateSaleEvent(params: UpdateSaleEventParams) {
+  const auth = await requireOwnerTenantWriteAccess(params.businessSlug);
+  if (!auth.success) return auth;
+
+  try {
+    const serviceIds = Array.from(new Set(params.serviceIds));
+    const packageIds = Array.from(new Set(params.packageIds));
+
+    if (serviceIds.length === 0 && packageIds.length === 0) {
+      return {
+        success: false,
+        error: "Select at least one service or package for this sale event.",
+      };
+    }
+
+    const existing = await prisma.saleEvent.findFirst({
+      where: {
+        id: params.id,
+        business: { slug: params.businessSlug },
+      },
+      select: { id: true, business_id: true },
+    });
+
+    if (!existing) {
+      return {
+        success: false,
+        error: "Sale event not found or unauthorized.",
+      };
+    }
+
+    const business = await prisma.business.findUnique({
+      where: { id: existing.business_id },
+      include: {
+        services: {
+          where: { id: { in: serviceIds } },
+          select: { id: true },
+        },
+        packages: {
+          where: { id: { in: packageIds } },
+          select: { id: true },
+        },
+      },
+    });
+
+    if (!business) {
+      return { success: false, error: "Business not found." };
+    }
+
+    if (business.services.length !== serviceIds.length) {
+      return {
+        success: false,
+        error: "One or more selected services are invalid for this business.",
+      };
+    }
+
+    if (business.packages.length !== packageIds.length) {
+      return {
+        success: false,
+        error: "One or more selected packages are invalid for this business.",
+      };
+    }
+
+    await prisma.saleEvent.update({
+      where: { id: existing.id },
+      data: {
+        title: params.title,
+        description: params.description,
+        start_date: params.startDate,
+        end_date: params.endDate,
+        discount_type: params.discountType,
+        discount_value: params.discountValue,
+        applicable_services: {
+          set: [],
+          connect: serviceIds.map((id) => ({ id })),
+        },
+        applicable_packages: {
+          set: [],
+          connect: packageIds.map((id) => ({ id })),
+        },
+      },
+    });
+
+    revalidatePath(`/app/${params.businessSlug}/sale-events`);
+    revalidateTag(tenantCacheTags.businessBySlug(params.businessSlug), "max");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating sale event:", error);
+    return { success: false, error: "Failed to update sale event" };
   }
 }
 
