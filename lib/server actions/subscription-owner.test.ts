@@ -2,9 +2,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const requireAuthMock = vi.hoisted(() => vi.fn());
 const getBillingCollectionModeMock = vi.hoisted(() => vi.fn());
+const ensureDefaultPlansMock = vi.hoisted(() => vi.fn());
 const revalidatePathMock = vi.hoisted(() => vi.fn());
 const publishEventMock = vi.hoisted(() => vi.fn());
 const prismaMock = vi.hoisted(() => ({
+  business: {
+    findUnique: vi.fn(),
+  },
+  subscriptionPlan: {
+    findUnique: vi.fn(),
+  },
+  subscriptionPlanUpgradeRequest: {
+    findFirst: vi.fn(),
+    create: vi.fn(),
+  },
   subscriptionInvoice: {
     findUnique: vi.fn(),
   },
@@ -16,8 +27,10 @@ vi.mock("@/lib/auth/guards", () => ({
 }));
 
 vi.mock("@/features/billing/subscription-service", () => ({
+  SUBSCRIPTION_PLAN_CODES: ["STARTER_MONTHLY", "PLUS_MONTHLY", "PRO_MONTHLY"],
   createCheckoutForInvoice: vi.fn(),
   createInvoiceForSubscription: vi.fn(),
+  ensureDefaultPlans: ensureDefaultPlansMock,
   getBillingCollectionMode: getBillingCollectionModeMock,
 }));
 
@@ -33,11 +46,15 @@ vi.mock("next/cache", () => ({
   revalidatePath: revalidatePathMock,
 }));
 
-import { submitManualPaymentReferenceAction } from "./subscription-owner";
+import {
+  requestOwnerPlanUpgradeAction,
+  submitManualPaymentReferenceAction,
+} from "./subscription-owner";
 
 describe("submitManualPaymentReferenceAction", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    ensureDefaultPlansMock.mockResolvedValue(undefined);
     requireAuthMock.mockResolvedValue({
       success: true,
       businessSlug: "demo-biz",
@@ -186,5 +203,117 @@ describe("submitManualPaymentReferenceAction", () => {
     });
     expect(prismaMock.$transaction).not.toHaveBeenCalled();
     expect(publishEventMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("requestOwnerPlanUpgradeAction", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    ensureDefaultPlansMock.mockResolvedValue(undefined);
+    requireAuthMock.mockResolvedValue({
+      success: true,
+      businessSlug: "demo-biz",
+      session: {
+        user: {
+          id: "owner_user_1",
+          role: "OWNER",
+        },
+      },
+    });
+  });
+
+  it("creates a pending upgrade request for an owner", async () => {
+    prismaMock.business.findUnique.mockResolvedValue({
+      id: "biz_1",
+      subscriptions: [
+        {
+          id: "sub_1",
+          plan_id: "plan_starter",
+          plan: {
+            id: "plan_starter",
+            code: "STARTER_MONTHLY",
+            price_amount: 149900,
+          },
+        },
+      ],
+    });
+    prismaMock.subscriptionPlan.findUnique.mockResolvedValue({
+      id: "plan_plus",
+      code: "PLUS_MONTHLY",
+      name: "Plus Monthly",
+      price_amount: 249900,
+      is_active: true,
+    });
+    prismaMock.subscriptionPlanUpgradeRequest.findFirst.mockResolvedValue(null);
+    prismaMock.subscriptionPlanUpgradeRequest.create.mockResolvedValue({
+      id: "req_1",
+      status: "PENDING",
+    });
+
+    const result = await requestOwnerPlanUpgradeAction({
+      targetPlanCode: "PLUS_MONTHLY",
+      note: "Need advanced reports",
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        success: true,
+      }),
+    );
+    expect(prismaMock.subscriptionPlanUpgradeRequest.create).toHaveBeenCalledWith({
+      data: {
+        business_id: "biz_1",
+        business_subscription_id: "sub_1",
+        requested_by_user_id: "owner_user_1",
+        current_plan_id: "plan_starter",
+        target_plan_id: "plan_plus",
+        request_note: "Need advanced reports",
+      },
+    });
+    expect(revalidatePathMock).toHaveBeenCalledWith("/app/demo-biz/billing");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/platform");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/platform/businesses");
+  });
+
+  it("blocks creating another request when one is already pending", async () => {
+    prismaMock.business.findUnique.mockResolvedValue({
+      id: "biz_1",
+      subscriptions: [
+        {
+          id: "sub_1",
+          plan_id: "plan_starter",
+          plan: {
+            id: "plan_starter",
+            code: "STARTER_MONTHLY",
+            price_amount: 149900,
+          },
+        },
+      ],
+    });
+    prismaMock.subscriptionPlan.findUnique.mockResolvedValue({
+      id: "plan_plus",
+      code: "PLUS_MONTHLY",
+      name: "Plus Monthly",
+      price_amount: 249900,
+      is_active: true,
+    });
+    prismaMock.subscriptionPlanUpgradeRequest.findFirst.mockResolvedValue({
+      id: "req_old",
+      target_plan: {
+        name: "Plus Monthly",
+        code: "PLUS_MONTHLY",
+      },
+    });
+
+    const result = await requestOwnerPlanUpgradeAction({
+      targetPlanCode: "PLUS_MONTHLY",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error:
+        "A pending upgrade request already exists for Plus Monthly (PLUS_MONTHLY).",
+    });
+    expect(prismaMock.subscriptionPlanUpgradeRequest.create).not.toHaveBeenCalled();
   });
 });

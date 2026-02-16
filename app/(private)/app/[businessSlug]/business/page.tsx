@@ -2,6 +2,7 @@ import { prisma } from "@/prisma/prisma";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { BusinessSettingsForm } from "./BusinessSettingsForm";
 import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 export default async function BusinessSettingsPage({
   params,
@@ -9,12 +10,15 @@ export default async function BusinessSettingsPage({
   params: Promise<{ businessSlug: string }>;
 }) {
   const { businessSlug } = await params;
+  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
+  const socialEntitled = entitlements.social;
   const socialPublishingEnabled =
-    isSocialPublishingEnabledForBusiness(businessSlug);
+    socialEntitled && isSocialPublishingEnabledForBusiness(businessSlug);
 
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
     include: {
+      growth_settings: true,
       social_connections: {
         orderBy: { platform: "asc" },
       },
@@ -35,6 +39,7 @@ export default async function BusinessSettingsPage({
         />
         <BusinessSettingsForm
           business={business}
+          socialEntitled={socialEntitled}
           socialPublishingEnabled={socialPublishingEnabled}
         />
       </section>

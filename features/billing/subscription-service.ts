@@ -7,6 +7,16 @@ export const SUBSCRIPTION_READ_ONLY_ERROR = "SUBSCRIPTION_READ_ONLY";
 export const MANUAL_COLLECTION_MODE_ERROR = "MANUAL_COLLECTION_MODE";
 const PHP_CURRENCY = "PHP";
 const REFERRAL_REWARD_CAP_MONTHS = 6;
+const LEGACY_PRO_ANNUAL_PLAN_CODE = "PRO_ANNUAL";
+
+export const SUBSCRIPTION_PLAN_CODES = [
+  "STARTER_MONTHLY",
+  "PLUS_MONTHLY",
+  "PRO_MONTHLY",
+] as const;
+export type SubscriptionPlanCode = (typeof SUBSCRIPTION_PLAN_CODES)[number];
+export const DEFAULT_SUBSCRIPTION_PLAN_CODE: SubscriptionPlanCode =
+  "STARTER_MONTHLY";
 
 export type SubscriptionEnforcementMode = "OFF" | "WARN_ONLY" | "ON";
 export type BillingCollectionMode = "MANUAL_ONLY" | "PAYMONGO_CHECKOUT";
@@ -138,52 +148,66 @@ export async function getTenantAccessState(businessSlug: string): Promise<Tenant
 }
 
 export async function ensureDefaultPlans() {
-  await prisma.$transaction(async (tx) => {
-    await tx.subscriptionPlan.upsert({
-      where: { code: "PRO_MONTHLY" },
-      create: {
-        code: "PRO_MONTHLY",
-        name: "Pro Monthly",
-        description: "ServiceFlow Pro monthly subscription",
-        billing_interval: BillingInterval.MONTHLY,
-        price_amount: 400_000,
-        currency: PHP_CURRENCY,
-        is_active: true,
-      },
-      update: {
-        name: "Pro Monthly",
-        billing_interval: BillingInterval.MONTHLY,
-        price_amount: 400_000,
-        currency: PHP_CURRENCY,
-        is_active: true,
-      },
-    });
+  const catalog: Array<{
+    code: SubscriptionPlanCode;
+    name: string;
+    description: string;
+    priceAmount: number;
+  }> = [
+    {
+      code: "STARTER_MONTHLY",
+      name: "Starter Monthly",
+      description: "ServiceFlow Starter monthly subscription",
+      priceAmount: 149_900,
+    },
+    {
+      code: "PLUS_MONTHLY",
+      name: "Plus Monthly",
+      description: "ServiceFlow Plus monthly subscription",
+      priceAmount: 249_900,
+    },
+    {
+      code: "PRO_MONTHLY",
+      name: "Pro Monthly",
+      description: "ServiceFlow Pro monthly subscription",
+      priceAmount: 399_900,
+    },
+  ];
 
-    await tx.subscriptionPlan.upsert({
-      where: { code: "PRO_ANNUAL" },
-      create: {
-        code: "PRO_ANNUAL",
-        name: "Pro Annual",
-        description: "ServiceFlow Pro annual subscription",
-        billing_interval: BillingInterval.YEARLY,
-        price_amount: 3_840_000,
-        currency: PHP_CURRENCY,
-        is_active: true,
-      },
-      update: {
-        name: "Pro Annual",
-        billing_interval: BillingInterval.YEARLY,
-        price_amount: 3_840_000,
-        currency: PHP_CURRENCY,
-        is_active: true,
-      },
-    });
-  });
+  await prisma.$transaction([
+    ...catalog.map((plan) =>
+      prisma.subscriptionPlan.upsert({
+        where: { code: plan.code },
+        create: {
+          code: plan.code,
+          name: plan.name,
+          description: plan.description,
+          billing_interval: BillingInterval.MONTHLY,
+          price_amount: plan.priceAmount,
+          currency: PHP_CURRENCY,
+          is_active: true,
+        },
+        update: {
+          name: plan.name,
+          description: plan.description,
+          billing_interval: BillingInterval.MONTHLY,
+          price_amount: plan.priceAmount,
+          currency: PHP_CURRENCY,
+          // Keep platform-admin availability toggles for existing plans.
+        },
+      }),
+    ),
+    // Keep legacy annual plan rows for backwards compatibility, but disable for new assignments.
+    prisma.subscriptionPlan.updateMany({
+      where: { code: LEGACY_PRO_ANNUAL_PLAN_CODE },
+      data: { is_active: false },
+    }),
+  ]);
 }
 
 export async function ensureBusinessSubscription(
   businessId: string,
-  opts?: { planCode?: "PRO_MONTHLY" | "PRO_ANNUAL"; trialMonths?: number },
+  opts?: { planCode?: SubscriptionPlanCode; trialMonths?: number },
 ) {
   const existing = await prisma.businessSubscription.findUnique({
     where: { business_id: businessId },
@@ -193,7 +217,7 @@ export async function ensureBusinessSubscription(
   });
   if (existing) return existing;
 
-  const planCode = opts?.planCode ?? "PRO_MONTHLY";
+  const planCode = opts?.planCode ?? DEFAULT_SUBSCRIPTION_PLAN_CODE;
   const plan = await prisma.subscriptionPlan.findUnique({
     where: { code: planCode },
   });

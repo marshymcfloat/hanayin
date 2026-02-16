@@ -5,13 +5,21 @@ import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publ
 import { prisma } from "@/prisma/prisma";
 import { SocialPostsPageClient } from "@/components/dashboard/owner/social-posts/SocialPostsPageClient";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { parseGrowthFlowContext } from "@/components/dashboard/owner/growth/types";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 export default async function SocialPostsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { businessSlug } = await params;
+  const [{ businessSlug }, rawSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+  const flowContext = parseGrowthFlowContext(rawSearchParams);
   const auth = await requireTenantAccess(businessSlug);
   if (!auth.success) {
     redirect("/");
@@ -23,6 +31,18 @@ export default async function SocialPostsPage({
         <h1 className="text-xl font-semibold text-zinc-900">Social Posts</h1>
         <p className="mt-2 text-sm text-zinc-500">
           Only owners can access social publishing.
+        </p>
+      </div>
+    );
+  }
+
+  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
+  if (!entitlements.social) {
+    return (
+      <div className="p-8">
+        <h1 className="text-xl font-semibold text-zinc-900">Social Posts</h1>
+        <p className="mt-2 text-sm text-zinc-500">
+          Social publishing is available on the Pro plan.
         </p>
       </div>
     );
@@ -76,6 +96,7 @@ export default async function SocialPostsPage({
       <SocialPostsPageClient
         businessSlug={businessSlug}
         initialPosts={business.social_posts}
+        flowContext={flowContext}
       />
     </div>
   );

@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { connection } from "next/server";
 import { prisma } from "@/prisma/prisma";
 import { getSiteUrl } from "@/lib/site-url";
+import { resolveEntitlements } from "@/lib/features/plan-entitlements";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connection();
@@ -37,6 +38,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: {
       slug: true,
       updated_at: true,
+      subscriptions: {
+        take: 1,
+        orderBy: { created_at: "desc" },
+        select: {
+          plan: {
+            select: {
+              code: true,
+            },
+          },
+        },
+      },
       _count: {
         select: {
           services: true,
@@ -50,6 +62,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const dynamicRoutes = publicBusinessRoutes
     .filter((business) => !reservedSlugs.has(business.slug.toLowerCase()))
+    .filter((business) => {
+      const planCode = business.subscriptions[0]?.plan.code;
+      return resolveEntitlements(planCode).website;
+    })
     .flatMap((business) => {
       const lastBusinessUpdate = business.updated_at
         .toISOString()

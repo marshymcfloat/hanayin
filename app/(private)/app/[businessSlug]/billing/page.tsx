@@ -1,10 +1,18 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-import { ensureBusinessSubscription, ensureDefaultPlans, ensureReferralCode, formatCentavosToPhp, getBillingCollectionMode } from "@/features/billing/subscription-service";
+import {
+  ensureBusinessSubscription,
+  ensureDefaultPlans,
+  ensureReferralCode,
+  formatCentavosToPhp,
+  getBillingCollectionMode,
+  SUBSCRIPTION_PLAN_CODES,
+} from "@/features/billing/subscription-service";
 import { authOptions } from "@/lib/next auth/options";
 import {
   createOwnerSubscriptionInvoiceAction,
+  requestOwnerPlanUpgradeAction,
   redirectOwnerSubscriptionCheckoutAction,
   submitManualPaymentReferenceAction,
 } from "@/lib/server actions/subscription-owner";
@@ -41,12 +49,14 @@ export default async function BillingPage({
   params: Promise<{ businessSlug: string }>;
   searchParams?: Promise<{
     manualSubmit?: string;
+    upgradeRequest?: string;
     error?: string;
   }>;
 }) {
   const { businessSlug } = await params;
   const query = await searchParams;
   const submitSuccess = query?.manualSubmit === "1";
+  const upgradeRequestSuccess = query?.upgradeRequest === "1";
   const submitError = query?.error ?? null;
 
   const session = await getServerSession(authOptions);
@@ -103,6 +113,62 @@ export default async function BillingPage({
   const openInvoiceManualPayment = openInvoice
     ? getManualPaymentMetadata(openInvoice.metadata)
     : null;
+  const availableUpgradePlans = await prisma.subscriptionPlan.findMany({
+    where: {
+      code: { in: [...SUBSCRIPTION_PLAN_CODES] },
+      is_active: true,
+      price_amount: { gt: subscription.plan.price_amount },
+    },
+    select: {
+      id: true,
+      code: true,
+      name: true,
+      price_amount: true,
+    },
+    orderBy: [{ price_amount: "asc" }, { code: "asc" }],
+  });
+  const pendingPlanUpgradeRequest = await prisma.subscriptionPlanUpgradeRequest.findFirst({
+    where: {
+      business_id: business.id,
+      status: "PENDING",
+    },
+    include: {
+      target_plan: {
+        select: {
+          name: true,
+          code: true,
+        },
+      },
+    },
+    orderBy: { created_at: "desc" },
+  });
+  const planUpgradeRequests = await prisma.subscriptionPlanUpgradeRequest.findMany({
+    where: {
+      business_id: business.id,
+    },
+    include: {
+      current_plan: {
+        select: {
+          name: true,
+          code: true,
+        },
+      },
+      target_plan: {
+        select: {
+          name: true,
+          code: true,
+          price_amount: true,
+        },
+      },
+      reviewed_by_user: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: { created_at: "desc" },
+    take: 6,
+  });
 
   async function createInvoiceFormAction() {
     "use server";
@@ -149,6 +215,23 @@ export default async function BillingPage({
     redirect(`/app/${businessSlug}/billing?manualSubmit=1`);
   }
 
+  async function requestPlanUpgradeFormAction(formData: FormData) {
+    "use server";
+    const targetPlanCode = String(formData.get("targetPlanCode") || "").trim();
+    const note = String(formData.get("note") || "").trim();
+
+    const result = await requestOwnerPlanUpgradeAction({
+      targetPlanCode,
+      note: note || undefined,
+    });
+
+    if (!result.success) {
+      redirect(`/app/${businessSlug}/billing?error=${encodeURIComponent(result.error)}`);
+    }
+
+    redirect(`/app/${businessSlug}/billing?upgradeRequest=1`);
+  }
+
   return (
     <main className="min-h-screen bg-background p-6 md:p-10">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -163,6 +246,11 @@ export default async function BillingPage({
           <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-800">
             Manual payment reference submitted. The ServiceFlow team will validate and mark the
             invoice once confirmed.
+          </div>
+        ) : null}
+        {upgradeRequestSuccess ? (
+          <div className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-sm text-blue-800">
+            Upgrade request submitted. The ServiceFlow team will review and update your plan.
           </div>
         ) : null}
         {submitError ? (
@@ -191,6 +279,110 @@ export default async function BillingPage({
               Recurring {subscription.recurring_enabled ? "enabled" : "disabled"}
             </p>
           </article>
+        </section>
+
+        <section className="rounded-2xl border bg-white p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">Plan Upgrade</h2>
+              <p className="text-sm text-muted-foreground">
+                Request a higher plan when you need more features and limits.
+              </p>
+            </div>
+          </div>
+
+          {pendingPlanUpgradeRequest ? (
+            <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <p className="text-sm font-medium text-amber-900">
+                Pending request to {pendingPlanUpgradeRequest.target_plan.name} (
+                {pendingPlanUpgradeRequest.target_plan.code})
+              </p>
+              <p className="mt-1 text-xs text-amber-800">
+                Submitted {pendingPlanUpgradeRequest.created_at.toLocaleDateString("en-PH")}.
+                We will review this request shortly.
+              </p>
+            </div>
+          ) : availableUpgradePlans.length > 0 ? (
+            <form action={requestPlanUpgradeFormAction} className="mt-4 grid gap-3 md:grid-cols-3">
+              <label className="space-y-1 text-sm">
+                <span className="font-medium">Target plan</span>
+                <select
+                  name="targetPlanCode"
+                  required
+                  className="h-10 w-full rounded border border-stone-300 bg-white px-3 text-sm"
+                  defaultValue={availableUpgradePlans[0]?.code}
+                >
+                  {availableUpgradePlans.map((plan) => (
+                    <option key={plan.id} value={plan.code}>
+                      {plan.name} ({formatCentavosToPhp(plan.price_amount)})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="space-y-1 text-sm md:col-span-2">
+                <span className="font-medium">Why are you upgrading? (optional)</span>
+                <textarea
+                  name="note"
+                  rows={2}
+                  maxLength={1000}
+                  placeholder="Example: Need Plus for growth opportunities and advanced reporting."
+                  className="w-full rounded border border-stone-300 bg-white px-3 py-2 text-sm"
+                />
+              </label>
+              <div className="md:col-span-3">
+                <button
+                  type="submit"
+                  className="inline-flex w-fit rounded-lg bg-black px-4 py-2 text-sm font-medium text-white"
+                >
+                  Request Upgrade
+                </button>
+              </div>
+            </form>
+          ) : (
+            <p className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-600">
+              You are already on the highest available plan.
+            </p>
+          )}
+
+          <div className="mt-6 overflow-x-auto">
+            <h3 className="text-sm font-semibold">Recent Upgrade Requests</h3>
+            <table className="mt-2 w-full text-left text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="py-2">Requested</th>
+                  <th className="py-2">From</th>
+                  <th className="py-2">To</th>
+                  <th className="py-2">Status</th>
+                  <th className="py-2">Reviewed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {planUpgradeRequests.length === 0 ? (
+                  <tr>
+                    <td className="py-3 text-muted-foreground" colSpan={5}>
+                      No upgrade requests yet.
+                    </td>
+                  </tr>
+                ) : (
+                  planUpgradeRequests.map((request) => (
+                    <tr key={request.id} className="border-b last:border-0">
+                      <td className="py-2">
+                        {request.created_at.toLocaleDateString("en-PH")}
+                      </td>
+                      <td className="py-2">{request.current_plan.code}</td>
+                      <td className="py-2">{request.target_plan.code}</td>
+                      <td className="py-2">{request.status}</td>
+                      <td className="py-2">
+                        {request.reviewed_at
+                          ? request.reviewed_at.toLocaleDateString("en-PH")
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section className="rounded-2xl border bg-white p-6">
