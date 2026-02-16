@@ -25,7 +25,9 @@ export default async function PlatformAuditPage() {
   });
 
   const uniqueActionTypes = new Set(logs.map((log) => log.action)).size;
-  const systemActions = logs.filter((log) => !log.actor_user && !log.actor_email).length;
+  const systemActions = logs.filter(
+    (log) => !log.actor_user && !log.actor_email,
+  ).length;
   const userActions = logs.length - systemActions;
 
   return (
@@ -37,7 +39,11 @@ export default async function PlatformAuditPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <PlatformMetricCard label="Total Logs" value={logs.length} />
-        <PlatformMetricCard label="Action Types" value={uniqueActionTypes} tone="accent" />
+        <PlatformMetricCard
+          label="Action Types"
+          value={uniqueActionTypes}
+          tone="accent"
+        />
         <PlatformMetricCard label="User Actions" value={userActions} />
         <PlatformMetricCard label="System Actions" value={systemActions} />
       </div>
@@ -46,7 +52,7 @@ export default async function PlatformAuditPage() {
         <div className={platformTableContainerClass}>
           <table className={platformTableClass}>
             <thead>
-              <tr className="border-b border-[var(--pf-border)]">
+              <tr className="border-b border-stone-200">
                 <th className={platformTableHeadClass}>Time</th>
                 <th className={platformTableHeadClass}>Action</th>
                 <th className={platformTableHeadClass}>Target</th>
@@ -56,22 +62,36 @@ export default async function PlatformAuditPage() {
             </thead>
             <tbody>
               {logs.map((log) => (
-                <tr key={log.id} className="border-b border-[var(--pf-border)]/80 last:border-0">
+                <tr
+                  key={log.id}
+                  className="border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors"
+                >
                   <td className={`${platformTableCellClass} min-w-[160px]`}>
                     {formatPlatformDateTime(log.created_at)}
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[190px] max-w-[260px] ${platformTableWrapCellClass}`}>
-                    <p className="font-medium text-[var(--pf-text)]">{log.action}</p>
+                  <td
+                    className={`${platformTableCellClass} min-w-[190px] max-w-[260px] ${platformTableWrapCellClass}`}
+                  >
+                    <p className="font-medium text-stone-900">{log.action}</p>
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[210px] max-w-[320px] ${platformTableWrapCellClass}`}>
+                  <td
+                    className={`${platformTableCellClass} min-w-[210px] max-w-[320px] ${platformTableWrapCellClass}`}
+                  >
                     <p>{log.target_type}</p>
-                    <p className="text-xs text-[var(--pf-muted)]">{log.target_id}</p>
+                    <p className="text-xs text-stone-500">{log.target_id}</p>
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[160px] max-w-[220px] ${platformTableWrapCellClass}`}>
+                  <td
+                    className={`${platformTableCellClass} min-w-[160px] max-w-[220px] ${platformTableWrapCellClass}`}
+                  >
                     {log.business?.name ?? "-"}
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[200px] max-w-[280px] ${platformTableWrapCellClass}`}>
-                    {log.actor_user?.name ?? log.actor_user?.email ?? log.actor_email ?? "SYSTEM"}
+                  <td
+                    className={`${platformTableCellClass} min-w-[200px] max-w-[280px] ${platformTableWrapCellClass}`}
+                  >
+                    {log.actor_user?.name ??
+                      log.actor_user?.email ??
+                      log.actor_email ??
+                      "SYSTEM"}
                   </td>
                 </tr>
               ))}

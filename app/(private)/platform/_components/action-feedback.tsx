@@ -1,66 +1,41 @@
-import { cn } from "@/lib/utils";
-
 const DEFAULT_ERROR_MESSAGE = "We couldn't complete that action. Please try again.";
 const DEFAULT_SUCCESS_MESSAGE = "Action completed successfully.";
-const MAX_FLASH_MESSAGE_LENGTH = 180;
 
-type RawSearchParamValue = string | string[] | undefined;
-type RawSearchParams = Record<string, RawSearchParamValue>;
-export type PlatformSearchParams = RawSearchParams | Promise<RawSearchParams>;
+type SearchParamValue = string | string[] | undefined;
+type SearchParamsObject = Record<string, SearchParamValue>;
+
+export type PlatformSearchParams = SearchParamsObject | Promise<SearchParamsObject> | undefined;
 
 export type PlatformFlashMessage = {
   tone: "error" | "success";
   message: string;
 };
 
-function normalizeWhitespace(value: string) {
-  return value.replace(/\s+/g, " ").trim();
+function normalizeMessage(value: string) {
+  return value.trim().replace(/\s+/g, " ");
 }
 
-function capLength(value: string) {
-  return value.slice(0, MAX_FLASH_MESSAGE_LENGTH);
-}
-
-function decodeSearchParam(value: string) {
-  const withSpaces = value.replaceAll("+", " ");
-  try {
-    return decodeURIComponent(withSpaces);
-  } catch {
-    return withSpaces;
-  }
-}
-
-function readFirstSearchParam(value: RawSearchParamValue) {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
+function firstParamValue(value: SearchParamValue) {
+  if (Array.isArray(value)) return value[0];
   return value;
 }
 
-function sanitizeFlashMessage(rawMessage: string, fallback: string) {
-  const decoded = decodeSearchParam(rawMessage);
-  const normalized = normalizeWhitespace(decoded);
-  if (!normalized) {
-    return fallback;
+function decodeParam(raw: string) {
+  try {
+    return decodeURIComponent(raw.replace(/\+/g, " "));
+  } catch {
+    return raw;
   }
-  return capLength(normalized);
 }
 
-function isRedirectControlFlowError(error: unknown) {
-  if (!error) return false;
-
-  if (typeof error === "object") {
-    const digest = (error as { digest?: unknown }).digest;
-    if (typeof digest === "string" && digest.startsWith("NEXT_REDIRECT")) {
-      return true;
-    }
-  }
-
-  return error instanceof Error && error.message === "NEXT_REDIRECT";
+function isRedirectError(error: unknown): error is { digest: string } {
+  if (!error || typeof error !== "object") return false;
+  const digest = (error as { digest?: unknown }).digest;
+  return typeof digest === "string" && digest.startsWith("NEXT_REDIRECT");
 }
 
-export function rethrowIfRedirectError(error: unknown) {
-  if (isRedirectControlFlowError(error)) {
+export function rethrowIfRedirectError(error: unknown): never | void {
+  if (isRedirectError(error)) {
     throw error;
   }
 }
@@ -69,60 +44,66 @@ export function toActionErrorMessage(
   error: unknown,
   fallback = DEFAULT_ERROR_MESSAGE,
 ) {
-  if (isRedirectControlFlowError(error)) {
+  if (isRedirectError(error)) {
     return fallback;
   }
 
   if (error instanceof Error) {
-    return sanitizeFlashMessage(error.message, fallback);
+    const message = normalizeMessage(error.message);
+    return message.length > 0 ? message : fallback;
   }
+
   if (typeof error === "string") {
-    return sanitizeFlashMessage(error, fallback);
+    const message = normalizeMessage(error);
+    return message.length > 0 ? message : fallback;
   }
+
   return fallback;
 }
 
-function addFlashParam(pathname: string, key: "error" | "success", rawMessage: string) {
+export function buildPlatformErrorPath(
+  pathname: string,
+  rawMessage?: string | null,
+) {
   const params = new URLSearchParams();
-  params.set(
-    key,
-    sanitizeFlashMessage(
-      rawMessage,
-      key === "error" ? DEFAULT_ERROR_MESSAGE : DEFAULT_SUCCESS_MESSAGE,
-    ),
-  );
+  const message = rawMessage && rawMessage.trim().length > 0
+    ? rawMessage.trim()
+    : DEFAULT_ERROR_MESSAGE;
+  params.set("error", message);
   return `${pathname}?${params.toString()}`;
 }
 
-export function buildPlatformErrorPath(pathname: string, rawMessage?: string | null) {
-  return addFlashParam(pathname, "error", rawMessage ?? DEFAULT_ERROR_MESSAGE);
-}
-
-export function buildPlatformSuccessPath(pathname: string, rawMessage?: string | null) {
-  return addFlashParam(pathname, "success", rawMessage ?? DEFAULT_SUCCESS_MESSAGE);
+export function buildPlatformSuccessPath(
+  pathname: string,
+  rawMessage?: string | null,
+) {
+  const params = new URLSearchParams();
+  const message = rawMessage && rawMessage.trim().length > 0
+    ? rawMessage.trim()
+    : DEFAULT_SUCCESS_MESSAGE;
+  params.set("success", message);
+  return `${pathname}?${params.toString()}`;
 }
 
 export async function getPlatformFlashMessage(
   searchParams?: PlatformSearchParams,
 ): Promise<PlatformFlashMessage | null> {
-  if (!searchParams) {
-    return null;
-  }
-
+  if (!searchParams) return null;
   const resolved = await searchParams;
-  const error = readFirstSearchParam(resolved.error);
-  if (error) {
+
+  const errorValue = firstParamValue(resolved.error);
+  if (errorValue) {
     return {
       tone: "error",
-      message: sanitizeFlashMessage(error, DEFAULT_ERROR_MESSAGE),
+      message: decodeParam(errorValue),
     };
   }
 
-  const success = readFirstSearchParam(resolved.success);
-  if (success) {
+  const successValue = firstParamValue(resolved.success);
+  if (successValue) {
     return {
       tone: "success",
-      message: sanitizeFlashMessage(success, DEFAULT_SUCCESS_MESSAGE),
+      message: decodeParam(successValue),
     };
   }
 
@@ -130,17 +111,19 @@ export async function getPlatformFlashMessage(
 }
 
 export function PlatformFlashNotice({ flash }: { flash: PlatformFlashMessage }) {
+  const toneClasses =
+    flash.tone === "error"
+      ? "border-rose-200 bg-rose-50 text-rose-800"
+      : "border-emerald-200 bg-emerald-50 text-emerald-800";
+
   return (
-    <article
+    <div
       role="status"
-      className={cn(
-        "rounded-2xl border p-4 text-sm",
-        flash.tone === "error"
-          ? "border-rose-300 bg-rose-50 text-rose-800"
-          : "border-emerald-300 bg-emerald-50 text-emerald-800",
-      )}
+      aria-live="polite"
+      className={`rounded-2xl border px-4 py-3 text-sm font-medium ${toneClasses}`}
     >
       {flash.message}
-    </article>
+    </div>
   );
 }
+

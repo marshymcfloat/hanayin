@@ -121,13 +121,16 @@ export function OutboxTableClient({
     messages,
     applyOptimisticUpdate,
   );
-  const [pendingById, setPendingById] = useState<Record<string, "retry" | "skip">>(
-    {},
-  );
+  const [pendingById, setPendingById] = useState<
+    Record<string, "retry" | "skip">
+  >({});
   const [actionError, setActionError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
-  const setPendingAction = (messageId: string, action: "retry" | "skip" | null) => {
+  const setPendingAction = (
+    messageId: string,
+    action: "retry" | "skip" | null,
+  ) => {
     setPendingById((previous) => {
       if (!action) {
         if (!previous[messageId]) return previous;
@@ -172,7 +175,7 @@ export function OutboxTableClient({
       <div className={platformTableContainerClass}>
         <table className={platformTableClass}>
           <thead>
-            <tr className="border-b border-[var(--pf-border)]">
+            <tr className="border-b border-stone-200">
               <th className={platformTableHeadClass}>Event</th>
               <th className={platformTableHeadClass}>Business</th>
               <th className={platformTableHeadClass}>Queue Status</th>
@@ -185,7 +188,8 @@ export function OutboxTableClient({
           <tbody>
             {optimisticMessages.map((message) => {
               const queueStatus = getQueueStatus(message);
-              const canRetry = !message.processed || Boolean(message.last_error);
+              const canRetry =
+                !message.processed || Boolean(message.last_error);
               const canSkip = !message.processed;
               const business = businessById[message.business_id];
               const pendingAction = pendingById[message.id];
@@ -195,33 +199,39 @@ export function OutboxTableClient({
               return (
                 <tr
                   key={message.id}
-                  className="border-b border-[var(--pf-border)]/80 last:border-0"
+                  className="border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors"
                 >
                   <td
                     className={`${platformTableCellClass} min-w-[190px] ${platformTableWrapCellClass}`}
                   >
-                    <p className="font-semibold">{message.event_type}</p>
-                    <p className="text-xs text-[var(--pf-muted)]">
+                    <p className="font-semibold text-stone-900">
+                      {message.event_type}
+                    </p>
+                    <p className="text-xs text-stone-500">
                       {message.aggregate_type} #{message.aggregate_id}
                     </p>
                   </td>
                   <td
                     className={`${platformTableCellClass} min-w-[180px] ${platformTableWrapCellClass}`}
                   >
-                    <p>{business?.name ?? "Unknown business"}</p>
-                    <p className="text-xs text-[var(--pf-muted)]">
+                    <p className="text-stone-900">
+                      {business?.name ?? "Unknown business"}
+                    </p>
+                    <p className="text-xs text-stone-500">
                       {business?.slug ?? message.business_id}
                     </p>
                   </td>
                   <td className={platformTableCellClass}>
                     <PlatformStatusBadge status={queueStatus} />
                   </td>
-                  <td className={platformTableCellClass}>{message.attempts}</td>
+                  <td className={`${platformTableCellClass} text-stone-600`}>
+                    {message.attempts}
+                  </td>
                   <td
                     className={`${platformTableCellClass} min-w-[280px] max-w-[440px] ${platformTableWrapCellClass}`}
                   >
                     <p
-                      className="text-xs leading-5 text-[var(--pf-muted)]"
+                      className="text-xs leading-5 text-stone-500"
                       title={fullError || undefined}
                     >
                       {formatErrorPreview(message.last_error)}
@@ -230,10 +240,13 @@ export function OutboxTableClient({
                   <td
                     className={`${platformTableCellClass} min-w-[150px] ${platformTableWrapCellClass}`}
                   >
-                    <p>{formatPlatformDateTime(new Date(message.created_at))}</p>
+                    <p className="text-stone-900">
+                      {formatPlatformDateTime(new Date(message.created_at))}
+                    </p>
                     {message.processed_at ? (
-                      <p className="text-xs text-[var(--pf-muted)]">
-                        Processed: {formatPlatformDateTime(new Date(message.processed_at))}
+                      <p className="text-xs text-stone-400">
+                        Processed:{" "}
+                        {formatPlatformDateTime(new Date(message.processed_at))}
                       </p>
                     ) : null}
                   </td>
@@ -260,7 +273,9 @@ export function OutboxTableClient({
                         </button>
                       ) : null}
                       {isRowPending ? (
-                        <span className="text-xs text-[var(--pf-muted)]">Saving...</span>
+                        <span className="text-xs text-stone-400">
+                          Saving...
+                        </span>
                       ) : null}
                     </div>
                   </td>

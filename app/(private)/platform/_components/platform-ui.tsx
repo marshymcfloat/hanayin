@@ -33,31 +33,33 @@ const DANGER_STATUSES = new Set([
   "REJECTED",
 ]);
 
+// Platform UI Components - Shared styles and components for the admin platform
+
 export const platformPanelClass =
-  "rounded-3xl border border-[var(--pf-border)] bg-[var(--pf-surface)]/95 shadow-[0_20px_44px_-30px_rgba(15,31,42,0.55)] backdrop-blur";
+  "rounded-xl border border-stone-200 bg-white shadow-sm";
 
 export const platformTableContainerClass =
-  "overflow-x-auto rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface-soft)]/70";
+  "overflow-hidden overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-sm";
 
 export const platformTableClass = "min-w-full text-left text-sm";
 export const platformTableHeadClass =
-  "px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--pf-muted)]";
+  "bg-stone-50 px-4 py-3 text-xs font-medium uppercase tracking-wider text-stone-500 border-b border-stone-200";
 export const platformTableCellClass =
-  "px-4 py-3 align-top text-[var(--pf-text)] whitespace-nowrap";
+  "px-4 py-3 align-top text-stone-900 whitespace-nowrap border-b border-stone-100 last:border-0";
 export const platformTableWrapCellClass =
   "whitespace-normal break-words [overflow-wrap:anywhere]";
 
 export const platformInputClass =
-  "h-10 w-full rounded-xl border border-[var(--pf-border)] bg-white px-3 text-sm text-[var(--pf-text)] outline-none transition focus-visible:border-[var(--pf-primary)] focus-visible:ring-2 focus-visible:ring-cyan-200";
+  "h-10 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-stone-500 focus:ring-1 focus:ring-stone-500";
 
 export const platformPrimaryButtonClass =
-  "inline-flex h-10 items-center justify-center rounded-xl bg-[var(--pf-primary)] px-4 text-sm font-semibold text-white transition hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200";
+  "inline-flex h-9 items-center justify-center rounded-lg bg-stone-900 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:opacity-50 disabled:pointer-events-none";
 
 export const platformSecondaryButtonClass =
-  "inline-flex h-9 items-center justify-center rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs font-semibold text-[var(--pf-text)] transition hover:border-[var(--pf-primary)]/45 hover:text-[var(--pf-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200";
+  "inline-flex h-9 items-center justify-center rounded-lg border border-stone-200 bg-white px-3 text-sm font-medium text-stone-700 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:opacity-50 disabled:pointer-events-none";
 
 export const platformDangerButtonClass =
-  "inline-flex h-9 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200";
+  "inline-flex h-9 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 px-3 text-sm font-medium text-rose-700 shadow-sm transition hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 disabled:opacity-50 disabled:pointer-events-none";
 
 export function PlatformPageHeader({
   title,
@@ -69,12 +71,16 @@ export function PlatformPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="mb-5 flex flex-wrap items-start justify-between gap-4">
+    <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="space-y-1">
-        <h2 className="text-2xl font-semibold tracking-tight text-[var(--pf-text)]">{title}</h2>
-        <p className="max-w-3xl text-sm leading-relaxed text-[var(--pf-muted)]">{description}</p>
+        <h2 className="text-2xl font-bold tracking-tight text-stone-900">
+          {title}
+        </h2>
+        <p className="max-w-2xl text-sm text-stone-500">{description}</p>
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? (
+        <div className="flex flex-wrap items-center gap-3">{actions}</div>
+      ) : null}
     </header>
   );
 }
@@ -92,12 +98,26 @@ export function PlatformMetricCard({
     <article
       className={cn(
         platformPanelClass,
-        "p-5",
-        tone === "accent" && "border-[var(--pf-primary)]/45 bg-[var(--pf-primary)]/[0.07]",
+        "p-5 flex flex-col justify-between h-full",
+        tone === "accent" && "bg-stone-900 border-stone-900 text-white",
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--pf-muted)]">{label}</p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-[var(--pf-text)]">{value}</p>
+      <p
+        className={cn(
+          "text-xs font-medium uppercase tracking-wider",
+          tone === "accent" ? "text-stone-400" : "text-stone-500",
+        )}
+      >
+        {label}
+      </p>
+      <p
+        className={cn(
+          "mt-4 text-3xl font-bold tracking-tight",
+          tone === "accent" ? "text-white" : "text-stone-900",
+        )}
+      >
+        {value}
+      </p>
     </article>
   );
 }
@@ -111,17 +131,17 @@ export function PlatformStatusBadge({
 }) {
   const normalized = status.toUpperCase();
   const toneClass = POSITIVE_STATUSES.has(normalized)
-    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
     : DANGER_STATUSES.has(normalized)
-      ? "border-rose-200 bg-rose-50 text-rose-700"
+      ? "bg-rose-50 text-rose-700 border-rose-200"
       : WARNING_STATUSES.has(normalized)
-        ? "border-amber-200 bg-amber-50 text-amber-700"
-        : "border-slate-200 bg-slate-100 text-slate-700";
+        ? "bg-amber-50 text-amber-700 border-amber-200"
+        : "bg-stone-100 text-stone-700 border-stone-200";
 
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center rounded-full border px-2.5 text-xs font-semibold uppercase tracking-wide",
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide",
         toneClass,
         className,
       )}

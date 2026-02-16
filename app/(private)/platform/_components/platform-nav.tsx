@@ -51,7 +51,8 @@ function trimTrailingSlash(path: string) {
 
 export function PlatformNav({ items }: { items: PlatformNavItem[] }) {
   const pathname = trimTrailingSlash(usePathname() || "/platform");
-  const isOverviewRoute = pathname === "/platform" || pathname === "/platform/overview";
+  const isOverviewRoute =
+    pathname === "/platform" || pathname === "/platform/overview";
 
   return (
     <nav aria-label="Platform sections" className="overflow-x-auto pb-1">
@@ -71,13 +72,18 @@ export function PlatformNav({ items }: { items: PlatformNavItem[] }) {
                 prefetch
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200",
+                  "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400",
                   isActive
-                    ? "border-[var(--pf-primary)]/45 bg-[var(--pf-primary)]/10 text-[var(--pf-text)] shadow-[inset_0_0_0_1px_rgba(15,118,110,0.25)]"
-                    : "border-transparent text-[var(--pf-muted)] hover:border-[var(--pf-border)] hover:bg-white hover:text-[var(--pf-text)]",
+                    ? "bg-stone-900 text-white shadow-sm"
+                    : "text-stone-500 hover:bg-stone-100 hover:text-stone-900",
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon
+                  className={cn(
+                    "h-4 w-4",
+                    isActive ? "text-stone-300" : "text-stone-400",
+                  )}
+                />
                 {item.label}
               </Link>
             </li>

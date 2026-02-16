@@ -2,6 +2,11 @@ import {
   convertOnboardingApplicationToBusinessAction,
   updateOnboardingApplicationStatusAction,
 } from "@/lib/server actions/platform-admin";
+import {
+  DEFAULT_SUBSCRIPTION_PLAN_CODE,
+  SUBSCRIPTION_PLAN_CODES,
+  ensureDefaultPlans,
+} from "@/features/billing/subscription-service";
 import { connection } from "next/server";
 import {
   isPrismaAccelerateResourceLimitError,
@@ -31,6 +36,7 @@ import {
   platformTableContainerClass,
   platformTableHeadClass,
   platformTableWrapCellClass,
+  formatPhpFromCentavos,
 } from "../_components/platform-ui";
 
 type PlatformApplicationsPageProps = {
@@ -38,6 +44,14 @@ type PlatformApplicationsPageProps = {
 };
 
 const PENDING_APPLICATION_STATUSES = new Set(["NEW", "CONTACTED", "APPROVED"]);
+
+function isSupportedPlanCode(
+  value: string,
+): value is (typeof SUBSCRIPTION_PLAN_CODES)[number] {
+  return SUBSCRIPTION_PLAN_CODES.includes(
+    value as (typeof SUBSCRIPTION_PLAN_CODES)[number],
+  );
+}
 
 function getPendingAgeInfo(createdAt: Date) {
   const hours = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60));
@@ -69,6 +83,7 @@ export default async function PlatformApplicationsPage({
   searchParams,
 }: PlatformApplicationsPageProps) {
   await connection();
+  await ensureDefaultPlans();
   const flash = await getPlatformFlashMessage(searchParams);
 
   const hasOnboardingModel = supportsOnboardingApplicationModel();
@@ -107,6 +122,22 @@ export default async function PlatformApplicationsPage({
     }
   })();
   const applications = applicationQueryResult.applications;
+  const catalogPlans = await prisma.subscriptionPlan.findMany({
+    where: {
+      code: { in: [...SUBSCRIPTION_PLAN_CODES] },
+      is_active: true,
+    },
+    select: {
+      code: true,
+      name: true,
+      price_amount: true,
+    },
+    orderBy: [{ price_amount: "asc" }, { code: "asc" }],
+  });
+  const defaultAssignablePlanCode =
+    catalogPlans.find((plan) => plan.code === DEFAULT_SUBSCRIPTION_PLAN_CODE)?.code ??
+    catalogPlans[0]?.code ??
+    DEFAULT_SUBSCRIPTION_PLAN_CODE;
 
   async function markContactedFormAction(applicationId: string) {
     "use server";
@@ -178,13 +209,31 @@ export default async function PlatformApplicationsPage({
     }
   }
 
-  async function convertToBusinessFormAction(applicationId: string) {
+  async function convertToBusinessFormAction(formData: FormData) {
     "use server";
     try {
+      const applicationId = String(formData.get("applicationId") || "");
+      const ownerPassword = String(formData.get("ownerPassword") || "");
+      const rawPlanCode = String(
+        formData.get("planCode") || defaultAssignablePlanCode,
+      );
+      const parsedTrialMonths = Number.parseInt(
+        String(formData.get("trialMonths") || "1"),
+        10,
+      );
+      const trialMonths =
+        Number.isFinite(parsedTrialMonths) && parsedTrialMonths > 0
+          ? Math.min(12, parsedTrialMonths)
+          : 1;
+      const planCode = isSupportedPlanCode(rawPlanCode)
+        ? rawPlanCode
+        : DEFAULT_SUBSCRIPTION_PLAN_CODE;
+
       const result = await convertOnboardingApplicationToBusinessAction({
         applicationId,
-        planCode: "PRO_MONTHLY",
-        trialMonths: 1,
+        ownerPassword,
+        planCode,
+        trialMonths,
       });
       if (!result.success) {
         redirect(buildPlatformErrorPath("/platform/applications", result.error));
@@ -317,10 +366,42 @@ export default async function PlatformApplicationsPage({
                             Reject
                           </button>
                         </form>
-                        <form action={convertToBusinessFormAction.bind(null, application.id)}>
+                        <form action={convertToBusinessFormAction} className="flex flex-wrap gap-2">
+                          <input type="hidden" name="applicationId" value={application.id} />
+                          <input
+                            name="ownerPassword"
+                            type="password"
+                            minLength={8}
+                            required
+                            placeholder="Owner password"
+                            className="h-9 min-w-[170px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
+                            disabled={catalogPlans.length === 0}
+                          />
+                          <select
+                            name="planCode"
+                            defaultValue={defaultAssignablePlanCode}
+                            className="h-9 min-w-[160px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
+                            disabled={catalogPlans.length === 0}
+                          >
+                            {catalogPlans.map((plan) => (
+                              <option key={plan.code} value={plan.code}>
+                                {plan.name} ({formatPhpFromCentavos(plan.price_amount)})
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            name="trialMonths"
+                            type="number"
+                            min={1}
+                            max={12}
+                            defaultValue={1}
+                            className="h-9 w-20 rounded-xl border border-[var(--pf-border)] bg-white px-2 text-xs text-[var(--pf-text)]"
+                            disabled={catalogPlans.length === 0}
+                          />
                           <button
                             type="submit"
                             className={`${platformSecondaryButtonClass} border-[var(--pf-primary)]/35 bg-[var(--pf-primary)]/10 text-[var(--pf-primary)] hover:bg-[var(--pf-primary)]/15`}
+                            disabled={catalogPlans.length === 0}
                           >
                             Convert
                           </button>

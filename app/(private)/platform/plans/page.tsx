@@ -1,4 +1,7 @@
 import { updateSubscriptionPlanAction } from "@/lib/server actions/platform-admin";
+import { SUBSCRIPTION_PLAN_CODES } from "@/features/billing/subscription-service";
+import { ensureDefaultPlans } from "@/features/billing/subscription-service";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/prisma/prisma";
 import {
@@ -23,23 +26,51 @@ type PlatformPlansPageProps = {
   searchParams?: PlatformSearchParams;
 };
 
+function isCanonicalSubscriptionPlanCode(
+  code: string,
+): code is (typeof SUBSCRIPTION_PLAN_CODES)[number] {
+  return SUBSCRIPTION_PLAN_CODES.includes(
+    code as (typeof SUBSCRIPTION_PLAN_CODES)[number],
+  );
+}
+
 export default async function PlatformPlansPage({
   searchParams,
 }: PlatformPlansPageProps) {
+  await connection();
+  await ensureDefaultPlans();
   const flash = await getPlatformFlashMessage(searchParams);
-  const plans = await prisma.subscriptionPlan.findMany({
-    orderBy: [{ is_active: "desc" }, { code: "asc" }],
-  });
+  const [plans, legacyOrInactiveAssignments] = await Promise.all([
+    prisma.subscriptionPlan.findMany({
+      orderBy: [{ is_active: "desc" }, { code: "asc" }],
+    }),
+    prisma.businessSubscription.count({
+      where: {
+        OR: [
+          {
+            plan: {
+              code: { notIn: [...SUBSCRIPTION_PLAN_CODES] },
+            },
+          },
+          {
+            plan: {
+              is_active: false,
+            },
+          },
+        ],
+      },
+    }),
+  ]);
 
   const activePlans = plans.filter((plan) => plan.is_active).length;
   const monthlyPlans = plans.filter((plan) => plan.billing_interval === "MONTHLY").length;
-  const annualPlans = plans.filter((plan) => plan.billing_interval === "YEARLY").length;
+  const inactivePlans = plans.filter((plan) => !plan.is_active).length;
 
   return (
     <div className="space-y-6">
       <PlatformPageHeader
         title="Subscription Plans"
-        description="Control pricing and availability for every plan tier while keeping the catalog clean and current."
+        description="Control pricing and availability for every plan tier while keeping the catalog clean and current. Existing businesses stay on their current plan until manually reassigned."
       />
       {flash ? <PlatformFlashNotice flash={flash} /> : null}
 
@@ -47,12 +78,35 @@ export default async function PlatformPlansPage({
         <PlatformMetricCard label="Total Plans" value={plans.length} />
         <PlatformMetricCard label="Active Plans" value={activePlans} tone="accent" />
         <PlatformMetricCard label="Monthly Plans" value={monthlyPlans} />
-        <PlatformMetricCard label="Annual Plans" value={annualPlans} />
+        <PlatformMetricCard label="Inactive Plans" value={inactivePlans} />
       </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <PlatformMetricCard
+          label="Legacy/Inactive Assignments"
+          value={legacyOrInactiveAssignments}
+        />
+        <PlatformMetricCard
+          label="Assignable Catalog Plans"
+          value={SUBSCRIPTION_PLAN_CODES.length}
+        />
+        <PlatformMetricCard
+          label="Canonical Plan Codes"
+          value={SUBSCRIPTION_PLAN_CODES.join(", ")}
+        />
+      </div>
+
+      {legacyOrInactiveAssignments > 0 ? (
+        <article className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          {legacyOrInactiveAssignments} businesses are still on legacy or inactive plans. Their
+          subscriptions continue as-is until moved from <strong>/platform/businesses</strong>.
+        </article>
+      ) : null}
 
       <section className={`${platformPanelClass} p-5 sm:p-6`}>
         <div className="grid gap-4 xl:grid-cols-2">
           {plans.map((plan) => {
+            const isCanonicalPlan = isCanonicalSubscriptionPlanCode(plan.code);
             async function updatePlanFormAction(formData: FormData) {
               "use server";
               try {
@@ -126,9 +180,10 @@ export default async function PlatformPlansPage({
                       type="checkbox"
                       name="isActive"
                       defaultChecked={plan.is_active}
+                      disabled={!isCanonicalPlan}
                       className="h-4 w-4 rounded border-[var(--pf-border)]"
                     />
-                    Active for checkout
+                    {isCanonicalPlan ? "Active for checkout" : "Legacy plan (always inactive)"}
                   </label>
                 </div>
 
