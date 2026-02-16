@@ -29,6 +29,7 @@ export type AggregateAvailedService = {
 export type AvailedServiceAvgAggregateOutputType = {
   id: number | null
   price: number | null
+  estimated_cost: number | null
   discount: number | null
   final_price: number | null
   commission_base: number | null
@@ -42,6 +43,7 @@ export type AvailedServiceAvgAggregateOutputType = {
 export type AvailedServiceSumAggregateOutputType = {
   id: number | null
   price: number | null
+  estimated_cost: number | null
   discount: number | null
   final_price: number | null
   commission_base: number | null
@@ -55,6 +57,7 @@ export type AvailedServiceSumAggregateOutputType = {
 export type AvailedServiceMinAggregateOutputType = {
   id: number | null
   price: number | null
+  estimated_cost: number | null
   discount: number | null
   discount_reason: string | null
   final_price: number | null
@@ -79,6 +82,7 @@ export type AvailedServiceMinAggregateOutputType = {
 export type AvailedServiceMaxAggregateOutputType = {
   id: number | null
   price: number | null
+  estimated_cost: number | null
   discount: number | null
   discount_reason: string | null
   final_price: number | null
@@ -103,6 +107,7 @@ export type AvailedServiceMaxAggregateOutputType = {
 export type AvailedServiceCountAggregateOutputType = {
   id: number
   price: number
+  estimated_cost: number
   discount: number
   discount_reason: number
   final_price: number
@@ -129,6 +134,7 @@ export type AvailedServiceCountAggregateOutputType = {
 export type AvailedServiceAvgAggregateInputType = {
   id?: true
   price?: true
+  estimated_cost?: true
   discount?: true
   final_price?: true
   commission_base?: true
@@ -142,6 +148,7 @@ export type AvailedServiceAvgAggregateInputType = {
 export type AvailedServiceSumAggregateInputType = {
   id?: true
   price?: true
+  estimated_cost?: true
   discount?: true
   final_price?: true
   commission_base?: true
@@ -155,6 +162,7 @@ export type AvailedServiceSumAggregateInputType = {
 export type AvailedServiceMinAggregateInputType = {
   id?: true
   price?: true
+  estimated_cost?: true
   discount?: true
   discount_reason?: true
   final_price?: true
@@ -179,6 +187,7 @@ export type AvailedServiceMinAggregateInputType = {
 export type AvailedServiceMaxAggregateInputType = {
   id?: true
   price?: true
+  estimated_cost?: true
   discount?: true
   discount_reason?: true
   final_price?: true
@@ -203,6 +212,7 @@ export type AvailedServiceMaxAggregateInputType = {
 export type AvailedServiceCountAggregateInputType = {
   id?: true
   price?: true
+  estimated_cost?: true
   discount?: true
   discount_reason?: true
   final_price?: true
@@ -314,6 +324,7 @@ export type AvailedServiceGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type AvailedServiceGroupByOutputType = {
   id: number
   price: number
+  estimated_cost: number
   discount: number
   discount_reason: string | null
   final_price: number
@@ -361,6 +372,7 @@ export type AvailedServiceWhereInput = {
   NOT?: Prisma.AvailedServiceWhereInput | Prisma.AvailedServiceWhereInput[]
   id?: Prisma.IntFilter<"AvailedService"> | number
   price?: Prisma.FloatFilter<"AvailedService"> | number
+  estimated_cost?: Prisma.FloatFilter<"AvailedService"> | number
   discount?: Prisma.FloatFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
@@ -390,6 +402,7 @@ export type AvailedServiceWhereInput = {
 export type AvailedServiceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   final_price?: Prisma.SortOrder
@@ -422,6 +435,7 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AvailedServiceWhereInput[]
   NOT?: Prisma.AvailedServiceWhereInput | Prisma.AvailedServiceWhereInput[]
   price?: Prisma.FloatFilter<"AvailedService"> | number
+  estimated_cost?: Prisma.FloatFilter<"AvailedService"> | number
   discount?: Prisma.FloatFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
@@ -451,6 +465,7 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
 export type AvailedServiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   final_price?: Prisma.SortOrder
@@ -483,6 +498,7 @@ export type AvailedServiceScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AvailedServiceScalarWhereWithAggregatesInput | Prisma.AvailedServiceScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"AvailedService"> | number
   price?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
+  estimated_cost?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
   discount?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
@@ -506,6 +522,7 @@ export type AvailedServiceScalarWhereWithAggregatesInput = {
 
 export type AvailedServiceCreateInput = {
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -530,6 +547,7 @@ export type AvailedServiceCreateInput = {
 export type AvailedServiceUncheckedCreateInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -553,6 +571,7 @@ export type AvailedServiceUncheckedCreateInput = {
 
 export type AvailedServiceUpdateInput = {
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -577,6 +596,7 @@ export type AvailedServiceUpdateInput = {
 export type AvailedServiceUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -601,6 +621,7 @@ export type AvailedServiceUncheckedUpdateInput = {
 export type AvailedServiceCreateManyInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -624,6 +645,7 @@ export type AvailedServiceCreateManyInput = {
 
 export type AvailedServiceUpdateManyMutationInput = {
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -643,6 +665,7 @@ export type AvailedServiceUpdateManyMutationInput = {
 export type AvailedServiceUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -677,6 +700,7 @@ export type AvailedServiceOrderByRelationAggregateInput = {
 export type AvailedServiceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
@@ -701,6 +725,7 @@ export type AvailedServiceCountOrderByAggregateInput = {
 export type AvailedServiceAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
@@ -714,6 +739,7 @@ export type AvailedServiceAvgOrderByAggregateInput = {
 export type AvailedServiceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
@@ -738,6 +764,7 @@ export type AvailedServiceMaxOrderByAggregateInput = {
 export type AvailedServiceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
@@ -762,6 +789,7 @@ export type AvailedServiceMinOrderByAggregateInput = {
 export type AvailedServiceSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
@@ -992,6 +1020,7 @@ export type NullableEnumServiceProviderTypeFieldUpdateOperationsInput = {
 
 export type AvailedServiceCreateWithoutServed_byInput = {
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1015,6 +1044,7 @@ export type AvailedServiceCreateWithoutServed_byInput = {
 export type AvailedServiceUncheckedCreateWithoutServed_byInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1067,6 +1097,7 @@ export type AvailedServiceScalarWhereInput = {
   NOT?: Prisma.AvailedServiceScalarWhereInput | Prisma.AvailedServiceScalarWhereInput[]
   id?: Prisma.IntFilter<"AvailedService"> | number
   price?: Prisma.FloatFilter<"AvailedService"> | number
+  estimated_cost?: Prisma.FloatFilter<"AvailedService"> | number
   discount?: Prisma.FloatFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
@@ -1090,6 +1121,7 @@ export type AvailedServiceScalarWhereInput = {
 
 export type AvailedServiceCreateWithoutServed_by_ownerInput = {
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1113,6 +1145,7 @@ export type AvailedServiceCreateWithoutServed_by_ownerInput = {
 export type AvailedServiceUncheckedCreateWithoutServed_by_ownerInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1161,6 +1194,7 @@ export type AvailedServiceUpdateManyWithWhereWithoutServed_by_ownerInput = {
 
 export type AvailedServiceCreateWithoutServiceInput = {
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1184,6 +1218,7 @@ export type AvailedServiceCreateWithoutServiceInput = {
 export type AvailedServiceUncheckedCreateWithoutServiceInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1232,6 +1267,7 @@ export type AvailedServiceUpdateManyWithWhereWithoutServiceInput = {
 
 export type AvailedServiceCreateWithoutPackageInput = {
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1255,6 +1291,7 @@ export type AvailedServiceCreateWithoutPackageInput = {
 export type AvailedServiceUncheckedCreateWithoutPackageInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1303,6 +1340,7 @@ export type AvailedServiceUpdateManyWithWhereWithoutPackageInput = {
 
 export type AvailedServiceCreateWithoutBookingInput = {
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1326,6 +1364,7 @@ export type AvailedServiceCreateWithoutBookingInput = {
 export type AvailedServiceUncheckedCreateWithoutBookingInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1375,6 +1414,7 @@ export type AvailedServiceUpdateManyWithWhereWithoutBookingInput = {
 export type AvailedServiceCreateManyServed_byInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1397,6 +1437,7 @@ export type AvailedServiceCreateManyServed_byInput = {
 
 export type AvailedServiceUpdateWithoutServed_byInput = {
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1420,6 +1461,7 @@ export type AvailedServiceUpdateWithoutServed_byInput = {
 export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1443,6 +1485,7 @@ export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
 export type AvailedServiceUncheckedUpdateManyWithoutServed_byInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1466,6 +1509,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_byInput = {
 export type AvailedServiceCreateManyServed_by_ownerInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1488,6 +1532,7 @@ export type AvailedServiceCreateManyServed_by_ownerInput = {
 
 export type AvailedServiceUpdateWithoutServed_by_ownerInput = {
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1511,6 +1556,7 @@ export type AvailedServiceUpdateWithoutServed_by_ownerInput = {
 export type AvailedServiceUncheckedUpdateWithoutServed_by_ownerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1534,6 +1580,7 @@ export type AvailedServiceUncheckedUpdateWithoutServed_by_ownerInput = {
 export type AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1557,6 +1604,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerInput = {
 export type AvailedServiceCreateManyServiceInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1579,6 +1627,7 @@ export type AvailedServiceCreateManyServiceInput = {
 
 export type AvailedServiceUpdateWithoutServiceInput = {
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1602,6 +1651,7 @@ export type AvailedServiceUpdateWithoutServiceInput = {
 export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1625,6 +1675,7 @@ export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
 export type AvailedServiceUncheckedUpdateManyWithoutServiceInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1648,6 +1699,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutServiceInput = {
 export type AvailedServiceCreateManyPackageInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1670,6 +1722,7 @@ export type AvailedServiceCreateManyPackageInput = {
 
 export type AvailedServiceUpdateWithoutPackageInput = {
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1693,6 +1746,7 @@ export type AvailedServiceUpdateWithoutPackageInput = {
 export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1716,6 +1770,7 @@ export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
 export type AvailedServiceUncheckedUpdateManyWithoutPackageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1739,6 +1794,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutPackageInput = {
 export type AvailedServiceCreateManyBookingInput = {
   id?: number
   price: number
+  estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
@@ -1761,6 +1817,7 @@ export type AvailedServiceCreateManyBookingInput = {
 
 export type AvailedServiceUpdateWithoutBookingInput = {
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1784,6 +1841,7 @@ export type AvailedServiceUpdateWithoutBookingInput = {
 export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1807,6 +1865,7 @@ export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
 export type AvailedServiceUncheckedUpdateManyWithoutBookingInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1832,6 +1891,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutBookingInput = {
 export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   price?: boolean
+  estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
@@ -1861,6 +1921,7 @@ export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.Intern
 export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   price?: boolean
+  estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
@@ -1890,6 +1951,7 @@ export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Type
 export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   price?: boolean
+  estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
@@ -1919,6 +1981,7 @@ export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
 export type AvailedServiceSelectScalar = {
   id?: boolean
   price?: boolean
+  estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
@@ -1940,7 +2003,7 @@ export type AvailedServiceSelectScalar = {
   updated_at?: boolean
 }
 
-export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "cancelled_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "served_by_owner_id" | "served_by_type" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
+export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "estimated_cost" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "cancelled_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "served_by_owner_id" | "served_by_type" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
 export type AvailedServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
@@ -1975,6 +2038,7 @@ export type $AvailedServicePayload<ExtArgs extends runtime.Types.Extensions.Inte
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     price: number
+    estimated_cost: number
     discount: number
     discount_reason: string | null
     final_price: number
@@ -2424,6 +2488,7 @@ export interface Prisma__AvailedServiceClient<T, Null = never, ExtArgs extends r
 export interface AvailedServiceFieldRefs {
   readonly id: Prisma.FieldRef<"AvailedService", 'Int'>
   readonly price: Prisma.FieldRef<"AvailedService", 'Float'>
+  readonly estimated_cost: Prisma.FieldRef<"AvailedService", 'Float'>
   readonly discount: Prisma.FieldRef<"AvailedService", 'Float'>
   readonly discount_reason: Prisma.FieldRef<"AvailedService", 'String'>
   readonly final_price: Prisma.FieldRef<"AvailedService", 'Float'>

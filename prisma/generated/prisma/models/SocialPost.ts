@@ -304,6 +304,7 @@ export type SocialPostWhereInput = {
   sale_event?: Prisma.XOR<Prisma.SaleEventNullableScalarRelationFilter, Prisma.SaleEventWhereInput> | null
   created_by_user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   targets?: Prisma.SocialPostTargetListRelationFilter
+  growth_campaigns?: Prisma.CampaignListRelationFilter
 }
 
 export type SocialPostOrderByWithRelationInput = {
@@ -327,6 +328,7 @@ export type SocialPostOrderByWithRelationInput = {
   sale_event?: Prisma.SaleEventOrderByWithRelationInput
   created_by_user?: Prisma.UserOrderByWithRelationInput
   targets?: Prisma.SocialPostTargetOrderByRelationAggregateInput
+  growth_campaigns?: Prisma.CampaignOrderByRelationAggregateInput
 }
 
 export type SocialPostWhereUniqueInput = Prisma.AtLeast<{
@@ -353,6 +355,7 @@ export type SocialPostWhereUniqueInput = Prisma.AtLeast<{
   sale_event?: Prisma.XOR<Prisma.SaleEventNullableScalarRelationFilter, Prisma.SaleEventWhereInput> | null
   created_by_user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   targets?: Prisma.SocialPostTargetListRelationFilter
+  growth_campaigns?: Prisma.CampaignListRelationFilter
 }, "id">
 
 export type SocialPostOrderByWithAggregationInput = {
@@ -419,6 +422,7 @@ export type SocialPostCreateInput = {
   sale_event?: Prisma.SaleEventCreateNestedOneWithoutSocial_postsInput
   created_by_user?: Prisma.UserCreateNestedOneWithoutSocial_posts_createdInput
   targets?: Prisma.SocialPostTargetCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostUncheckedCreateInput = {
@@ -439,6 +443,7 @@ export type SocialPostUncheckedCreateInput = {
   created_at?: Date | string
   updated_at?: Date | string
   targets?: Prisma.SocialPostTargetUncheckedCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostUpdateInput = {
@@ -459,6 +464,7 @@ export type SocialPostUpdateInput = {
   sale_event?: Prisma.SaleEventUpdateOneWithoutSocial_postsNestedInput
   created_by_user?: Prisma.UserUpdateOneWithoutSocial_posts_createdNestedInput
   targets?: Prisma.SocialPostTargetUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateInput = {
@@ -479,6 +485,7 @@ export type SocialPostUncheckedUpdateInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   targets?: Prisma.SocialPostTargetUncheckedUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostCreateManyInput = {
@@ -611,6 +618,11 @@ export type SocialPostSumOrderByAggregateInput = {
 export type SocialPostScalarRelationFilter = {
   is?: Prisma.SocialPostWhereInput
   isNot?: Prisma.SocialPostWhereInput
+}
+
+export type SocialPostNullableScalarRelationFilter = {
+  is?: Prisma.SocialPostWhereInput | null
+  isNot?: Prisma.SocialPostWhereInput | null
 }
 
 export type SocialPostCreateNestedManyWithoutBusinessInput = {
@@ -778,6 +790,22 @@ export type SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput = {
   deleteMany?: Prisma.SocialPostScalarWhereInput | Prisma.SocialPostScalarWhereInput[]
 }
 
+export type SocialPostCreateNestedOneWithoutGrowth_campaignsInput = {
+  create?: Prisma.XOR<Prisma.SocialPostCreateWithoutGrowth_campaignsInput, Prisma.SocialPostUncheckedCreateWithoutGrowth_campaignsInput>
+  connectOrCreate?: Prisma.SocialPostCreateOrConnectWithoutGrowth_campaignsInput
+  connect?: Prisma.SocialPostWhereUniqueInput
+}
+
+export type SocialPostUpdateOneWithoutGrowth_campaignsNestedInput = {
+  create?: Prisma.XOR<Prisma.SocialPostCreateWithoutGrowth_campaignsInput, Prisma.SocialPostUncheckedCreateWithoutGrowth_campaignsInput>
+  connectOrCreate?: Prisma.SocialPostCreateOrConnectWithoutGrowth_campaignsInput
+  upsert?: Prisma.SocialPostUpsertWithoutGrowth_campaignsInput
+  disconnect?: Prisma.SocialPostWhereInput | boolean
+  delete?: Prisma.SocialPostWhereInput | boolean
+  connect?: Prisma.SocialPostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SocialPostUpdateToOneWithWhereWithoutGrowth_campaignsInput, Prisma.SocialPostUpdateWithoutGrowth_campaignsInput>, Prisma.SocialPostUncheckedUpdateWithoutGrowth_campaignsInput>
+}
+
 export type SocialPostCreateWithoutBusinessInput = {
   id?: string
   source: $Enums.SocialPostSource
@@ -795,6 +823,7 @@ export type SocialPostCreateWithoutBusinessInput = {
   sale_event?: Prisma.SaleEventCreateNestedOneWithoutSocial_postsInput
   created_by_user?: Prisma.UserCreateNestedOneWithoutSocial_posts_createdInput
   targets?: Prisma.SocialPostTargetCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostUncheckedCreateWithoutBusinessInput = {
@@ -814,6 +843,7 @@ export type SocialPostUncheckedCreateWithoutBusinessInput = {
   created_at?: Date | string
   updated_at?: Date | string
   targets?: Prisma.SocialPostTargetUncheckedCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostCreateOrConnectWithoutBusinessInput = {
@@ -881,6 +911,7 @@ export type SocialPostCreateWithoutSale_eventInput = {
   business: Prisma.BusinessCreateNestedOneWithoutSocial_postsInput
   created_by_user?: Prisma.UserCreateNestedOneWithoutSocial_posts_createdInput
   targets?: Prisma.SocialPostTargetCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostUncheckedCreateWithoutSale_eventInput = {
@@ -900,6 +931,7 @@ export type SocialPostUncheckedCreateWithoutSale_eventInput = {
   created_at?: Date | string
   updated_at?: Date | string
   targets?: Prisma.SocialPostTargetUncheckedCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostCreateOrConnectWithoutSale_eventInput = {
@@ -945,6 +977,7 @@ export type SocialPostCreateWithoutTargetsInput = {
   business: Prisma.BusinessCreateNestedOneWithoutSocial_postsInput
   sale_event?: Prisma.SaleEventCreateNestedOneWithoutSocial_postsInput
   created_by_user?: Prisma.UserCreateNestedOneWithoutSocial_posts_createdInput
+  growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostUncheckedCreateWithoutTargetsInput = {
@@ -964,6 +997,7 @@ export type SocialPostUncheckedCreateWithoutTargetsInput = {
   last_error?: string | null
   created_at?: Date | string
   updated_at?: Date | string
+  growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostCreateOrConnectWithoutTargetsInput = {
@@ -999,6 +1033,7 @@ export type SocialPostUpdateWithoutTargetsInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutSocial_postsNestedInput
   sale_event?: Prisma.SaleEventUpdateOneWithoutSocial_postsNestedInput
   created_by_user?: Prisma.UserUpdateOneWithoutSocial_posts_createdNestedInput
+  growth_campaigns?: Prisma.CampaignUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateWithoutTargetsInput = {
@@ -1018,6 +1053,7 @@ export type SocialPostUncheckedUpdateWithoutTargetsInput = {
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostCreateWithoutCreated_by_userInput = {
@@ -1037,6 +1073,7 @@ export type SocialPostCreateWithoutCreated_by_userInput = {
   business: Prisma.BusinessCreateNestedOneWithoutSocial_postsInput
   sale_event?: Prisma.SaleEventCreateNestedOneWithoutSocial_postsInput
   targets?: Prisma.SocialPostTargetCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostUncheckedCreateWithoutCreated_by_userInput = {
@@ -1056,6 +1093,7 @@ export type SocialPostUncheckedCreateWithoutCreated_by_userInput = {
   created_at?: Date | string
   updated_at?: Date | string
   targets?: Prisma.SocialPostTargetUncheckedCreateNestedManyWithoutSocial_postInput
+  growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSocial_postInput
 }
 
 export type SocialPostCreateOrConnectWithoutCreated_by_userInput = {
@@ -1082,6 +1120,102 @@ export type SocialPostUpdateWithWhereUniqueWithoutCreated_by_userInput = {
 export type SocialPostUpdateManyWithWhereWithoutCreated_by_userInput = {
   where: Prisma.SocialPostScalarWhereInput
   data: Prisma.XOR<Prisma.SocialPostUpdateManyMutationInput, Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userInput>
+}
+
+export type SocialPostCreateWithoutGrowth_campaignsInput = {
+  id?: string
+  source: $Enums.SocialPostSource
+  status?: $Enums.SocialPostStatus
+  title: string
+  caption_draft: string
+  caption_final?: string | null
+  hashtags?: Prisma.SocialPostCreatehashtagsInput | string[]
+  media_url?: string | null
+  publish_requested_at?: Date | string | null
+  published_at?: Date | string | null
+  last_error?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  business: Prisma.BusinessCreateNestedOneWithoutSocial_postsInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutSocial_postsInput
+  created_by_user?: Prisma.UserCreateNestedOneWithoutSocial_posts_createdInput
+  targets?: Prisma.SocialPostTargetCreateNestedManyWithoutSocial_postInput
+}
+
+export type SocialPostUncheckedCreateWithoutGrowth_campaignsInput = {
+  id?: string
+  business_id: string
+  sale_event_id?: number | null
+  source: $Enums.SocialPostSource
+  status?: $Enums.SocialPostStatus
+  title: string
+  caption_draft: string
+  caption_final?: string | null
+  hashtags?: Prisma.SocialPostCreatehashtagsInput | string[]
+  media_url?: string | null
+  created_by_user_id?: string | null
+  publish_requested_at?: Date | string | null
+  published_at?: Date | string | null
+  last_error?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  targets?: Prisma.SocialPostTargetUncheckedCreateNestedManyWithoutSocial_postInput
+}
+
+export type SocialPostCreateOrConnectWithoutGrowth_campaignsInput = {
+  where: Prisma.SocialPostWhereUniqueInput
+  create: Prisma.XOR<Prisma.SocialPostCreateWithoutGrowth_campaignsInput, Prisma.SocialPostUncheckedCreateWithoutGrowth_campaignsInput>
+}
+
+export type SocialPostUpsertWithoutGrowth_campaignsInput = {
+  update: Prisma.XOR<Prisma.SocialPostUpdateWithoutGrowth_campaignsInput, Prisma.SocialPostUncheckedUpdateWithoutGrowth_campaignsInput>
+  create: Prisma.XOR<Prisma.SocialPostCreateWithoutGrowth_campaignsInput, Prisma.SocialPostUncheckedCreateWithoutGrowth_campaignsInput>
+  where?: Prisma.SocialPostWhereInput
+}
+
+export type SocialPostUpdateToOneWithWhereWithoutGrowth_campaignsInput = {
+  where?: Prisma.SocialPostWhereInput
+  data: Prisma.XOR<Prisma.SocialPostUpdateWithoutGrowth_campaignsInput, Prisma.SocialPostUncheckedUpdateWithoutGrowth_campaignsInput>
+}
+
+export type SocialPostUpdateWithoutGrowth_campaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
+  status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
+  caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hashtags?: Prisma.SocialPostUpdatehashtagsInput | string[]
+  media_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_requested_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  business?: Prisma.BusinessUpdateOneRequiredWithoutSocial_postsNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutSocial_postsNestedInput
+  created_by_user?: Prisma.UserUpdateOneWithoutSocial_posts_createdNestedInput
+  targets?: Prisma.SocialPostTargetUpdateManyWithoutSocial_postNestedInput
+}
+
+export type SocialPostUncheckedUpdateWithoutGrowth_campaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
+  status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
+  caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hashtags?: Prisma.SocialPostUpdatehashtagsInput | string[]
+  media_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publish_requested_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  published_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  targets?: Prisma.SocialPostTargetUncheckedUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostCreateManyBusinessInput = {
@@ -1119,6 +1253,7 @@ export type SocialPostUpdateWithoutBusinessInput = {
   sale_event?: Prisma.SaleEventUpdateOneWithoutSocial_postsNestedInput
   created_by_user?: Prisma.UserUpdateOneWithoutSocial_posts_createdNestedInput
   targets?: Prisma.SocialPostTargetUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateWithoutBusinessInput = {
@@ -1138,6 +1273,7 @@ export type SocialPostUncheckedUpdateWithoutBusinessInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   targets?: Prisma.SocialPostTargetUncheckedUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateManyWithoutBusinessInput = {
@@ -1193,6 +1329,7 @@ export type SocialPostUpdateWithoutSale_eventInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutSocial_postsNestedInput
   created_by_user?: Prisma.UserUpdateOneWithoutSocial_posts_createdNestedInput
   targets?: Prisma.SocialPostTargetUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateWithoutSale_eventInput = {
@@ -1212,6 +1349,7 @@ export type SocialPostUncheckedUpdateWithoutSale_eventInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   targets?: Prisma.SocialPostTargetUncheckedUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateManyWithoutSale_eventInput = {
@@ -1267,6 +1405,7 @@ export type SocialPostUpdateWithoutCreated_by_userInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutSocial_postsNestedInput
   sale_event?: Prisma.SaleEventUpdateOneWithoutSocial_postsNestedInput
   targets?: Prisma.SocialPostTargetUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateWithoutCreated_by_userInput = {
@@ -1286,6 +1425,7 @@ export type SocialPostUncheckedUpdateWithoutCreated_by_userInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   targets?: Prisma.SocialPostTargetUncheckedUpdateManyWithoutSocial_postNestedInput
+  growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSocial_postNestedInput
 }
 
 export type SocialPostUncheckedUpdateManyWithoutCreated_by_userInput = {
@@ -1313,10 +1453,12 @@ export type SocialPostUncheckedUpdateManyWithoutCreated_by_userInput = {
 
 export type SocialPostCountOutputType = {
   targets: number
+  growth_campaigns: number
 }
 
 export type SocialPostCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   targets?: boolean | SocialPostCountOutputTypeCountTargetsArgs
+  growth_campaigns?: boolean | SocialPostCountOutputTypeCountGrowth_campaignsArgs
 }
 
 /**
@@ -1334,6 +1476,13 @@ export type SocialPostCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
  */
 export type SocialPostCountOutputTypeCountTargetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SocialPostTargetWhereInput
+}
+
+/**
+ * SocialPostCountOutputType without action
+ */
+export type SocialPostCountOutputTypeCountGrowth_campaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignWhereInput
 }
 
 
@@ -1358,6 +1507,7 @@ export type SocialPostSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   sale_event?: boolean | Prisma.SocialPost$sale_eventArgs<ExtArgs>
   created_by_user?: boolean | Prisma.SocialPost$created_by_userArgs<ExtArgs>
   targets?: boolean | Prisma.SocialPost$targetsArgs<ExtArgs>
+  growth_campaigns?: boolean | Prisma.SocialPost$growth_campaignsArgs<ExtArgs>
   _count?: boolean | Prisma.SocialPostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["socialPost"]>
 
@@ -1430,6 +1580,7 @@ export type SocialPostInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   sale_event?: boolean | Prisma.SocialPost$sale_eventArgs<ExtArgs>
   created_by_user?: boolean | Prisma.SocialPost$created_by_userArgs<ExtArgs>
   targets?: boolean | Prisma.SocialPost$targetsArgs<ExtArgs>
+  growth_campaigns?: boolean | Prisma.SocialPost$growth_campaignsArgs<ExtArgs>
   _count?: boolean | Prisma.SocialPostCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SocialPostIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1450,6 +1601,7 @@ export type $SocialPostPayload<ExtArgs extends runtime.Types.Extensions.Internal
     sale_event: Prisma.$SaleEventPayload<ExtArgs> | null
     created_by_user: Prisma.$UserPayload<ExtArgs> | null
     targets: Prisma.$SocialPostTargetPayload<ExtArgs>[]
+    growth_campaigns: Prisma.$CampaignPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1866,6 +2018,7 @@ export interface Prisma__SocialPostClient<T, Null = never, ExtArgs extends runti
   sale_event<T extends Prisma.SocialPost$sale_eventArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SocialPost$sale_eventArgs<ExtArgs>>): Prisma.Prisma__SaleEventClient<runtime.Types.Result.GetResult<Prisma.$SaleEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   created_by_user<T extends Prisma.SocialPost$created_by_userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SocialPost$created_by_userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   targets<T extends Prisma.SocialPost$targetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SocialPost$targetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostTargetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  growth_campaigns<T extends Prisma.SocialPost$growth_campaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SocialPost$growth_campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2366,6 +2519,30 @@ export type SocialPost$targetsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.SocialPostTargetScalarFieldEnum | Prisma.SocialPostTargetScalarFieldEnum[]
+}
+
+/**
+ * SocialPost.growth_campaigns
+ */
+export type SocialPost$growth_campaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Campaign
+   */
+  select?: Prisma.CampaignSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Campaign
+   */
+  omit?: Prisma.CampaignOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignInclude<ExtArgs> | null
+  where?: Prisma.CampaignWhereInput
+  orderBy?: Prisma.CampaignOrderByWithRelationInput | Prisma.CampaignOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignScalarFieldEnum | Prisma.CampaignScalarFieldEnum[]
 }
 
 /**

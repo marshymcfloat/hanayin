@@ -49,7 +49,12 @@ model Business {
   leave_requests                    LeaveRequest[]
   business_hours                    BusinessHours[]
   service_flows                     ServiceFlow[]
+  growth_settings                   BusinessGrowthSettings?
+  growth_context_snapshots          GrowthContextSnapshot[]
+  opportunities                     Opportunity[]
+  campaigns                         Campaign[]
   subscriptions                     BusinessSubscription[]
+  subscription_upgrade_requests     SubscriptionPlanUpgradeRequest[]
   subscription_invoices             SubscriptionInvoice[]
   referral_code                     ReferralCode?
   referral_leads_converted          ReferralLead[]             @relation("ConvertedBusinessReferralLead")
@@ -98,6 +103,13 @@ enum SubscriptionStatus {
   ACTIVE
   GRACE_PERIOD
   SUSPENDED
+  CANCELED
+}
+
+enum SubscriptionUpgradeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
   CANCELED
 }
 
@@ -319,6 +331,7 @@ model SaleEvent {
   business_id  String
   business     Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
   social_posts SocialPost[]
+  growth_campaigns Campaign[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -377,6 +390,7 @@ model SocialPost {
   last_error           String?
 
   targets SocialPostTarget[]
+  growth_campaigns Campaign[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -419,9 +433,12 @@ model User {
   employee                         Employee?
   owner                            Owner?
   social_posts_created             SocialPost[]               @relation("SocialPostCreatedBy")
+  growth_campaigns_created         Campaign[]                 @relation("GrowthCampaignCreatedBy")
   awarded_subscription_credits     SubscriptionCreditLedger[] @relation("CreditAwardedByUser")
   platform_action_logs             PlatformActionLog[]        @relation("PlatformActorUser")
   reviewed_onboarding_applications OnboardingApplication[]    @relation("ReviewedByPlatformUser")
+  submitted_subscription_upgrade_requests SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeRequestedBy")
+  reviewed_subscription_upgrade_requests  SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeReviewedBy")
 
   must_change_password     Boolean   @default(false)
   temp_password_expires_at DateTime?
@@ -534,6 +551,8 @@ model SubscriptionPlan {
 
   subscriptions BusinessSubscription[]
   invoices      SubscriptionInvoice[]
+  upgrade_requests_as_current SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeCurrentPlan")
+  upgrade_requests_as_target  SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeTargetPlan")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -566,12 +585,48 @@ model BusinessSubscription {
   payment_method SubscriptionPaymentMethod?
   invoices       SubscriptionInvoice[]
   credits        SubscriptionCreditLedger[]
+  upgrade_requests SubscriptionPlanUpgradeRequest[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@index([status, current_period_end])
   @@index([plan_id])
+}
+
+model SubscriptionPlanUpgradeRequest {
+  id String @id @default(cuid())
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  business_subscription_id String
+  business_subscription    BusinessSubscription @relation(fields: [business_subscription_id], references: [id], onDelete: Cascade)
+
+  requested_by_user_id String
+  requested_by_user    User @relation("SubscriptionUpgradeRequestedBy", fields: [requested_by_user_id], references: [id], onDelete: Restrict)
+
+  current_plan_id String
+  current_plan    SubscriptionPlan @relation("SubscriptionUpgradeCurrentPlan", fields: [current_plan_id], references: [id], onDelete: Restrict)
+
+  target_plan_id String
+  target_plan    SubscriptionPlan @relation("SubscriptionUpgradeTargetPlan", fields: [target_plan_id], references: [id], onDelete: Restrict)
+
+  status       SubscriptionUpgradeRequestStatus @default(PENDING)
+  request_note String?
+  review_note  String?
+
+  reviewed_by_user_id String?
+  reviewed_by_user    User? @relation("SubscriptionUpgradeReviewedBy", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
+  reviewed_at         DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, status, created_at])
+  @@index([business_subscription_id, created_at])
+  @@index([status, created_at])
+  @@index([requested_by_user_id, created_at])
 }
 
 model SubscriptionPaymentMethod {
@@ -786,6 +841,7 @@ model Service {
   name        String
   description String?
   price       Float
+  estimated_cost Float @default(0)
   duration    Int?
   category    String
 
@@ -1027,6 +1083,7 @@ model AvailedService {
 
   // Pricing
   price           Float // Original service price at time of booking
+  estimated_cost  Float @default(0) // Owner-defined estimated service cost snapshot
   discount        Float   @default(0) // Discount amount applied
   discount_reason String? // "SALE_EVENT", "MANUAL", "FAMILY_DISCOUNT", etc.
   final_price     Float // price - discount = what customer pays
@@ -1114,9 +1171,233 @@ enum FlowType {
   SUGGESTED // "Recommendation" - User might want this
 }
 
+enum BusinessType {
+  SALON
+  SPA
+  CLINIC
+  BARBERSHOP
+}
+
+enum OpportunityType {
+  SLOW_HOURS
+  PAYDAY_SPIKE
+  WEEKEND_PREP
+  HOLIDAY_SEASONAL
+  WEATHER_HOOK
+  ANNIVERSARY
+  WIN_BACK
+}
+
+enum OpportunityStatus {
+  OPEN
+  DISMISSED
+  CONVERTED
+  EXPIRED
+}
+
+enum OfferType {
+  FLASH_DEAL
+  BUNDLE
+  LIMITED_SLOTS
+  STUDENT_PROMO
+  PAYDAY_PROMO
+  SEASONAL_PROMO
+}
+
+enum CampaignStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CampaignAssetType {
+  CAPTION
+  IMAGE_PROMPT
+  CTA
+  OVERLAY_TEXT
+  HASHTAG_SET
+}
+
+enum CampaignEventType {
+  POST_PUBLISHED
+  CLICK_RECORDED
+  DM_INQUIRY
+  BOOKING_ATTRIBUTED
+  PROMO_REDEEMED
+  MANUAL_FEEDBACK
+}
+
 enum CommissionCalculationBasis {
   ORIGINAL_PRICE
   DISCOUNTED_PRICE
+}
+
+model BusinessGrowthSettings {
+  id String @id @default(cuid())
+
+  business_id String   @unique
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  business_type            BusinessType @default(SALON)
+  max_discount_percent     Float        @default(20)
+  min_confidence_threshold Float        @default(0.4)
+  enable_student_promo     Boolean      @default(false)
+  tone_profile             String       @default("taglish-natural")
+  avoid_cheap_wording      Boolean      @default(false)
+  blocked_topics           String[]     @default([])
+  weather_hooks_enabled    Boolean      @default(false)
+  profit_floor_percent     Float?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model GrowthContextSnapshot {
+  id String @id @default(cuid())
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  snapshot_date DateTime
+  window_start  DateTime
+  window_end    DateTime
+
+  context_json          Json
+  capacity_summary_json Json
+  demand_summary_json   Json?
+  weather_summary_json  Json?
+
+  opportunities Opportunity[]
+
+  created_at DateTime @default(now())
+
+  @@index([business_id, snapshot_date, created_at])
+}
+
+model Opportunity {
+  id String @id @default(cuid())
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  snapshot_id String
+  snapshot    GrowthContextSnapshot @relation(fields: [snapshot_id], references: [id], onDelete: Cascade)
+
+  type   OpportunityType
+  status OpportunityStatus @default(OPEN)
+
+  reason            String
+  time_window_start DateTime
+  time_window_end   DateTime
+
+  urgency_score     Float
+  impact_score      Float
+  confidence_score  Float
+  feasibility_score Float
+  total_score       Float
+
+  recommended_offer_types OfferType[] @default([])
+  metadata                Json?
+
+  campaigns Campaign[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, status, total_score])
+  @@index([business_id, time_window_start, time_window_end])
+  @@index([snapshot_id])
+}
+
+model Campaign {
+  id String @id @default(cuid())
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  opportunity_id String
+  opportunity    Opportunity @relation(fields: [opportunity_id], references: [id], onDelete: Restrict)
+
+  status     CampaignStatus @default(DRAFT)
+  title      String
+  offer_type OfferType
+  offer_json Json
+
+  schedule_json       Json
+  risk_flags          String[] @default([])
+  why_this_suggested  String
+  opportunity_snapshot Json?
+
+  sale_event_id Int?
+  sale_event    SaleEvent? @relation(fields: [sale_event_id], references: [id], onDelete: SetNull)
+
+  social_post_id String?
+  social_post    SocialPost? @relation(fields: [social_post_id], references: [id], onDelete: SetNull)
+
+  created_by_user_id String?
+  created_by_user    User? @relation("GrowthCampaignCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  assets CampaignAsset[]
+  events CampaignEvent[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, created_at])
+  @@index([opportunity_id])
+  @@index([sale_event_id])
+  @@index([social_post_id])
+}
+
+model CampaignAsset {
+  id String @id @default(cuid())
+
+  campaign_id String
+  campaign    Campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+
+  type          CampaignAssetType
+  variant_label String
+  content       Json
+
+  created_at DateTime @default(now())
+
+  @@index([campaign_id, type])
+}
+
+model CampaignEvent {
+  id String @id @default(cuid())
+
+  campaign_id String
+  campaign    Campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+
+  event_type CampaignEventType
+  value      Float?
+  metadata   Json?
+
+  occurred_at DateTime @default(now())
+  created_at  DateTime @default(now())
+
+  @@index([campaign_id, event_type, occurred_at])
+}
+
+model SeasonalCalendar {
+  id String @id @default(cuid())
+
+  country_code String @default("PH")
+  event_date   DateTime
+  event_name   String
+  event_type   String
+  payday_rule  String?
+  weight       Float   @default(1)
+  metadata     Json?
+  is_active    Boolean @default(true)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([country_code, event_date, is_active])
+  @@index([event_type, event_date])
 }
 
 // Transactional Outbox: ensures side-effects are sent iff transaction commits

@@ -399,6 +399,7 @@ export const ModelName = {
   Owner: 'Owner',
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
+  SubscriptionPlanUpgradeRequest: 'SubscriptionPlanUpgradeRequest',
   SubscriptionPaymentMethod: 'SubscriptionPaymentMethod',
   SubscriptionInvoice: 'SubscriptionInvoice',
   SubscriptionCreditLedger: 'SubscriptionCreditLedger',
@@ -419,6 +420,13 @@ export const ModelName = {
   GiftCardPackage: 'GiftCardPackage',
   AvailedService: 'AvailedService',
   ServiceFlow: 'ServiceFlow',
+  BusinessGrowthSettings: 'BusinessGrowthSettings',
+  GrowthContextSnapshot: 'GrowthContextSnapshot',
+  Opportunity: 'Opportunity',
+  Campaign: 'Campaign',
+  CampaignAsset: 'CampaignAsset',
+  CampaignEvent: 'CampaignEvent',
+  SeasonalCalendar: 'SeasonalCalendar',
   OutboxMessage: 'OutboxMessage',
   AuditLog: 'AuditLog'
 } as const
@@ -436,7 +444,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "outboxMessage" | "auditLog"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1547,6 +1555,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BusinessSubscriptionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BusinessSubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    SubscriptionPlanUpgradeRequest: {
+      payload: Prisma.$SubscriptionPlanUpgradeRequestPayload<ExtArgs>
+      fields: Prisma.SubscriptionPlanUpgradeRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubscriptionPlanUpgradeRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubscriptionPlanUpgradeRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.SubscriptionPlanUpgradeRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubscriptionPlanUpgradeRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>
+        }
+        findMany: {
+          args: Prisma.SubscriptionPlanUpgradeRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>[]
+        }
+        create: {
+          args: Prisma.SubscriptionPlanUpgradeRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>
+        }
+        createMany: {
+          args: Prisma.SubscriptionPlanUpgradeRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubscriptionPlanUpgradeRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.SubscriptionPlanUpgradeRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>
+        }
+        update: {
+          args: Prisma.SubscriptionPlanUpgradeRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubscriptionPlanUpgradeRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubscriptionPlanUpgradeRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubscriptionPlanUpgradeRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubscriptionPlanUpgradeRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanUpgradeRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.SubscriptionPlanUpgradeRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubscriptionPlanUpgradeRequest>
+        }
+        groupBy: {
+          args: Prisma.SubscriptionPlanUpgradeRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionPlanUpgradeRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubscriptionPlanUpgradeRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionPlanUpgradeRequestCountAggregateOutputType> | number
         }
       }
     }
@@ -3030,6 +3112,524 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BusinessGrowthSettings: {
+      payload: Prisma.$BusinessGrowthSettingsPayload<ExtArgs>
+      fields: Prisma.BusinessGrowthSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BusinessGrowthSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BusinessGrowthSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.BusinessGrowthSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BusinessGrowthSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.BusinessGrowthSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.BusinessGrowthSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.BusinessGrowthSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BusinessGrowthSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.BusinessGrowthSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>
+        }
+        update: {
+          args: Prisma.BusinessGrowthSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.BusinessGrowthSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BusinessGrowthSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BusinessGrowthSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.BusinessGrowthSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessGrowthSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.BusinessGrowthSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBusinessGrowthSettings>
+        }
+        groupBy: {
+          args: Prisma.BusinessGrowthSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessGrowthSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BusinessGrowthSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessGrowthSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    GrowthContextSnapshot: {
+      payload: Prisma.$GrowthContextSnapshotPayload<ExtArgs>
+      fields: Prisma.GrowthContextSnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GrowthContextSnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GrowthContextSnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.GrowthContextSnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GrowthContextSnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.GrowthContextSnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.GrowthContextSnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.GrowthContextSnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GrowthContextSnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.GrowthContextSnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>
+        }
+        update: {
+          args: Prisma.GrowthContextSnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.GrowthContextSnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GrowthContextSnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GrowthContextSnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.GrowthContextSnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GrowthContextSnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.GrowthContextSnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGrowthContextSnapshot>
+        }
+        groupBy: {
+          args: Prisma.GrowthContextSnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GrowthContextSnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GrowthContextSnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GrowthContextSnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    Opportunity: {
+      payload: Prisma.$OpportunityPayload<ExtArgs>
+      fields: Prisma.OpportunityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpportunityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpportunityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>
+        }
+        findFirst: {
+          args: Prisma.OpportunityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpportunityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>
+        }
+        findMany: {
+          args: Prisma.OpportunityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>[]
+        }
+        create: {
+          args: Prisma.OpportunityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>
+        }
+        createMany: {
+          args: Prisma.OpportunityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpportunityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>[]
+        }
+        delete: {
+          args: Prisma.OpportunityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>
+        }
+        update: {
+          args: Prisma.OpportunityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>
+        }
+        deleteMany: {
+          args: Prisma.OpportunityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpportunityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpportunityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>[]
+        }
+        upsert: {
+          args: Prisma.OpportunityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpportunityPayload>
+        }
+        aggregate: {
+          args: Prisma.OpportunityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpportunity>
+        }
+        groupBy: {
+          args: Prisma.OpportunityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpportunityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpportunityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpportunityCountAggregateOutputType> | number
+        }
+      }
+    }
+    Campaign: {
+      payload: Prisma.$CampaignPayload<ExtArgs>
+      fields: Prisma.CampaignFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>
+        }
+        update: {
+          args: Prisma.CampaignUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaign>
+        }
+        groupBy: {
+          args: Prisma.CampaignGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignAsset: {
+      payload: Prisma.$CampaignAssetPayload<ExtArgs>
+      fields: Prisma.CampaignAssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignAssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignAssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignAssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignAssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignAssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignAssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignAssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignAssetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignAssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>
+        }
+        update: {
+          args: Prisma.CampaignAssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignAssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignAssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignAssetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignAssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAssetPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignAssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignAsset>
+        }
+        groupBy: {
+          args: Prisma.CampaignAssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignAssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignAssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignAssetCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignEvent: {
+      payload: Prisma.$CampaignEventPayload<ExtArgs>
+      fields: Prisma.CampaignEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>
+        }
+        update: {
+          args: Prisma.CampaignEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignEvent>
+        }
+        groupBy: {
+          args: Prisma.CampaignEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    SeasonalCalendar: {
+      payload: Prisma.$SeasonalCalendarPayload<ExtArgs>
+      fields: Prisma.SeasonalCalendarFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SeasonalCalendarFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SeasonalCalendarFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>
+        }
+        findFirst: {
+          args: Prisma.SeasonalCalendarFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SeasonalCalendarFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>
+        }
+        findMany: {
+          args: Prisma.SeasonalCalendarFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>[]
+        }
+        create: {
+          args: Prisma.SeasonalCalendarCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>
+        }
+        createMany: {
+          args: Prisma.SeasonalCalendarCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SeasonalCalendarCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>[]
+        }
+        delete: {
+          args: Prisma.SeasonalCalendarDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>
+        }
+        update: {
+          args: Prisma.SeasonalCalendarUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>
+        }
+        deleteMany: {
+          args: Prisma.SeasonalCalendarDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SeasonalCalendarUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SeasonalCalendarUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>[]
+        }
+        upsert: {
+          args: Prisma.SeasonalCalendarUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeasonalCalendarPayload>
+        }
+        aggregate: {
+          args: Prisma.SeasonalCalendarAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSeasonalCalendar>
+        }
+        groupBy: {
+          args: Prisma.SeasonalCalendarGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SeasonalCalendarGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SeasonalCalendarCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SeasonalCalendarCountAggregateOutputType> | number
+        }
+      }
+    }
     OutboxMessage: {
       payload: Prisma.$OutboxMessagePayload<ExtArgs>
       fields: Prisma.OutboxMessageFieldRefs
@@ -3468,6 +4068,25 @@ export const BusinessSubscriptionScalarFieldEnum = {
 export type BusinessSubscriptionScalarFieldEnum = (typeof BusinessSubscriptionScalarFieldEnum)[keyof typeof BusinessSubscriptionScalarFieldEnum]
 
 
+export const SubscriptionPlanUpgradeRequestScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  business_subscription_id: 'business_subscription_id',
+  requested_by_user_id: 'requested_by_user_id',
+  current_plan_id: 'current_plan_id',
+  target_plan_id: 'target_plan_id',
+  status: 'status',
+  request_note: 'request_note',
+  review_note: 'review_note',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SubscriptionPlanUpgradeRequestScalarFieldEnum = (typeof SubscriptionPlanUpgradeRequestScalarFieldEnum)[keyof typeof SubscriptionPlanUpgradeRequestScalarFieldEnum]
+
+
 export const SubscriptionPaymentMethodScalarFieldEnum = {
   id: 'id',
   business_subscription_id: 'business_subscription_id',
@@ -3617,6 +4236,7 @@ export const ServiceScalarFieldEnum = {
   name: 'name',
   description: 'description',
   price: 'price',
+  estimated_cost: 'estimated_cost',
   duration: 'duration',
   category: 'category',
   business_id: 'business_id',
@@ -3769,6 +4389,7 @@ export type GiftCardPackageScalarFieldEnum = (typeof GiftCardPackageScalarFieldE
 export const AvailedServiceScalarFieldEnum = {
   id: 'id',
   price: 'price',
+  estimated_cost: 'estimated_cost',
   discount: 'discount',
   discount_reason: 'discount_reason',
   final_price: 'final_price',
@@ -3806,6 +4427,128 @@ export const ServiceFlowScalarFieldEnum = {
 } as const
 
 export type ServiceFlowScalarFieldEnum = (typeof ServiceFlowScalarFieldEnum)[keyof typeof ServiceFlowScalarFieldEnum]
+
+
+export const BusinessGrowthSettingsScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  business_type: 'business_type',
+  max_discount_percent: 'max_discount_percent',
+  min_confidence_threshold: 'min_confidence_threshold',
+  enable_student_promo: 'enable_student_promo',
+  tone_profile: 'tone_profile',
+  avoid_cheap_wording: 'avoid_cheap_wording',
+  blocked_topics: 'blocked_topics',
+  weather_hooks_enabled: 'weather_hooks_enabled',
+  profit_floor_percent: 'profit_floor_percent',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BusinessGrowthSettingsScalarFieldEnum = (typeof BusinessGrowthSettingsScalarFieldEnum)[keyof typeof BusinessGrowthSettingsScalarFieldEnum]
+
+
+export const GrowthContextSnapshotScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  snapshot_date: 'snapshot_date',
+  window_start: 'window_start',
+  window_end: 'window_end',
+  context_json: 'context_json',
+  capacity_summary_json: 'capacity_summary_json',
+  demand_summary_json: 'demand_summary_json',
+  weather_summary_json: 'weather_summary_json',
+  created_at: 'created_at'
+} as const
+
+export type GrowthContextSnapshotScalarFieldEnum = (typeof GrowthContextSnapshotScalarFieldEnum)[keyof typeof GrowthContextSnapshotScalarFieldEnum]
+
+
+export const OpportunityScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  snapshot_id: 'snapshot_id',
+  type: 'type',
+  status: 'status',
+  reason: 'reason',
+  time_window_start: 'time_window_start',
+  time_window_end: 'time_window_end',
+  urgency_score: 'urgency_score',
+  impact_score: 'impact_score',
+  confidence_score: 'confidence_score',
+  feasibility_score: 'feasibility_score',
+  total_score: 'total_score',
+  recommended_offer_types: 'recommended_offer_types',
+  metadata: 'metadata',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type OpportunityScalarFieldEnum = (typeof OpportunityScalarFieldEnum)[keyof typeof OpportunityScalarFieldEnum]
+
+
+export const CampaignScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  opportunity_id: 'opportunity_id',
+  status: 'status',
+  title: 'title',
+  offer_type: 'offer_type',
+  offer_json: 'offer_json',
+  schedule_json: 'schedule_json',
+  risk_flags: 'risk_flags',
+  why_this_suggested: 'why_this_suggested',
+  opportunity_snapshot: 'opportunity_snapshot',
+  sale_event_id: 'sale_event_id',
+  social_post_id: 'social_post_id',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
+
+
+export const CampaignAssetScalarFieldEnum = {
+  id: 'id',
+  campaign_id: 'campaign_id',
+  type: 'type',
+  variant_label: 'variant_label',
+  content: 'content',
+  created_at: 'created_at'
+} as const
+
+export type CampaignAssetScalarFieldEnum = (typeof CampaignAssetScalarFieldEnum)[keyof typeof CampaignAssetScalarFieldEnum]
+
+
+export const CampaignEventScalarFieldEnum = {
+  id: 'id',
+  campaign_id: 'campaign_id',
+  event_type: 'event_type',
+  value: 'value',
+  metadata: 'metadata',
+  occurred_at: 'occurred_at',
+  created_at: 'created_at'
+} as const
+
+export type CampaignEventScalarFieldEnum = (typeof CampaignEventScalarFieldEnum)[keyof typeof CampaignEventScalarFieldEnum]
+
+
+export const SeasonalCalendarScalarFieldEnum = {
+  id: 'id',
+  country_code: 'country_code',
+  event_date: 'event_date',
+  event_name: 'event_name',
+  event_type: 'event_type',
+  payday_rule: 'payday_rule',
+  weight: 'weight',
+  metadata: 'metadata',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SeasonalCalendarScalarFieldEnum = (typeof SeasonalCalendarScalarFieldEnum)[keyof typeof SeasonalCalendarScalarFieldEnum]
 
 
 export const OutboxMessageScalarFieldEnum = {
@@ -4168,6 +4911,20 @@ export type ListEnumCollectionMethodFieldRefInput<$PrismaModel> = FieldRefInputT
 
 
 /**
+ * Reference to a field of type 'SubscriptionUpgradeRequestStatus'
+ */
+export type EnumSubscriptionUpgradeRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionUpgradeRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SubscriptionUpgradeRequestStatus[]'
+ */
+export type ListEnumSubscriptionUpgradeRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionUpgradeRequestStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'InvoiceStatus'
  */
 export type EnumInvoiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvoiceStatus'>
@@ -4390,6 +5147,104 @@ export type EnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 export type ListEnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FlowType[]'>
     
 
+
+/**
+ * Reference to a field of type 'BusinessType'
+ */
+export type EnumBusinessTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessType'>
+    
+
+
+/**
+ * Reference to a field of type 'BusinessType[]'
+ */
+export type ListEnumBusinessTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OpportunityType'
+ */
+export type EnumOpportunityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OpportunityType'>
+    
+
+
+/**
+ * Reference to a field of type 'OpportunityType[]'
+ */
+export type ListEnumOpportunityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OpportunityType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OpportunityStatus'
+ */
+export type EnumOpportunityStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OpportunityStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'OpportunityStatus[]'
+ */
+export type ListEnumOpportunityStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OpportunityStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OfferType[]'
+ */
+export type ListEnumOfferTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OfferType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OfferType'
+ */
+export type EnumOfferTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OfferType'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignStatus'
+ */
+export type EnumCampaignStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignStatus[]'
+ */
+export type ListEnumCampaignStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignAssetType'
+ */
+export type EnumCampaignAssetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignAssetType'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignAssetType[]'
+ */
+export type ListEnumCampaignAssetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignAssetType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignEventType'
+ */
+export type EnumCampaignEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignEventType[]'
+ */
+export type ListEnumCampaignEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignEventType[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -4500,6 +5355,7 @@ export type GlobalOmitConfig = {
   owner?: Prisma.OwnerOmit
   subscriptionPlan?: Prisma.SubscriptionPlanOmit
   businessSubscription?: Prisma.BusinessSubscriptionOmit
+  subscriptionPlanUpgradeRequest?: Prisma.SubscriptionPlanUpgradeRequestOmit
   subscriptionPaymentMethod?: Prisma.SubscriptionPaymentMethodOmit
   subscriptionInvoice?: Prisma.SubscriptionInvoiceOmit
   subscriptionCreditLedger?: Prisma.SubscriptionCreditLedgerOmit
@@ -4520,6 +5376,13 @@ export type GlobalOmitConfig = {
   giftCardPackage?: Prisma.GiftCardPackageOmit
   availedService?: Prisma.AvailedServiceOmit
   serviceFlow?: Prisma.ServiceFlowOmit
+  businessGrowthSettings?: Prisma.BusinessGrowthSettingsOmit
+  growthContextSnapshot?: Prisma.GrowthContextSnapshotOmit
+  opportunity?: Prisma.OpportunityOmit
+  campaign?: Prisma.CampaignOmit
+  campaignAsset?: Prisma.CampaignAssetOmit
+  campaignEvent?: Prisma.CampaignEventOmit
+  seasonalCalendar?: Prisma.SeasonalCalendarOmit
   outboxMessage?: Prisma.OutboxMessageOmit
   auditLog?: Prisma.AuditLogOmit
 }

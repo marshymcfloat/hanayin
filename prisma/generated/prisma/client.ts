@@ -115,6 +115,11 @@ export type SubscriptionPlan = Prisma.SubscriptionPlanModel
  */
 export type BusinessSubscription = Prisma.BusinessSubscriptionModel
 /**
+ * Model SubscriptionPlanUpgradeRequest
+ * 
+ */
+export type SubscriptionPlanUpgradeRequest = Prisma.SubscriptionPlanUpgradeRequestModel
+/**
  * Model SubscriptionPaymentMethod
  * 
  */
@@ -214,6 +219,41 @@ export type AvailedService = Prisma.AvailedServiceModel
  * 
  */
 export type ServiceFlow = Prisma.ServiceFlowModel
+/**
+ * Model BusinessGrowthSettings
+ * 
+ */
+export type BusinessGrowthSettings = Prisma.BusinessGrowthSettingsModel
+/**
+ * Model GrowthContextSnapshot
+ * 
+ */
+export type GrowthContextSnapshot = Prisma.GrowthContextSnapshotModel
+/**
+ * Model Opportunity
+ * 
+ */
+export type Opportunity = Prisma.OpportunityModel
+/**
+ * Model Campaign
+ * 
+ */
+export type Campaign = Prisma.CampaignModel
+/**
+ * Model CampaignAsset
+ * 
+ */
+export type CampaignAsset = Prisma.CampaignAssetModel
+/**
+ * Model CampaignEvent
+ * 
+ */
+export type CampaignEvent = Prisma.CampaignEventModel
+/**
+ * Model SeasonalCalendar
+ * 
+ */
+export type SeasonalCalendar = Prisma.SeasonalCalendarModel
 /**
  * Model OutboxMessage
  * 

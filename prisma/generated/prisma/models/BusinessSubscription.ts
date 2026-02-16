@@ -275,6 +275,7 @@ export type BusinessSubscriptionWhereInput = {
   payment_method?: Prisma.XOR<Prisma.SubscriptionPaymentMethodNullableScalarRelationFilter, Prisma.SubscriptionPaymentMethodWhereInput> | null
   invoices?: Prisma.SubscriptionInvoiceListRelationFilter
   credits?: Prisma.SubscriptionCreditLedgerListRelationFilter
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestListRelationFilter
 }
 
 export type BusinessSubscriptionOrderByWithRelationInput = {
@@ -299,6 +300,7 @@ export type BusinessSubscriptionOrderByWithRelationInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodOrderByWithRelationInput
   invoices?: Prisma.SubscriptionInvoiceOrderByRelationAggregateInput
   credits?: Prisma.SubscriptionCreditLedgerOrderByRelationAggregateInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestOrderByRelationAggregateInput
 }
 
 export type BusinessSubscriptionWhereUniqueInput = Prisma.AtLeast<{
@@ -326,6 +328,7 @@ export type BusinessSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   payment_method?: Prisma.XOR<Prisma.SubscriptionPaymentMethodNullableScalarRelationFilter, Prisma.SubscriptionPaymentMethodWhereInput> | null
   invoices?: Prisma.SubscriptionInvoiceListRelationFilter
   credits?: Prisma.SubscriptionCreditLedgerListRelationFilter
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestListRelationFilter
 }, "id" | "business_id">
 
 export type BusinessSubscriptionOrderByWithAggregationInput = {
@@ -392,6 +395,7 @@ export type BusinessSubscriptionCreateInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionUncheckedCreateInput = {
@@ -414,6 +418,7 @@ export type BusinessSubscriptionUncheckedCreateInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionUpdateInput = {
@@ -436,6 +441,7 @@ export type BusinessSubscriptionUpdateInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateInput = {
@@ -458,6 +464,7 @@ export type BusinessSubscriptionUncheckedUpdateInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionCreateManyInput = {
@@ -679,6 +686,20 @@ export type EnumCollectionMethodFieldUpdateOperationsInput = {
   set?: $Enums.CollectionMethod
 }
 
+export type BusinessSubscriptionCreateNestedOneWithoutUpgrade_requestsInput = {
+  create?: Prisma.XOR<Prisma.BusinessSubscriptionCreateWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUncheckedCreateWithoutUpgrade_requestsInput>
+  connectOrCreate?: Prisma.BusinessSubscriptionCreateOrConnectWithoutUpgrade_requestsInput
+  connect?: Prisma.BusinessSubscriptionWhereUniqueInput
+}
+
+export type BusinessSubscriptionUpdateOneRequiredWithoutUpgrade_requestsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessSubscriptionCreateWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUncheckedCreateWithoutUpgrade_requestsInput>
+  connectOrCreate?: Prisma.BusinessSubscriptionCreateOrConnectWithoutUpgrade_requestsInput
+  upsert?: Prisma.BusinessSubscriptionUpsertWithoutUpgrade_requestsInput
+  connect?: Prisma.BusinessSubscriptionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessSubscriptionUpdateToOneWithWhereWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUpdateWithoutUpgrade_requestsInput>, Prisma.BusinessSubscriptionUncheckedUpdateWithoutUpgrade_requestsInput>
+}
+
 export type BusinessSubscriptionCreateNestedOneWithoutPayment_methodInput = {
   create?: Prisma.XOR<Prisma.BusinessSubscriptionCreateWithoutPayment_methodInput, Prisma.BusinessSubscriptionUncheckedCreateWithoutPayment_methodInput>
   connectOrCreate?: Prisma.BusinessSubscriptionCreateOrConnectWithoutPayment_methodInput
@@ -740,6 +761,7 @@ export type BusinessSubscriptionCreateWithoutBusinessInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionUncheckedCreateWithoutBusinessInput = {
@@ -761,6 +783,7 @@ export type BusinessSubscriptionUncheckedCreateWithoutBusinessInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionCreateOrConnectWithoutBusinessInput = {
@@ -830,6 +853,7 @@ export type BusinessSubscriptionCreateWithoutPlanInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionUncheckedCreateWithoutPlanInput = {
@@ -851,6 +875,7 @@ export type BusinessSubscriptionUncheckedCreateWithoutPlanInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionCreateOrConnectWithoutPlanInput = {
@@ -879,6 +904,110 @@ export type BusinessSubscriptionUpdateManyWithWhereWithoutPlanInput = {
   data: Prisma.XOR<Prisma.BusinessSubscriptionUpdateManyMutationInput, Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutPlanInput>
 }
 
+export type BusinessSubscriptionCreateWithoutUpgrade_requestsInput = {
+  id?: string
+  status?: $Enums.SubscriptionStatus
+  collection_method?: $Enums.CollectionMethod
+  recurring_enabled?: boolean
+  current_period_start: Date | string
+  current_period_end: Date | string
+  trial_ends_at?: Date | string | null
+  grace_ends_at?: Date | string | null
+  suspended_at?: Date | string | null
+  cancel_at_period_end?: boolean
+  canceled_at?: Date | string | null
+  started_at?: Date | string
+  created_at?: Date | string
+  updated_at?: Date | string
+  business: Prisma.BusinessCreateNestedOneWithoutSubscriptionsInput
+  plan: Prisma.SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
+  payment_method?: Prisma.SubscriptionPaymentMethodCreateNestedOneWithoutBusiness_subscriptionInput
+  invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusiness_subscriptionInput
+  credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutBusiness_subscriptionInput
+}
+
+export type BusinessSubscriptionUncheckedCreateWithoutUpgrade_requestsInput = {
+  id?: string
+  business_id: string
+  plan_id: string
+  status?: $Enums.SubscriptionStatus
+  collection_method?: $Enums.CollectionMethod
+  recurring_enabled?: boolean
+  current_period_start: Date | string
+  current_period_end: Date | string
+  trial_ends_at?: Date | string | null
+  grace_ends_at?: Date | string | null
+  suspended_at?: Date | string | null
+  cancel_at_period_end?: boolean
+  canceled_at?: Date | string | null
+  started_at?: Date | string
+  created_at?: Date | string
+  updated_at?: Date | string
+  payment_method?: Prisma.SubscriptionPaymentMethodUncheckedCreateNestedOneWithoutBusiness_subscriptionInput
+  invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+  credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+}
+
+export type BusinessSubscriptionCreateOrConnectWithoutUpgrade_requestsInput = {
+  where: Prisma.BusinessSubscriptionWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessSubscriptionCreateWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUncheckedCreateWithoutUpgrade_requestsInput>
+}
+
+export type BusinessSubscriptionUpsertWithoutUpgrade_requestsInput = {
+  update: Prisma.XOR<Prisma.BusinessSubscriptionUpdateWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUncheckedUpdateWithoutUpgrade_requestsInput>
+  create: Prisma.XOR<Prisma.BusinessSubscriptionCreateWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUncheckedCreateWithoutUpgrade_requestsInput>
+  where?: Prisma.BusinessSubscriptionWhereInput
+}
+
+export type BusinessSubscriptionUpdateToOneWithWhereWithoutUpgrade_requestsInput = {
+  where?: Prisma.BusinessSubscriptionWhereInput
+  data: Prisma.XOR<Prisma.BusinessSubscriptionUpdateWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUncheckedUpdateWithoutUpgrade_requestsInput>
+}
+
+export type BusinessSubscriptionUpdateWithoutUpgrade_requestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
+  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  grace_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspended_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancel_at_period_end?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canceled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  started_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  business?: Prisma.BusinessUpdateOneRequiredWithoutSubscriptionsNestedInput
+  plan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
+  payment_method?: Prisma.SubscriptionPaymentMethodUpdateOneWithoutBusiness_subscriptionNestedInput
+  invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusiness_subscriptionNestedInput
+  credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutBusiness_subscriptionNestedInput
+}
+
+export type BusinessSubscriptionUncheckedUpdateWithoutUpgrade_requestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  plan_id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
+  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  grace_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspended_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancel_at_period_end?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  canceled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  started_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  payment_method?: Prisma.SubscriptionPaymentMethodUncheckedUpdateOneWithoutBusiness_subscriptionNestedInput
+  invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+  credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+}
+
 export type BusinessSubscriptionCreateWithoutPayment_methodInput = {
   id?: string
   status?: $Enums.SubscriptionStatus
@@ -898,6 +1027,7 @@ export type BusinessSubscriptionCreateWithoutPayment_methodInput = {
   plan: Prisma.SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
   invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionUncheckedCreateWithoutPayment_methodInput = {
@@ -919,6 +1049,7 @@ export type BusinessSubscriptionUncheckedCreateWithoutPayment_methodInput = {
   updated_at?: Date | string
   invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionCreateOrConnectWithoutPayment_methodInput = {
@@ -956,6 +1087,7 @@ export type BusinessSubscriptionUpdateWithoutPayment_methodInput = {
   plan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
   invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateWithoutPayment_methodInput = {
@@ -977,6 +1109,7 @@ export type BusinessSubscriptionUncheckedUpdateWithoutPayment_methodInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionCreateWithoutInvoicesInput = {
@@ -998,6 +1131,7 @@ export type BusinessSubscriptionCreateWithoutInvoicesInput = {
   plan: Prisma.SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
   payment_method?: Prisma.SubscriptionPaymentMethodCreateNestedOneWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionUncheckedCreateWithoutInvoicesInput = {
@@ -1019,6 +1153,7 @@ export type BusinessSubscriptionUncheckedCreateWithoutInvoicesInput = {
   updated_at?: Date | string
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedCreateNestedOneWithoutBusiness_subscriptionInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionCreateOrConnectWithoutInvoicesInput = {
@@ -1056,6 +1191,7 @@ export type BusinessSubscriptionUpdateWithoutInvoicesInput = {
   plan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
   payment_method?: Prisma.SubscriptionPaymentMethodUpdateOneWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateWithoutInvoicesInput = {
@@ -1077,6 +1213,7 @@ export type BusinessSubscriptionUncheckedUpdateWithoutInvoicesInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedUpdateOneWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionCreateWithoutCreditsInput = {
@@ -1098,6 +1235,7 @@ export type BusinessSubscriptionCreateWithoutCreditsInput = {
   plan: Prisma.SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
   payment_method?: Prisma.SubscriptionPaymentMethodCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionUncheckedCreateWithoutCreditsInput = {
@@ -1119,6 +1257,7 @@ export type BusinessSubscriptionUncheckedCreateWithoutCreditsInput = {
   updated_at?: Date | string
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedCreateNestedOneWithoutBusiness_subscriptionInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusiness_subscriptionInput
 }
 
 export type BusinessSubscriptionCreateOrConnectWithoutCreditsInput = {
@@ -1156,6 +1295,7 @@ export type BusinessSubscriptionUpdateWithoutCreditsInput = {
   plan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
   payment_method?: Prisma.SubscriptionPaymentMethodUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateWithoutCreditsInput = {
@@ -1177,6 +1317,7 @@ export type BusinessSubscriptionUncheckedUpdateWithoutCreditsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionCreateManyBusinessInput = {
@@ -1216,6 +1357,7 @@ export type BusinessSubscriptionUpdateWithoutBusinessInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateWithoutBusinessInput = {
@@ -1237,6 +1379,7 @@ export type BusinessSubscriptionUncheckedUpdateWithoutBusinessInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateManyWithoutBusinessInput = {
@@ -1294,6 +1437,7 @@ export type BusinessSubscriptionUpdateWithoutPlanInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateWithoutPlanInput = {
@@ -1315,6 +1459,7 @@ export type BusinessSubscriptionUncheckedUpdateWithoutPlanInput = {
   payment_method?: Prisma.SubscriptionPaymentMethodUncheckedUpdateOneWithoutBusiness_subscriptionNestedInput
   invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
   credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
+  upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusiness_subscriptionNestedInput
 }
 
 export type BusinessSubscriptionUncheckedUpdateManyWithoutPlanInput = {
@@ -1343,11 +1488,13 @@ export type BusinessSubscriptionUncheckedUpdateManyWithoutPlanInput = {
 export type BusinessSubscriptionCountOutputType = {
   invoices: number
   credits: number
+  upgrade_requests: number
 }
 
 export type BusinessSubscriptionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   invoices?: boolean | BusinessSubscriptionCountOutputTypeCountInvoicesArgs
   credits?: boolean | BusinessSubscriptionCountOutputTypeCountCreditsArgs
+  upgrade_requests?: boolean | BusinessSubscriptionCountOutputTypeCountUpgrade_requestsArgs
 }
 
 /**
@@ -1374,6 +1521,13 @@ export type BusinessSubscriptionCountOutputTypeCountCreditsArgs<ExtArgs extends 
   where?: Prisma.SubscriptionCreditLedgerWhereInput
 }
 
+/**
+ * BusinessSubscriptionCountOutputType without action
+ */
+export type BusinessSubscriptionCountOutputTypeCountUpgrade_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SubscriptionPlanUpgradeRequestWhereInput
+}
+
 
 export type BusinessSubscriptionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1397,6 +1551,7 @@ export type BusinessSubscriptionSelect<ExtArgs extends runtime.Types.Extensions.
   payment_method?: boolean | Prisma.BusinessSubscription$payment_methodArgs<ExtArgs>
   invoices?: boolean | Prisma.BusinessSubscription$invoicesArgs<ExtArgs>
   credits?: boolean | Prisma.BusinessSubscription$creditsArgs<ExtArgs>
+  upgrade_requests?: boolean | Prisma.BusinessSubscription$upgrade_requestsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessSubscriptionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["businessSubscription"]>
 
@@ -1468,6 +1623,7 @@ export type BusinessSubscriptionInclude<ExtArgs extends runtime.Types.Extensions
   payment_method?: boolean | Prisma.BusinessSubscription$payment_methodArgs<ExtArgs>
   invoices?: boolean | Prisma.BusinessSubscription$invoicesArgs<ExtArgs>
   credits?: boolean | Prisma.BusinessSubscription$creditsArgs<ExtArgs>
+  upgrade_requests?: boolean | Prisma.BusinessSubscription$upgrade_requestsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessSubscriptionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BusinessSubscriptionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1487,6 +1643,7 @@ export type $BusinessSubscriptionPayload<ExtArgs extends runtime.Types.Extension
     payment_method: Prisma.$SubscriptionPaymentMethodPayload<ExtArgs> | null
     invoices: Prisma.$SubscriptionInvoicePayload<ExtArgs>[]
     credits: Prisma.$SubscriptionCreditLedgerPayload<ExtArgs>[]
+    upgrade_requests: Prisma.$SubscriptionPlanUpgradeRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1904,6 +2061,7 @@ export interface Prisma__BusinessSubscriptionClient<T, Null = never, ExtArgs ext
   payment_method<T extends Prisma.BusinessSubscription$payment_methodArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessSubscription$payment_methodArgs<ExtArgs>>): Prisma.Prisma__SubscriptionPaymentMethodClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPaymentMethodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invoices<T extends Prisma.BusinessSubscription$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessSubscription$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   credits<T extends Prisma.BusinessSubscription$creditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessSubscription$creditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionCreditLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  upgrade_requests<T extends Prisma.BusinessSubscription$upgrade_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessSubscription$upgrade_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPlanUpgradeRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2409,6 +2567,30 @@ export type BusinessSubscription$creditsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.SubscriptionCreditLedgerScalarFieldEnum | Prisma.SubscriptionCreditLedgerScalarFieldEnum[]
+}
+
+/**
+ * BusinessSubscription.upgrade_requests
+ */
+export type BusinessSubscription$upgrade_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SubscriptionPlanUpgradeRequest
+   */
+  select?: Prisma.SubscriptionPlanUpgradeRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SubscriptionPlanUpgradeRequest
+   */
+  omit?: Prisma.SubscriptionPlanUpgradeRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SubscriptionPlanUpgradeRequestInclude<ExtArgs> | null
+  where?: Prisma.SubscriptionPlanUpgradeRequestWhereInput
+  orderBy?: Prisma.SubscriptionPlanUpgradeRequestOrderByWithRelationInput | Prisma.SubscriptionPlanUpgradeRequestOrderByWithRelationInput[]
+  cursor?: Prisma.SubscriptionPlanUpgradeRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SubscriptionPlanUpgradeRequestScalarFieldEnum | Prisma.SubscriptionPlanUpgradeRequestScalarFieldEnum[]
 }
 
 /**

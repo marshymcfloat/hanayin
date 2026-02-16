@@ -37,6 +37,16 @@ export const SubscriptionStatus = {
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
 
 
+export const SubscriptionUpgradeRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELED: 'CANCELED'
+} as const
+
+export type SubscriptionUpgradeRequestStatus = (typeof SubscriptionUpgradeRequestStatus)[keyof typeof SubscriptionUpgradeRequestStatus]
+
+
 export const CollectionMethod = {
   MANUAL_CHECKOUT: 'MANUAL_CHECKOUT',
   AUTO_CHARGE: 'AUTO_CHARGE'
@@ -284,6 +294,84 @@ export const FlowType = {
 } as const
 
 export type FlowType = (typeof FlowType)[keyof typeof FlowType]
+
+
+export const BusinessType = {
+  SALON: 'SALON',
+  SPA: 'SPA',
+  CLINIC: 'CLINIC',
+  BARBERSHOP: 'BARBERSHOP'
+} as const
+
+export type BusinessType = (typeof BusinessType)[keyof typeof BusinessType]
+
+
+export const OpportunityType = {
+  SLOW_HOURS: 'SLOW_HOURS',
+  PAYDAY_SPIKE: 'PAYDAY_SPIKE',
+  WEEKEND_PREP: 'WEEKEND_PREP',
+  HOLIDAY_SEASONAL: 'HOLIDAY_SEASONAL',
+  WEATHER_HOOK: 'WEATHER_HOOK',
+  ANNIVERSARY: 'ANNIVERSARY',
+  WIN_BACK: 'WIN_BACK'
+} as const
+
+export type OpportunityType = (typeof OpportunityType)[keyof typeof OpportunityType]
+
+
+export const OpportunityStatus = {
+  OPEN: 'OPEN',
+  DISMISSED: 'DISMISSED',
+  CONVERTED: 'CONVERTED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type OpportunityStatus = (typeof OpportunityStatus)[keyof typeof OpportunityStatus]
+
+
+export const OfferType = {
+  FLASH_DEAL: 'FLASH_DEAL',
+  BUNDLE: 'BUNDLE',
+  LIMITED_SLOTS: 'LIMITED_SLOTS',
+  STUDENT_PROMO: 'STUDENT_PROMO',
+  PAYDAY_PROMO: 'PAYDAY_PROMO',
+  SEASONAL_PROMO: 'SEASONAL_PROMO'
+} as const
+
+export type OfferType = (typeof OfferType)[keyof typeof OfferType]
+
+
+export const CampaignStatus = {
+  DRAFT: 'DRAFT',
+  READY: 'READY',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type CampaignStatus = (typeof CampaignStatus)[keyof typeof CampaignStatus]
+
+
+export const CampaignAssetType = {
+  CAPTION: 'CAPTION',
+  IMAGE_PROMPT: 'IMAGE_PROMPT',
+  CTA: 'CTA',
+  OVERLAY_TEXT: 'OVERLAY_TEXT',
+  HASHTAG_SET: 'HASHTAG_SET'
+} as const
+
+export type CampaignAssetType = (typeof CampaignAssetType)[keyof typeof CampaignAssetType]
+
+
+export const CampaignEventType = {
+  POST_PUBLISHED: 'POST_PUBLISHED',
+  CLICK_RECORDED: 'CLICK_RECORDED',
+  DM_INQUIRY: 'DM_INQUIRY',
+  BOOKING_ATTRIBUTED: 'BOOKING_ATTRIBUTED',
+  PROMO_REDEEMED: 'PROMO_REDEEMED',
+  MANUAL_FEEDBACK: 'MANUAL_FEEDBACK'
+} as const
+
+export type CampaignEventType = (typeof CampaignEventType)[keyof typeof CampaignEventType]
 
 
 export const CommissionCalculationBasis = {

@@ -66,6 +66,7 @@ export const ModelName = {
   Owner: 'Owner',
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
+  SubscriptionPlanUpgradeRequest: 'SubscriptionPlanUpgradeRequest',
   SubscriptionPaymentMethod: 'SubscriptionPaymentMethod',
   SubscriptionInvoice: 'SubscriptionInvoice',
   SubscriptionCreditLedger: 'SubscriptionCreditLedger',
@@ -86,6 +87,13 @@ export const ModelName = {
   GiftCardPackage: 'GiftCardPackage',
   AvailedService: 'AvailedService',
   ServiceFlow: 'ServiceFlow',
+  BusinessGrowthSettings: 'BusinessGrowthSettings',
+  GrowthContextSnapshot: 'GrowthContextSnapshot',
+  Opportunity: 'Opportunity',
+  Campaign: 'Campaign',
+  CampaignAsset: 'CampaignAsset',
+  CampaignEvent: 'CampaignEvent',
+  SeasonalCalendar: 'SeasonalCalendar',
   OutboxMessage: 'OutboxMessage',
   AuditLog: 'AuditLog'
 } as const
@@ -357,6 +365,25 @@ export const BusinessSubscriptionScalarFieldEnum = {
 export type BusinessSubscriptionScalarFieldEnum = (typeof BusinessSubscriptionScalarFieldEnum)[keyof typeof BusinessSubscriptionScalarFieldEnum]
 
 
+export const SubscriptionPlanUpgradeRequestScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  business_subscription_id: 'business_subscription_id',
+  requested_by_user_id: 'requested_by_user_id',
+  current_plan_id: 'current_plan_id',
+  target_plan_id: 'target_plan_id',
+  status: 'status',
+  request_note: 'request_note',
+  review_note: 'review_note',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SubscriptionPlanUpgradeRequestScalarFieldEnum = (typeof SubscriptionPlanUpgradeRequestScalarFieldEnum)[keyof typeof SubscriptionPlanUpgradeRequestScalarFieldEnum]
+
+
 export const SubscriptionPaymentMethodScalarFieldEnum = {
   id: 'id',
   business_subscription_id: 'business_subscription_id',
@@ -506,6 +533,7 @@ export const ServiceScalarFieldEnum = {
   name: 'name',
   description: 'description',
   price: 'price',
+  estimated_cost: 'estimated_cost',
   duration: 'duration',
   category: 'category',
   business_id: 'business_id',
@@ -658,6 +686,7 @@ export type GiftCardPackageScalarFieldEnum = (typeof GiftCardPackageScalarFieldE
 export const AvailedServiceScalarFieldEnum = {
   id: 'id',
   price: 'price',
+  estimated_cost: 'estimated_cost',
   discount: 'discount',
   discount_reason: 'discount_reason',
   final_price: 'final_price',
@@ -695,6 +724,128 @@ export const ServiceFlowScalarFieldEnum = {
 } as const
 
 export type ServiceFlowScalarFieldEnum = (typeof ServiceFlowScalarFieldEnum)[keyof typeof ServiceFlowScalarFieldEnum]
+
+
+export const BusinessGrowthSettingsScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  business_type: 'business_type',
+  max_discount_percent: 'max_discount_percent',
+  min_confidence_threshold: 'min_confidence_threshold',
+  enable_student_promo: 'enable_student_promo',
+  tone_profile: 'tone_profile',
+  avoid_cheap_wording: 'avoid_cheap_wording',
+  blocked_topics: 'blocked_topics',
+  weather_hooks_enabled: 'weather_hooks_enabled',
+  profit_floor_percent: 'profit_floor_percent',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BusinessGrowthSettingsScalarFieldEnum = (typeof BusinessGrowthSettingsScalarFieldEnum)[keyof typeof BusinessGrowthSettingsScalarFieldEnum]
+
+
+export const GrowthContextSnapshotScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  snapshot_date: 'snapshot_date',
+  window_start: 'window_start',
+  window_end: 'window_end',
+  context_json: 'context_json',
+  capacity_summary_json: 'capacity_summary_json',
+  demand_summary_json: 'demand_summary_json',
+  weather_summary_json: 'weather_summary_json',
+  created_at: 'created_at'
+} as const
+
+export type GrowthContextSnapshotScalarFieldEnum = (typeof GrowthContextSnapshotScalarFieldEnum)[keyof typeof GrowthContextSnapshotScalarFieldEnum]
+
+
+export const OpportunityScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  snapshot_id: 'snapshot_id',
+  type: 'type',
+  status: 'status',
+  reason: 'reason',
+  time_window_start: 'time_window_start',
+  time_window_end: 'time_window_end',
+  urgency_score: 'urgency_score',
+  impact_score: 'impact_score',
+  confidence_score: 'confidence_score',
+  feasibility_score: 'feasibility_score',
+  total_score: 'total_score',
+  recommended_offer_types: 'recommended_offer_types',
+  metadata: 'metadata',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type OpportunityScalarFieldEnum = (typeof OpportunityScalarFieldEnum)[keyof typeof OpportunityScalarFieldEnum]
+
+
+export const CampaignScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  opportunity_id: 'opportunity_id',
+  status: 'status',
+  title: 'title',
+  offer_type: 'offer_type',
+  offer_json: 'offer_json',
+  schedule_json: 'schedule_json',
+  risk_flags: 'risk_flags',
+  why_this_suggested: 'why_this_suggested',
+  opportunity_snapshot: 'opportunity_snapshot',
+  sale_event_id: 'sale_event_id',
+  social_post_id: 'social_post_id',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
+
+
+export const CampaignAssetScalarFieldEnum = {
+  id: 'id',
+  campaign_id: 'campaign_id',
+  type: 'type',
+  variant_label: 'variant_label',
+  content: 'content',
+  created_at: 'created_at'
+} as const
+
+export type CampaignAssetScalarFieldEnum = (typeof CampaignAssetScalarFieldEnum)[keyof typeof CampaignAssetScalarFieldEnum]
+
+
+export const CampaignEventScalarFieldEnum = {
+  id: 'id',
+  campaign_id: 'campaign_id',
+  event_type: 'event_type',
+  value: 'value',
+  metadata: 'metadata',
+  occurred_at: 'occurred_at',
+  created_at: 'created_at'
+} as const
+
+export type CampaignEventScalarFieldEnum = (typeof CampaignEventScalarFieldEnum)[keyof typeof CampaignEventScalarFieldEnum]
+
+
+export const SeasonalCalendarScalarFieldEnum = {
+  id: 'id',
+  country_code: 'country_code',
+  event_date: 'event_date',
+  event_name: 'event_name',
+  event_type: 'event_type',
+  payday_rule: 'payday_rule',
+  weight: 'weight',
+  metadata: 'metadata',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SeasonalCalendarScalarFieldEnum = (typeof SeasonalCalendarScalarFieldEnum)[keyof typeof SeasonalCalendarScalarFieldEnum]
 
 
 export const OutboxMessageScalarFieldEnum = {

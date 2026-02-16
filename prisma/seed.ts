@@ -6,6 +6,13 @@ async function main() {
   console.log("Start seeding ...");
 
   // Clean up existing data
+  await prisma.campaignEvent.deleteMany();
+  await prisma.campaignAsset.deleteMany();
+  await prisma.campaign.deleteMany();
+  await prisma.opportunity.deleteMany();
+  await prisma.growthContextSnapshot.deleteMany();
+  await prisma.businessGrowthSettings.deleteMany();
+  await prisma.seasonalCalendar.deleteMany();
   await prisma.platformActionLog.deleteMany();
   await prisma.onboardingApplication.deleteMany();
   await prisma.referralAttribution.deleteMany();
@@ -68,12 +75,12 @@ async function main() {
     },
   });
 
-  const monthlyPlan = await prisma.subscriptionPlan.create({
+  const starterPlan = await prisma.subscriptionPlan.create({
     data: {
-      code: "PRO_MONTHLY",
-      name: "Pro Monthly",
+      code: "STARTER_MONTHLY",
+      name: "Starter Monthly",
       billing_interval: "MONTHLY",
-      price_amount: 400_000,
+      price_amount: 149_900,
       currency: "PHP",
       is_active: true,
     },
@@ -81,10 +88,21 @@ async function main() {
 
   await prisma.subscriptionPlan.create({
     data: {
-      code: "PRO_ANNUAL",
-      name: "Pro Annual",
-      billing_interval: "YEARLY",
-      price_amount: 3_840_000,
+      code: "PLUS_MONTHLY",
+      name: "Plus Monthly",
+      billing_interval: "MONTHLY",
+      price_amount: 249_900,
+      currency: "PHP",
+      is_active: true,
+    },
+  });
+
+  await prisma.subscriptionPlan.create({
+    data: {
+      code: "PRO_MONTHLY",
+      name: "Pro Monthly",
+      billing_interval: "MONTHLY",
+      price_amount: 399_900,
       currency: "PHP",
       is_active: true,
     },
@@ -97,7 +115,7 @@ async function main() {
   await prisma.businessSubscription.create({
     data: {
       business_id: beautyFeel.id,
-      plan_id: monthlyPlan.id,
+      plan_id: starterPlan.id,
       status: "TRIALING",
       collection_method: "MANUAL_CHECKOUT",
       current_period_start: now,
@@ -113,6 +131,69 @@ async function main() {
       code: "SF-BEAUTYF",
       is_active: true,
     },
+  });
+
+  await prisma.seasonalCalendar.createMany({
+    data: [
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-02-14T00:00:00+08:00`),
+        event_name: "Valentine's Day",
+        event_type: "HOLIDAY",
+        weight: 0.95,
+      },
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-12-25T00:00:00+08:00`),
+        event_name: "Christmas Day",
+        event_type: "HOLIDAY",
+        weight: 1,
+      },
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-01-01T00:00:00+08:00`),
+        event_name: "New Year's Day",
+        event_type: "HOLIDAY",
+        weight: 0.9,
+      },
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-03-01T00:00:00+08:00`),
+        event_name: "Graduation Season Start",
+        event_type: "SEASONAL",
+        weight: 0.75,
+      },
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-04-01T00:00:00+08:00`),
+        event_name: "Summer Season",
+        event_type: "SEASONAL",
+        weight: 0.7,
+      },
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-11-01T00:00:00+08:00`),
+        event_name: "Holiday Rush Start",
+        event_type: "SEASONAL",
+        weight: 0.85,
+      },
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-01-15T00:00:00+08:00`),
+        event_name: "Payday Mid-Month",
+        event_type: "PAYDAY",
+        payday_rule: "DAY_15_30",
+        weight: 0.8,
+      },
+      {
+        country_code: "PH",
+        event_date: new Date(`${now.getFullYear()}-01-30T00:00:00+08:00`),
+        event_name: "Payday End-Month",
+        event_type: "PAYDAY",
+        payday_rule: "DAY_15_30",
+        weight: 0.8,
+      },
+    ],
   });
 
   const adminEmail = process.env.SEED_PLATFORM_ADMIN_EMAIL;
@@ -347,7 +428,6 @@ async function main() {
       description: "Exfoliating full body treatment.",
     },
 
-    // --- Skin Care Treatment (Category: Skin) ---
     {
       name: "Deep cleaning facial",
       price: 800,
@@ -541,8 +621,26 @@ async function main() {
     },
   ];
 
+  const costRatioByCategory: Record<string, number> = {
+    Nails: 0.28,
+    Eyelash: 0.25,
+    Spa: 0.32,
+    Skin: 0.35,
+  };
+
+  const computeEstimatedCost = (price: number, category: string) => {
+    const ratio = costRatioByCategory[category] ?? 0.3;
+    return Math.round(price * ratio * 100) / 100;
+  };
+
   for (const s of bfServices) {
-    await prisma.service.create({ data: { ...s, business_id: beautyFeel.id } });
+    await prisma.service.create({
+      data: {
+        ...s,
+        estimated_cost: computeEstimatedCost(s.price, s.category),
+        business_id: beautyFeel.id,
+      },
+    });
   }
 
   // BF Employees

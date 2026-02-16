@@ -363,7 +363,12 @@ export type BusinessWhereInput = {
   leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
   service_flows?: Prisma.ServiceFlowListRelationFilter
+  growth_settings?: Prisma.XOR<Prisma.BusinessGrowthSettingsNullableScalarRelationFilter, Prisma.BusinessGrowthSettingsWhereInput> | null
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotListRelationFilter
+  opportunities?: Prisma.OpportunityListRelationFilter
+  campaigns?: Prisma.CampaignListRelationFilter
   subscriptions?: Prisma.BusinessSubscriptionListRelationFilter
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestListRelationFilter
   subscription_invoices?: Prisma.SubscriptionInvoiceListRelationFilter
   referral_code?: Prisma.XOR<Prisma.ReferralCodeNullableScalarRelationFilter, Prisma.ReferralCodeWhereInput> | null
   referral_leads_converted?: Prisma.ReferralLeadListRelationFilter
@@ -408,7 +413,12 @@ export type BusinessOrderByWithRelationInput = {
   leave_requests?: Prisma.LeaveRequestOrderByRelationAggregateInput
   business_hours?: Prisma.BusinessHoursOrderByRelationAggregateInput
   service_flows?: Prisma.ServiceFlowOrderByRelationAggregateInput
+  growth_settings?: Prisma.BusinessGrowthSettingsOrderByWithRelationInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotOrderByRelationAggregateInput
+  opportunities?: Prisma.OpportunityOrderByRelationAggregateInput
+  campaigns?: Prisma.CampaignOrderByRelationAggregateInput
   subscriptions?: Prisma.BusinessSubscriptionOrderByRelationAggregateInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestOrderByRelationAggregateInput
   subscription_invoices?: Prisma.SubscriptionInvoiceOrderByRelationAggregateInput
   referral_code?: Prisma.ReferralCodeOrderByWithRelationInput
   referral_leads_converted?: Prisma.ReferralLeadOrderByRelationAggregateInput
@@ -456,7 +466,12 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
   service_flows?: Prisma.ServiceFlowListRelationFilter
+  growth_settings?: Prisma.XOR<Prisma.BusinessGrowthSettingsNullableScalarRelationFilter, Prisma.BusinessGrowthSettingsWhereInput> | null
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotListRelationFilter
+  opportunities?: Prisma.OpportunityListRelationFilter
+  campaigns?: Prisma.CampaignListRelationFilter
   subscriptions?: Prisma.BusinessSubscriptionListRelationFilter
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestListRelationFilter
   subscription_invoices?: Prisma.SubscriptionInvoiceListRelationFilter
   referral_code?: Prisma.XOR<Prisma.ReferralCodeNullableScalarRelationFilter, Prisma.ReferralCodeWhereInput> | null
   referral_leads_converted?: Prisma.ReferralLeadListRelationFilter
@@ -553,7 +568,12 @@ export type BusinessCreateInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -598,7 +618,12 @@ export type BusinessUncheckedCreateInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -643,7 +668,12 @@ export type BusinessUpdateInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -688,7 +718,12 @@ export type BusinessUncheckedUpdateInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -1020,6 +1055,20 @@ export type BusinessUpdateOneRequiredWithoutSubscriptionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSubscriptionsInput, Prisma.BusinessUpdateWithoutSubscriptionsInput>, Prisma.BusinessUncheckedUpdateWithoutSubscriptionsInput>
 }
 
+export type BusinessCreateNestedOneWithoutSubscription_upgrade_requestsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_upgrade_requestsInput, Prisma.BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscription_upgrade_requestsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutSubscription_upgrade_requestsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_upgrade_requestsInput, Prisma.BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscription_upgrade_requestsInput
+  upsert?: Prisma.BusinessUpsertWithoutSubscription_upgrade_requestsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSubscription_upgrade_requestsInput, Prisma.BusinessUpdateWithoutSubscription_upgrade_requestsInput>, Prisma.BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput>
+}
+
 export type BusinessCreateNestedOneWithoutSubscription_invoicesInput = {
   create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_invoicesInput, Prisma.BusinessUncheckedCreateWithoutSubscription_invoicesInput>
   connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscription_invoicesInput
@@ -1222,6 +1271,62 @@ export type BusinessUpdateOneRequiredWithoutService_flowsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutService_flowsInput, Prisma.BusinessUpdateWithoutService_flowsInput>, Prisma.BusinessUncheckedUpdateWithoutService_flowsInput>
 }
 
+export type BusinessCreateNestedOneWithoutGrowth_settingsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_settingsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_settingsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutGrowth_settingsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutGrowth_settingsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_settingsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_settingsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutGrowth_settingsInput
+  upsert?: Prisma.BusinessUpsertWithoutGrowth_settingsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutGrowth_settingsInput, Prisma.BusinessUpdateWithoutGrowth_settingsInput>, Prisma.BusinessUncheckedUpdateWithoutGrowth_settingsInput>
+}
+
+export type BusinessCreateNestedOneWithoutGrowth_context_snapshotsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_context_snapshotsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutGrowth_context_snapshotsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutGrowth_context_snapshotsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_context_snapshotsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutGrowth_context_snapshotsInput
+  upsert?: Prisma.BusinessUpsertWithoutGrowth_context_snapshotsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutGrowth_context_snapshotsInput, Prisma.BusinessUpdateWithoutGrowth_context_snapshotsInput>, Prisma.BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput>
+}
+
+export type BusinessCreateNestedOneWithoutOpportunitiesInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutOpportunitiesInput, Prisma.BusinessUncheckedCreateWithoutOpportunitiesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutOpportunitiesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutOpportunitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutOpportunitiesInput, Prisma.BusinessUncheckedCreateWithoutOpportunitiesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutOpportunitiesInput
+  upsert?: Prisma.BusinessUpsertWithoutOpportunitiesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutOpportunitiesInput, Prisma.BusinessUpdateWithoutOpportunitiesInput>, Prisma.BusinessUncheckedUpdateWithoutOpportunitiesInput>
+}
+
+export type BusinessCreateNestedOneWithoutCampaignsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutCampaignsInput, Prisma.BusinessUncheckedCreateWithoutCampaignsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutCampaignsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutCampaignsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutCampaignsInput, Prisma.BusinessUncheckedCreateWithoutCampaignsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutCampaignsInput
+  upsert?: Prisma.BusinessUpsertWithoutCampaignsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutCampaignsInput, Prisma.BusinessUpdateWithoutCampaignsInput>, Prisma.BusinessUncheckedUpdateWithoutCampaignsInput>
+}
+
 export type BusinessCreateWithoutLeave_requestsInput = {
   id?: string
   name: string
@@ -1256,7 +1361,12 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -1300,7 +1410,12 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -1360,7 +1475,12 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -1404,7 +1524,12 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -1448,7 +1573,12 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -1492,7 +1622,12 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -1552,7 +1687,12 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -1596,7 +1736,12 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -1640,7 +1785,12 @@ export type BusinessCreateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -1684,7 +1834,12 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -1744,7 +1899,12 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -1788,7 +1948,12 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -1832,7 +1997,12 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -1876,7 +2046,12 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -1936,7 +2111,12 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -1980,7 +2160,12 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -2024,7 +2209,12 @@ export type BusinessCreateWithoutSocial_postsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -2068,7 +2258,12 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -2128,7 +2323,12 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -2172,7 +2372,12 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -2216,7 +2421,12 @@ export type BusinessCreateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -2260,7 +2470,12 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -2320,7 +2535,12 @@ export type BusinessUpdateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -2364,7 +2584,12 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -2408,7 +2633,12 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -2452,7 +2682,12 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -2512,7 +2747,12 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -2556,7 +2796,12 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -2600,7 +2845,12 @@ export type BusinessCreateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -2644,7 +2894,12 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -2704,7 +2959,12 @@ export type BusinessUpdateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -2748,7 +3008,12 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -2793,6 +3058,11 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -2837,6 +3107,11 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -2897,6 +3172,11 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -2941,6 +3221,223 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutSubscription_upgrade_requestsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_upgrade_requestsInput, Prisma.BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput>
+}
+
+export type BusinessUpsertWithoutSubscription_upgrade_requestsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscription_upgrade_requestsInput, Prisma.BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_upgrade_requestsInput, Prisma.BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutSubscription_upgrade_requestsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscription_upgrade_requestsInput, Prisma.BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput>
+}
+
+export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -2985,7 +3482,12 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
@@ -3029,7 +3531,12 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
@@ -3089,7 +3596,12 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
@@ -3133,7 +3645,12 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
@@ -3177,7 +3694,12 @@ export type BusinessCreateWithoutReferral_codeInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
@@ -3221,7 +3743,12 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
@@ -3281,7 +3808,12 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
@@ -3325,7 +3857,12 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
@@ -3369,7 +3906,12 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
@@ -3413,7 +3955,12 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
@@ -3473,7 +4020,12 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
@@ -3517,7 +4069,12 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
@@ -3561,7 +4118,12 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -3605,7 +4167,12 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -3654,7 +4221,12 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -3698,7 +4270,12 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -3758,7 +4335,12 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -3802,7 +4384,12 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -3857,7 +4444,12 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -3901,7 +4493,12 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -3945,7 +4542,12 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -3989,7 +4591,12 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -4049,7 +4656,12 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -4093,7 +4705,12 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -4137,7 +4754,12 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -4181,7 +4803,12 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -4241,7 +4868,12 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -4285,7 +4917,12 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -4328,7 +4965,12 @@ export type BusinessCreateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -4372,7 +5014,12 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -4432,7 +5079,12 @@ export type BusinessUpdateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -4476,7 +5128,12 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -4520,7 +5177,12 @@ export type BusinessCreateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -4564,7 +5226,12 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -4624,7 +5291,12 @@ export type BusinessUpdateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -4668,7 +5340,12 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -4712,7 +5389,12 @@ export type BusinessCreateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -4756,7 +5438,12 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -4816,7 +5503,12 @@ export type BusinessUpdateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -4860,7 +5552,12 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -4904,7 +5601,12 @@ export type BusinessCreateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -4948,7 +5650,12 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -5008,7 +5715,12 @@ export type BusinessUpdateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -5052,7 +5764,12 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -5096,7 +5813,12 @@ export type BusinessCreateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -5140,7 +5862,12 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -5200,7 +5927,12 @@ export type BusinessUpdateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -5244,7 +5976,12 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -5288,7 +6025,12 @@ export type BusinessCreateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -5332,7 +6074,12 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -5392,7 +6139,12 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -5436,7 +6188,12 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -5480,7 +6237,12 @@ export type BusinessCreateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
@@ -5524,7 +6286,12 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
   referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
@@ -5584,7 +6351,12 @@ export type BusinessUpdateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
@@ -5628,7 +6400,860 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
   subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutGrowth_settingsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutGrowth_settingsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_settingsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_settingsInput>
+}
+
+export type BusinessUpsertWithoutGrowth_settingsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutGrowth_settingsInput, Prisma.BusinessUncheckedUpdateWithoutGrowth_settingsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_settingsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_settingsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutGrowth_settingsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutGrowth_settingsInput, Prisma.BusinessUncheckedUpdateWithoutGrowth_settingsInput>
+}
+
+export type BusinessUpdateWithoutGrowth_settingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutGrowth_context_snapshotsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_context_snapshotsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput>
+}
+
+export type BusinessUpsertWithoutGrowth_context_snapshotsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutGrowth_context_snapshotsInput, Prisma.BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutGrowth_context_snapshotsInput, Prisma.BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutGrowth_context_snapshotsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutGrowth_context_snapshotsInput, Prisma.BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput>
+}
+
+export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutOpportunitiesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutOpportunitiesInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutOpportunitiesInput, Prisma.BusinessUncheckedCreateWithoutOpportunitiesInput>
+}
+
+export type BusinessUpsertWithoutOpportunitiesInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutOpportunitiesInput, Prisma.BusinessUncheckedUpdateWithoutOpportunitiesInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutOpportunitiesInput, Prisma.BusinessUncheckedCreateWithoutOpportunitiesInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutOpportunitiesInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutOpportunitiesInput, Prisma.BusinessUncheckedUpdateWithoutOpportunitiesInput>
+}
+
+export type BusinessUpdateWithoutOpportunitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutCampaignsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutCampaignsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutCampaignsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutCampaignsInput, Prisma.BusinessUncheckedCreateWithoutCampaignsInput>
+}
+
+export type BusinessUpsertWithoutCampaignsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutCampaignsInput, Prisma.BusinessUncheckedUpdateWithoutCampaignsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutCampaignsInput, Prisma.BusinessUncheckedCreateWithoutCampaignsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutCampaignsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutCampaignsInput, Prisma.BusinessUncheckedUpdateWithoutCampaignsInput>
+}
+
+export type BusinessUpdateWithoutCampaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutCampaignsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
   subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
   referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
   referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
@@ -5659,7 +7284,11 @@ export type BusinessCountOutputType = {
   leave_requests: number
   business_hours: number
   service_flows: number
+  growth_context_snapshots: number
+  opportunities: number
+  campaigns: number
   subscriptions: number
+  subscription_upgrade_requests: number
   subscription_invoices: number
   referral_leads_converted: number
   referral_attributions_as_referrer: number
@@ -5684,7 +7313,11 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   leave_requests?: boolean | BusinessCountOutputTypeCountLeave_requestsArgs
   business_hours?: boolean | BusinessCountOutputTypeCountBusiness_hoursArgs
   service_flows?: boolean | BusinessCountOutputTypeCountService_flowsArgs
+  growth_context_snapshots?: boolean | BusinessCountOutputTypeCountGrowth_context_snapshotsArgs
+  opportunities?: boolean | BusinessCountOutputTypeCountOpportunitiesArgs
+  campaigns?: boolean | BusinessCountOutputTypeCountCampaignsArgs
   subscriptions?: boolean | BusinessCountOutputTypeCountSubscriptionsArgs
+  subscription_upgrade_requests?: boolean | BusinessCountOutputTypeCountSubscription_upgrade_requestsArgs
   subscription_invoices?: boolean | BusinessCountOutputTypeCountSubscription_invoicesArgs
   referral_leads_converted?: boolean | BusinessCountOutputTypeCountReferral_leads_convertedArgs
   referral_attributions_as_referrer?: boolean | BusinessCountOutputTypeCountReferral_attributions_as_referrerArgs
@@ -5811,8 +7444,36 @@ export type BusinessCountOutputTypeCountService_flowsArgs<ExtArgs extends runtim
 /**
  * BusinessCountOutputType without action
  */
+export type BusinessCountOutputTypeCountGrowth_context_snapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GrowthContextSnapshotWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountOpportunitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OpportunityWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountCampaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
 export type BusinessCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BusinessSubscriptionWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountSubscription_upgrade_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SubscriptionPlanUpgradeRequestWhereInput
 }
 
 /**
@@ -5893,7 +7554,12 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
+  growth_settings?: boolean | Prisma.Business$growth_settingsArgs<ExtArgs>
+  growth_context_snapshots?: boolean | Prisma.Business$growth_context_snapshotsArgs<ExtArgs>
+  opportunities?: boolean | Prisma.Business$opportunitiesArgs<ExtArgs>
+  campaigns?: boolean | Prisma.Business$campaignsArgs<ExtArgs>
   subscriptions?: boolean | Prisma.Business$subscriptionsArgs<ExtArgs>
+  subscription_upgrade_requests?: boolean | Prisma.Business$subscription_upgrade_requestsArgs<ExtArgs>
   subscription_invoices?: boolean | Prisma.Business$subscription_invoicesArgs<ExtArgs>
   referral_code?: boolean | Prisma.Business$referral_codeArgs<ExtArgs>
   referral_leads_converted?: boolean | Prisma.Business$referral_leads_convertedArgs<ExtArgs>
@@ -5987,7 +7653,12 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
+  growth_settings?: boolean | Prisma.Business$growth_settingsArgs<ExtArgs>
+  growth_context_snapshots?: boolean | Prisma.Business$growth_context_snapshotsArgs<ExtArgs>
+  opportunities?: boolean | Prisma.Business$opportunitiesArgs<ExtArgs>
+  campaigns?: boolean | Prisma.Business$campaignsArgs<ExtArgs>
   subscriptions?: boolean | Prisma.Business$subscriptionsArgs<ExtArgs>
+  subscription_upgrade_requests?: boolean | Prisma.Business$subscription_upgrade_requestsArgs<ExtArgs>
   subscription_invoices?: boolean | Prisma.Business$subscription_invoicesArgs<ExtArgs>
   referral_code?: boolean | Prisma.Business$referral_codeArgs<ExtArgs>
   referral_leads_converted?: boolean | Prisma.Business$referral_leads_convertedArgs<ExtArgs>
@@ -6018,7 +7689,12 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     leave_requests: Prisma.$LeaveRequestPayload<ExtArgs>[]
     business_hours: Prisma.$BusinessHoursPayload<ExtArgs>[]
     service_flows: Prisma.$ServiceFlowPayload<ExtArgs>[]
+    growth_settings: Prisma.$BusinessGrowthSettingsPayload<ExtArgs> | null
+    growth_context_snapshots: Prisma.$GrowthContextSnapshotPayload<ExtArgs>[]
+    opportunities: Prisma.$OpportunityPayload<ExtArgs>[]
+    campaigns: Prisma.$CampaignPayload<ExtArgs>[]
     subscriptions: Prisma.$BusinessSubscriptionPayload<ExtArgs>[]
+    subscription_upgrade_requests: Prisma.$SubscriptionPlanUpgradeRequestPayload<ExtArgs>[]
     subscription_invoices: Prisma.$SubscriptionInvoicePayload<ExtArgs>[]
     referral_code: Prisma.$ReferralCodePayload<ExtArgs> | null
     referral_leads_converted: Prisma.$ReferralLeadPayload<ExtArgs>[]
@@ -6456,7 +8132,12 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   leave_requests<T extends Prisma.Business$leave_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$leave_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   business_hours<T extends Prisma.Business$business_hoursArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$business_hoursArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessHoursPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   service_flows<T extends Prisma.Business$service_flowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$service_flowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceFlowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  growth_settings<T extends Prisma.Business$growth_settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$growth_settingsArgs<ExtArgs>>): Prisma.Prisma__BusinessGrowthSettingsClient<runtime.Types.Result.GetResult<Prisma.$BusinessGrowthSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  growth_context_snapshots<T extends Prisma.Business$growth_context_snapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$growth_context_snapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GrowthContextSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  opportunities<T extends Prisma.Business$opportunitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$opportunitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OpportunityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  campaigns<T extends Prisma.Business$campaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   subscriptions<T extends Prisma.Business$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscription_upgrade_requests<T extends Prisma.Business$subscription_upgrade_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$subscription_upgrade_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPlanUpgradeRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   subscription_invoices<T extends Prisma.Business$subscription_invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$subscription_invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   referral_code<T extends Prisma.Business$referral_codeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$referral_codeArgs<ExtArgs>>): Prisma.Prisma__ReferralCodeClient<runtime.Types.Result.GetResult<Prisma.$ReferralCodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   referral_leads_converted<T extends Prisma.Business$referral_leads_convertedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$referral_leads_convertedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReferralLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7260,6 +8941,97 @@ export type Business$service_flowsArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
+ * Business.growth_settings
+ */
+export type Business$growth_settingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BusinessGrowthSettings
+   */
+  select?: Prisma.BusinessGrowthSettingsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BusinessGrowthSettings
+   */
+  omit?: Prisma.BusinessGrowthSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BusinessGrowthSettingsInclude<ExtArgs> | null
+  where?: Prisma.BusinessGrowthSettingsWhereInput
+}
+
+/**
+ * Business.growth_context_snapshots
+ */
+export type Business$growth_context_snapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GrowthContextSnapshot
+   */
+  select?: Prisma.GrowthContextSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GrowthContextSnapshot
+   */
+  omit?: Prisma.GrowthContextSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GrowthContextSnapshotInclude<ExtArgs> | null
+  where?: Prisma.GrowthContextSnapshotWhereInput
+  orderBy?: Prisma.GrowthContextSnapshotOrderByWithRelationInput | Prisma.GrowthContextSnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.GrowthContextSnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GrowthContextSnapshotScalarFieldEnum | Prisma.GrowthContextSnapshotScalarFieldEnum[]
+}
+
+/**
+ * Business.opportunities
+ */
+export type Business$opportunitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Opportunity
+   */
+  select?: Prisma.OpportunitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Opportunity
+   */
+  omit?: Prisma.OpportunityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OpportunityInclude<ExtArgs> | null
+  where?: Prisma.OpportunityWhereInput
+  orderBy?: Prisma.OpportunityOrderByWithRelationInput | Prisma.OpportunityOrderByWithRelationInput[]
+  cursor?: Prisma.OpportunityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OpportunityScalarFieldEnum | Prisma.OpportunityScalarFieldEnum[]
+}
+
+/**
+ * Business.campaigns
+ */
+export type Business$campaignsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Campaign
+   */
+  select?: Prisma.CampaignSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Campaign
+   */
+  omit?: Prisma.CampaignOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignInclude<ExtArgs> | null
+  where?: Prisma.CampaignWhereInput
+  orderBy?: Prisma.CampaignOrderByWithRelationInput | Prisma.CampaignOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignScalarFieldEnum | Prisma.CampaignScalarFieldEnum[]
+}
+
+/**
  * Business.subscriptions
  */
 export type Business$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7281,6 +9053,30 @@ export type Business$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.BusinessSubscriptionScalarFieldEnum | Prisma.BusinessSubscriptionScalarFieldEnum[]
+}
+
+/**
+ * Business.subscription_upgrade_requests
+ */
+export type Business$subscription_upgrade_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SubscriptionPlanUpgradeRequest
+   */
+  select?: Prisma.SubscriptionPlanUpgradeRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SubscriptionPlanUpgradeRequest
+   */
+  omit?: Prisma.SubscriptionPlanUpgradeRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SubscriptionPlanUpgradeRequestInclude<ExtArgs> | null
+  where?: Prisma.SubscriptionPlanUpgradeRequestWhereInput
+  orderBy?: Prisma.SubscriptionPlanUpgradeRequestOrderByWithRelationInput | Prisma.SubscriptionPlanUpgradeRequestOrderByWithRelationInput[]
+  cursor?: Prisma.SubscriptionPlanUpgradeRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SubscriptionPlanUpgradeRequestScalarFieldEnum | Prisma.SubscriptionPlanUpgradeRequestScalarFieldEnum[]
 }
 
 /**
