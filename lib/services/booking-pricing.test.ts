@@ -35,7 +35,7 @@ describe("buildBookingPricingSnapshot", () => {
       commission_calculation_basis: "ORIGINAL_PRICE",
     });
     db.service.findMany.mockResolvedValue([
-      { id: 1, name: "Haircut", price: 500, duration: 45 },
+      { id: 1, name: "Haircut", price: 500, estimated_cost: 180, duration: 45 },
     ]);
     db.packageItem.findMany.mockResolvedValue([]);
     db.servicePackage.findMany.mockResolvedValue([]);
@@ -53,6 +53,7 @@ describe("buildBookingPricingSnapshot", () => {
 
     expect(snapshot.services[0].originalPrice).toBe(500);
     expect(snapshot.services[0].price).toBe(500);
+    expect(snapshot.services[0].estimatedCost).toBe(180);
     expect(snapshot.subtotal).toBe(500);
     expect(snapshot.grandTotal).toBe(500);
   });
@@ -67,8 +68,8 @@ describe("buildBookingPricingSnapshot", () => {
       commission_calculation_basis: "DISCOUNTED_PRICE",
     });
     db.service.findMany.mockResolvedValue([
-      { id: 10, name: "Service A", price: 700, duration: 30 },
-      { id: 11, name: "Service B", price: 300, duration: 30 },
+      { id: 10, name: "Service A", price: 700, estimated_cost: 280, duration: 30 },
+      { id: 11, name: "Service B", price: 300, estimated_cost: 90, duration: 30 },
     ]);
     db.packageItem.findMany.mockResolvedValue([
       { package_id: 1, service_id: 10, custom_price: 700 },
@@ -99,7 +100,9 @@ describe("buildBookingPricingSnapshot", () => {
     });
 
     expect(snapshot.services[0].price).toBe(560);
+    expect(snapshot.services[0].estimatedCost).toBe(280);
     expect(snapshot.services[1].price).toBe(240);
+    expect(snapshot.services[1].estimatedCost).toBe(90);
     expect(snapshot.subtotal).toBe(800);
   });
 });

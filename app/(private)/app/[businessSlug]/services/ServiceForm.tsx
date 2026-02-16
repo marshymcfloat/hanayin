@@ -33,6 +33,7 @@ export interface ServiceFormData {
   name: string;
   description: string;
   price: string;
+  estimatedCost: string;
   duration: string;
   category: string;
   flows: ServiceFlowData[];
@@ -309,7 +310,7 @@ export function ServiceForm({
           </span>
           Pricing & Category
         </h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <div className="grid gap-1.5">
             <Label
               htmlFor="price"
@@ -325,6 +326,24 @@ export function ServiceForm({
               placeholder="0.00"
               value={formData.price}
               onChange={(e) => updateField("price", e.target.value)}
+              className="h-9 rounded-lg border-zinc-200"
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label
+              htmlFor="estimatedCost"
+              className="text-xs font-medium text-zinc-600"
+            >
+              Est. Cost (PHP)
+            </Label>
+            <Input
+              id="estimatedCost"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.estimatedCost}
+              onChange={(e) => updateField("estimatedCost", e.target.value)}
               className="h-9 rounded-lg border-zinc-200"
             />
           </div>
@@ -346,6 +365,9 @@ export function ServiceForm({
             />
           </div>
         </div>
+        <p className="text-[11px] text-zinc-500">
+          Used for estimated gross and net reporting only.
+        </p>
 
         <div className="grid gap-1.5">
           <Label className="text-xs font-medium text-zinc-600">

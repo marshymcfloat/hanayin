@@ -67,6 +67,7 @@ type GiftCardClaimLineItem = {
   category: string;
   duration: number;
   originalPrice: number;
+  estimatedCost: number;
   packageId: number | null;
   packageName: string | null;
 };
@@ -90,6 +91,7 @@ type GiftCardClaimCardDetails = {
       category: string;
       duration: number | null;
       price: number;
+      estimated_cost: number;
     };
   }[];
   included_packages: {
@@ -103,6 +105,7 @@ type GiftCardClaimCardDetails = {
           name: string;
           category: string;
           duration: number | null;
+          estimated_cost: number;
         };
       }[];
     };
@@ -159,6 +162,7 @@ function buildGiftCardClaimItems(giftCard: GiftCardClaimCardDetails) {
       category: service.category,
       duration: service.duration || 30,
       originalPrice: service.price,
+      estimatedCost: service.estimated_cost,
       packageId: null,
       packageName: null,
     }),
@@ -172,6 +176,7 @@ function buildGiftCardClaimItems(giftCard: GiftCardClaimCardDetails) {
         category: item.service.category,
         duration: item.service.duration || 30,
         originalPrice: item.custom_price,
+        estimatedCost: item.service.estimated_cost,
         packageId: pkg.id,
         packageName: pkg.name,
       })),
@@ -222,6 +227,7 @@ async function getGiftCardForClaim(
               category: true,
               duration: true,
               price: true,
+              estimated_cost: true,
             },
           },
         },
@@ -241,6 +247,7 @@ async function getGiftCardForClaim(
                       name: true,
                       category: true,
                       duration: true,
+                      estimated_cost: true,
                     },
                   },
                 },
@@ -525,6 +532,7 @@ export async function claimGiftCardBookingAction(input: {
                 service_id: item.serviceId,
                 package_id: item.packageId,
                 price: item.originalPrice,
+                estimated_cost: item.estimatedCost,
                 discount: item.originalPrice,
                 discount_reason: `GIFT_CARD:${giftCard.code}`,
                 final_price: 0,

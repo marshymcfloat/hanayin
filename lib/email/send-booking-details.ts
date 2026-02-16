@@ -9,6 +9,7 @@ import {
   BOOKING_DETAILS_TOKEN_TTL_SECONDS,
   createBookingSuccessToken,
 } from "@/lib/security/booking-success-token";
+import { getBookingPaymentDisplay } from "@/lib/utils/booking-payment-display";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -34,19 +35,17 @@ export async function sendBookingConfirmation(bookingId: number) {
       return;
     }
 
-    const servicesList = booking.availed_services.map((as) => ({
-      name: as.service.name,
-      price: as.final_price,
-      quantity: 1, // AvailedService implies 1 qty per row usually
+    const servicesList = booking.availed_services.map((availedService) => ({
+      name: availedService.service.name,
+      price: availedService.final_price,
+      quantity: 1,
     }));
 
-    const totalAmountValue = booking.availed_services.reduce(
-      (sum, s) => sum + s.final_price,
-      0,
-    );
-    const totalAmount = `₱${totalAmountValue.toFixed(2)}`;
+    const paymentDisplay = getBookingPaymentDisplay({
+      grandTotal: booking.grand_total,
+      amountPaid: booking.amount_paid,
+    });
 
-    // Format Date & Time using Philippine Time
     const scheduledAt = booking.scheduled_at;
     const scheduledDate = scheduledAt
       ? formatPH(scheduledAt, "MMMM d, yyyy")
@@ -71,7 +70,10 @@ export async function sendBookingConfirmation(bookingId: number) {
         serviceName: "Services",
         date: scheduledDate,
         time: scheduledTime,
-        totalAmount,
+        grandTotal: paymentDisplay.grandTotal.toFixed(2),
+        amountPaid: paymentDisplay.amountPaid.toFixed(2),
+        remainingBalance: paymentDisplay.remainingBalance.toFixed(2),
+        paymentStatusLabel: paymentDisplay.paymentStatusLabel,
         bookingUrl,
         services: servicesList,
       }),
@@ -82,7 +84,7 @@ export async function sendBookingConfirmation(bookingId: number) {
       to: [booking.customer.email],
       subject: `Booking Confirmed - ${businessName}`,
       html: emailHtml,
-      text: `Hi ${customerName}, Your booking at ${businessName} is confirmed for ${scheduledDate} ${scheduledTime}. View details: ${bookingUrl}`,
+      text: `Hi ${customerName}, your booking at ${businessName} is confirmed for ${scheduledDate} ${scheduledTime}. Amount paid: PHP ${paymentDisplay.amountPaid.toFixed(2)}. Remaining balance: PHP ${paymentDisplay.remainingBalance.toFixed(2)}. View details: ${bookingUrl}`,
     });
 
     if (error) {

@@ -87,13 +87,23 @@ function ServiceCardComponent({
         </span>
       </div>
 
-      <div className="mt-3 flex items-end justify-between border-t border-zinc-100 pt-2.5">
-        <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-          Price
-        </span>
-        <span className="text-lg font-bold leading-none text-zinc-900 sm:text-xl">
-          {formatCurrency(service.price)}
-        </span>
+      <div className="mt-3 border-t border-zinc-100 pt-2.5">
+        <div className="flex items-end justify-between">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Price
+          </span>
+          <span className="text-lg font-bold leading-none text-zinc-900 sm:text-xl">
+            {formatCurrency(service.price)}
+          </span>
+        </div>
+        <div className="mt-1 flex items-end justify-between">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Est. Cost
+          </span>
+          <span className="text-sm font-semibold leading-none text-zinc-700">
+            {formatCurrency(service.estimated_cost)}
+          </span>
+        </div>
       </div>
     </div>
   );

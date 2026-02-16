@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma/prisma";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import BeautyFeelServices from "@/components/facing/beautyfeel/BeautyFeelServices";
 import { isBeautyFeelSlug } from "@/components/facing/beautyfeel/content";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
 import { constructMetadata } from "@/lib/metadata";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 interface Props {
   params: Promise<{ businessSlug: string }>;
@@ -57,6 +58,11 @@ async function BusinessServicesContent({ params }: Props) {
 
   if (!business) {
     notFound();
+  }
+
+  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
+  if (!entitlements.website) {
+    redirect(`/${businessSlug}/booking`);
   }
 
   const services = await prisma.service.findMany({

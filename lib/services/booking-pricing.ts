@@ -20,6 +20,7 @@ export type CanonicalBookingService = {
   packageId?: number;
   price: number;
   originalPrice: number;
+  estimatedCost: number;
   discount: number;
   discountReason: string | null;
   commissionBase: number;
@@ -131,6 +132,7 @@ export async function buildBookingPricingSnapshot({
           id: true,
           name: true,
           price: true,
+          estimated_cost: true,
           duration: true,
         },
       }),
@@ -264,6 +266,7 @@ export async function buildBookingPricingSnapshot({
           packageId: selected.packageId,
           price,
           originalPrice,
+          estimatedCost: roundMoney(dbService.estimated_cost ?? 0),
           discount,
           discountReason: discount > 0 ? packagePricing.reason : null,
           commissionBase: roundMoney(commissionBase),
@@ -292,6 +295,7 @@ export async function buildBookingPricingSnapshot({
         claimedByCurrentEmployee: selected.claimedByCurrentEmployee,
         price,
         originalPrice,
+        estimatedCost: roundMoney(dbService.estimated_cost ?? 0),
         discount,
         discountReason: bestServiceDiscount ? bestServiceDiscount.event.title : null,
         commissionBase: roundMoney(commissionBase),

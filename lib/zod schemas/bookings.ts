@@ -21,7 +21,13 @@ export const paymentTypeEnum = z.enum(["FULL", "DOWNPAYMENT"]);
 export const createBookingSchema = z
   .object({
     customerId: z.string().optional(),
-    customerName: z.string().min(1, "Customer name is required").optional(),
+    customerName: z
+      .string()
+      .optional()
+      .transform((value) => value?.trim() ?? "")
+      .refine((value) => value.length === 0 || value.length >= 2, {
+        message: "Customer name must be at least 2 characters",
+      }),
     services: z
       .array(serviceSchema)
       .min(1, "Please select at least one service"),

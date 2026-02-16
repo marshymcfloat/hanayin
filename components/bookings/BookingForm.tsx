@@ -191,6 +191,14 @@ export default function BookingForm({
     control: form.control,
     name: "employeeId",
   }) as number | undefined;
+  const customerNameInput = useWatch({
+    control: form.control,
+    name: "customerName",
+  }) as string;
+  const customerEmailInput = useWatch({
+    control: form.control,
+    name: "email",
+  }) as string;
 
   const [existingCustomerEmail, setExistingCustomerEmail] = useState<
     string | null
@@ -784,7 +792,8 @@ export default function BookingForm({
         }),
       );
 
-      const capitalizedCustomerName = capitalizeWords(data.customerName || "");
+      const normalizedCustomerName = (data.customerName || "").trim();
+      const capitalizedCustomerName = capitalizeWords(normalizedCustomerName);
 
       createBookingAction({
         customerId: data.customerId || undefined,
@@ -822,6 +831,11 @@ export default function BookingForm({
   const isStep1Complete = selectedServices.length > 0;
   const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
   const isStep3Complete = effectiveIsWalkIn || !!selectedTime;
+  const customerNameValue = (customerNameInput || "").trim();
+  const customerEmailValue = (customerEmailInput || "").trim();
+  const isCustomerDetailsComplete = isEmployee
+    ? !!customerId || customerNameValue.length >= 2
+    : customerNameValue.length >= 2 && customerEmailValue.length > 0;
   const canAccessStep2 = isStep1Complete;
   const canAccessStep3 = canAccessStep2 && isStep2Complete;
   const canAccessStep4 = canAccessStep3 && isStep3Complete;
@@ -834,9 +848,11 @@ export default function BookingForm({
         ? 2
         : !isStep3Complete
           ? 3
-          : !canAccessStep5
+          : !canAccessStep4
             ? 4
-            : 5;
+            : !isCustomerDetailsComplete
+              ? 5
+              : 6;
   const selectedEmployeeName = useMemo(
     () => employees.find((employee) => employee.id === selectedEmployeeId)?.name,
     [employees, selectedEmployeeId],
@@ -988,7 +1004,12 @@ export default function BookingForm({
                 { step: 2, label: "Date", done: isStep2Complete },
                 { step: 3, label: "Time", done: isStep3Complete },
                 { step: 4, label: "Staff", done: canAccessStep4 },
-                { step: 5, label: "Customer & Payment", done: hasReviewedDetails },
+                {
+                  step: 5,
+                  label: "Customer Details",
+                  done: isCustomerDetailsComplete,
+                },
+                { step: 6, label: "Review & Payment", done: hasReviewedDetails },
               ].map((item) => (
                 <span
                   key={item.step}
@@ -1522,10 +1543,10 @@ export default function BookingForm({
             <div className="order-[60] space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  5
+                  6
                 </span>
                 <h3 className="font-semibold text-lg tracking-tight">
-                  Final Review
+                  Review & Payment
                 </h3>
               </div>
 
@@ -1588,7 +1609,7 @@ export default function BookingForm({
 
               {!hasReviewedDetails && (
                 <p className="text-xs text-muted-foreground">
-                  Confirm this step to unlock payment and final submission.
+                  Confirm Step 6 to unlock payment and final submission.
                 </p>
               )}
             </div>
@@ -1625,7 +1646,7 @@ export default function BookingForm({
                       <div className="space-y-4">
                         {!hasReviewedDetails && (
                           <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-                            Complete the Final Review step to unlock payment.
+                            Complete Step 6 (Review & Payment) to unlock payment.
                           </div>
                         )}
                         <FormField

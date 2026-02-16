@@ -9,6 +9,11 @@ import {
   BookingServiceInput,
   buildBookingPricingSnapshot,
 } from "./booking-pricing";
+import {
+  findExistingCustomerByContact,
+  normalizeCustomerEmail,
+  normalizeCustomerPhone,
+} from "./customer-matching";
 import { getQrHoldExpiresAt } from "@/lib/payments/config";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { validateBookingOrThrow } from "./booking-availability";
@@ -91,6 +96,8 @@ export async function createBookingInDb({
   pricingSnapshot,
   skipAvailabilityValidation = false,
 }: BookingServiceParams) {
+  const normalizedEmail = normalizeCustomerEmail(email);
+  const normalizedPhone = normalizeCustomerPhone(phone);
   const maxRetries = 3;
   let attempt = 0;
 
@@ -135,40 +142,42 @@ export async function createBookingInDb({
             });
 
             if (existingCustomer) {
-              const shouldUpdateEmail = email && !existingCustomer.email;
-              const shouldUpdatePhone = phone && !existingCustomer.phone;
+              const shouldUpdateEmail =
+                !!normalizedEmail && !existingCustomer.email;
+              const shouldUpdatePhone =
+                !!normalizedPhone && !existingCustomer.phone;
 
               if (shouldUpdateEmail || shouldUpdatePhone) {
                 await tx.customer.update({
                   where: { id: existingCustomer.id },
                   data: {
-                    ...(shouldUpdateEmail ? { email } : {}),
-                    ...(shouldUpdatePhone ? { phone } : {}),
+                    ...(shouldUpdateEmail ? { email: normalizedEmail } : {}),
+                    ...(shouldUpdatePhone ? { phone: normalizedPhone } : {}),
                   },
                 });
               }
             }
           } else {
-            const existingCustomer = await tx.customer.findFirst({
-              where: {
-                AND: [
-                  { business_id: business.id },
-                  { name: { equals: customerName, mode: "insensitive" } },
-                ],
-              },
+            const existingCustomer = await findExistingCustomerByContact({
+              customerDelegate: tx.customer,
+              businessId: business.id,
+              email: normalizedEmail,
+              phone: normalizedPhone,
             });
 
             if (existingCustomer) {
               finalCustomerId = existingCustomer.id;
-              const shouldUpdateEmail = email && !existingCustomer.email;
-              const shouldUpdatePhone = phone && !existingCustomer.phone;
+              const shouldUpdateEmail =
+                !!normalizedEmail && !existingCustomer.email;
+              const shouldUpdatePhone =
+                !!normalizedPhone && !existingCustomer.phone;
 
               if (shouldUpdateEmail || shouldUpdatePhone) {
                 await tx.customer.update({
                   where: { id: existingCustomer.id },
                   data: {
-                    ...(shouldUpdateEmail ? { email } : {}),
-                    ...(shouldUpdatePhone ? { phone } : {}),
+                    ...(shouldUpdateEmail ? { email: normalizedEmail } : {}),
+                    ...(shouldUpdatePhone ? { phone: normalizedPhone } : {}),
                   },
                 });
               }
@@ -176,8 +185,8 @@ export async function createBookingInDb({
               const newCustomer = await tx.customer.create({
                 data: {
                   name: customerName,
-                  email,
-                  phone,
+                  email: normalizedEmail,
+                  phone: normalizedPhone,
                   business_id: business.id,
                 },
               });
@@ -259,6 +268,7 @@ export async function createBookingInDb({
                   return {
                     service_id: service.id,
                     price: originalPrice,
+                    estimated_cost: service.estimatedCost,
                     discount,
                     discount_reason: discountReason,
                     final_price: finalPrice,
@@ -329,7 +339,7 @@ export async function createBookingInDb({
             payload: {
               bookingId: booking.id,
               customerName,
-              email,
+              email: normalizedEmail,
               scheduledAt: scheduledAt.toISOString(),
               estimatedEnd: pricing.estimatedEnd.toISOString(),
               grandTotal,

@@ -20,7 +20,10 @@ interface BookingConfirmationEmailProps {
   date: string;
   time: string;
   location?: string;
-  totalAmount: string;
+  grandTotal?: string;
+  amountPaid: string;
+  remainingBalance: string;
+  paymentStatusLabel?: string;
   bookingUrl?: string;
   services: { name: string; price: number; quantity: number }[];
 }
@@ -32,23 +35,26 @@ export const BookingConfirmationEmail = ({
   date,
   time,
   location,
-  totalAmount,
+  grandTotal,
+  amountPaid,
+  remainingBalance,
+  paymentStatusLabel,
   bookingUrl,
   services,
 }: BookingConfirmationEmailProps) => {
+  const remainingBalanceValue = Number(remainingBalance);
+
   return (
     <Html>
       <Head />
-      <Preview>Booking Confirmed at {businessName}</Preview>
+      <Preview>{paymentStatusLabel || "Booking Confirmed"} at {businessName}</Preview>
       <Body style={main}>
         <Container style={wrapper}>
           <div style={mainTable}>
-            {/* Header */}
             <Section style={header}>
               <Heading style={headerTitle}>{businessName}</Heading>
             </Section>
 
-            {/* Content */}
             <Section style={content}>
               <Text style={greeting}>
                 Hello, <strong>{customerName}</strong>
@@ -57,6 +63,9 @@ export const BookingConfirmationEmail = ({
                 Your booking has been successfully confirmed. We&apos;re looking
                 forward to seeing you!
               </Text>
+              {paymentStatusLabel ? (
+                <Text style={metaText}>Payment Status: <strong>{paymentStatusLabel}</strong></Text>
+              ) : null}
               <Text style={metaText}>
                 Primary service: <strong>{serviceName}</strong>
                 {location ? (
@@ -67,14 +76,12 @@ export const BookingConfirmationEmail = ({
                 ) : null}
               </Text>
 
-              {/* Highlight Card */}
               <Section style={highlightCard}>
                 <Text style={highlightLabel}>SCHEDULED TIME</Text>
                 <Heading style={highlightTime}>{time}</Heading>
                 <Text style={highlightDate}>{date}</Text>
               </Section>
 
-              {/* Services Section */}
               <Section style={servicesSection}>
                 <Text style={servicesHeader}>SERVICES BOOKED</Text>
                 {services.map((service, index) => (
@@ -89,14 +96,11 @@ export const BookingConfirmationEmail = ({
                       </Text>
                     </Column>
                     <Column align="right" style={{ verticalAlign: "middle" }}>
-                      <Text style={servicePrice}>
-                        ₱{service.price.toFixed(2)}
-                      </Text>
+                      <Text style={servicePrice}>PHP {service.price.toFixed(2)}</Text>
                     </Column>
                   </Row>
                 ))}
 
-                {/* Total */}
                 <Row
                   style={{
                     ...serviceRow,
@@ -107,7 +111,7 @@ export const BookingConfirmationEmail = ({
                 >
                   <Column colSpan={2}>
                     <Text style={{ ...serviceNameText, fontSize: "16px" }}>
-                      Total Paid
+                      Amount Paid
                     </Text>
                   </Column>
                   <Column align="right">
@@ -119,13 +123,38 @@ export const BookingConfirmationEmail = ({
                         fontWeight: "700",
                       }}
                     >
-                      {totalAmount}
+                      PHP {amountPaid}
                     </Text>
                   </Column>
                 </Row>
+
+                {grandTotal ? (
+                  <Row style={{ ...serviceRow, borderBottom: "none" }}>
+                    <Column colSpan={2}>
+                      <Text style={serviceNameText}>Grand Total</Text>
+                    </Column>
+                    <Column align="right">
+                      <Text style={servicePrice}>PHP {grandTotal}</Text>
+                    </Column>
+                  </Row>
+                ) : null}
+
+                {remainingBalanceValue > 0 ? (
+                  <Row style={{ ...serviceRow, borderBottom: "none" }}>
+                    <Column colSpan={2}>
+                      <Text style={{ ...serviceNameText, color: "#92400e" }}>
+                        Balance Due
+                      </Text>
+                    </Column>
+                    <Column align="right">
+                      <Text style={{ ...servicePrice, color: "#92400e", fontWeight: "700" }}>
+                        PHP {remainingBalance}
+                      </Text>
+                    </Column>
+                  </Row>
+                ) : null}
               </Section>
 
-              {/* CTA Button */}
               {bookingUrl && (
                 <Section style={{ textAlign: "center", marginTop: "32px" }}>
                   <Link href={bookingUrl} style={button}>
@@ -135,7 +164,6 @@ export const BookingConfirmationEmail = ({
               )}
             </Section>
 
-            {/* Footer */}
             <Section style={footer}>
               <Text style={footerText}>
                 Need to make changes? Contact {businessName} directly.
@@ -161,7 +189,6 @@ export const BookingConfirmationEmail = ({
 
 export default BookingConfirmationEmail;
 
-/* Styles */
 const main = {
   backgroundColor: "#ffffff",
   fontFamily:
@@ -187,7 +214,6 @@ const mainTable = {
   marginTop: "40px",
 };
 
-/* Header */
 const header = {
   backgroundColor: "#111827",
   padding: "40px 40px",
@@ -202,7 +228,6 @@ const headerTitle = {
   letterSpacing: "-0.025em",
 };
 
-/* Content */
 const content = {
   padding: "40px",
 };
@@ -229,7 +254,6 @@ const metaText = {
   marginTop: "0",
 };
 
-/* Highlight Card */
 const highlightCard = {
   backgroundColor: "#ecfdf5",
   border: "1px solid #d1fae5",
@@ -266,7 +290,6 @@ const highlightDate = {
   marginBottom: "0",
 };
 
-/* Services List */
 const servicesSection = {
   marginTop: "0",
   borderTop: "1px dashed #e5e7eb",
@@ -310,7 +333,6 @@ const servicePrice = {
   margin: "0",
 };
 
-/* Footer */
 const footer = {
   backgroundColor: "#f9fafb",
   padding: "32px",

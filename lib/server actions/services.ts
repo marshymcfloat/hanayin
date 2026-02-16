@@ -63,6 +63,7 @@ export async function createServiceAction(data: {
   name: string;
   description?: string;
   price: number;
+  estimated_cost?: number;
   duration?: number;
   category: string;
   flows?: {
@@ -97,6 +98,7 @@ export async function createServiceAction(data: {
         name: data.name,
         description: data.description || null,
         price: data.price,
+        estimated_cost: data.estimated_cost ?? 0,
         duration: data.duration || null,
         category: data.category,
         business_id: businessId,
@@ -131,6 +133,7 @@ export async function updateServiceAction(
     name?: string;
     description?: string;
     price?: number;
+    estimated_cost?: number;
     duration?: number;
     category?: string;
     flows?: {
@@ -182,6 +185,7 @@ export async function updateServiceAction(
           name: data.name,
           description: data.description,
           price: data.price,
+          estimated_cost: data.estimated_cost,
           duration: data.duration,
           category: data.category,
         },

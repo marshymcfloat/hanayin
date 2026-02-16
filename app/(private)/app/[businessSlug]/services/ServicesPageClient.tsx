@@ -50,6 +50,7 @@ const initialFormData: ServiceFormData = {
   name: "",
   description: "",
   price: "",
+  estimatedCost: "",
   duration: "",
   category: "",
   flows: [],
@@ -63,6 +64,7 @@ type OptimisticAction =
         name: string;
         description?: string;
         price: number;
+        estimated_cost: number;
         duration?: number;
         category: string;
       };
@@ -98,6 +100,7 @@ export function ServicesPageClient({
                   name: action.data.name,
                   description: action.data.description || null,
                   price: action.data.price,
+                  estimated_cost: action.data.estimated_cost,
                   duration: action.data.duration || null,
                   category: action.data.category,
                 }
@@ -136,6 +139,7 @@ export function ServicesPageClient({
       name: formData.name,
       description: formData.description || undefined,
       price: parseFloat(formData.price),
+      estimated_cost: parseFloat(formData.estimatedCost || "0"),
       duration: formData.duration ? parseInt(formData.duration) : undefined,
       category: newCategory || formData.category,
       flows: formData.flows
@@ -170,6 +174,7 @@ export function ServicesPageClient({
       name: formData.name,
       description: formData.description || undefined,
       price: parseFloat(formData.price),
+      estimated_cost: parseFloat(formData.estimatedCost || "0"),
       duration: formData.duration ? parseInt(formData.duration) : undefined,
       category: newCategory || formData.category,
       flows: formData.flows
@@ -238,6 +243,7 @@ export function ServicesPageClient({
       name: service.name,
       description: service.description || "",
       price: service.price.toString(),
+      estimatedCost: service.estimated_cost.toString(),
       duration: service.duration?.toString() || "",
       category: service.category,
       flows:

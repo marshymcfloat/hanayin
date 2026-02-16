@@ -109,7 +109,7 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-5 w-5 hover:bg-destructive/10 hover:text-destructive text-primary/60 -mr-1"
+                  className="h-11 w-11 touch-manipulation text-primary/60 hover:bg-destructive/10 hover:text-destructive sm:h-8 sm:w-8 -mr-1"
                   onClick={() => removeService(services[0].id, Number(pkgId))}
                   type="button"
                 >
@@ -138,11 +138,11 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
 
               {/* Package Footer */}
               <div className="bg-background/40 px-3 py-2 flex justify-between items-center text-xs border-t border-primary/10">
-                <div className="flex items-center gap-1 bg-background rounded-md border shadow-sm h-6">
+                <div className="flex h-11 items-center gap-1 rounded-md border bg-background shadow-sm sm:h-9">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-full w-6 rounded-none rounded-l-md hover:bg-muted"
+                    className="h-full w-11 touch-manipulation rounded-none rounded-l-md hover:bg-muted sm:w-9"
                     onClick={() => {
                       const currentQty = services[0].quantity || 1;
                       if (currentQty > 1) {
@@ -157,15 +157,15 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                     }}
                     type="button"
                   >
-                    <Minus className="h-2.5 w-2.5" />
+                    <Minus className="h-4 w-4 sm:h-3 sm:w-3" />
                   </Button>
-                  <span className="w-6 text-center font-medium">
+                  <span className="w-9 text-center text-sm font-medium sm:w-7 sm:text-xs">
                     {services[0].quantity || 1}
                   </span>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-full w-6 rounded-none rounded-r-md hover:bg-muted"
+                    className="h-full w-11 touch-manipulation rounded-none rounded-r-md hover:bg-muted sm:w-9"
                     onClick={() => {
                       const newServices = selectedServices.map((s) => {
                         if (s.packageId === Number(pkgId)) {
@@ -177,7 +177,7 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                     }}
                     type="button"
                   >
-                    <Plus className="h-2.5 w-2.5" />
+                    <Plus className="h-4 w-4 sm:h-3 sm:w-3" />
                   </Button>
                 </div>
                 <div className="font-semibold text-primary">
@@ -256,7 +256,7 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-11 w-11 touch-manipulation text-muted-foreground/50 hover:bg-destructive/10 hover:text-destructive sm:h-8 sm:w-8 -mr-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                   onClick={() => removeService(service.id)}
                   type="button"
                 >
@@ -267,30 +267,30 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
 
             <div className="flex items-center justify-between">
               {/* Controls */}
-              <div className="flex items-center gap-1 bg-muted/40 rounded-md border h-7 self-start">
+              <div className="flex h-11 items-center gap-1 self-start rounded-md border bg-muted/40 sm:h-9">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-full w-7 rounded-none rounded-l-md hover:bg-background hover:text-foreground"
+                  className="h-full w-11 touch-manipulation rounded-none rounded-l-md hover:bg-background hover:text-foreground sm:w-9"
                   onClick={() => updateQuantity(service.id, -1)}
                   type="button"
                 >
-                  <Minus className="h-3 w-3" />
+                  <Minus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                 </Button>
-                <span className="min-w-[1.5rem] text-center text-xs font-medium tabular-nums">
+                <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums sm:min-w-[1.5rem] sm:text-xs">
                   {service.quantity || 1}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-full w-7 rounded-none rounded-r-md hover:bg-background hover:text-foreground"
+                  className="h-full w-11 touch-manipulation rounded-none rounded-r-md hover:bg-background hover:text-foreground sm:w-9"
                   onClick={(e) => {
                     e.stopPropagation();
                     updateQuantity(service.id, 1);
                   }}
                   type="button"
                 >
-                  <Plus className="h-3 w-3" />
+                  <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                 </Button>
               </div>
 

@@ -71,6 +71,9 @@ function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) 
               <TableHead className="h-12 text-right font-semibold text-zinc-500">
                 Price
               </TableHead>
+              <TableHead className="h-12 text-right font-semibold text-zinc-500">
+                Est. Cost
+              </TableHead>
               <TableHead className="h-12 w-[100px] pr-6 text-right font-semibold text-zinc-500">
                 Actions
               </TableHead>
@@ -115,6 +118,9 @@ function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) 
                 </TableCell>
                 <TableCell className="py-4 text-right font-bold text-zinc-900">
                   {formatCurrency(service.price)}
+                </TableCell>
+                <TableCell className="py-4 text-right font-semibold text-zinc-700">
+                  {formatCurrency(service.estimated_cost)}
                 </TableCell>
                 <TableCell className="py-4 pr-6 text-right">
                   <DropdownMenu>
