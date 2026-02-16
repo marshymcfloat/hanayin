@@ -32,6 +32,7 @@ import {
   unclaimServiceAsOwnerAction,
   unserveServiceAsOwnerAction,
 } from "@/lib/server actions/dashboard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export type OwnerPendingService = {
   id: number;
@@ -291,25 +292,28 @@ export default function OwnerServiceQueue({
       )}
     >
       <CardHeader
-        className={cn("pb-0", isEmbedded ? "px-0 pt-0" : "md:px-8 md:pt-8")}
+        className={cn("pb-2", isEmbedded ? "px-4 pt-4" : "md:px-8 md:pt-8")}
       >
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
+            <CardTitle className="text-lg sm:text-2xl font-bold tracking-tight text-zinc-900">
               Owner Queue
             </CardTitle>
-            <CardDescription className="text-base text-zinc-500 font-medium">
+            <CardDescription className="text-xs sm:text-base text-zinc-500 font-medium">
               Claim and serve customers as the owner.
             </CardDescription>
           </div>
           <Button
             variant="outline"
             onClick={handleRefresh}
-            className="w-full sm:w-auto rounded-2xl h-11 border-zinc-200 bg-zinc-50 font-medium"
+            className="w-full sm:w-auto rounded-2xl h-10 sm:h-11 border-zinc-200 bg-zinc-50 font-medium text-xs sm:text-sm"
             disabled={isRefreshing}
           >
             <RefreshCcw
-              className={cn("h-4 w-4 mr-2", isRefreshing && "animate-spin")}
+              className={cn(
+                "h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2",
+                isRefreshing && "animate-spin",
+              )}
             />
             Refresh
           </Button>
@@ -318,8 +322,7 @@ export default function OwnerServiceQueue({
 
       <CardContent
         className={cn(
-          "py-6 flex-1 min-h-[300px] overflow-auto",
-          isEmbedded ? "px-0" : "px-2 md:px-6",
+          "flex-1 min-h-0 overflow-hidden p-0", // Adjusted for proper scrolling
         )}
       >
         <Tabs
@@ -329,204 +332,223 @@ export default function OwnerServiceQueue({
               setActiveTab(value);
             }
           }}
+          className="h-full flex flex-col"
         >
-          <TabsList className="w-full grid grid-cols-2 rounded-2xl bg-zinc-50 border border-zinc-100 p-1 shadow-sm h-12 overflow-hidden items-stretch">
-            <TabsTrigger
-              value="pending"
-              className="rounded-xl h-full py-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm"
-            >
-              Pending
-              <span className="ml-2 text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                {pendingServices.length}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="claimed"
-              className="rounded-xl h-full py-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm"
-            >
-              My Claims
-              <span className="ml-2 text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                {claimedServices.length}
-              </span>
-            </TabsTrigger>
-          </TabsList>
+          <div className={cn("px-4 sm:px-6", isEmbedded && "px-4")}>
+            <TabsList className="w-full grid grid-cols-2 rounded-2xl bg-zinc-50 border border-zinc-100 p-1 shadow-sm h-12 overflow-hidden items-stretch">
+              <TabsTrigger
+                value="pending"
+                className="rounded-xl h-full py-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm"
+              >
+                Pending
+                <span className="ml-2 text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+                  {pendingServices.length}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="claimed"
+                className="rounded-xl h-full py-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm"
+              >
+                My Claims
+                <span className="ml-2 text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+                  {claimedServices.length}
+                </span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="pending" className="mt-4 space-y-3">
-            {pendingServices.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-10 border-2 border-dashed border-zinc-100 rounded-2xl bg-white">
-                <div className="h-12 w-12 rounded-full bg-zinc-50 text-zinc-300 flex items-center justify-center">
-                  <Inbox className="h-6 w-6" />
-                </div>
-                <p className="mt-3 text-sm font-semibold text-zinc-900">
-                  No pending services
-                </p>
-                <p className="text-xs text-zinc-500 max-w-[240px]">
-                  The queue is clear for now. New bookings will appear here.
-                </p>
-              </div>
-            ) : (
-              pendingServices.map((item) => {
-                const isBusy =
-                  actionState.id === item.id && actionState.type === "claim";
-                return (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-semibold text-zinc-900">
-                            {item.service.name}
-                          </h4>
-                          {item.package && (
-                            <Badge
-                              variant="secondary"
-                              className="bg-zinc-100 text-zinc-700 border border-zinc-200 text-[9px] font-semibold h-4 px-1"
-                            >
-                              {item.package.name}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-xs text-zinc-500 font-medium">
-                          {item.booking.customer.name}
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
-                          <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-2 py-0.5 rounded-md">
-                            <Clock className="h-3 w-3" />
-                            {renderTime(getDisplayTime(item))}
-                          </span>
-                          {item.service.duration && (
-                            <span>{item.service.duration} mins</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="text-sm font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
-                          ₱{item.price.toLocaleString()}
-                        </span>
-                        <Button
-                          size="sm"
-                          className="h-11 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200"
-                          onClick={() => handleClaim(item.id)}
-                          disabled={isBusy}
-                        >
-                          {isBusy ? "Claiming..." : "Claim"}
-                        </Button>
-                      </div>
+          <ScrollArea className="flex-1">
+            <div
+              className={cn(
+                "space-y-3 p-4 sm:p-6 pt-2",
+                isEmbedded && "p-4 pt-4",
+              )}
+            >
+              <TabsContent value="pending" className="mt-0 space-y-3 m-0">
+                {pendingServices.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center text-center py-10 border-2 border-dashed border-zinc-100 rounded-2xl bg-white">
+                    <div className="h-10 w-10 rounded-full bg-zinc-50 text-zinc-300 flex items-center justify-center">
+                      <Inbox className="h-5 w-5" />
                     </div>
+                    <p className="mt-3 text-sm font-semibold text-zinc-900">
+                      No pending services
+                    </p>
+                    <p className="text-xs text-zinc-500 max-w-[200px]">
+                      The queue is clear for now.
+                    </p>
                   </div>
-                );
-              })
-            )}
-          </TabsContent>
-
-          <TabsContent value="claimed" className="mt-4 space-y-3">
-            {claimedServices.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-10 border-2 border-dashed border-zinc-100 rounded-2xl bg-zinc-50/60">
-                <div className="h-12 w-12 rounded-full bg-white text-zinc-300 flex items-center justify-center">
-                  <UserCheck className="h-6 w-6" />
-                </div>
-                <p className="mt-3 text-sm font-semibold text-zinc-900">
-                  No claimed services
-                </p>
-                <p className="text-xs text-zinc-500 max-w-[240px]">
-                  Claim a pending service to track it here.
-                </p>
-              </div>
-            ) : (
-              claimedServices.map((item) => {
-                const isServing =
-                  actionState.id === item.id && actionState.type === "serve";
-                const isUnclaiming =
-                  actionState.id === item.id && actionState.type === "unclaim";
-                const isUnserving =
-                  actionState.id === item.id && actionState.type === "unserve";
-                return (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-semibold text-zinc-900">
-                            {item.service.name}
-                          </h4>
-                          <Badge
-                            variant="outline"
-                            className="text-[9px] px-1.5 py-0.5 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50"
-                          >
-                            {item.status}
-                          </Badge>
-                          {item.package && (
-                            <Badge
-                              variant="secondary"
-                              className="bg-zinc-100 text-zinc-700 border border-zinc-200 text-[9px] font-semibold h-4 px-1"
-                            >
-                              {item.package.name}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-xs text-zinc-500 font-medium">
-                          {item.booking.customer.name}
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
-                          <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-2 py-0.5 rounded-md">
-                            <Clock className="h-3 w-3" />
-                            {renderTime(getDisplayTime(item))}
-                          </span>
-                          {item.claimed_at && (
-                            <span className="text-zinc-400">
-                              Claimed {formatPH(item.claimed_at, "h:mm a")}
+                ) : (
+                  pendingServices.map((item) => {
+                    const isBusy =
+                      actionState.id === item.id &&
+                      actionState.type === "claim";
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1.5 min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-semibold text-zinc-900 text-sm truncate">
+                                {item.service.name}
+                              </h4>
+                              {item.package && (
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-zinc-100 text-zinc-700 border border-zinc-200 text-[9px] font-semibold h-4 px-1 shrink-0"
+                                >
+                                  {item.package.name}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-xs text-zinc-500 font-medium truncate">
+                              {item.booking.customer.name}
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
+                              <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-1.5 py-0.5 rounded-md whitespace-nowrap">
+                                <Clock className="h-3 w-3" />
+                                {renderTime(getDisplayTime(item))}
+                              </span>
+                              {item.service.duration && (
+                                <span className="whitespace-nowrap">
+                                  {item.service.duration} mins
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <span className="text-xs font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
+                              ₱{item.price.toLocaleString()}
                             </span>
-                          )}
+                            <Button
+                              size="sm"
+                              className="h-9 min-h-[36px] w-[70px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 text-xs"
+                              onClick={() => handleClaim(item.id)}
+                              disabled={isBusy}
+                            >
+                              {isBusy ? "..." : "Claim"}
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="text-sm font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
-                          ₱{item.price.toLocaleString()}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            className="h-11 min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200"
-                            onClick={() => handleServe(item.id)}
-                            disabled={isServing}
-                          >
-                            {isServing ? "Saving..." : "Mark Served"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-11 min-h-[44px] rounded-xl border-zinc-200 text-zinc-600 hover:text-zinc-900"
-                            onClick={() =>
-                              item.status === "CLAIMED"
-                                ? handleUnclaim(item.id)
-                                : handleUnserve(item.id)
-                            }
-                            disabled={isUnclaiming || isUnserving}
-                          >
-                            {item.status === "CLAIMED" ? (
-                              <>
-                                <XCircle className="h-3.5 w-3.5 mr-1" />
-                                {isUnclaiming ? "Releasing..." : "Unclaim"}
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                                {isUnserving ? "Reverting..." : "Undo Serve"}
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
+                    );
+                  })
+                )}
+              </TabsContent>
+
+              <TabsContent value="claimed" className="mt-0 space-y-3 m-0">
+                {claimedServices.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center text-center py-10 border-2 border-dashed border-zinc-100 rounded-2xl bg-zinc-50/60">
+                    <div className="h-10 w-10 rounded-full bg-white text-zinc-300 flex items-center justify-center">
+                      <UserCheck className="h-5 w-5" />
                     </div>
+                    <p className="mt-3 text-sm font-semibold text-zinc-900">
+                      No claimed services
+                    </p>
+                    <p className="text-xs text-zinc-500 max-w-[200px]">
+                      Claim pending services.
+                    </p>
                   </div>
-                );
-              })
-            )}
-          </TabsContent>
+                ) : (
+                  claimedServices.map((item) => {
+                    const isServing =
+                      actionState.id === item.id &&
+                      actionState.type === "serve";
+                    const isUnclaiming =
+                      actionState.id === item.id &&
+                      actionState.type === "unclaim";
+                    const isUnserving =
+                      actionState.id === item.id &&
+                      actionState.type === "unserve";
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1.5 min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-semibold text-zinc-900 text-sm truncate">
+                                {item.service.name}
+                              </h4>
+                              <Badge
+                                variant="outline"
+                                className="text-[9px] px-1.5 py-0.5 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50 shrink-0"
+                              >
+                                {item.status}
+                              </Badge>
+                              {item.package && (
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-zinc-100 text-zinc-700 border border-zinc-200 text-[9px] font-semibold h-4 px-1 shrink-0"
+                                >
+                                  {item.package.name}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-xs text-zinc-500 font-medium truncate">
+                              {item.booking.customer.name}
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
+                              <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-1.5 py-0.5 rounded-md whitespace-nowrap">
+                                <Clock className="h-3 w-3" />
+                                {renderTime(getDisplayTime(item))}
+                              </span>
+                              {item.claimed_at && (
+                                <span className="text-zinc-400 whitespace-nowrap">
+                                  Claimed {formatPH(item.claimed_at, "h:mm a")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <span className="text-xs font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
+                              ₱{item.price.toLocaleString()}
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <Button
+                                size="sm"
+                                className="h-9 min-h-[36px] w-[70px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 text-xs"
+                                onClick={() => handleServe(item.id)}
+                                disabled={isServing}
+                              >
+                                {isServing ? "..." : "Serve"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-9 min-h-[36px] w-9 rounded-xl border-zinc-200 text-zinc-600 hover:text-zinc-900 p-0"
+                                onClick={() =>
+                                  item.status === "CLAIMED"
+                                    ? handleUnclaim(item.id)
+                                    : handleUnserve(item.id)
+                                }
+                                disabled={isUnclaiming || isUnserving}
+                                title={
+                                  item.status === "CLAIMED"
+                                    ? "Unclaim"
+                                    : "Undo Serve"
+                                }
+                              >
+                                {isUnclaiming || isUnserving ? (
+                                  <RefreshCcw className="h-3.5 w-3.5 animate-spin" />
+                                ) : item.status === "CLAIMED" ? (
+                                  <XCircle className="h-3.5 w-3.5" />
+                                ) : (
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </TabsContent>
+            </div>
+          </ScrollArea>
         </Tabs>
       </CardContent>
     </Card>

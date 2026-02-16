@@ -1,5 +1,11 @@
-import { cn } from "@/lib/utils";
-import { PhilippinePeso, Calendar, Users, Bell, AlertTriangle, Activity } from "lucide-react";
+import {
+  PhilippinePeso,
+  Calendar,
+  Users,
+  Bell,
+  AlertTriangle,
+  Activity,
+} from "lucide-react";
 import DashboardCard from "../DashboardCard";
 import { SalesChart } from "./SalesChart";
 
@@ -14,8 +20,9 @@ import {
   Voucher,
   Owner,
 } from "@/prisma/generated/prisma/client";
-import { BookingList } from "./BookingList";
+
 import { BookingDialog } from "./BookingDialog";
+import { RecentBookingsWidget } from "./RecentBookingsWidget";
 import {
   getCachedServices,
   getCachedPackages,
@@ -27,6 +34,8 @@ import OwnerServiceQueue, {
 } from "./OwnerServiceQueue";
 import { GiftCardClaimDialog } from "../shared/GiftCardClaimDialog";
 import Link from "next/link";
+import { TodayGrowthOpportunityCard } from "./TodayGrowthOpportunityCard";
+import type { OpportunityView } from "@/lib/services/growth/types";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -52,6 +61,9 @@ export default async function OwnerDashboard({
   flowRemindersThisWeek,
   bookingMetrics,
   staffingConflictAlerts,
+  todayGrowthOpportunity,
+  growthEnabled,
+  reportsEnabled,
 }: {
   businessName: string;
   businessSlug: string;
@@ -93,6 +105,9 @@ export default async function OwnerDashboard({
     reason: string;
     detectedAt: Date;
   }[];
+  todayGrowthOpportunity: OpportunityView | null;
+  growthEnabled: boolean;
+  reportsEnabled: boolean;
 }) {
   const business = await getCachedBusinessBySlug(businessSlug);
   const services = business ? await getCachedServices(business.id) : [];
@@ -100,8 +115,8 @@ export default async function OwnerDashboard({
   const categories = Array.from(new Set(services.map((s) => s.category)));
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
+    <div className="min-h-screen lg:h-screen bg-linear-to-b from-zinc-50 via-white to-zinc-50 flex flex-col overflow-hidden">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300 shrink-0">
         <div className="flex flex-col">
           <h1 className="font-bold text-lg leading-none md:text-xl text-slate-900 tracking-tight">
             {businessName}
@@ -122,165 +137,165 @@ export default async function OwnerDashboard({
         </div>
       </header>
 
-      <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <DashboardCard
-            variant="filled"
-            Icon={PhilippinePeso}
-            description="Total sales this period"
-            title="Revenue"
-            count={totalSales}
-          />
-
-          <DashboardCard
-            Icon={Calendar}
-            description="Appointments for today"
-            title="Bookings"
-            count={bookingsToday}
-          />
-
-          <DashboardCard
-            Icon={Users}
-            description="Staff currently present"
-            title="Active Staff"
-            count={presentEmployeesToday}
-          />
-
-          <DashboardCard
-            Icon={Bell}
-            description="Follow-up reminders sent"
-            title="Flow Reminders"
-            count={flowRemindersThisWeek}
-          />
-        </section>
-
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5 lg:col-span-2">
-            <div className="flex items-center gap-2">
-              <Activity className="size-4 text-emerald-600" />
-              <h3 className="text-sm font-semibold text-zinc-900">Booking Funnel Metrics (7 days)</h3>
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <MetricPill
-                label="Slot Success"
-                value={`${bookingMetrics.slotLookupSuccessRate.toFixed(1)}%`}
-                caption={`${bookingMetrics.slotLookupTotal} lookups`}
-              />
-              <MetricPill
-                label="Submit Success"
-                value={`${bookingMetrics.bookingSubmitSuccessRate.toFixed(1)}%`}
-                caption={`${bookingMetrics.submitAttempts} attempts`}
-              />
-              <MetricPill
-                label="Conflict Reject"
-                value={`${bookingMetrics.conflictRejectionRate.toFixed(1)}%`}
-                caption="SLOT_JUST_TAKEN"
-              />
-              <MetricPill
-                label="Public Conversion"
-                value={`${bookingMetrics.publicConversionRate.toFixed(1)}%`}
-                caption={`${bookingMetrics.publicCompleted}/${bookingMetrics.publicStarted}`}
-              />
-            </div>
-          </article>
-
-          <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="size-4 text-amber-600" />
-                <h3 className="text-sm font-semibold text-zinc-900">
-                  Staffing Alerts
-                </h3>
-              </div>
-              <span className="text-xs text-zinc-500">
-                {staffingConflictAlerts.length} recent
-              </span>
-            </div>
-            {staffingConflictAlerts.length === 0 ? (
-              <p className="mt-3 text-xs text-zinc-500">
-                No future-booking staffing conflicts detected.
-              </p>
-            ) : (
-              <ul className="mt-3 space-y-2">
-                {staffingConflictAlerts.slice(0, 4).map((alert) => (
-                  <li
-                    key={alert.id}
-                    className="rounded-xl border border-amber-200 bg-amber-50/60 px-3 py-2"
-                  >
-                    <p className="text-xs font-semibold text-zinc-900">
-                      Booking #{alert.bookingId} - {alert.customerName}
-                    </p>
-                    <p className="text-[11px] text-zinc-700">
-                      {alert.scheduledAt
-                        ? formatPH(new Date(alert.scheduledAt), "MMM d, h:mm a")
-                        : "Unscheduled"}
-                    </p>
-                    <div className="mt-1 flex items-center justify-between gap-2">
-                      <span className="text-[10px] uppercase tracking-wide text-amber-700">
-                        Trigger: {alert.trigger.replaceAll("_", " ")}
-                      </span>
-                      <Link
-                        href={`/app/${businessSlug}/bookings/${alert.bookingId}`}
-                        className="text-[11px] font-medium text-amber-700 underline underline-offset-2"
-                      >
-                        Open
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </article>
-        </section>
-
-        <SnapshotSection
-          bookingsToday={bookingsToday}
-          presentEmployeesToday={presentEmployeesToday}
-          pendingServices={pendingServices}
-          ownerClaimedServices={ownerClaimedServices}
-          className="lg:hidden"
-        />
-
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <section className="rounded-[28px] border border-zinc-100 bg-white p-4 sm:p-6 h-[clamp(520px,70vh,860px)]">
-              <BookingList
-                bookings={allBookings}
-                variant="embedded"
-                className="h-full"
-              />
-            </section>
-          </div>
-          <div className="lg:col-span-4 space-y-6">
-            <SnapshotSection
-              bookingsToday={bookingsToday}
-              presentEmployeesToday={presentEmployeesToday}
-              pendingServices={pendingServices}
-              ownerClaimedServices={ownerClaimedServices}
-              className="hidden lg:block"
-            />
-
-            <section className="rounded-[28px] border border-zinc-100 bg-white p-4 sm:p-6">
+      <main className="flex-1 overflow-auto lg:overflow-hidden w-full max-w-[1920px] mx-auto">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-6 lg:h-full">
+          {/* Left Column: Queue & Recent Bookings (3 cols) */}
+          <div className="lg:col-span-3 flex flex-col gap-6 lg:h-full lg:overflow-hidden">
+            <section className="bg-white rounded-[28px] border border-zinc-100 flex-1 min-h-[300px] overflow-hidden">
               <OwnerServiceQueue
                 businessSlug={businessSlug}
                 pendingServices={pendingServices}
                 claimedServices={ownerClaimedServices}
                 variant="embedded"
-                className="h-[clamp(400px,53vh,600px)]"
+                className="h-full"
               />
             </section>
 
-            <section className="rounded-[28px] border border-zinc-100 bg-white p-4 sm:p-6">
+            <section className="bg-white rounded-[28px] border border-zinc-100 flex-1 min-h-[300px] overflow-hidden">
+              <RecentBookingsWidget
+                bookings={allBookings}
+                businessSlug={businessSlug}
+                className="h-full border-none shadow-none"
+              />
+            </section>
+          </div>
+
+          {/* Center Column: Charts & Key Metrics (6 cols) */}
+          <div className="lg:col-span-6 flex flex-col gap-6 lg:h-full lg:overflow-y-auto no-scrollbar">
+            <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <DashboardCard
+                variant="filled"
+                Icon={PhilippinePeso}
+                description="Total sales this period"
+                title="Revenue"
+                count={totalSales}
+              />
+              <DashboardCard
+                Icon={Calendar}
+                description="Appointments for today"
+                title="Bookings"
+                count={bookingsToday}
+              />
+              <DashboardCard
+                Icon={Users}
+                description="Staff currently present"
+                title="Active Staff"
+                count={presentEmployeesToday}
+              />
+              <DashboardCard
+                Icon={Bell}
+                description="Follow-up reminders sent"
+                title="Flow Reminders"
+                count={flowRemindersThisWeek}
+              />
+            </section>
+
+            <section className="bg-white rounded-[28px] border border-zinc-100 p-1 flex-1 min-h-[400px]">
               <SalesChart
                 bookings={bookings}
                 allBookings={allBookings}
                 payroll={payroll}
+                businessSlug={businessSlug}
+                reportsEnabled={reportsEnabled}
                 variant="embedded"
-                className="h-[clamp(450px,40vh,500px)]"
+                className="h-full w-full"
               />
             </section>
           </div>
-        </section>
+
+          {/* Right Column: Insights & Alerts (3 cols) */}
+          <div className="lg:col-span-3 flex flex-col gap-6 lg:h-full lg:overflow-y-auto no-scrollbar">
+            {growthEnabled ? (
+              <section>
+                <TodayGrowthOpportunityCard
+                  businessSlug={businessSlug}
+                  initialOpportunity={todayGrowthOpportunity}
+                />
+              </section>
+            ) : (
+              <section className="rounded-[24px] border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-800">
+                Growth opportunities are available on Plus and Pro plans.
+              </section>
+            )}
+
+            <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="size-4 text-amber-600" />
+                  <h3 className="text-sm font-semibold text-zinc-900">
+                    Staffing Alerts
+                  </h3>
+                </div>
+                <span className="text-xs text-zinc-500">
+                  {staffingConflictAlerts.length} recent
+                </span>
+              </div>
+              {staffingConflictAlerts.length === 0 ? (
+                <p className="text-xs text-zinc-500">
+                  No future-booking staffing conflicts detected.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {staffingConflictAlerts.slice(0, 4).map((alert) => (
+                    <li
+                      key={alert.id}
+                      className="rounded-xl border border-amber-200 bg-amber-50/60 px-3 py-2"
+                    >
+                      <p className="text-xs font-semibold text-zinc-900">
+                        Booking #{alert.bookingId} - {alert.customerName}
+                      </p>
+                      <p className="text-[11px] text-zinc-700">
+                        {alert.scheduledAt
+                          ? formatPH(
+                              new Date(alert.scheduledAt),
+                              "MMM d, h:mm a",
+                            )
+                          : "Unscheduled"}
+                      </p>
+                      <div className="mt-1 flex items-center justify-between gap-2">
+                        <span className="text-[10px] uppercase tracking-wide text-amber-700">
+                          {alert.trigger.replaceAll("_", " ")}
+                        </span>
+                        <Link
+                          href={`/app/${businessSlug}/bookings?q=${alert.bookingId}`}
+                          className="text-[11px] font-medium text-amber-700 underline underline-offset-2"
+                        >
+                          Open
+                        </Link>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+
+            <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className="size-4 text-emerald-600" />
+                <h3 className="text-sm font-semibold text-zinc-900">
+                  Funnel Metrics (7d)
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                <MetricPill
+                  label="Slot Success"
+                  value={`${bookingMetrics.slotLookupSuccessRate.toFixed(1)}%`}
+                  caption={`${bookingMetrics.slotLookupTotal} lookups`}
+                />
+                <MetricPill
+                  label="Submit Success"
+                  value={`${bookingMetrics.bookingSubmitSuccessRate.toFixed(1)}%`}
+                  caption={`${bookingMetrics.submitAttempts} attempts`}
+                />
+                <MetricPill
+                  label="Public Conv."
+                  value={`${bookingMetrics.publicConversionRate.toFixed(1)}%`}
+                  caption={`${bookingMetrics.publicCompleted} / ${bookingMetrics.publicStarted}`}
+                />
+              </div>
+            </article>
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -306,71 +321,3 @@ function MetricPill({
   );
 }
 
-function SnapshotSection({
-  bookingsToday,
-  presentEmployeesToday,
-  pendingServices,
-  ownerClaimedServices,
-  className,
-}: {
-  bookingsToday: number;
-  presentEmployeesToday: number;
-  pendingServices: OwnerPendingService[];
-  ownerClaimedServices: OwnerClaimedService[];
-  className?: string;
-}) {
-  const todayLabel = formatPH(new Date(), "MMM d, yyyy");
-
-  return (
-    <section
-      className={cn(
-        "rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5",
-        className,
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">
-            Today
-          </p>
-          <p className="text-sm font-semibold text-zinc-900">{todayLabel}</p>
-        </div>
-        <span className="text-xs text-zinc-500">Snapshot</span>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-            Bookings
-          </div>
-          <div className="text-lg font-bold text-zinc-900">
-            {bookingsToday.toLocaleString()}
-          </div>
-        </div>
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-            Active Staff
-          </div>
-          <div className="text-lg font-bold text-zinc-900">
-            {presentEmployeesToday.toLocaleString()}
-          </div>
-        </div>
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-            Queue Pending
-          </div>
-          <div className="text-lg font-bold text-zinc-900">
-            {pendingServices.length.toLocaleString()}
-          </div>
-        </div>
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-            Claimed
-          </div>
-          <div className="text-lg font-bold text-zinc-900">
-            {ownerClaimedServices.length.toLocaleString()}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}

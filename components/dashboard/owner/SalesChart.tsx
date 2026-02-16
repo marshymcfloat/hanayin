@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   Bar,
@@ -9,7 +10,6 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import {
   Card,
@@ -28,13 +28,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 // Re-defining locally to avoid circular dependencies or large imports if not needed
 interface Booking {
@@ -59,6 +52,8 @@ interface PayrollRecord {
   ending_date: Date;
 }
 
+type ChartRange = "daily" | "weekly" | "monthly" | "yearly";
+
 type ChartBucket = {
   name: string;
   total: number;
@@ -68,21 +63,68 @@ type ChartBucket = {
   [key: string]: number | string | undefined;
 };
 
+function toPhYmd(date: Date) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+function buildRevenueReportHref({
+  businessSlug,
+  range,
+}: {
+  businessSlug: string;
+  range: ChartRange;
+}) {
+  const params = new URLSearchParams();
+  params.set("tab", "revenue");
+
+  if (range === "daily") {
+    params.set("preset", "today");
+    params.set("groupBy", "day");
+  } else if (range === "weekly") {
+    params.set("preset", "7d");
+    params.set("groupBy", "day");
+  } else if (range === "monthly") {
+    params.set("preset", "mtd");
+    params.set("groupBy", "day");
+  } else {
+    const now = new Date();
+    const year = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Manila",
+      year: "numeric",
+    }).format(now);
+
+    params.set("preset", "custom");
+    params.set("groupBy", "month");
+    params.set("start", `${year}-01-01`);
+    params.set("end", toPhYmd(now));
+  }
+
+  return `/app/${businessSlug}/reports?${params.toString()}`;
+}
+
 export function SalesChart({
   bookings,
   allBookings = [],
   payroll = [],
+  businessSlug,
+  reportsEnabled = false,
   className,
   variant = "card",
 }: {
   bookings: Booking[];
   allBookings?: BookingWithDetails[];
   payroll?: PayrollRecord[];
+  businessSlug?: string;
+  reportsEnabled?: boolean;
   className?: string;
   variant?: "card" | "embedded";
 }) {
-  const [range, setRange] = useState("monthly");
-  const [showDetails, setShowDetails] = useState(false);
+  const [range, setRange] = useState<ChartRange>("monthly");
   const isClient = useSyncExternalStore(
     () => () => undefined,
     () => true,
@@ -95,7 +137,6 @@ export function SalesChart({
     totalPayroll,
     netRevenue,
     averageOrderValue,
-    categoryBreakdown,
   } = useMemo(() => {
     const now = new Date();
     const getPHParts = (date: Date) => {
@@ -181,21 +222,6 @@ export function SalesChart({
     const nRevenue = tRevenue - tPayroll;
     const tOrders = filteredBookings.length;
     const avgOrder = tOrders > 0 ? tRevenue / tOrders : 0;
-
-    // Category Breakdown
-    const catBreakdown: Record<string, number> = {};
-    filteredBookings.forEach((b) => {
-      if (b.availed_services && b.availed_services.length > 0) {
-        b.availed_services.forEach((s) => {
-          const cat = s.service.category || "Uncategorized";
-          catBreakdown[cat] = (catBreakdown[cat] || 0) + s.price;
-        });
-      } else {
-        // If we don't have detailed services, maybe put it in Uncategorized?
-        // But we shouldn't over-count if we are calculating from grand_total elsewhere.
-        // Actually, let's just stick to what we have in availed_services.
-      }
-    });
 
     const getBucketKey = (date: Date) => {
       const dPH = getPHParts(new Date(date));
@@ -325,18 +351,29 @@ export function SalesChart({
       totalPayroll: tPayroll,
       netRevenue: nRevenue,
       averageOrderValue: avgOrder,
-      categoryBreakdown: catBreakdown,
     };
   }, [bookings, allBookings, payroll, range]);
 
   const isEmbedded = variant === "embedded";
+  const reportsHref =
+    reportsEnabled && businessSlug
+      ? buildRevenueReportHref({ businessSlug, range })
+      : null;
 
   // Get all unique categories for Stacked Bar colors
   const categories = useMemo(() => {
     const cats = new Set<string>();
     data.forEach((d) => {
       Object.keys(d).forEach((k) => {
-        if (k !== "name" && k !== "total" && k !== "originalIndex") cats.add(k);
+        if (
+          k !== "name" &&
+          k !== "total" &&
+          k !== "expenses" &&
+          k !== "net" &&
+          k !== "originalIndex"
+        ) {
+          cats.add(k);
+        }
       });
     });
     return Array.from(cats);
@@ -364,20 +401,26 @@ export function SalesChart({
       )}
     >
       <CardHeader
-        className={cn("pb-0", isEmbedded ? "px-0 pt-0" : "md:px-8 md:pt-8")}
+        className={cn(
+          "pb-4 space-y-4",
+          isEmbedded ? "px-4 pt-4" : "md:px-8 md:pt-8",
+        )}
       >
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between min-w-0">
+          <div className="space-y-1 min-w-0">
+            <CardTitle className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 truncate">
               Financial Overview
             </CardTitle>
-            <CardDescription className="text-base text-zinc-500 font-medium">
+            <CardDescription className="text-xs sm:text-sm text-zinc-500 font-medium truncate">
               Revenue, expenses, and net income
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2">
-            <Select value={range} onValueChange={setRange}>
-              <SelectTrigger className="w-[140px] rounded-2xl h-11 border-zinc-200 bg-zinc-50 font-medium">
+          <div className="flex items-center gap-2 shrink-0">
+            <Select
+              value={range}
+              onValueChange={(value) => setRange(value as ChartRange)}
+            >
+              <SelectTrigger className="w-[120px] sm:w-[130px] rounded-xl h-9 sm:h-10 border-zinc-200 bg-zinc-50 font-medium text-xs">
                 <SelectValue placeholder="Select range" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -387,331 +430,183 @@ export function SalesChart({
                 <SelectItem value="yearly">This Year</SelectItem>
               </SelectContent>
             </Select>
-            <Dialog open={showDetails} onOpenChange={setShowDetails}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-xl h-11 w-11 border-zinc-200"
-                >
+            {reportsHref ? (
+              <Button
+                asChild
+                variant="outline"
+                size="icon"
+                className="rounded-xl h-10 w-10 border-zinc-200 bg-white"
+              >
+                <Link href={reportsHref} aria-label="Open revenue reports">
                   <Eye className="h-4 w-4 text-zinc-500" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="w-full! max-w-7xl! max-h-[90vh]! flex flex-col p-0 gap-0 overflow-hidden rounded-[24px]">
-                <DialogHeader className="p-6 pb-4 border-b border-zinc-100">
-                  <DialogTitle>Financial Details</DialogTitle>
-                </DialogHeader>
-                <div className="flex-1 p-6 overflow-y-auto">
-                  <div className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                        <div className="text-xs uppercase font-bold text-emerald-600 tracking-wider">
-                          Gross Revenue
-                        </div>
-                        <div className="text-2xl font-bold text-emerald-900 mt-1">
-                          ₱{totalRevenue.toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="p-4 rounded-2xl bg-red-50 border border-red-100">
-                        <div className="text-xs uppercase font-bold text-red-600 tracking-wider">
-                          Payroll Expenses
-                        </div>
-                        <div className="text-2xl font-bold text-red-900 mt-1">
-                          ₱{totalPayroll.toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100">
-                        <div className="text-xs uppercase font-bold text-blue-600 tracking-wider">
-                          Net Revenue
-                        </div>
-                        <div className="text-2xl font-bold text-blue-900 mt-1">
-                          ₱{netRevenue.toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      <div className="bg-zinc-50/50 p-6 rounded-2xl border border-zinc-100">
-                        <h3 className="text-lg font-semibold text-zinc-900 mb-6">
-                          Revenue vs Expenses vs Net
-                        </h3>
-                        <div className="h-[400px] w-full min-w-0 min-h-[320px]">
-                          <ResponsiveContainer
-                            width="100%"
-                            height="100%"
-                            minWidth={0}
-                            minHeight={320}
-                          >
-                            <BarChart
-                              data={data}
-                              margin={{
-                                top: 20,
-                                right: 20,
-                                left: 0,
-                                bottom: 0,
-                              }}
-                              barGap={2}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                vertical={false}
-                                stroke="#e4e4e7"
-                              />
-                              <XAxis
-                                dataKey="name"
-                                stroke="#71717a"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                                dy={10}
-                              />
-                              <YAxis
-                                stroke="#71717a"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                                tickFormatter={(value) =>
-                                  `₱${value >= 1000 ? `${value / 1000}k` : value}`
-                                }
-                              />
-                              <Tooltip
-                                cursor={{ fill: "#f4f4f5", radius: 4 }}
-                                contentStyle={{
-                                  borderRadius: "12px",
-                                  border: "none",
-                                  boxShadow:
-                                    "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-                                }}
-                              />
-                              <Legend wrapperStyle={{ paddingTop: "20px" }} />
-                              <Bar
-                                dataKey="total"
-                                name="Gross Revenue"
-                                fill="#10b981"
-                                radius={[4, 4, 0, 0]}
-                                maxBarSize={50}
-                              />
-                              <Bar
-                                dataKey="expenses"
-                                name="Payroll Expenses"
-                                fill="#ef4444"
-                                radius={[4, 4, 0, 0]}
-                                maxBarSize={50}
-                              />
-                              <Bar
-                                dataKey="net"
-                                name="Net Revenue"
-                                fill="#3b82f6"
-                                radius={[4, 4, 0, 0]}
-                                maxBarSize={50}
-                              />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      <div className="h-full flex flex-col">
-                        <h3 className="text-lg font-semibold text-zinc-900 mb-6">
-                          Category Breakdown
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 content-start">
-                          {Object.entries(categoryBreakdown)
-                            .sort(([, a], [, b]) => b - a)
-                            .map(([name, val], i) => (
-                              <div
-                                key={name}
-                                className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-100/50 h-fit"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div
-                                    className="w-2 h-8 rounded-full"
-                                    style={{
-                                      backgroundColor:
-                                        colors[i % colors.length],
-                                    }}
-                                  />
-                                  <span className="font-medium text-zinc-700">
-                                    {name}
-                                  </span>
-                                </div>
-                                <span className="font-bold text-zinc-900">
-                                  ₱{val.toLocaleString()}
-                                </span>
-                              </div>
-                            ))}
-                          {Object.keys(categoryBreakdown).length === 0 && (
-                            <div className="col-span-full py-8 text-center text-zinc-500">
-                              No category data available for this period.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </Link>
+              </Button>
+            ) : null}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
-          <div className="space-y-1">
-            <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+          <div className="space-y-0.5 min-w-0">
+            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider truncate">
               Net Revenue
             </div>
-            <div className="text-2xl lg:text-3xl font-bold text-emerald-900">
+            <div
+              className="text-xl lg:text-2xl font-bold text-emerald-900 truncate"
+              title={`₱${netRevenue.toLocaleString()}`}
+            >
               ₱{netRevenue.toLocaleString()}
             </div>
-            <div className="text-xs font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-0.5 rounded-full">
+            <div className="text-[10px] font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-0.5 rounded-full truncate">
               Gross: ₱{totalRevenue.toLocaleString()}
             </div>
           </div>
-          <div className="space-y-1">
-            <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
-              Expenses (Payroll)
+          <div className="space-y-0.5 min-w-0">
+            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider truncate">
+              Expenses
             </div>
-            <div className="text-2xl lg:text-3xl font-bold text-red-700">
+            <div
+              className="text-xl lg:text-2xl font-bold text-red-700 truncate"
+              title={`₱${totalPayroll.toLocaleString()}`}
+            >
               ₱{totalPayroll.toLocaleString()}
             </div>
-            <div className="text-xs font-medium text-zinc-500">
-              {range === "daily"
-                ? "Today"
-                : range === "monthly"
-                  ? "This Month"
-                  : range === "weekly"
-                    ? "Last 7 Days"
-                    : "This Year"}
+            <div className="text-[10px] font-medium text-zinc-500 truncate">
+              Payroll
             </div>
           </div>
-          <div className="hidden lg:block space-y-1">
-            <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
-              Avg. Order Value
+          <div className="hidden lg:block space-y-0.5 min-w-0">
+            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider truncate">
+              Avg. Order
             </div>
-            <div className="text-2xl lg:text-3xl font-bold text-zinc-900">
+            <div
+              className="text-xl lg:text-2xl font-bold text-zinc-900 truncate"
+              title={`₱${averageOrderValue.toLocaleString()}`}
+            >
               ₱
               {averageOrderValue.toLocaleString(undefined, {
                 maximumFractionDigits: 0,
               })}
             </div>
-            <div className="text-xs font-medium text-zinc-600">Per booking</div>
+            <div className="text-[10px] font-medium text-zinc-600 truncate">
+              Per booking
+            </div>
           </div>
         </div>
       </CardHeader>
 
       <CardContent
         className={cn(
-          "py-6 flex-1 min-h-[300px] min-w-0",
-          isEmbedded ? "px-0" : "px-2 md:px-6",
+          "py-4 flex-1 min-h-[220px] min-w-0 pb-4",
+          isEmbedded ? "px-4" : "px-4 md:px-8",
         )}
       >
         {isClient ? (
-          <div className="h-full w-full min-h-[240px] min-w-0">
+          <div className="h-full w-full min-h-[220px] min-w-0">
             <ResponsiveContainer
               width="100%"
               height="100%"
               minWidth={0}
-              minHeight={240}
+              minHeight={220}
             >
-            <BarChart
-              data={data}
-              margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={false}
-                stroke="#f4f4f5"
-              />
-              <XAxis
-                dataKey="name"
-                stroke="#a1a1aa"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                dy={16}
-                fontWeight={500}
-              />
-              <YAxis
-                stroke="#a1a1aa"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) =>
-                  `₱${value >= 1000 ? `${value / 1000}k` : value}`
-                }
-                width={60}
-                fontWeight={500}
-              />
-              <Tooltip
-                cursor={{ fill: "#f4f4f5", radius: 8 }}
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    const tooltipItems = payload as Array<{
-                      name?: string;
-                      color?: string;
-                      value?: number | string;
-                    }>;
-                    const totalValue = tooltipItems.reduce(
-                      (acc, curr) => acc + Number(curr.value ?? 0),
-                      0,
-                    );
-                    return (
-                      <div className="rounded-xl border-none bg-zinc-900 p-4 shadow-xl text-white ring-1 ring-white/10 min-w-[150px]">
-                        <div className="font-bold text-sm mb-2 text-zinc-300">
-                          {label}
-                        </div>
-                        {tooltipItems.map((p) => (
-                          <div
-                            key={p.name}
-                            className="flex items-center justify-between gap-4 text-xs"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-2 h-2 rounded-full"
-                                style={{ backgroundColor: p.color }}
-                              />
-                              <span className="text-zinc-400 capitalize">
-                                {p.name}
+              <BarChart
+                data={data}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#f4f4f5"
+                />
+                <XAxis
+                  dataKey="name"
+                  stroke="#a1a1aa"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  dy={16}
+                  fontWeight={500}
+                />
+                <YAxis
+                  stroke="#a1a1aa"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) =>
+                    `₱${value >= 1000 ? `${value / 1000}k` : value}`
+                  }
+                  width={60}
+                  fontWeight={500}
+                />
+                <Tooltip
+                  cursor={{ fill: "#f4f4f5", radius: 8 }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      const tooltipItems = payload as Array<{
+                        name?: string;
+                        color?: string;
+                        value?: number | string;
+                      }>;
+                      const totalValue = tooltipItems.reduce(
+                        (acc, curr) => acc + Number(curr.value ?? 0),
+                        0,
+                      );
+                      return (
+                        <div className="rounded-xl border-none bg-zinc-900 p-4 shadow-xl text-white ring-1 ring-white/10 min-w-[150px]">
+                          <div className="font-bold text-sm mb-2 text-zinc-300">
+                            {label}
+                          </div>
+                          {tooltipItems.map((p) => (
+                            <div
+                              key={p.name}
+                              className="flex items-center justify-between gap-4 text-xs"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-2 h-2 rounded-full"
+                                  style={{ backgroundColor: p.color }}
+                                />
+                                <span className="text-zinc-400 capitalize">
+                                  {p.name}
+                                </span>
+                              </div>
+                              <span className="font-semibold">
+                                ₱{Number(p.value ?? 0).toLocaleString()}
                               </span>
                             </div>
-                            <span className="font-semibold">
-                              ₱{Number(p.value ?? 0).toLocaleString()}
+                          ))}
+                          <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center">
+                            <span className="text-xs font-bold uppercase text-zinc-400">
+                              Total
+                            </span>
+                            <span className="font-bold text-emerald-400">
+                              ₱{totalValue.toLocaleString()}
                             </span>
                           </div>
-                        ))}
-                        <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center">
-                          <span className="text-xs font-bold uppercase text-zinc-400">
-                            Total
-                          </span>
-                          <span className="font-bold text-emerald-400">
-                            ₱
-                            {totalValue.toLocaleString()}
-                          </span>
                         </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              {categories.length > 0 ? (
-                categories.map((cat, i) => (
-                  <Bar
-                    key={cat}
-                    dataKey={cat}
-                    stackId="a"
-                    fill={colors[i % colors.length]}
-                    radius={[0, 0, 0, 0]}
-                  />
-                ))
-              ) : (
-                <Bar
-                  dataKey="total"
-                  fill="#10b981"
-                  radius={[6, 6, 6, 6]}
-                  barSize={range === "daily" ? 24 : 40}
+                      );
+                    }
+                    return null;
+                  }}
                 />
-              )}
-            </BarChart>
+                {categories.length > 0 ? (
+                  categories.map((cat, i) => (
+                    <Bar
+                      key={cat}
+                      dataKey={cat}
+                      stackId="a"
+                      fill={colors[i % colors.length]}
+                      radius={[0, 0, 0, 0]}
+                    />
+                  ))
+                ) : (
+                  <Bar
+                    dataKey="total"
+                    fill="#10b981"
+                    radius={[6, 6, 6, 6]}
+                    barSize={range === "daily" ? 24 : 40}
+                  />
+                )}
+              </BarChart>
             </ResponsiveContainer>
           </div>
         ) : (
@@ -723,3 +618,5 @@ export function SalesChart({
     </Card>
   );
 }
+
+

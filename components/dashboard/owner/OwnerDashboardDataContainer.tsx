@@ -11,6 +11,8 @@ import {
   getStartOfDayPH,
 } from "@/lib/date-utils";
 import { getThisWeeksFlowRemindersCount } from "@/lib/data/flow-reminder-queries";
+import { getTodayOpportunityViews } from "@/lib/services/growth/opportunities";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 function toObjectRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -43,6 +45,7 @@ export default async function OwnerDashboardDataContainer({
   if (!business) {
     return <div>Error loading dashboard</div>;
   }
+  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
 
   const owner = await prisma.owner.findFirst({
     where: {
@@ -76,6 +79,7 @@ export default async function OwnerDashboardDataContainer({
     publicCompleted,
     rawConflictSignals,
     chartBookingsDetailed,
+    growthOpportunities,
   ] = await Promise.all([
     prisma.booking.aggregate({
       where: {
@@ -375,6 +379,9 @@ export default async function OwnerDashboardDataContainer({
       },
       take: 1200,
     }),
+    entitlements.growth
+      ? getTodayOpportunityViews(business.id)
+      : Promise.resolve([]),
   ]);
 
   const totalSales = totalSalesAggregate._sum.grand_total ?? 0;
@@ -431,6 +438,9 @@ export default async function OwnerDashboardDataContainer({
         publicCompleted,
       }}
       staffingConflictAlerts={staffingConflictAlerts}
+      todayGrowthOpportunity={growthOpportunities[0] || null}
+      growthEnabled={entitlements.growth}
+      reportsEnabled={entitlements.reportsCore}
     />
   );
 }

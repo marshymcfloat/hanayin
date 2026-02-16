@@ -73,6 +73,7 @@ export function CreateSaleEventDialog(props: Props) {
   const [open, setOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [showSocialOptions, setShowSocialOptions] = useState(false);
 
   const servicesByCategory = useMemo(() => {
     const grouped = props.services.reduce(
@@ -497,90 +498,108 @@ export function CreateSaleEventDialog(props: Props) {
           </div>
 
           <div className="space-y-3 rounded-md border p-3">
-            <label className="flex items-center gap-2 text-sm font-medium">
-              <Checkbox
-                checked={values.createSocialDraft}
-                onCheckedChange={(checked) =>
-                  form.setValue("createSocialDraft", checked === true)
-                }
-                disabled={
-                  !props.socialPublishingEnabled ||
-                  props.connectedPlatforms.length === 0
-                }
-              />
-              Create social draft
-            </label>
-            {values.createSocialDraft && (
+            <button
+              type="button"
+              onClick={() => setShowSocialOptions((previous) => !previous)}
+              className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-left text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
+            >
+              Optional: Social draft and AI helpers
+            </button>
+            <p className="text-xs text-zinc-500">
+              Manual first: leave this closed to create only the sale event.
+            </p>
+            {showSocialOptions ? (
               <>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {[SocialPlatform.FACEBOOK_PAGE, SocialPlatform.INSTAGRAM_BUSINESS].map(
-                    (platform) => (
-                      <label key={platform} className="flex items-center gap-2 text-sm">
-                        <Checkbox
-                          checked={values.targetPlatforms.includes(platform)}
-                          disabled={!props.connectedPlatforms.includes(platform)}
-                          onCheckedChange={() => togglePlatform(platform)}
-                        />
-                        {platform === "FACEBOOK_PAGE" ? "Facebook Page" : "Instagram Business"}
-                      </label>
-                    ),
-                  )}
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Caption Override</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={isGenerating}
-                      onClick={generateCaption}
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Generate
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <Textarea {...form.register("socialCaptionOverride")} />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Image Upload (optional)</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => setMediaFile(event.target.files?.[0] || null)}
-                  />
-                  <p className="text-xs text-zinc-500">
-                    If no file is uploaded, we will generate one using the selected style.
-                  </p>
-                </div>
-                <div className="grid gap-2">
-                  <Label>AI Image Style</Label>
-                  <select
-                    className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-                    {...form.register("socialImageProfile")}
-                  >
-                    {SOCIAL_IMAGE_PROFILE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-zinc-500">
-                    {
-                      SOCIAL_IMAGE_PROFILE_OPTIONS.find(
-                        (option) => option.value === values.socialImageProfile,
-                      )?.description
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <Checkbox
+                    checked={values.createSocialDraft}
+                    onCheckedChange={(checked) =>
+                      form.setValue("createSocialDraft", checked === true)
                     }
-                  </p>
-                </div>
+                    disabled={
+                      !props.socialPublishingEnabled ||
+                      props.connectedPlatforms.length === 0
+                    }
+                  />
+                  Create social draft
+                </label>
+                {values.createSocialDraft ? (
+                  <>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {[SocialPlatform.FACEBOOK_PAGE, SocialPlatform.INSTAGRAM_BUSINESS].map(
+                        (platform) => (
+                          <label key={platform} className="flex items-center gap-2 text-sm">
+                            <Checkbox
+                              checked={values.targetPlatforms.includes(platform)}
+                              disabled={!props.connectedPlatforms.includes(platform)}
+                              onCheckedChange={() => togglePlatform(platform)}
+                            />
+                            {platform === "FACEBOOK_PAGE"
+                              ? "Facebook Page"
+                              : "Instagram Business"}
+                          </label>
+                        ),
+                      )}
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Caption Override</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isGenerating}
+                          onClick={generateCaption}
+                        >
+                          {isGenerating ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Sparkles className="mr-2 h-4 w-4" />
+                              Generate
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <Textarea {...form.register("socialCaptionOverride")} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Image Upload (optional)</Label>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) =>
+                          setMediaFile(event.target.files?.[0] || null)
+                        }
+                      />
+                      <p className="text-xs text-zinc-500">
+                        If no file is uploaded, we will generate one using the selected style.
+                      </p>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>AI Image Style</Label>
+                      <select
+                        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        {...form.register("socialImageProfile")}
+                      >
+                        {SOCIAL_IMAGE_PROFILE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-zinc-500">
+                        {
+                          SOCIAL_IMAGE_PROFILE_OPTIONS.find(
+                            (option) => option.value === values.socialImageProfile,
+                          )?.description
+                        }
+                      </p>
+                    </div>
+                  </>
+                ) : null}
               </>
-            )}
+            ) : null}
           </div>
         </div>
 
