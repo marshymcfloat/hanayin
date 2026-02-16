@@ -1,93 +1,97 @@
 "use client";
 
 import { Star, Quote } from "lucide-react";
-
-interface Testimonial {
-  quote: string;
-  author: string;
-  role: string;
-  rating: number;
-}
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function TestimonialsSection() {
-  const testimonials: Testimonial[] = [
+  const testimonials = [
     {
-      quote:
-        "ServiceFlow cut our no-shows by 40%. The automated reminders are a game-changer for our small salon.",
-      author: "Maria Santos",
-      role: "Owner, Bella Spa Manila",
+      name: "Maria",
+      role: "Salon Owner",
+      content:
+        "Reduced no-shows by 50%. Clients now book online without calling me in the middle of a treatment.",
       rating: 5,
+      image: "/avatars/maria.jpg", // Placeholder
+      initials: "M",
     },
     {
-      quote:
-        "Finally, I can track my staff's attendance without paper timesheets. Payroll day is no longer stressful.",
-      author: "Carlos Reyes",
-      role: "Manager, Classic Cuts Barbershop",
+      name: "James",
+      role: "Barbershop Owner",
+      content:
+        "Payroll used to take 2 days of stress. Now it takes 30 minutes. My barbers are happier too.",
       rating: 5,
+      image: "/avatars/james.jpg", // Placeholder
+      initials: "J",
     },
     {
-      quote:
-        "The booking page is so clean my clients actually use it. We've seen a 60% increase in online bookings.",
-      author: "Ana Lim",
-      role: "Owner, Glow Wellness Clinic",
+      name: "Anna",
+      role: "Spa Owner",
+      content:
+        "My spa is fully booked every weekend now. The automated reminders are a lifesaver.",
       rating: 5,
+      image: "/avatars/anna.jpg", // Placeholder
+      initials: "A",
     },
   ];
 
   return (
-    <section className="py-20 md:py-28 relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-green-50/30 via-background to-background" />
+    <section className="py-24 bg-background relative overflow-hidden">
+      {/* Green Gradient Mesh Background */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.03) 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 0) 50%)",
+        }}
+      />
 
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="text-center sm:text-left max-w-2xl mx-auto sm:mx-0 mb-10 md:mb-12">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            Trusted by service businesses{" "}
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-500">
-              like yours
-            </span>
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
+            Satisfied <span className="text-green-600">Business Owners</span>
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg">
-            Real stories from real business owners who made the switch.
+          <p className="text-xl text-muted-foreground">
+            Don’t just take our word for it. Hear from people like you.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-          {testimonials.map((testimonial, i) => (
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, index) => (
             <div
-              key={i}
-              className="group relative bg-background p-5 sm:p-6 md:p-8 rounded-2xl border border-border/50 hover:border-green-200 hover:shadow-xl hover:shadow-green-100/20 transition-all duration-300"
+              key={index}
+              className="bg-stone-50/50 backdrop-blur-md dark:bg-stone-900/20 p-8 rounded-3xl border border-border/50 relative hover:shadow-lg hover:shadow-green-900/5 hover:border-green-200/50 transition-all duration-300"
             >
-              <div className="absolute top-6 right-6 text-green-100 group-hover:text-green-200 transition-colors">
-                <Quote className="size-8" />
+              <div className="absolute top-8 right-8 opacity-10">
+                <Quote className="size-12 text-green-600 fill-green-600" />
               </div>
 
-              <div className="flex gap-0.5 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, j) => (
+              <div className="flex gap-1 mb-6">
+                {[...Array(testimonial.rating)].map((_, i) => (
                   <Star
-                    key={j}
-                    className="size-4 fill-yellow-400 text-yellow-400"
+                    key={i}
+                    className="size-5 text-amber-400 fill-amber-400"
                   />
                 ))}
               </div>
 
-              <p className="text-foreground/90 leading-relaxed mb-6 text-base">
-                &quot;{testimonial.quote}&quot;
+              <p className="text-lg leading-relaxed mb-8 relative z-10">
+                &ldquo;{testimonial.content}&rdquo;
               </p>
 
-              <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-linear-to-br from-green-100 to-emerald-200 flex items-center justify-center">
-                  <span className="text-sm font-bold text-green-700">
-                    {testimonial.author
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </span>
-                </div>
+              <div className="flex items-center gap-4">
+                <Avatar className="size-12 border-2 border-background">
+                  <AvatarImage src={testimonial.image} alt={testimonial.name} />
+                  <AvatarFallback className="bg-green-100 text-green-700 font-bold">
+                    {testimonial.initials}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
-                  <p className="font-semibold text-sm">{testimonial.author}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="font-bold text-foreground">
+                    {testimonial.name}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
                     {testimonial.role}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -152,7 +152,7 @@ export default function FeaturesSection() {
         <div className="mt-12 flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Zap className="size-4 text-yellow-500" />
           <span>
-            All features included in one plan. No feature-gating nonsense.
+            Choose the plan that fits your stage, then upgrade as you grow.
           </span>
         </div>
       </div>
