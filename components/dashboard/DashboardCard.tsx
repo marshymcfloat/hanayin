@@ -22,7 +22,7 @@ export default function DashboardCard({
       className={cn(
         "relative overflow-hidden rounded-[24px] p-6 transition-all duration-300",
         variant === "filled"
-          ? "bg-gradient-to-br from-emerald-900 to-emerald-950 text-white shadow-xl shadow-emerald-900/20"
+          ? "bg-linear-to-br from-emerald-900 to-emerald-950 text-white shadow-xl shadow-emerald-900/20"
           : "bg-white text-zinc-900 shadow-lg shadow-zinc-200/50 hover:shadow-xl hover:shadow-zinc-200/60 border border-zinc-100",
       )}
     >
@@ -49,25 +49,30 @@ export default function DashboardCard({
           </div>
         </div>
 
-        <div className="space-y-1 mt-4">
+        <div className="space-y-1 mt-4 min-w-0">
           <h3
             className={cn(
-              "text-sm font-medium tracking-wide",
+              "text-sm font-medium tracking-wide truncate pr-2",
               variant === "filled" ? "text-emerald-200/80" : "text-zinc-500",
             )}
+            title={title}
           >
             {title}
           </h3>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold tracking-tight">
+            <span
+              className="text-3xl lg:text-4xl font-bold tracking-tight truncate w-full"
+              title={typeof count === "string" ? count : count.toLocaleString()}
+            >
               {typeof count === "number" ? count.toLocaleString() : count}
             </span>
           </div>
           <p
             className={cn(
-              "text-xs font-medium pt-1 flex items-center gap-1",
+              "text-xs font-medium pt-1 flex items-center gap-1 truncate",
               variant === "filled" ? "text-emerald-400" : "text-emerald-600",
             )}
+            title={description}
           >
             {description}
           </p>

@@ -18,6 +18,7 @@ import {
   Megaphone,
   Crown,
   CreditCard,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -59,6 +60,14 @@ type NavGroup = {
 
 type SidebarProps = {
   businessSlug: string;
+  entitlements: {
+    website: boolean;
+    growth: boolean;
+    social: boolean;
+    ai: boolean;
+    reportsCore: boolean;
+    reportsAdvanced: boolean;
+  };
   user: {
     name: string;
     email: string;
@@ -66,7 +75,7 @@ type SidebarProps = {
   };
 };
 
-export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
+export function AppSidebarClient({ businessSlug, entitlements, user }: SidebarProps) {
   const pathname = usePathname();
   const slug = businessSlug || "demo";
 
@@ -76,42 +85,57 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
     icon: Home,
   };
 
+  const businessItems: NavItem[] = [
+    { title: "Services", url: `/app/${slug}/services`, icon: Box },
+    { title: "Packages", url: `/app/${slug}/packages`, icon: Package },
+    { title: "Vouchers", url: `/app/${slug}/vouchers`, icon: Ticket },
+    {
+      title: "Gift Cards",
+      url: `/app/${slug}/gift-cards`,
+      icon: Gift,
+    },
+    {
+      title: "Sale Events",
+      url: `/app/${slug}/sale-events`,
+      icon: Percent,
+    },
+    ...(entitlements.social
+      ? ([
+          {
+            title: "Social Posts",
+            url: `/app/${slug}/social-posts`,
+            icon: Megaphone,
+          },
+        ] satisfies NavItem[])
+      : []),
+    {
+      title: "Business Hours",
+      url: `/app/${slug}/business-hours`,
+      icon: Calendar,
+    },
+    {
+      title: "Billing",
+      url: `/app/${slug}/billing`,
+      icon: CreditCard,
+    },
+    ...(entitlements.reportsCore
+      ? ([
+          {
+            title: "Reports",
+            url: `/app/${slug}/reports`,
+            icon: BarChart3,
+          },
+        ] satisfies NavItem[])
+      : []),
+  ];
+
   const navGroups: NavGroup[] = [
     {
       title: "Business",
       icon: Package,
       iconColor: "text-violet-600 dark:text-violet-400",
       activeColor: "bg-violet-100 dark:bg-violet-500/20",
-      items: [
-        { title: "Services", url: `/app/${slug}/services`, icon: Box },
-        { title: "Packages", url: `/app/${slug}/packages`, icon: Package },
-        { title: "Vouchers", url: `/app/${slug}/vouchers`, icon: Ticket },
-        {
-          title: "Gift Cards",
-          url: `/app/${slug}/gift-cards`,
-          icon: Gift,
-        },
-        {
-          title: "Sale Events",
-          url: `/app/${slug}/sale-events`,
-          icon: Percent,
-        },
-        {
-          title: "Social Posts",
-          url: `/app/${slug}/social-posts`,
-          icon: Megaphone,
-        },
-        {
-          title: "Business Hours",
-          url: `/app/${slug}/business-hours`,
-          icon: Calendar,
-        },
-        {
-          title: "Billing",
-          url: `/app/${slug}/billing`,
-          icon: CreditCard,
-        },
-      ],
+      items: businessItems,
     },
     {
       title: "Team",

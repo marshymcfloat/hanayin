@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma/prisma";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
 import { connection } from "next/server";
 import { unstable_cache } from "next/cache";
@@ -14,6 +14,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
 import { toAbsoluteUrl } from "@/lib/site-url";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 interface Props {
   params: Promise<{
@@ -85,6 +86,11 @@ async function FacingWebsiteContent({ params }: Props) {
 
   if (!business) {
     notFound();
+  }
+
+  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
+  if (!entitlements.website) {
+    redirect(`/${businessSlug}/booking`);
   }
 
   const now = new Date();

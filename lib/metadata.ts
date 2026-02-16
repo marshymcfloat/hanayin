@@ -2,9 +2,10 @@ import { Metadata } from "next";
 import { getSiteUrl } from "@/lib/site-url";
 
 // Define the default configuration
-const defaultTitle = "Service Flow";
+const defaultTitle =
+  "ServiceFlow | Salon & Spa Management Software Philippines";
 const defaultDescription =
-  "The all-in-one platform for salons, barbershops, and spas. Manage appointments, staff, and payments with ease.";
+  "The all-in-one platform for salons, barbershops, and spas in the Philippines. Manage appointments, payroll, staff, and payments with ease. Try for free.";
 const defaultUrl = getSiteUrl();
 
 type MetadataProps = {
@@ -36,15 +37,27 @@ export function constructMetadata({
 
   return {
     title: {
-      template: `%s | ${defaultTitle}`,
+      template: `%s | ServiceFlow`,
       default: title,
     },
     description,
+    keywords: [
+      "salon management software philippines",
+      "spa booking system",
+      "barbershop pos philippines",
+      "online appointment scheduling",
+      "best salon software free",
+      "payroll for salons",
+      "beauty clinic management system",
+    ],
+    authors: [{ name: "ServiceFlow Team" }],
+    creator: "ServiceFlow",
+    publisher: "ServiceFlow",
     openGraph: {
       title,
       description,
       url: canonicalUrl,
-      siteName: defaultTitle,
+      siteName: "ServiceFlow",
       images: [
         {
           url: image,
@@ -61,7 +74,7 @@ export function constructMetadata({
       title,
       description,
       images: [image],
-      creator: "@serviceflow",
+      creator: "@serviceflow_ph",
     },
     icons,
     metadataBase: new URL(defaultUrl),

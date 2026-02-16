@@ -4,6 +4,7 @@ import { prisma } from "@/prisma/prisma";
 import { authOptions } from "@/lib/next auth/options";
 import { SidebarSkeleton } from "./SidebarSkeleton";
 import { AppSidebarClient } from "./AppSidebarClient";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 export async function AppSidebar() {
   const session = await getServerSession(authOptions);
@@ -35,9 +36,12 @@ export async function AppSidebar() {
     slug = "demo";
   }
 
+  const entitlements = await getBusinessEntitlementsBySlug(slug);
+
   return (
     <AppSidebarClient
       businessSlug={slug}
+      entitlements={entitlements}
       user={{
         name: name || "User",
         email: email || "",
