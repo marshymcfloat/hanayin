@@ -42,8 +42,8 @@ export type SocialCaptionVariant = {
 };
 
 const MAX_HASHTAG_LENGTH = 28;
-const MIN_ACCEPTABLE_WORDS = 45;
-const MIN_ACCEPTABLE_LINES = 6;
+const MIN_ACCEPTABLE_WORDS = 55;
+const MIN_ACCEPTABLE_LINES = 8;
 const REQUIRED_CTA_LINE = "Book now through ServiceFlow and claim your spot today.";
 const REQUIRED_DISCOVERY_LINE =
   "You can book yourselves in and see all services they offer.";
@@ -71,7 +71,7 @@ const RESCUE_HOOK_LINES = [
   "Plan your little reset and make it count.",
   "Ready for a feel-good refresh today?",
   "Small self-care moves make a big difference.",
-  "Your next favorite treatment window is here.",
+  "Your next favorite treatment day starts here.",
 ];
 const CAPTION_HOOK_STYLES = [
   "teasing-question",
@@ -184,6 +184,16 @@ function sanitizeSaleDescriptionForPublic(value?: string | null) {
   return lines.join(" ").trim();
 }
 
+function sanitizeSaleTitleForPublic(value: string) {
+  const cleaned = value
+    .replace(/\s*\((?:draft suggestion|draft)\)\s*/gi, " ")
+    .replace(/\s*[-–—]\s*(?:draft suggestion|draft)\s*$/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  return cleaned || value.trim();
+}
+
 function buildFallbackHashtags(input: CaptionGenerationInput) {
   const serviceTags = (input.serviceNames ?? [])
     .map((name) => toHashtagSeed(name))
@@ -220,7 +230,8 @@ function pickRandom<T>(items: readonly T[]) {
 }
 
 function inferSeasonSignal(input: CaptionGenerationInput): SeasonSignal {
-  const title = input.saleTitle.toLowerCase();
+  const saleTitle = sanitizeSaleTitleForPublic(input.saleTitle);
+  const title = saleTitle.toLowerCase();
   const dateWindow = formatDateWindow(input.startDate, input.endDate);
 
   if (/(valentine|date|hearts?|love month|couple)/i.test(title)) {
@@ -288,7 +299,7 @@ function inferSeasonSignal(input: CaptionGenerationInput): SeasonSignal {
 
   return {
     seasonLabel: "current promo season",
-    seasonLine: `Season cue from title/date: "${input.saleTitle}" running ${dateWindow}.`,
+    seasonLine: `Season cue from title/date: "${saleTitle}" running ${dateWindow}.`,
   };
 }
 
@@ -302,7 +313,7 @@ function buildCaptionPromptVariation() {
 }
 
 function isBulletLine(line: string) {
-  return /^[-*•]\s+/.test(line.trim());
+  return /^[-*\u2022\u25E6\u2043]+\s+/.test(line.trim());
 }
 
 function isHeadingLikeLine(line: string) {
@@ -327,8 +338,114 @@ function isCtaLine(line: string) {
   );
 }
 
+function isEmojiCodePoint(value: string) {
+  return /\p{Extended_Pictographic}/u.test(value);
+}
+
+function normalizeBulletLine(line: string) {
+  const trimmed = line.trim();
+
+  if (isBulletLine(trimmed)) {
+    const content = trimmed
+      .replace(/^[-*\u2022\u25E6\u2043]+\s+/, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+    return content ? `- ${content}` : "";
+  }
+
+  const first = Array.from(trimmed)[0] || "";
+  if (!isEmojiCodePoint(first)) {
+    return trimmed;
+  }
+
+  const withoutLeadingEmoji = trimmed
+    .replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\s]+/u, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  if (!withoutLeadingEmoji) return "";
+  return `- ${withoutLeadingEmoji}`;
+}
+
+function splitDenseLine(line: string) {
+  const trimmed = line.trim();
+  if (!trimmed) return [];
+
+  if (
+    trimmed.length < 170 ||
+    isBulletLine(trimmed) ||
+    isHeadingLikeLine(trimmed) ||
+    isCtaLine(trimmed) ||
+    /^https?:\/\//i.test(trimmed) ||
+    /^www\./i.test(trimmed)
+  ) {
+    return [trimmed];
+  }
+
+  const sentences = trimmed
+    .split(/(?<=[.!?])\s+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  if (sentences.length < 2) {
+    return [trimmed];
+  }
+
+  const pivot = Math.ceil(sentences.length / 2);
+  const firstPart = sentences.slice(0, pivot).join(" ").trim();
+  const secondPart = sentences.slice(pivot).join(" ").trim();
+  return [firstPart, secondPart].filter(Boolean);
+}
+
+function limitEmojiDensity(value: string, maxEmojiCount = 2) {
+  let keptEmoji = 0;
+  let previousKeptWasEmoji = false;
+  let output = "";
+
+  for (const char of Array.from(value)) {
+    if (isEmojiCodePoint(char)) {
+      if (keptEmoji >= maxEmojiCount) {
+        previousKeptWasEmoji = false;
+        continue;
+      }
+      keptEmoji += 1;
+      previousKeptWasEmoji = true;
+      output += char;
+      continue;
+    }
+
+    if (char === "\uFE0F" || char === "\u200D") {
+      if (previousKeptWasEmoji) {
+        output += char;
+      }
+      continue;
+    }
+
+    previousKeptWasEmoji = false;
+    output += char;
+  }
+
+  return output;
+}
+
+function normalizeCaptionStructure(value: string) {
+  const expandedLines = value
+    .split("\n")
+    .map((line) => normalizeBulletLine(line))
+    .filter(Boolean)
+    .flatMap((line) => splitDenseLine(line));
+
+  const normalized = expandedLines
+    .join("\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  return limitEmojiDensity(normalized, 2);
+}
+
 function formatCaptionForSocialFeed(value: string) {
-  const sourceLines = value
+  const sourceLines = normalizeCaptionStructure(value)
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
@@ -435,6 +552,13 @@ function isInternalMetaLine(line: string) {
 
   if (/^upcoming\b.+\bcan drive prep bookings\.?$/.test(normalized)) return true;
   if (/^\d+(\.\d+)?%\s*off on .+ from .+ to .+\.?$/.test(normalized)) return true;
+  if (normalized.includes("season is active")) return true;
+  if (normalized.includes("can improve conversion")) return true;
+  if (normalized.includes("review selected services/packages before publishing")) return true;
+  if (normalized.includes("review selected services") && normalized.includes("before publishing")) {
+    return true;
+  }
+  if (normalized.includes("student and family-prep offers")) return true;
   if (normalized.startsWith("focused categories:")) return true;
   if (normalized.startsWith("season cue from title")) return true;
   if (normalized.startsWith("season cue from title/date")) return true;
@@ -505,20 +629,23 @@ function buildRescueCaptionDraft(input: CaptionGenerationInput): CaptionGenerati
   const items = [...services, ...packages].slice(0, 5);
   const season = inferSeasonSignal(input).seasonLabel.toLowerCase();
   const publicSaleDescription = sanitizeSaleDescriptionForPublic(input.saleDescription);
+  const saleTitle = sanitizeSaleTitleForPublic(input.saleTitle);
 
   const lines = [
     pickRandom(RESCUE_HOOK_LINES),
     `${input.businessName} has a feel-good promo for you this season.`,
-    `Sakto for ${season}, this ${input.saleTitle} offer is made for your glow-up.`,
-    `May ${formatDiscount(input.discountType, input.discountValue)} tayo for ${input.saleTitle}.`,
+    `Sakto for ${season}, this ${saleTitle} offer is made for your glow-up goals.`,
+    `May ${formatDiscount(input.discountType, input.discountValue)} tayo for ${saleTitle}, so mas sulit ang self-care plan mo.`,
     buildPromoTimingLine(input.startDate, input.endDate),
     publicSaleDescription,
+    "If you've been putting off self-care dahil busy, this is a good time to finally book.",
+    "Choose any treatment that fits your self-care mood this week.",
     items.length > 0 ? "Try these crowd favorites:" : "",
     ...items.map((item) => `- ${item}`),
-    "Perfect for stress relief, glow-up, and quality me-time.",
-    "Pwede solo self-care day, pwede rin with your bestie or partner.",
-    "Limited slots lang, so reserve early para sa preferred time mo.",
-    "Book now through ServiceFlow and claim your spot today.",
+    "Perfect for stress relief, confidence boost, and quality me-time.",
+    "Pwede solo self-care day, pwede rin with your bestie, partner, or family.",
+    "Slots are limited and preferred times fill up first, so reserve early para hindi ka maubusan.",
+    "Tap the booking link below and secure your preferred schedule in minutes.",
   ].filter(Boolean);
 
   return {
@@ -551,13 +678,14 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
   const packageLine = (input.packageNames ?? []).length
     ? `Packages: ${(input.packageNames ?? []).join(", ")}`
     : "Packages: none listed";
+  const saleTitle = sanitizeSaleTitleForPublic(input.saleTitle);
 
   return [
     "Write a high-converting social media caption for a Filipino audience.",
     "Voice: playful, witty, natural, and human.",
     "Language: Taglish (Filipino + English), everyday conversational style.",
     "Goal: invite and persuade customers to book now.",
-    "Use tasteful emoji and clear line breaks for readability.",
+    "Use clear line breaks for readability. Emojis are optional and should be minimal.",
     "Primary campaign context must rely on Sale title first, then sale description, then date window.",
     "Infer season/occasion mostly from the sale title and make that theme explicit in the caption.",
     "",
@@ -569,7 +697,7 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     "",
     `Business: ${input.businessName}`,
     `Business description: ${input.businessDescription?.trim() || "N/A"}`,
-    `Sale title (primary context source): ${input.saleTitle}`,
+    `Sale title (primary context source): ${saleTitle}`,
     `Sale description: ${publicSaleDescription || "N/A"}`,
     `Discount: ${formatDiscount(input.discountType, input.discountValue)}`,
     `Date window: ${dateWindow}`,
@@ -583,7 +711,7 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     packageLine,
     "",
     "Requirements:",
-    "- Write 9-14 lines and at least 80 words.",
+    "- Write 11-16 lines and at least 95 words.",
     "- First line must be a catchy hook question or statement.",
     "- Mention the season/occasion implied by the sale title in a natural way.",
     "- Use selected service categories to shape vocabulary, benefits, and hook angle.",
@@ -591,6 +719,9 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     "- If services/packages are present, include 3-6 short bullet-style lines.",
     "- Add a warm invitation line (bestie/partner/family angle is okay when relevant).",
     "- Add a clear CTA to book through ServiceFlow.",
+    "- Use at most 2 emojis in the whole caption (0 is acceptable).",
+    "- Keep spacing clean: add blank lines between hook, body, bullet list, and CTA.",
+    "- Avoid dense paragraph blocks. Keep one main idea per line.",
     "- Keep tone local, relatable, and not scripted.",
     "- Avoid repeating generic work-stress intros. Use varied hook styles.",
     '- Never output internal reasoning/meta lines like "Focused categories:" or "based on your ... promo."',
@@ -608,6 +739,7 @@ function buildGeminiRewritePrompt(input: CaptionGenerationInput, caption: string
   const categoryLine = categories.length
     ? `Service categories (selected): ${categories.join(", ")}`
     : "Service categories (selected): none listed";
+  const saleTitle = sanitizeSaleTitleForPublic(input.saleTitle);
   return [
     "Rewrite this caption because the previous output is too short or incomplete.",
     "Keep the same offer details, but make it complete, persuasive, and natural in Taglish.",
@@ -616,7 +748,7 @@ function buildGeminiRewritePrompt(input: CaptionGenerationInput, caption: string
     '{"caption":"string","hashtags":["#TagOne","#TagTwo"]}',
     "",
     `Business: ${input.businessName}`,
-    `Sale title (primary context source): ${input.saleTitle}`,
+    `Sale title (primary context source): ${saleTitle}`,
     `Sale description: ${publicSaleDescription || "N/A"}`,
     `${season.seasonLine}`,
     `Creative variation seed: ${variation.variationSeed}`,
@@ -627,11 +759,14 @@ function buildGeminiRewritePrompt(input: CaptionGenerationInput, caption: string
     `Existing caption: ${caption}`,
     "",
     "Rewrite rules:",
-    "- 9-14 lines and at least 80 words.",
+    "- 11-16 lines and at least 95 words.",
     "- Include a hook, value section, and clear CTA.",
     "- Explicitly mention the season/occasion suggested by the sale title.",
     "- Use selected service categories to make the message specific and not generic.",
     "- Include bullet lines when services/packages are relevant.",
+    "- Use at most 2 emojis in the whole caption (0 is acceptable).",
+    "- Keep spacing clean: add blank lines between hook, body, bullet list, and CTA.",
+    "- Avoid dense paragraph blocks. Keep one main idea per line.",
     "- Avoid repeating generic work-stress intros. Use a fresh hook.",
     '- Never include operational lines like "window is active", "15/30 behavior", or scoring hints.',
     "- Sound human, local, and warm.",
@@ -654,20 +789,20 @@ function replaceFirstReadableLine(caption: string, nextLine: string) {
 
 const STYLE_HOOKS: Record<SocialCaptionStyle, string[]> = {
   INFORMATIVE: [
-    "If you're planning a quick refresh, this is a smart booking window.",
-    "Easy booking window today for clients who want quality and timing.",
+    "Planning your next self-care day? This promo is a great time to book.",
+    "Want a fresh look this week? Grab this limited offer while slots are open.",
   ],
   FUNNY_LIGHT: [
     "Main character energy, pero practical pa rin. Tara.",
     "Glow-up mood activated. Hindi na kailangan i-delay.",
   ],
   URGENCY_DRIVEN: [
-    "Heads up: this booking window is limited and moving fast.",
-    "If you're booking this week, this is the best timing to lock in.",
+    "Limited promo slots this week, so reserve early to get your preferred time.",
+    "Best schedules go fast during this promo, so book before your ideal slot is gone.",
   ],
   PREMIUM_TONE: [
-    "A curated self-care window for clients who prefer quality first.",
-    "Premium treatment energy, with a smarter booking advantage today.",
+    "A curated self-care experience for clients who choose quality first.",
+    "Premium treatment energy with a limited-time offer worth booking now.",
   ],
   QUESTION_ENGAGEMENT: [
     "Quick reset or full glow-up? Which one fits your vibe today?",
@@ -685,7 +820,7 @@ const STYLE_CTA_OPTIONS: Record<SocialCaptionStyle, string[]> = {
     "Book now through ServiceFlow before slots fill up.",
   ],
   URGENCY_DRIVEN: [
-    "Reserve now through ServiceFlow before the window closes.",
+    "Reserve now through ServiceFlow before this promo ends.",
     "Send us a quick DM to secure your preferred time.",
   ],
   PREMIUM_TONE: [
@@ -702,7 +837,7 @@ export async function generateSocialCaptionVariants(
   input: CaptionGenerationInput,
 ): Promise<SocialCaptionVariant[]> {
   const base = await generateSocialCaptionDraft(input);
-  const overlay = input.saleTitle.toUpperCase().slice(0, 40);
+  const overlay = sanitizeSaleTitleForPublic(input.saleTitle).toUpperCase().slice(0, 40);
 
   return STYLE_ORDER.map((style) => {
     const hook = pickRandom(STYLE_HOOKS[style]);
@@ -843,7 +978,7 @@ export async function generateSocialCaptionDraft(
       prompt: buildGeminiPrompt(input, dateWindow),
       responseMimeType: "application/json",
       temperature: 1,
-      maxOutputTokens: 900,
+      maxOutputTokens: 1200,
     });
 
     const candidate = parseCaptionCandidate(responseText, rescue.hashtags);
@@ -869,7 +1004,7 @@ export async function generateSocialCaptionDraft(
       prompt: buildGeminiRewritePrompt(input, candidate.caption),
       responseMimeType: "application/json",
       temperature: 1,
-      maxOutputTokens: 900,
+      maxOutputTokens: 1200,
     });
 
     const rewritten = parseCaptionCandidate(rewrittenText, candidate.hashtags);
@@ -889,3 +1024,4 @@ export async function generateSocialCaptionDraft(
     return rescue;
   }
 }
+

@@ -58,6 +58,17 @@ describe("generateSocialCaptionDraft", () => {
     expect(output.caption).not.toMatch(/from\s+\w+\s+\d+\s+to\s+\w+\s+\d+/i);
   });
 
+  it("removes draft suffix from sale title in public caption text", async () => {
+    delete process.env.GEMINI_KEY;
+    const output = await generateSocialCaptionDraft({
+      ...BASE_INPUT,
+      saleTitle: "Holiday Stress-Off Package (Draft Suggestion)",
+    });
+
+    expect(output.caption).toContain("Holiday Stress-Off Package offer");
+    expect(output.caption).not.toContain("(Draft Suggestion)");
+  });
+
   it("uses Gemini JSON output when quality is acceptable", async () => {
     process.env.GEMINI_KEY = "test-key";
 
@@ -255,7 +266,7 @@ describe("generateSocialCaptionDraft", () => {
               {
                 text: JSON.stringify({
                   caption:
-                    'Single ka ba this season?\nHoliday season vibe ito, based on your "Christmas Sale" promo.\nFocused categories: Eyelash.\n15% OFF on Holiday Stress-Off Package from Feb 14 to Feb 14.\nUpcoming Valentine\'s Day on 2026-02-14 can drive prep bookings.\nBeautyFeel has your back for your holiday glow-up.\n\nTry these crowd favorites:\n- Cat eye\n- Classic eyelash extensions\n\nLimited slots lang, reserve now.',
+                    'Single ka ba this season?\nHoliday season vibe ito, based on your "Christmas Sale" promo.\nFocused categories: Eyelash.\n15% OFF on Holiday Stress-Off Package from Feb 14 to Feb 14.\nUpcoming Valentine\'s Day on 2026-02-14 can drive prep bookings.\nProm Season is active. Student and family-prep offers can improve conversion this season. Review selected services/packages before publishing.\nBeautyFeel has your back for your holiday glow-up.\n\nTry these crowd favorites:\n- Cat eye\n- Classic eyelash extensions\n\nLimited slots lang, reserve now.',
                   hashtags: ["#BeautyFeel", "#Eyelash", "#ServiceFlow"],
                 }),
               },
@@ -305,6 +316,11 @@ describe("generateSocialCaptionDraft", () => {
     expect(output.caption.toLowerCase()).not.toContain("focused categories:");
     expect(output.caption.toLowerCase()).not.toContain("based on your");
     expect(output.caption.toLowerCase()).not.toContain("can drive prep bookings");
+    expect(output.caption.toLowerCase()).not.toContain("season is active");
+    expect(output.caption.toLowerCase()).not.toContain("can improve conversion");
+    expect(output.caption.toLowerCase()).not.toContain(
+      "review selected services/packages before publishing",
+    );
     expect(output.caption.toLowerCase()).not.toContain("from feb 14 to feb 14");
     expectRequiredEnding(output.caption);
   });
