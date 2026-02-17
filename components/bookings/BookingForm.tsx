@@ -11,7 +11,7 @@ import {
 } from "@/lib/server actions/availability";
 import { getBookingPolicy } from "@/lib/server actions/booking-policy";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
+import type {
   Service,
   ServicePackage,
   PackageItem,
@@ -68,6 +68,7 @@ interface BookingFormProps {
   packages?: PackageWithItems[];
   categories: string[];
   isEmployee?: boolean;
+  allowServiceClaim?: boolean;
   currentEmployeeId?: number;
   isModal?: boolean;
   mobileActionBarMode?: "auto" | "fixed" | "sticky";
@@ -115,6 +116,7 @@ export default function BookingForm({
   packages = [],
   categories,
   isEmployee = false,
+  allowServiceClaim = true,
   currentEmployeeId,
   isModal = false,
   mobileActionBarMode = "auto",
@@ -275,6 +277,7 @@ export default function BookingForm({
   );
 
   const [isWalkIn, setIsWalkIn] = useState(false);
+  const claimStepEnabled = isEmployee && allowServiceClaim;
   const effectiveIsWalkIn = isEmployee && isWalkIn;
   const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
   const [qrPayment, setQrPayment] = useState<{
@@ -787,7 +790,7 @@ export default function BookingForm({
             quantity: 1,
             duration: s.duration || 30,
             claimedByCurrentEmployee:
-              isEmployee && claimedUniqueIds.includes(uniqueId),
+              claimStepEnabled && claimedUniqueIds.includes(uniqueId),
           };
         }),
       );
@@ -814,6 +817,7 @@ export default function BookingForm({
       businessSlug,
       effectiveIsWalkIn,
       isEmployee,
+      claimStepEnabled,
       claimedUniqueIds,
       currentEmployeeId,
       createBookingAction,
@@ -1003,7 +1007,11 @@ export default function BookingForm({
                 { step: 1, label: "Services", done: isStep1Complete },
                 { step: 2, label: "Date", done: isStep2Complete },
                 { step: 3, label: "Time", done: isStep3Complete },
-                { step: 4, label: "Staff", done: canAccessStep4 },
+                {
+                  step: 4,
+                  label: claimStepEnabled ? "Claim" : "Staff",
+                  done: canAccessStep4,
+                },
                 {
                   step: 5,
                   label: "Customer Details",
@@ -1489,7 +1497,7 @@ export default function BookingForm({
 
           {canAccessStep4 &&
             (effectiveIsWalkIn || selectedTime) &&
-            isEmployee &&
+            claimStepEnabled &&
             selectedServices.length > 0 && (
               <div className="order-40 space-y-3 rounded-2xl border bg-card/90 p-3 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:space-y-4 sm:p-5">
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -1582,7 +1590,7 @@ export default function BookingForm({
                     {selectedEmployeeName || "Any available"}
                   </p>
                 )}
-                {isEmployee && (
+                {claimStepEnabled && (
                   <p>
                     <span className="font-semibold">Claimed services:</span>{" "}
                     {claimedUniqueIds.length}

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const requireAuthMock = vi.hoisted(() => vi.fn());
+const requireStaffPermissionMock = vi.hoisted(() => vi.fn());
 const prismaMock = vi.hoisted(() => ({
   business: {
     findUnique: vi.fn(),
@@ -14,6 +15,10 @@ const prismaMock = vi.hoisted(() => ({
 
 vi.mock("@/lib/auth/guards", () => ({
   requireAuth: requireAuthMock,
+}));
+
+vi.mock("@/lib/auth/staff-access", () => ({
+  requireStaffPermission: requireStaffPermissionMock,
 }));
 
 vi.mock("@/prisma/prisma", () => ({
@@ -34,6 +39,12 @@ describe("service server actions tenant boundaries", () => {
       success: true,
       businessSlug: "tenant-a",
     });
+    requireStaffPermissionMock.mockResolvedValue({
+      success: true,
+      context: {
+        businessSlug: "tenant-a",
+      },
+    } as never);
     prismaMock.business.findUnique.mockResolvedValue({ id: "biz_a" });
   });
 

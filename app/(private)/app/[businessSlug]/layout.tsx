@@ -14,6 +14,11 @@ import { redirect } from "next/navigation";
 
 import { connection } from "next/server";
 import { getTenantAccessState } from "@/features/billing/subscription-service";
+import {
+  hasStaffPermission,
+  resolveTenantActorContext,
+} from "@/lib/auth/staff-access";
+import { StaffPermission } from "@/prisma/generated/prisma/enums";
 
 type Props = {
   children: React.ReactNode;
@@ -65,9 +70,21 @@ async function AppLayoutContent({
   const showReadOnlyBanner = accessState.exists && accessState.readOnly;
   const readOnlyMessage =
     "Subscription is in read-only mode. Billing is still available while new mutations are blocked.";
-  const isEmployee = session?.user?.role === "EMPLOYEE";
+  const actorContext = await resolveTenantActorContext(
+    businessSlug,
+    session.user.id,
+  );
+  if (!actorContext.success) {
+    redirect("/");
+  }
+  const canUseSidebarShell = hasStaffPermission(
+    actorContext,
+    StaffPermission.CATALOG_MANAGE,
+  );
+  const isFrontdeskShell =
+    actorContext.actorType === "EMPLOYEE" && !canUseSidebarShell;
 
-  if (isEmployee) {
+  if (isFrontdeskShell) {
     return (
       <div className="bg-background min-h-screen ">
         {showReadOnlyBanner ? (

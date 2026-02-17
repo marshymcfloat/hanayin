@@ -4,6 +4,8 @@ import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { tenantCacheTags } from "@/lib/data/cached";
+import { requireStaffPermission } from "@/lib/auth/staff-access";
+import { StaffPermission } from "@/prisma/generated/prisma/enums";
 
 async function resolveTenantBusinessId(businessSlug: string) {
   const business = await prisma.business.findUnique({
@@ -73,9 +75,15 @@ export async function createServiceAction(data: {
     type: "REQUIRED" | "SUGGESTED";
   }[];
 }) {
-  const auth = await requireAuth({ write: true });
+  const sessionAuth = await requireAuth();
+  if (!sessionAuth.success) return sessionAuth;
+  const auth = await requireStaffPermission(
+    sessionAuth.businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+    { write: true },
+  );
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug } = auth.context;
 
   try {
     const businessId = await resolveTenantBusinessId(businessSlug);
@@ -144,9 +152,15 @@ export async function updateServiceAction(
     }[];
   },
 ) {
-  const auth = await requireAuth({ write: true });
+  const sessionAuth = await requireAuth();
+  if (!sessionAuth.success) return sessionAuth;
+  const auth = await requireStaffPermission(
+    sessionAuth.businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+    { write: true },
+  );
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug } = auth.context;
 
   try {
     const businessId = await resolveTenantBusinessId(businessSlug);
@@ -228,9 +242,15 @@ export async function updateServiceAction(
 
 // Delete a service
 export async function deleteServiceAction(serviceId: number) {
-  const auth = await requireAuth({ write: true });
+  const sessionAuth = await requireAuth();
+  if (!sessionAuth.success) return sessionAuth;
+  const auth = await requireStaffPermission(
+    sessionAuth.businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+    { write: true },
+  );
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug } = auth.context;
 
   try {
     const businessId = await resolveTenantBusinessId(businessSlug);

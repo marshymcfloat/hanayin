@@ -20,6 +20,11 @@ import {
 } from "@/lib/services/booking-availability";
 import { recordBookingMetric } from "@/lib/services/booking-metrics";
 import { logger } from "@/lib/logger";
+import {
+  hasStaffPermission,
+  resolveTenantActorContext,
+} from "@/lib/auth/staff-access";
+import { StaffPermission } from "@/prisma/generated/prisma/enums";
 
 interface CreateBookingParams {
   customerId?: string;
@@ -98,6 +103,28 @@ export async function createBooking({
     const forwardedFor = headersList.get("x-forwarded-for") || "";
     const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
     const session = await getServerSession(authOptions);
+
+    if (
+      session?.user?.businessSlug &&
+      session.user.role !== "PLATFORM_ADMIN" &&
+      session.user.businessSlug !== businessSlug
+    ) {
+      throw new Error("Forbidden");
+    }
+
+    if (session?.user?.role === "EMPLOYEE") {
+      const actorContext = await resolveTenantActorContext(
+        businessSlug,
+        session.user.id,
+      );
+      if (!actorContext.success || actorContext.actorType !== "EMPLOYEE") {
+        throw new Error("Unauthorized");
+      }
+
+      if (!hasStaffPermission(actorContext, StaffPermission.BOOKING_CREATE)) {
+        throw new Error("Forbidden");
+      }
+    }
 
     if (!session) {
       const limiter = await rateLimit(

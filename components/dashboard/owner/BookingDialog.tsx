@@ -12,7 +12,7 @@ import { CalendarPlus, Plus } from "lucide-react";
 import BookingForm, {
   PackageWithItems,
 } from "@/components/bookings/BookingForm";
-import { Service } from "@/prisma/generated/prisma/client";
+import type { Service } from "@/prisma/generated/prisma/client";
 import { useState } from "react";
 
 /* type PackageWithItems = ServicePackage & {
@@ -24,6 +24,7 @@ interface BookingDialogProps {
   packages?: PackageWithItems[]; // Using any to avoid complex type import chains if possible, will refine if needed
   categories: string[];
   businessSlug: string;
+  allowServiceClaim?: boolean;
 }
 
 export function BookingDialog({
@@ -31,6 +32,7 @@ export function BookingDialog({
   packages = [],
   categories,
   businessSlug,
+  allowServiceClaim = true,
 }: BookingDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -63,6 +65,7 @@ export function BookingDialog({
             packages={packages}
             categories={categories}
             isEmployee={true}
+            allowServiceClaim={allowServiceClaim}
             isModal={true}
             onSuccess={() => setOpen(false)}
           />

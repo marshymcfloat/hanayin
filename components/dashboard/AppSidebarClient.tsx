@@ -68,6 +68,11 @@ type SidebarProps = {
     reportsCore: boolean;
     reportsAdvanced: boolean;
   };
+  capabilities: {
+    isOwner: boolean;
+    canManageCatalog: boolean;
+    canQueueOverride: boolean;
+  };
   user: {
     name: string;
     email: string;
@@ -75,9 +80,15 @@ type SidebarProps = {
   };
 };
 
-export function AppSidebarClient({ businessSlug, entitlements, user }: SidebarProps) {
+export function AppSidebarClient({
+  businessSlug,
+  entitlements,
+  capabilities,
+  user,
+}: SidebarProps) {
   const pathname = usePathname();
   const slug = businessSlug || "demo";
+  const isOwner = capabilities.isOwner;
 
   const dashboardItem: NavItem = {
     title: "Dashboard",
@@ -85,7 +96,7 @@ export function AppSidebarClient({ businessSlug, entitlements, user }: SidebarPr
     icon: Home,
   };
 
-  const businessItems: NavItem[] = [
+  const ownerBusinessItems: NavItem[] = [
     { title: "Services", url: `/app/${slug}/services`, icon: Box },
     { title: "Packages", url: `/app/${slug}/packages`, icon: Package },
     { title: "Vouchers", url: `/app/${slug}/vouchers`, icon: Ticket },
@@ -129,47 +140,75 @@ export function AppSidebarClient({ businessSlug, entitlements, user }: SidebarPr
       : []),
   ];
 
+  const managerBusinessItems: NavItem[] = [
+    { title: "Services", url: `/app/${slug}/services`, icon: Box },
+    { title: "Packages", url: `/app/${slug}/packages`, icon: Package },
+    ...(entitlements.reportsCore
+      ? ([
+          {
+            title: "Reports",
+            url: `/app/${slug}/reports`,
+            icon: BarChart3,
+          },
+        ] satisfies NavItem[])
+      : []),
+  ];
+
   const navGroups: NavGroup[] = [
     {
       title: "Business",
       icon: Package,
       iconColor: "text-violet-600 dark:text-violet-400",
       activeColor: "bg-violet-100 dark:bg-violet-500/20",
-      items: businessItems,
+      items: isOwner ? ownerBusinessItems : managerBusinessItems,
     },
-    {
-      title: "Team",
-      icon: Users,
-      iconColor: "text-emerald-600 dark:text-emerald-400",
-      activeColor: "bg-emerald-100 dark:bg-emerald-500/20",
-      items: [
-        { title: "Employees", url: `/app/${slug}/employees`, icon: UserCircle },
-        { title: "Owners", url: `/app/${slug}/owners`, icon: Crown },
-        {
-          title: "Attendance",
-          url: `/app/${slug}/attendance`,
-          icon: ClipboardList,
-        },
-        { title: "Payroll", url: `/app/${slug}/payroll`, icon: Wallet },
-      ],
-    },
+    ...(isOwner
+      ? ([
+          {
+            title: "Team",
+            icon: Users,
+            iconColor: "text-emerald-600 dark:text-emerald-400",
+            activeColor: "bg-emerald-100 dark:bg-emerald-500/20",
+            items: [
+              {
+                title: "Employees",
+                url: `/app/${slug}/employees`,
+                icon: UserCircle,
+              },
+              { title: "Owners", url: `/app/${slug}/owners`, icon: Crown },
+              {
+                title: "Attendance",
+                url: `/app/${slug}/attendance`,
+                icon: ClipboardList,
+              },
+              { title: "Payroll", url: `/app/${slug}/payroll`, icon: Wallet },
+            ],
+          },
+        ] satisfies NavGroup[])
+      : []),
     {
       title: "Customers",
       icon: Calendar,
       iconColor: "text-amber-600 dark:text-amber-400",
       activeColor: "bg-amber-100 dark:bg-amber-500/20",
-      items: [
-        { title: "Customers", url: `/app/${slug}/customers`, icon: Users },
-        { title: "Bookings", url: `/app/${slug}/bookings`, icon: Calendar },
-      ],
+      items: isOwner
+        ? [
+            { title: "Customers", url: `/app/${slug}/customers`, icon: Users },
+            { title: "Bookings", url: `/app/${slug}/bookings`, icon: Calendar },
+          ]
+        : [
+            { title: "Bookings", url: `/app/${slug}/bookings`, icon: Calendar },
+          ],
     },
   ];
 
-  const settingsItem: NavItem = {
-    title: "Settings",
-    url: `/app/${slug}/business`,
-    icon: Settings,
-  };
+  const settingsItem: NavItem | null = isOwner
+    ? {
+        title: "Settings",
+        url: `/app/${slug}/business`,
+        icon: Settings,
+      }
+    : null;
 
   const isActive = (url: string) => {
     if (url === `/app/${slug}`) return pathname === url;
@@ -302,27 +341,29 @@ export function AppSidebarClient({ businessSlug, entitlements, user }: SidebarPr
           ))}
         </div>
 
-        <SidebarGroup className="mt-auto px-3 pb-3">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={isActive(settingsItem.url)}
-                className={cn(
-                  "rounded-xl transition-all duration-200",
-                  isActive(settingsItem.url)
-                    ? "bg-muted font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                )}
-              >
-                <Link href={settingsItem.url}>
-                  <settingsItem.icon className="h-4 w-4" />
-                  <span>{settingsItem.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+        {settingsItem ? (
+          <SidebarGroup className="mt-auto px-3 pb-3">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive(settingsItem.url)}
+                  className={cn(
+                    "rounded-xl transition-all duration-200",
+                    isActive(settingsItem.url)
+                      ? "bg-muted font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                  )}
+                >
+                  <Link href={settingsItem.url}>
+                    <settingsItem.icon className="h-4 w-4" />
+                    <span>{settingsItem.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        ) : null}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/40 p-3">

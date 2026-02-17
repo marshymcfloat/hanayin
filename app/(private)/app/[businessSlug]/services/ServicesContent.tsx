@@ -3,6 +3,8 @@ import { authOptions } from "@/lib/next auth/options";
 import { redirect } from "next/navigation";
 import { prisma } from "@/prisma/prisma";
 import { ServicesPageClient } from "./ServicesPageClient";
+import { requireStaffPermission } from "@/lib/auth/staff-access";
+import { StaffPermission } from "@/prisma/generated/prisma/enums";
 
 interface ServicesContentProps {
   businessSlug: string;
@@ -10,9 +12,19 @@ interface ServicesContentProps {
 
 export async function ServicesContent({ businessSlug }: ServicesContentProps) {
   const session = await getServerSession(authOptions);
-
   if (!session?.user) {
     redirect("/auth/login");
+  }
+
+  const access = await requireStaffPermission(
+    businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+  );
+  if (!access.success) {
+    if (access.error === "Unauthorized") {
+      redirect("/auth/login");
+    }
+    redirect(`/app/${businessSlug}`);
   }
 
   // Fetch services for this business

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/prisma/prisma";
 import { getCachedBusinessBySlug } from "@/lib/data/cached";
 import { PackagesPageClient } from "./PackagesPageClient";
+import { requireStaffPermission } from "@/lib/auth/staff-access";
+import { StaffPermission } from "@/prisma/generated/prisma/enums";
 
 interface PackagesContentProps {
   businessSlug: string;
@@ -14,6 +16,17 @@ export async function PackagesContent({ businessSlug }: PackagesContentProps) {
 
   if (!session?.user) {
     redirect("/auth/login");
+  }
+
+  const access = await requireStaffPermission(
+    businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+  );
+  if (!access.success) {
+    if (access.error === "Unauthorized") {
+      redirect("/auth/login");
+    }
+    redirect(`/app/${businessSlug}`);
   }
 
   const business = await getCachedBusinessBySlug(businessSlug);

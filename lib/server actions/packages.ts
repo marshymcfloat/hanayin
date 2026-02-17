@@ -4,6 +4,8 @@ import { prisma } from "@/prisma/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
 import { tenantCacheTags } from "@/lib/data/cached";
+import { requireStaffPermission } from "@/lib/auth/staff-access";
+import { StaffPermission } from "@/prisma/generated/prisma/enums";
 
 interface PackageItemInput {
   serviceId: number;
@@ -52,9 +54,15 @@ async function hasInvalidPackageItems(
 }
 
 export async function createPackageAction(params: CreatePackageParams) {
-  const auth = await requireAuth({ write: true });
+  const sessionAuth = await requireAuth();
+  if (!sessionAuth.success) return sessionAuth;
+  const auth = await requireStaffPermission(
+    sessionAuth.businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+    { write: true },
+  );
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug } = auth.context;
 
   if (params.businessSlug !== businessSlug) {
     return {
@@ -108,9 +116,15 @@ export async function updatePackageAction(
   packageId: number,
   params: UpdatePackageParams,
 ) {
-  const auth = await requireAuth({ write: true });
+  const sessionAuth = await requireAuth();
+  if (!sessionAuth.success) return sessionAuth;
+  const auth = await requireStaffPermission(
+    sessionAuth.businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+    { write: true },
+  );
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug } = auth.context;
 
   try {
     const existingPackage = await prisma.servicePackage.findUnique({
@@ -177,9 +191,15 @@ export async function updatePackageAction(
 }
 
 export async function deletePackageAction(packageId: number) {
-  const auth = await requireAuth({ write: true });
+  const sessionAuth = await requireAuth();
+  if (!sessionAuth.success) return sessionAuth;
+  const auth = await requireStaffPermission(
+    sessionAuth.businessSlug,
+    StaffPermission.CATALOG_MANAGE,
+    { write: true },
+  );
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug } = auth.context;
 
   try {
     // Verify ownership
