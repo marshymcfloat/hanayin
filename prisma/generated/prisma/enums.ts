@@ -18,6 +18,37 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
+export const BusinessStructure = {
+  OWNER_EMPLOYEE_SELF_SERVICE: 'OWNER_EMPLOYEE_SELF_SERVICE',
+  MANAGER_LED: 'MANAGER_LED',
+  CASHIER_LED: 'CASHIER_LED',
+  MANAGER_CASHIER: 'MANAGER_CASHIER'
+} as const
+
+export type BusinessStructure = (typeof BusinessStructure)[keyof typeof BusinessStructure]
+
+
+export const StaffProfile = {
+  STAFF: 'STAFF',
+  MANAGER: 'MANAGER',
+  CASHIER: 'CASHIER'
+} as const
+
+export type StaffProfile = (typeof StaffProfile)[keyof typeof StaffProfile]
+
+
+export const StaffPermission = {
+  BOOKING_CREATE: 'BOOKING_CREATE',
+  PAYMENT_COLLECT: 'PAYMENT_COLLECT',
+  QUEUE_CLAIM_SELF: 'QUEUE_CLAIM_SELF',
+  QUEUE_SERVE_SELF: 'QUEUE_SERVE_SELF',
+  QUEUE_OVERRIDE_ALL: 'QUEUE_OVERRIDE_ALL',
+  CATALOG_MANAGE: 'CATALOG_MANAGE'
+} as const
+
+export type StaffPermission = (typeof StaffPermission)[keyof typeof StaffPermission]
+
+
 export const BillingInterval = {
   MONTHLY: 'MONTHLY',
   YEARLY: 'YEARLY'

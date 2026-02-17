@@ -31,6 +31,9 @@ export type OnboardingApplicationMinAggregateOutputType = {
   owner_email: string | null
   owner_phone: string | null
   notes: string | null
+  requested_structure: $Enums.BusinessStructure | null
+  requested_allow_employee_self_booking: boolean | null
+  requested_manager_can_serve: boolean | null
   referral_code_input: string | null
   referral_code_id: string | null
   status: $Enums.OnboardingApplicationStatus | null
@@ -49,6 +52,9 @@ export type OnboardingApplicationMaxAggregateOutputType = {
   owner_email: string | null
   owner_phone: string | null
   notes: string | null
+  requested_structure: $Enums.BusinessStructure | null
+  requested_allow_employee_self_booking: boolean | null
+  requested_manager_can_serve: boolean | null
   referral_code_input: string | null
   referral_code_id: string | null
   status: $Enums.OnboardingApplicationStatus | null
@@ -67,6 +73,9 @@ export type OnboardingApplicationCountAggregateOutputType = {
   owner_email: number
   owner_phone: number
   notes: number
+  requested_structure: number
+  requested_allow_employee_self_booking: number
+  requested_manager_can_serve: number
   referral_code_input: number
   referral_code_id: number
   status: number
@@ -87,6 +96,9 @@ export type OnboardingApplicationMinAggregateInputType = {
   owner_email?: true
   owner_phone?: true
   notes?: true
+  requested_structure?: true
+  requested_allow_employee_self_booking?: true
+  requested_manager_can_serve?: true
   referral_code_input?: true
   referral_code_id?: true
   status?: true
@@ -105,6 +117,9 @@ export type OnboardingApplicationMaxAggregateInputType = {
   owner_email?: true
   owner_phone?: true
   notes?: true
+  requested_structure?: true
+  requested_allow_employee_self_booking?: true
+  requested_manager_can_serve?: true
   referral_code_input?: true
   referral_code_id?: true
   status?: true
@@ -123,6 +138,9 @@ export type OnboardingApplicationCountAggregateInputType = {
   owner_email?: true
   owner_phone?: true
   notes?: true
+  requested_structure?: true
+  requested_allow_employee_self_booking?: true
+  requested_manager_can_serve?: true
   referral_code_input?: true
   referral_code_id?: true
   status?: true
@@ -214,6 +232,9 @@ export type OnboardingApplicationGroupByOutputType = {
   owner_email: string
   owner_phone: string | null
   notes: string | null
+  requested_structure: $Enums.BusinessStructure
+  requested_allow_employee_self_booking: boolean
+  requested_manager_can_serve: boolean
   referral_code_input: string | null
   referral_code_id: string | null
   status: $Enums.OnboardingApplicationStatus
@@ -253,6 +274,9 @@ export type OnboardingApplicationWhereInput = {
   owner_email?: Prisma.StringFilter<"OnboardingApplication"> | string
   owner_phone?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   notes?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFilter<"OnboardingApplication"> | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFilter<"OnboardingApplication"> | boolean
+  requested_manager_can_serve?: Prisma.BoolFilter<"OnboardingApplication"> | boolean
   referral_code_input?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   referral_code_id?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFilter<"OnboardingApplication"> | $Enums.OnboardingApplicationStatus
@@ -274,6 +298,9 @@ export type OnboardingApplicationOrderByWithRelationInput = {
   owner_email?: Prisma.SortOrder
   owner_phone?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  requested_structure?: Prisma.SortOrder
+  requested_allow_employee_self_booking?: Prisma.SortOrder
+  requested_manager_can_serve?: Prisma.SortOrder
   referral_code_input?: Prisma.SortOrderInput | Prisma.SortOrder
   referral_code_id?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -298,6 +325,9 @@ export type OnboardingApplicationWhereUniqueInput = Prisma.AtLeast<{
   owner_email?: Prisma.StringFilter<"OnboardingApplication"> | string
   owner_phone?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   notes?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFilter<"OnboardingApplication"> | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFilter<"OnboardingApplication"> | boolean
+  requested_manager_can_serve?: Prisma.BoolFilter<"OnboardingApplication"> | boolean
   referral_code_input?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   referral_code_id?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFilter<"OnboardingApplication"> | $Enums.OnboardingApplicationStatus
@@ -319,6 +349,9 @@ export type OnboardingApplicationOrderByWithAggregationInput = {
   owner_email?: Prisma.SortOrder
   owner_phone?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  requested_structure?: Prisma.SortOrder
+  requested_allow_employee_self_booking?: Prisma.SortOrder
+  requested_manager_can_serve?: Prisma.SortOrder
   referral_code_input?: Prisma.SortOrderInput | Prisma.SortOrder
   referral_code_id?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -343,6 +376,9 @@ export type OnboardingApplicationScalarWhereWithAggregatesInput = {
   owner_email?: Prisma.StringWithAggregatesFilter<"OnboardingApplication"> | string
   owner_phone?: Prisma.StringNullableWithAggregatesFilter<"OnboardingApplication"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"OnboardingApplication"> | string | null
+  requested_structure?: Prisma.EnumBusinessStructureWithAggregatesFilter<"OnboardingApplication"> | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolWithAggregatesFilter<"OnboardingApplication"> | boolean
+  requested_manager_can_serve?: Prisma.BoolWithAggregatesFilter<"OnboardingApplication"> | boolean
   referral_code_input?: Prisma.StringNullableWithAggregatesFilter<"OnboardingApplication"> | string | null
   referral_code_id?: Prisma.StringNullableWithAggregatesFilter<"OnboardingApplication"> | string | null
   status?: Prisma.EnumOnboardingApplicationStatusWithAggregatesFilter<"OnboardingApplication"> | $Enums.OnboardingApplicationStatus
@@ -361,6 +397,9 @@ export type OnboardingApplicationCreateInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   status?: $Enums.OnboardingApplicationStatus
   review_notes?: string | null
@@ -379,6 +418,9 @@ export type OnboardingApplicationUncheckedCreateInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   referral_code_id?: string | null
   status?: $Enums.OnboardingApplicationStatus
@@ -397,6 +439,9 @@ export type OnboardingApplicationUpdateInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
   review_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -415,6 +460,9 @@ export type OnboardingApplicationUncheckedUpdateInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referral_code_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
@@ -433,6 +481,9 @@ export type OnboardingApplicationCreateManyInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   referral_code_id?: string | null
   status?: $Enums.OnboardingApplicationStatus
@@ -451,6 +502,9 @@ export type OnboardingApplicationUpdateManyMutationInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
   review_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -466,6 +520,9 @@ export type OnboardingApplicationUncheckedUpdateManyInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referral_code_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
@@ -494,6 +551,9 @@ export type OnboardingApplicationCountOrderByAggregateInput = {
   owner_email?: Prisma.SortOrder
   owner_phone?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  requested_structure?: Prisma.SortOrder
+  requested_allow_employee_self_booking?: Prisma.SortOrder
+  requested_manager_can_serve?: Prisma.SortOrder
   referral_code_input?: Prisma.SortOrder
   referral_code_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -512,6 +572,9 @@ export type OnboardingApplicationMaxOrderByAggregateInput = {
   owner_email?: Prisma.SortOrder
   owner_phone?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  requested_structure?: Prisma.SortOrder
+  requested_allow_employee_self_booking?: Prisma.SortOrder
+  requested_manager_can_serve?: Prisma.SortOrder
   referral_code_input?: Prisma.SortOrder
   referral_code_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -530,6 +593,9 @@ export type OnboardingApplicationMinOrderByAggregateInput = {
   owner_email?: Prisma.SortOrder
   owner_phone?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  requested_structure?: Prisma.SortOrder
+  requested_allow_employee_self_booking?: Prisma.SortOrder
+  requested_manager_can_serve?: Prisma.SortOrder
   referral_code_input?: Prisma.SortOrder
   referral_code_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -678,6 +744,9 @@ export type OnboardingApplicationCreateWithoutConverted_businessInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   status?: $Enums.OnboardingApplicationStatus
   review_notes?: string | null
@@ -695,6 +764,9 @@ export type OnboardingApplicationUncheckedCreateWithoutConverted_businessInput =
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   referral_code_id?: string | null
   status?: $Enums.OnboardingApplicationStatus
@@ -741,6 +813,9 @@ export type OnboardingApplicationScalarWhereInput = {
   owner_email?: Prisma.StringFilter<"OnboardingApplication"> | string
   owner_phone?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   notes?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFilter<"OnboardingApplication"> | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFilter<"OnboardingApplication"> | boolean
+  requested_manager_can_serve?: Prisma.BoolFilter<"OnboardingApplication"> | boolean
   referral_code_input?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   referral_code_id?: Prisma.StringNullableFilter<"OnboardingApplication"> | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFilter<"OnboardingApplication"> | $Enums.OnboardingApplicationStatus
@@ -759,6 +834,9 @@ export type OnboardingApplicationCreateWithoutReviewed_by_userInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   status?: $Enums.OnboardingApplicationStatus
   review_notes?: string | null
@@ -776,6 +854,9 @@ export type OnboardingApplicationUncheckedCreateWithoutReviewed_by_userInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   referral_code_id?: string | null
   status?: $Enums.OnboardingApplicationStatus
@@ -819,6 +900,9 @@ export type OnboardingApplicationCreateWithoutReferral_codeInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   status?: $Enums.OnboardingApplicationStatus
   review_notes?: string | null
@@ -836,6 +920,9 @@ export type OnboardingApplicationUncheckedCreateWithoutReferral_codeInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   status?: $Enums.OnboardingApplicationStatus
   review_notes?: string | null
@@ -879,6 +966,9 @@ export type OnboardingApplicationCreateManyConverted_businessInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   referral_code_id?: string | null
   status?: $Enums.OnboardingApplicationStatus
@@ -896,6 +986,9 @@ export type OnboardingApplicationUpdateWithoutConverted_businessInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
   review_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -913,6 +1006,9 @@ export type OnboardingApplicationUncheckedUpdateWithoutConverted_businessInput =
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referral_code_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
@@ -930,6 +1026,9 @@ export type OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessInp
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referral_code_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
@@ -947,6 +1046,9 @@ export type OnboardingApplicationCreateManyReviewed_by_userInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   referral_code_id?: string | null
   status?: $Enums.OnboardingApplicationStatus
@@ -964,6 +1066,9 @@ export type OnboardingApplicationUpdateWithoutReviewed_by_userInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
   review_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -981,6 +1086,9 @@ export type OnboardingApplicationUncheckedUpdateWithoutReviewed_by_userInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referral_code_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
@@ -998,6 +1106,9 @@ export type OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userInput
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referral_code_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
@@ -1015,6 +1126,9 @@ export type OnboardingApplicationCreateManyReferral_codeInput = {
   owner_email: string
   owner_phone?: string | null
   notes?: string | null
+  requested_structure?: $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: string | null
   status?: $Enums.OnboardingApplicationStatus
   review_notes?: string | null
@@ -1032,6 +1146,9 @@ export type OnboardingApplicationUpdateWithoutReferral_codeInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
   review_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1049,6 +1166,9 @@ export type OnboardingApplicationUncheckedUpdateWithoutReferral_codeInput = {
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
   review_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1066,6 +1186,9 @@ export type OnboardingApplicationUncheckedUpdateManyWithoutReferral_codeInput = 
   owner_email?: Prisma.StringFieldUpdateOperationsInput | string
   owner_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requested_structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  requested_allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requested_manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   referral_code_input?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOnboardingApplicationStatusFieldUpdateOperationsInput | $Enums.OnboardingApplicationStatus
   review_notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1085,6 +1208,9 @@ export type OnboardingApplicationSelect<ExtArgs extends runtime.Types.Extensions
   owner_email?: boolean
   owner_phone?: boolean
   notes?: boolean
+  requested_structure?: boolean
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: boolean
   referral_code_id?: boolean
   status?: boolean
@@ -1106,6 +1232,9 @@ export type OnboardingApplicationSelectCreateManyAndReturn<ExtArgs extends runti
   owner_email?: boolean
   owner_phone?: boolean
   notes?: boolean
+  requested_structure?: boolean
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: boolean
   referral_code_id?: boolean
   status?: boolean
@@ -1127,6 +1256,9 @@ export type OnboardingApplicationSelectUpdateManyAndReturn<ExtArgs extends runti
   owner_email?: boolean
   owner_phone?: boolean
   notes?: boolean
+  requested_structure?: boolean
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: boolean
   referral_code_id?: boolean
   status?: boolean
@@ -1148,6 +1280,9 @@ export type OnboardingApplicationSelectScalar = {
   owner_email?: boolean
   owner_phone?: boolean
   notes?: boolean
+  requested_structure?: boolean
+  requested_allow_employee_self_booking?: boolean
+  requested_manager_can_serve?: boolean
   referral_code_input?: boolean
   referral_code_id?: boolean
   status?: boolean
@@ -1159,7 +1294,7 @@ export type OnboardingApplicationSelectScalar = {
   updated_at?: boolean
 }
 
-export type OnboardingApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_name" | "owner_name" | "owner_email" | "owner_phone" | "notes" | "referral_code_input" | "referral_code_id" | "status" | "review_notes" | "reviewed_by_user_id" | "reviewed_at" | "converted_business_id" | "created_at" | "updated_at", ExtArgs["result"]["onboardingApplication"]>
+export type OnboardingApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_name" | "owner_name" | "owner_email" | "owner_phone" | "notes" | "requested_structure" | "requested_allow_employee_self_booking" | "requested_manager_can_serve" | "referral_code_input" | "referral_code_id" | "status" | "review_notes" | "reviewed_by_user_id" | "reviewed_at" | "converted_business_id" | "created_at" | "updated_at", ExtArgs["result"]["onboardingApplication"]>
 export type OnboardingApplicationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   referral_code?: boolean | Prisma.OnboardingApplication$referral_codeArgs<ExtArgs>
   reviewed_by_user?: boolean | Prisma.OnboardingApplication$reviewed_by_userArgs<ExtArgs>
@@ -1190,6 +1325,9 @@ export type $OnboardingApplicationPayload<ExtArgs extends runtime.Types.Extensio
     owner_email: string
     owner_phone: string | null
     notes: string | null
+    requested_structure: $Enums.BusinessStructure
+    requested_allow_employee_self_booking: boolean
+    requested_manager_can_serve: boolean
     referral_code_input: string | null
     referral_code_id: string | null
     status: $Enums.OnboardingApplicationStatus
@@ -1631,6 +1769,9 @@ export interface OnboardingApplicationFieldRefs {
   readonly owner_email: Prisma.FieldRef<"OnboardingApplication", 'String'>
   readonly owner_phone: Prisma.FieldRef<"OnboardingApplication", 'String'>
   readonly notes: Prisma.FieldRef<"OnboardingApplication", 'String'>
+  readonly requested_structure: Prisma.FieldRef<"OnboardingApplication", 'BusinessStructure'>
+  readonly requested_allow_employee_self_booking: Prisma.FieldRef<"OnboardingApplication", 'Boolean'>
+  readonly requested_manager_can_serve: Prisma.FieldRef<"OnboardingApplication", 'Boolean'>
   readonly referral_code_input: Prisma.FieldRef<"OnboardingApplication", 'String'>
   readonly referral_code_id: Prisma.FieldRef<"OnboardingApplication", 'String'>
   readonly status: Prisma.FieldRef<"OnboardingApplication", 'OnboardingApplicationStatus'>

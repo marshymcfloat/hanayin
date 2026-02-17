@@ -1,5 +1,5 @@
 import { hash } from "bcryptjs";
-import { Role } from "./generated/prisma/client";
+import { Role, StaffPermission, StaffProfile } from "./generated/prisma/client";
 import { prisma } from "./prisma";
 
 async function main() {
@@ -674,6 +674,13 @@ async function main() {
         salary: 0,
         daily_rate: 500 + Math.random() * 200,
         commission_percentage: 10,
+        profile: StaffProfile.STAFF,
+        permissions: [
+          StaffPermission.BOOKING_CREATE,
+          StaffPermission.PAYMENT_COLLECT,
+          StaffPermission.QUEUE_CLAIM_SELF,
+          StaffPermission.QUEUE_SERVE_SELF,
+        ],
         specialties: emp.specialties,
       },
     });

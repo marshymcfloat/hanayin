@@ -741,7 +741,12 @@ export default async function PlatformOverviewPage() {
               </h4>
               <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                 {(() => {
-                  const items = [
+                  const items: Array<{
+                    label: string;
+                    target: string;
+                    current: string;
+                    status: "on-track" | "off-track" | "unknown";
+                  }> = [
                     {
                       label: "App -> Contact",
                       target: `<= ${KPI_TARGETS.onboardingLeadHours}h`,
@@ -821,7 +826,7 @@ export default async function PlatformOverviewPage() {
                       </p>
                       <span
                         className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${getTargetStatusClass(
-                          item.status as any,
+                          item.status,
                         )}`}
                       >
                         {item.status === "unknown"

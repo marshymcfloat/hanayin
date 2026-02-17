@@ -3834,6 +3834,9 @@ export const BusinessScalarFieldEnum = {
   public_default_payment_type: 'public_default_payment_type',
   booking_v2_enabled: 'booking_v2_enabled',
   same_day_attendance_strict_minutes: 'same_day_attendance_strict_minutes',
+  structure: 'structure',
+  allow_employee_self_booking: 'allow_employee_self_booking',
+  manager_can_serve: 'manager_can_serve',
   commission_calculation_basis: 'commission_calculation_basis',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -3968,6 +3971,8 @@ export const EmployeeScalarFieldEnum = {
   salary: 'salary',
   commission_percentage: 'commission_percentage',
   daily_rate: 'daily_rate',
+  profile: 'profile',
+  permissions: 'permissions',
   specialties: 'specialties',
   business_id: 'business_id'
 } as const
@@ -4202,6 +4207,9 @@ export const OnboardingApplicationScalarFieldEnum = {
   owner_email: 'owner_email',
   owner_phone: 'owner_phone',
   notes: 'notes',
+  requested_structure: 'requested_structure',
+  requested_allow_employee_self_booking: 'requested_allow_employee_self_booking',
+  requested_manager_can_serve: 'requested_manager_can_serve',
   referral_code_input: 'referral_code_input',
   referral_code_id: 'referral_code_id',
   status: 'status',
@@ -4687,6 +4695,20 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'BusinessStructure'
+ */
+export type EnumBusinessStructureFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessStructure'>
+    
+
+
+/**
+ * Reference to a field of type 'BusinessStructure[]'
+ */
+export type ListEnumBusinessStructureFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessStructure[]'>
+    
+
+
+/**
  * Reference to a field of type 'CommissionCalculationBasis'
  */
 export type EnumCommissionCalculationBasisFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionCalculationBasis'>
@@ -4837,6 +4859,34 @@ export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'Role[]'
  */
 export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StaffProfile'
+ */
+export type EnumStaffProfileFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffProfile'>
+    
+
+
+/**
+ * Reference to a field of type 'StaffProfile[]'
+ */
+export type ListEnumStaffProfileFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffProfile[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StaffPermission[]'
+ */
+export type ListEnumStaffPermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffPermission[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StaffPermission'
+ */
+export type EnumStaffPermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffPermission'>
     
 
 

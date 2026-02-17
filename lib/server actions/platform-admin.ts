@@ -24,9 +24,18 @@ import {
 } from "@/features/billing/subscription-service";
 import { requireAuth, requirePlatformAdmin } from "@/lib/auth/guards";
 import { authOptions } from "@/lib/next auth/options";
-import { CreditSource, OnboardingApplicationStatus, SubscriptionStatus } from "@/prisma/generated/prisma/enums";
+import {
+  BusinessStructure,
+  CreditSource,
+  OnboardingApplicationStatus,
+  SubscriptionStatus,
+} from "@/prisma/generated/prisma/enums";
 import { prisma, supportsOnboardingApplicationModel } from "@/prisma/prisma";
 import { Prisma } from "@/prisma/generated/prisma/client";
+import {
+  getBusinessStructureTemplate,
+  normalizeBusinessStructure,
+} from "@/lib/business-structure";
 
 const createBusinessWithSubscriptionSchema = z.object({
   businessName: z.string().min(2),
@@ -38,6 +47,11 @@ const createBusinessWithSubscriptionSchema = z.object({
   planCode: z.enum(SUBSCRIPTION_PLAN_CODES).default(DEFAULT_SUBSCRIPTION_PLAN_CODE),
   trialMonths: z.number().int().min(1).max(12).optional(),
   referralCode: z.string().min(3).optional(),
+  structure: z.nativeEnum(BusinessStructure).default(
+    BusinessStructure.OWNER_EMPLOYEE_SELF_SERVICE,
+  ),
+  allowEmployeeSelfBooking: z.boolean().optional(),
+  managerCanServe: z.boolean().optional(),
 });
 
 const updateOnboardingApplicationStatusSchema = z.object({
@@ -51,6 +65,9 @@ const convertOnboardingApplicationSchema = z.object({
   planCode: z.enum(SUBSCRIPTION_PLAN_CODES).default(DEFAULT_SUBSCRIPTION_PLAN_CODE),
   trialMonths: z.number().int().min(1).max(12).optional(),
   ownerPassword: z.string().min(8),
+  structure: z.nativeEnum(BusinessStructure).optional(),
+  allowEmployeeSelfBooking: z.boolean().optional(),
+  managerCanServe: z.boolean().optional(),
 });
 
 const changeBusinessSubscriptionPlanSchema = z.object({
@@ -160,6 +177,13 @@ export async function createBusinessWithSubscriptionAction(
   const ownerPassword = input.ownerPassword || makeOwnerPassword();
   const hashedPassword = await hash(ownerPassword, 12);
   const trialMonths = input.trialMonths ?? getDefaultTrialMonths();
+  const structure = normalizeBusinessStructure(input.structure);
+  const structureTemplate = getBusinessStructureTemplate(structure);
+  const allowEmployeeSelfBooking =
+    input.allowEmployeeSelfBooking ??
+    structureTemplate.allowEmployeeSelfBooking;
+  const managerCanServe =
+    input.managerCanServe ?? structureTemplate.managerCanServe;
 
   const created = await prisma.$transaction(async (tx) => {
     const existingEmail = await tx.user.findUnique({
@@ -182,6 +206,9 @@ export async function createBusinessWithSubscriptionAction(
         name: input.businessName,
         slug: input.businessSlug,
         initials: input.initials.toUpperCase(),
+        structure,
+        allow_employee_self_booking: allowEmployeeSelfBooking,
+        manager_can_serve: managerCanServe,
         owners: {
           create: {
             user_id: ownerUser.id,
@@ -213,6 +240,9 @@ export async function createBusinessWithSubscriptionAction(
       planCode: input.planCode,
       trialMonths,
       hasReferral: Boolean(input.referralCode),
+      structure,
+      allowEmployeeSelfBooking,
+      managerCanServe,
     },
   });
 
@@ -849,6 +879,18 @@ export async function convertOnboardingApplicationToBusinessAction(
     application.referral_code?.is_active && application.referral_code.code
       ? application.referral_code.code
       : undefined;
+  const structure = normalizeBusinessStructure(
+    input.structure ?? application.requested_structure,
+  );
+  const structureTemplate = getBusinessStructureTemplate(structure);
+  const allowEmployeeSelfBooking =
+    input.allowEmployeeSelfBooking ??
+    application.requested_allow_employee_self_booking ??
+    structureTemplate.allowEmployeeSelfBooking;
+  const managerCanServe =
+    input.managerCanServe ??
+    application.requested_manager_can_serve ??
+    structureTemplate.managerCanServe;
 
   const creation = await createBusinessWithSubscriptionAction({
     businessName: application.business_name,
@@ -860,6 +902,9 @@ export async function convertOnboardingApplicationToBusinessAction(
     planCode: input.planCode,
     trialMonths: input.trialMonths,
     referralCode,
+    structure,
+    allowEmployeeSelfBooking,
+    managerCanServe,
   });
 
   if (!creation.success) {
@@ -886,6 +931,9 @@ export async function convertOnboardingApplicationToBusinessAction(
       businessId: creation.business.id,
       businessSlug: creation.business.slug,
       planCode: input.planCode,
+      structure,
+      allowEmployeeSelfBooking,
+      managerCanServe,
     },
   });
 

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { prisma } from "@/prisma/prisma";
 import { verifyOnboardingStatusToken } from "@/lib/security/onboarding-status-token";
+import { formatBusinessStructureLabel } from "@/lib/business-structure";
 
 export const metadata: Metadata = {
   title: "Application Status",
@@ -89,6 +90,9 @@ async function ApplyStatusContent({ searchParams }: ApplyStatusPageProps) {
       owner_email: true,
       status: true,
       review_notes: true,
+      requested_structure: true,
+      requested_allow_employee_self_booking: true,
+      requested_manager_can_serve: true,
       created_at: true,
       reviewed_at: true,
       converted_business: {
@@ -140,6 +144,24 @@ async function ApplyStatusContent({ searchParams }: ApplyStatusPageProps) {
           </p>
           <p>
             Email: <span className="font-medium">{application.owner_email}</span>
+          </p>
+          <p>
+            Requested structure:{" "}
+            <span className="font-medium">
+              {formatBusinessStructureLabel(application.requested_structure)}
+            </span>
+          </p>
+          <p>
+            Staff self-booking:{" "}
+            <span className="font-medium">
+              {application.requested_allow_employee_self_booking ? "Yes" : "No"}
+            </span>
+          </p>
+          <p>
+            Manager can serve:{" "}
+            <span className="font-medium">
+              {application.requested_manager_can_serve ? "Yes" : "No"}
+            </span>
           </p>
           {application.reviewed_at ? (
             <p>

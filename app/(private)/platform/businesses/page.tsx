@@ -43,6 +43,10 @@ import {
   platformTableHeadClass,
   platformTableWrapCellClass,
 } from "../_components/platform-ui";
+import {
+  BUSINESS_STRUCTURE_TEMPLATES,
+  normalizeBusinessStructure,
+} from "@/lib/business-structure";
 
 type PlatformBusinessesPageProps = {
   searchParams?: PlatformSearchParams;
@@ -153,6 +157,14 @@ export default async function PlatformBusinessesPage({
         String(formData.get("trialMonths") || "1"),
         10,
       );
+      const structure = normalizeBusinessStructure(
+        formData.get("structure"),
+      );
+      const allowEmployeeSelfBooking =
+        String(formData.get("allowEmployeeSelfBooking") || "").toLowerCase() ===
+        "true";
+      const managerCanServe =
+        String(formData.get("managerCanServe") || "").toLowerCase() === "true";
       const trialMonths =
         Number.isFinite(parsedTrialMonths) && parsedTrialMonths > 0
           ? Math.min(12, parsedTrialMonths)
@@ -171,6 +183,9 @@ export default async function PlatformBusinessesPage({
         referralCode: referralCode || undefined,
         planCode,
         trialMonths,
+        structure,
+        allowEmployeeSelfBooking,
+        managerCanServe,
       });
 
       if (!result.success) {
@@ -470,7 +485,7 @@ export default async function PlatformBusinessesPage({
         </p>
         <form
           action={createBusinessFormAction}
-          className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5"
+          className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-6"
         >
           <label className="space-y-1 text-sm">
             <span className="font-medium text-[var(--pf-text)]">
@@ -576,6 +591,49 @@ export default async function PlatformBusinessesPage({
               defaultValue={1}
               className={platformInputClass}
             />
+          </label>
+          <label className="space-y-1 text-sm md:col-span-2">
+            <span className="font-medium text-[var(--pf-text)]">
+              Structure
+            </span>
+            <select
+              name="structure"
+              defaultValue="OWNER_EMPLOYEE_SELF_SERVICE"
+              className={platformInputClass}
+              required
+            >
+              {BUSINESS_STRUCTURE_TEMPLATES.map((template) => (
+                <option key={template.value} value={template.value}>
+                  {template.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--pf-text)]">
+              Allow Staff Self-booking
+            </span>
+            <select
+              name="allowEmployeeSelfBooking"
+              defaultValue="true"
+              className={platformInputClass}
+            >
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </label>
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--pf-text)]">
+              Manager Can Serve
+            </span>
+            <select
+              name="managerCanServe"
+              defaultValue="true"
+              className={platformInputClass}
+            >
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
           </label>
           <div className="flex items-end">
             <button

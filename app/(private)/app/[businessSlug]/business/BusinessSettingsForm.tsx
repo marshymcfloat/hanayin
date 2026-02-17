@@ -27,11 +27,17 @@ import {
 } from "lucide-react";
 import {
   BusinessType,
+  BusinessStructure,
   SocialConnectionStatus,
   SocialPlatform,
 } from "@/prisma/generated/prisma/enums";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { BUSINESS_STRUCTURE_TEMPLATES } from "@/lib/business-structure";
+import {
+  GROWTH_TONE_PROFILE_OPTIONS,
+  normalizeGrowthToneProfile,
+} from "@/lib/services/growth/tone-profiles";
 
 interface BusinessSettingsFormProps {
   business: {
@@ -42,6 +48,9 @@ interface BusinessSettingsFormProps {
     imageUrl: string | null;
     latitude: number | null;
     longitude: number | null;
+    structure: BusinessStructure;
+    allow_employee_self_booking: boolean;
+    manager_can_serve: boolean;
     growth_settings: {
       business_type: BusinessType;
       max_discount_percent: number;
@@ -85,6 +94,9 @@ export function BusinessSettingsForm({
 
   const facebookConnection = connectionMap.get("FACEBOOK_PAGE");
   const instagramConnection = connectionMap.get("INSTAGRAM_BUSINESS");
+  const selectedGrowthToneProfile = normalizeGrowthToneProfile(
+    business.growth_settings?.tone_profile,
+  );
 
   async function onSubmit(formData: FormData) {
     startTransition(async () => {
@@ -230,6 +242,65 @@ export function BusinessSettingsForm({
       <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-white border-b border-zinc-100 p-6">
           <CardTitle className="text-xl font-bold text-zinc-900">
+            Operations Structure
+          </CardTitle>
+          <CardDescription className="text-zinc-500">
+            Configure who books, who handles queue operations, and manager service mode.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 bg-white space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="structure">Structure</Label>
+            <select
+              id="structure"
+              name="structure"
+              defaultValue={business.structure}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {BUSINESS_STRUCTURE_TEMPLATES.map((template) => (
+                <option key={template.value} value={template.value}>
+                  {template.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="allowEmployeeSelfBooking">
+                Allow Staff Self-booking
+              </Label>
+              <select
+                id="allowEmployeeSelfBooking"
+                name="allowEmployeeSelfBooking"
+                defaultValue={
+                  business.allow_employee_self_booking ? "true" : "false"
+                }
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="managerCanServe">Manager Can Serve</Label>
+              <select
+                id="managerCanServe"
+                name="managerCanServe"
+                defaultValue={business.manager_can_serve ? "true" : "false"}
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
+        <CardHeader className="bg-white border-b border-zinc-100 p-6">
+          <CardTitle className="text-xl font-bold text-zinc-900">
             Growth Engine Settings
           </CardTitle>
           <CardDescription className="text-zinc-500">
@@ -294,11 +365,18 @@ export function BusinessSettingsForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="growthToneProfile">Tone Profile</Label>
-            <Input
+            <select
               id="growthToneProfile"
               name="growthToneProfile"
-              defaultValue={business.growth_settings?.tone_profile || "taglish-natural"}
-            />
+              defaultValue={selectedGrowthToneProfile}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {GROWTH_TONE_PROFILE_OPTIONS.map((tone) => (
+                <option key={tone.value} value={tone.value}>
+                  {tone.label}
+                </option>
+              ))}
+            </select>
           </div>
         </CardContent>
       </Card>

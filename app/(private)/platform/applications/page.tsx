@@ -38,6 +38,11 @@ import {
   platformTableWrapCellClass,
   formatPhpFromCentavos,
 } from "../_components/platform-ui";
+import {
+  BUSINESS_STRUCTURE_TEMPLATES,
+  formatBusinessStructureLabel,
+  normalizeBusinessStructure,
+} from "@/lib/business-structure";
 
 type PlatformApplicationsPageProps = {
   searchParams?: PlatformSearchParams;
@@ -221,6 +226,14 @@ export default async function PlatformApplicationsPage({
         String(formData.get("trialMonths") || "1"),
         10,
       );
+      const structure = normalizeBusinessStructure(
+        formData.get("structure"),
+      );
+      const allowEmployeeSelfBooking =
+        String(formData.get("allowEmployeeSelfBooking") || "").toLowerCase() ===
+        "true";
+      const managerCanServe =
+        String(formData.get("managerCanServe") || "").toLowerCase() === "true";
       const trialMonths =
         Number.isFinite(parsedTrialMonths) && parsedTrialMonths > 0
           ? Math.min(12, parsedTrialMonths)
@@ -234,6 +247,9 @@ export default async function PlatformApplicationsPage({
         ownerPassword,
         planCode,
         trialMonths,
+        structure,
+        allowEmployeeSelfBooking,
+        managerCanServe,
       });
       if (!result.success) {
         redirect(buildPlatformErrorPath("/platform/applications", result.error));
@@ -296,6 +312,7 @@ export default async function PlatformApplicationsPage({
                 <th className={platformTableHeadClass}>Business</th>
                 <th className={platformTableHeadClass}>Owner</th>
                 <th className={platformTableHeadClass}>Referral</th>
+                <th className={platformTableHeadClass}>Requested Setup</th>
                 <th className={platformTableHeadClass}>Status</th>
                 <th className={platformTableHeadClass}>Reviewed By</th>
                 <th className={platformTableHeadClass}>Actions</th>
@@ -330,6 +347,21 @@ export default async function PlatformApplicationsPage({
                     </td>
                     <td className={`${platformTableCellClass} min-w-[130px] max-w-[180px] ${platformTableWrapCellClass}`}>
                       {application.referral_code?.code ?? application.referral_code_input ?? "-"}
+                    </td>
+                    <td className={`${platformTableCellClass} min-w-[220px] max-w-[260px] ${platformTableWrapCellClass}`}>
+                      <p className="font-medium text-[var(--pf-text)]">
+                        {formatBusinessStructureLabel(application.requested_structure)}
+                      </p>
+                      <p className="text-xs text-[var(--pf-muted)]">
+                        Staff self-booking:{" "}
+                        {application.requested_allow_employee_self_booking
+                          ? "Yes"
+                          : "No"}
+                      </p>
+                      <p className="text-xs text-[var(--pf-muted)]">
+                        Manager can serve:{" "}
+                        {application.requested_manager_can_serve ? "Yes" : "No"}
+                      </p>
                     </td>
                     <td className={platformTableCellClass}>
                       <div className="flex flex-col gap-1">
@@ -398,6 +430,44 @@ export default async function PlatformApplicationsPage({
                             className="h-9 w-20 rounded-xl border border-[var(--pf-border)] bg-white px-2 text-xs text-[var(--pf-text)]"
                             disabled={catalogPlans.length === 0}
                           />
+                          <select
+                            name="structure"
+                            defaultValue={application.requested_structure}
+                            className="h-9 min-w-[220px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
+                            disabled={catalogPlans.length === 0}
+                          >
+                            {BUSINESS_STRUCTURE_TEMPLATES.map((template) => (
+                              <option key={template.value} value={template.value}>
+                                {template.label}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            name="allowEmployeeSelfBooking"
+                            defaultValue={
+                              application.requested_allow_employee_self_booking
+                                ? "true"
+                                : "false"
+                            }
+                            className="h-9 min-w-[130px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
+                            disabled={catalogPlans.length === 0}
+                          >
+                            <option value="true">Self-booking: Yes</option>
+                            <option value="false">Self-booking: No</option>
+                          </select>
+                          <select
+                            name="managerCanServe"
+                            defaultValue={
+                              application.requested_manager_can_serve
+                                ? "true"
+                                : "false"
+                            }
+                            className="h-9 min-w-[130px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
+                            disabled={catalogPlans.length === 0}
+                          >
+                            <option value="true">Mgr serve: Yes</option>
+                            <option value="false">Mgr serve: No</option>
+                          </select>
                           <button
                             type="submit"
                             className={`${platformSecondaryButtonClass} border-[var(--pf-primary)]/35 bg-[var(--pf-primary)]/10 text-[var(--pf-primary)] hover:bg-[var(--pf-primary)]/15`}
@@ -413,7 +483,7 @@ export default async function PlatformApplicationsPage({
               })}
               {applications.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className={`${platformTableCellClass} py-6 text-center text-[var(--pf-muted)]`}>
+                  <td colSpan={7} className={`${platformTableCellClass} py-6 text-center text-[var(--pf-muted)]`}>
                     {applicationQueryResult.limitedByAccelerate
                       ? "Unable to load applications right now."
                       : "No onboarding applications found."}

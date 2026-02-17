@@ -11,6 +11,10 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  BUSINESS_STRUCTURE_TEMPLATES,
+  normalizeBusinessStructure,
+} from "@/lib/business-structure";
 
 export const metadata = constructMetadata({
   title: "Apply for Service Flow",
@@ -29,6 +33,15 @@ export default async function ApplyPage() {
       ownerPhone: String(formData.get("ownerPhone") || ""),
       notes: String(formData.get("notes") || ""),
       referralCode: String(formData.get("referralCode") || ""),
+      requestedStructure: normalizeBusinessStructure(
+        formData.get("requestedStructure"),
+      ),
+      requestedAllowEmployeeSelfBooking:
+        String(formData.get("requestedAllowEmployeeSelfBooking") || "").toLowerCase() ===
+        "true",
+      requestedManagerCanServe:
+        String(formData.get("requestedManagerCanServe") || "").toLowerCase() ===
+        "true",
     });
 
     if (!result.success) {
@@ -227,6 +240,55 @@ export default async function ApplyPage() {
                           rows={4}
                           className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors resize-none"
                         />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-slate-700 ml-1">
+                          Business Structure
+                        </label>
+                        <select
+                          name="requestedStructure"
+                          defaultValue="OWNER_EMPLOYEE_SELF_SERVICE"
+                          className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors"
+                        >
+                          {BUSINESS_STRUCTURE_TEMPLATES.map((template) => (
+                            <option key={template.value} value={template.value}>
+                              {template.label}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-slate-500 ml-1">
+                          This helps us configure your initial workflow during onboarding.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-medium text-slate-700 ml-1">
+                            Allow Staff Self-booking
+                          </label>
+                          <select
+                            name="requestedAllowEmployeeSelfBooking"
+                            defaultValue="true"
+                            className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors"
+                          >
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-medium text-slate-700 ml-1">
+                            Manager Can Serve
+                          </label>
+                          <select
+                            name="requestedManagerCanServe"
+                            defaultValue="true"
+                            className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors"
+                          >
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
 

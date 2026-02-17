@@ -61,6 +61,9 @@ export type BusinessMinAggregateOutputType = {
   public_default_payment_type: string | null
   booking_v2_enabled: boolean | null
   same_day_attendance_strict_minutes: number | null
+  structure: $Enums.BusinessStructure | null
+  allow_employee_self_booking: boolean | null
+  manager_can_serve: boolean | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
   created_at: Date | null
   updated_at: Date | null
@@ -83,6 +86,9 @@ export type BusinessMaxAggregateOutputType = {
   public_default_payment_type: string | null
   booking_v2_enabled: boolean | null
   same_day_attendance_strict_minutes: number | null
+  structure: $Enums.BusinessStructure | null
+  allow_employee_self_booking: boolean | null
+  manager_can_serve: boolean | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
   created_at: Date | null
   updated_at: Date | null
@@ -105,6 +111,9 @@ export type BusinessCountAggregateOutputType = {
   public_default_payment_type: number
   booking_v2_enabled: number
   same_day_attendance_strict_minutes: number
+  structure: number
+  allow_employee_self_booking: number
+  manager_can_serve: number
   commission_calculation_basis: number
   created_at: number
   updated_at: number
@@ -147,6 +156,9 @@ export type BusinessMinAggregateInputType = {
   public_default_payment_type?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
+  structure?: true
+  allow_employee_self_booking?: true
+  manager_can_serve?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -169,6 +181,9 @@ export type BusinessMaxAggregateInputType = {
   public_default_payment_type?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
+  structure?: true
+  allow_employee_self_booking?: true
+  manager_can_serve?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -191,6 +206,9 @@ export type BusinessCountAggregateInputType = {
   public_default_payment_type?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
+  structure?: true
+  allow_employee_self_booking?: true
+  manager_can_serve?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -300,6 +318,9 @@ export type BusinessGroupByOutputType = {
   public_default_payment_type: string
   booking_v2_enabled: boolean
   same_day_attendance_strict_minutes: number
+  structure: $Enums.BusinessStructure
+  allow_employee_self_booking: boolean
+  manager_can_serve: boolean
   commission_calculation_basis: $Enums.CommissionCalculationBasis
   created_at: Date
   updated_at: Date
@@ -345,6 +366,9 @@ export type BusinessWhereInput = {
   public_default_payment_type?: Prisma.StringFilter<"Business"> | string
   booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
+  structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFilter<"Business"> | boolean
+  manager_can_serve?: Prisma.BoolFilter<"Business"> | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -395,6 +419,9 @@ export type BusinessOrderByWithRelationInput = {
   public_default_payment_type?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  structure?: Prisma.SortOrder
+  allow_employee_self_booking?: Prisma.SortOrder
+  manager_can_serve?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -448,6 +475,9 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   public_default_payment_type?: Prisma.StringFilter<"Business"> | string
   booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
+  structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFilter<"Business"> | boolean
+  manager_can_serve?: Prisma.BoolFilter<"Business"> | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -498,6 +528,9 @@ export type BusinessOrderByWithAggregationInput = {
   public_default_payment_type?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  structure?: Prisma.SortOrder
+  allow_employee_self_booking?: Prisma.SortOrder
+  manager_can_serve?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -528,6 +561,9 @@ export type BusinessScalarWhereWithAggregatesInput = {
   public_default_payment_type?: Prisma.StringWithAggregatesFilter<"Business"> | string
   booking_v2_enabled?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
+  structure?: Prisma.EnumBusinessStructureWithAggregatesFilter<"Business"> | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
+  manager_can_serve?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisWithAggregatesFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
@@ -550,6 +586,9 @@ export type BusinessCreateInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -600,6 +639,9 @@ export type BusinessUncheckedCreateInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -650,6 +692,9 @@ export type BusinessUpdateInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -700,6 +745,9 @@ export type BusinessUncheckedUpdateInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -750,6 +798,9 @@ export type BusinessCreateManyInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -772,6 +823,9 @@ export type BusinessUpdateManyMutationInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -794,6 +848,9 @@ export type BusinessUncheckedUpdateManyInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -816,6 +873,9 @@ export type BusinessCountOrderByAggregateInput = {
   public_default_payment_type?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  structure?: Prisma.SortOrder
+  allow_employee_self_booking?: Prisma.SortOrder
+  manager_can_serve?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -847,6 +907,9 @@ export type BusinessMaxOrderByAggregateInput = {
   public_default_payment_type?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  structure?: Prisma.SortOrder
+  allow_employee_self_booking?: Prisma.SortOrder
+  manager_can_serve?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -869,6 +932,9 @@ export type BusinessMinOrderByAggregateInput = {
   public_default_payment_type?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  structure?: Prisma.SortOrder
+  allow_employee_self_booking?: Prisma.SortOrder
+  manager_can_serve?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -919,6 +985,10 @@ export type IntFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type EnumBusinessStructureFieldUpdateOperationsInput = {
+  set?: $Enums.BusinessStructure
 }
 
 export type EnumCommissionCalculationBasisFieldUpdateOperationsInput = {
@@ -1344,6 +1414,9 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1393,6 +1466,9 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1458,6 +1534,9 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1507,6 +1586,9 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1556,6 +1638,9 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1605,6 +1690,9 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1670,6 +1758,9 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1719,6 +1810,9 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1768,6 +1862,9 @@ export type BusinessCreateWithoutSale_eventsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1817,6 +1914,9 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1882,6 +1982,9 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1931,6 +2034,9 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1980,6 +2086,9 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2029,6 +2138,9 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2094,6 +2206,9 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2143,6 +2258,9 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2192,6 +2310,9 @@ export type BusinessCreateWithoutSocial_postsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2241,6 +2362,9 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2306,6 +2430,9 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2355,6 +2482,9 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2404,6 +2534,9 @@ export type BusinessCreateWithoutEmployeesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2453,6 +2586,9 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2518,6 +2654,9 @@ export type BusinessUpdateWithoutEmployeesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2567,6 +2706,9 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2616,6 +2758,9 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2665,6 +2810,9 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2730,6 +2878,9 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2779,6 +2930,9 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2828,6 +2982,9 @@ export type BusinessCreateWithoutOwnersInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2877,6 +3034,9 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2942,6 +3102,9 @@ export type BusinessUpdateWithoutOwnersInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2991,6 +3154,9 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3040,6 +3206,9 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3089,6 +3258,9 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3154,6 +3326,9 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3203,6 +3378,9 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3252,6 +3430,9 @@ export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3301,6 +3482,9 @@ export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3366,6 +3550,9 @@ export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3415,6 +3602,9 @@ export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3464,6 +3654,9 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3513,6 +3706,9 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3578,6 +3774,9 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3627,6 +3826,9 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3676,6 +3878,9 @@ export type BusinessCreateWithoutReferral_codeInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3725,6 +3930,9 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3790,6 +3998,9 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3839,6 +4050,9 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3888,6 +4102,9 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3937,6 +4154,9 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4002,6 +4222,9 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4051,6 +4274,9 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4100,6 +4326,9 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4149,6 +4378,9 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4203,6 +4435,9 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4252,6 +4487,9 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4317,6 +4555,9 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4366,6 +4607,9 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4426,6 +4670,9 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4475,6 +4722,9 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4524,6 +4774,9 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4573,6 +4826,9 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4638,6 +4894,9 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4687,6 +4946,9 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4736,6 +4998,9 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4785,6 +5050,9 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4850,6 +5118,9 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4899,6 +5170,9 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4948,6 +5222,9 @@ export type BusinessCreateWithoutServicesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4997,6 +5274,9 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5062,6 +5342,9 @@ export type BusinessUpdateWithoutServicesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5111,6 +5394,9 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5160,6 +5446,9 @@ export type BusinessCreateWithoutPackagesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5209,6 +5498,9 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5274,6 +5566,9 @@ export type BusinessUpdateWithoutPackagesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5323,6 +5618,9 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5372,6 +5670,9 @@ export type BusinessCreateWithoutCustomersInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5421,6 +5722,9 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5486,6 +5790,9 @@ export type BusinessUpdateWithoutCustomersInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5535,6 +5842,9 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5584,6 +5894,9 @@ export type BusinessCreateWithoutBookingsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5633,6 +5946,9 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5698,6 +6014,9 @@ export type BusinessUpdateWithoutBookingsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5747,6 +6066,9 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5796,6 +6118,9 @@ export type BusinessCreateWithoutVouchersInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5845,6 +6170,9 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5910,6 +6238,9 @@ export type BusinessUpdateWithoutVouchersInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5959,6 +6290,9 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6008,6 +6342,9 @@ export type BusinessCreateWithoutGift_cardsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6057,6 +6394,9 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6122,6 +6462,9 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6171,6 +6514,9 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6220,6 +6566,9 @@ export type BusinessCreateWithoutService_flowsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6269,6 +6618,9 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6334,6 +6686,9 @@ export type BusinessUpdateWithoutService_flowsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6383,6 +6738,9 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6432,6 +6790,9 @@ export type BusinessCreateWithoutGrowth_settingsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6481,6 +6842,9 @@ export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6546,6 +6910,9 @@ export type BusinessUpdateWithoutGrowth_settingsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6595,6 +6962,9 @@ export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6644,6 +7014,9 @@ export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6693,6 +7066,9 @@ export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6758,6 +7134,9 @@ export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6807,6 +7186,9 @@ export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6856,6 +7238,9 @@ export type BusinessCreateWithoutOpportunitiesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6905,6 +7290,9 @@ export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6970,6 +7358,9 @@ export type BusinessUpdateWithoutOpportunitiesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7019,6 +7410,9 @@ export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7068,6 +7462,9 @@ export type BusinessCreateWithoutCampaignsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7117,6 +7514,9 @@ export type BusinessUncheckedCreateWithoutCampaignsInput = {
   public_default_payment_type?: string
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7182,6 +7582,9 @@ export type BusinessUpdateWithoutCampaignsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7231,6 +7634,9 @@ export type BusinessUncheckedUpdateWithoutCampaignsInput = {
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7536,6 +7942,9 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   public_default_payment_type?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  structure?: boolean
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -7587,6 +7996,9 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   public_default_payment_type?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  structure?: boolean
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -7609,6 +8021,9 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   public_default_payment_type?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  structure?: boolean
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -7631,12 +8046,15 @@ export type BusinessSelectScalar = {
   public_default_payment_type?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  structure?: boolean
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "structure" | "allow_employee_self_booking" | "manager_can_serve" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -7720,6 +8138,9 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     public_default_payment_type: string
     booking_v2_enabled: boolean
     same_day_attendance_strict_minutes: number
+    structure: $Enums.BusinessStructure
+    allow_employee_self_booking: boolean
+    manager_can_serve: boolean
     commission_calculation_basis: $Enums.CommissionCalculationBasis
     created_at: Date
     updated_at: Date
@@ -8190,6 +8611,9 @@ export interface BusinessFieldRefs {
   readonly public_default_payment_type: Prisma.FieldRef<"Business", 'String'>
   readonly booking_v2_enabled: Prisma.FieldRef<"Business", 'Boolean'>
   readonly same_day_attendance_strict_minutes: Prisma.FieldRef<"Business", 'Int'>
+  readonly structure: Prisma.FieldRef<"Business", 'BusinessStructure'>
+  readonly allow_employee_self_booking: Prisma.FieldRef<"Business", 'Boolean'>
+  readonly manager_can_serve: Prisma.FieldRef<"Business", 'Boolean'>
   readonly commission_calculation_basis: Prisma.FieldRef<"Business", 'CommissionCalculationBasis'>
   readonly created_at: Prisma.FieldRef<"Business", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Business", 'DateTime'>

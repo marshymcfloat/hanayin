@@ -71,6 +71,13 @@ export type BoolFilter<$PrismaModel = never> = {
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
+export type EnumBusinessStructureFilter<$PrismaModel = never> = {
+  equals?: $Enums.BusinessStructure | Prisma.EnumBusinessStructureFieldRefInput<$PrismaModel>
+  in?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBusinessStructureFilter<$PrismaModel> | $Enums.BusinessStructure
+}
+
 export type EnumCommissionCalculationBasisFilter<$PrismaModel = never> = {
   equals?: $Enums.CommissionCalculationBasis | Prisma.EnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
   in?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
@@ -168,6 +175,16 @@ export type BoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type EnumBusinessStructureWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BusinessStructure | Prisma.EnumBusinessStructureFieldRefInput<$PrismaModel>
+  in?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBusinessStructureWithAggregatesFilter<$PrismaModel> | $Enums.BusinessStructure
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBusinessStructureFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBusinessStructureFilter<$PrismaModel>
 }
 
 export type EnumCommissionCalculationBasisWithAggregatesFilter<$PrismaModel = never> = {
@@ -424,6 +441,23 @@ export type EnumRoleWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRoleFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRoleFilter<$PrismaModel>
+}
+
+export type EnumStaffProfileFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffProfile | Prisma.EnumStaffProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStaffProfileFilter<$PrismaModel> | $Enums.StaffProfile
+}
+
+export type EnumStaffProfileWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffProfile | Prisma.EnumStaffProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStaffProfileWithAggregatesFilter<$PrismaModel> | $Enums.StaffProfile
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStaffProfileFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStaffProfileFilter<$PrismaModel>
 }
 
 export type EnumAttendanceStatusFilter<$PrismaModel = never> = {
@@ -1076,6 +1110,13 @@ export type NestedBoolFilter<$PrismaModel = never> = {
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
+export type NestedEnumBusinessStructureFilter<$PrismaModel = never> = {
+  equals?: $Enums.BusinessStructure | Prisma.EnumBusinessStructureFieldRefInput<$PrismaModel>
+  in?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBusinessStructureFilter<$PrismaModel> | $Enums.BusinessStructure
+}
+
 export type NestedEnumCommissionCalculationBasisFilter<$PrismaModel = never> = {
   equals?: $Enums.CommissionCalculationBasis | Prisma.EnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
   in?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
@@ -1188,6 +1229,16 @@ export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumBusinessStructureWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BusinessStructure | Prisma.EnumBusinessStructureFieldRefInput<$PrismaModel>
+  in?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BusinessStructure[] | Prisma.ListEnumBusinessStructureFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBusinessStructureWithAggregatesFilter<$PrismaModel> | $Enums.BusinessStructure
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBusinessStructureFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBusinessStructureFilter<$PrismaModel>
 }
 
 export type NestedEnumCommissionCalculationBasisWithAggregatesFilter<$PrismaModel = never> = {
@@ -1422,6 +1473,23 @@ export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRoleFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRoleFilter<$PrismaModel>
+}
+
+export type NestedEnumStaffProfileFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffProfile | Prisma.EnumStaffProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStaffProfileFilter<$PrismaModel> | $Enums.StaffProfile
+}
+
+export type NestedEnumStaffProfileWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffProfile | Prisma.EnumStaffProfileFieldRefInput<$PrismaModel>
+  in?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StaffProfile[] | Prisma.ListEnumStaffProfileFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStaffProfileWithAggregatesFilter<$PrismaModel> | $Enums.StaffProfile
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStaffProfileFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStaffProfileFilter<$PrismaModel>
 }
 
 export type NestedEnumAttendanceStatusFilter<$PrismaModel = never> = {

@@ -46,6 +46,7 @@ export type EmployeeMinAggregateOutputType = {
   salary: number | null
   commission_percentage: number | null
   daily_rate: number | null
+  profile: $Enums.StaffProfile | null
   business_id: string | null
 }
 
@@ -55,6 +56,7 @@ export type EmployeeMaxAggregateOutputType = {
   salary: number | null
   commission_percentage: number | null
   daily_rate: number | null
+  profile: $Enums.StaffProfile | null
   business_id: string | null
 }
 
@@ -64,6 +66,8 @@ export type EmployeeCountAggregateOutputType = {
   salary: number
   commission_percentage: number
   daily_rate: number
+  profile: number
+  permissions: number
   specialties: number
   business_id: number
   _all: number
@@ -90,6 +94,7 @@ export type EmployeeMinAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  profile?: true
   business_id?: true
 }
 
@@ -99,6 +104,7 @@ export type EmployeeMaxAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  profile?: true
   business_id?: true
 }
 
@@ -108,6 +114,8 @@ export type EmployeeCountAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  profile?: true
+  permissions?: true
   specialties?: true
   business_id?: true
   _all?: true
@@ -205,6 +213,8 @@ export type EmployeeGroupByOutputType = {
   salary: number
   commission_percentage: number
   daily_rate: number
+  profile: $Enums.StaffProfile
+  permissions: $Enums.StaffPermission[]
   specialties: string[]
   business_id: string
   _count: EmployeeCountAggregateOutputType | null
@@ -238,6 +248,8 @@ export type EmployeeWhereInput = {
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
   daily_rate?: Prisma.FloatFilter<"Employee"> | number
+  profile?: Prisma.EnumStaffProfileFilter<"Employee"> | $Enums.StaffProfile
+  permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
   business_id?: Prisma.StringFilter<"Employee"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -254,6 +266,8 @@ export type EmployeeOrderByWithRelationInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
+  permissions?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -274,6 +288,8 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
   daily_rate?: Prisma.FloatFilter<"Employee"> | number
+  profile?: Prisma.EnumStaffProfileFilter<"Employee"> | $Enums.StaffProfile
+  permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
   business_id?: Prisma.StringFilter<"Employee"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -290,6 +306,8 @@ export type EmployeeOrderByWithAggregationInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
+  permissions?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   _count?: Prisma.EmployeeCountOrderByAggregateInput
@@ -308,6 +326,8 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   salary?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
   daily_rate?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
+  profile?: Prisma.EnumStaffProfileWithAggregatesFilter<"Employee"> | $Enums.StaffProfile
+  permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
   business_id?: Prisma.StringWithAggregatesFilter<"Employee"> | string
 }
@@ -316,6 +336,8 @@ export type EmployeeCreateInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
@@ -331,6 +353,8 @@ export type EmployeeUncheckedCreateInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
@@ -343,6 +367,8 @@ export type EmployeeUpdateInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
@@ -358,6 +384,8 @@ export type EmployeeUncheckedUpdateInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -372,6 +400,8 @@ export type EmployeeCreateManyInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   business_id: string
 }
@@ -380,6 +410,8 @@ export type EmployeeUpdateManyMutationInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
 }
 
@@ -389,6 +421,8 @@ export type EmployeeUncheckedUpdateManyInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -413,6 +447,14 @@ export type EmployeeNullableScalarRelationFilter = {
   isNot?: Prisma.EmployeeWhereInput | null
 }
 
+export type EnumStaffPermissionNullableListFilter<$PrismaModel = never> = {
+  equals?: $Enums.StaffPermission[] | Prisma.ListEnumStaffPermissionFieldRefInput<$PrismaModel> | null
+  has?: $Enums.StaffPermission | Prisma.EnumStaffPermissionFieldRefInput<$PrismaModel> | null
+  hasEvery?: $Enums.StaffPermission[] | Prisma.ListEnumStaffPermissionFieldRefInput<$PrismaModel>
+  hasSome?: $Enums.StaffPermission[] | Prisma.ListEnumStaffPermissionFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
+}
+
 export type EmployeeBusiness_idUser_idCompoundUniqueInput = {
   business_id: string
   user_id: string
@@ -424,6 +466,8 @@ export type EmployeeCountOrderByAggregateInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
+  permissions?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
@@ -441,6 +485,7 @@ export type EmployeeMaxOrderByAggregateInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -450,6 +495,7 @@ export type EmployeeMinOrderByAggregateInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  profile?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -548,8 +594,21 @@ export type EmployeeUncheckedUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutUserInput, Prisma.EmployeeUpdateWithoutUserInput>, Prisma.EmployeeUncheckedUpdateWithoutUserInput>
 }
 
+export type EmployeeCreatepermissionsInput = {
+  set: $Enums.StaffPermission[]
+}
+
 export type EmployeeCreatespecialtiesInput = {
   set: string[]
+}
+
+export type EnumStaffProfileFieldUpdateOperationsInput = {
+  set?: $Enums.StaffProfile
+}
+
+export type EmployeeUpdatepermissionsInput = {
+  set?: $Enums.StaffPermission[]
+  push?: $Enums.StaffPermission | $Enums.StaffPermission[]
 }
 
 export type EmployeeUpdatespecialtiesInput = {
@@ -605,6 +664,8 @@ export type EmployeeCreateWithoutBusinessInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
@@ -619,6 +680,8 @@ export type EmployeeUncheckedCreateWithoutBusinessInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -661,6 +724,8 @@ export type EmployeeScalarWhereInput = {
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
   daily_rate?: Prisma.FloatFilter<"Employee"> | number
+  profile?: Prisma.EnumStaffProfileFilter<"Employee"> | $Enums.StaffProfile
+  permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
   business_id?: Prisma.StringFilter<"Employee"> | string
 }
@@ -669,6 +734,8 @@ export type EmployeeCreateWithoutLeave_requestsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
@@ -683,6 +750,8 @@ export type EmployeeUncheckedCreateWithoutLeave_requestsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
@@ -710,6 +779,8 @@ export type EmployeeUpdateWithoutLeave_requestsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
@@ -724,6 +795,8 @@ export type EmployeeUncheckedUpdateWithoutLeave_requestsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -735,6 +808,8 @@ export type EmployeeCreateWithoutUserInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -748,6 +823,8 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
@@ -776,6 +853,8 @@ export type EmployeeUpdateWithoutUserInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -789,6 +868,8 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -801,6 +882,8 @@ export type EmployeeCreateWithoutAttendanceInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -815,6 +898,8 @@ export type EmployeeUncheckedCreateWithoutAttendanceInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   business_id: string
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -842,6 +927,8 @@ export type EmployeeUpdateWithoutAttendanceInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -856,6 +943,8 @@ export type EmployeeUncheckedUpdateWithoutAttendanceInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -867,6 +956,8 @@ export type EmployeeCreateWithoutPayslipsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
@@ -881,6 +972,8 @@ export type EmployeeUncheckedCreateWithoutPayslipsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
@@ -908,6 +1001,8 @@ export type EmployeeUpdateWithoutPayslipsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
@@ -922,6 +1017,8 @@ export type EmployeeUncheckedUpdateWithoutPayslipsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -933,6 +1030,8 @@ export type EmployeeCreateWithoutServed_servicesInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
@@ -947,6 +1046,8 @@ export type EmployeeUncheckedCreateWithoutServed_servicesInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
@@ -974,6 +1075,8 @@ export type EmployeeUpdateWithoutServed_servicesInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
@@ -988,6 +1091,8 @@ export type EmployeeUncheckedUpdateWithoutServed_servicesInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1001,6 +1106,8 @@ export type EmployeeCreateManyBusinessInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
 }
 
@@ -1008,6 +1115,8 @@ export type EmployeeUpdateWithoutBusinessInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
@@ -1022,6 +1131,8 @@ export type EmployeeUncheckedUpdateWithoutBusinessInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -1035,6 +1146,8 @@ export type EmployeeUncheckedUpdateManyWithoutBusinessInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
 }
 
@@ -1102,6 +1215,8 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  profile?: boolean
+  permissions?: boolean
   specialties?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1119,6 +1234,8 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  profile?: boolean
+  permissions?: boolean
   specialties?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1131,6 +1248,8 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  profile?: boolean
+  permissions?: boolean
   specialties?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1143,11 +1262,13 @@ export type EmployeeSelectScalar = {
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  profile?: boolean
+  permissions?: boolean
   specialties?: boolean
   business_id?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "salary" | "commission_percentage" | "daily_rate" | "specialties" | "business_id", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "salary" | "commission_percentage" | "daily_rate" | "profile" | "permissions" | "specialties" | "business_id", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   attendance?: boolean | Prisma.Employee$attendanceArgs<ExtArgs>
@@ -1182,6 +1303,8 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     salary: number
     commission_percentage: number
     daily_rate: number
+    profile: $Enums.StaffProfile
+    permissions: $Enums.StaffPermission[]
     specialties: string[]
     business_id: string
   }, ExtArgs["result"]["employee"]>
@@ -1618,6 +1741,8 @@ export interface EmployeeFieldRefs {
   readonly salary: Prisma.FieldRef<"Employee", 'Float'>
   readonly commission_percentage: Prisma.FieldRef<"Employee", 'Float'>
   readonly daily_rate: Prisma.FieldRef<"Employee", 'Float'>
+  readonly profile: Prisma.FieldRef<"Employee", 'StaffProfile'>
+  readonly permissions: Prisma.FieldRef<"Employee", 'StaffPermission[]'>
   readonly specialties: Prisma.FieldRef<"Employee", 'String[]'>
   readonly business_id: Prisma.FieldRef<"Employee", 'String'>
 }

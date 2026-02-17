@@ -33,6 +33,9 @@ model Business {
   public_default_payment_type        String  @default("FULL")
   booking_v2_enabled                 Boolean @default(true)
   same_day_attendance_strict_minutes Int     @default(120)
+  structure                          BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
+  allow_employee_self_booking        Boolean           @default(true)
+  manager_can_serve                  Boolean           @default(true)
 
   services                          Service[]
   employees                         Employee[]
@@ -91,6 +94,28 @@ enum Role {
   OWNER
   EMPLOYEE
   PLATFORM_ADMIN
+}
+
+enum BusinessStructure {
+  OWNER_EMPLOYEE_SELF_SERVICE
+  MANAGER_LED
+  CASHIER_LED
+  MANAGER_CASHIER
+}
+
+enum StaffProfile {
+  STAFF
+  MANAGER
+  CASHIER
+}
+
+enum StaffPermission {
+  BOOKING_CREATE
+  PAYMENT_COLLECT
+  QUEUE_CLAIM_SELF
+  QUEUE_SERVE_SELF
+  QUEUE_OVERRIDE_ALL
+  CATALOG_MANAGE
 }
 
 enum BillingInterval {
@@ -454,6 +479,8 @@ model Employee {
   salary                Float
   commission_percentage Float                @default(0)
   daily_rate            Float                @default(0)
+  profile               StaffProfile         @default(STAFF)
+  permissions           StaffPermission[]    @default([BOOKING_CREATE, PAYMENT_COLLECT, QUEUE_CLAIM_SELF, QUEUE_SERVE_SELF])
   specialties           String[]             @default([]) // Array of service categories this employee can perform
   attendance            EmployeeAttendance[]
 
@@ -791,6 +818,9 @@ model OnboardingApplication {
   owner_email   String
   owner_phone   String?
   notes         String?
+  requested_structure                    BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
+  requested_allow_employee_self_booking  Boolean           @default(true)
+  requested_manager_can_serve            Boolean           @default(true)
 
   referral_code_input String?
   referral_code_id    String?

@@ -2,14 +2,16 @@
 
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { requireTenantWriteAccess } from "@/lib/auth/guards";
+import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
 import { tenantCacheTags } from "@/lib/data/cached";
+import { getBusinessStructureTemplate, normalizeBusinessStructure } from "@/lib/business-structure";
+import { normalizeGrowthToneProfile } from "@/lib/services/growth/tone-profiles";
 
 export async function updateBusinessAction(
   businessSlug: string,
   formData: FormData,
 ) {
-  const auth = await requireTenantWriteAccess(businessSlug);
+  const auth = await requireOwnerTenantWriteAccess(businessSlug);
   if (!auth.success) return auth;
 
   try {
@@ -56,9 +58,25 @@ export async function updateBusinessAction(
     const growthEnableStudentPromo = formData.get("growthEnableStudentPromo") === "on";
     const growthAvoidCheapWording = formData.get("growthAvoidCheapWording") === "on";
     const growthWeatherHooksEnabled = formData.get("growthWeatherHooksEnabled") === "on";
-    const growthToneProfile =
-      ((formData.get("growthToneProfile") as string) || "taglish-natural").trim() ||
-      "taglish-natural";
+    const growthToneProfile = normalizeGrowthToneProfile(
+      formData.get("growthToneProfile") as string | null,
+    );
+    const structure = normalizeBusinessStructure(
+      formData.get("structure"),
+    );
+    const structureTemplate = getBusinessStructureTemplate(structure);
+    const allowEmployeeSelfBookingValue = formData.get(
+      "allowEmployeeSelfBooking",
+    );
+    const managerCanServeValue = formData.get("managerCanServe");
+    const allowEmployeeSelfBooking =
+      typeof allowEmployeeSelfBookingValue === "string"
+        ? allowEmployeeSelfBookingValue.toLowerCase() === "true"
+        : structureTemplate.allowEmployeeSelfBooking;
+    const managerCanServe =
+      typeof managerCanServeValue === "string"
+        ? managerCanServeValue.toLowerCase() === "true"
+        : structureTemplate.managerCanServe;
 
     const updatedBusiness = await prisma.business.update({
       where: { slug: businessSlug },
@@ -69,6 +87,9 @@ export async function updateBusinessAction(
         imageUrl,
         latitude: latitude,
         longitude: longitude,
+        structure,
+        allow_employee_self_booking: allowEmployeeSelfBooking,
+        manager_can_serve: managerCanServe,
       },
     });
 
@@ -95,6 +116,8 @@ export async function updateBusinessAction(
 
     revalidatePath(`/app/${businessSlug}`);
     revalidatePath(`/app/${businessSlug}/business`);
+    revalidatePath(`/app/${businessSlug}/services`);
+    revalidatePath(`/app/${businessSlug}/packages`);
     revalidatePath(`/explore`);
     revalidateTag(tenantCacheTags.businessBySlug(businessSlug), "max");
     revalidateTag(tenantCacheTags.businessHoursAndEmployees(businessSlug), "max");
