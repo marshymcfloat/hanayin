@@ -1,9 +1,16 @@
 import { authOptions } from "@/lib/next auth/options";
+import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 import { serializeReportCsv } from "@/lib/services/reports/csv";
 import { parseReportDateRange } from "@/lib/services/reports/date-range";
-import { getCoreReportPayload } from "@/lib/services/reports/queries";
+import { getAdvancedReportPayload, getCoreReportPayload } from "@/lib/services/reports/queries";
 import { recordReportTelemetry } from "@/lib/services/reports/telemetry";
-import type { CoreReportTab } from "@/lib/types/reports";
+import { serializeReportXlsx } from "@/lib/services/reports/xlsx";
+import type {
+  AdvancedReportTab,
+  CoreReportTab,
+  ReportPayloadMap,
+  ReportTab,
+} from "@/lib/types/reports";
 import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 
@@ -12,6 +19,11 @@ const CORE_TAB_SET = new Set<CoreReportTab>([
   "revenue",
   "customers",
   "operations",
+]);
+const ADVANCED_TAB_SET = new Set<AdvancedReportTab>([
+  "cohorts",
+  "attribution",
+  "opportunity",
 ]);
 
 function getErrorResponse(message: string, status: number) {
@@ -32,10 +44,20 @@ export async function GET(request: Request) {
     return getErrorResponse("Missing businessSlug query parameter.", 400);
   }
 
-  if (!rawTab || !CORE_TAB_SET.has(rawTab as CoreReportTab)) {
-    return getErrorResponse("Invalid tab. Only core report tabs support CSV export.", 400);
+  const isCoreTab = rawTab ? CORE_TAB_SET.has(rawTab as CoreReportTab) : false;
+  const isAdvancedTab = rawTab ? ADVANCED_TAB_SET.has(rawTab as AdvancedReportTab) : false;
+  if (!rawTab || (!isCoreTab && !isAdvancedTab)) {
+    return getErrorResponse("Invalid tab. Unsupported report tab.", 400);
   }
-  const tab = rawTab as CoreReportTab;
+  const tab = rawTab as ReportTab;
+  const rawFormat = url.searchParams.get("format");
+  if (rawFormat && rawFormat !== "csv" && rawFormat !== "xlsx") {
+    return getErrorResponse("Invalid format. Supported formats are csv and xlsx.", 400);
+  }
+  const format = rawFormat === "xlsx" ? "xlsx" : "csv";
+  if (format === "csv" && isAdvancedTab) {
+    return getErrorResponse("CSV export is available for core tabs only.", 400);
+  }
 
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -63,6 +85,13 @@ export async function GET(request: Request) {
     return getErrorResponse("Business not found.", 404);
   }
 
+  const entitlements = isAdvancedTab
+    ? await getBusinessEntitlementsBySlug(businessSlug)
+    : null;
+  if (isAdvancedTab && !entitlements?.reportsAdvanced) {
+    return getErrorResponse("Forbidden. Advanced reports are not enabled for this business.", 403);
+  }
+
   const range = parseReportDateRange({
     preset: url.searchParams.get("preset"),
     start: url.searchParams.get("start"),
@@ -71,12 +100,24 @@ export async function GET(request: Request) {
   });
 
   const requestStart = Date.now();
-  const payload = await getCoreReportPayload({
-    tab,
-    businessId: business.id,
-    range,
-  });
-  const csvContent = serializeReportCsv(tab, payload);
+  const payload = isCoreTab
+    ? await getCoreReportPayload({
+        tab: tab as CoreReportTab,
+        businessId: business.id,
+        range,
+      })
+    : await getAdvancedReportPayload({
+        tab: tab as AdvancedReportTab,
+        businessId: business.id,
+        range,
+      });
+  const responseBody =
+    format === "xlsx"
+      ? new Uint8Array(serializeReportXlsx(tab, payload))
+      : serializeReportCsv(
+          tab as CoreReportTab,
+          payload as ReportPayloadMap[CoreReportTab],
+        );
   const latencyMs = Date.now() - requestStart;
 
   await recordReportTelemetry({
@@ -90,15 +131,21 @@ export async function GET(request: Request) {
     groupBy: range.groupBy,
     latencyMs,
     success: true,
+    metadata: {
+      format,
+    },
   });
 
   const safeSlug = businessSlug.replace(/[^a-zA-Z0-9_-]/g, "-");
-  const fileName = `${safeSlug}-${tab}-${range.start}-to-${range.end}.csv`;
+  const fileName = `${safeSlug}-${tab}-${range.start}-to-${range.end}.${format}`;
 
-  return new Response(csvContent, {
+  return new Response(responseBody, {
     status: 200,
     headers: {
-      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Type":
+        format === "xlsx"
+          ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          : "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="${fileName}"`,
       "Cache-Control": "no-store",
     },

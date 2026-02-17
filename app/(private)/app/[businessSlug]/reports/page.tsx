@@ -76,12 +76,13 @@ function buildExportHref({
   range,
 }: {
   businessSlug: string;
-  tab: CoreReportTab;
+  tab: ReportTab;
   range: ReportDateRange;
 }) {
   const params = new URLSearchParams();
   params.set("businessSlug", businessSlug);
   params.set("tab", tab);
+  params.set("format", "xlsx");
   params.set("preset", range.preset);
   params.set("groupBy", range.groupBy);
   params.set("start", range.start);
@@ -749,10 +750,10 @@ export default async function ReportsPage({
   });
 
   const exportHref =
-    isCoreTab && corePayload
+    (isCoreTab && corePayload) || (isAdvancedTab && advancedPayload && entitlements.reportsAdvanced)
       ? buildExportHref({
           businessSlug,
-          tab: tab as CoreReportTab,
+          tab,
           range,
         })
       : null;
@@ -780,7 +781,7 @@ export default async function ReportsPage({
         >
           {exportHref ? (
             <Button asChild>
-              <a href={exportHref}>Export CSV</a>
+              <a href={exportHref}>Export XLSX</a>
             </Button>
           ) : null}
         </PageHeader>
