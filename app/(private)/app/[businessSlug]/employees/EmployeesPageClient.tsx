@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useMemo, useOptimistic, useTransition } from "react";
+import { useMemo, useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Employee,
-  User,
   EmployeeAttendance,
   Payslip,
+  User,
 } from "@/prisma/generated/prisma/client";
+import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
+import { Search, Plus, Users, RefreshCcw } from "lucide-react";
+import { toast } from "sonner";
+
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -20,15 +26,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Search, Plus, Users, RefreshCcw } from "lucide-react";
 import {
   createEmployeeAction,
-  updateEmployeeAction,
   deleteEmployeeAction,
   resetEmployeePasswordAction,
+  updateEmployeeAction,
 } from "@/lib/server actions/employees";
-import { toast } from "sonner";
 import { EmployeeList } from "./EmployeeList";
 
 type EmployeeWithDetails = Employee & {
@@ -39,6 +42,86 @@ type EmployeeWithDetails = Employee & {
     served_services: number;
   };
 };
+
+const PROFILE_DEFAULT_PERMISSIONS: Record<StaffProfile, StaffPermission[]> = {
+  STAFF: [
+    StaffPermission.BOOKING_CREATE,
+    StaffPermission.PAYMENT_COLLECT,
+    StaffPermission.QUEUE_CLAIM_SELF,
+    StaffPermission.QUEUE_SERVE_SELF,
+  ],
+  MANAGER: [
+    StaffPermission.BOOKING_CREATE,
+    StaffPermission.PAYMENT_COLLECT,
+    StaffPermission.QUEUE_CLAIM_SELF,
+    StaffPermission.QUEUE_SERVE_SELF,
+    StaffPermission.QUEUE_OVERRIDE_ALL,
+    StaffPermission.CATALOG_MANAGE,
+  ],
+  CASHIER: [
+    StaffPermission.BOOKING_CREATE,
+    StaffPermission.PAYMENT_COLLECT,
+  ],
+};
+
+const PROFILE_OPTIONS: Array<{
+  value: StaffProfile;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: StaffProfile.STAFF,
+    label: "Staff",
+    description: "General service staff that can claim and serve own queue items.",
+  },
+  {
+    value: StaffProfile.MANAGER,
+    label: "Manager",
+    description: "Operational lead that can manage catalog and queue overrides.",
+  },
+  {
+    value: StaffProfile.CASHIER,
+    label: "Cashier",
+    description: "Frontdesk role focused on booking and payment collection.",
+  },
+];
+
+const PERMISSION_OPTIONS: Array<{
+  value: StaffPermission;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: StaffPermission.BOOKING_CREATE,
+    label: "Create bookings",
+    description: "Can create or submit bookings.",
+  },
+  {
+    value: StaffPermission.PAYMENT_COLLECT,
+    label: "Collect payments",
+    description: "Can generate/review QR and mark bookings paid.",
+  },
+  {
+    value: StaffPermission.QUEUE_CLAIM_SELF,
+    label: "Claim own queue",
+    description: "Can claim services for self.",
+  },
+  {
+    value: StaffPermission.QUEUE_SERVE_SELF,
+    label: "Serve own queue",
+    description: "Can mark claimed services as served.",
+  },
+  {
+    value: StaffPermission.QUEUE_OVERRIDE_ALL,
+    label: "Queue override",
+    description: "Can assign/reassign and override queue ownership.",
+  },
+  {
+    value: StaffPermission.CATALOG_MANAGE,
+    label: "Manage services/packages",
+    description: "Can create/update/delete services and packages.",
+  },
+];
 
 interface EmployeesPageClientProps {
   employees: EmployeeWithDetails[];
@@ -51,6 +134,8 @@ interface EmployeeFormData {
   email: string;
   daily_rate: string;
   commission_percentage: string;
+  profile: StaffProfile;
+  permissions: StaffPermission[];
   specialties: string[];
 }
 
@@ -59,6 +144,8 @@ const initialFormData: EmployeeFormData = {
   email: "",
   daily_rate: "",
   commission_percentage: "",
+  profile: StaffProfile.STAFF,
+  permissions: [...PROFILE_DEFAULT_PERMISSIONS[StaffProfile.STAFF]],
   specialties: [],
 };
 
@@ -71,6 +158,8 @@ type OptimisticAction =
         email: string;
         daily_rate: number;
         commission_percentage: number;
+        profile: StaffProfile;
+        permissions: StaffPermission[];
         specialties: string[];
       };
     }
@@ -95,7 +184,6 @@ export function EmployeesPageClient({
   const [isLoading, setIsLoading] = useState(false);
   const [, startTransition] = useTransition();
 
-  // Optimistic state for instant UI updates
   const [optimisticEmployees, addOptimisticUpdate] = useOptimistic(
     employees,
     (state: EmployeeWithDetails[], action: OptimisticAction) => {
@@ -107,6 +195,8 @@ export function EmployeesPageClient({
                   ...emp,
                   daily_rate: action.data.daily_rate,
                   commission_percentage: action.data.commission_percentage,
+                  profile: action.data.profile,
+                  permissions: action.data.permissions,
                   specialties: action.data.specialties,
                   user: {
                     ...emp.user,
@@ -145,6 +235,8 @@ export function EmployeesPageClient({
       email: formData.email,
       daily_rate: parseFloat(formData.daily_rate) || 0,
       commission_percentage: parseFloat(formData.commission_percentage) || 0,
+      profile: formData.profile,
+      permissions: formData.permissions,
       specialties: formData.specialties,
     });
 
@@ -174,32 +266,27 @@ export function EmployeesPageClient({
       email: formData.email,
       daily_rate: parseFloat(formData.daily_rate) || 0,
       commission_percentage: parseFloat(formData.commission_percentage) || 0,
+      profile: formData.profile,
+      permissions: formData.permissions,
       specialties: formData.specialties,
     };
 
-    // Close dialog immediately for better UX
     setIsEditDialogOpen(false);
 
-    // Apply optimistic update and call server action
     startTransition(async () => {
-      // Apply optimistic update
       addOptimisticUpdate({
         type: "update",
         employeeId: selectedEmployee.id,
         data: updateData,
       });
 
-      const result = await updateEmployeeAction(
-        selectedEmployee.id,
-        updateData,
-      );
+      const result = await updateEmployeeAction(selectedEmployee.id, updateData);
 
       if (result.success) {
         toast.success("Employee updated successfully");
         router.refresh();
       } else {
         toast.error(result.error || "Failed to update employee");
-        // Refresh to revert to server state on error
         router.refresh();
       }
 
@@ -209,9 +296,7 @@ export function EmployeesPageClient({
   };
 
   const handleDeleteEmployee = async (employeeId: number) => {
-    // Apply optimistic update and call server action
     startTransition(async () => {
-      // Optimistically remove from UI
       addOptimisticUpdate({
         type: "delete",
         employeeId,
@@ -223,7 +308,6 @@ export function EmployeesPageClient({
         router.refresh();
       } else {
         toast.error(result.error || "Failed to delete employee");
-        // Refresh to revert to server state on error
         router.refresh();
       }
     });
@@ -264,6 +348,11 @@ export function EmployeesPageClient({
       email: employee.user.email,
       daily_rate: employee.daily_rate.toString(),
       commission_percentage: employee.commission_percentage.toString(),
+      profile: employee.profile ?? StaffProfile.STAFF,
+      permissions:
+        employee.permissions && employee.permissions.length > 0
+          ? employee.permissions
+          : PROFILE_DEFAULT_PERMISSIONS[employee.profile ?? StaffProfile.STAFF],
       specialties: employee.specialties ?? [],
     });
     setIsEditDialogOpen(true);
@@ -293,7 +382,7 @@ export function EmployeesPageClient({
                 <span className="font-semibold">Add Employee</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] rounded-3xl p-0 gap-0 overflow-hidden">
+            <DialogContent className="sm:max-w-[620px] rounded-3xl p-0 gap-0 overflow-hidden">
               <DialogHeader className="p-6 pb-2">
                 <DialogTitle className="text-xl font-bold text-zinc-900">
                   Add New Employee
@@ -303,7 +392,7 @@ export function EmployeesPageClient({
                   password via email and be required to change it.
                 </DialogDescription>
               </DialogHeader>
-              <div className="px-6 py-4">
+              <div className="px-6 py-4 max-h-[68vh] overflow-y-auto">
                 <EmployeeForm
                   formData={formData}
                   setFormData={setFormData}
@@ -352,7 +441,6 @@ export function EmployeesPageClient({
           </Button>
         </div>
 
-        {/* Content */}
         <div className="flex-1">
           {filteredEmployees.length === 0 ? (
             <div className="bg-white rounded-3xl border border-zinc-200/60 shadow-sm p-12 flex flex-col items-center justify-center text-center">
@@ -387,18 +475,17 @@ export function EmployeesPageClient({
           )}
         </div>
 
-        {/* Edit Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[500px] rounded-3xl p-0 gap-0 overflow-hidden">
+          <DialogContent className="sm:max-w-[620px] rounded-3xl p-0 gap-0 overflow-hidden">
             <DialogHeader className="p-6 pb-2">
               <DialogTitle className="text-xl font-bold text-zinc-900">
                 Edit Employee
               </DialogTitle>
               <DialogDescription className="text-zinc-500">
-                Update employee information.
+                Update employee information, profile, and permissions.
               </DialogDescription>
             </DialogHeader>
-            <div className="px-6 py-4">
+            <div className="px-6 py-4 max-h-[68vh] overflow-y-auto">
               <EmployeeForm
                 formData={formData}
                 setFormData={setFormData}
@@ -424,7 +511,6 @@ export function EmployeesPageClient({
           </DialogContent>
         </Dialog>
 
-        {/* Reset Password Dialog */}
         <Dialog
           open={isResetPasswordDialogOpen}
           onOpenChange={setIsResetPasswordDialogOpen}
@@ -477,7 +563,6 @@ export function EmployeesPageClient({
   );
 }
 
-// Employee Form Component
 function EmployeeForm({
   formData,
   setFormData,
@@ -497,8 +582,29 @@ function EmployeeForm({
     setFormData({ ...formData, specialties: updated });
   };
 
+  const handleProfileChange = (nextProfileRaw: string) => {
+    const nextProfile = nextProfileRaw as StaffProfile;
+    setFormData({
+      ...formData,
+      profile: nextProfile,
+      permissions: [...PROFILE_DEFAULT_PERMISSIONS[nextProfile]],
+    });
+  };
+
+  const togglePermission = (permission: StaffPermission) => {
+    const hasPermission = formData.permissions.includes(permission);
+    const nextPermissions = hasPermission
+      ? formData.permissions.filter((item) => item !== permission)
+      : [...formData.permissions, permission];
+
+    setFormData({
+      ...formData,
+      permissions: nextPermissions,
+    });
+  };
+
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5">
       <div className="grid gap-2">
         <Label htmlFor="name">
           Full Name <span className="text-red-500">*</span>
@@ -526,40 +632,7 @@ function EmployeeForm({
         />
       </div>
 
-      <div className="grid gap-2">
-        <Label>Specialties</Label>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant={isGeneralist ? "default" : "outline"}
-            onClick={() => setFormData({ ...formData, specialties: [] })}
-            className="rounded-full"
-          >
-            Generalist (All)
-          </Button>
-          {categories.map((category) => {
-            const isSelected = formData.specialties.includes(category);
-            return (
-              <Button
-                key={category}
-                type="button"
-                size="sm"
-                variant={isSelected ? "default" : "outline"}
-                onClick={() => toggleSpecialty(category)}
-                className="rounded-full capitalize"
-              >
-                {category}
-              </Button>
-            );
-          })}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Select specialties or choose Generalist to allow all services.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="grid gap-2">
           <Label htmlFor="daily_rate">Daily Rate (PHP)</Label>
           <Input
@@ -594,6 +667,115 @@ function EmployeeForm({
             className="h-10 rounded-xl"
           />
         </div>
+      </div>
+
+      <div className="grid gap-2">
+        <Label htmlFor="staffProfile">Staff Profile</Label>
+        <select
+          id="staffProfile"
+          value={formData.profile}
+          onChange={(event) => handleProfileChange(event.target.value)}
+          className="h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm"
+        >
+          {PROFILE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-muted-foreground">
+          {
+            PROFILE_OPTIONS.find((item) => item.value === formData.profile)
+              ?.description
+          }
+        </p>
+      </div>
+
+      <div className="grid gap-3 rounded-xl border border-zinc-200 bg-zinc-50/50 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-zinc-900">Permissions</p>
+            <p className="text-xs text-zinc-500">
+              Adjust operational access for this employee.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setFormData({
+                ...formData,
+                permissions: [...PROFILE_DEFAULT_PERMISSIONS[formData.profile]],
+              })
+            }
+            className="h-8 rounded-lg"
+          >
+            Use Profile Defaults
+          </Button>
+        </div>
+
+        <div className="grid gap-2">
+          {PERMISSION_OPTIONS.map((permission) => {
+            const isChecked = formData.permissions.includes(permission.value);
+            return (
+              <label
+                key={permission.value}
+                className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm"
+              >
+                <Checkbox
+                  checked={isChecked}
+                  onCheckedChange={(checked) => {
+                    if (checked === true || checked === false) {
+                      togglePermission(permission.value);
+                    }
+                  }}
+                />
+                <span className="flex-1">
+                  <span className="block font-medium text-zinc-900">
+                    {permission.label}
+                  </span>
+                  <span className="block text-xs text-zinc-500">
+                    {permission.description}
+                  </span>
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid gap-2">
+        <Label>Specialties</Label>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={isGeneralist ? "default" : "outline"}
+            onClick={() => setFormData({ ...formData, specialties: [] })}
+            className="rounded-full"
+          >
+            Generalist (All)
+          </Button>
+          {categories.map((category) => {
+            const isSelected = formData.specialties.includes(category);
+            return (
+              <Button
+                key={category}
+                type="button"
+                size="sm"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => toggleSpecialty(category)}
+                className="rounded-full capitalize"
+              >
+                {category}
+              </Button>
+            );
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Select specialties or choose Generalist to allow all services.
+        </p>
       </div>
     </div>
   );

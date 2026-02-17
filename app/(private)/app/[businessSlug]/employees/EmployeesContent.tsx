@@ -17,6 +17,10 @@ export async function EmployeesContent({
     redirect("/auth/login");
   }
 
+  if (session.user.role !== "OWNER") {
+    redirect(`/app/${businessSlug}`);
+  }
+
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
     select: { id: true },

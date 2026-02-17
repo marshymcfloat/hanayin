@@ -92,6 +92,28 @@ export function EmployeeList({
     return colors[index];
   };
 
+  const getProfileLabel = (profile: string) => {
+    switch (profile) {
+      case "MANAGER":
+        return "Manager";
+      case "CASHIER":
+        return "Cashier";
+      default:
+        return "Staff";
+    }
+  };
+
+  const getProfileBadgeClass = (profile: string) => {
+    switch (profile) {
+      case "MANAGER":
+        return "bg-indigo-50 text-indigo-700 border-indigo-100";
+      case "CASHIER":
+        return "bg-amber-50 text-amber-700 border-amber-100";
+      default:
+        return "bg-emerald-50 text-emerald-700 border-emerald-100";
+    }
+  };
+
   return (
     <>
       {/* Mobile Card View */}
@@ -113,9 +135,17 @@ export function EmployeeList({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-zinc-900">
-                      {employee.user.name}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-zinc-900">
+                        {employee.user.name}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={`h-5 text-[10px] ${getProfileBadgeClass(employee.profile)}`}
+                      >
+                        {getProfileLabel(employee.profile)}
+                      </Badge>
+                    </div>
                     <span className="text-xs text-zinc-500 flex items-center gap-1.5">
                       <Mail className="h-3 w-3" />
                       {employee.user.email}
@@ -248,6 +278,9 @@ export function EmployeeList({
                 Commission
               </TableHead>
               <TableHead className="font-semibold text-zinc-500 h-12">
+                Profile
+              </TableHead>
+              <TableHead className="font-semibold text-zinc-500 h-12">
                 Services
               </TableHead>
               <TableHead className="font-semibold text-zinc-500 h-12">
@@ -295,6 +328,14 @@ export function EmployeeList({
                       className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-100 transition-colors"
                     >
                       {employee.commission_percentage}%
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Badge
+                      variant="outline"
+                      className={getProfileBadgeClass(employee.profile)}
+                    >
+                      {getProfileLabel(employee.profile)}
                     </Badge>
                   </TableCell>
                   <TableCell className="py-4">

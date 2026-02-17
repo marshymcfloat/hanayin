@@ -31,6 +31,11 @@ describe("employee server actions tenant boundaries", () => {
     requireAuthMock.mockResolvedValue({
       success: true,
       businessSlug: "tenant-a",
+      session: {
+        user: {
+          role: "OWNER",
+        },
+      },
     });
     prismaMock.business.findUnique.mockResolvedValue({ id: "biz_a" });
   });

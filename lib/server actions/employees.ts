@@ -1,16 +1,19 @@
 "use server";
 
-import { prisma } from "@/prisma/prisma";
-import { Prisma } from "@/prisma/generated/prisma/client";
-import { requireAuth } from "@/lib/auth/guards";
-import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
 import crypto from "crypto";
 import { headers } from "next/headers";
-import { sendEmployeeInviteEmail } from "@/lib/services/employee-invite";
-import { getCurrentDateTimePH } from "@/lib/date-utils";
-import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { revalidatePath } from "next/cache";
+
 import { logger } from "@/lib/logger";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
+import { requireAuth } from "@/lib/auth/guards";
+import { sanitizeStaffPermissions } from "@/lib/auth/staff-access";
+import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { sendEmployeeInviteEmail } from "@/lib/services/employee-invite";
+import { prisma } from "@/prisma/prisma";
+import { Prisma, Role } from "@/prisma/generated/prisma/client";
+import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 
 async function resolveTenantBusinessId(businessSlug: string) {
   const business = await prisma.business.findUnique({
@@ -18,6 +21,19 @@ async function resolveTenantBusinessId(businessSlug: string) {
     select: { id: true },
   });
   return business?.id ?? null;
+}
+
+async function requireOwnerWriteAccess() {
+  const auth = await requireAuth({ write: true });
+  if (!auth.success) {
+    return auth;
+  }
+
+  if (auth.session.user.role !== Role.OWNER) {
+    return { success: false as const, error: "Forbidden" };
+  }
+
+  return auth;
 }
 
 // Get all employees for a business
@@ -78,16 +94,21 @@ export async function createEmployeeAction(data: {
   email: string;
   daily_rate: number;
   commission_percentage: number;
+  profile?: StaffProfile;
+  permissions?: StaffPermission[];
   specialties?: string[];
 }) {
-  const auth = await requireAuth({ write: true });
+  const auth = await requireOwnerWriteAccess();
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
+  const profile = data.profile ?? StaffProfile.STAFF;
+  const permissions = sanitizeStaffPermissions(profile, data.permissions);
+
   try {
-    // Check if email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
+      select: { id: true },
     });
 
     if (existingUser) {
@@ -96,6 +117,7 @@ export async function createEmployeeAction(data: {
 
     const business = await prisma.business.findUnique({
       where: { slug: businessSlug },
+      select: { id: true, name: true },
     });
 
     if (!business) {
@@ -112,7 +134,6 @@ export async function createEmployeeAction(data: {
       getCurrentDateTimePH().getTime() + 24 * 60 * 60 * 1000,
     );
 
-    // Create user and employee in a transaction
     const result = await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
         const user = await tx.user.create({
@@ -120,7 +141,7 @@ export async function createEmployeeAction(data: {
             name: data.name,
             email: data.email,
             hashed_password: hashedPassword,
-            role: "EMPLOYEE",
+            role: Role.EMPLOYEE,
             must_change_password: true,
             temp_password_expires_at: tempPasswordExpiresAt,
           },
@@ -133,6 +154,8 @@ export async function createEmployeeAction(data: {
             salary: 0, // Legacy field
             daily_rate: data.daily_rate,
             commission_percentage: data.commission_percentage,
+            profile,
+            permissions,
             specialties: data.specialties ?? [],
           },
           include: {
@@ -185,10 +208,12 @@ export async function updateEmployeeAction(
     email?: string;
     daily_rate?: number;
     commission_percentage?: number;
+    profile?: StaffProfile;
+    permissions?: StaffPermission[];
     specialties?: string[];
   },
 ) {
-  const auth = await requireAuth({ write: true });
+  const auth = await requireOwnerWriteAccess();
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -210,7 +235,24 @@ export async function updateEmployeeAction(
       return { success: false, error: "Employee not found" };
     }
 
-    // Update user and employee
+    if (data.email && data.email !== employee.user.email) {
+      const existingUser = await prisma.user.findUnique({
+        where: { email: data.email },
+        select: { id: true },
+      });
+      if (existingUser && existingUser.id !== employee.user_id) {
+        return { success: false, error: "Email already in use" };
+      }
+    }
+
+    const nextProfile = data.profile ?? employee.profile ?? StaffProfile.STAFF;
+    const nextPermissions =
+      data.permissions !== undefined
+        ? sanitizeStaffPermissions(nextProfile, data.permissions)
+        : data.profile !== undefined
+          ? sanitizeStaffPermissions(nextProfile, undefined)
+          : undefined;
+
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       if (data.name || data.email) {
         await tx.user.update({
@@ -232,6 +274,8 @@ export async function updateEmployeeAction(
           ...(data.specialties !== undefined && {
             specialties: data.specialties,
           }),
+          ...(data.profile !== undefined && { profile: nextProfile }),
+          ...(nextPermissions !== undefined && { permissions: nextPermissions }),
         },
       });
     });
@@ -261,7 +305,7 @@ export async function updateEmployeeAction(
 
 // Delete an employee
 export async function deleteEmployeeAction(employeeId: number) {
-  const auth = await requireAuth({ write: true });
+  const auth = await requireOwnerWriteAccess();
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -276,14 +320,13 @@ export async function deleteEmployeeAction(employeeId: number) {
         id: employeeId,
         business_id: businessId,
       },
+      select: { id: true },
     });
 
     if (!employee) {
       return { success: false, error: "Employee not found" };
     }
 
-    // Delete employee (user is linked, decide if you want to delete user too)
-    // For now, we'll delete the employee record only
     await prisma.employee.delete({
       where: { id: employee.id },
     });
@@ -301,7 +344,7 @@ export async function resetEmployeePasswordAction(
   employeeId: number,
   newPassword: string,
 ) {
-  const auth = await requireAuth({ write: true });
+  const auth = await requireOwnerWriteAccess();
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -316,6 +359,7 @@ export async function resetEmployeePasswordAction(
         id: employeeId,
         business_id: businessId,
       },
+      select: { user_id: true },
     });
 
     if (!employee) {
