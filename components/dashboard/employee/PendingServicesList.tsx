@@ -60,12 +60,14 @@ export default function PendingServicesList({
   currentEmployeeId,
   employeeSpecialties,
   saleEvents = [],
+  canClaimServices = true,
 }: {
   services: PendingService[];
   businessSlug: string;
   currentEmployeeId: number;
   employeeSpecialties?: string[];
   saleEvents?: SaleEventForPricing[];
+  canClaimServices?: boolean;
 }) {
   const [selectedService, setSelectedService] = useState<PendingService | null>(
     null,
@@ -106,6 +108,9 @@ export default function PendingServicesList({
   };
 
   const handleClaim = async () => {
+    if (!canClaimServices) {
+      return;
+    }
     if (!selectedService) return;
     setIsClaiming(true);
     const result = await claimServiceAction(
@@ -173,8 +178,12 @@ export default function PendingServicesList({
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-xl p-3 shadow-sm border border-slate-100 hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer group active:scale-[0.99] relative overflow-hidden"
-                  onClick={() => setSelectedService(item)}
+                  className={`bg-white rounded-xl p-3 shadow-sm border border-slate-100 transition-all group active:scale-[0.99] relative overflow-hidden ${canClaimServices ? "hover:border-indigo-200 hover:shadow-md cursor-pointer" : "opacity-70"}`}
+                  onClick={() => {
+                    if (canClaimServices) {
+                      setSelectedService(item);
+                    }
+                  }}
                 >
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
 
@@ -328,9 +337,11 @@ export default function PendingServicesList({
             >
               Cancel
             </Button>
-            <Button onClick={handleClaim} disabled={isClaiming}>
-              {isClaiming ? "Claiming..." : "Claim Service"}
-            </Button>
+            {canClaimServices ? (
+              <Button onClick={handleClaim} disabled={isClaiming}>
+                {isClaiming ? "Claiming..." : "Claim Service"}
+              </Button>
+            ) : null}
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,5 @@
 import EmployeeDashboard from "./EmployeeDashboard";
+import ManagerDashboard from "@/components/dashboard/manager/ManagerDashboard";
 import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
@@ -9,6 +10,19 @@ import {
   getCachedServices,
   getCachedPackages,
 } from "@/lib/data/cached";
+import {
+  hasStaffPermission,
+  resolveTenantActorContext,
+} from "@/lib/auth/staff-access";
+import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
+import type {
+  ManagerQueueEmployee,
+  ManagerQueueService,
+} from "@/components/dashboard/manager/ManagerQueueBoard";
+import {
+  AvailedServiceStatus,
+  BookingStatus,
+} from "@/prisma/generated/prisma/client";
 
 export default async function EmployeeDashboardDataContainer({
   businessSlug,
@@ -36,6 +50,128 @@ export default async function EmployeeDashboardDataContainer({
 
   if (!employee || !business) {
     return <div>Error loading dashboard</div>;
+  }
+
+  const actorContext = await resolveTenantActorContext(
+    businessSlug,
+    session.user.id,
+  );
+  if (!actorContext.success || actorContext.actorType !== "EMPLOYEE") {
+    return <div>Error loading dashboard</div>;
+  }
+
+  const capabilities = {
+    canCreateBooking: hasStaffPermission(
+      actorContext,
+      StaffPermission.BOOKING_CREATE,
+    ),
+    canCollectPayment: hasStaffPermission(
+      actorContext,
+      StaffPermission.PAYMENT_COLLECT,
+    ),
+    canClaimQueue: hasStaffPermission(
+      actorContext,
+      StaffPermission.QUEUE_CLAIM_SELF,
+    ),
+    canServeQueue: hasStaffPermission(
+      actorContext,
+      StaffPermission.QUEUE_SERVE_SELF,
+    ),
+    canQueueOverride: hasStaffPermission(
+      actorContext,
+      StaffPermission.QUEUE_OVERRIDE_ALL,
+    ),
+    canManageCatalog: hasStaffPermission(
+      actorContext,
+      StaffPermission.CATALOG_MANAGE,
+    ),
+  };
+
+  const employeeProfile = actorContext.profile ?? StaffProfile.STAFF;
+
+  let managerQueueServices: ManagerQueueService[] = [];
+  let managerQueueEmployees: ManagerQueueEmployee[] = [];
+  if (capabilities.canQueueOverride) {
+    const [queueServices, queueEmployees] = await Promise.all([
+      prisma.availedService.findMany({
+        where: {
+          booking: {
+            business_id: business.id,
+            status: BookingStatus.ACCEPTED,
+          },
+          status: {
+            in: [
+              AvailedServiceStatus.PENDING,
+              AvailedServiceStatus.CLAIMED,
+              AvailedServiceStatus.SERVING,
+            ],
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+          price: true,
+          scheduled_at: true,
+          package: {
+            select: {
+              name: true,
+            },
+          },
+          service: {
+            select: {
+              name: true,
+              category: true,
+              duration: true,
+            },
+          },
+          served_by_id: true,
+          booking: {
+            select: {
+              customer: {
+                select: {
+                  name: true,
+                },
+              },
+              scheduled_at: true,
+              created_at: true,
+            },
+          },
+          served_by: {
+            select: {
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: [{ scheduled_at: "asc" }, { created_at: "asc" }],
+        take: 100,
+      }),
+      prisma.employee.findMany({
+        where: {
+          business_id: business.id,
+        },
+        select: {
+          id: true,
+          specialties: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          user: {
+            name: "asc",
+          },
+        },
+      }),
+    ]);
+
+    managerQueueServices = queueServices as ManagerQueueService[];
+    managerQueueEmployees = queueEmployees as ManagerQueueEmployee[];
   }
   const startOfToday = getStartOfDayPH();
   const endOfToday = getEndOfDayPH();
@@ -212,23 +348,50 @@ export default async function EmployeeDashboardDataContainer({
     : [];
 
   return (
-    <EmployeeDashboard
-      businessName={business.name}
-      businessSlug={businessSlug}
-      businessId={business.id}
-      servedHistory={servedHistory}
-      pendingServices={pendingServices}
-      currentEmployeeSpecialties={employee.specialties ?? []}
-      currentEmployeeId={employee.id}
-      currentEmployeeCommission={employee.commission_percentage}
-      currentEmployeeSalary={totalEstimatedSalary}
-      todayAttendance={todayAttendance}
-      todayBookings={todayBookings}
-      services={services}
-      packages={packages}
-      categories={categories}
-      saleEvents={saleEvents}
-      leaveRequests={leaveRequests}
-    />
+    employeeProfile === StaffProfile.MANAGER ? (
+      <ManagerDashboard
+        businessName={business.name}
+        businessSlug={businessSlug}
+        businessId={business.id}
+        currentEmployeeSpecialties={employee.specialties ?? []}
+        currentEmployeeId={employee.id}
+        currentEmployeeCommission={employee.commission_percentage}
+        todayAttendance={todayAttendance}
+        capabilities={capabilities}
+        managerQueueServices={managerQueueServices}
+        managerQueueEmployees={managerQueueEmployees}
+        pendingServices={pendingServices}
+        servedHistory={servedHistory}
+        todayBookings={todayBookings}
+        services={services}
+        packages={packages}
+        categories={categories}
+        saleEvents={saleEvents}
+        leaveRequests={leaveRequests}
+      />
+    ) : (
+      <EmployeeDashboard
+        businessName={business.name}
+        businessSlug={businessSlug}
+        businessId={business.id}
+        servedHistory={servedHistory}
+        pendingServices={pendingServices}
+        managerQueueServices={managerQueueServices}
+        managerQueueEmployees={managerQueueEmployees}
+        currentEmployeeSpecialties={employee.specialties ?? []}
+        currentEmployeeId={employee.id}
+        currentEmployeeCommission={employee.commission_percentage}
+        currentEmployeeSalary={totalEstimatedSalary}
+        employeeProfile={employeeProfile}
+        capabilities={capabilities}
+        todayAttendance={todayAttendance}
+        todayBookings={todayBookings}
+        services={services}
+        packages={packages}
+        categories={categories}
+        saleEvents={saleEvents}
+        leaveRequests={leaveRequests}
+      />
+    )
   );
 }

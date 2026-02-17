@@ -21,12 +21,17 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BookingDialog } from "../owner/BookingDialog";
 import { GiftCardClaimDialog } from "../shared/GiftCardClaimDialog";
+import ManagerQueueBoard, {
+  type ManagerQueueEmployee,
+  type ManagerQueueService,
+} from "../manager/ManagerQueueBoard";
 
 import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
 import {
-  Service,
-  LeaveRequest,
+  type Service,
+  type LeaveRequest,
 } from "@/prisma/generated/prisma/client";
+import { StaffProfile } from "@/prisma/generated/prisma/enums";
 import { PackageWithItems } from "@/components/bookings/BookingForm";
 import type { ServedService } from "./EmployeeServedHistory";
 import type { PendingService } from "./PendingServicesList";
@@ -37,10 +42,19 @@ import {
   isCategoryAllowedForEmployee,
 } from "@/lib/utils/employee-specialties";
 
-type TodayAttendance = {
+export type TodayAttendance = {
   time_in: Date | null;
   time_out: Date | null;
 } | null | undefined;
+
+export type EmployeeDashboardCapabilities = {
+  canCreateBooking: boolean;
+  canCollectPayment: boolean;
+  canClaimQueue: boolean;
+  canServeQueue: boolean;
+  canQueueOverride: boolean;
+  canManageCatalog: boolean;
+};
 
 export default function EmployeeDashboard({
   businessName,
@@ -48,10 +62,14 @@ export default function EmployeeDashboard({
   businessId,
   servedHistory,
   pendingServices,
+  managerQueueServices,
+  managerQueueEmployees,
   currentEmployeeSpecialties,
   currentEmployeeId,
   currentEmployeeCommission,
   currentEmployeeSalary,
+  employeeProfile,
+  capabilities,
   todayAttendance,
   todayBookings,
   services,
@@ -65,10 +83,14 @@ export default function EmployeeDashboard({
   businessId: string;
   servedHistory: ServedService[];
   pendingServices: PendingService[];
+  managerQueueServices: ManagerQueueService[];
+  managerQueueEmployees: ManagerQueueEmployee[];
   currentEmployeeSpecialties: string[];
   currentEmployeeId: number;
   currentEmployeeCommission: number;
   currentEmployeeSalary: number;
+  employeeProfile: StaffProfile;
+  capabilities: EmployeeDashboardCapabilities;
   todayAttendance: TodayAttendance;
   todayBookings: EmployeePaymentBooking[];
   services: Service[];
@@ -121,17 +143,24 @@ export default function EmployeeDashboard({
             {businessName}
           </h1>
           <p className="text-[10px] uppercase tracking-widest font-semibold text-indigo-500 mt-1">
-            Employee Portal
+            {employeeProfile === StaffProfile.MANAGER
+              ? "Manager Portal"
+              : employeeProfile === StaffProfile.CASHIER
+                ? "Cashier Portal"
+                : "Employee Portal"}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <BookingDialog
-            services={services}
-            packages={packages}
-            categories={categories}
-            businessSlug={businessSlug}
-          />
+          {capabilities.canCreateBooking ? (
+            <BookingDialog
+              services={services}
+              packages={packages}
+              categories={categories}
+              businessSlug={businessSlug}
+              allowServiceClaim={capabilities.canClaimQueue}
+            />
+          ) : null}
           <GiftCardClaimDialog businessSlug={businessSlug} />
 
           <DropdownMenu>
@@ -260,13 +289,25 @@ export default function EmployeeDashboard({
           </div>
         </section>
 
-        <section>
-          <EmployeePaymentsQueue
-            businessSlug={businessSlug}
-            bookings={visibleTodayBookings}
-            employeeSpecialties={currentEmployeeSpecialties}
-          />
-        </section>
+        {capabilities.canCollectPayment ? (
+          <section>
+            <EmployeePaymentsQueue
+              businessSlug={businessSlug}
+              bookings={visibleTodayBookings}
+              employeeSpecialties={currentEmployeeSpecialties}
+            />
+          </section>
+        ) : null}
+
+        {capabilities.canQueueOverride ? (
+          <section>
+            <ManagerQueueBoard
+              businessSlug={businessSlug}
+              initialServices={managerQueueServices}
+              initialEmployees={managerQueueEmployees}
+            />
+          </section>
+        ) : null}
 
         <section>
           <EmployeeLeaveClient
@@ -290,15 +331,22 @@ export default function EmployeeDashboard({
               </div>
             </div>
 
-            <div className="-mx-4 md:mx-0">
-              <PendingServicesList
-                services={visiblePendingServices}
-                businessSlug={businessSlug}
-                currentEmployeeId={currentEmployeeId}
-                employeeSpecialties={currentEmployeeSpecialties}
-                saleEvents={saleEvents}
-              />
-            </div>
+            {capabilities.canClaimQueue ? (
+              <div className="-mx-4 md:mx-0">
+                <PendingServicesList
+                  services={visiblePendingServices}
+                  businessSlug={businessSlug}
+                  currentEmployeeId={currentEmployeeId}
+                  employeeSpecialties={currentEmployeeSpecialties}
+                  saleEvents={saleEvents}
+                  canClaimServices={capabilities.canClaimQueue}
+                />
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-zinc-200 bg-white px-4 py-6 text-sm text-zinc-500">
+                Queue claiming is disabled for your current profile.
+              </div>
+            )}
           </section>
 
           <section className="xl:col-span-5 space-y-5">
@@ -307,14 +355,20 @@ export default function EmployeeDashboard({
                 Served History
               </h2>
             </div>
-            <div className="-mx-4 md:mx-0">
-              <EmployeeServedHistory
-                services={visibleServedHistory}
-                employeeSpecialties={currentEmployeeSpecialties}
-                currentEmployeeId={currentEmployeeId}
-                currentEmployeeCommission={currentEmployeeCommission}
-              />
-            </div>
+            {capabilities.canServeQueue ? (
+              <div className="-mx-4 md:mx-0">
+                <EmployeeServedHistory
+                  services={visibleServedHistory}
+                  employeeSpecialties={currentEmployeeSpecialties}
+                  currentEmployeeId={currentEmployeeId}
+                  currentEmployeeCommission={currentEmployeeCommission}
+                />
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-zinc-200 bg-white px-4 py-6 text-sm text-zinc-500">
+                Service completion tracking is disabled for your current profile.
+              </div>
+            )}
           </section>
         </div>
       </div>

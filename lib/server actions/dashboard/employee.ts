@@ -35,6 +35,41 @@ import {
   serviceIdSchema,
   markServedSchema,
 } from "@/lib/zod-schemas/dashboard";
+import {
+  hasStaffPermission,
+  resolveTenantActorContext,
+  type TenantActorContext,
+} from "@/lib/auth/staff-access";
+import { StaffPermission } from "@/prisma/generated/prisma/enums";
+
+type StaffContext = Extract<TenantActorContext, { success: true }>;
+
+type StaffContextResult =
+  | {
+      success: true;
+      businessSlug: string;
+      context: StaffContext;
+    }
+  | { success: false; error: string };
+
+async function requireStaffContext(
+  options?: { write?: boolean },
+): Promise<StaffContextResult> {
+  const auth = await requireAuth(options);
+  if (!auth.success) {
+    return { success: false, error: auth.error };
+  }
+
+  const context = await resolveTenantActorContext(
+    auth.businessSlug,
+    auth.session.user.id,
+  );
+  if (!context.success) {
+    return { success: false, error: context.error };
+  }
+
+  return { success: true, businessSlug: auth.businessSlug, context };
+}
 
 export async function claimServiceAction(
   serviceId: number,
@@ -45,28 +80,96 @@ export async function claimServiceAction(
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth({ write: true });
+  const auth = await requireStaffContext({ write: true });
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug, context } = auth;
+
+  const canClaimSelf = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_CLAIM_SELF,
+  );
+  const canOverride = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_OVERRIDE_ALL,
+  );
+  const isSelfTarget =
+    context.actorType === "EMPLOYEE" && context.employeeId === employeeId;
+
+  if (!canOverride && !canClaimSelf) {
+    return { success: false, error: "Forbidden" };
+  }
+
+  if (isSelfTarget && !canClaimSelf) {
+    return { success: false, error: "Forbidden" };
+  }
+
+  if (!isSelfTarget && !canOverride) {
+    return { success: false, error: "Forbidden" };
+  }
 
   try {
-    // Fetch service details for discount calculation
-    const serviceToClaim = await prisma.availedService.findUnique({
-      where: { id: serviceId },
-      select: {
-        price: true,
-        service_id: true,
-        package_id: true,
-      },
-    });
+    const [targetEmployee, serviceToClaim] = await Promise.all([
+      prisma.employee.findFirst({
+        where: {
+          id: employeeId,
+          business: {
+            slug: businessSlug,
+          },
+        },
+        select: { id: true },
+      }),
+      prisma.availedService.findFirst({
+        where: {
+          id: serviceId,
+          booking: {
+            business: {
+              slug: businessSlug,
+            },
+          },
+        },
+        select: {
+          status: true,
+          price: true,
+          service_id: true,
+          package_id: true,
+          served_by_id: true,
+          served_by_owner_id: true,
+        },
+      }),
+    ]);
+
+    if (!targetEmployee) {
+      return { success: false, error: "Employee not found." };
+    }
 
     if (!serviceToClaim) {
       return { success: false, error: "Service not found." };
     }
 
+    if (serviceToClaim.served_by_owner_id) {
+      return {
+        success: false,
+        error: "Owner-claimed services cannot be reassigned here.",
+      };
+    }
+
+    if (
+      serviceToClaim.status !== AvailedServiceStatus.PENDING &&
+      serviceToClaim.status !== AvailedServiceStatus.CLAIMED &&
+      serviceToClaim.status !== AvailedServiceStatus.SERVING
+    ) {
+      return { success: false, error: "Service cannot be reassigned." };
+    }
+
+    if (
+      serviceToClaim.status !== AvailedServiceStatus.PENDING &&
+      !canOverride
+    ) {
+      return { success: false, error: "Forbidden" };
+    }
+
     const saleEventsResult = await getActiveSaleEvents(businessSlug);
-    const saleEvents =
-      (saleEventsResult.success && saleEventsResult.data) || [];
+    const saleEvents = (saleEventsResult.success && saleEventsResult.data) || [];
 
     const discountInfo = getApplicableDiscount(
       serviceToClaim.service_id,
@@ -75,37 +178,59 @@ export async function claimServiceAction(
       saleEvents,
     );
 
-    const updateData = {
-      status: AvailedServiceStatus.CLAIMED,
-      served_by_id: employeeId,
-      served_by_type: ServiceProviderType.EMPLOYEE,
-      claimed_at: getCurrentDateTimePH(),
-      ...(discountInfo
-        ? {
-            final_price: discountInfo.finalPrice,
-            discount: discountInfo.discount,
-            discount_reason: discountInfo.reason,
-            commission_base: discountInfo.finalPrice,
-          }
-        : {
-            final_price: serviceToClaim.price,
-            discount: 0,
-            discount_reason: null,
-            commission_base: serviceToClaim.price,
-          }),
-    };
-
-    const result = await prisma.availedService.update({
+    const now = getCurrentDateTimePH();
+    const result = await prisma.availedService.updateMany({
       where: {
         id: serviceId,
-        status: AvailedServiceStatus.PENDING,
+        status: {
+          in: [
+            AvailedServiceStatus.PENDING,
+            AvailedServiceStatus.CLAIMED,
+            AvailedServiceStatus.SERVING,
+          ],
+        },
         booking: { business: { slug: businessSlug } },
       },
-      data: updateData,
+      data: {
+        status: AvailedServiceStatus.CLAIMED,
+        served_by_id: employeeId,
+        served_by_owner_id: null,
+        served_by_type: ServiceProviderType.EMPLOYEE,
+        claimed_at: now,
+        served_at: null,
+        completed_at: null,
+        ...(discountInfo
+          ? {
+              final_price: discountInfo.finalPrice,
+              discount: discountInfo.discount,
+              discount_reason: discountInfo.reason,
+              commission_base: discountInfo.finalPrice,
+            }
+          : {
+              final_price: serviceToClaim.price,
+              discount: 0,
+              discount_reason: null,
+              commission_base: serviceToClaim.price,
+            }),
+      },
+    });
+
+    if (result.count === 0) {
+      return { success: false, error: "Service already claimed or not found." };
+    }
+
+    const updated = await prisma.availedService.findUnique({
+      where: { id: serviceId },
+      select: {
+        id: true,
+        status: true,
+        served_by_id: true,
+        price: true,
+      },
     });
 
     revalidatePath(`/app/${businessSlug}`);
-    return { success: true, data: result };
+    return { success: true, data: updated };
   } catch (error) {
     const e = error as { code?: string };
     if (e.code === "P2025") {
@@ -122,22 +247,58 @@ export async function unclaimServiceAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth({ write: true });
+  const auth = await requireStaffContext({ write: true });
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug, context } = auth;
+
+  const canClaimSelf = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_CLAIM_SELF,
+  );
+  const canOverride = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_OVERRIDE_ALL,
+  );
+
+  if (!canOverride && !canClaimSelf) {
+    return { success: false, error: "Forbidden" };
+  }
 
   try {
-    // Get original price to reset fields
-    const service = await prisma.availedService.findUnique({
-      where: { id: serviceId },
-      select: { price: true },
+    const service = await prisma.availedService.findFirst({
+      where: {
+        id: serviceId,
+        booking: { business: { slug: businessSlug } },
+      },
+      select: {
+        price: true,
+        served_by_id: true,
+        served_by_owner_id: true,
+      },
     });
 
     if (!service) return { success: false, error: "Service not found" };
 
-    const result = await prisma.availedService.update({
+    if (service.served_by_owner_id) {
+      return {
+        success: false,
+        error: "Owner-claimed services cannot be unclaimed here.",
+      };
+    }
+
+    const isSelfService =
+      context.actorType === "EMPLOYEE" &&
+      service.served_by_id === context.employeeId;
+    if (!canOverride && (!isSelfService || !canClaimSelf)) {
+      return { success: false, error: "Forbidden" };
+    }
+
+    const result = await prisma.availedService.updateMany({
       where: {
         id: serviceId,
+        status: {
+          in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING],
+        },
         booking: { business: { slug: businessSlug } },
       },
       data: {
@@ -152,8 +313,12 @@ export async function unclaimServiceAction(serviceId: number) {
       },
     });
 
+    if (result.count === 0) {
+      return { success: false, error: "Unable to unclaim service." };
+    }
+
     revalidatePath(`/app/${businessSlug}`);
-    return { success: true, data: result };
+    return { success: true };
   } catch (error) {
     const e = error as { code?: string };
     if (e.code === "P2025") {
@@ -173,13 +338,32 @@ export async function markServiceServedAction(
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth({ write: true });
+  const auth = await requireStaffContext({ write: true });
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug, context } = auth;
+
+  const canServeSelf = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_SERVE_SELF,
+  );
+  const canOverride = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_OVERRIDE_ALL,
+  );
+  const isSelfTarget =
+    context.actorType === "EMPLOYEE" && context.employeeId === employeeId;
+
+  if (isSelfTarget && !canServeSelf) {
+    return { success: false, error: "Forbidden" };
+  }
+
+  if (!isSelfTarget && !canOverride) {
+    return { success: false, error: "Forbidden" };
+  }
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      const service = await tx.availedService.findUnique({
+      const service = await tx.availedService.findFirst({
         where: {
           id: serviceId,
           booking: { business: { slug: businessSlug } },
@@ -188,13 +372,37 @@ export async function markServiceServedAction(
           commission_base: true,
           price: true,
           booking_id: true,
+          status: true,
+          served_by_id: true,
+          served_by_owner_id: true,
         },
       });
 
       if (!service) throw new Error("Service not found");
+      if (service.served_by_owner_id) {
+        throw new Error("Owner-claimed services cannot be served here");
+      }
+      if (
+        service.status !== AvailedServiceStatus.CLAIMED &&
+        service.status !== AvailedServiceStatus.SERVING
+      ) {
+        throw new Error("Service is not claimable for serving");
+      }
 
-      const employee = await tx.employee.findUnique({
-        where: { id: employeeId },
+      const isSelfService =
+        context.actorType === "EMPLOYEE" &&
+        service.served_by_id === context.employeeId;
+      if (!canOverride && (!isSelfService || !canServeSelf)) {
+        throw new Error("Forbidden");
+      }
+
+      const employee = await tx.employee.findFirst({
+        where: {
+          id: employeeId,
+          business: {
+            slug: businessSlug,
+          },
+        },
         select: { commission_percentage: true },
       });
 
@@ -203,7 +411,6 @@ export async function markServiceServedAction(
       const baseAmount = service.commission_base ?? service.price;
       const commissionAmount =
         (baseAmount * employee.commission_percentage) / 100;
-      const nowPH = getCurrentDateTimePH();
 
       await tx.employee.update({
         where: { id: employeeId },
@@ -212,17 +419,34 @@ export async function markServiceServedAction(
         },
       });
 
-      const updatedService = await tx.availedService.update({
+      const nowPH = getCurrentDateTimePH();
+      const updateResult = await tx.availedService.updateMany({
         where: {
           id: serviceId,
-          served_by_id: employeeId,
+          status: {
+            in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING],
+          },
+          booking: { business: { slug: businessSlug } },
         },
         data: {
+          served_by_id: employeeId,
+          served_by_owner_id: null,
+          served_by_type: ServiceProviderType.EMPLOYEE,
           status: AvailedServiceStatus.COMPLETED,
           served_at: nowPH,
           completed_at: nowPH,
         },
       });
+      if (updateResult.count === 0) {
+        throw new Error("Unable to mark service as served");
+      }
+
+      const updatedService = await tx.availedService.findUnique({
+        where: { id: serviceId },
+      });
+      if (!updatedService) {
+        throw new Error("Service not found");
+      }
 
       await promoteBookingToCompletedIfEligible(tx, service.booking_id);
 
@@ -247,13 +471,26 @@ export async function unserveServiceAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth({ write: true });
+  const auth = await requireStaffContext({ write: true });
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
+  const { businessSlug, context } = auth;
+
+  const canServeSelf = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_SERVE_SELF,
+  );
+  const canOverride = hasStaffPermission(
+    context,
+    StaffPermission.QUEUE_OVERRIDE_ALL,
+  );
+
+  if (!canServeSelf && !canOverride) {
+    return { success: false, error: "Forbidden" };
+  }
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      const service = await tx.availedService.findUnique({
+      const service = await tx.availedService.findFirst({
         where: {
           id: serviceId,
           booking: { business: { slug: businessSlug } },
@@ -262,6 +499,7 @@ export async function unserveServiceAction(serviceId: number) {
           commission_base: true,
           price: true,
           served_by_id: true,
+          served_by_owner_id: true,
           booking_id: true,
           booking: { select: { status: true } },
         },
@@ -269,6 +507,16 @@ export async function unserveServiceAction(serviceId: number) {
 
       if (!service || !service.served_by_id)
         throw new Error("Service not found or not served");
+      if (service.served_by_owner_id) {
+        throw new Error("Owner-served services cannot be updated here");
+      }
+
+      const isSelfService =
+        context.actorType === "EMPLOYEE" &&
+        service.served_by_id === context.employeeId;
+      if (!canOverride && (!isSelfService || !canServeSelf)) {
+        throw new Error("Forbidden");
+      }
 
       const employee = await tx.employee.findUnique({
         where: { id: service.served_by_id },
@@ -288,14 +536,22 @@ export async function unserveServiceAction(serviceId: number) {
         },
       });
 
-      const updatedService = await tx.availedService.update({
-        where: { id: serviceId },
+      const updatedService = await tx.availedService.updateMany({
+        where: {
+          id: serviceId,
+          status: AvailedServiceStatus.COMPLETED,
+          booking: { business: { slug: businessSlug } },
+        },
         data: {
           status: AvailedServiceStatus.CLAIMED,
           served_at: null,
           completed_at: null,
         },
       });
+
+      if (updatedService.count === 0) {
+        throw new Error("Unable to update service");
+      }
 
       if (service.booking.status === BookingStatus.COMPLETED) {
         await tx.booking.update({
@@ -304,7 +560,7 @@ export async function unserveServiceAction(serviceId: number) {
         });
       }
 
-      return updatedService;
+      return { id: serviceId };
     });
 
     revalidatePath(`/app/${businessSlug}`);
@@ -319,6 +575,105 @@ export async function unserveServiceAction(serviceId: number) {
   }
 }
 
+export async function getManagerQueueBoardAction() {
+  const auth = await requireStaffContext();
+  if (!auth.success) return auth;
+  const { businessSlug, context } = auth;
+
+  if (!hasStaffPermission(context, StaffPermission.QUEUE_OVERRIDE_ALL)) {
+    return { success: false, error: "Forbidden" };
+  }
+
+  try {
+    const [services, employees] = await Promise.all([
+      prisma.availedService.findMany({
+        where: {
+          booking: {
+            business: {
+              slug: businessSlug,
+            },
+            status: BookingStatus.ACCEPTED,
+          },
+          status: {
+            in: [
+              AvailedServiceStatus.PENDING,
+              AvailedServiceStatus.CLAIMED,
+              AvailedServiceStatus.SERVING,
+            ],
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+          price: true,
+          scheduled_at: true,
+          package: {
+            select: {
+              name: true,
+            },
+          },
+          service: {
+            select: {
+              name: true,
+              category: true,
+              duration: true,
+            },
+          },
+          served_by_id: true,
+          booking: {
+            select: {
+              customer: {
+                select: {
+                  name: true,
+                },
+              },
+              scheduled_at: true,
+              created_at: true,
+            },
+          },
+          served_by: {
+            select: {
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: [{ scheduled_at: "asc" }, { created_at: "asc" }],
+        take: 100,
+      }),
+      prisma.employee.findMany({
+        where: {
+          business: {
+            slug: businessSlug,
+          },
+        },
+        select: {
+          id: true,
+          specialties: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          user: {
+            name: "asc",
+          },
+        },
+      }),
+    ]);
+
+    return { success: true, data: { services, employees } };
+  } catch (error) {
+    console.error("Error fetching manager queue board:", error);
+    return { success: false, error: "Failed to fetch manager queue board." };
+  }
+}
+
 type QrReviewStatus = "pending" | "paid" | "failed" | "expired";
 
 type EmployeeAuthResult =
@@ -327,6 +682,7 @@ type EmployeeAuthResult =
       businessSlug: string;
       employeeId: number;
       specialties: string[];
+      context: StaffContext;
     }
   | { success: false; error: string };
 
@@ -422,24 +778,28 @@ function getTodayBookingFilter() {
 }
 
 async function requireEmployeeAuth(
-  options?: { write?: boolean },
+  options?: { write?: boolean; permission?: StaffPermission },
 ): Promise<EmployeeAuthResult> {
-  const auth = await requireAuth(options);
+  const auth = await requireStaffContext({ write: options?.write });
   if (!auth.success) {
+    return { success: false, error: auth.error };
+  }
+
+  const { businessSlug, context } = auth;
+  if (context.actorType !== "EMPLOYEE") {
     return { success: false, error: "Unauthorized" };
   }
 
-  const { session, businessSlug } = auth;
-  if (session?.user?.role !== "EMPLOYEE") {
-    return { success: false, error: "Unauthorized" };
+  if (
+    options?.permission &&
+    !hasStaffPermission(context, options.permission)
+  ) {
+    return { success: false, error: "Forbidden" };
   }
 
-  const employee = await prisma.employee.findFirst({
+  const employee = await prisma.employee.findUnique({
     where: {
-      user_id: session.user.id,
-      business: {
-        slug: businessSlug,
-      },
+      id: context.employeeId,
     },
     select: {
       id: true,
@@ -456,11 +816,14 @@ async function requireEmployeeAuth(
     businessSlug,
     employeeId: employee.id,
     specialties: employee.specialties ?? [],
+    context,
   };
 }
 
 export async function getEmployeeTodayBookingsAction() {
-  const auth = await requireEmployeeAuth();
+  const auth = await requireEmployeeAuth({
+    permission: StaffPermission.PAYMENT_COLLECT,
+  });
   if (!auth.success) return [];
 
   const { businessSlug, specialties } = auth;
@@ -533,7 +896,10 @@ export async function createEmployeeBookingBalanceQrAction(bookingId: number) {
     return { success: false, error: "Invalid booking ID." };
   }
 
-  const auth = await requireEmployeeAuth({ write: true });
+  const auth = await requireEmployeeAuth({
+    write: true,
+    permission: StaffPermission.PAYMENT_COLLECT,
+  });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -702,7 +1068,9 @@ export async function getEmployeeBookingQrPaymentReviewAction(bookingId: number)
     return { success: false, error: "Invalid booking ID." };
   }
 
-  const auth = await requireEmployeeAuth();
+  const auth = await requireEmployeeAuth({
+    permission: StaffPermission.PAYMENT_COLLECT,
+  });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -808,7 +1176,10 @@ export async function markEmployeeBookingPaidAction(bookingId: number) {
     return { success: false, error: "Invalid booking ID." };
   }
 
-  const auth = await requireEmployeeAuth({ write: true });
+  const auth = await requireEmployeeAuth({
+    write: true,
+    permission: StaffPermission.PAYMENT_COLLECT,
+  });
   if (!auth.success) return auth;
   const { businessSlug, employeeId } = auth;
 
