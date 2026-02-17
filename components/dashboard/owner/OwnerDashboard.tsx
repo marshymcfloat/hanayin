@@ -203,7 +203,6 @@ export default async function OwnerDashboard({
             </section>
           </div>
 
-          {/* Right Column: Insights & Alerts (3 cols) */}
           <div className="lg:col-span-3 flex flex-col gap-6 lg:h-full lg:overflow-y-auto no-scrollbar">
             {growthEnabled ? (
               <section>
@@ -320,4 +319,3 @@ function MetricPill({
     </div>
   );
 }
-
