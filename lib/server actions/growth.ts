@@ -14,6 +14,7 @@ import { generateCaptionVariants } from "@/lib/services/growth/caption-generator
 import { generateImagePromptVariants } from "@/lib/services/growth/image-prompt-generator";
 import { recommendPostingSchedule } from "@/lib/services/growth/schedule-recommender";
 import { trackCampaignEvent } from "@/lib/services/growth/campaign-tracker";
+import { generateAndUploadPromoImage } from "@/lib/services/social/promo-image";
 import type { GeneratedCampaignView, GrowthContextPayload } from "@/lib/services/growth/types";
 import {
   generateGrowthCampaignSchema,
@@ -369,6 +370,32 @@ export async function generateGrowthCampaignAction(
       offerWindowEnd: offer.timeWindowEnd,
       schedule,
     });
+    const serviceNames = serviceCandidates.map((service) => service.name);
+    const serviceCategories = Array.from(
+      new Set(serviceCandidates.map((service) => service.category)),
+    );
+    const packageNames = packageCandidates.map((pkg) => pkg.name);
+
+    let mediaUrl: string | null = null;
+    try {
+      mediaUrl = await generateAndUploadPromoImage({
+        businessSlug: business.slug,
+        businessName: business.name,
+        title: offer.title,
+        saleDescription: opportunity.reason,
+        captionText: primaryCaption?.text || offer.title,
+        discountType: "PERCENTAGE",
+        discountValue: offer.mechanics.discountPercent || 0,
+        startDate: draftWindow.startDate,
+        endDate: draftWindow.endDate,
+        serviceNames,
+        serviceCategories,
+        packageNames,
+      });
+    } catch (error) {
+      console.warn("Failed to auto-generate growth campaign social image:", error);
+      mediaUrl = null;
+    }
 
     const campaign = await prisma.$transaction(async (tx) => {
       const saleEvent = await tx.saleEvent.create({
@@ -399,7 +426,7 @@ export async function generateGrowthCampaignAction(
           caption_draft: primaryCaption?.text || offer.title,
           caption_final: null,
           hashtags,
-          media_url: null,
+          media_url: mediaUrl,
           created_by_user_id: auth.session.user.id,
         },
       });
