@@ -4,6 +4,7 @@ export type BookingPolicy = {
   bookingHorizonDays: number;
   minLeadMinutes: number;
   slotIntervalMinutes: number;
+  // Deprecated: no longer used by booking availability/capacity logic.
   sameDayAttendanceStrictMinutes: number;
   allowPublicFullPayment: boolean;
   allowPublicDownpayment: boolean;

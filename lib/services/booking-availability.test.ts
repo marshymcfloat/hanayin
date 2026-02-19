@@ -4,11 +4,11 @@ import {
   computeSlots,
   validateBookingOrThrow,
 } from "./booking-availability";
+import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 
 const prismaMock = vi.hoisted(() => ({
   service: { findMany: vi.fn() },
   booking: { findMany: vi.fn() },
-  employeeAttendance: { findMany: vi.fn() },
 }));
 
 const cachedMock = vi.hoisted(() => ({
@@ -28,6 +28,7 @@ vi.mock("@/lib/date-utils", () => ({
 
 const baseBusiness = {
   id: "biz_1",
+  manager_can_serve: true,
   business_hours: [
     {
       day_of_week: 4,
@@ -44,11 +45,19 @@ const baseBusiness = {
       is_closed: false,
     },
   ],
-  employees: [{ id: 1, specialties: [], user: { name: "Alex" } }],
+  employees: [
+    {
+      id: 1,
+      profile: StaffProfile.STAFF,
+      permissions: [StaffPermission.QUEUE_SERVE_SELF],
+      specialties: [],
+      user: { name: "Alex" },
+    },
+  ],
   owners: [],
 };
 
-describe("booking-availability", () => {
+describe("booking-availability workload model", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue(
@@ -68,16 +77,9 @@ describe("booking-availability", () => {
       { id: 1, category: "GENERAL", duration: 30 },
     ]);
     prismaMock.booking.findMany.mockResolvedValue([]);
-    prismaMock.employeeAttendance.findMany.mockResolvedValue([
-      {
-        employee_id: 1,
-        time_in: new Date("2026-02-12T00:00:00+08:00"),
-        time_out: null,
-      },
-    ]);
   });
 
-  it("returns tentative roster slots for future dates", async () => {
+  it("returns guaranteed workload slots", async () => {
     const slots = await computeSlots({
       businessSlug: "demo-business",
       date: new Date("2026-02-13T00:00:00+08:00"),
@@ -86,70 +88,13 @@ describe("booking-availability", () => {
     });
 
     expect(slots.length).toBeGreaterThan(0);
-    expect(slots[0].source).toBe("ROSTER");
-    expect(slots[0].confidence).toBe("TENTATIVE");
+    expect(slots[0].source).toBe("WORKLOAD");
+    expect(slots[0].confidence).toBe("GUARANTEED");
+    expect(slots[0].availableOwnerCount).toBe(0);
   });
 
-  it("returns no confirmed slots in strict window when attendance is empty", async () => {
-    prismaMock.employeeAttendance.findMany.mockResolvedValue([]);
-
-    const slots = await computeSlots({
-      businessSlug: "demo-business",
-      date: new Date("2026-02-12T00:00:00+08:00"),
-      services: [{ id: 1, quantity: 1 }],
-      now: new Date("2026-02-12T08:00:00+08:00"),
-    });
-
-    const strictWindowEnd = new Date("2026-02-12T10:00:00+08:00").getTime();
-    const strictWindowSlots = slots.filter(
-      (slot) => slot.startTime.getTime() < strictWindowEnd,
-    );
-
-    expect(strictWindowSlots).toEqual([]);
-  });
-
-  it("returns tentative same-day slots outside strict window when attendance is empty", async () => {
-    prismaMock.employeeAttendance.findMany.mockResolvedValue([]);
-
-    const slots = await computeSlots({
-      businessSlug: "demo-business",
-      date: new Date("2026-02-12T00:00:00+08:00"),
-      services: [{ id: 1, quantity: 1 }],
-      now: new Date("2026-02-12T08:00:00+08:00"),
-    });
-
-    const tenAm = slots.find(
-      (slot) =>
-        slot.startTime.toISOString() ===
-        new Date("2026-02-12T10:00:00+08:00").toISOString(),
-    );
-    expect(tenAm).toMatchObject({
-      source: "ROSTER",
-      confidence: "TENTATIVE",
-    });
-  });
-
-  it("prefers confirmed attendance slots outside strict window when attendance exists", async () => {
-    const slots = await computeSlots({
-      businessSlug: "demo-business",
-      date: new Date("2026-02-12T00:00:00+08:00"),
-      services: [{ id: 1, quantity: 1 }],
-      now: new Date("2026-02-12T08:00:00+08:00"),
-    });
-
-    const tenAm = slots.find(
-      (slot) =>
-        slot.startTime.toISOString() ===
-        new Date("2026-02-12T10:00:00+08:00").toISOString(),
-    );
-    expect(tenAm).toMatchObject({
-      source: "ATTENDANCE",
-      confidence: "CONFIRMED",
-    });
-  });
-
-  it("keeps HOLD overlaps consuming capacity until they clear", async () => {
-    prismaMock.booking.findMany.mockResolvedValueOnce([
+  it("consumes capacity for overlapping unassigned segments", async () => {
+    prismaMock.booking.findMany.mockResolvedValue([
       {
         status: "HOLD",
         scheduled_at: new Date("2026-02-12T09:00:00+08:00"),
@@ -160,53 +105,86 @@ describe("booking-availability", () => {
             scheduled_at: new Date("2026-02-12T09:00:00+08:00"),
             estimated_end: new Date("2026-02-12T09:30:00+08:00"),
             served_by_id: null,
-            served_by_owner_id: null,
             service: { category: "GENERAL" },
           },
         ],
       },
     ]);
-    prismaMock.booking.findMany.mockResolvedValueOnce([]);
 
-    const blockedSlots = await computeSlots({
+    const slots = await computeSlots({
       businessSlug: "demo-business",
       date: new Date("2026-02-12T00:00:00+08:00"),
       services: [{ id: 1, quantity: 1 }],
       now: new Date("2026-02-12T08:00:00+08:00"),
     });
 
-    const nineAmBlocked = blockedSlots.find(
+    const blockedNineAm = slots.find(
       (slot) =>
         slot.startTime.toISOString() ===
         new Date("2026-02-12T09:00:00+08:00").toISOString(),
     );
-    expect(nineAmBlocked).toBeUndefined();
-
-    const availableAfterHoldClears = await computeSlots({
-      businessSlug: "demo-business",
-      date: new Date("2026-02-12T00:00:00+08:00"),
-      services: [{ id: 1, quantity: 1 }],
-      now: new Date("2026-02-12T08:00:00+08:00"),
-    });
-    const nineAmAfterClear = availableAfterHoldClears.find(
-      (slot) =>
-        slot.startTime.toISOString() ===
-        new Date("2026-02-12T09:00:00+08:00").toISOString(),
-    );
-    expect(nineAmAfterClear).toBeDefined();
+    expect(blockedNineAm).toBeUndefined();
   });
 
-  it("throws a payment policy error for disallowed public payment type", async () => {
-    policyMock.getBookingPolicyByBusinessSlug.mockResolvedValue({
-      bookingHorizonDays: 14,
-      minLeadMinutes: 30,
-      slotIntervalMinutes: 30,
-      sameDayAttendanceStrictMinutes: 120,
-      allowPublicFullPayment: false,
-      allowPublicDownpayment: true,
-      defaultPublicPaymentType: "DOWNPAYMENT",
-      bookingV2Enabled: true,
+  it("rejects when there are no qualified employees for selected category", async () => {
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      employees: [
+        {
+          id: 1,
+          profile: StaffProfile.STAFF,
+          permissions: [StaffPermission.QUEUE_SERVE_SELF],
+          specialties: ["NAILS"],
+          user: { name: "Alex" },
+        },
+      ],
     });
+    prismaMock.service.findMany.mockResolvedValue([
+      { id: 9, category: "HAIR", duration: 30 },
+    ]);
+
+    const slots = await computeSlots({
+      businessSlug: "demo-business",
+      date: new Date("2026-02-12T00:00:00+08:00"),
+      services: [{ id: 9, quantity: 1 }],
+      now: new Date("2026-02-12T08:00:00+08:00"),
+    });
+
+    expect(slots).toEqual([]);
+  });
+
+  it("returns slot just taken when exact slot is no longer available", async () => {
+    await expect(
+      validateBookingOrThrow({
+        businessSlug: "demo-business",
+        scheduledAt: new Date("2026-02-12T09:15:00+08:00"),
+        services: [{ id: 1, quantity: 1 }],
+        paymentType: "FULL",
+        isPublicBooking: true,
+        isWalkIn: false,
+        now: new Date("2026-02-12T08:00:00+08:00"),
+      }),
+    ).rejects.toMatchObject({
+      code: "SLOT_JUST_TAKEN",
+    });
+  });
+
+  it("rejects required selected staff when selected employee is busy", async () => {
+    prismaMock.booking.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          scheduled_at: new Date("2026-02-12T10:00:00+08:00"),
+          estimated_end: new Date("2026-02-12T10:30:00+08:00"),
+          availed_services: [
+            {
+              served_by_id: 1,
+              scheduled_at: new Date("2026-02-12T10:00:00+08:00"),
+              estimated_end: new Date("2026-02-12T10:30:00+08:00"),
+            },
+          ],
+        },
+      ]);
 
     await expect(
       validateBookingOrThrow({
@@ -214,9 +192,13 @@ describe("booking-availability", () => {
         scheduledAt: new Date("2026-02-12T10:00:00+08:00"),
         services: [{ id: 1, quantity: 1 }],
         paymentType: "FULL",
-        isPublicBooking: true,
-        isWalkIn: true,
+        isPublicBooking: false,
+        selectedEmployeeId: 1,
+        staffSelectionMode: "REQUIRE_SELECTED",
+        now: new Date("2026-02-12T08:00:00+08:00"),
       }),
-    ).rejects.toBeInstanceOf(BookingAvailabilityError);
+    ).rejects.toMatchObject({
+      code: "REQUIRED_STAFF_UNAVAILABLE",
+    });
   });
 });

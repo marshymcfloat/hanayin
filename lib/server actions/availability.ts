@@ -13,6 +13,7 @@ import {
   computeSlots,
   listAlternativeSlots,
 } from "@/lib/services/booking-availability";
+import { StaffProfile } from "@/prisma/generated/prisma/enums";
 import type {
   SelectedServiceInput,
   TimeSlot,
@@ -29,12 +30,6 @@ export interface GetAvailableSlotsParams {
 }
 
 const MANILA_TIME_ZONE = "Asia/Manila";
-const ATTENDANCE_ACTIVE_STATUSES = ["PRESENT", "LATE"] as const;
-
-type AttendanceWindow = {
-  timeIn: Date;
-  timeOut: Date | null;
-};
 
 function getPHDateComponents(d: Date) {
   const formatter = new Intl.DateTimeFormat("en-US", {
@@ -74,63 +69,6 @@ function getPHDayBounds(date: Date) {
   return { dateStr, dayStart, dayEnd };
 }
 
-function isEmployeeClockedInForWindow(
-  windowsByEmployee: Map<number, AttendanceWindow[]>,
-  employeeId: number,
-  start: Date,
-  end: Date,
-) {
-  const windows = windowsByEmployee.get(employeeId);
-  if (!windows || windows.length === 0) return false;
-
-  return windows.some(
-    (window) =>
-      window.timeIn.getTime() <= start.getTime() &&
-      (!window.timeOut || window.timeOut.getTime() >= end.getTime()),
-  );
-}
-
-async function getAttendanceWindowsForDay({
-  businessId,
-  dayStart,
-  dayEnd,
-}: {
-  businessId: string;
-  dayStart: Date;
-  dayEnd: Date;
-}) {
-  const records = await prisma.employeeAttendance.findMany({
-    where: {
-      employee: { business_id: businessId },
-      date: {
-        gte: dayStart,
-        lte: dayEnd,
-      },
-      status: {
-        in: [...ATTENDANCE_ACTIVE_STATUSES],
-      },
-      time_in: {
-        not: null,
-      },
-    },
-    select: {
-      employee_id: true,
-      time_in: true,
-      time_out: true,
-    },
-  });
-
-  const windowsByEmployee = new Map<number, AttendanceWindow[]>();
-  for (const record of records) {
-    if (!record.time_in) continue;
-    const windows = windowsByEmployee.get(record.employee_id) || [];
-    windows.push({ timeIn: record.time_in, timeOut: record.time_out });
-    windowsByEmployee.set(record.employee_id, windows);
-  }
-
-  return windowsByEmployee;
-}
-
 function buildWindowsForHours({
   dateStr,
   openTime,
@@ -156,6 +94,12 @@ function buildWindowsForHours({
     { start, end: dayEnd },
     { start: dayStart, end },
   ];
+}
+
+function isBookingServiceEmployee(employee: {
+  profile: StaffProfile;
+}) {
+  return employee.profile === StaffProfile.STAFF;
 }
 
 async function applyAvailabilityRateLimit(businessSlug: string, kind: string) {
@@ -194,20 +138,12 @@ export async function getAvailableSlots({
   const startedAt = Date.now();
   await applyAvailabilityRateLimit(businessSlug, "slots");
   try {
-    const policy = await getBookingPolicyByBusinessSlug(prisma, businessSlug);
     const slots = await computeSlots({
       businessSlug,
       date,
       services,
       slotIntervalMinutes,
     });
-    const strictWindowApplied =
-      toPHDateString(date) === toPHDateString(new Date()) &&
-      policy.sameDayAttendanceStrictMinutes > 0;
-    const tentativeCount = slots.filter(
-      (slot) => slot.confidence === "TENTATIVE",
-    ).length;
-    const confirmedCount = slots.length - tentativeCount;
 
     const businessId = await getBusinessIdBySlug(businessSlug);
     if (businessId) {
@@ -216,11 +152,9 @@ export async function getAvailableSlots({
         action: "BOOKING_SLOT_LOOKUP",
         outcome: "SUCCESS",
         metadata: {
+          capacityModel: "WORKLOAD_V1",
           slotsReturned: slots.length,
           hasCapacity: slots.length > 0,
-          strictWindowApplied,
-          tentativeCount,
-          confirmedCount,
           latencyMs: Date.now() - startedAt,
         },
       });
@@ -330,6 +264,9 @@ export async function getAvailableProviders({
   const busyEmployeeIds = new Set<number>();
   for (const booking of overlappingBookings) {
     for (const service of booking.availed_services) {
+      if (service.status === "CANCELLED") {
+        continue;
+      }
       if (service.served_by_id) {
         busyEmployeeIds.add(service.served_by_id);
       }
@@ -341,45 +278,36 @@ export async function getAvailableProviders({
       ? categories.map((c) => c.toLowerCase())
       : [category.toLowerCase()];
 
-  const selectedDateStr = toPHDateString(startTime);
-  const todayDateStr = toPHDateString(new Date());
-  const nowParts = getPHDateComponents(new Date());
-  const phNow = new Date(
-    `${todayDateStr}T${nowParts.hour}:${nowParts.minute}:${nowParts.second}+08:00`,
-  );
-  const strictCutoff = new Date(
-    phNow.getTime() + policy.sameDayAttendanceStrictMinutes * 60000,
-  );
-  const shouldFilterByAttendance =
-    selectedDateStr === todayDateStr && startTime.getTime() < strictCutoff.getTime();
-  const { dayStart, dayEnd } = getPHDayBounds(startTime);
-  const attendanceWindowsByEmployee = shouldFilterByAttendance
-    ? await getAttendanceWindowsForDay({
-        businessId: business.id,
-        dayStart,
-        dayEnd,
-      })
-    : new Map<number, AttendanceWindow[]>();
-
   const qualifiedEmployees = business.employees.filter((employee) => {
-    if (employee.specialties.length === 0) return true;
-    return employee.specialties.some((specialty) =>
-      normalizedCategories.includes(specialty.toLowerCase()),
+    if (!isBookingServiceEmployee(employee)) {
+      return false;
+    }
+    if (employee.specialties.length === 0) {
+      return true;
+    }
+    const normalizedSpecialties = employee.specialties.map((specialty) =>
+      specialty.toLowerCase(),
+    );
+    return normalizedCategories.every((serviceCategory) =>
+      normalizedSpecialties.includes(serviceCategory),
     );
   });
+
+  if (qualifiedEmployees.length === 0) {
+    return [];
+  }
+
+  const availableQualifiedEmployees = qualifiedEmployees.filter(
+    (employee) => !busyEmployeeIds.has(employee.id),
+  );
+  if (availableQualifiedEmployees.length === 0) {
+    return [];
+  }
 
   return qualifiedEmployees.map((employee) => ({
     id: employee.id,
     name: employee.user.name,
-    available:
-      !busyEmployeeIds.has(employee.id) &&
-      (!shouldFilterByAttendance ||
-        isEmployeeClockedInForWindow(
-          attendanceWindowsByEmployee,
-          employee.id,
-          startTime,
-          endTime,
-        )),
+    available: !busyEmployeeIds.has(employee.id),
     specialties: employee.specialties,
     type: "EMPLOYEE" as const,
   }));
@@ -389,18 +317,14 @@ export async function checkCategoryAvailability({
   businessSlug,
   category = "GENERAL",
   date,
-  enforceAttendanceForToday = true,
 }: {
   businessSlug: string;
   category?: string;
   date?: Date;
-  enforceAttendanceForToday?: boolean;
 }): Promise<{
   hasBusinessHours: boolean;
   businessHoursPassed: boolean;
   qualifiedEmployeeCount: number;
-  ownerAvailable: boolean;
-  availabilitySource: "ATTENDANCE" | "ROSTER";
   businessHours?: { open_time: string; close_time: string; is_closed: boolean };
 }> {
   const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
@@ -446,43 +370,15 @@ export async function checkCategoryAvailability({
 
   const qualifiedEmployees = business.employees.filter(
     (employee) =>
-      employee.specialties.length === 0 ||
-      employee.specialties.some((specialty) => specialty.toLowerCase() === normalizedCategory),
+      isBookingServiceEmployee(employee) &&
+      (employee.specialties.length === 0 ||
+        employee.specialties.some((specialty) => specialty.toLowerCase() === normalizedCategory)),
   );
-
-  const ownerAvailable = business.owners.some(
-    (owner) =>
-      owner.specialties.length === 0 ||
-      owner.specialties.some((specialty) => specialty.toLowerCase() === normalizedCategory),
-  );
-
-  const applyAttendance =
-    enforceAttendanceForToday && isToday && qualifiedEmployees.length > 0;
-  let qualifiedEmployeeCount = qualifiedEmployees.length;
-
-  if (applyAttendance) {
-    const { dayStart, dayEnd } = getPHDayBounds(checkDate);
-    const attendanceWindowsByEmployee = await getAttendanceWindowsForDay({
-      businessId: business.id,
-      dayStart,
-      dayEnd,
-    });
-    qualifiedEmployeeCount = qualifiedEmployees.filter((employee) =>
-      isEmployeeClockedInForWindow(
-        attendanceWindowsByEmployee,
-        employee.id,
-        phNowDate,
-        phNowDate,
-      ),
-    ).length;
-  }
 
   return {
     hasBusinessHours,
     businessHoursPassed,
-    qualifiedEmployeeCount,
-    ownerAvailable,
-    availabilitySource: applyAttendance ? "ATTENDANCE" : "ROSTER",
+    qualifiedEmployeeCount: qualifiedEmployees.length,
     businessHours: businessHours
       ? {
           open_time: businessHours.open_time,

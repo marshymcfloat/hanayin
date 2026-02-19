@@ -32,6 +32,7 @@ function mapPolicyRecord(record: {
     bookingHorizonDays: record.booking_horizon_days,
     minLeadMinutes: record.booking_min_lead_minutes,
     slotIntervalMinutes: record.booking_slot_interval_minutes,
+    // Deprecated compatibility field retained for existing settings records.
     sameDayAttendanceStrictMinutes:
       record.same_day_attendance_strict_minutes,
     allowPublicFullPayment: record.public_allow_full_payment,

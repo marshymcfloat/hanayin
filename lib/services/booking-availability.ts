@@ -1,11 +1,11 @@
 import { getCachedBusinessWithHoursAndEmployees } from "@/lib/data/cached";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
+import { StaffProfile } from "@/prisma/generated/prisma/enums";
 import { prisma } from "@/prisma/prisma";
 import type { Prisma, PrismaClient } from "@/prisma/generated/prisma/client";
 import { getBookingPolicyByBusinessSlug } from "./booking-policy";
 
 const MANILA_TIME_ZONE = "Asia/Manila";
-const ATTENDANCE_ACTIVE_STATUSES = ["PRESENT", "LATE"] as const;
 
 type AvailabilityDbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -36,8 +36,8 @@ export interface StaffSelectionResolution {
   warning?: string;
 }
 
-export type SlotAvailabilitySource = "ATTENDANCE" | "ROSTER";
-export type SlotConfidence = "CONFIRMED" | "TENTATIVE";
+export type SlotAvailabilitySource = "WORKLOAD";
+export type SlotConfidence = "GUARANTEED";
 
 export interface TimeSlot {
   startTime: Date;
@@ -120,11 +120,6 @@ function getPHDayBounds(date: Date) {
   return { dateStr, dayStart, dayEnd };
 }
 
-type AttendanceWindow = {
-  timeIn: Date;
-  timeOut: Date | null;
-};
-
 type BusinessContext = NonNullable<
   Awaited<ReturnType<typeof getCachedBusinessWithHoursAndEmployees>>
 >;
@@ -134,14 +129,18 @@ type BookedServiceSegment = {
   end: Date;
   category: string;
   servedByEmployeeId: number | null;
-  servedByOwnerId: number | null;
 };
 
 type SegmentAvailability = {
   availableEmployees: number;
-  availableOwners: number;
   totalAvailable: number;
 };
+
+function isBookingServiceEmployee(
+  employee: BusinessContext["employees"][number],
+) {
+  return employee.profile === StaffProfile.STAFF;
+}
 
 async function getBusinessContext(
   db: AvailabilityDbClient,
@@ -181,65 +180,6 @@ async function getBusinessContext(
   return business as BusinessContext;
 }
 
-async function getAttendanceWindowsForDay({
-  db,
-  businessId,
-  dayStart,
-  dayEnd,
-}: {
-  db: AvailabilityDbClient;
-  businessId: string;
-  dayStart: Date;
-  dayEnd: Date;
-}) {
-  const records = await db.employeeAttendance.findMany({
-    where: {
-      employee: { business_id: businessId },
-      date: {
-        gte: dayStart,
-        lte: dayEnd,
-      },
-      status: {
-        in: [...ATTENDANCE_ACTIVE_STATUSES],
-      },
-      time_in: {
-        not: null,
-      },
-    },
-    select: {
-      employee_id: true,
-      time_in: true,
-      time_out: true,
-    },
-  });
-
-  const windowsByEmployee = new Map<number, AttendanceWindow[]>();
-  for (const record of records) {
-    if (!record.time_in) continue;
-    const windows = windowsByEmployee.get(record.employee_id) || [];
-    windows.push({ timeIn: record.time_in, timeOut: record.time_out });
-    windowsByEmployee.set(record.employee_id, windows);
-  }
-
-  return windowsByEmployee;
-}
-
-function isEmployeeClockedInForWindow(
-  windowsByEmployee: Map<number, AttendanceWindow[]>,
-  employeeId: number,
-  start: Date,
-  end: Date,
-) {
-  const windows = windowsByEmployee.get(employeeId);
-  if (!windows || windows.length === 0) return false;
-
-  return windows.some(
-    (window) =>
-      window.timeIn.getTime() <= start.getTime() &&
-      (!window.timeOut || window.timeOut.getTime() >= end.getTime()),
-  );
-}
-
 function isWithinWindows(
   start: Date,
   end: Date,
@@ -255,15 +195,12 @@ function normalizeSlotIntervalMinutes(value: number) {
 
 function applyUnassignedLoadToAvailability({
   availableEmployees,
-  availableOwners,
   unassignedCount,
 }: {
   availableEmployees: number;
-  availableOwners: number;
   unassignedCount: number;
 }) {
   let nextEmployees = Math.max(0, availableEmployees);
-  let nextOwners = Math.max(0, availableOwners);
   let remainingUnassigned = Math.max(0, unassignedCount);
 
   if (remainingUnassigned > 0) {
@@ -272,13 +209,8 @@ function applyUnassignedLoadToAvailability({
     remainingUnassigned -= employeeReduction;
   }
 
-  if (remainingUnassigned > 0) {
-    nextOwners = Math.max(0, nextOwners - remainingUnassigned);
-  }
-
   return {
     availableEmployees: nextEmployees,
-    availableOwners: nextOwners,
   };
 }
 
@@ -288,27 +220,22 @@ function computeSegmentAvailability({
   end,
   bookedSegments,
   eligibleEmployeeIds,
-  eligibleOwnerIds,
 }: {
   category: string;
   start: Date;
   end: Date;
   bookedSegments: BookedServiceSegment[];
   eligibleEmployeeIds: number[];
-  eligibleOwnerIds: number[];
 }): SegmentAvailability {
-  if (eligibleEmployeeIds.length === 0 && eligibleOwnerIds.length === 0) {
+  if (eligibleEmployeeIds.length === 0) {
     return {
       availableEmployees: 0,
-      availableOwners: 0,
       totalAvailable: 0,
     };
   }
 
   const eligibleEmployeeSet = new Set(eligibleEmployeeIds);
-  const eligibleOwnerSet = new Set(eligibleOwnerIds);
   const busyEmployees = new Set<number>();
-  const busyOwners = new Set<number>();
   let unassignedOverlapCount = 0;
   const normalizedServiceCategory = category.toLowerCase();
 
@@ -317,19 +244,10 @@ function computeSegmentAvailability({
     const overlaps = start < segment.end && end > segment.start;
     if (!overlaps) continue;
 
-    if (
-      segment.servedByEmployeeId &&
-      eligibleEmployeeSet.has(segment.servedByEmployeeId)
-    ) {
-      busyEmployees.add(segment.servedByEmployeeId);
-      continue;
-    }
-
-    if (
-      segment.servedByOwnerId &&
-      eligibleOwnerSet.has(segment.servedByOwnerId)
-    ) {
-      busyOwners.add(segment.servedByOwnerId);
+    if (segment.servedByEmployeeId) {
+      if (eligibleEmployeeSet.has(segment.servedByEmployeeId)) {
+        busyEmployees.add(segment.servedByEmployeeId);
+      }
       continue;
     }
 
@@ -338,14 +256,12 @@ function computeSegmentAvailability({
 
   const adjusted = applyUnassignedLoadToAvailability({
     availableEmployees: eligibleEmployeeIds.length - busyEmployees.size,
-    availableOwners: eligibleOwnerIds.length - busyOwners.size,
     unassignedCount: unassignedOverlapCount,
   });
 
   return {
     availableEmployees: adjusted.availableEmployees,
-    availableOwners: adjusted.availableOwners,
-    totalAvailable: adjusted.availableEmployees + adjusted.availableOwners,
+    totalAvailable: adjusted.availableEmployees,
   };
 }
 
@@ -398,7 +314,6 @@ async function getBookedServiceSegmentsForDay({
         end,
         category: availed.service.category.toLowerCase(),
         servedByEmployeeId: availed.served_by_id,
-        servedByOwnerId: availed.served_by_owner_id,
       });
     }
   }
@@ -412,22 +327,24 @@ async function evaluateSelectedEmployeeAvailability({
   selectedEmployeeId,
   scheduledAt,
   services,
-  now,
-  policy,
 }: {
   db: AvailabilityDbClient;
   business: BusinessContext;
   selectedEmployeeId: number;
   scheduledAt: Date;
   services: SelectedServiceInput[];
-  now: Date;
-  policy: Awaited<ReturnType<typeof getBookingPolicyByBusinessSlug>>;
 }) {
   const selectedEmployee = business.employees.find(
     (employee) => employee.id === selectedEmployeeId,
   );
   if (!selectedEmployee) {
     return { available: false, reason: "Employee not found in this business." };
+  }
+  if (!isBookingServiceEmployee(selectedEmployee)) {
+    return {
+      available: false,
+      reason: "Selected staff is not eligible for service bookings.",
+    };
   }
 
   const serviceRecords = await db.service.findMany({
@@ -478,28 +395,7 @@ async function evaluateSelectedEmployeeAvailability({
     };
   }
 
-  const { dayStart, dayEnd, dateStr } = getPHDayBounds(scheduledAt);
-  const strictWindowMinutes = Math.max(0, policy.sameDayAttendanceStrictMinutes);
-  const nowStr = toPHDateString(now);
-  const nowParts = getPHDateComponents(now);
-  const phNow = new Date(
-    `${nowStr}T${nowParts.hour}:${nowParts.minute}:${nowParts.second}+08:00`,
-  );
-  const strictCutoff = new Date(
-    phNow.getTime() + strictWindowMinutes * 60 * 1000,
-  );
-  const isToday = dateStr === nowStr;
-  const requiresAttendance =
-    isToday && scheduledAt.getTime() < strictCutoff.getTime();
-
-  const attendanceWindowsByEmployee = requiresAttendance
-    ? await getAttendanceWindowsForDay({
-        db,
-        businessId: business.id,
-        dayStart,
-        dayEnd,
-      })
-    : new Map<number, AttendanceWindow[]>();
+  const { dayStart, dayEnd } = getPHDayBounds(scheduledAt);
 
   const existingBookings = await db.booking.findMany({
     where: {
@@ -529,21 +425,6 @@ async function evaluateSelectedEmployeeAvailability({
   let cursor = new Date(scheduledAt);
   for (const service of expandedServices) {
     const serviceEnd = new Date(cursor.getTime() + service.duration * 60 * 1000);
-
-    if (
-      requiresAttendance &&
-      !isEmployeeClockedInForWindow(
-        attendanceWindowsByEmployee,
-        selectedEmployeeId,
-        cursor,
-        serviceEnd,
-      )
-    ) {
-      return {
-        available: false,
-        reason: "Selected staff is not clocked in for this time.",
-      };
-    }
 
     const hasOverlap = existingBookings.some((booking) =>
       booking.availed_services.some((serviceEntry) => {
@@ -665,7 +546,6 @@ export async function resolveStaffSelectionOrThrow({
   services,
   selectedEmployeeId,
   staffSelectionMode = "ANY_AVAILABLE",
-  now = getCurrentDateTimePH(),
   db = prisma,
 }: {
   businessSlug: string;
@@ -673,7 +553,6 @@ export async function resolveStaffSelectionOrThrow({
   services: SelectedServiceInput[];
   selectedEmployeeId?: number;
   staffSelectionMode?: StaffSelectionMode;
-  now?: Date;
   db?: AvailabilityDbClient;
 }): Promise<StaffSelectionResolution> {
   if (!selectedEmployeeId || staffSelectionMode === "ANY_AVAILABLE") {
@@ -683,10 +562,7 @@ export async function resolveStaffSelectionOrThrow({
     };
   }
 
-  const [business, policy] = await Promise.all([
-    getBusinessContext(db, businessSlug),
-    getBookingPolicyByBusinessSlug(db, businessSlug),
-  ]);
+  const business = await getBusinessContext(db, businessSlug);
 
   const selectedAvailable = await evaluateSelectedEmployeeAvailability({
     db,
@@ -694,8 +570,6 @@ export async function resolveStaffSelectionOrThrow({
     selectedEmployeeId,
     scheduledAt,
     services,
-    now,
-    policy,
   });
 
   if (selectedAvailable.available) {
@@ -759,26 +633,9 @@ export async function computeSlots({
   const phNowDate = new Date(
     `${nowStr}T${phNow.hour}:${phNow.minute}:${phNow.second}+08:00`,
   );
-  const isToday = dateStr === nowStr;
-  const strictWindowMinutes = Math.max(
-    0,
-    policy.sameDayAttendanceStrictMinutes,
-  );
-  const strictCutoff = new Date(
-    phNowDate.getTime() + strictWindowMinutes * 60 * 1000,
-  );
   const effectiveSlotInterval = normalizeSlotIntervalMinutes(
     slotIntervalMinutes ?? policy.slotIntervalMinutes,
   );
-
-  const attendanceWindowsByEmployee = isToday
-    ? await getAttendanceWindowsForDay({
-        db,
-        businessId: business.id,
-        dayStart,
-        dayEnd,
-      })
-    : new Map<number, AttendanceWindow[]>();
 
   const selectedServiceRecords = await db.service.findMany({
     where: {
@@ -836,10 +693,7 @@ export async function computeSlots({
     dayEnd,
   });
 
-  const qualifiedProvidersByCategory = new Map<
-    string,
-    { employeeIds: number[]; ownerIds: number[] }
-  >();
+  const qualifiedProvidersByCategory = new Map<string, number[]>();
   const getQualifiedProviderIds = (category: string) => {
     const key = category.toLowerCase();
     const cached = qualifiedProvidersByCategory.get(key);
@@ -848,22 +702,14 @@ export async function computeSlots({
     const employeeIds = business.employees
       .filter(
         (emp) =>
-          emp.specialties.length === 0 ||
-          emp.specialties.some((specialty) => specialty.toLowerCase() === key),
+          isBookingServiceEmployee(emp) &&
+          (emp.specialties.length === 0 ||
+            emp.specialties.some((specialty) => specialty.toLowerCase() === key)),
       )
       .map((emp) => emp.id);
 
-    const ownerIds = business.owners
-      .filter(
-        (owner) =>
-          owner.specialties.length === 0 ||
-          owner.specialties.some((specialty) => specialty.toLowerCase() === key),
-      )
-      .map((owner) => owner.id);
-
-    const result = { employeeIds, ownerIds };
-    qualifiedProvidersByCategory.set(key, result);
-    return result;
+    qualifiedProvidersByCategory.set(key, employeeIds);
+    return employeeIds;
   };
 
   const earliestWindowStart = Math.min(
@@ -894,11 +740,7 @@ export async function computeSlots({
 
     let cursor = new Date(currentSlotStart);
     let availableEmployeeCount = Number.POSITIVE_INFINITY;
-    let availableOwnerCount = Number.POSITIVE_INFINITY;
     let slotFits = true;
-    const isStrictWindowSlot =
-      isToday && currentSlotStart.getTime() < strictCutoff.getTime();
-    let usedRosterFallback = !isToday;
 
     for (const service of orderedServices) {
       const serviceEnd = new Date(cursor.getTime() + service.duration * 60 * 1000);
@@ -907,63 +749,23 @@ export async function computeSlots({
         break;
       }
 
-      const qualifiedProviders = getQualifiedProviderIds(service.category);
-      const rosterEmployeeIds = qualifiedProviders.employeeIds;
-      const rosterOwnerIds = qualifiedProviders.ownerIds;
-      const attendanceEmployeeIds = qualifiedProviders.employeeIds.filter(
-        (employeeId) =>
-          isEmployeeClockedInForWindow(
-            attendanceWindowsByEmployee,
-            employeeId,
-            cursor,
-            serviceEnd,
-          ),
-      );
-      const attendanceOwnerIds = qualifiedProviders.ownerIds;
-
-      const attendanceCapacity = computeSegmentAvailability({
+      const qualifiedEmployeeIds = getQualifiedProviderIds(service.category);
+      const workloadCapacity = computeSegmentAvailability({
         category: service.category,
         start: cursor,
         end: serviceEnd,
         bookedSegments,
-        eligibleEmployeeIds: attendanceEmployeeIds,
-        eligibleOwnerIds: attendanceOwnerIds,
-      });
-      const rosterCapacity = computeSegmentAvailability({
-        category: service.category,
-        start: cursor,
-        end: serviceEnd,
-        bookedSegments,
-        eligibleEmployeeIds: rosterEmployeeIds,
-        eligibleOwnerIds: rosterOwnerIds,
+        eligibleEmployeeIds: qualifiedEmployeeIds,
       });
 
-      let chosenCapacity: SegmentAvailability | null = null;
-
-      if (!isToday) {
-        chosenCapacity = rosterCapacity.totalAvailable > 0 ? rosterCapacity : null;
-      } else if (isStrictWindowSlot) {
-        chosenCapacity =
-          attendanceCapacity.totalAvailable > 0 ? attendanceCapacity : null;
-      } else if (attendanceCapacity.totalAvailable > 0) {
-        chosenCapacity = attendanceCapacity;
-      } else if (rosterCapacity.totalAvailable > 0) {
-        chosenCapacity = rosterCapacity;
-        usedRosterFallback = true;
-      }
-
-      if (!chosenCapacity || chosenCapacity.totalAvailable <= 0) {
+      if (workloadCapacity.totalAvailable <= 0) {
         slotFits = false;
         break;
       }
 
       availableEmployeeCount = Math.min(
         availableEmployeeCount,
-        chosenCapacity.availableEmployees,
-      );
-      availableOwnerCount = Math.min(
-        availableOwnerCount,
-        chosenCapacity.availableOwners,
+        workloadCapacity.availableEmployees,
       );
 
       cursor = serviceEnd;
@@ -974,19 +776,15 @@ export async function computeSlots({
         availableEmployeeCount === Number.POSITIVE_INFINITY
           ? 0
           : Math.max(0, availableEmployeeCount);
-      const normalizedOwnerCount =
-        availableOwnerCount === Number.POSITIVE_INFINITY
-          ? 0
-          : Math.max(0, availableOwnerCount);
 
       slots.push({
         startTime: new Date(currentSlotStart),
         endTime: new Date(cursor),
         available: true,
         availableEmployeeCount: normalizedEmployeeCount,
-        availableOwnerCount: normalizedOwnerCount,
-        source: usedRosterFallback ? "ROSTER" : "ATTENDANCE",
-        confidence: usedRosterFallback ? "TENTATIVE" : "CONFIRMED",
+        availableOwnerCount: 0,
+        source: "WORKLOAD",
+        confidence: "GUARANTEED",
       });
     }
 
@@ -1169,7 +967,6 @@ export async function validateBookingOrThrow({
     services,
     selectedEmployeeId,
     staffSelectionMode,
-    now,
     db,
   });
 }

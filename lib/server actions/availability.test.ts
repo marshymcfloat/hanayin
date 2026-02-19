@@ -76,8 +76,8 @@ describe("availability server action", () => {
       available: true,
       availableEmployeeCount: 1,
       availableOwnerCount: 0,
-      source: "ROSTER" as const,
-      confidence: "TENTATIVE" as const,
+      source: "WORKLOAD" as const,
+      confidence: "GUARANTEED" as const,
     };
     availabilityServiceMock.computeSlots.mockResolvedValue([slot]);
 
