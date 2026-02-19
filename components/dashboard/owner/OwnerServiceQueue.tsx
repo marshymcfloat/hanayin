@@ -14,7 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { formatPH } from "@/lib/date-utils";
-import { AvailedServiceStatus } from "@/prisma/generated/prisma/client";
+import { AvailedServiceStatus } from "@/prisma/generated/prisma/enums";
 import {
   CheckCircle2,
   Clock,

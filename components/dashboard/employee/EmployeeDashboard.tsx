@@ -135,6 +135,9 @@ export default function EmployeeDashboard({
     signOut({ callbackUrl: "/" });
   };
 
+  const showQueueSection = capabilities.canClaimQueue;
+  const showServedSection = capabilities.canServeQueue;
+
   return (
     <main className="min-h-screen bg-slate-50/50 pb-24 md:pb-12 font-sans">
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
@@ -318,59 +321,57 @@ export default function EmployeeDashboard({
           />
         </section>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 md:gap-10">
-          <section className="xl:col-span-7 space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold text-slate-900">
-                  Current Queue
-                </h2>
-                <span className="hidden md:inline-flex h-6 items-center rounded-full bg-slate-100 px-2.5 text-xs font-bold text-slate-600">
-                  {visiblePendingServices.length}
-                </span>
-              </div>
-            </div>
+        {showQueueSection || showServedSection ? (
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 md:gap-10">
+            {showQueueSection ? (
+              <section
+                className={`${showServedSection ? "xl:col-span-7" : "xl:col-span-12"} space-y-5`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-bold text-slate-900">
+                      Current Queue
+                    </h2>
+                    <span className="hidden md:inline-flex h-6 items-center rounded-full bg-slate-100 px-2.5 text-xs font-bold text-slate-600">
+                      {visiblePendingServices.length}
+                    </span>
+                  </div>
+                </div>
 
-            {capabilities.canClaimQueue ? (
-              <div className="-mx-4 md:mx-0">
-                <PendingServicesList
-                  services={visiblePendingServices}
-                  businessSlug={businessSlug}
-                  currentEmployeeId={currentEmployeeId}
-                  employeeSpecialties={currentEmployeeSpecialties}
-                  saleEvents={saleEvents}
-                  canClaimServices={capabilities.canClaimQueue}
-                />
-              </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-zinc-200 bg-white px-4 py-6 text-sm text-zinc-500">
-                Queue claiming is disabled for your current profile.
-              </div>
-            )}
-          </section>
+                <div className="-mx-4 md:mx-0">
+                  <PendingServicesList
+                    services={visiblePendingServices}
+                    businessSlug={businessSlug}
+                    currentEmployeeId={currentEmployeeId}
+                    employeeSpecialties={currentEmployeeSpecialties}
+                    saleEvents={saleEvents}
+                    canClaimServices={capabilities.canClaimQueue}
+                  />
+                </div>
+              </section>
+            ) : null}
 
-          <section className="xl:col-span-5 space-y-5">
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-bold text-slate-900">
-                Served History
-              </h2>
-            </div>
-            {capabilities.canServeQueue ? (
-              <div className="-mx-4 md:mx-0">
-                <EmployeeServedHistory
-                  services={visibleServedHistory}
-                  employeeSpecialties={currentEmployeeSpecialties}
-                  currentEmployeeId={currentEmployeeId}
-                  currentEmployeeCommission={currentEmployeeCommission}
-                />
-              </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-zinc-200 bg-white px-4 py-6 text-sm text-zinc-500">
-                Service completion tracking is disabled for your current profile.
-              </div>
-            )}
-          </section>
-        </div>
+            {showServedSection ? (
+              <section
+                className={`${showQueueSection ? "xl:col-span-5" : "xl:col-span-12"} space-y-5`}
+              >
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Served History
+                  </h2>
+                </div>
+                <div className="-mx-4 md:mx-0">
+                  <EmployeeServedHistory
+                    services={visibleServedHistory}
+                    employeeSpecialties={currentEmployeeSpecialties}
+                    currentEmployeeId={currentEmployeeId}
+                    currentEmployeeCommission={currentEmployeeCommission}
+                  />
+                </div>
+              </section>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </main>
   );

@@ -4,51 +4,23 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatPH } from "@/lib/date-utils";
-import { AvailedServiceStatus } from "@/prisma/generated/prisma/enums";
+import { getManagerQueueBoardAction } from "@/lib/server actions/dashboard";
 import {
   claimServiceAction,
-  getManagerQueueBoardAction,
   markServiceServedAction,
   unclaimServiceAction,
   unserveServiceAction,
 } from "@/lib/server actions/dashboard";
+import {
+  ManagerQueueCard,
+  QueueService,
+  QueueEmployee,
+} from "./ManagerQueueCard";
+import { AvailedServiceStatus } from "@/prisma/generated/prisma/enums";
 
-export type ManagerQueueService = {
-  id: number;
-  status: AvailedServiceStatus;
-  price: number;
-  scheduled_at: Date | null;
-  package: { name: string } | null;
-  service: {
-    name: string;
-    category: string;
-    duration: number | null;
-  };
-  served_by_id: number | null;
-  served_by: {
-    user: {
-      name: string;
-    };
-  } | null;
-  booking: {
-    customer: {
-      name: string;
-    };
-    scheduled_at: Date | null;
-    created_at: Date;
-  };
-};
-
-export type ManagerQueueEmployee = {
-  id: number;
-  specialties: string[];
-  user: {
-    name: string;
-  };
-};
+// Re-export types for compatibility if needed elsewhere, mapped to the new component types
+export type ManagerQueueService = QueueService;
+export type ManagerQueueEmployee = QueueEmployee;
 
 export default function ManagerQueueBoard({
   businessSlug,
@@ -88,10 +60,17 @@ export default function ManagerQueueBoard({
   const services = data?.services ?? initialServices;
   const employees = data?.employees ?? initialEmployees;
 
-  const serviceCounts = useMemo(() => {
+  // Split services into columns
+  const columns = useMemo(() => {
     return {
-      pending: services.filter((service) => service.status === "PENDING").length,
-      active: services.filter((service) => service.status !== "PENDING").length,
+      pending: services.filter(
+        (service) => service.status === AvailedServiceStatus.PENDING,
+      ),
+      active: services.filter(
+        (service) =>
+          service.status === AvailedServiceStatus.CLAIMED ||
+          service.status === AvailedServiceStatus.SERVING,
+      ),
     };
   }, [services]);
 
@@ -105,17 +84,29 @@ export default function ManagerQueueBoard({
   const invalidateQueueQueries = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey }),
-      queryClient.invalidateQueries({ queryKey: ["pending-services", businessSlug] }),
+      queryClient.invalidateQueries({
+        queryKey: ["pending-services", businessSlug],
+      }),
       queryClient.invalidateQueries({
         queryKey: ["employee-today-bookings", businessSlug],
       }),
     ]);
   };
 
+  const handleAssignChange = (serviceId: number, employeeId: number) => {
+    setAssigneeByServiceId((prev) => ({
+      ...prev,
+      [serviceId]: employeeId,
+    }));
+  };
+
   const handleAssign = async (service: ManagerQueueService) => {
     const assigneeId = getSuggestedAssignee(service);
+    // Modified to check for 0 or undefined if that was possible, but basically if we don't have a valid ID
     if (!assigneeId) {
-      toast.error("No employee available for assignment.");
+      // If we provided a default in getSuggestedAssignee, this might not hit,
+      // but let's be safe if default is invalid.
+      toast.error("No employee selected.");
       return;
     }
 
@@ -160,7 +151,7 @@ export default function ManagerQueueBoard({
     setBusyServiceId(service.id);
     try {
       const result =
-        service.status === "SERVING"
+        service.status === AvailedServiceStatus.SERVING
           ? await unserveServiceAction(service.id)
           : await unclaimServiceAction(service.id);
       if (!result.success) {
@@ -169,7 +160,7 @@ export default function ManagerQueueBoard({
       }
 
       toast.success(
-        service.status === "SERVING"
+        service.status === AvailedServiceStatus.SERVING
           ? "Service moved back to claimed."
           : "Service returned to pending queue.",
       );
@@ -179,149 +170,83 @@ export default function ManagerQueueBoard({
     }
   };
 
-  const getDisplayTime = (service: ManagerQueueService) =>
-    service.booking.scheduled_at ?? service.booking.created_at ?? service.scheduled_at;
-
-  const statusClass = (status: ManagerQueueService["status"]) => {
-    if (status === AvailedServiceStatus.PENDING) {
-      return "bg-amber-50 text-amber-700 border-amber-200";
-    }
-    if (status === AvailedServiceStatus.SERVING) {
-      return "bg-blue-50 text-blue-700 border-blue-200";
-    }
-    return "bg-emerald-50 text-emerald-700 border-emerald-200";
-  };
-
   return (
-    <Card className="rounded-2xl border border-zinc-100 shadow-sm">
-      <CardHeader className="pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle className="text-base font-semibold text-zinc-900">
-            Manager Queue Board
-          </CardTitle>
-          <div className="flex items-center gap-2">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full items-start">
+        {/* Pending Column */}
+        <div className="flex flex-col gap-3 p-1 rounded-xl bg-zinc-50/50 border border-zinc-100/50 h-full min-h-[300px]">
+          <div className="flex items-center justify-between px-3 py-2">
+            <h3 className="font-display font-semibold text-zinc-900 text-sm">
+              Pending
+            </h3>
             <Badge
-              variant="outline"
-              className="border-amber-200 bg-amber-50 text-amber-700"
+              variant="secondary"
+              className="bg-zinc-100 text-zinc-600 border-zinc-200"
             >
-              Pending: {serviceCounts.pending}
+              {columns.pending.length}
             </Badge>
-            <Badge
-              variant="outline"
-              className="border-blue-200 bg-blue-50 text-blue-700"
-            >
-              Active: {serviceCounts.active}
-            </Badge>
+          </div>
+
+          <div className="flex flex-col gap-3 px-1">
+            {columns.pending.length === 0 ? (
+              <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zinc-200 p-4 text-center">
+                <p className="text-xs text-zinc-400">No pending items</p>
+              </div>
+            ) : (
+              columns.pending.map((service) => (
+                <ManagerQueueCard
+                  key={service.id}
+                  service={service}
+                  employees={employees}
+                  isBusy={busyServiceId === service.id}
+                  assigneeByServiceId={assigneeByServiceId}
+                  onAssignChange={handleAssignChange}
+                  onAssign={handleAssign}
+                  onServe={handleServe}
+                  onRevert={handleRevert}
+                />
+              ))
+            )}
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {services.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-200 px-4 py-6 text-center text-sm text-zinc-500">
-            No queue items to manage right now.
+
+        {/* Active Column (Claimed + Serving) */}
+        <div className="flex flex-col gap-3 p-1 rounded-xl bg-zinc-50/50 border border-zinc-100/50 h-full min-h-[300px]">
+          <div className="flex items-center justify-between px-3 py-2">
+            <h3 className="font-display font-semibold text-zinc-900 text-sm">
+              Active
+            </h3>
+            <Badge
+              variant="secondary"
+              className="bg-blue-50 text-blue-700 border-blue-100"
+            >
+              {columns.active.length}
+            </Badge>
           </div>
-        ) : (
-          services.map((service) => {
-            const assigneeId = getSuggestedAssignee(service);
-            const isBusy = busyServiceId === service.id;
-            return (
-              <div
-                key={service.id}
-                className="rounded-xl border border-zinc-200 bg-white p-3"
-              >
-                <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-semibold text-zinc-900">
-                      {service.service.name}
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      {service.booking.customer.name} -{" "}
-                      {getDisplayTime(service)
-                        ? formatPH(getDisplayTime(service), "MMM d, h:mm a")
-                        : "Walk-in"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {service.package ? (
-                      <Badge
-                        variant="outline"
-                        className="border-zinc-200 bg-zinc-50 text-zinc-700"
-                      >
-                        {service.package.name}
-                      </Badge>
-                    ) : null}
-                    <Badge variant="outline" className={statusClass(service.status)}>
-                      {service.status}
-                    </Badge>
-                  </div>
-                </div>
 
-                <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-                  <div className="grid gap-2">
-                    <label className="text-xs font-medium text-zinc-600">
-                      Assigned Employee
-                    </label>
-                    <select
-                      value={assigneeId || ""}
-                      onChange={(event) =>
-                        setAssigneeByServiceId((prev) => ({
-                          ...prev,
-                          [service.id]: Number(event.target.value),
-                        }))
-                      }
-                      className="h-9 rounded-lg border border-zinc-200 bg-white px-2 text-sm"
-                      disabled={isBusy}
-                    >
-                      {employees.map((employee) => (
-                        <option key={employee.id} value={employee.id}>
-                          {employee.user.name}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-[11px] text-zinc-500">
-                      Current: {service.served_by?.user.name || "Unassigned"}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAssign(service)}
-                      disabled={isBusy || !assigneeId}
-                    >
-                      {service.status === AvailedServiceStatus.PENDING
-                        ? "Assign"
-                        : "Reassign"}
-                    </Button>
-                    {service.status !== AvailedServiceStatus.PENDING ? (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => handleServe(service)}
-                          disabled={isBusy || !assigneeId}
-                        >
-                          Serve
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleRevert(service)}
-                          disabled={isBusy}
-                        >
-                          {service.status === AvailedServiceStatus.SERVING
-                            ? "Undo Serve"
-                            : "Unclaim"}
-                        </Button>
-                      </>
-                    ) : null}
-                  </div>
-                </div>
+          <div className="flex flex-col gap-3 px-1">
+            {columns.active.length === 0 ? (
+              <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zinc-200 p-4 text-center">
+                <p className="text-xs text-zinc-400">No active items</p>
               </div>
-            );
-          })
-        )}
-      </CardContent>
-    </Card>
+            ) : (
+              columns.active.map((service) => (
+                <ManagerQueueCard
+                  key={service.id}
+                  service={service}
+                  employees={employees}
+                  isBusy={busyServiceId === service.id}
+                  assigneeByServiceId={assigneeByServiceId}
+                  onAssignChange={handleAssignChange}
+                  onAssign={handleAssign}
+                  onServe={handleServe}
+                  onRevert={handleRevert}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

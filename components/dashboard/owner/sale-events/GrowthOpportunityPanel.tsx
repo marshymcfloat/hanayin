@@ -85,6 +85,14 @@ export function GrowthOpportunityPanel(props: {
         services: [...services].sort((a, b) => a.name.localeCompare(b.name)),
       }));
   }, [props.services]);
+  const allServiceIds = useMemo(
+    () => props.services.map((service) => service.id),
+    [props.services],
+  );
+  const allPackageIds = useMemo(
+    () => props.packages.map((pkg) => pkg.id),
+    [props.packages],
+  );
 
   const capacitySummary = useMemo(() => {
     if (!opportunity?.metadata) return null;
@@ -141,6 +149,54 @@ export function GrowthOpportunityPanel(props: {
         : previous.filter((item) => item !== value),
     );
   };
+
+  const setManyNumbers = (
+    key: "service" | "package",
+    values: number[],
+    checked: boolean,
+  ) => {
+    if (key === "service") {
+      setSelectedServiceIds((previous) => {
+        const updated = new Set(previous);
+        values.forEach((value) => {
+          if (checked) {
+            updated.add(value);
+          } else {
+            updated.delete(value);
+          }
+        });
+        return Array.from(updated);
+      });
+      return;
+    }
+
+    setSelectedPackageIds((previous) => {
+      const updated = new Set(previous);
+      values.forEach((value) => {
+        if (checked) {
+          updated.add(value);
+        } else {
+          updated.delete(value);
+        }
+      });
+      return Array.from(updated);
+    });
+  };
+
+  const isAllSelected = (selectedIds: number[], ids: number[]) =>
+    ids.length > 0 && ids.every((id) => selectedIds.includes(id));
+
+  const isPartiallySelected = (selectedIds: number[], ids: number[]) =>
+    ids.some((id) => selectedIds.includes(id));
+
+  const servicesAllSelected = isAllSelected(selectedServiceIds, allServiceIds);
+  const servicesPartiallySelected =
+    !servicesAllSelected &&
+    isPartiallySelected(selectedServiceIds, allServiceIds);
+  const packagesAllSelected = isAllSelected(selectedPackageIds, allPackageIds);
+  const packagesPartiallySelected =
+    !packagesAllSelected &&
+    isPartiallySelected(selectedPackageIds, allPackageIds);
 
   const generateDraft = async () => {
     if (!props.growthAiEnabled) {
@@ -289,38 +345,135 @@ export function GrowthOpportunityPanel(props: {
                     </TabsList>
 
                     <TabsContent value="services" className="mt-3 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
+                        <label className="flex items-center gap-2 text-sm font-medium">
+                          <Checkbox
+                            checked={
+                              servicesAllSelected
+                                ? true
+                                : servicesPartiallySelected
+                                  ? "indeterminate"
+                                  : false
+                            }
+                            disabled={allServiceIds.length === 0}
+                            onCheckedChange={(checked) =>
+                              setManyNumbers("service", allServiceIds, checked === true)
+                            }
+                          />
+                          Select all services
+                        </label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => setSelectedServiceIds([])}
+                          disabled={selectedServiceIds.length === 0}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+
                       {servicesByCategory.length === 0 ? (
                         <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
                           No services available yet.
                         </p>
                       ) : (
-                        servicesByCategory.map(({ category, services }) => (
-                          <div key={category} className="rounded-md border p-3">
-                            <p className="mb-2 text-xs font-semibold text-zinc-700">
-                              {category}
-                            </p>
-                            <div className="grid gap-2 sm:grid-cols-2">
-                              {services.map((service) => (
-                                <label
-                                  key={service.id}
-                                  className="flex min-h-10 items-center gap-2 text-sm text-zinc-700"
-                                >
+                        servicesByCategory.map(({ category, services }) => {
+                          const categoryServiceIds = services.map((service) => service.id);
+                          const categoryAllSelected = isAllSelected(
+                            selectedServiceIds,
+                            categoryServiceIds,
+                          );
+                          const categoryPartiallySelected =
+                            !categoryAllSelected &&
+                            isPartiallySelected(selectedServiceIds, categoryServiceIds);
+
+                          return (
+                            <div key={category} className="rounded-md border p-3">
+                              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <p className="text-sm font-medium text-zinc-800">
+                                    {category}
+                                  </p>
+                                  <p className="text-xs text-zinc-500">
+                                    {categoryServiceIds.filter((id) =>
+                                      selectedServiceIds.includes(id),
+                                    ).length}
+                                    /{categoryServiceIds.length} selected
+                                  </p>
+                                </div>
+                                <label className="flex items-center gap-2 text-xs font-medium text-zinc-600">
                                   <Checkbox
-                                    checked={selectedServiceIds.includes(service.id)}
+                                    checked={
+                                      categoryAllSelected
+                                        ? true
+                                        : categoryPartiallySelected
+                                          ? "indeterminate"
+                                          : false
+                                    }
                                     onCheckedChange={(checked) =>
-                                      toggleNumber("service", service.id, checked === true)
+                                      setManyNumbers(
+                                        "service",
+                                        categoryServiceIds,
+                                        checked === true,
+                                      )
                                     }
                                   />
-                                  {service.name}
+                                  Select category
                                 </label>
-                              ))}
+                              </div>
+
+                              <div className="grid gap-2 sm:grid-cols-2">
+                                {services.map((service) => (
+                                  <label
+                                    key={service.id}
+                                    className="flex min-h-10 items-center gap-2 text-sm text-zinc-700"
+                                  >
+                                    <Checkbox
+                                      checked={selectedServiceIds.includes(service.id)}
+                                      onCheckedChange={(checked) =>
+                                        toggleNumber("service", service.id, checked === true)
+                                      }
+                                    />
+                                    {service.name}
+                                  </label>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </TabsContent>
 
-                    <TabsContent value="packages" className="mt-3">
+                    <TabsContent value="packages" className="mt-3 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
+                        <label className="flex items-center gap-2 text-sm font-medium">
+                          <Checkbox
+                            checked={
+                              packagesAllSelected
+                                ? true
+                                : packagesPartiallySelected
+                                  ? "indeterminate"
+                                  : false
+                            }
+                            disabled={allPackageIds.length === 0}
+                            onCheckedChange={(checked) =>
+                              setManyNumbers("package", allPackageIds, checked === true)
+                            }
+                          />
+                          Select all packages
+                        </label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => setSelectedPackageIds([])}
+                          disabled={selectedPackageIds.length === 0}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+
                       {props.packages.length === 0 ? (
                         <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
                           No packages available yet.

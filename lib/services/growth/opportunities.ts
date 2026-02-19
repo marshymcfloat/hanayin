@@ -14,20 +14,45 @@ export async function getTodayOpportunityViews(businessId: string): Promise<Oppo
   const start = getStartOfDayPH(now);
   const end = getEndOfDayPH(now);
 
-  const opportunities = await prisma.opportunity.findMany({
-    where: {
-      business_id: businessId,
-      status: "OPEN",
-      created_at: {
-        gte: start,
-        lte: end,
+  const [opportunities, activeCampaigns] = await Promise.all([
+    prisma.opportunity.findMany({
+      where: {
+        business_id: businessId,
+        status: "OPEN",
+        created_at: {
+          gte: start,
+          lte: end,
+        },
       },
-    },
-    orderBy: [{ total_score: "desc" }, { created_at: "desc" }],
-    take: 3,
-  });
+      orderBy: [{ total_score: "desc" }, { created_at: "desc" }],
+      take: 5,
+    }),
+    prisma.campaign.findMany({
+      where: {
+        business_id: businessId,
+        sale_event: {
+          start_date: { lte: now },
+          end_date: { gte: now },
+        },
+      },
+      select: {
+        opportunity: {
+          select: {
+            type: true,
+          },
+        },
+      },
+    }),
+  ]);
 
-  return opportunities.map((opportunity) => {
+  const activeOpportunityTypes = new Set(
+    activeCampaigns.map((campaign) => campaign.opportunity.type),
+  );
+  const unsuppressedOpportunities = opportunities
+    .filter((opportunity) => !activeOpportunityTypes.has(opportunity.type))
+    .slice(0, 3);
+
+  return unsuppressedOpportunities.map((opportunity) => {
     const schedule = recommendPostingSchedule({
       opportunityType: opportunity.type,
       opportunityWindowStart: opportunity.time_window_start,
@@ -50,4 +75,3 @@ export async function getTodayOpportunityViews(businessId: string): Promise<Oppo
     };
   });
 }
-
