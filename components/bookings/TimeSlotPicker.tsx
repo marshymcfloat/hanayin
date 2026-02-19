@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { TimeSlot } from "@/lib/services/booking-availability";
 import { Clock, Info } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface TimeSlotPickerProps {
   slots: TimeSlot[];
@@ -97,14 +96,6 @@ export default function TimeSlotPicker({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-1.5">
-        <Badge variant="secondary" className="text-[10px]">
-          Guaranteed = attendance-backed
-        </Badge>
-        <Badge variant="secondary" className="text-[10px]">
-          Estimated = roster projection
-        </Badge>
-      </div>
       {businessHours && category && (
         <div className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-200/60">
           <Info className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
@@ -119,12 +110,11 @@ export default function TimeSlotPicker({
         {slots.map((slot) => {
           const isSelected =
             value && slot.startTime.getTime() === value.getTime();
-          const totalAvailableProviders =
-            slot.availableEmployeeCount + slot.availableOwnerCount;
+          const totalAvailableEmployees = slot.availableEmployeeCount;
           const availabilityLevel =
-            totalAvailableProviders >= 3
+            totalAvailableEmployees >= 3
               ? "high"
-              : totalAvailableProviders >= 1
+              : totalAvailableEmployees >= 1
                 ? "medium"
                 : "none";
 
@@ -173,9 +163,7 @@ export default function TimeSlotPicker({
                   ? `${slot.availableEmployeeCount} ${
                       slot.availableEmployeeCount === 1 ? "Employee" : "Employees"
                     }`
-                  : slot.availableOwnerCount > 0
-                    ? "Available"
-                    : "Unavailable"}
+                  : "Unavailable"}
               </span>
               <span
                 className={cn(
@@ -183,10 +171,8 @@ export default function TimeSlotPicker({
                   isSelected ? "text-primary-foreground/70" : "text-muted-foreground",
                 )}
               >
-                {totalAvailableProviders} provider
-                {totalAvailableProviders === 1 ? "" : "s"} left -{" "}
-                {slot.confidence === "CONFIRMED" ? "Guaranteed" : "Estimated"} -{" "}
-                {slot.source === "ATTENDANCE" ? "Attendance" : "Roster"}
+                {totalAvailableEmployees} employee
+                {totalAvailableEmployees === 1 ? "" : "s"} left - Guaranteed
               </span>
             </Button>
           );

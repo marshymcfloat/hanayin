@@ -26,15 +26,14 @@ describe("booking-form-utils", () => {
     );
   });
 
-  it("shows strict-window fallback message when tentative later slots exist", () => {
+  it("shows generic empty-state message when no slots are available", () => {
     const state = getSlotEmptyState({
       isSelectedDateInFuture: false,
       bookingV2Enabled: true,
       isSelectedDateToday: true,
-      hasTentativeAlternativeSlots: true,
     });
 
-    expect(state.title).toBe("No guaranteed slots right now");
-    expect(state.description).toMatch(/Estimated slots later today/i);
+    expect(state.title).toBe("No available slots for the selected services");
+    expect(state.description).toMatch(/Try another date/i);
   });
 });

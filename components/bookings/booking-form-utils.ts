@@ -21,25 +21,15 @@ export function getSlotEmptyState({
   isSelectedDateInFuture,
   bookingV2Enabled,
   isSelectedDateToday,
-  hasTentativeAlternativeSlots,
 }: {
   isSelectedDateInFuture: boolean;
   bookingV2Enabled: boolean;
   isSelectedDateToday: boolean;
-  hasTentativeAlternativeSlots: boolean;
 }) {
   if (isSelectedDateInFuture && !bookingV2Enabled) {
     return {
       title: "Future slots are currently disabled",
       description: "Ask the business to enable Booking V2 for future-date scheduling.",
-    };
-  }
-
-  if (isSelectedDateToday && hasTentativeAlternativeSlots) {
-    return {
-      title: "No guaranteed slots right now",
-      description:
-        "Estimated slots later today are available. Pick one below or try another time.",
     };
   }
 

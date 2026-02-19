@@ -192,8 +192,7 @@ export function BusinessHoursClient({
     key:
       | "bookingHorizonDays"
       | "minLeadMinutes"
-      | "slotIntervalMinutes"
-      | "sameDayAttendanceStrictMinutes",
+      | "slotIntervalMinutes",
     value: string,
   ) => {
     const parsed = Number.parseInt(value, 10);
@@ -242,7 +241,7 @@ export function BusinessHoursClient({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5 p-6 bg-white">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="booking-horizon-days">Booking Horizon (days)</Label>
                   <Input
@@ -279,24 +278,6 @@ export function BusinessHoursClient({
                     value={policy.slotIntervalMinutes}
                     onChange={(event) =>
                       updateNumericPolicy("slotIntervalMinutes", event.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="same-day-strict-minutes">
-                    Same-day Strict Window (minutes)
-                  </Label>
-                  <Input
-                    id="same-day-strict-minutes"
-                    type="number"
-                    min={0}
-                    max={480}
-                    value={policy.sameDayAttendanceStrictMinutes}
-                    onChange={(event) =>
-                      updateNumericPolicy(
-                        "sameDayAttendanceStrictMinutes",
-                        event.target.value,
-                      )
                     }
                   />
                 </div>

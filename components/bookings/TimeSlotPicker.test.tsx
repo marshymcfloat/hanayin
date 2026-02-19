@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import TimeSlotPicker from "./TimeSlotPicker";
 
 describe("TimeSlotPicker", () => {
-  it("renders slot confidence and source labels", () => {
+  it("renders deterministic workload labels", () => {
     render(
       <TimeSlotPicker
         slots={[
@@ -13,16 +13,16 @@ describe("TimeSlotPicker", () => {
             available: true,
             availableEmployeeCount: 2,
             availableOwnerCount: 0,
-            source: "ROSTER",
-            confidence: "TENTATIVE",
+            source: "WORKLOAD",
+            confidence: "GUARANTEED",
           },
         ]}
         onChange={vi.fn()}
       />,
     );
 
-    expect(screen.getAllByText(/Estimated/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Roster/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Guaranteed/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/2 employees left - Guaranteed/i).length).toBeGreaterThan(0);
   });
 
   it("shows and uses alternative slots in empty state", () => {
@@ -33,8 +33,8 @@ describe("TimeSlotPicker", () => {
       available: true,
       availableEmployeeCount: 1,
       availableOwnerCount: 0,
-      source: "ROSTER" as const,
-      confidence: "TENTATIVE" as const,
+      source: "WORKLOAD" as const,
+      confidence: "GUARANTEED" as const,
     };
 
     render(

@@ -18,7 +18,6 @@ interface EmployeeSelectProps {
   onChange: (employeeId: number | null) => void;
   isLoading?: boolean;
   serviceCategories?: string[];
-  ownerAvailableFallback?: boolean;
   showOptionalHint?: boolean;
 }
 
@@ -28,7 +27,6 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
   onChange,
   isLoading = false,
   serviceCategories,
-  ownerAvailableFallback = false,
   showOptionalHint = true,
 }: EmployeeSelectProps) {
   const categorySet = React.useMemo(() => {
@@ -65,14 +63,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
     return (
       <div className="text-center py-6 text-muted-foreground">
         <User className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>
-          {ownerAvailableFallback
-            ? "No employees available for this slot"
-            : "No staff members available"}
-        </p>
-        {ownerAvailableFallback && (
-          <p className="text-xs mt-1">This slot can still be accommodated.</p>
-        )}
+        <p>No staff members available</p>
         {categorySet && (
           <p className="text-xs mt-1">No staff match the selected services.</p>
         )}
@@ -103,18 +94,8 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
 
       {availableEmployees.length === 0 && unavailableEmployees.length > 0 && (
         <div className="text-center py-2 text-muted-foreground">
-          <p>
-            {ownerAvailableFallback
-              ? "No employees currently available for this time."
-              : "No staff currently clocked in for this time."}
-          </p>
-          {ownerAvailableFallback ? (
-            <p className="text-xs mt-1">This slot can still proceed.</p>
-          ) : (
-            <p className="text-xs mt-1">
-              Staff below are unavailable due to schedule or attendance.
-            </p>
-          )}
+          <p>No staff currently available for this time.</p>
+          <p className="text-xs mt-1">Staff below are already busy.</p>
         </div>
       )}
 

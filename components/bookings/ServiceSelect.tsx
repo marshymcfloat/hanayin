@@ -4,7 +4,6 @@ import {
   ChevronsUpDown,
   Package as PackageIcon,
   AlertCircle,
-  User,
   Users,
   Clock,
 } from "lucide-react";
@@ -52,8 +51,6 @@ type CategoryAvailability = {
   hasBusinessHours: boolean;
   businessHoursPassed: boolean;
   qualifiedEmployeeCount: number;
-  ownerAvailable: boolean;
-  availabilitySource: "ATTENDANCE" | "ROSTER";
 };
 
 type FormLike = {
@@ -151,8 +148,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
             businessSlug,
             category,
             date: selectedDate,
-            // Keep service browsing permissive; strictness is enforced at slot and submit validation.
-            enforceAttendanceForToday: false,
           });
         } catch (error) {
           console.error(`Error checking availability for ${category}:`, error);
@@ -160,8 +155,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
             hasBusinessHours: true,
             businessHoursPassed: false,
             qualifiedEmployeeCount: 0,
-            ownerAvailable: false,
-            availabilitySource: "ROSTER",
           };
         }
       }
@@ -368,15 +361,9 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       const availability =
                         categoryAvailability?.[service.category];
                       const dataLoaded = !!availability;
-                      const ownerAvailable = !!availability?.ownerAvailable;
                       const noStaff =
                         dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0 &&
-                        !ownerAvailable;
-                      const noEmployeesButOwner =
-                        dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0 &&
-                        ownerAvailable;
+                        availability?.qualifiedEmployeeCount === 0;
                       const outsideHours =
                         dataLoaded &&
                         availability?.businessHoursPassed === true;
@@ -390,8 +377,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         !!selectedDate && isUnavailable && !isSelected;
                       const qualifiedEmployeeCount =
                         availability?.qualifiedEmployeeCount ?? 0;
-                      const usesAttendance =
-                        availability?.availabilitySource === "ATTENDANCE";
 
                       return (
                         <CommandItem
@@ -451,9 +436,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
                                   >
                                     <Users className="h-2.5 w-2.5" />
-                                    {usesAttendance
-                                      ? "No One Clocked In"
-                                      : "No Staff"}
+                                    No qualified staff
                                   </Badge>
                                 )}
                                 {!selectedDate && dataLoaded && (
@@ -462,15 +445,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
                                   >
                                     Preview
-                                  </Badge>
-                                )}
-                                {noEmployeesButOwner && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 shadow-none flex items-center gap-1"
-                                  >
-                                    <User className="h-2.5 w-2.5" />
-                                    Available Now
                                   </Badge>
                                 )}
                                 {outsideHours && (
@@ -498,17 +472,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                   !outsideHours &&
                                   !noBusinessHours && (
                                     <span className="ml-2 text-green-600">
-                                      • {qualifiedEmployeeCount}{" "}
-                                      {usesAttendance
-                                        ? "clocked in"
-                                        : "staff available"}
-                                    </span>
-                                  )}
-                                {ownerAvailable &&
-                                  !outsideHours &&
-                                  !noBusinessHours && (
-                                    <span className="ml-2 text-blue-600">
-                                      - available now
+                                      - {qualifiedEmployeeCount} qualified staff
                                     </span>
                                   )}
                               </span>
@@ -547,15 +511,9 @@ const ServiceSelect = React.memo(function ServiceSelect({
                   : packages.map((pkg) => {
                       const availability = categoryAvailability?.[pkg.category];
                       const dataLoaded = !!availability;
-                      const ownerAvailable = !!availability?.ownerAvailable;
                       const noStaff =
                         dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0 &&
-                        !ownerAvailable;
-                      const noEmployeesButOwner =
-                        dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0 &&
-                        ownerAvailable;
+                        availability?.qualifiedEmployeeCount === 0;
                       const outsideHours =
                         dataLoaded &&
                         availability?.businessHoursPassed === true;
@@ -574,8 +532,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         noStaff || noBusinessHours || isClosedForSelectedDate;
                       const isDisabled =
                         !!selectedDate && isUnavailable && !isSelected;
-                      const usesAttendance =
-                        availability?.availabilitySource === "ATTENDANCE";
 
                       const discountInfo = getApplicableDiscount(
                         0,
@@ -638,9 +594,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
                                   >
                                     <Users className="h-2.5 w-2.5" />
-                                    {usesAttendance
-                                      ? "No One Clocked In"
-                                      : "No Staff"}
+                                    No qualified staff
                                   </Badge>
                                 )}
                                 {!selectedDate && dataLoaded && (
@@ -649,15 +603,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
                                   >
                                     Preview
-                                  </Badge>
-                                )}
-                                {noEmployeesButOwner && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 shadow-none flex items-center gap-1"
-                                  >
-                                    <User className="h-2.5 w-2.5" />
-                                    Available Now
                                   </Badge>
                                 )}
                                 {outsideHours && (
@@ -753,3 +698,4 @@ const ServiceSelect = React.memo(function ServiceSelect({
 });
 
 export default ServiceSelect;
+
