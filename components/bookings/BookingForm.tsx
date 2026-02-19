@@ -32,6 +32,7 @@ import { verifyVoucherAction } from "@/lib/server actions/vouchers";
 
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
 import {
+  calculateBookingTotal,
   getApplicableDiscount,
   type SaleEventForPricing,
 } from "@/lib/utils/pricing";
@@ -507,10 +508,16 @@ export default function BookingForm({
     return total;
   }, [total, appliedVoucher]);
 
+  const voucherDiscountAmount = appliedVoucher?.discountAmount ?? 0;
+
   const finalAmountToPay = useMemo(() => {
-    const base = paymentType === "DOWNPAYMENT" ? finalTotal * 0.5 : finalTotal;
-    return base;
-  }, [finalTotal, paymentType]);
+    return calculateBookingTotal({
+      subtotal: total,
+      voucherDiscount: voucherDiscountAmount,
+      paymentMethod: "CASH",
+      paymentType,
+    });
+  }, [total, voucherDiscountAmount, paymentType]);
 
   const totalDuration = useMemo(() => {
     return selectedServices.reduce((total, s) => {
@@ -641,8 +648,19 @@ export default function BookingForm({
     [alternativeSlots],
   );
 
-  const totalWithFee =
-    finalAmountToPay + (paymentMethod === "QRPH" ? finalAmountToPay * 0.015 : 0);
+  const totalWithFee = useMemo(() => {
+    return calculateBookingTotal({
+      subtotal: total,
+      voucherDiscount: voucherDiscountAmount,
+      paymentMethod,
+      paymentType,
+    });
+  }, [total, voucherDiscountAmount, paymentMethod, paymentType]);
+
+  const convenienceFee = useMemo(() => {
+    if (paymentMethod !== "QRPH") return 0;
+    return Math.max(0, totalWithFee - finalAmountToPay);
+  }, [paymentMethod, totalWithFee, finalAmountToPay]);
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: [
@@ -977,7 +995,8 @@ export default function BookingForm({
     isSelectedDateInFuture,
     bookingV2Enabled,
     isSelectedDateToday,
-    hasTentativeAlternativeSlots: timeSlots.length === 0 && hasTentativeAlternativeSlots,
+    hasTentativeAlternativeSlots:
+      timeSlots.length === 0 && hasTentativeAlternativeSlots,
   });
 
   const resolvedMobileActionBarMode =
@@ -1078,7 +1097,7 @@ export default function BookingForm({
         {qrPayment && (
           <QrPaymentPanel
             qrImage={qrPayment.qrImage}
-            amountLabel={`₱${finalAmountToPay.toFixed(2)}`}
+            amountLabel={`₱${totalWithFee.toFixed(2)}`}
             status={qrStatus}
             expiresAt={qrPayment.expiresAt}
             onClose={() => {
@@ -2020,7 +2039,7 @@ export default function BookingForm({
                           <span>Convenience Fee (1.5%)</span>
                           <span className="tabular-nums">
                             + ₱
-                            {(finalAmountToPay * 0.015).toLocaleString(
+                            {convenienceFee.toLocaleString(
                               undefined,
                               {
                                 minimumFractionDigits: 2,
