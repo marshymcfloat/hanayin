@@ -21,7 +21,7 @@ describe("TimeSlotPicker", () => {
       />,
     );
 
-    expect(screen.getAllByText(/Tentative/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Estimated/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Roster/i).length).toBeGreaterThan(0);
   });
 

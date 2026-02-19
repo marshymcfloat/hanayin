@@ -20,8 +20,10 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createBookingSchema,
+  CapacityOverrideReason,
   PaymentMethod,
   PaymentType,
+  StaffSelectionMode,
 } from "@/lib/zod schemas/bookings";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -53,8 +55,16 @@ import TimeSlotPicker from "./TimeSlotPicker";
 import EmployeeSelect from "./EmployeeSelect";
 import ServiceClaimSelector from "./ServiceClaimSelector";
 import { SegmentedToggle } from "../ui/segmented-toggle";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
 import QrPaymentPanel from "./QrPaymentPanel";
 import { getPayMongoPaymentIntentStatus } from "@/lib/server actions/paymongo";
@@ -111,6 +121,21 @@ type SelectedCustomer = {
   phone?: string | null;
 };
 
+function roundUpToInterval(date: Date, intervalMinutes: number) {
+  const safeInterval = Math.max(1, Math.floor(intervalMinutes) || 1);
+  const next = new Date(date);
+  next.setSeconds(0, 0);
+  const minutes = next.getMinutes();
+  const remainder = minutes % safeInterval;
+  if (remainder !== 0) {
+    next.setMinutes(minutes + (safeInterval - remainder));
+  }
+  if (next.getTime() < date.getTime()) {
+    next.setMinutes(next.getMinutes() + safeInterval);
+  }
+  return next;
+}
+
 export default function BookingForm({
   services,
   packages = [],
@@ -139,6 +164,7 @@ export default function BookingForm({
       paymentMethod: isEmployee ? "CASH" : "QRPH",
 
       paymentType: "FULL",
+      staffSelectionMode: "ANY_AVAILABLE",
       email: "",
       phone: "",
     },
@@ -279,6 +305,11 @@ export default function BookingForm({
   const [isWalkIn, setIsWalkIn] = useState(false);
   const claimStepEnabled = isEmployee && allowServiceClaim;
   const effectiveIsWalkIn = isEmployee && isWalkIn;
+  const [requireSelectedStaff, setRequireSelectedStaff] = useState(false);
+  const [showCapacityOverrideForm, setShowCapacityOverrideForm] = useState(false);
+  const [capacityOverrideReason, setCapacityOverrideReason] =
+    useState<CapacityOverrideReason | "">("");
+  const [capacityOverrideNote, setCapacityOverrideNote] = useState("");
   const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
   const [qrPayment, setQrPayment] = useState<{
     paymentIntentId: string;
@@ -374,15 +405,23 @@ export default function BookingForm({
 
     if (newState) {
       const now = new Date();
-      form.setValue("scheduledAt", now, { shouldValidate: true });
-      form.setValue("selectedTime", now, {
+      const intervalMinutes = bookingPolicy?.slotIntervalMinutes ?? 30;
+      const roundedNow = roundUpToInterval(now, intervalMinutes);
+      form.setValue("scheduledAt", roundedNow, { shouldValidate: true });
+      form.setValue("selectedTime", roundedNow, {
         shouldValidate: true,
       });
+      setShowCapacityOverrideForm(false);
+      setCapacityOverrideReason("");
+      setCapacityOverrideNote("");
     } else {
       form.setValue("scheduledAt", undefined);
       form.setValue("selectedTime", undefined);
+      setShowCapacityOverrideForm(false);
+      setCapacityOverrideReason("");
+      setCapacityOverrideNote("");
     }
-  }, [isWalkIn, form, isEmployee]);
+  }, [isWalkIn, form, isEmployee, bookingPolicy?.slotIntervalMinutes]);
 
   const { total } = useMemo(() => {
     const total = selectedServices.reduce((sum, s) => {
@@ -675,10 +714,21 @@ export default function BookingForm({
     claimedUniqueIdsKey,
   ]);
 
+  useEffect(() => {
+    if (!effectiveIsWalkIn) {
+      setShowCapacityOverrideForm(false);
+      setCapacityOverrideReason("");
+      setCapacityOverrideNote("");
+    }
+  }, [effectiveIsWalkIn]);
+
   const { mutate: createBookingAction, isPending } = useMutation({
     mutationFn: createBooking,
     onSuccess: (result: CreateBookingResult) => {
       if (!result) return;
+      if (result.warnings?.length) {
+        result.warnings.forEach((warning) => toast.message(warning));
+      }
 
       if (result.type === "redirect") {
         if (result.url && result.url.startsWith("http")) {
@@ -702,6 +752,9 @@ export default function BookingForm({
         } else {
           router.back();
         }
+        setShowCapacityOverrideForm(false);
+        setCapacityOverrideReason("");
+        setCapacityOverrideNote("");
         return;
       }
 
@@ -734,6 +787,33 @@ export default function BookingForm({
       }
       if (code === "NO_CAPACITY_FOR_SELECTED_SERVICES") {
         toast.error("No capacity left for the selected services. Try another day.");
+        return;
+      }
+      if (code === "REQUIRED_STAFF_UNAVAILABLE") {
+        toast.error("Selected staff is unavailable for this booking time.");
+        return;
+      }
+      if (code === "PREFERRED_STAFF_UNAVAILABLE") {
+        toast.error("Preferred staff is unavailable for this slot.");
+        return;
+      }
+      if (code === "WALK_IN_CAPACITY_EXCEEDED") {
+        if (effectiveIsWalkIn && isEmployee) {
+          setShowCapacityOverrideForm(true);
+          toast.error(
+            "No immediate walk-in capacity. Add an override reason to proceed if permitted.",
+          );
+          return;
+        }
+        toast.error("No immediate walk-in capacity right now.");
+        return;
+      }
+      if (code === "CAPACITY_OVERRIDE_NOT_ALLOWED") {
+        toast.error("You do not have permission to override walk-in capacity.");
+        return;
+      }
+      if (code === "CAPACITY_OVERRIDE_REASON_REQUIRED") {
+        toast.error("Override reason is required to continue this walk-in booking.");
         return;
       }
       if (code === "SLOT_JUST_TAKEN") {
@@ -778,6 +858,12 @@ export default function BookingForm({
         toast.error("Please select a date and time.");
         return;
       }
+      const normalizedScheduledAt = effectiveIsWalkIn
+        ? roundUpToInterval(
+            scheduledAt,
+            bookingPolicy?.slotIntervalMinutes ?? 30,
+          )
+        : scheduledAt;
 
       const flatServicesPayload = data.services.flatMap((s: SelectedService) =>
         Array.from({ length: s.quantity || 1 }).map((_, i) => {
@@ -797,12 +883,24 @@ export default function BookingForm({
 
       const normalizedCustomerName = (data.customerName || "").trim();
       const capitalizedCustomerName = capitalizeWords(normalizedCustomerName);
+      const computedStaffSelectionMode: StaffSelectionMode = selectedEmployeeId
+        ? requireSelectedStaff
+          ? "REQUIRE_SELECTED"
+          : "PREFER_SELECTED"
+        : "ANY_AVAILABLE";
+      const normalizedCapacityOverride =
+        showCapacityOverrideForm && capacityOverrideReason
+          ? {
+              reason: capacityOverrideReason,
+              note: capacityOverrideNote.trim() || undefined,
+            }
+          : undefined;
 
       createBookingAction({
         customerId: data.customerId || undefined,
         customerName: capitalizedCustomerName,
         businessSlug,
-        scheduledAt: new Date(scheduledAt),
+        scheduledAt: new Date(normalizedScheduledAt),
         currentEmployeeId: isEmployee ? currentEmployeeId : undefined,
         paymentMethod: data.paymentMethod,
         paymentType: data.paymentType,
@@ -811,6 +909,8 @@ export default function BookingForm({
         phone: data.phone?.trim() || undefined,
         voucherCode: appliedVoucher?.code,
         isWalkIn: effectiveIsWalkIn,
+        staffSelectionMode: computedStaffSelectionMode,
+        capacityOverride: normalizedCapacityOverride,
       });
     },
     [
@@ -822,6 +922,12 @@ export default function BookingForm({
       currentEmployeeId,
       createBookingAction,
       appliedVoucher,
+      bookingPolicy?.slotIntervalMinutes,
+      selectedEmployeeId,
+      requireSelectedStaff,
+      showCapacityOverrideForm,
+      capacityOverrideReason,
+      capacityOverrideNote,
     ],
   );
 
@@ -830,7 +936,8 @@ export default function BookingForm({
     !form.formState.isValid ||
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
-    !hasReviewedDetails;
+    !hasReviewedDetails ||
+    (showCapacityOverrideForm && !capacityOverrideReason);
 
   const isStep1Complete = selectedServices.length > 0;
   const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
@@ -1492,6 +1599,22 @@ export default function BookingForm({
                   </FormItem>
                 )}
               />
+              {selectedEmployeeId && (
+                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3 text-sm">
+                  <div>
+                    <p className="font-medium text-foreground">Require selected staff</p>
+                    <p className="text-xs text-muted-foreground">
+                      If enabled, booking fails when this staff member is unavailable.
+                    </p>
+                  </div>
+                  <Checkbox
+                    checked={requireSelectedStaff}
+                    onCheckedChange={(checked) =>
+                      setRequireSelectedStaff(checked === true)
+                    }
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -1596,7 +1719,70 @@ export default function BookingForm({
                     {claimedUniqueIds.length}
                   </p>
                 )}
+                {isEmployee && selectedEmployeeId && (
+                  <p>
+                    <span className="font-semibold">Staff requirement:</span>{" "}
+                    {requireSelectedStaff ? "Required selected staff" : "Prefer selected staff"}
+                  </p>
+                )}
+                {showCapacityOverrideForm && capacityOverrideReason && (
+                  <p className="text-amber-700">
+                    <span className="font-semibold">Capacity override:</span>{" "}
+                    {capacityOverrideReason.replaceAll("_", " ")}
+                  </p>
+                )}
               </div>
+
+              {isEmployee && selectedEmployeeId && (
+                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3 text-sm">
+                  <div>
+                    <p className="font-medium text-foreground">Require selected staff</p>
+                    <p className="text-xs text-muted-foreground">
+                      Keep off to allow fallback to any available provider.
+                    </p>
+                  </div>
+                  <Checkbox
+                    checked={requireSelectedStaff}
+                    onCheckedChange={(checked) =>
+                      setRequireSelectedStaff(checked === true)
+                    }
+                  />
+                </div>
+              )}
+
+              {effectiveIsWalkIn && isEmployee && showCapacityOverrideForm && (
+                <div className="space-y-3 rounded-xl border border-amber-300 bg-amber-50 p-3">
+                  <p className="text-sm font-semibold text-amber-900">
+                    Walk-in capacity override
+                  </p>
+                  <p className="text-xs text-amber-800">
+                    Provide a reason to proceed if your role has override access.
+                  </p>
+                  <Select
+                    value={capacityOverrideReason}
+                    onValueChange={(value: string) =>
+                      setCapacityOverrideReason(value as CapacityOverrideReason)
+                    }
+                  >
+                    <SelectTrigger className="bg-white">
+                      <SelectValue placeholder="Select override reason" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LATE_CUSTOMER">Late Customer</SelectItem>
+                      <SelectItem value="VIP">VIP</SelectItem>
+                      <SelectItem value="MANUAL_EXCEPTION">Manual Exception</SelectItem>
+                      <SelectItem value="SYSTEM_RECOVERY">System Recovery</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Textarea
+                    value={capacityOverrideNote}
+                    onChange={(event) => setCapacityOverrideNote(event.target.value)}
+                    placeholder="Add context (optional)"
+                    className="min-h-20 bg-white"
+                    maxLength={240}
+                  />
+                </div>
+              )}
 
               <div className="flex items-start gap-3 rounded-xl border p-3">
                 <Checkbox

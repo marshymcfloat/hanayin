@@ -981,6 +981,9 @@ model Booking {
   estimated_end   DateTime? // Calculated from service durations
   reminder_sent   Boolean   @default(false)
   hold_expires_at DateTime? // When HOLD status expires (for online payments)
+  capacity_override_applied Boolean @default(false)
+  capacity_override_reason  String?
+  capacity_override_note    String?
 
   // Computed columns for double-booking prevention (maintained by DB triggers)
   /// @ignore - Managed by database triggers, do not write directly

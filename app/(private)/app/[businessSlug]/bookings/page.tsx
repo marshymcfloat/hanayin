@@ -174,11 +174,31 @@ async function BookingsContent({
     }),
   ]);
 
+  const recentConflictSignals = bookings.length
+    ? await prisma.outboxMessage.findMany({
+        where: {
+          business_id: business.id,
+          event_type: "BOOKING_STAFFING_CONFLICT_DETECTED",
+          aggregate_id: {
+            in: bookings.map((booking) => String(booking.id)),
+          },
+        },
+        select: {
+          aggregate_id: true,
+        },
+      })
+    : [];
+
+  const staffingConflictBookingIds = recentConflictSignals
+    .map((signal) => Number.parseInt(signal.aggregate_id, 10))
+    .filter(Number.isFinite);
+
   return (
     <BookingList
       key={`${businessSlug}:${status}:${searchTerm}:${currentPage}`}
       bookings={bookings}
       businessSlug={businessSlug}
+      staffingConflictBookingIds={staffingConflictBookingIds}
       queryState={{
         page: currentPage,
         pageSize: PAGE_SIZE,

@@ -4314,6 +4314,9 @@ export const BookingScalarFieldEnum = {
   estimated_end: 'estimated_end',
   reminder_sent: 'reminder_sent',
   hold_expires_at: 'hold_expires_at',
+  capacity_override_applied: 'capacity_override_applied',
+  capacity_override_reason: 'capacity_override_reason',
+  capacity_override_note: 'capacity_override_note',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

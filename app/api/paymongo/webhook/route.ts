@@ -355,6 +355,10 @@ export async function POST(req: Request) {
         paymentType,
         voucherCode,
         isWalkIn: isWalkInRaw,
+        staffSelectionMode: staffSelectionModeRaw,
+        capacityOverrideReason: capacityOverrideReasonRaw,
+        capacityOverrideNote: capacityOverrideNoteRaw,
+        capacityOverrideApplied: capacityOverrideAppliedRaw,
       } = metadata;
 
       if (!businessSlug || !servicesJson) {
@@ -377,6 +381,27 @@ export async function POST(req: Request) {
         ? parseInt(currentEmployeeIdStr, 10)
         : undefined;
       const isWalkIn = isWalkInRaw === "true";
+      const capacityOverrideApplied = capacityOverrideAppliedRaw === "true";
+      const staffSelectionMode =
+        staffSelectionModeRaw === "REQUIRE_SELECTED" ||
+        staffSelectionModeRaw === "PREFER_SELECTED" ||
+        staffSelectionModeRaw === "ANY_AVAILABLE"
+          ? staffSelectionModeRaw
+          : "ANY_AVAILABLE";
+      const capacityOverride =
+        capacityOverrideReasonRaw &&
+        (capacityOverrideReasonRaw === "LATE_CUSTOMER" ||
+          capacityOverrideReasonRaw === "VIP" ||
+          capacityOverrideReasonRaw === "MANUAL_EXCEPTION" ||
+          capacityOverrideReasonRaw === "SYSTEM_RECOVERY")
+          ? {
+              reason: capacityOverrideReasonRaw,
+              note:
+                typeof capacityOverrideNoteRaw === "string"
+                  ? capacityOverrideNoteRaw
+                  : undefined,
+            }
+          : undefined;
 
       try {
         const booking = await createBookingInDb({
@@ -397,6 +422,9 @@ export async function POST(req: Request) {
           paymongoCheckoutSessionId: checkoutSessionId,
           isPublicBooking: true,
           isWalkIn,
+          staffSelectionMode,
+          capacityOverride,
+          allowWalkInCapacityBypass: capacityOverrideApplied,
         });
         businessIdForAudit = booking.business_id;
         await recordBookingMetric({

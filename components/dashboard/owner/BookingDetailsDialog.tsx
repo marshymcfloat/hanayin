@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
 import QrPaymentPanel from "@/components/bookings/QrPaymentPanel";
 import {
   createBookingBalanceQrAction,
@@ -58,6 +59,8 @@ interface BookingDetailsDialogProps {
   booking: BookingWithDetails | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  businessSlug?: string;
+  hasStaffingConflict?: boolean;
 }
 
 const formatCurrency = (amount: number) =>
@@ -70,6 +73,8 @@ export function BookingDetailsDialog({
   booking,
   open,
   onOpenChange,
+  businessSlug,
+  hasStaffingConflict = false,
 }: BookingDetailsDialogProps) {
   const router = useRouter();
   const [isReviewingQr, setIsReviewingQr] = useState(false);
@@ -231,6 +236,36 @@ export function BookingDetailsDialog({
 
           <ScrollArea className="flex-1">
             <div className="p-6 space-y-8">
+              {hasStaffingConflict && (
+                <section className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+                  <p className="text-sm font-semibold text-amber-900">
+                    Staffing conflict detected for this booking
+                  </p>
+                  <p className="mt-1 text-xs text-amber-800">
+                    Current staffing/hours may no longer match this appointment.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {businessSlug && (
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={`/app/${businessSlug}/bookings?q=${booking.id}`}>
+                          Reschedule
+                        </Link>
+                      </Button>
+                    )}
+                    {booking.customer.phone && (
+                      <Button asChild size="sm" variant="outline">
+                        <a href={`tel:${booking.customer.phone}`}>Contact Customer</a>
+                      </Button>
+                    )}
+                    {!booking.customer.phone && booking.customer.email && (
+                      <Button asChild size="sm" variant="outline">
+                        <a href={`mailto:${booking.customer.email}`}>Contact Customer</a>
+                      </Button>
+                    )}
+                  </div>
+                </section>
+              )}
+
               <section className="space-y-3">
                 <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                   <UserIcon className="h-3.5 w-3.5" /> Customer Information

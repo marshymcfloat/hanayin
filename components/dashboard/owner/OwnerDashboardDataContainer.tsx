@@ -77,6 +77,8 @@ export default async function OwnerDashboardDataContainer({
     slotJustTakenRejections,
     publicStarted,
     publicCompleted,
+    overrideBookingsCount,
+    requiredStaffRejections,
     rawConflictSignals,
     chartBookingsDetailed,
     growthOpportunities,
@@ -329,6 +331,29 @@ export default async function OwnerDashboardDataContainer({
         action: "PUBLIC_BOOKING_COMPLETED",
       },
     }),
+    prisma.booking.count({
+      where: {
+        business_id: business.id,
+        capacity_override_applied: true,
+        created_at: {
+          gte: metricWindowStart,
+        },
+      },
+    }),
+    prisma.auditLog.count({
+      where: {
+        business_id: business.id,
+        entity_type: "BookingMetric",
+        created_at: {
+          gte: metricWindowStart,
+        },
+        action: "BOOKING_SUBMIT_REJECTION",
+        changes: {
+          path: ["reason"],
+          equals: "REQUIRED_STAFF_UNAVAILABLE",
+        },
+      },
+    }),
     prisma.outboxMessage.findMany({
       where: {
         business_id: business.id,
@@ -436,6 +461,8 @@ export default async function OwnerDashboardDataContainer({
         submitAttempts,
         publicStarted,
         publicCompleted,
+        overrideBookingsCount,
+        requiredStaffRejections,
       }}
       staffingConflictAlerts={staffingConflictAlerts}
       todayGrowthOpportunity={growthOpportunities[0] || null}

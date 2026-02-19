@@ -37,9 +37,9 @@ export function getSlotEmptyState({
 
   if (isSelectedDateToday && hasTentativeAlternativeSlots) {
     return {
-      title: "No confirmed slots right now",
+      title: "No guaranteed slots right now",
       description:
-        "Tentative slots later today are available. Pick one below or try another time.",
+        "Estimated slots later today are available. Pick one below or try another time.",
     };
   }
 

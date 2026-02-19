@@ -34,7 +34,7 @@ describe("booking-form-utils", () => {
       hasTentativeAlternativeSlots: true,
     });
 
-    expect(state.title).toBe("No confirmed slots right now");
-    expect(state.description).toMatch(/Tentative slots later today/i);
+    expect(state.title).toBe("No guaranteed slots right now");
+    expect(state.description).toMatch(/Estimated slots later today/i);
   });
 });

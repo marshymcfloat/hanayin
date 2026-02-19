@@ -17,6 +17,21 @@ const serviceSchema = z
 
 export const paymentMethodEnum = z.enum(["CASH", "QRPH"]);
 export const paymentTypeEnum = z.enum(["FULL", "DOWNPAYMENT"]);
+export const staffSelectionModeEnum = z.enum([
+  "ANY_AVAILABLE",
+  "PREFER_SELECTED",
+  "REQUIRE_SELECTED",
+]);
+export const capacityOverrideReasonEnum = z.enum([
+  "LATE_CUSTOMER",
+  "VIP",
+  "MANUAL_EXCEPTION",
+  "SYSTEM_RECOVERY",
+]);
+export const capacityOverrideSchema = z.object({
+  reason: capacityOverrideReasonEnum,
+  note: z.string().trim().max(240).optional(),
+});
 
 export const createBookingSchema = z
   .object({
@@ -36,6 +51,8 @@ export const createBookingSchema = z
     employeeId: z.number().optional(),
     paymentMethod: paymentMethodEnum.default("QRPH"),
     paymentType: paymentTypeEnum.default("FULL"),
+    staffSelectionMode: staffSelectionModeEnum.optional(),
+    capacityOverride: capacityOverrideSchema.optional(),
     email: z
       .string()
       .optional()
@@ -65,3 +82,5 @@ export const createBookingSchema = z
 export type CreateBookingTypes = z.infer<typeof createBookingSchema>;
 export type PaymentMethod = z.infer<typeof paymentMethodEnum>;
 export type PaymentType = z.infer<typeof paymentTypeEnum>;
+export type StaffSelectionMode = z.infer<typeof staffSelectionModeEnum>;
+export type CapacityOverrideReason = z.infer<typeof capacityOverrideReasonEnum>;

@@ -14,6 +14,28 @@ export interface SelectedServiceInput {
   quantity?: number;
 }
 
+export type StaffSelectionMode =
+  | "ANY_AVAILABLE"
+  | "PREFER_SELECTED"
+  | "REQUIRE_SELECTED";
+
+export type CapacityOverrideReason =
+  | "LATE_CUSTOMER"
+  | "VIP"
+  | "MANUAL_EXCEPTION"
+  | "SYSTEM_RECOVERY";
+
+export interface CapacityOverrideInput {
+  reason: CapacityOverrideReason;
+  note?: string;
+}
+
+export interface StaffSelectionResolution {
+  assignedEmployeeId: number | null;
+  assignmentDowngraded: boolean;
+  warning?: string;
+}
+
 export type SlotAvailabilitySource = "ATTENDANCE" | "ROSTER";
 export type SlotConfidence = "CONFIRMED" | "TENTATIVE";
 
@@ -32,7 +54,12 @@ export type BookingAvailabilityErrorCode =
   | "LEAD_TIME_VIOLATION"
   | "SLOT_JUST_TAKEN"
   | "PAYMENT_TYPE_NOT_ALLOWED"
-  | "NO_CAPACITY_FOR_SELECTED_SERVICES";
+  | "NO_CAPACITY_FOR_SELECTED_SERVICES"
+  | "PREFERRED_STAFF_UNAVAILABLE"
+  | "REQUIRED_STAFF_UNAVAILABLE"
+  | "WALK_IN_CAPACITY_EXCEEDED"
+  | "CAPACITY_OVERRIDE_NOT_ALLOWED"
+  | "CAPACITY_OVERRIDE_REASON_REQUIRED";
 
 export class BookingAvailabilityError extends Error {
   code: BookingAvailabilityErrorCode;
@@ -379,6 +406,168 @@ async function getBookedServiceSegmentsForDay({
   return segments;
 }
 
+async function evaluateSelectedEmployeeAvailability({
+  db,
+  business,
+  selectedEmployeeId,
+  scheduledAt,
+  services,
+  now,
+  policy,
+}: {
+  db: AvailabilityDbClient;
+  business: BusinessContext;
+  selectedEmployeeId: number;
+  scheduledAt: Date;
+  services: SelectedServiceInput[];
+  now: Date;
+  policy: Awaited<ReturnType<typeof getBookingPolicyByBusinessSlug>>;
+}) {
+  const selectedEmployee = business.employees.find(
+    (employee) => employee.id === selectedEmployeeId,
+  );
+  if (!selectedEmployee) {
+    return { available: false, reason: "Employee not found in this business." };
+  }
+
+  const serviceRecords = await db.service.findMany({
+    where: {
+      id: { in: services.map((service) => service.id) },
+      business_id: business.id,
+    },
+    select: {
+      id: true,
+      category: true,
+      duration: true,
+    },
+  });
+  if (serviceRecords.length === 0) {
+    return { available: false, reason: "No valid services for this booking." };
+  }
+
+  const serviceById = new Map(serviceRecords.map((service) => [service.id, service]));
+  const expandedServices = services.flatMap((serviceInput) => {
+    const service = serviceById.get(serviceInput.id);
+    if (!service) return [];
+    const quantity = Math.max(1, Number(serviceInput.quantity) || 1);
+    return Array.from({ length: quantity }).map(() => ({
+      category: service.category,
+      duration: service.duration || 30,
+    }));
+  });
+  if (expandedServices.length === 0) {
+    return { available: false, reason: "Selected services were not found." };
+  }
+
+  const requiredCategories = new Set(
+    expandedServices.map((service) => service.category.toLowerCase()),
+  );
+  const employeeSpecialties = selectedEmployee.specialties.map((specialty) =>
+    specialty.toLowerCase(),
+  );
+  const isGeneralist = employeeSpecialties.length === 0;
+  const isQualified =
+    isGeneralist ||
+    Array.from(requiredCategories).every((category) =>
+      employeeSpecialties.includes(category),
+    );
+  if (!isQualified) {
+    return {
+      available: false,
+      reason: "Selected staff is not qualified for all selected services.",
+    };
+  }
+
+  const { dayStart, dayEnd, dateStr } = getPHDayBounds(scheduledAt);
+  const strictWindowMinutes = Math.max(0, policy.sameDayAttendanceStrictMinutes);
+  const nowStr = toPHDateString(now);
+  const nowParts = getPHDateComponents(now);
+  const phNow = new Date(
+    `${nowStr}T${nowParts.hour}:${nowParts.minute}:${nowParts.second}+08:00`,
+  );
+  const strictCutoff = new Date(
+    phNow.getTime() + strictWindowMinutes * 60 * 1000,
+  );
+  const isToday = dateStr === nowStr;
+  const requiresAttendance =
+    isToday && scheduledAt.getTime() < strictCutoff.getTime();
+
+  const attendanceWindowsByEmployee = requiresAttendance
+    ? await getAttendanceWindowsForDay({
+        db,
+        businessId: business.id,
+        dayStart,
+        dayEnd,
+      })
+    : new Map<number, AttendanceWindow[]>();
+
+  const existingBookings = await db.booking.findMany({
+    where: {
+      business_id: business.id,
+      status: { not: "CANCELLED" },
+      scheduled_at: {
+        gte: dayStart,
+        lte: dayEnd,
+      },
+    },
+    include: {
+      availed_services: {
+        where: {
+          status: {
+            not: "CANCELLED",
+          },
+        },
+        select: {
+          served_by_id: true,
+          scheduled_at: true,
+          estimated_end: true,
+        },
+      },
+    },
+  });
+
+  let cursor = new Date(scheduledAt);
+  for (const service of expandedServices) {
+    const serviceEnd = new Date(cursor.getTime() + service.duration * 60 * 1000);
+
+    if (
+      requiresAttendance &&
+      !isEmployeeClockedInForWindow(
+        attendanceWindowsByEmployee,
+        selectedEmployeeId,
+        cursor,
+        serviceEnd,
+      )
+    ) {
+      return {
+        available: false,
+        reason: "Selected staff is not clocked in for this time.",
+      };
+    }
+
+    const hasOverlap = existingBookings.some((booking) =>
+      booking.availed_services.some((serviceEntry) => {
+        if (serviceEntry.served_by_id !== selectedEmployeeId) return false;
+        const serviceStart = serviceEntry.scheduled_at || booking.scheduled_at;
+        const serviceFinish = serviceEntry.estimated_end || booking.estimated_end;
+        if (!serviceStart || !serviceFinish) return false;
+        return cursor < serviceFinish && serviceEnd > serviceStart;
+      }),
+    );
+
+    if (hasOverlap) {
+      return {
+        available: false,
+        reason: "Selected staff is already serving another booking.",
+      };
+    }
+
+    cursor = serviceEnd;
+  }
+
+  return { available: true as const };
+}
+
 function resolveBusinessHoursWindows({
   business,
   dayOfWeek,
@@ -470,11 +659,72 @@ function getHorizonDayDiff(date: Date, now: Date) {
   );
 }
 
+export async function resolveStaffSelectionOrThrow({
+  businessSlug,
+  scheduledAt,
+  services,
+  selectedEmployeeId,
+  staffSelectionMode = "ANY_AVAILABLE",
+  now = getCurrentDateTimePH(),
+  db = prisma,
+}: {
+  businessSlug: string;
+  scheduledAt: Date;
+  services: SelectedServiceInput[];
+  selectedEmployeeId?: number;
+  staffSelectionMode?: StaffSelectionMode;
+  now?: Date;
+  db?: AvailabilityDbClient;
+}): Promise<StaffSelectionResolution> {
+  if (!selectedEmployeeId || staffSelectionMode === "ANY_AVAILABLE") {
+    return {
+      assignedEmployeeId: null,
+      assignmentDowngraded: false,
+    };
+  }
+
+  const [business, policy] = await Promise.all([
+    getBusinessContext(db, businessSlug),
+    getBookingPolicyByBusinessSlug(db, businessSlug),
+  ]);
+
+  const selectedAvailable = await evaluateSelectedEmployeeAvailability({
+    db,
+    business,
+    selectedEmployeeId,
+    scheduledAt,
+    services,
+    now,
+    policy,
+  });
+
+  if (selectedAvailable.available) {
+    return {
+      assignedEmployeeId: selectedEmployeeId,
+      assignmentDowngraded: false,
+    };
+  }
+
+  if (staffSelectionMode === "REQUIRE_SELECTED") {
+    throw new BookingAvailabilityError(
+      "REQUIRED_STAFF_UNAVAILABLE",
+      selectedAvailable.reason || "Selected staff is unavailable for this slot.",
+    );
+  }
+
+  return {
+    assignedEmployeeId: null,
+    assignmentDowngraded: true,
+    warning: "Preferred staff unavailable; booking kept with any available provider.",
+  };
+}
+
 export async function computeSlots({
   businessSlug,
   date,
   services,
   slotIntervalMinutes,
+  ignoreMinLead = false,
   now = getCurrentDateTimePH(),
   db = prisma,
 }: {
@@ -482,6 +732,7 @@ export async function computeSlots({
   date: Date;
   services: SelectedServiceInput[];
   slotIntervalMinutes?: number;
+  ignoreMinLead?: boolean;
   now?: Date;
   db?: AvailabilityDbClient;
 }): Promise<TimeSlot[]> {
@@ -626,7 +877,9 @@ export async function computeSlots({
     ),
   );
 
-  const minLeadStart = new Date(phNowDate.getTime() + policy.minLeadMinutes * 60000);
+  const minLeadStart = ignoreMinLead
+    ? new Date(dayStart)
+    : new Date(phNowDate.getTime() + policy.minLeadMinutes * 60000);
   let currentSlotStart = new Date(Math.max(dayStart.getTime(), earliestWindowStart));
   const slotEndLimit = new Date(Math.min(dayEnd.getTime(), latestWindowEnd));
   const slots: TimeSlot[] = [];
@@ -795,6 +1048,10 @@ export async function validateBookingOrThrow({
   paymentType,
   isPublicBooking,
   isWalkIn = false,
+  selectedEmployeeId,
+  staffSelectionMode = "ANY_AVAILABLE",
+  allowWalkInCapacityBypass = false,
+  capacityOverride,
   now = getCurrentDateTimePH(),
   db = prisma,
 }: {
@@ -804,6 +1061,10 @@ export async function validateBookingOrThrow({
   paymentType: "FULL" | "DOWNPAYMENT";
   isPublicBooking: boolean;
   isWalkIn?: boolean;
+  selectedEmployeeId?: number;
+  staffSelectionMode?: StaffSelectionMode;
+  allowWalkInCapacityBypass?: boolean;
+  capacityOverride?: CapacityOverrideInput;
   now?: Date;
   db?: AvailabilityDbClient;
 }) {
@@ -820,63 +1081,95 @@ export async function validateBookingOrThrow({
     }
   }
 
-  if (isWalkIn) return;
-
-  const dayDiff = getHorizonDayDiff(scheduledAt, now);
-  if (dayDiff < 0 || dayDiff >= policy.bookingHorizonDays) {
-    throw new BookingAvailabilityError(
-      "DATE_OUTSIDE_HORIZON",
-      "Selected date is outside the booking window.",
-    );
+  if (isWalkIn && allowWalkInCapacityBypass) {
+    if (!capacityOverride?.reason) {
+      throw new BookingAvailabilityError(
+        "CAPACITY_OVERRIDE_REASON_REQUIRED",
+        "Capacity override reason is required for walk-in bypass.",
+      );
+    }
   }
 
-  const minLeadStart = new Date(
-    now.getTime() + policy.minLeadMinutes * 60 * 1000,
-  );
-  if (scheduledAt.getTime() < minLeadStart.getTime()) {
-    throw new BookingAvailabilityError(
-      "LEAD_TIME_VIOLATION",
-      "Selected time is too soon. Please choose a later slot.",
+  if (!isWalkIn) {
+    const dayDiff = getHorizonDayDiff(scheduledAt, now);
+    if (dayDiff < 0 || dayDiff >= policy.bookingHorizonDays) {
+      throw new BookingAvailabilityError(
+        "DATE_OUTSIDE_HORIZON",
+        "Selected date is outside the booking window.",
+      );
+    }
+
+    const minLeadStart = new Date(
+      now.getTime() + policy.minLeadMinutes * 60 * 1000,
     );
+    if (scheduledAt.getTime() < minLeadStart.getTime()) {
+      throw new BookingAvailabilityError(
+        "LEAD_TIME_VIOLATION",
+        "Selected time is too soon. Please choose a later slot.",
+      );
+    }
   }
 
-  const daySlots = await computeSlots({
+  let daySlots: TimeSlot[] = [];
+
+  if (!allowWalkInCapacityBypass) {
+    daySlots = await computeSlots({
+      businessSlug,
+      date: scheduledAt,
+      services,
+      slotIntervalMinutes: policy.slotIntervalMinutes,
+      ignoreMinLead: isWalkIn,
+      now,
+      db,
+    });
+  }
+
+  if (!allowWalkInCapacityBypass) {
+    if (daySlots.length === 0) {
+      const alternatives = await listAlternativeSlots({
+        businessSlug,
+        scheduledAt,
+        services,
+        db,
+      });
+      throw new BookingAvailabilityError(
+        isWalkIn
+          ? "WALK_IN_CAPACITY_EXCEEDED"
+          : "NO_CAPACITY_FOR_SELECTED_SERVICES",
+        isWalkIn
+          ? "No immediate capacity is available for this walk-in booking."
+          : "No capacity is available for the selected services.",
+        alternatives,
+      );
+    }
+
+    const exactMatch = daySlots.some(
+      (slot) => slot.startTime.getTime() === scheduledAt.getTime(),
+    );
+    if (!exactMatch) {
+      const alternatives = await listAlternativeSlots({
+        businessSlug,
+        scheduledAt,
+        services,
+        db,
+      });
+      throw new BookingAvailabilityError(
+        isWalkIn ? "WALK_IN_CAPACITY_EXCEEDED" : "SLOT_JUST_TAKEN",
+        isWalkIn
+          ? "No immediate capacity is available for this walk-in booking."
+          : "The selected slot is no longer available.",
+        alternatives,
+      );
+    }
+  }
+
+  await resolveStaffSelectionOrThrow({
     businessSlug,
-    date: scheduledAt,
+    scheduledAt,
     services,
-    slotIntervalMinutes: policy.slotIntervalMinutes,
+    selectedEmployeeId,
+    staffSelectionMode,
     now,
     db,
   });
-
-  if (daySlots.length === 0) {
-    const alternatives = await listAlternativeSlots({
-      businessSlug,
-      scheduledAt,
-      services,
-      db,
-    });
-    throw new BookingAvailabilityError(
-      "NO_CAPACITY_FOR_SELECTED_SERVICES",
-      "No capacity is available for the selected services.",
-      alternatives,
-    );
-  }
-
-  const exactMatch = daySlots.some(
-    (slot) => slot.startTime.getTime() === scheduledAt.getTime(),
-  );
-  if (!exactMatch) {
-    const alternatives = await listAlternativeSlots({
-      businessSlug,
-      scheduledAt,
-      services,
-      db,
-    });
-    throw new BookingAvailabilityError(
-      "SLOT_JUST_TAKEN",
-      "The selected slot is no longer available.",
-      alternatives,
-    );
-  }
 }

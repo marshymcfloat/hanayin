@@ -98,12 +98,14 @@ export function BookingList({
   className,
   businessSlug,
   queryState,
+  staffingConflictBookingIds = [],
 }: {
   bookings: BookingWithDetails[];
   variant?: "card" | "embedded";
   className?: string;
   businessSlug?: string;
   queryState?: BookingListQueryState;
+  staffingConflictBookingIds?: number[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -114,6 +116,10 @@ export function BookingList({
     useState<BookingWithDetails | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isServerFiltered = Boolean(queryState && businessSlug);
+  const staffingConflictIdSet = useMemo(
+    () => new Set(staffingConflictBookingIds),
+    [staffingConflictBookingIds],
+  );
 
   const updateServerFilters = useCallback(
     (next: { search?: string; status?: string; page?: number }) => {
@@ -437,6 +443,14 @@ export function BookingList({
                     >
                       {booking.status}
                     </Badge>
+                    {staffingConflictIdSet.has(booking.id) && (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg border-amber-300 bg-amber-50 text-amber-800"
+                      >
+                        Conflict
+                      </Badge>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
@@ -610,6 +624,14 @@ export function BookingList({
                           >
                             {booking.status}
                           </Badge>
+                          {staffingConflictIdSet.has(booking.id) && (
+                            <Badge
+                              variant="outline"
+                              className="border-amber-300 bg-amber-50 text-amber-800 text-[10px] px-2 py-0.5 font-medium rounded-md"
+                            >
+                              Staffing Conflict
+                            </Badge>
+                          )}
                           {booking.payment_status === "PARTIALLY_PAID" &&
                             booking.grand_total > (booking.amount_paid || 0) && (
                               <Badge
@@ -726,6 +748,10 @@ export function BookingList({
         booking={selectedBooking}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        businessSlug={businessSlug}
+        hasStaffingConflict={
+          selectedBooking ? staffingConflictIdSet.has(selectedBooking.id) : false
+        }
       />
     </>
   );

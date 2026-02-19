@@ -99,10 +99,10 @@ export default function TimeSlotPicker({
     <div className="space-y-3">
       <div className="flex flex-wrap gap-1.5">
         <Badge variant="secondary" className="text-[10px]">
-          Confirmed = attendance-backed
+          Guaranteed = attendance-backed
         </Badge>
         <Badge variant="secondary" className="text-[10px]">
-          Tentative = roster projection
+          Estimated = roster projection
         </Badge>
       </div>
       {businessHours && category && (
@@ -183,7 +183,9 @@ export default function TimeSlotPicker({
                   isSelected ? "text-primary-foreground/70" : "text-muted-foreground",
                 )}
               >
-                {slot.confidence === "CONFIRMED" ? "Confirmed" : "Tentative"} -{" "}
+                {totalAvailableProviders} provider
+                {totalAvailableProviders === 1 ? "" : "s"} left -{" "}
+                {slot.confidence === "CONFIRMED" ? "Guaranteed" : "Estimated"} -{" "}
                 {slot.source === "ATTENDANCE" ? "Attendance" : "Roster"}
               </span>
             </Button>

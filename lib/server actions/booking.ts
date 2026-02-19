@@ -4,7 +4,12 @@ import { createBookingInDb } from "@/lib/services/booking";
 
 import { createPayMongoQrPaymentIntent } from "./paymongo";
 import { prisma } from "@/prisma/prisma";
-import { PaymentMethod, PaymentType } from "@/lib/zod schemas/bookings";
+import {
+  PaymentMethod,
+  PaymentType,
+  StaffSelectionMode,
+  CapacityOverrideReason,
+} from "@/lib/zod schemas/bookings";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
@@ -16,6 +21,7 @@ import { getQrExpirySeconds } from "@/lib/payments/config";
 import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/billing/subscription-service";
 import {
   BookingAvailabilityError,
+  resolveStaffSelectionOrThrow,
   validateBookingOrThrow,
 } from "@/lib/services/booking-availability";
 import { recordBookingMetric } from "@/lib/services/booking-metrics";
@@ -48,10 +54,15 @@ interface CreateBookingParams {
   }[];
   voucherCode?: string;
   isWalkIn?: boolean;
+  staffSelectionMode?: StaffSelectionMode;
+  capacityOverride?: {
+    reason: CapacityOverrideReason;
+    note?: string;
+  };
 }
 
 export type CreateBookingResult =
-  | { type: "redirect"; url: string }
+  | { type: "redirect"; url: string; warnings?: string[] }
   | {
       type: "qrph";
       paymentIntentId: string;
@@ -60,8 +71,9 @@ export type CreateBookingResult =
       qrImage: string;
       successToken: string;
       expiresAt?: string;
+      warnings?: string[];
     }
-  | { type: "internal"; url: string };
+  | { type: "internal"; url: string; warnings?: string[] };
 
 function getPublicAppUrl() {
   const configuredAppUrl =
@@ -93,11 +105,16 @@ export async function createBooking({
   phone,
   voucherCode,
   isWalkIn = false,
+  staffSelectionMode = "ANY_AVAILABLE",
+  capacityOverride,
 }: CreateBookingParams & {
   currentEmployeeId?: number;
 }): Promise<CreateBookingResult> {
   let metricBusinessId: string | null = null;
   let metricIsPublicBooking = false;
+  let walkInCapacityBypassAllowed = false;
+  let assignmentDowngraded = false;
+  const submitWarnings: string[] = [];
   try {
     const headersList = await headers();
     const forwardedFor = headersList.get("x-forwarded-for") || "";
@@ -112,11 +129,16 @@ export async function createBooking({
       throw new Error("Forbidden");
     }
 
+    let employeeActorContext:
+      | Awaited<ReturnType<typeof resolveTenantActorContext>>
+      | null = null;
+
     if (session?.user?.role === "EMPLOYEE") {
       const actorContext = await resolveTenantActorContext(
         businessSlug,
         session.user.id,
       );
+      employeeActorContext = actorContext;
       if (!actorContext.success || actorContext.actorType !== "EMPLOYEE") {
         throw new Error("Unauthorized");
       }
@@ -124,6 +146,27 @@ export async function createBooking({
       if (!hasStaffPermission(actorContext, StaffPermission.BOOKING_CREATE)) {
         throw new Error("Forbidden");
       }
+    }
+
+    if (isWalkIn && capacityOverride) {
+      const hasEmployeeOverridePermission =
+        session?.user.role === "EMPLOYEE" &&
+        !!employeeActorContext &&
+        employeeActorContext.success &&
+        employeeActorContext.actorType === "EMPLOYEE" &&
+        hasStaffPermission(employeeActorContext, StaffPermission.QUEUE_OVERRIDE_ALL);
+      const hasOverridePermission =
+        !!session &&
+        (session.user.role === "OWNER" || hasEmployeeOverridePermission);
+
+      if (!hasOverridePermission) {
+        throw new BookingAvailabilityError(
+          "CAPACITY_OVERRIDE_NOT_ALLOWED",
+          "You do not have permission to override capacity for walk-ins.",
+        );
+      }
+
+      walkInCapacityBypassAllowed = true;
     }
 
     if (!session) {
@@ -162,6 +205,8 @@ export async function createBooking({
             paymentMethod,
             paymentType,
             isWalkIn,
+            staffSelectionMode,
+            capacityOverrideApplied: walkInCapacityBypassAllowed,
           },
         });
       }
@@ -175,6 +220,8 @@ export async function createBooking({
           paymentMethod,
           paymentType,
           isWalkIn,
+          staffSelectionMode,
+          capacityOverrideApplied: walkInCapacityBypassAllowed,
         },
       });
     }
@@ -192,6 +239,22 @@ export async function createBooking({
     const amountToPay = pricing.amountToPay;
     const estimatedEnd = pricing.estimatedEnd;
 
+    const staffResolution = await resolveStaffSelectionOrThrow({
+      businessSlug,
+      scheduledAt,
+      services: processedServices.map((service) => ({
+        id: service.id,
+        quantity: service.quantity,
+      })),
+      selectedEmployeeId: employeeId,
+      staffSelectionMode,
+      db: prisma,
+    });
+    assignmentDowngraded = staffResolution.assignmentDowngraded;
+    if (staffResolution.warning) {
+      submitWarnings.push(staffResolution.warning);
+    }
+
     await validateBookingOrThrow({
       businessSlug,
       scheduledAt,
@@ -202,6 +265,10 @@ export async function createBooking({
       paymentType,
       isPublicBooking: !session,
       isWalkIn,
+      selectedEmployeeId: employeeId,
+      staffSelectionMode,
+      allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
+      capacityOverride,
       db: prisma,
     });
 
@@ -223,8 +290,10 @@ export async function createBooking({
         totalDiscount: pricing.voucherDiscount,
         isPublicBooking: !session,
         isWalkIn,
+        staffSelectionMode,
+        capacityOverride,
+        allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
         pricingSnapshot: pricing,
-        skipAvailabilityValidation: true,
       });
 
       if (metricBusinessId) {
@@ -237,6 +306,8 @@ export async function createBooking({
             paymentMethod,
             paymentType,
             bookingId: booking.id,
+            assignmentDowngraded,
+            capacityOverrideApplied: walkInCapacityBypassAllowed,
           },
         });
         if (metricIsPublicBooking) {
@@ -247,6 +318,8 @@ export async function createBooking({
             metadata: {
               bookingId: booking.id,
               completionPath: "CASH",
+              assignmentDowngraded,
+              capacityOverrideApplied: walkInCapacityBypassAllowed,
             },
           });
         }
@@ -261,6 +334,7 @@ export async function createBooking({
       return {
         type: "internal",
         url: `/app/${businessSlug}/bookings/${booking.id}?created=true`,
+        warnings: submitWarnings.length > 0 ? submitWarnings : undefined,
       };
     }
 
@@ -283,6 +357,10 @@ export async function createBooking({
       paymentType,
       voucherCode: pricing.voucher?.code,
       isWalkIn: isWalkIn ? "true" : "false",
+      staffSelectionMode,
+      capacityOverrideReason: capacityOverride?.reason,
+      capacityOverrideNote: capacityOverride?.note,
+      capacityOverrideApplied: walkInCapacityBypassAllowed ? "true" : "false",
       services: JSON.stringify(
         processedServices.map((s) => ({
           id: s.id,
@@ -340,8 +418,10 @@ export async function createBooking({
       paymongoPaymentMethodId: qrPayment.paymentMethodId,
       isPublicBooking: !session,
       isWalkIn,
+      staffSelectionMode,
+      capacityOverride,
+      allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
       pricingSnapshot: pricing,
-      skipAvailabilityValidation: true,
     });
 
     if (metricBusinessId) {
@@ -355,6 +435,8 @@ export async function createBooking({
           paymentType,
           bookingId: booking.id,
           completionPath: "QRPH_HOLD",
+          assignmentDowngraded,
+          capacityOverrideApplied: walkInCapacityBypassAllowed,
         },
       });
     }
@@ -372,6 +454,7 @@ export async function createBooking({
         businessSlug,
       }),
       expiresAt: qrPayment.expiresAt,
+      warnings: submitWarnings.length > 0 ? submitWarnings : undefined,
     };
   } catch (err) {
     if (err instanceof BookingAvailabilityError) {
@@ -383,6 +466,9 @@ export async function createBooking({
           reason: err.code,
           metadata: {
             isPublicBooking: metricIsPublicBooking,
+            walkInRejectedNoCapacity:
+              err.code === "WALK_IN_CAPACITY_EXCEEDED",
+            capacityOverrideApplied: walkInCapacityBypassAllowed,
           },
         });
       }

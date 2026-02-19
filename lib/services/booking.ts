@@ -16,7 +16,13 @@ import {
 } from "./customer-matching";
 import { getQrHoldExpiresAt } from "@/lib/payments/config";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
-import { validateBookingOrThrow } from "./booking-availability";
+import {
+  BookingAvailabilityError,
+  CapacityOverrideInput,
+  resolveStaffSelectionOrThrow,
+  StaffSelectionMode,
+  validateBookingOrThrow,
+} from "./booking-availability";
 
 export type BookingServiceParams = {
   businessSlug: string;
@@ -48,8 +54,10 @@ export type BookingServiceParams = {
   paymongoPaymentId?: string;
   isPublicBooking?: boolean;
   isWalkIn?: boolean;
+  staffSelectionMode?: StaffSelectionMode;
+  capacityOverride?: CapacityOverrideInput;
+  allowWalkInCapacityBypass?: boolean;
   pricingSnapshot?: Awaited<ReturnType<typeof buildBookingPricingSnapshot>>;
-  skipAvailabilityValidation?: boolean;
 };
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
@@ -93,8 +101,10 @@ export async function createBookingInDb({
   paymongoPaymentId,
   isPublicBooking = false,
   isWalkIn = false,
+  staffSelectionMode = "ANY_AVAILABLE",
+  capacityOverride,
+  allowWalkInCapacityBypass = false,
   pricingSnapshot,
-  skipAvailabilityValidation = false,
 }: BookingServiceParams) {
   const normalizedEmail = normalizeCustomerEmail(email);
   const normalizedPhone = normalizeCustomerPhone(phone);
@@ -119,7 +129,7 @@ export async function createBookingInDb({
           const { business } = pricing;
           const validatedServices = pricing.services;
 
-          if (!skipAvailabilityValidation) {
+          if (!allowWalkInCapacityBypass) {
             await validateBookingOrThrow({
               businessSlug,
               scheduledAt,
@@ -130,9 +140,25 @@ export async function createBookingInDb({
               paymentType,
               isPublicBooking,
               isWalkIn,
+              selectedEmployeeId: employeeId ?? undefined,
+              staffSelectionMode,
+              allowWalkInCapacityBypass,
+              capacityOverride,
               db: tx,
             });
           }
+
+          const staffResolution = await resolveStaffSelectionOrThrow({
+            businessSlug,
+            scheduledAt,
+            services: validatedServices.map((service) => ({
+              id: service.id,
+              quantity: service.quantity,
+            })),
+            selectedEmployeeId: employeeId ?? undefined,
+            staffSelectionMode,
+            db: tx,
+          });
 
           let finalCustomerId = customerId;
 
@@ -234,6 +260,13 @@ export async function createBookingInDb({
               hold_expires_at: holdExpiresAt,
               scheduled_at: scheduledAt,
               estimated_end: pricing.estimatedEnd,
+              capacity_override_applied: allowWalkInCapacityBypass,
+              capacity_override_reason: allowWalkInCapacityBypass
+                ? capacityOverride?.reason || null
+                : null,
+              capacity_override_note: allowWalkInCapacityBypass
+                ? (capacityOverride?.note || null)
+                : null,
               downpayment: downpaymentAmount,
               availed_services: {
                 create: validatedServices.map((service, index) => {
@@ -255,7 +288,9 @@ export async function createBookingInDb({
 
                   const isClaimed =
                     service.claimedByCurrentEmployee && !!currentEmployeeId;
-                  const serverId = isClaimed ? currentEmployeeId : employeeId;
+                  const serverId = isClaimed
+                    ? currentEmployeeId
+                    : staffResolution.assignedEmployeeId;
                   const status = isClaimed ? "CLAIMED" : "PENDING";
                   const claimedAt = isClaimed ? getCurrentDateTimePH() : null;
                   const originalPrice = service.originalPrice;
@@ -364,5 +399,8 @@ export async function createBookingInDb({
     }
   }
 
-  throw new Error("Failed to create booking due to concurrent modifications.");
+  throw new BookingAvailabilityError(
+    "SLOT_JUST_TAKEN",
+    "That slot was just taken. Please pick another slot.",
+  );
 }

@@ -95,6 +95,8 @@ export default async function OwnerDashboard({
     submitAttempts: number;
     publicStarted: number;
     publicCompleted: number;
+    overrideBookingsCount: number;
+    requiredStaffRejections: number;
   };
   staffingConflictAlerts: {
     id: string;
@@ -290,6 +292,16 @@ export default async function OwnerDashboard({
                   label="Public Conv."
                   value={`${bookingMetrics.publicConversionRate.toFixed(1)}%`}
                   caption={`${bookingMetrics.publicCompleted} / ${bookingMetrics.publicStarted}`}
+                />
+                <MetricPill
+                  label="Overrides"
+                  value={`${bookingMetrics.overrideBookingsCount}`}
+                  caption="Capacity overrides (7d)"
+                />
+                <MetricPill
+                  label="Require Reject"
+                  value={`${bookingMetrics.requiredStaffRejections}`}
+                  caption="Required-staff rejections (7d)"
                 />
               </div>
             </article>
