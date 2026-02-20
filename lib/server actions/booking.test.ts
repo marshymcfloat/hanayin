@@ -46,6 +46,7 @@ vi.mock("@/lib/services/booking-pricing", () => ({
 }));
 
 vi.mock("@/lib/services/booking-availability", () => ({
+  resolveStaffSelectionOrThrow: vi.fn(),
   validateBookingOrThrow: vi.fn(),
   BookingAvailabilityError: class BookingAvailabilityError extends Error {
     code: string;
@@ -67,7 +68,10 @@ import { rateLimit } from "@/lib/rate-limit";
 import { createBookingInDb } from "@/lib/services/booking";
 import { createPayMongoQrPaymentIntent } from "./paymongo";
 import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
-import { validateBookingOrThrow } from "@/lib/services/booking-availability";
+import {
+  resolveStaffSelectionOrThrow,
+  validateBookingOrThrow,
+} from "@/lib/services/booking-availability";
 
 const mockedHeaders = vi.mocked(headers);
 const mockedGetServerSession = vi.mocked(getServerSession);
@@ -80,6 +84,9 @@ const mockedCreatePayMongoQrPaymentIntent = vi.mocked(
   createPayMongoQrPaymentIntent,
 );
 const mockedBusinessFindUnique = vi.mocked(prismaMock.business.findUnique);
+const mockedResolveStaffSelectionOrThrow = vi.mocked(
+  resolveStaffSelectionOrThrow,
+);
 const mockedValidateBookingOrThrow = vi.mocked(validateBookingOrThrow);
 
 describe("createBooking Server Action", () => {
@@ -113,6 +120,10 @@ describe("createBooking Server Action", () => {
       id: "biz_1",
       slug: "demo-business",
       subscriptions: [],
+    });
+    mockedResolveStaffSelectionOrThrow.mockResolvedValue({
+      assignedEmployeeId: null,
+      assignmentDowngraded: false,
     });
     mockedValidateBookingOrThrow.mockResolvedValue(undefined);
   });
@@ -189,6 +200,80 @@ describe("createBooking Server Action", () => {
     expect(result).toEqual({
       type: "internal",
       url: "/app/demo-business/bookings/123?created=true",
+    });
+  });
+
+  it("should return warning when preferred staff is downgraded to any available", async () => {
+    const mockBusiness = {
+      id: "biz_1",
+      slug: "demo-business",
+      name: "Demo Business",
+      commission_calculation_basis: "ORIGINAL_PRICE" as const,
+    };
+
+    mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      business: mockBusiness,
+      services: [
+        {
+          id: 1,
+          name: "Haircut",
+          quantity: 1,
+          duration: 30,
+          price: 500,
+          originalPrice: 500,
+          estimatedCost: 200,
+          discount: 0,
+          discountReason: null,
+          commissionBase: 500,
+        },
+      ],
+      subtotal: 500,
+      voucherDiscount: 0,
+      grandTotal: 500,
+      downpaymentAmount: null,
+      amountToPay: 500,
+      totalDuration: 30,
+      estimatedEnd: new Date(mockDate.getTime() + 30 * 60 * 1000),
+      voucher: null,
+    });
+
+    mockedResolveStaffSelectionOrThrow.mockResolvedValueOnce({
+      assignedEmployeeId: null,
+      assignmentDowngraded: true,
+      warning: "Preferred staff unavailable; booking kept with any available provider.",
+    });
+
+    mockedCreateBookingInDb.mockResolvedValue({
+      id: 456,
+    } as never);
+
+    const result = await createBooking({
+      customerName: "John Doe",
+      businessSlug: "demo-business",
+      scheduledAt: mockDate,
+      paymentMethod: "CASH",
+      paymentType: "FULL",
+      employeeId: 999,
+      staffSelectionMode: "PREFER_SELECTED",
+      services: [
+        {
+          id: 1,
+          name: "Haircut",
+          price: 500,
+          quantity: 1,
+          originalPrice: 500,
+        },
+      ],
+      email: "john@example.com",
+      phone: "+639171234567",
+    });
+
+    expect(result).toEqual({
+      type: "internal",
+      url: "/app/demo-business/bookings/456?created=true",
+      warnings: [
+        "Preferred staff unavailable; booking kept with any available provider.",
+      ],
     });
   });
 
