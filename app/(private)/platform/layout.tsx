@@ -8,7 +8,6 @@ import type { Metadata } from "next";
 import { PlatformSignOutButton } from "@/components/auth/PlatformSignOutButton";
 import { authOptions } from "@/lib/next auth/options";
 import { PlatformNav, type PlatformNavItem } from "./_components/platform-nav";
-import { platformPanelClass } from "./_components/platform-ui";
 import {
   PlatformShellSkeleton,
   PlatformTabContentSkeleton,

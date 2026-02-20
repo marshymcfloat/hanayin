@@ -11,7 +11,6 @@ export type PlanEntitlements = {
   reportsAdvanced: boolean;
 };
 
-const STARTER_PLAN_CODE = "STARTER_MONTHLY";
 const PLUS_PLAN_CODE = "PLUS_MONTHLY";
 const PRO_PLAN_CODE = "PRO_MONTHLY";
 const LEGACY_PRO_ANNUAL_PLAN_CODE = "PRO_ANNUAL";

@@ -8,7 +8,6 @@ import { constructMetadata } from "@/lib/metadata";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 export const metadata = constructMetadata({
   title: "Explore Businesses | Service Flow",

@@ -20,11 +20,9 @@ export function getMaxBookingDate({
 export function getSlotEmptyState({
   isSelectedDateInFuture,
   bookingV2Enabled,
-  isSelectedDateToday,
 }: {
   isSelectedDateInFuture: boolean;
   bookingV2Enabled: boolean;
-  isSelectedDateToday: boolean;
 }) {
   if (isSelectedDateInFuture && !bookingV2Enabled) {
     return {

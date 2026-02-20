@@ -30,7 +30,6 @@ describe("booking-form-utils", () => {
     const state = getSlotEmptyState({
       isSelectedDateInFuture: false,
       bookingV2Enabled: true,
-      isSelectedDateToday: true,
     });
 
     expect(state.title).toBe("No available slots for the selected services");

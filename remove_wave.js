@@ -1,19 +1,26 @@
-const fs = require("fs");
-const path = require("path");
+async function main() {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
 
-const dir = path.join(__dirname, "components", "landing");
-const files = fs.readdirSync(dir);
+  const dir = path.join(process.cwd(), "components", "landing");
+  const files = fs.readdirSync(dir);
 
-files.forEach((file) => {
-  if (file.endsWith(".tsx")) {
-    const fp = path.join(dir, file);
-    let c = fs.readFileSync(fp, "utf8");
-    c = c.replace(
-      /import\s+\{\s*WaveDivider\s*\}\s*from\s*"@\/components\/ui\/wave-divider";?[\r\n]*/g,
-      "",
-    );
-    c = c.replace(/[ \t]*<WaveDivider[^>]*\/>[\r\n]*/g, "");
-    fs.writeFileSync(fp, c, "utf8");
-  }
+  files.forEach((file) => {
+    if (file.endsWith(".tsx")) {
+      const fp = path.join(dir, file);
+      let c = fs.readFileSync(fp, "utf8");
+      c = c.replace(
+        /import\s+\{\s*WaveDivider\s*\}\s*from\s*"@\/components\/ui\/wave-divider";?[\r\n]*/g,
+        "",
+      );
+      c = c.replace(/[ \t]*<WaveDivider[^>]*\/>[\r\n]*/g, "");
+      fs.writeFileSync(fp, c, "utf8");
+    }
+  });
+  console.log("Done removing WaveDivider from all sections.");
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
 });
-console.log("Done removing WaveDivider from all sections.");

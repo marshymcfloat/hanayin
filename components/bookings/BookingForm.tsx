@@ -561,8 +561,6 @@ export default function BookingForm({
     [selectedDate],
   );
   const todayPHString = toPHDateString(new Date());
-  const isSelectedDateToday =
-    !!selectedDatePHString && selectedDatePHString === todayPHString;
   const isSelectedDateInFuture =
     !!selectedDatePHString && selectedDatePHString > todayPHString;
   const bookingHorizonDays = bookingPolicy?.bookingHorizonDays ?? 14;
@@ -982,7 +980,6 @@ export default function BookingForm({
   const slotEmptyState = getSlotEmptyState({
     isSelectedDateInFuture,
     bookingV2Enabled,
-    isSelectedDateToday,
   });
 
   const resolvedMobileActionBarMode =

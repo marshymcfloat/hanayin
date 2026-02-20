@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  BookingAvailabilityError,
   computeSlots,
   validateBookingOrThrow,
 } from "./booking-availability";

@@ -1,16 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { format } from "date-fns";
 import {
   User,
   Clock,
   Calendar,
-  MoreHorizontal,
   ArrowRight,
   CheckCircle2,
-  XCircle,
-  AlertCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -104,7 +100,6 @@ export function ManagerQueueCard({
 
   const isPending = service.status === AvailedServiceStatus.PENDING;
   const isServing = service.status === AvailedServiceStatus.SERVING;
-  const isClaimed = service.status === AvailedServiceStatus.CLAIMED;
 
   const statusColor = useMemo(() => {
     switch (service.status) {

@@ -45,18 +45,6 @@ async function ensureGrowthAccess(businessSlug: string) {
   return null;
 }
 
-async function ensureGrowthAiAccess(businessSlug: string) {
-  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
-  if (!entitlements.ai) {
-    return {
-      success: false as const,
-      error: "AI growth campaign generation is available on Pro.",
-    };
-  }
-
-  return null;
-}
-
 function toContextPayload(value: unknown): GrowthContextPayload {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error("Invalid context payload");
