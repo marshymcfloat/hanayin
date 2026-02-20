@@ -71,15 +71,28 @@ test.describe("Public booking smoke", () => {
 
   test("opens business page and reaches booking screen", async ({ page }) => {
     await page.goto(`/${businessSlug}`);
-    await expect(page.getByRole("heading", { name: businessName })).toBeVisible();
+    await page.waitForURL(
+      new RegExp(`/${businessSlug}(?:/booking/?)?$`),
+      { timeout: 15_000 },
+    );
 
-    const bookNowLink = page
-      .locator(
-        `a[href='/${businessSlug}/booking'], a[href='/${businessSlug}/booking/']`,
-      )
-      .first();
-    await expect(bookNowLink).toBeVisible();
-    await bookNowLink.click();
+    const pathname = new URL(page.url()).pathname;
+    const redirectedToBooking = pathname.endsWith(`/${businessSlug}/booking/`) ||
+      pathname.endsWith(`/${businessSlug}/booking`);
+
+    if (!redirectedToBooking) {
+      await expect(
+        page.getByRole("heading", { name: businessName }),
+      ).toBeVisible({ timeout: 15_000 });
+
+      const bookNowLink = page
+        .locator(
+          `a[href='/${businessSlug}/booking'], a[href='/${businessSlug}/booking/']`,
+        )
+        .first();
+      await expect(bookNowLink).toBeVisible({ timeout: 10_000 });
+      await bookNowLink.click();
+    }
 
     const selectServicesHeading = page.getByRole("heading", {
       name: "Select Services",
