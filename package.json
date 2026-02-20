@@ -13,7 +13,7 @@
     "test:e2e:db": "playwright test test/e2e/public-booking-smoke.spec.ts",
     "test:e2e": "node scripts/require-env.mjs DIRECT_DATABASE_URL && npm run test:e2e:core && npm run test:e2e:db",
     "build:app": "next build",
-    "build:release": "node scripts/require-env.mjs DATABASE_URL && prisma migrate deploy && npm run build:app",
+    "build:release": "node scripts/require-env.mjs DATABASE_URL && node scripts/prisma-migrate-deploy-safe.mjs && npm run build:app",
     "build": "npm run build:release",
     "build:prod": "npm run build:release",
     "verify:release": "npm run lint && npm run typecheck && npm run test:ci && npm run test:e2e && npm run build"
