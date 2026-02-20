@@ -52,18 +52,9 @@ const features = [
 export default function SolutionSection() {
   return (
     <section
-      className="py-24 bg-background relative overflow-hidden"
+      className="py-24 bg-[#FAFAFA] relative overflow-hidden"
       id="features"
     >
-      {/* Green Gradient Background */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.08) 0%, rgba(255, 255, 255, 0) 50%)",
-        }}
-      />
-
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
@@ -97,9 +88,6 @@ export default function SolutionSection() {
           ))}
         </div>
       </div>
-
-      {/* Smooth Transition Mask */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-background to-transparent pointer-events-none" />
     </section>
   );
 }

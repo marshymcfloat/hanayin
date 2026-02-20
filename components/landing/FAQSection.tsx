@@ -37,8 +37,8 @@ const faqs = [
 
 export default function FAQSection() {
   return (
-    <section className="py-24 bg-stone-50 dark:bg-stone-900/10">
-      <div className="container mx-auto px-4 sm:px-6">
+    <section className="py-24 bg-[#FAFAFA] relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
             Frequently Asked <span className="text-green-600">Questions</span>

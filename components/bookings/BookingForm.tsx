@@ -636,18 +636,6 @@ export default function BookingForm({
       timeSlots.length === 0,
   });
 
-  const selectedSlotOwnerFallback = useMemo(() => {
-    if (!selectedTime) return false;
-    const selectedSlot = timeSlots.find(
-      (slot) => slot.startTime.getTime() === selectedTime.getTime(),
-    );
-    return (selectedSlot?.availableOwnerCount || 0) > 0;
-  }, [selectedTime, timeSlots]);
-  const hasTentativeAlternativeSlots = useMemo(
-    () => alternativeSlots.some((slot) => slot.confidence === "TENTATIVE"),
-    [alternativeSlots],
-  );
-
   const totalWithFee = useMemo(() => {
     return calculateBookingTotal({
       subtotal: total,
@@ -995,8 +983,6 @@ export default function BookingForm({
     isSelectedDateInFuture,
     bookingV2Enabled,
     isSelectedDateToday,
-    hasTentativeAlternativeSlots:
-      timeSlots.length === 0 && hasTentativeAlternativeSlots,
   });
 
   const resolvedMobileActionBarMode =
@@ -1611,7 +1597,6 @@ export default function BookingForm({
                         onChange={field.onChange}
                         isLoading={isLoadingEmployees}
                         serviceCategories={selectedServiceCategories}
-                        ownerAvailableFallback={selectedSlotOwnerFallback}
                       />
                     </FormControl>
                     <FormMessage />

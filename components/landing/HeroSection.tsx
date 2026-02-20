@@ -8,16 +8,12 @@ import { Badge } from "@/components/ui/badge";
 export default function HeroSection() {
   return (
     <section
-      className="relative isolate pt-32 pb-20  md:pb-32 overflow-hidden"
+      className="relative isolate pt-32 pb-20 md:pb-32 overflow-hidden bg-[#FAFAFA]"
       id="hero"
     >
       <div
-        className="absolute inset-0 z-0 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none bg-[#FAFAFA]"
         aria-hidden="true"
-        style={{
-          backgroundImage: `radial-gradient(125% 125% at 50% 90%, #ffffff 35%, #10b981 100%)`,
-          backgroundSize: "100% 100%",
-        }}
       />
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 text-center">

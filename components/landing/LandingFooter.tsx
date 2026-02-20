@@ -8,7 +8,7 @@ export default function LandingFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="py-12 border-t bg-stone-50 dark:bg-stone-900/10">
+    <footer className="py-12 bg-[#00A63E] text-white">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col items-center md:items-start gap-4">
@@ -21,11 +21,11 @@ export default function LandingFooter() {
                   className="rounded-lg object-cover"
                 />
               </div>
-              <span className="font-bold text-lg tracking-tight group-hover:text-green-600 transition-colors">
+              <span className="font-bold text-lg tracking-tight group-hover:text-white/80 transition-colors">
                 ServiceFlow
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground text-center md:text-left max-w-xs">
+            <p className="text-sm text-white/80 text-center md:text-left max-w-xs">
               The all-in-one management platform for salons, spas, and clinics
               in the Philippines 🇵🇭
             </p>
@@ -36,13 +36,13 @@ export default function LandingFooter() {
               <h4 className="font-semibold text-sm">Product</h4>
               <Link
                 href="/#features"
-                className="text-sm text-muted-foreground hover:text-green-600 transition-colors"
+                className="text-sm text-white/80 hover:text-white transition-colors"
               >
                 Features
               </Link>
               <Link
                 href="/#pricing"
-                className="text-sm text-muted-foreground hover:text-green-600 transition-colors"
+                className="text-sm text-white/80 hover:text-white transition-colors"
               >
                 Pricing
               </Link>
@@ -51,13 +51,13 @@ export default function LandingFooter() {
               <h4 className="font-semibold text-sm">Company</h4>
               <Link
                 href="/about"
-                className="text-sm text-muted-foreground hover:text-green-600 transition-colors"
+                className="text-sm text-white/80 hover:text-white transition-colors"
               >
                 About
               </Link>
               <Link
                 href="/about#contact"
-                className="text-sm text-muted-foreground hover:text-green-600 transition-colors"
+                className="text-sm text-white/80 hover:text-white transition-colors"
               >
                 Contact
               </Link>
@@ -66,13 +66,13 @@ export default function LandingFooter() {
               <h4 className="font-semibold text-sm">Legal</h4>
               <Link
                 href="/privacy"
-                className="text-sm text-muted-foreground hover:text-green-600 transition-colors"
+                className="text-sm text-white/80 hover:text-white transition-colors"
               >
                 Privacy
               </Link>
               <Link
                 href="/terms"
-                className="text-sm text-muted-foreground hover:text-green-600 transition-colors"
+                className="text-sm text-white/80 hover:text-white transition-colors"
               >
                 Terms
               </Link>
@@ -80,8 +80,8 @@ export default function LandingFooter() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-white/80">
             &copy; {year} ServiceFlow. All rights reserved.
           </p>
           <div className="flex gap-4">
@@ -89,19 +89,19 @@ export default function LandingFooter() {
               href="https://web.facebook.com/RosesRBlacc"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-green-600 transition-colors"
+              className="text-white/80 hover:text-white transition-colors"
             >
               <Facebook className="size-5" />
             </a>
             <Link
               href="#"
-              className="text-muted-foreground hover:text-green-600 transition-colors"
+              className="text-white/80 hover:text-white transition-colors"
             >
               <Instagram className="size-5" />
             </Link>
             <Link
               href="#"
-              className="text-muted-foreground hover:text-green-600 transition-colors"
+              className="text-white/80 hover:text-white transition-colors"
             >
               <Twitter className="size-5" />
             </Link>

@@ -37,36 +37,24 @@ export default function GrowthSalesEngineSection() {
   ];
 
   return (
-    <section className="py-24 bg-stone-900 text-stone-50 overflow-hidden relative">
-      {/* Smooth Transition Top */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-background to-transparent z-10 pointer-events-none" />
-
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
-        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-green-500/30 blur-[100px]" />
-        <div className="absolute top-[40%] -left-[10%] w-[500px] h-[500px] rounded-full bg-emerald-500/20 blur-[100px]" />
-      </div>
-
+    <section className="py-24 bg-[#FAFAFA] text-foreground overflow-hidden relative">
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
               Turn Empty Slots <br />
-              Into{" "}
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-green-400 to-emerald-300">
-                Revenue
-              </span>
+              Into <span className="text-green-600">Revenue</span>
             </h2>
-            <p className="text-xl text-stone-300 leading-relaxed max-w-lg">
+            <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
               ServiceFlow doesn’t just manage your business. <br />
-              <strong className="text-white">It grows it.</strong>
+              <strong className="text-foreground">It grows it.</strong>
             </p>
 
             <div className="space-y-4 pt-4">
               {features.map((feature, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-green-500/30 transition-all backdrop-blur-sm"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-background border border-border/50 hover:border-green-500/30 hover:shadow-sm transition-all shadow-xs"
                 >
                   <div
                     className={`size-10 rounded-full ${feature.bg} flex items-center justify-center shrink-0`}
@@ -124,9 +112,6 @@ export default function GrowthSalesEngineSection() {
           </div>
         </div>
       </div>
-
-      {/* Smooth Transition Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-background to-transparent z-10 pointer-events-none" />
     </section>
   );
 }

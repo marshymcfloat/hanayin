@@ -3,6 +3,14 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
@@ -23,6 +31,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
+      NEXT_TELEMETRY_DISABLED: "1"
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/serviceflow?schema=public
       DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/serviceflow?schema=public
       NEXTAUTH_SECRET: test-nextauth-secret
@@ -56,7 +65,7 @@ jobs:
         run: npm run test:ci
 
       - name: Production build
-        run: npm run build
+        run: npm run build:app
 
   e2e_smoke:
     runs-on: ubuntu-latest
@@ -77,6 +86,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
+      NEXT_TELEMETRY_DISABLED: "1"
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/serviceflow?schema=public
       DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/serviceflow?schema=public
       NEXTAUTH_SECRET: test-nextauth-secret
@@ -113,3 +123,14 @@ jobs:
 
       - name: Booking smoke E2E (db)
         run: npm run test:e2e:db
+
+      - name: Upload Playwright artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14

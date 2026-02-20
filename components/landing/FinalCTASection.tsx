@@ -6,13 +6,23 @@ import Link from "next/link";
 
 export default function FinalCTASection() {
   return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Background with gradient */}
-      <div className="absolute inset-0 bg-green-600 dark:bg-green-700 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px]">
-        <div className="absolute inset-0 bg-linear-to-r from-green-600/90 to-emerald-600/90 backdrop-blur-sm" />
+    <section className="relative overflow-hidden bg-[#00A63E]">
+      <div className="relative h-28 w-full sm:h-32 md:h-36 lg:h-40">
+        <svg
+          viewBox="0 0 960 540"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          className="block h-full w-[102%] -translate-x-[1%]"
+        >
+          <rect x="-4" y="0" width="968" height="540" fill="#FAFAFA" />
+          <path
+            d="M-4 215C95 370 235 475 380 390C520 305 635 465 790 325C875 248 928 322 964 370L964 560L-4 560Z"
+            fill="#00A63E"
+          />
+        </svg>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center text-white">
+      <div className="container mx-auto px-4 sm:px-6 pb-24 pt-12 relative z-10 text-center text-white">
         <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
           Ready to Modernize <br className="hidden sm:block" /> Your Business?
         </h2>
@@ -35,7 +45,7 @@ export default function FinalCTASection() {
             asChild
             variant="outline"
             size="lg"
-            className="rounded-full h-14 px-8 text-lg font-medium border-white/30 bg-transparent text-white hover:bg-white/10 hover:border-white backdrop-blur-sm gap-2 transition-all w-full sm:w-auto"
+            className="rounded-full h-14 px-8 text-lg font-medium border-white/40 bg-transparent text-white hover:bg-white/10 hover:border-white backdrop-blur-sm gap-2 transition-all w-full sm:w-auto"
           >
             <Link href="/explore">
               <Compass className="size-5" /> Explore Businesses
@@ -44,7 +54,7 @@ export default function FinalCTASection() {
         </div>
 
         <p className="mt-8 text-sm text-green-100 opacity-80">
-          No credit card required • Cancel anytime • Free setup assistance
+          No credit card required | Cancel anytime | Free setup assistance
         </p>
       </div>
     </section>

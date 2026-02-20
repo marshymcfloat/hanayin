@@ -1,116 +1,142 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Scissors, Sparkles, Flower2, Stethoscope, Check } from "lucide-react";
+import { LayoutDashboard, Share2, Globe, BarChart3, Check } from "lucide-react";
+import Image from "next/image";
 
 export default function IndustryUseCasesSection() {
-  const industries = [
+  const systemFeatures = [
     {
-      id: "salon",
-      label: "Salon Owners",
-      icon: Scissors,
+      id: "dashboard",
+      label: "Owner Dashboard",
+      icon: LayoutDashboard,
       features: [
-        "Package bookings",
-        "Add-on services (e.g., wash + blowdry)",
-        "Color + treatment combos",
-        "Stylist performance tracking",
+        "Real-time business metrics",
+        "Staff performance overview",
+        "Quick action shortcuts",
+        "Revenue tracking",
       ],
-      description:
-        "Manage complex appointments and stylist commissions with ease.",
+      description: "Get a bird's-eye view of your business operations.",
+      image: "/SF_Dashboard.png",
     },
     {
-      id: "barbershop",
-      label: "Barbershops",
-      icon: Sparkles,
+      id: "social",
+      label: "Social Posts",
+      icon: Share2,
       features: [
-        "Walk-in + Appointment management",
-        "Loyalty client tracking",
-        "Fast rebooking workflow",
-        "Queue management",
+        "Automated scheduling",
+        "AI-powered content generation",
+        "Cross-platform publishing",
+        "Engagement analytics",
       ],
-      description: "Keep your chairs full and your barbers happy.",
+      description: "Manage your social media presence seamlessly.",
+      image: "/SF_Post.png",
     },
     {
-      id: "spa",
-      label: "Spas",
-      icon: Flower2,
+      id: "website",
+      label: "Facing Website",
+      icon: Globe,
       features: [
-        "Therapist scheduling",
-        "Multi-session packages",
-        "Room management",
-        "Resource allocation",
+        "Customizable themes",
+        "Integrated online booking",
+        "Mobile-optimized design",
+        "SEO ready",
       ],
-      description: "Create a relaxing experience from booking to payment.",
+      description: "Your beautiful, high-converting digital storefront.",
+      image: "/SF_Facing.png",
     },
     {
-      id: "clinic",
-      label: "Clinics",
-      icon: Stethoscope,
+      id: "reports",
+      label: "Reports",
+      icon: BarChart3,
       features: [
-        "Treatment records (EMR)",
-        "Follow-up reminders",
-        "Patient scheduling",
-        "Consent forms",
+        "Customizable report builder",
+        "Export to accounting software",
+        "Trend analysis",
+        "Inventory insights",
       ],
-      description: "Professional tools for aesthetic and wellness clinics.",
+      description: "Deep dive into your business data with powerful analytics.",
+      image: "/SF_Reports.png",
     },
   ];
 
   return (
-    <section className="py-24 bg-background">
-      <div className="container mx-auto px-4 sm:px-6">
+    <section className="py-24 bg-[#FAFAFA] relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-            Built for <span className="text-green-600">Beauty & Wellness</span>{" "}
-            Businesses
+            Everything You Need{" "}
+            <span className="text-green-600">In One System</span>
           </h2>
           <p className="text-xl text-muted-foreground">
-            Tailored features for your specific industry needs.
+            Powerful tools designed to simplify your business operations.
           </p>
         </div>
 
-        <Tabs defaultValue="salon" className="max-w-4xl mx-auto">
+        <Tabs defaultValue="dashboard" className="max-w-6xl mx-auto">
           <TabsList className="flex flex-wrap justify-center gap-4 w-full h-auto bg-transparent p-0 mb-12">
-            {industries.map((industry) => (
+            {systemFeatures.map((feature) => (
               <TabsTrigger
-                key={industry.id}
-                value={industry.id}
+                key={feature.id}
+                value={feature.id}
                 className="rounded-full px-6 py-3 border border-border/50 bg-background hover:bg-muted/50 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:border-green-600 data-[state=active]:shadow-lg data-[state=active]:shadow-green-200/50 transition-all text-base h-auto"
               >
-                <industry.icon className="size-4 mr-2" />
-                {industry.label}
+                <feature.icon className="size-4 mr-2" />
+                {feature.label}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {industries.map((industry) => (
+          {systemFeatures.map((feature) => (
             <TabsContent
-              key={industry.id}
-              value={industry.id}
+              key={feature.id}
+              value={feature.id}
               className="animate-in fade-in slide-in-from-bottom-4 duration-500"
             >
-              <div className="bg-stone-50 dark:bg-stone-900/20 border border-border/50 rounded-3xl p-8 md:p-12">
-                <div className="flex flex-col md:flex-row gap-8 items-center">
-                  <div className="flex-1 space-y-6 text-center md:text-left">
+              <div className="bg-stone-50 dark:bg-stone-900/20 border border-border/50 rounded-3xl p-8 md:p-12 overflow-hidden">
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
+                  <div className="flex-1 space-y-6 text-center lg:text-left">
                     <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-green-100 text-green-700 mb-2">
-                      <industry.icon className="size-8" />
+                      <feature.icon className="size-8" />
                     </div>
-                    <h3 className="text-2xl font-bold">{industry.label}</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold">
+                      {feature.label}
+                    </h3>
                     <p className="text-lg text-muted-foreground">
-                      {industry.description}
+                      {feature.description}
                     </p>
-                    <ul className="grid sm:grid-cols-2 gap-3 pt-4">
-                      {industry.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-center gap-2">
-                          <Check className="size-5 text-green-600 shrink-0" />
-                          <span className="font-medium">{feature}</span>
+                    <ul className="grid sm:grid-cols-2 gap-3 pt-4 text-left">
+                      {feature.features.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <Check className="size-5 text-green-600 shrink-0 mt-0.5" />
+                          <span className="font-medium">{item}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
-                  {/* Placeholder for an image or graphic specific to the industry */}
-                  <div className="flex-1 w-full aspect-video bg-linear-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center text-muted-foreground text-sm font-mono border border-dashed border-gray-300">
-                    {industry.label} Dashboard Preview
+                  <div className="flex-[1.5] w-full group perspective-[2000px]">
+                    <div className="relative w-full rounded-2xl overflow-hidden border border-border/40 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] bg-background transition-all duration-700 ease-out group-hover:shadow-[0_40px_80px_-20px_rgba(22,163,74,0.15)] group-hover:-translate-y-2">
+                      {/* macOS Header */}
+                      <div className="h-10 w-full bg-[#f8f9fa] dark:bg-[#1a1b1e] border-b border-border/40 flex items-center px-4">
+                        <div className="flex gap-1.5">
+                          <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                          <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                          <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+                        </div>
+                      </div>
+
+                      {/* Image Content */}
+                      <div className="relative w-full aspect-[16/10] bg-muted/20 overflow-hidden">
+                        <Image
+                          src={feature.image}
+                          alt={`${feature.label} interface preview`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
+                          className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                          priority={feature.id === "dashboard"}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

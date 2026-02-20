@@ -6,7 +6,6 @@ import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import IndustryUseCasesSection from "@/components/landing/IndustryUseCasesSection";
 import GrowthSalesEngineSection from "@/components/landing/GrowthSalesEngineSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
-import ProductPreviewSection from "@/components/landing/ProductPreviewSection";
 import PricingSection from "@/components/landing/PricingSection";
 import FAQSection from "@/components/landing/FAQSection";
 import FinalCTASection from "@/components/landing/FinalCTASection";
@@ -32,7 +31,6 @@ export default function Home() {
         <IndustryUseCasesSection />
         <GrowthSalesEngineSection />
         <TestimonialsSection />
-        <ProductPreviewSection />
         <PricingSection />
         <FAQSection />
         <FinalCTASection />

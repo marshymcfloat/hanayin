@@ -31,7 +31,7 @@ export default function PainPointsSection() {
   ];
 
   return (
-    <section className="py-20 md:py-32 bg-stone-50 dark:bg-stone-900/10">
+    <section className="py-20 md:py-32 bg-[#FAFAFA]">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">

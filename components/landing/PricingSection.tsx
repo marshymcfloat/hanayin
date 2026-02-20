@@ -55,19 +55,9 @@ const tiers = [
 export default function PricingSection() {
   return (
     <section
-      className="py-24 bg-background relative overflow-hidden"
+      className="py-24 bg-[#FAFAFA] relative overflow-hidden"
       id="pricing"
     >
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 0) 60%)",
-        }}
-      />
-
-      <div className="absolute top-0 left-0 right-0 h-24 bg-linear-to-b from-stone-50 dark:from-stone-900/10 to-transparent pointer-events-none" />
-
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">

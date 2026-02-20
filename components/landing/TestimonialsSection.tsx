@@ -35,16 +35,7 @@ export default function TestimonialsSection() {
   ];
 
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
-      {/* Green Gradient Mesh Background */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.03) 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 0) 50%)",
-        }}
-      />
-
+    <section className="py-24 bg-[#FAFAFA] relative overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
