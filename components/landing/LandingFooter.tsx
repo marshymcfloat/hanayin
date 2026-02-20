@@ -1,12 +1,8 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 
 export default function LandingFooter() {
-  const year = new Date().getFullYear();
-
   return (
     <footer className="py-12 bg-[#00A63E] text-white">
       <div className="container mx-auto px-4 sm:px-6">
@@ -109,7 +105,7 @@ export default function LandingFooter() {
 
         <div className="mt-12 pt-8 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-white/80">
-            &copy; {year} ServiceFlow. All rights reserved.
+            &copy; ServiceFlow. All rights reserved.
           </p>
           <div className="flex gap-4">
             <a
