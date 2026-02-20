@@ -98,14 +98,14 @@ test.describe("Public booking smoke", () => {
       name: "Select Services",
     });
     const modalBadge = page.getByText("Secure booking").first();
-    const fullPageHeading = page.getByRole("heading", {
-      name: "Complete your booking",
+    const fullPageBusinessHeading = page.getByRole("heading", {
+      name: businessName,
     });
 
     await Promise.race([
       selectServicesHeading.waitFor({ state: "visible", timeout: 10_000 }),
       modalBadge.waitFor({ state: "visible", timeout: 10_000 }),
-      fullPageHeading.waitFor({ state: "visible", timeout: 10_000 }),
+      fullPageBusinessHeading.waitFor({ state: "visible", timeout: 10_000 }),
     ]);
 
     const modalFlowVisible = await modalBadge.isVisible().catch(() => false);
@@ -116,7 +116,7 @@ test.describe("Public booking smoke", () => {
         page.getByText("Choose services, pick a time, and confirm your slot."),
       ).toBeVisible();
     } else {
-      await expect(fullPageHeading).toBeVisible();
+      await expect(fullPageBusinessHeading).toBeVisible();
     }
 
     await expect(selectServicesHeading).toBeVisible();
