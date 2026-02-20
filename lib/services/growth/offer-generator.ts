@@ -25,7 +25,7 @@ const OFFER_BY_OPPORTUNITY: Record<OpportunityTypeLiteral, OfferTypeLiteral[]> =
 
 function pickOfferType(input: {
   opportunityType: OpportunityTypeLiteral;
-  recommendedOfferTypes: OfferTypeLiteral[];
+  recommendedOfferTypes: readonly OfferTypeLiteral[];
   enableStudentPromo: boolean;
 }) {
   const preferred = input.recommendedOfferTypes.length > 0
@@ -56,7 +56,7 @@ export function generateOfferFromOpportunity(input: {
   opportunity: {
     type: OpportunityTypeLiteral;
     reason: string;
-    recommended_offer_types: OfferTypeLiteral[];
+    recommended_offer_types: readonly OfferTypeLiteral[];
     time_window_start: Date;
     time_window_end: Date;
     metadata: unknown;
@@ -148,4 +148,3 @@ export function generateOfferFromOpportunity(input: {
     riskFlags,
   };
 }
-
