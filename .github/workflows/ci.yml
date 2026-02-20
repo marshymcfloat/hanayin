@@ -53,7 +53,12 @@ jobs:
         run: npm ci
 
       - name: Apply migrations
-        run: npx prisma migrate deploy
+        run: |
+          npx prisma migrate deploy || (
+            echo "Retrying after resolving historical migration ordering issue..."
+            npx prisma migrate resolve --applied 20260216091540_add_subscription_upgrade_request
+            npx prisma migrate deploy
+          )
 
       - name: Lint
         run: npm run lint -- --max-warnings=0
@@ -109,7 +114,12 @@ jobs:
         run: npm ci
 
       - name: Apply migrations
-        run: npx prisma migrate deploy
+        run: |
+          npx prisma migrate deploy || (
+            echo "Retrying after resolving historical migration ordering issue..."
+            npx prisma migrate resolve --applied 20260216091540_add_subscription_upgrade_request
+            npx prisma migrate deploy
+          )
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
