@@ -21,6 +21,13 @@ export const metadata = constructMetadata({
   description:
     "Apply to onboard your salon, barbershop, or spa to Service Flow. Our team reviews applications within one business day.",
   canonical: "/apply",
+  keywords: [
+    "apply for salon software",
+    "onboard salon to booking platform",
+    "spa software onboarding philippines",
+    "barbershop software application",
+    "serviceflow application form",
+  ],
 });
 
 export default async function ApplyPage() {

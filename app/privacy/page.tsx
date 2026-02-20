@@ -1,40 +1,22 @@
-import { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
+import { constructMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | ServiceFlow",
+export const metadata = constructMetadata({
+  title: "Privacy Policy",
   description:
     "Learn how ServiceFlow collects, uses, and protects your personal information.",
-  alternates: {
-    canonical: "/privacy",
-  },
-  openGraph: {
-    title: "Privacy Policy | ServiceFlow",
-    description:
-      "Learn how ServiceFlow collects, uses, and protects your personal information.",
-    url: "/privacy",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Privacy Policy | ServiceFlow",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Privacy Policy | ServiceFlow",
-    description:
-      "Learn how ServiceFlow collects, uses, and protects your personal information.",
-    images: ["/og-image.png"],
-  },
-};
+  canonical: "/privacy",
+  keywords: [
+    "serviceflow privacy policy",
+    "data privacy for booking software",
+    "salon software privacy terms",
+  ],
+});
 
 export default function PrivacyPolicyPage() {
   return (

@@ -1,40 +1,22 @@
-import { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
+import { constructMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Terms of Service | ServiceFlow",
+export const metadata = constructMetadata({
+  title: "Terms of Service",
   description:
     "Read the terms and conditions for using ServiceFlow booking management platform.",
-  alternates: {
-    canonical: "/terms",
-  },
-  openGraph: {
-    title: "Terms of Service | ServiceFlow",
-    description:
-      "Read the terms and conditions for using ServiceFlow booking management platform.",
-    url: "/terms",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Terms of Service | ServiceFlow",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Terms of Service | ServiceFlow",
-    description:
-      "Read the terms and conditions for using ServiceFlow booking management platform.",
-    images: ["/og-image.png"],
-  },
-};
+  canonical: "/terms",
+  keywords: [
+    "serviceflow terms of service",
+    "booking platform terms and conditions",
+    "salon software legal terms",
+  ],
+});
 
 export default function TermsOfServicePage() {
   return (

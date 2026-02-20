@@ -46,6 +46,12 @@ export default function LandingFooter() {
               >
                 Pricing
               </Link>
+              <Link
+                href="/solutions"
+                className="text-sm text-white/80 hover:text-white transition-colors"
+              >
+                Solutions
+              </Link>
             </div>
             <div className="flex flex-col gap-3 text-center md:text-left">
               <h4 className="font-semibold text-sm">Company</h4>
@@ -75,6 +81,27 @@ export default function LandingFooter() {
                 className="text-sm text-white/80 hover:text-white transition-colors"
               >
                 Terms
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3 text-center md:text-left">
+              <h4 className="font-semibold text-sm">Popular Searches</h4>
+              <Link
+                href="/solutions/salon-software-manila"
+                className="text-sm text-white/80 hover:text-white transition-colors"
+              >
+                Salon Software Manila
+              </Link>
+              <Link
+                href="/solutions/spa-booking-software-cebu"
+                className="text-sm text-white/80 hover:text-white transition-colors"
+              >
+                Spa Software Cebu
+              </Link>
+              <Link
+                href="/solutions/multi-branch-salon-software-philippines"
+                className="text-sm text-white/80 hover:text-white transition-colors"
+              >
+                Multi-Branch Salon Software
               </Link>
             </div>
           </div>

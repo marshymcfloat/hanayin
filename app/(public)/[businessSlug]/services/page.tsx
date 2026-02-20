@@ -36,6 +36,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `Explore ${business.name}'s services and book an appointment online.`,
     image: business.imageUrl || "/og-image.png",
     canonical: `/${business.slug}/services`,
+    keywords: [
+      `${business.name} services`,
+      `${business.name} price list`,
+      `book ${business.name} service`,
+      `${business.name} online booking`,
+      "salon and spa services",
+    ],
   });
 }
 

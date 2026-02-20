@@ -5,7 +5,7 @@ export function organizationSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Service Flow",
+    name: "ServiceFlow",
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
     sameAs: [
@@ -28,8 +28,40 @@ export function websiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Service Flow",
+    name: "ServiceFlow",
     url: baseUrl,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${baseUrl}/explore?query={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+export function softwareApplicationSchema() {
+  const baseUrl = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "ServiceFlow",
+    url: baseUrl,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description:
+      "ServiceFlow is an all-in-one platform for salons, barbershops, and spas to manage bookings, staff, payroll, and growth.",
+    areaServed: "PH",
+    creator: {
+      "@type": "Organization",
+      name: "ServiceFlow",
+      url: baseUrl,
+    },
+    featureList: [
+      "Online appointment scheduling",
+      "Salon and spa POS workflows",
+      "Staff scheduling and commission tracking",
+      "Automated booking reminders",
+      "Business analytics and reporting",
+    ],
   };
 }
 

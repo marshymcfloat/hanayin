@@ -15,6 +15,13 @@ export const metadata = constructMetadata({
     "Browse trusted local businesses using Service Flow for their appointments and management.",
   image: "/og-image.png",
   canonical: "/explore",
+  keywords: [
+    "find salons in philippines",
+    "book spa near me philippines",
+    "discover barbershops online",
+    "beauty services marketplace",
+    "serviceflow business directory",
+  ],
 });
 
 export default function ExplorePage() {

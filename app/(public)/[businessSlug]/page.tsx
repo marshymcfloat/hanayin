@@ -55,6 +55,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       `Book appointments at ${business.name}. Check available services, business hours, and secure your slot today.`,
     image: imageUrl,
     canonical: `/${business.slug}`,
+    keywords: [
+      `${business.name} booking`,
+      `${business.name} appointments`,
+      `book ${business.name} online`,
+      `${business.name} services`,
+      "online appointment booking",
+    ],
   });
 }
 

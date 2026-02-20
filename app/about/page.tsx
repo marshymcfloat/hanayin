@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Facebook, Mail, Sparkles } from "lucide-react";
 import { Suspense } from "react";
@@ -6,15 +5,20 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { constructMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "About Us | ServiceFlow",
+export const metadata = constructMetadata({
+  title: "About ServiceFlow",
   description:
-    "Meet the team behind ServiceFlow and our mission to simplify booking management.",
-  alternates: {
-    canonical: "/about",
-  },
-};
+    "Meet the team behind ServiceFlow and learn how we help salons, barbershops, and spas in the Philippines grow with better booking operations.",
+  canonical: "/about",
+  keywords: [
+    "about serviceflow",
+    "philippines salon software company",
+    "spa management platform team",
+    "barbershop technology philippines",
+  ],
+});
 
 export default function AboutPage() {
   return (
