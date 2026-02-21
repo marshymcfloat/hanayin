@@ -2,6 +2,10 @@ import * as Sentry from "@sentry/nextjs";
 import { validateServerRuntimeEnv } from "@/lib/env-runtime";
 
 export async function register() {
+  if (process.env.NODE_ENV === "development") {
+    return;
+  }
+
   if (process.env.NEXT_RUNTIME === "nodejs") {
     validateServerRuntimeEnv({
       strict: process.env.NODE_ENV === "production",
@@ -14,4 +18,10 @@ export async function register() {
   }
 }
 
-export const onRequestError = Sentry.captureRequestError;
+export const onRequestError: typeof Sentry.captureRequestError = (...args) => {
+  if (process.env.NODE_ENV === "development") {
+    return;
+  }
+
+  return Sentry.captureRequestError(...args);
+};

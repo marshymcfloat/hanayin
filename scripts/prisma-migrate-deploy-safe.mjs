@@ -2,15 +2,19 @@ import { spawnSync } from "node:child_process";
 
 const TARGET_MIGRATION = "20260216091540_add_subscription_upgrade_request";
 
-function npxCommand() {
-  return process.platform === "win32" ? "npx.cmd" : "npx";
-}
-
 function runPrisma(args, { allowFailure = false } = {}) {
-  const result = spawnSync(npxCommand(), ["prisma", ...args], {
+  const result = spawnSync("npx", ["prisma", ...args], {
     encoding: "utf8",
     stdio: "pipe",
+    // On Windows, spawning cmd shims like npx.cmd directly can fail with EINVAL.
+    shell: process.platform === "win32",
   });
+
+  if (result.error) {
+    process.stderr.write(
+      `[PrismaDeploySafe] Failed to run prisma command: ${result.error.message}\n`,
+    );
+  }
 
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
