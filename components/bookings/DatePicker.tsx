@@ -20,7 +20,7 @@ interface DatePickerProps {
   placeholder?: string;
 }
 
-export default function DatePicker({
+export default React.memo(function DatePicker({
   value,
   onChange,
   minDate = new Date(),
@@ -65,4 +65,4 @@ export default function DatePicker({
       </PopoverContent>
     </Popover>
   );
-}
+});

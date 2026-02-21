@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { TimeSlot } from "@/lib/services/booking-availability";
@@ -18,7 +19,7 @@ interface TimeSlotPickerProps {
   alternativeSlots?: TimeSlot[];
 }
 
-export default function TimeSlotPicker({
+export default React.memo(function TimeSlotPicker({
   slots,
   value,
   onChange,
@@ -58,7 +59,9 @@ export default function TimeSlotPicker({
         <p className="text-sm">{emptyDescription}</p>
         {alternativeSlots.length > 0 && (
           <div className="mt-4 space-y-2">
-            <p className="text-xs font-medium text-foreground">Next available</p>
+            <p className="text-xs font-medium text-foreground">
+              Next available
+            </p>
             <div className="flex flex-wrap justify-center gap-2">
               {alternativeSlots.slice(0, 4).map((slot) => (
                 <Button
@@ -161,18 +164,11 @@ export default function TimeSlotPicker({
               >
                 {slot.availableEmployeeCount > 0
                   ? `${slot.availableEmployeeCount} ${
-                      slot.availableEmployeeCount === 1 ? "Employee" : "Employees"
+                      slot.availableEmployeeCount === 1
+                        ? "Employee"
+                        : "Employees"
                     }`
                   : "Unavailable"}
-              </span>
-              <span
-                className={cn(
-                  "text-[9px] leading-none",
-                  isSelected ? "text-primary-foreground/70" : "text-muted-foreground",
-                )}
-              >
-                {totalAvailableEmployees} employee
-                {totalAvailableEmployees === 1 ? "" : "s"} left - Guaranteed
               </span>
             </Button>
           );
@@ -180,4 +176,4 @@ export default function TimeSlotPicker({
       </div>
     </div>
   );
-}
+});

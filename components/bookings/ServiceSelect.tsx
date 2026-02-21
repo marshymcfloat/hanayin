@@ -142,22 +142,33 @@ const ServiceSelect = React.memo(function ServiceSelect({
     ],
     queryFn: async () => {
       const results: Record<string, CategoryAvailability> = {};
-      for (const category of serviceCategories) {
+
+      const availabilityPromises = serviceCategories.map(async (category) => {
         try {
-          results[category] = await checkCategoryAvailability({
+          const availability = await checkCategoryAvailability({
             businessSlug,
             category,
             date: selectedDate,
           });
+          return { category, availability };
         } catch (error) {
           console.error(`Error checking availability for ${category}:`, error);
-          results[category] = {
-            hasBusinessHours: true,
-            businessHoursPassed: false,
-            qualifiedEmployeeCount: 0,
+          return {
+            category,
+            availability: {
+              hasBusinessHours: true,
+              businessHoursPassed: false,
+              qualifiedEmployeeCount: 0,
+            },
           };
         }
-      }
+      });
+
+      const resolvedAvailabilities = await Promise.all(availabilityPromises);
+      resolvedAvailabilities.forEach(({ category, availability }) => {
+        results[category] = availability;
+      });
+
       return results;
     },
     enabled: !!businessSlug && serviceCategories.length > 0,
@@ -306,7 +317,11 @@ const ServiceSelect = React.memo(function ServiceSelect({
         </div>
 
         {viewMode === "services" && (
-          <div className="flex gap-1 p-2 border-b overflow-x-auto">
+          <div
+            className="flex gap-1 p-2 border-b overflow-x-auto"
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
             <Button
               type="button"
               variant={selectedCategory === "all" ? "default" : "ghost"}
@@ -342,6 +357,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
           <div
             className="max-h-[320px] overflow-y-auto overscroll-contain sm:max-h-[360px]"
             onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
           >
             <CommandList className="max-h-none overflow-visible">
               <CommandEmpty>No results found.</CommandEmpty>
@@ -698,4 +715,3 @@ const ServiceSelect = React.memo(function ServiceSelect({
 });
 
 export default ServiceSelect;
-
