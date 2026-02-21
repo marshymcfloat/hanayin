@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { Space_Grotesk, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import TanstackProvider from "@/components/providers/TanstackProvider";
 import SessionProvider from "@/components/providers/SessionProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
@@ -40,6 +41,7 @@ export default function RootLayout({
           <TanstackProvider>
             {children}
             <Toaster />
+            <Analytics />
           </TanstackProvider>
         </SessionProvider>
       </body>
