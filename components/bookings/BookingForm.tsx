@@ -307,9 +307,11 @@ export default function BookingForm({
   const claimStepEnabled = isEmployee && allowServiceClaim;
   const effectiveIsWalkIn = isEmployee && isWalkIn;
   const [requireSelectedStaff, setRequireSelectedStaff] = useState(false);
-  const [showCapacityOverrideForm, setShowCapacityOverrideForm] = useState(false);
-  const [capacityOverrideReason, setCapacityOverrideReason] =
-    useState<CapacityOverrideReason | "">("");
+  const [showCapacityOverrideForm, setShowCapacityOverrideForm] =
+    useState(false);
+  const [capacityOverrideReason, setCapacityOverrideReason] = useState<
+    CapacityOverrideReason | ""
+  >("");
   const [capacityOverrideNote, setCapacityOverrideNote] = useState("");
   const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
   const [qrPayment, setQrPayment] = useState<{
@@ -337,7 +339,10 @@ export default function BookingForm({
     queryKey: ["paymongoIntentStatus", qrPayment?.paymentIntentId],
     queryFn: () =>
       qrPayment
-        ? getPayMongoPaymentIntentStatus(qrPayment.paymentIntentId, businessSlug)
+        ? getPayMongoPaymentIntentStatus(
+            qrPayment.paymentIntentId,
+            businessSlug,
+          )
         : Promise.resolve(null),
     enabled: !!qrPayment && qrStatus === "pending",
     refetchInterval: qrPayment && qrStatus === "pending" ? 5000 : false,
@@ -441,6 +446,7 @@ export default function BookingForm({
   } | null>(null);
   const [voucherError, setVoucherError] = useState<string | null>(null);
   const [isVerifyingVoucher, setIsVerifyingVoucher] = useState(false);
+  const hasActivePromos = true;
 
   const handleVerifyVoucher = useCallback(async () => {
     if (!voucherCode.trim()) return;
@@ -786,11 +792,15 @@ export default function BookingForm({
         return;
       }
       if (code === "PAYMENT_TYPE_NOT_ALLOWED") {
-        toast.error("Selected payment type is not available for public booking.");
+        toast.error(
+          "Selected payment type is not available for public booking.",
+        );
         return;
       }
       if (code === "NO_CAPACITY_FOR_SELECTED_SERVICES") {
-        toast.error("No capacity left for the selected services. Try another day.");
+        toast.error(
+          "No capacity left for the selected services. Try another day.",
+        );
         return;
       }
       if (code === "REQUIRED_STAFF_UNAVAILABLE") {
@@ -817,7 +827,9 @@ export default function BookingForm({
         return;
       }
       if (code === "CAPACITY_OVERRIDE_REASON_REQUIRED") {
-        toast.error("Override reason is required to continue this walk-in booking.");
+        toast.error(
+          "Override reason is required to continue this walk-in booking.",
+        );
         return;
       }
       if (code === "SLOT_JUST_TAKEN") {
@@ -956,25 +968,28 @@ export default function BookingForm({
   const canAccessStep4 = canAccessStep3 && isStep3Complete;
   const canAccessStep5 = canAccessStep4;
   const canReviewAndConfirm = canAccessStep5;
-  const currentStep =
-    !isStep1Complete
-      ? 1
-      : !isStep2Complete
-        ? 2
-        : !isStep3Complete
-          ? 3
-          : !canAccessStep4
-            ? 4
-            : !isCustomerDetailsComplete
-              ? 5
-              : 6;
+  const currentStep = !isStep1Complete
+    ? 1
+    : !isStep2Complete
+      ? 2
+      : !isStep3Complete
+        ? 3
+        : !canAccessStep4
+          ? 4
+          : !isCustomerDetailsComplete
+            ? 5
+            : 6;
   const selectedEmployeeName = useMemo(
-    () => employees.find((employee) => employee.id === selectedEmployeeId)?.name,
+    () =>
+      employees.find((employee) => employee.id === selectedEmployeeId)?.name,
     [employees, selectedEmployeeId],
   );
   const totalSelectedServiceUnits = useMemo(
     () =>
-      selectedServices.reduce((sum, service) => sum + (service.quantity || 1), 0),
+      selectedServices.reduce(
+        (sum, service) => sum + (service.quantity || 1),
+        0,
+      ),
     [selectedServices],
   );
   const slotEmptyState = getSlotEmptyState({
@@ -1016,7 +1031,11 @@ export default function BookingForm({
   const paymentTypeOptions = useMemo(() => {
     if (isEmployee) {
       return [
-        { value: "FULL" as const, label: "Full", disabled: !hasReviewedDetails },
+        {
+          value: "FULL" as const,
+          label: "Full",
+          disabled: !hasReviewedDetails,
+        },
         {
           value: "DOWNPAYMENT" as const,
           label: "50%",
@@ -1055,7 +1074,8 @@ export default function BookingForm({
     }
 
     const fallback =
-      bookingPolicy.defaultPublicPaymentType === "DOWNPAYMENT" && allowsDownpayment
+      bookingPolicy.defaultPublicPaymentType === "DOWNPAYMENT" &&
+      allowsDownpayment
         ? "DOWNPAYMENT"
         : allowsFull
           ? "FULL"
@@ -1069,12 +1089,12 @@ export default function BookingForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, () => {
-          toast.error("Please fill in all required fields correctly.");
-        })}
+        onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
-          "relative isolate grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6",
-          isModal && "lg:gap-5",
+          "relative flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8",
+          usesFixedMobileActionBar
+            ? "pb-[calc(10rem+env(safe-area-inset-bottom))] sm:pb-[calc(11rem+env(safe-area-inset-bottom))] lg:pb-0"
+            : "pb-0",
         )}
       >
         {qrPayment && (
@@ -1095,12 +1115,7 @@ export default function BookingForm({
             }}
           />
         )}
-        <div
-          className={cn(
-            "flex flex-col gap-4 lg:pb-4",
-            usesFixedMobileActionBar ? "pb-28 sm:pb-32" : "pb-4 sm:pb-4",
-          )}
-        >
+        <div className={cn("flex flex-col gap-4 pb-4 sm:pb-4 lg:pb-4")}>
           {/* Hidden Fields & Identification */}
           <FormField
             control={form.control}
@@ -1126,7 +1141,11 @@ export default function BookingForm({
                   label: "Customer Details",
                   done: isCustomerDetailsComplete,
                 },
-                { step: 6, label: "Review & Payment", done: hasReviewedDetails },
+                {
+                  step: 6,
+                  label: "Review & Payment",
+                  done: hasReviewedDetails,
+                },
               ].map((item) => (
                 <span
                   key={item.step}
@@ -1147,110 +1166,112 @@ export default function BookingForm({
 
           {canAccessStep5 && (
             <div className="order-50 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                5
-              </span>
-              <h3 className="font-semibold text-lg tracking-tight">
-                Customer Details
-              </h3>
-            </div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  5
+                </span>
+                <h3 className="font-semibold text-lg tracking-tight">
+                  Customer Details
+                </h3>
+              </div>
 
-            <FormField
-              control={form.control}
-              name="customerName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    {isEmployee ? (
-                      <CustomerSearchInput
-                        form={form}
-                        businessSlug={businessSlug!}
-                        onCustomerSelect={handleCustomerSelect}
-                        {...field}
-                      />
-                    ) : (
-                      <Input placeholder="Enter your full name" {...field} />
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => {
-                return (
+              <FormField
+                control={form.control}
+                name="customerName"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    {isEmployee && existingCustomerEmail ? (
-                      <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
-                        This customer already has an email linked (
-                        <span className="font-mono">
-                          {maskEmail(existingCustomerEmail)}
-                        </span>
-                        ).
-                        <br />
-                        <span className="text-xs opacity-80">
-                          To change it, update their profile separately.
-                        </span>
-                      </div>
-                    ) : (
-                      <>
-                        <FormControl>
-                          <Input placeholder="email@example.com" {...field} />
-                        </FormControl>
-                        <p className="text-xs text-muted-foreground">
-                          Required for QR payments.
-                        </p>
-                        <FormMessage />
-                      </>
-                    )}
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      {isEmployee ? (
+                        <CustomerSearchInput
+                          form={form}
+                          businessSlug={businessSlug!}
+                          onCustomerSelect={handleCustomerSelect}
+                          {...field}
+                        />
+                      ) : (
+                        <Input placeholder="Enter your full name" {...field} />
+                      )}
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
-                );
-              }}
-            />
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => {
-                return (
-                  <FormItem>
-                    <FormLabel>Contact Number (Optional)</FormLabel>
-                    {isEmployee && existingCustomerPhone ? (
-                      <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
-                        This customer already has a contact number linked (
-                        <span className="font-mono">{existingCustomerPhone}</span>
-                        ).
-                        <br />
-                        <span className="text-xs opacity-80">
-                          To change it, update their profile separately.
-                        </span>
-                      </div>
-                    ) : (
-                      <>
-                        <FormControl>
-                          <Input
-                            type="tel"
-                            placeholder="+63 9XX XXX XXXX"
-                            {...field}
-                          />
-                        </FormControl>
-                        <p className="text-xs text-muted-foreground">
-                          Optional. Add this so we can contact you if we need to
-                          clarify your booking details.
-                        </p>
-                        <FormMessage />
-                      </>
-                    )}
-                  </FormItem>
-                );
-              }}
-            />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      {isEmployee && existingCustomerEmail ? (
+                        <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
+                          This customer already has an email linked (
+                          <span className="font-mono">
+                            {maskEmail(existingCustomerEmail)}
+                          </span>
+                          ).
+                          <br />
+                          <span className="text-xs opacity-80">
+                            To change it, update their profile separately.
+                          </span>
+                        </div>
+                      ) : (
+                        <>
+                          <FormControl>
+                            <Input placeholder="email@example.com" {...field} />
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground">
+                            Required for QR payments.
+                          </p>
+                          <FormMessage />
+                        </>
+                      )}
+                    </FormItem>
+                  );
+                }}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel>Contact Number (Optional)</FormLabel>
+                      {isEmployee && existingCustomerPhone ? (
+                        <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
+                          This customer already has a contact number linked (
+                          <span className="font-mono">
+                            {existingCustomerPhone}
+                          </span>
+                          ).
+                          <br />
+                          <span className="text-xs opacity-80">
+                            To change it, update their profile separately.
+                          </span>
+                        </div>
+                      ) : (
+                        <>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              placeholder="+63 9XX XXX XXXX"
+                              {...field}
+                            />
+                          </FormControl>
+                          <p className="text-xs text-muted-foreground">
+                            Optional. Add this so we can contact you if we need
+                            to clarify your booking details.
+                          </p>
+                          <FormMessage />
+                        </>
+                      )}
+                    </FormItem>
+                  );
+                }}
+              />
             </div>
           )}
 
@@ -1396,7 +1417,9 @@ export default function BookingForm({
                   <div
                     className={cn(
                       "w-12 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
-                      effectiveIsWalkIn ? "bg-primary" : "bg-muted-foreground/30",
+                      effectiveIsWalkIn
+                        ? "bg-primary"
+                        : "bg-muted-foreground/30",
                     )}
                     onClick={handleWalkInToggle}
                   >
@@ -1423,10 +1446,13 @@ export default function BookingForm({
                         <FormControl>
                           <DatePicker
                             value={field.value as Date | undefined}
-                            onChange={(date) => {
-                              field.onChange(date);
-                              form.setValue("selectedTime", undefined);
-                            }}
+                            onChange={useCallback(
+                              (date: Date | undefined) => {
+                                field.onChange(date);
+                                form.setValue("selectedTime", undefined);
+                              },
+                              [field, form],
+                            )}
                             minDate={new Date()}
                             maxDate={maxBookingDate}
                             placeholder="Pick a date"
@@ -1438,35 +1464,34 @@ export default function BookingForm({
                               ? Math.min(5, bookingHorizonDays)
                               : 1,
                           }).map((_, index) => {
-                              const date = new Date();
-                              date.setDate(date.getDate() + index);
-                              return (
-                                <Button
-                                  key={date.toISOString()}
-                                  type="button"
-                                  variant={
-                                    selectedDate &&
-                                    toPHDateString(selectedDate) ===
-                                      toPHDateString(date)
-                                      ? "default"
-                                      : "outline"
-                                  }
-                                  size="sm"
-                                  className="h-8 px-3 text-xs"
-                                  onClick={() => {
-                                    field.onChange(date);
-                                    form.setValue("selectedTime", undefined);
-                                  }}
-                                >
-                                  {index === 0
-                                    ? "Today"
-                                    : index === 1
-                                      ? "Tomorrow"
-                                      : format(date, "EEE, MMM d")}
-                                </Button>
-                              );
-                            },
-                          )}
+                            const date = new Date();
+                            date.setDate(date.getDate() + index);
+                            return (
+                              <Button
+                                key={date.toISOString()}
+                                type="button"
+                                variant={
+                                  selectedDate &&
+                                  toPHDateString(selectedDate) ===
+                                    toPHDateString(date)
+                                    ? "default"
+                                    : "outline"
+                                }
+                                size="sm"
+                                className="h-8 px-3 text-xs"
+                                onClick={() => {
+                                  field.onChange(date);
+                                  form.setValue("selectedTime", undefined);
+                                }}
+                              >
+                                {index === 0
+                                  ? "Today"
+                                  : index === 1
+                                    ? "Tomorrow"
+                                    : format(date, "EEE, MMM d")}
+                              </Button>
+                            );
+                          })}
                         </div>
                         <p className="text-xs text-muted-foreground">
                           {bookingV2Enabled
@@ -1480,8 +1505,8 @@ export default function BookingForm({
                 </>
               ) : effectiveIsWalkIn ? (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground">
-                  Walk-in is enabled. This booking will start immediately without a
-                  scheduled slot.
+                  Walk-in is enabled. This booking will start immediately
+                  without a scheduled slot.
                 </div>
               ) : (
                 <div className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground">
@@ -1549,7 +1574,12 @@ export default function BookingForm({
                           slots={timeSlots}
                           alternativeSlots={alternativeSlots}
                           value={field.value}
-                          onChange={field.onChange}
+                          onChange={useCallback(
+                            (time: Date) => {
+                              field.onChange(time);
+                            },
+                            [field],
+                          )}
                           isLoading={isLoadingSlots}
                           disabled={selectedServices.length === 0}
                           emptyTitle={slotEmptyState.title}
@@ -1571,53 +1601,58 @@ export default function BookingForm({
             </div>
           )}
 
-          {canAccessStep4 && (effectiveIsWalkIn || selectedTime) && !isEmployee && (
-            <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  4
-                </span>
-                <h3 className="font-semibold text-lg tracking-tight">
-                  Preferred Staff
-                </h3>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="employeeId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <EmployeeSelect
-                        employees={employees}
-                        value={field.value}
-                        onChange={field.onChange}
-                        isLoading={isLoadingEmployees}
-                        serviceCategories={selectedServiceCategories}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {selectedEmployeeId && (
-                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3 text-sm">
-                  <div>
-                    <p className="font-medium text-foreground">Require selected staff</p>
-                    <p className="text-xs text-muted-foreground">
-                      If enabled, booking fails when this staff member is unavailable.
-                    </p>
-                  </div>
-                  <Checkbox
-                    checked={requireSelectedStaff}
-                    onCheckedChange={(checked) =>
-                      setRequireSelectedStaff(checked === true)
-                    }
-                  />
+          {canAccessStep4 &&
+            (effectiveIsWalkIn || selectedTime) &&
+            !isEmployee && (
+              <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                    4
+                  </span>
+                  <h3 className="font-semibold text-lg tracking-tight">
+                    Preferred Staff
+                  </h3>
                 </div>
-              )}
-            </div>
-          )}
+
+                <FormField
+                  control={form.control}
+                  name="employeeId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <EmployeeSelect
+                          employees={employees}
+                          value={field.value}
+                          onChange={field.onChange}
+                          isLoading={isLoadingEmployees}
+                          serviceCategories={selectedServiceCategories}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {selectedEmployeeId && (
+                  <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3 text-sm">
+                    <div>
+                      <p className="font-medium text-foreground">
+                        Require selected staff
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        If enabled, booking fails when this staff member is
+                        unavailable.
+                      </p>
+                    </div>
+                    <Checkbox
+                      checked={requireSelectedStaff}
+                      onCheckedChange={(checked) =>
+                        setRequireSelectedStaff(checked === true)
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
           {canAccessStep4 &&
             (effectiveIsWalkIn || selectedTime) &&
@@ -1639,7 +1674,8 @@ export default function BookingForm({
                     }
                     className="font-medium"
                   >
-                    {claimedUniqueIds.length}/{totalSelectedServiceUnits} claimed
+                    {claimedUniqueIds.length}/{totalSelectedServiceUnits}{" "}
+                    claimed
                   </Badge>
                 </div>
 
@@ -1723,7 +1759,9 @@ export default function BookingForm({
                 {isEmployee && selectedEmployeeId && (
                   <p>
                     <span className="font-semibold">Staff requirement:</span>{" "}
-                    {requireSelectedStaff ? "Required selected staff" : "Prefer selected staff"}
+                    {requireSelectedStaff
+                      ? "Required selected staff"
+                      : "Prefer selected staff"}
                   </p>
                 )}
                 {showCapacityOverrideForm && capacityOverrideReason && (
@@ -1737,7 +1775,9 @@ export default function BookingForm({
               {isEmployee && selectedEmployeeId && (
                 <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3 text-sm">
                   <div>
-                    <p className="font-medium text-foreground">Require selected staff</p>
+                    <p className="font-medium text-foreground">
+                      Require selected staff
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Keep off to allow fallback to any available provider.
                     </p>
@@ -1757,7 +1797,8 @@ export default function BookingForm({
                     Walk-in capacity override
                   </p>
                   <p className="text-xs text-amber-800">
-                    Provide a reason to proceed if your role has override access.
+                    Provide a reason to proceed if your role has override
+                    access.
                   </p>
                   <Select
                     value={capacityOverrideReason}
@@ -1769,15 +1810,23 @@ export default function BookingForm({
                       <SelectValue placeholder="Select override reason" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="LATE_CUSTOMER">Late Customer</SelectItem>
+                      <SelectItem value="LATE_CUSTOMER">
+                        Late Customer
+                      </SelectItem>
                       <SelectItem value="VIP">VIP</SelectItem>
-                      <SelectItem value="MANUAL_EXCEPTION">Manual Exception</SelectItem>
-                      <SelectItem value="SYSTEM_RECOVERY">System Recovery</SelectItem>
+                      <SelectItem value="MANUAL_EXCEPTION">
+                        Manual Exception
+                      </SelectItem>
+                      <SelectItem value="SYSTEM_RECOVERY">
+                        System Recovery
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <Textarea
                     value={capacityOverrideNote}
-                    onChange={(event) => setCapacityOverrideNote(event.target.value)}
+                    onChange={(event) =>
+                      setCapacityOverrideNote(event.target.value)
+                    }
                     placeholder="Add context (optional)"
                     className="min-h-20 bg-white"
                     maxLength={240}
@@ -1841,7 +1890,8 @@ export default function BookingForm({
                       <div className="space-y-4">
                         {!hasReviewedDetails && (
                           <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-                            Complete Step 6 (Review & Payment) to unlock payment.
+                            Complete Step 6 (Review & Payment) to unlock
+                            payment.
                           </div>
                         )}
                         <FormField
@@ -1886,66 +1936,84 @@ export default function BookingForm({
                           )}
                         />
 
-                        <div className="pt-2">
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="VOUCHER CODE"
-                              className="uppercase font-mono text-sm tracking-widest placeholder:tracking-normal placeholder:font-sans placeholder:capitalize"
-                              value={voucherCode}
-                              onChange={(e) => setVoucherCode(e.target.value)}
-                              disabled={!!appliedVoucher || !hasReviewedDetails}
-                            />
-                            {appliedVoucher ? (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={clearVoucher}
-                                disabled={!hasReviewedDetails}
-                                className="shrink-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 transition-colors"
-                              >
-                                <X className="size-4" />
-                              </Button>
-                            ) : (
-                              <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={handleVerifyVoucher}
-                                disabled={
-                                  isVerifyingVoucher ||
-                                  !voucherCode.trim() ||
-                                  !hasReviewedDetails
-                                }
-                                className="shrink-0 font-medium"
-                              >
-                                {isVerifyingVoucher ? "..." : "Apply"}
-                              </Button>
-                            )}
-                          </div>
+                        <div className="flex flex-col gap-6">
+                          {/* Voucher Application */}
+                          {hasActivePromos && (
+                            <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                Voucher Code
+                              </label>
+                              <div className="flex flex-col bg-muted/20 p-3 rounded-lg border border-border/50">
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Enter code"
+                                    value={voucherCode}
+                                    onChange={(e) =>
+                                      setVoucherCode(
+                                        e.target.value.toUpperCase(),
+                                      )
+                                    }
+                                    disabled={
+                                      !!appliedVoucher ||
+                                      isVerifyingVoucher ||
+                                      !hasReviewedDetails
+                                    }
+                                    className="uppercase bg-white h-10 font-medium tracking-wide"
+                                  />
+                                  {appliedVoucher ? (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={clearVoucher}
+                                      disabled={!hasReviewedDetails}
+                                      className="shrink-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                    >
+                                      <X className="size-4" />
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      type="button"
+                                      variant="secondary"
+                                      onClick={handleVerifyVoucher}
+                                      disabled={
+                                        isVerifyingVoucher ||
+                                        !voucherCode.trim() ||
+                                        !hasReviewedDetails
+                                      }
+                                      className="shrink-0 font-medium"
+                                    >
+                                      {isVerifyingVoucher ? "..." : "Apply"}
+                                    </Button>
+                                  )}
+                                </div>
 
-                          {voucherError && (
-                            <p className="text-xs text-red-500 font-medium mt-1.5 animate-in slide-in-from-left-1">
-                              {voucherError}
-                            </p>
-                          )}
+                                {voucherError && (
+                                  <p className="text-xs text-red-500 font-medium mt-1.5 animate-in slide-in-from-left-1">
+                                    {voucherError}
+                                  </p>
+                                )}
 
-                          {appliedVoucher && (
-                            <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 px-3 py-2 rounded-md border border-green-200 mt-2">
-                              <Ticket className="size-3.5" />
-                              <span className="font-semibold">
-                                {appliedVoucher.code}
-                              </span>
-                              <span className="ml-auto font-bold tabular-nums">
-                                -₱
-                                {appliedVoucher.discountAmount.toLocaleString()}
-                              </span>
+                                {appliedVoucher && (
+                                  <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 px-3 py-2 rounded-md border border-green-200 mt-2">
+                                    <Ticket className="size-3.5" />
+                                    <span className="font-semibold">
+                                      {appliedVoucher.code}
+                                    </span>
+                                    <span className="ml-auto font-bold tabular-nums">
+                                      -₱
+                                      {appliedVoucher.discountAmount.toLocaleString()}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
                       </div>
                     )}
 
-                    <div className="bg-muted/40 -mx-6 -mb-6 px-6 py-4 border-t space-y-3">
+                    <div className="bg-muted/40 -mx-6 -mb-6 px-6 py-4 border-t space-y-3 pb-4">
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span className="font-medium tabular-nums">
@@ -2021,13 +2089,10 @@ export default function BookingForm({
                           <span>Convenience Fee (1.5%)</span>
                           <span className="tabular-nums">
                             + ₱
-                            {convenienceFee.toLocaleString(
-                              undefined,
-                              {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              },
-                            )}
+                            {convenienceFee.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                           </span>
                         </div>
                       )}
@@ -2054,7 +2119,7 @@ export default function BookingForm({
 
         <div
           className={cn(
-            "z-40 border-t bg-background/95 px-4 py-3 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80 lg:hidden",
+            "z-40 border-t bg-background/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm supports-[backdrop-filter]:bg-background/80 lg:hidden",
             usesFixedMobileActionBar
               ? "fixed inset-x-0 bottom-0"
               : "sticky bottom-0",
@@ -2091,4 +2156,3 @@ export default function BookingForm({
     </Form>
   );
 }
-
