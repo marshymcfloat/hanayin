@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPH } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type {
   Booking,
   Customer,
@@ -32,18 +33,19 @@ import {
   CheckCircle2,
   QrCode,
   Loader2,
+  PlusCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Link from "next/link";
 import QrPaymentPanel from "@/components/bookings/QrPaymentPanel";
 import {
   createBookingBalanceQrAction,
   getBookingQrPaymentReviewAction,
   markBookingPaidAction,
 } from "@/lib/server actions/dashboard";
+import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/booking-addons";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -57,10 +59,15 @@ type BookingWithDetails = Booking & {
 
 interface BookingDetailsDialogProps {
   booking: BookingWithDetails | null;
+  servicesCatalog?: {
+    id: number;
+    name: string;
+    category: string;
+    price: number;
+    duration: number | null;
+  }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  businessSlug?: string;
-  hasStaffingConflict?: boolean;
 }
 
 const formatCurrency = (amount: number) =>
@@ -71,23 +78,23 @@ const formatCurrency = (amount: number) =>
 
 export function BookingDetailsDialog({
   booking,
+  servicesCatalog = [],
   open,
   onOpenChange,
-  businessSlug,
-  hasStaffingConflict = false,
 }: BookingDetailsDialogProps) {
   const router = useRouter();
   const [isReviewingQr, setIsReviewingQr] = useState(false);
   const [isGeneratingBalanceQr, setIsGeneratingBalanceQr] = useState(false);
   const [isMarkingPaid, setIsMarkingPaid] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState("");
+  const [serviceQuantity, setServiceQuantity] = useState(1);
+  const [isAddingService, setIsAddingService] = useState(false);
   const [qrReviewData, setQrReviewData] = useState<{
     qrImage: string;
     expiresAt?: string;
     amountLabel: string;
     status: "pending" | "paid" | "failed" | "expired";
   } | null>(null);
-
-  if (!booking) return null;
 
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
@@ -102,24 +109,67 @@ export function BookingDetailsDialog({
     }
   };
 
-  const amountPaid = Math.max(0, booking.amount_paid || 0);
-  const remainingBalance = Math.max(0, booking.grand_total - amountPaid);
-  const bookingDateTime = booking.scheduled_at ?? booking.created_at;
+  const amountPaid = Math.max(0, booking?.amount_paid || 0);
+  const remainingBalance = Math.max(0, (booking?.grand_total || 0) - amountPaid);
+  const bookingDateTime = booking?.scheduled_at ?? booking?.created_at ?? new Date();
 
   const canReviewQr =
-    booking.payment_method === "QRPH" &&
-    booking.payment_status !== "PAID" &&
-    Boolean(booking.paymongo_payment_intent_id);
+    booking?.payment_method === "QRPH" &&
+    booking?.payment_status !== "PAID" &&
+    Boolean(booking?.paymongo_payment_intent_id);
 
   const canGenerateBalanceQr =
-    booking.payment_method === "QRPH" &&
-    booking.status !== "CANCELLED" &&
-    booking.payment_status !== "PAID" &&
+    booking?.payment_method === "QRPH" &&
+    booking?.status !== "CANCELLED" &&
+    booking?.payment_status !== "PAID" &&
     remainingBalance > 0;
 
   const canMarkPaid =
-    booking.status !== "CANCELLED" && booking.payment_status !== "PAID";
+    booking?.status !== "CANCELLED" && booking?.payment_status !== "PAID";
   const payCtaLabel = amountPaid > 0 ? "Pay Remaining" : "Pay Now";
+  const canAddService = booking?.status !== "CANCELLED";
+  const availableServiceOptions = useMemo(
+    () =>
+      [...servicesCatalog].sort((a, b) => {
+        if (a.category !== b.category) {
+          return a.category.localeCompare(b.category);
+        }
+        return a.name.localeCompare(b.name);
+      }),
+    [servicesCatalog],
+  );
+  const selectedServiceOption = availableServiceOptions.find(
+    (service) => String(service.id) === selectedServiceId,
+  );
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (availableServiceOptions.length === 0) {
+      setSelectedServiceId("");
+      return;
+    }
+
+    if (
+      !selectedServiceId ||
+      !availableServiceOptions.some(
+        (service) => String(service.id) === selectedServiceId,
+      )
+    ) {
+      setSelectedServiceId(String(availableServiceOptions[0].id));
+    }
+  }, [open, availableServiceOptions, selectedServiceId]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    setServiceQuantity(1);
+  }, [booking?.id, open]);
+
+  if (!booking) return null;
 
   const handleReviewQr = async () => {
     setIsReviewingQr(true);
@@ -186,6 +236,53 @@ export function BookingDetailsDialog({
     }
   };
 
+  const handleAddService = async () => {
+    if (!canAddService) {
+      toast.error("Cannot add services to a cancelled booking.");
+      return;
+    }
+
+    if (!selectedServiceId) {
+      toast.error("Select a service first.");
+      return;
+    }
+
+    const serviceId = Number(selectedServiceId);
+    if (!Number.isFinite(serviceId) || serviceId <= 0) {
+      toast.error("Selected service is invalid.");
+      return;
+    }
+
+    const quantity = Number.isFinite(serviceQuantity)
+      ? Math.max(1, Math.min(10, Math.floor(serviceQuantity)))
+      : 1;
+
+    setIsAddingService(true);
+    try {
+      const result = await addBookingServiceOrCreateFollowUpAction({
+        bookingId: booking.id,
+        services: [{ id: serviceId, quantity }],
+      });
+
+      if (result.mode === "APPENDED") {
+        toast.success("Service added to the current booking.");
+      } else {
+        toast.success(
+          `Current booking already progressed. Follow-up booking #${result.bookingId} created.`,
+        );
+      }
+
+      onOpenChange(false);
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to add service.",
+      );
+    } finally {
+      setIsAddingService(false);
+    }
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -236,36 +333,6 @@ export function BookingDetailsDialog({
 
           <ScrollArea className="flex-1">
             <div className="p-6 space-y-8">
-              {hasStaffingConflict && (
-                <section className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-                  <p className="text-sm font-semibold text-amber-900">
-                    Staffing conflict detected for this booking
-                  </p>
-                  <p className="mt-1 text-xs text-amber-800">
-                    Current staffing/hours may no longer match this appointment.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {businessSlug && (
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/app/${businessSlug}/bookings?q=${booking.id}`}>
-                          Reschedule
-                        </Link>
-                      </Button>
-                    )}
-                    {booking.customer.phone && (
-                      <Button asChild size="sm" variant="outline">
-                        <a href={`tel:${booking.customer.phone}`}>Contact Customer</a>
-                      </Button>
-                    )}
-                    {!booking.customer.phone && booking.customer.email && (
-                      <Button asChild size="sm" variant="outline">
-                        <a href={`mailto:${booking.customer.email}`}>Contact Customer</a>
-                      </Button>
-                    )}
-                  </div>
-                </section>
-              )}
-
               <section className="space-y-3">
                 <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                   <UserIcon className="h-3.5 w-3.5" /> Customer Information
@@ -381,6 +448,97 @@ export function BookingDetailsDialog({
                     </tbody>
                   </table>
                 </div>
+              </section>
+
+              <Separator className="bg-zinc-100" />
+
+              <section className="space-y-3">
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                  <PlusCircle className="h-3.5 w-3.5" /> Add Service
+                </h3>
+                {availableServiceOptions.length === 0 ? (
+                  <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
+                    No services available in your catalog yet.
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="space-y-1 md:col-span-2">
+                        <label className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wide">
+                          Service
+                        </label>
+                        <select
+                          className="h-10 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-900"
+                          value={selectedServiceId}
+                          onChange={(event) =>
+                            setSelectedServiceId(event.target.value)
+                          }
+                          disabled={!canAddService || isAddingService}
+                        >
+                          {availableServiceOptions.map((service) => (
+                            <option key={service.id} value={service.id}>
+                              {service.name} ({service.category}) -{" "}
+                              {formatCurrency(service.price)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wide">
+                          Quantity
+                        </label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={serviceQuantity}
+                          onChange={(event) => {
+                            const value = Number(event.target.value);
+                            setServiceQuantity(
+                              Number.isFinite(value) ? value : 1,
+                            );
+                          }}
+                          disabled={!canAddService || isAddingService}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <p className="text-xs text-zinc-500">
+                        {selectedServiceOption
+                          ? `${selectedServiceOption.duration || 30} min | ${formatCurrency(selectedServiceOption.price)} each`
+                          : "Select a service to continue."}
+                      </p>
+                      <Button
+                        type="button"
+                        onClick={handleAddService}
+                        disabled={
+                          !canAddService ||
+                          !selectedServiceId ||
+                          isAddingService
+                        }
+                        className="rounded-xl"
+                      >
+                        {isAddingService ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Adding...
+                          </>
+                        ) : (
+                          <>
+                            <PlusCircle className="h-4 w-4 mr-2" />
+                            Add To Booking
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {!canAddService && (
+                      <p className="text-xs text-red-600">
+                        Cancelled bookings cannot receive new services.
+                      </p>
+                    )}
+                  </div>
+                )}
               </section>
 
               <section className="flex flex-wrap justify-end gap-2 pt-2">

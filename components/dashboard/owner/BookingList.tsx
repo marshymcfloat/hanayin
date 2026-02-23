@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type {
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
   Booking,
   Customer,
   BookingStatus,
@@ -84,104 +84,40 @@ type BookingWithDetails = Booking & {
   })[];
 };
 
-type BookingListQueryState = {
-  page: number;
-  pageSize: number;
-  total: number;
-  search: string;
-  status: string;
-};
-
 export function BookingList({
   bookings,
+  servicesCatalog = [],
   variant = "card",
   className,
-  businessSlug,
-  queryState,
-  staffingConflictBookingIds = [],
 }: {
   bookings: BookingWithDetails[];
+  servicesCatalog?: {
+    id: number;
+    name: string;
+    category: string;
+    price: number;
+    duration: number | null;
+  }[];
   variant?: "card" | "embedded";
   className?: string;
   businessSlug?: string;
-  queryState?: BookingListQueryState;
   staffingConflictBookingIds?: number[];
+  queryState?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    search: string;
+    status: string;
+  };
 }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [search, setSearch] = useState(queryState?.search ?? "");
-  const [statusFilter, setStatusFilter] = useState(queryState?.status ?? "ALL");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedBooking, setSelectedBooking] =
     useState<BookingWithDetails | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const isServerFiltered = Boolean(queryState && businessSlug);
-  const staffingConflictIdSet = useMemo(
-    () => new Set(staffingConflictBookingIds),
-    [staffingConflictBookingIds],
-  );
-
-  const updateServerFilters = useCallback(
-    (next: { search?: string; status?: string; page?: number }) => {
-      if (!isServerFiltered) return;
-
-      const params = new URLSearchParams(searchParams.toString());
-      const nextSearch = next.search ?? search;
-      const nextStatus = next.status ?? statusFilter;
-      const nextPage = next.page ?? queryState?.page ?? 1;
-
-      const trimmedSearch = nextSearch.trim();
-      if (trimmedSearch) {
-        params.set("q", trimmedSearch);
-      } else {
-        params.delete("q");
-      }
-
-      if (nextStatus !== "ALL") {
-        params.set("status", nextStatus);
-      } else {
-        params.delete("status");
-      }
-
-      if (nextPage > 1) {
-        params.set("page", String(nextPage));
-      } else {
-        params.delete("page");
-      }
-
-      const nextQuery = params.toString();
-      const currentQuery = searchParams.toString();
-      if (nextQuery === currentQuery) {
-        return;
-      }
-
-      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
-    },
-    [
-      isServerFiltered,
-      pathname,
-      queryState?.page,
-      router,
-      search,
-      searchParams,
-      statusFilter,
-    ],
-  );
-
-  useEffect(() => {
-    if (!isServerFiltered) return;
-    const timeout = setTimeout(() => {
-      updateServerFilters({ search, page: 1 });
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [isServerFiltered, search, updateServerFilters]);
 
   const filteredBookings = useMemo(() => {
-    if (isServerFiltered) {
-      return bookings;
-    }
-
     return bookings.filter((booking) => {
       // Search Logic
       const searchLower = search.toLowerCase();
@@ -197,14 +133,7 @@ export function BookingList({
 
       return matchesSearch && matchesStatus;
     });
-  }, [bookings, isServerFiltered, search, statusFilter]);
-
-  const totalBookings = queryState?.total ?? filteredBookings.length;
-  const currentPage = queryState?.page ?? 1;
-  const pageSize = queryState?.pageSize ?? Math.max(filteredBookings.length, 1);
-  const totalPages = Math.max(1, Math.ceil(totalBookings / pageSize));
-  const hasPreviousPage = currentPage > 1;
-  const hasNextPage = currentPage < totalPages;
+  }, [bookings, search, statusFilter]);
 
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
@@ -324,8 +253,6 @@ export function BookingList({
   const isEmbedded = variant === "embedded";
   const tablePaddingLeft = isEmbedded ? "pl-4" : "pl-8";
   const tablePaddingRight = isEmbedded ? "pr-4" : "pr-8";
-  const getBookingDateTime = (booking: BookingWithDetails) =>
-    booking.scheduled_at ?? booking.created_at;
 
   return (
     <>
@@ -377,21 +304,12 @@ export function BookingList({
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Select
-              value={statusFilter}
-              onValueChange={(value) => {
-                setStatusFilter(value);
-                if (isServerFiltered) {
-                  updateServerFilters({ status: value, page: 1 });
-                }
-              }}
-            >
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-[150px] h-11 rounded-xl border-zinc-200 bg-white focus:ring-emerald-500">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
                 <SelectItem value="ALL">All Status</SelectItem>
-                <SelectItem value="HOLD">Hold</SelectItem>
                 <SelectItem value="ACCEPTED">Accepted</SelectItem>
                 <SelectItem value="COMPLETED">Completed</SelectItem>
                 <SelectItem value="CANCELLED">Cancelled</SelectItem>
@@ -443,14 +361,6 @@ export function BookingList({
                     >
                       {booking.status}
                     </Badge>
-                    {staffingConflictIdSet.has(booking.id) && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg border-amber-300 bg-amber-50 text-amber-800"
-                      >
-                        Conflict
-                      </Badge>
-                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
@@ -460,7 +370,7 @@ export function BookingList({
                       </span>
                       <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-700">
                         <Calendar className="w-3.5 h-3.5 text-zinc-400" />
-                        {formatPH(getBookingDateTime(booking), "MMM d, h:mm a")}
+                        {formatPH(booking.created_at, "MMM d, h:mm a")}
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
@@ -607,10 +517,7 @@ export function BookingList({
                       <TableCell className="text-zinc-600 font-medium py-4">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-zinc-400" />
-                          {formatPH(
-                            getBookingDateTime(booking),
-                            "MMM d, yyyy • h:mm a",
-                          )}
+                          {formatPH(booking.created_at, "MMM d, yyyy • h:mm a")}
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
@@ -624,22 +531,19 @@ export function BookingList({
                           >
                             {booking.status}
                           </Badge>
-                          {staffingConflictIdSet.has(booking.id) && (
-                            <Badge
-                              variant="outline"
-                              className="border-amber-300 bg-amber-50 text-amber-800 text-[10px] px-2 py-0.5 font-medium rounded-md"
-                            >
-                              Staffing Conflict
-                            </Badge>
-                          )}
-                          {booking.payment_status === "PARTIALLY_PAID" &&
-                            booking.grand_total > (booking.amount_paid || 0) && (
+                          {booking.status === "ACCEPTED" &&
+                            (booking.downpayment || 0) > 0 &&
+                            booking.grand_total >
+                              (booking.downpayment || 0) && (
                               <Badge
                                 variant="outline"
                                 className="border-orange-200 text-orange-700 bg-orange-50 text-[10px] px-2 py-0.5 font-medium rounded-md"
                               >
                                 Bal: ₱
-                                {(booking.grand_total - (booking.amount_paid || 0)).toLocaleString()}
+                                {(
+                                  booking.grand_total -
+                                  (booking.downpayment || 0)
+                                ).toLocaleString()}
                               </Badge>
                             )}
                         </div>
@@ -706,52 +610,13 @@ export function BookingList({
             </Table>
           </div>
         </CardContent>
-        {isServerFiltered && (
-          <div className="border-t border-zinc-100 px-4 py-3 md:px-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-zinc-500">
-              Showing {bookings.length} of {totalBookings} bookings
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="rounded-lg"
-                disabled={!hasPreviousPage}
-                onClick={() =>
-                  updateServerFilters({ page: Math.max(1, currentPage - 1) })
-                }
-              >
-                Previous
-              </Button>
-              <span className="text-xs text-zinc-500 min-w-[90px] text-center">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="rounded-lg"
-                disabled={!hasNextPage}
-                onClick={() =>
-                  updateServerFilters({ page: Math.min(totalPages, currentPage + 1) })
-                }
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
       </Card>
 
       <BookingDetailsDialog
         booking={selectedBooking}
+        servicesCatalog={servicesCatalog}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        businessSlug={businessSlug}
-        hasStaffingConflict={
-          selectedBooking ? staffingConflictIdSet.has(selectedBooking.id) : false
-        }
       />
     </>
   );

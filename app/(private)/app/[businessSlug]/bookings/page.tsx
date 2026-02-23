@@ -174,6 +174,20 @@ async function BookingsContent({
     }),
   ]);
 
+  const services = await prisma.service.findMany({
+    where: {
+      business_id: business.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      category: true,
+      price: true,
+      duration: true,
+    },
+    orderBy: [{ category: "asc" }, { name: "asc" }],
+  });
+
   const recentConflictSignals = bookings.length
     ? await prisma.outboxMessage.findMany({
         where: {
@@ -197,6 +211,7 @@ async function BookingsContent({
     <BookingList
       key={`${businessSlug}:${status}:${searchTerm}:${currentPage}`}
       bookings={bookings}
+      servicesCatalog={services}
       businessSlug={businessSlug}
       staffingConflictBookingIds={staffingConflictBookingIds}
       queryState={{
