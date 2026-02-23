@@ -45,24 +45,25 @@ export default function HeroSection() {
           Booking, payroll, reminders, and sales tools in one dashboard.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards delay-300">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards delay-300">
           <Button
             asChild
             size="lg"
-            className="rounded-full h-14 px-8 text-lg font-semibold shadow-lg shadow-green-200/50 hover:shadow-green-300/50 transition-all hover:scale-105 active:scale-95 w-full sm:w-auto"
+            className="rounded-full h-11 sm:h-14 px-5 sm:px-8 text-base sm:text-lg font-semibold shadow-lg shadow-green-200/50 hover:shadow-green-300/50 transition-all hover:scale-105 active:scale-95 w-full    max-w-[70vw] sm:w-auto"
           >
             <Link href="/apply">
-              Start Trial + Book Demo <ArrowRight className="ml-2 size-5" />
+              Start Trial + Book Demo{" "}
+              <ArrowRight className="ml-2 size-4 sm:size-5" />
             </Link>
           </Button>
           <Button
             asChild
             variant="outline"
             size="lg"
-            className="rounded-full h-14 px-8 text-lg font-medium border-border/60 hover:bg-muted/50 backdrop-blur-sm gap-2 transition-all hover:scale-105 w-full sm:w-auto"
+            className="rounded-full h-11 sm:h-14 max-w-[70vw] px-5 sm:px-8 text-base sm:text-lg font-medium border-border/60 hover:bg-muted/50 backdrop-blur-sm gap-2 transition-all hover:scale-105 w-full sm:w-auto"
           >
             <Link href="/explore">
-              <Compass className="size-5" /> Explore Businesses
+              <Compass className="size-4 sm:size-5" /> Explore Businesses
             </Link>
           </Button>
         </div>
@@ -70,12 +71,12 @@ export default function HeroSection() {
         <div className="mt-8 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards delay-400">
           <Button
             variant="ghost"
-            className="text-muted-foreground hover:text-foreground gap-2 group text-base"
+            className="text-muted-foreground hover:text-foreground gap-2 group text-sm sm:text-base"
             asChild
           >
             <Link href="#how-it-works">
-              <div className="size-8 rounded-full bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                <Play className="size-3.5 text-green-700 fill-green-700 ml-0.5" />
+              <div className="size-7 sm:size-8 rounded-full bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                <Play className="size-3 sm:size-3.5 text-green-700 fill-green-700 ml-0.5" />
               </div>
               Watch How It Works (2 min)
             </Link>
