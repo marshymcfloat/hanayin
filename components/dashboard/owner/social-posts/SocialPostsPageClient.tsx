@@ -10,16 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
   deleteSocialPostDraftAction,
   generateSocialPostImageAction,
   publishSocialPostAction,
@@ -27,7 +17,9 @@ import {
   retrySocialPostTargetAction,
   updateSocialPostDraftAction,
 } from "@/lib/server actions/social";
+import { uploadImageAction } from "@/lib/server actions/upload";
 import {
+  DiscountType,
   SocialPlatform,
   SocialPostStatus,
   SocialTargetStatus,
@@ -38,6 +30,21 @@ import {
   SOCIAL_IMAGE_PROFILE_OPTIONS,
   type SocialImageProfile,
 } from "@/lib/services/social/image-profiles";
+import {
+  buildDefaultOverlayDraftFromPost,
+  sanitizeOverlayDraft,
+  SOCIAL_IMAGE_CARD_SIZE_MAX,
+  SOCIAL_IMAGE_CARD_SIZE_MIN,
+  SOCIAL_IMAGE_OVERLAY_LAYOUTS,
+  SOCIAL_IMAGE_OVERLAY_THEMES,
+  type SocialImageOverlayDraft,
+} from "@/lib/services/social/image-overlay";
+import {
+  canvasToFile,
+  loadImage,
+  renderComposedCanvas,
+} from "./image-composer";
+import { SocialImageComposerPreview } from "./SocialImageComposerPreview";
 import { GrowthFlowChecklist } from "../growth/GrowthFlowChecklist";
 import type { GrowthFlowContext } from "../growth/types";
 
@@ -63,7 +70,14 @@ export type SocialPostView = {
   media_url: string | null;
   last_error: string | null;
   created_at: Date;
-  sale_event: { title: string } | null;
+  sale_event: {
+    title: string;
+    description: string | null;
+    discount_type: DiscountType;
+    discount_value: number;
+    start_date: Date;
+    end_date: Date;
+  } | null;
   targets: SocialPostTargetView[];
 };
 
@@ -74,6 +88,29 @@ type DraftState = {
   mediaUrl: string;
   imageProfile: SocialImageProfile;
 };
+
+function toOverlayDraftState(post: SocialPostView, businessName: string) {
+  if (post.sale_event) {
+    return buildDefaultOverlayDraftFromPost({
+      businessName,
+      title: post.sale_event.title,
+      saleDescription: post.sale_event.description,
+      discountType: post.sale_event.discount_type,
+      discountValue: post.sale_event.discount_value,
+      startDate: new Date(post.sale_event.start_date),
+      endDate: new Date(post.sale_event.end_date),
+    });
+  }
+
+  return sanitizeOverlayDraft({
+    businessName,
+    discountLine: "",
+    titleLine: post.title,
+    dateLine: "",
+    ctaLine: "Book now on ServiceFlow",
+    supportLine: post.caption_final || post.caption_draft || "Limited-time offer",
+  });
+}
 
 type SocialPostGroups = {
   actionNeededPosts: SocialPostView[];
@@ -162,6 +199,7 @@ function getDefaultSelectedPostId(
 
 export function SocialPostsPageClient(props: {
   businessSlug: string;
+  businessName: string;
   initialPosts: SocialPostView[];
   flowContext?: GrowthFlowContext;
 }) {
@@ -174,10 +212,20 @@ export function SocialPostsPageClient(props: {
     string | null
   >(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
-  const [draftToDeleteId, setDraftToDeleteId] = useState<string | null>(null);
   const [regeneratingCaptionPostId, setRegeneratingCaptionPostId] = useState<
     string | null
   >(null);
+  const [applyingOverlayPostId, setApplyingOverlayPostId] = useState<
+    string | null
+  >(null);
+  const [overlayPreviewUrlByPostId, setOverlayPreviewUrlByPostId] = useState<
+    Record<string, string>
+  >({});
+  const [overlayPreviewErrorByPostId, setOverlayPreviewErrorByPostId] =
+    useState<Record<string, string>>({});
+  const [overlayRenderPostId, setOverlayRenderPostId] = useState<string | null>(
+    null,
+  );
   const [publishErrors, setPublishErrors] = useState<Record<string, string>>(
     {},
   );
@@ -188,6 +236,16 @@ export function SocialPostsPageClient(props: {
   const [drafts, setDrafts] = useState<Record<string, DraftState>>(() =>
     Object.fromEntries(
       props.initialPosts.map((post) => [post.id, toDraftState(post)]),
+    ),
+  );
+  const [overlayDrafts, setOverlayDrafts] = useState<
+    Record<string, SocialImageOverlayDraft>
+  >(() =>
+    Object.fromEntries(
+      props.initialPosts.map((post) => [
+        post.id,
+        toOverlayDraftState(post, props.businessName),
+      ]),
     ),
   );
 
@@ -207,6 +265,17 @@ export function SocialPostsPageClient(props: {
       ),
     );
   }, [posts]);
+
+  useEffect(() => {
+    setOverlayDrafts((previous) =>
+      Object.fromEntries(
+        posts.map((post) => [
+          post.id,
+          previous[post.id] || toOverlayDraftState(post, props.businessName),
+        ]),
+      ),
+    );
+  }, [posts, props.businessName]);
 
   useEffect(() => {
     if (posts.length === 0) {
@@ -230,10 +299,101 @@ export function SocialPostsPageClient(props: {
     () => posts.find((post) => post.id === selectedPostId) || null,
     [posts, selectedPostId],
   );
-  const draftToDelete = useMemo(
-    () => posts.find((post) => post.id === draftToDeleteId) || null,
-    [posts, draftToDeleteId],
-  );
+  const selectedOverlayDraft = selectedPost
+    ? overlayDrafts[selectedPost.id]
+    : null;
+  const selectedOverlayPreviewUrl = selectedPost
+    ? overlayPreviewUrlByPostId[selectedPost.id]
+    : "";
+  const selectedOverlayPreviewError = selectedPost
+    ? overlayPreviewErrorByPostId[selectedPost.id]
+    : "";
+
+  useEffect(() => {
+    if (!selectedPost) {
+      return;
+    }
+
+    const draft = drafts[selectedPost.id];
+    const overlay = overlayDrafts[selectedPost.id];
+    const backgroundUrl = draft?.mediaUrl?.trim();
+
+    if (!draft || !overlay || !backgroundUrl) {
+      setOverlayPreviewUrlByPostId((previous) => {
+        if (!(selectedPost.id in previous)) {
+          return previous;
+        }
+        const next = { ...previous };
+        delete next[selectedPost.id];
+        return next;
+      });
+      setOverlayPreviewErrorByPostId((previous) => {
+        if (!(selectedPost.id in previous)) {
+          return previous;
+        }
+        const next = { ...previous };
+        delete next[selectedPost.id];
+        return next;
+      });
+      return;
+    }
+
+    let cancelled = false;
+    setOverlayRenderPostId(selectedPost.id);
+    setOverlayPreviewErrorByPostId((previous) => ({
+      ...previous,
+      [selectedPost.id]: "",
+    }));
+
+    const renderPreview = async () => {
+      try {
+        const image = await loadImage(backgroundUrl);
+        if (cancelled) {
+          return;
+        }
+
+        const sourceWidth = "naturalWidth" in image ? image.naturalWidth : 1024;
+        const sourceHeight = "naturalHeight" in image ? image.naturalHeight : 1536;
+        const canvas = renderComposedCanvas(
+          image,
+          sourceWidth || 1024,
+          sourceHeight || 1536,
+          overlay,
+        );
+        const previewUrl = canvas.toDataURL("image/png");
+        if (cancelled) {
+          return;
+        }
+        setOverlayPreviewUrlByPostId((previous) => ({
+          ...previous,
+          [selectedPost.id]: previewUrl,
+        }));
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+        setOverlayPreviewErrorByPostId((previous) => ({
+          ...previous,
+          [selectedPost.id]:
+            error instanceof Error
+              ? error.message
+              : "Unable to render overlay preview.",
+        }));
+      } finally {
+        if (!cancelled) {
+          setOverlayRenderPostId((current) =>
+            current === selectedPost.id ? null : current,
+          );
+        }
+      }
+    };
+
+    void renderPreview();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPost, drafts, overlayDrafts]);
 
   const hasStep2Signal =
     posts.some((post) => !!post.sale_event) ||
@@ -261,6 +421,24 @@ export function SocialPostsPageClient(props: {
         ...changes,
       },
     }));
+  };
+
+  const updateOverlayDraft = (
+    postId: string,
+    changes: Partial<SocialImageOverlayDraft>,
+  ) => {
+    const post = posts.find((entry) => entry.id === postId);
+    if (!post) {
+      return;
+    }
+
+    setOverlayDrafts((previous) => {
+      const fallback = previous[postId] || toOverlayDraftState(post, props.businessName);
+      return {
+        ...previous,
+        [postId]: sanitizeOverlayDraft({ ...fallback, ...changes }, fallback),
+      };
+    });
   };
 
   const saveDraft = async (postId: string) => {
@@ -347,6 +525,11 @@ export function SocialPostsPageClient(props: {
     const post = posts.find((entry) => entry.id === postId);
     if (!post || post.status !== "DRAFT") return;
 
+    const confirmed = window.confirm(
+      `Delete draft "${post.title}"? This action cannot be undone.`,
+    );
+    if (!confirmed) return;
+
     setDeletingPostId(postId);
     try {
       const result = await deleteSocialPostDraftAction({
@@ -374,7 +557,6 @@ export function SocialPostsPageClient(props: {
       });
 
       toast.success("Draft deleted.");
-      setDraftToDeleteId(null);
       router.refresh();
     } catch {
       toast.error("Unexpected error while deleting draft.");
@@ -404,6 +586,48 @@ export function SocialPostsPageClient(props: {
       toast.error("Unexpected error while generating image.");
     } finally {
       setGeneratingImagePostId(null);
+    }
+  };
+
+  const applyOverlay = async (postId: string) => {
+    const draft = drafts[postId];
+    const overlay = overlayDrafts[postId];
+    const backgroundUrl = draft?.mediaUrl?.trim();
+
+    if (!draft || !overlay || !backgroundUrl) {
+      toast.error("Generate an image first before applying the overlay.");
+      return;
+    }
+
+    setApplyingOverlayPostId(postId);
+    try {
+      const image = await loadImage(backgroundUrl);
+      const sourceWidth = image.naturalWidth || 1024;
+      const sourceHeight = image.naturalHeight || 1536;
+      const canvas = renderComposedCanvas(
+        image,
+        sourceWidth,
+        sourceHeight,
+        overlay,
+      );
+      const file = await canvasToFile(
+        canvas,
+        `${props.businessSlug}-social-${postId}.png`,
+      );
+      const formData = new FormData();
+      formData.set("file", file);
+
+      const uploadedUrl = await uploadImageAction(formData);
+      updateDraft(postId, { mediaUrl: uploadedUrl });
+      toast.success("Overlay applied and uploaded.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to apply overlay composition.",
+      );
+    } finally {
+      setApplyingOverlayPostId(null);
     }
   };
 
@@ -469,7 +693,6 @@ export function SocialPostsPageClient(props: {
     (target) => target.status === "FAILED",
   );
   const publishError = publishErrors[selectedPost.id];
-  const hasConnectedChannels = selectedPost.targets.length > 0;
 
   return (
     <div className="space-y-6">
@@ -499,6 +722,111 @@ export function SocialPostsPageClient(props: {
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {actionNeededPosts.map((post) => {
+              const postDraft = drafts[post.id] || toDraftState(post);
+              const trimmedCaption = (
+                postDraft.caption || post.caption_draft
+              ).trim();
+              const captionPreview = trimmedCaption
+                ? `${trimmedCaption.slice(0, 72)}${
+                    trimmedCaption.length > 72 ? "..." : ""
+                  }`
+                : "No caption yet";
+              const isSelected = selectedPost.id === post.id;
+              const dateLabel = formatPostDate(post.created_at);
+
+              return (
+                <div key={post.id} className="relative min-w-[240px]">
+                  <button
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedPostId(post.id)}
+                    disabled={deletingPostId === post.id}
+                    className={`w-full rounded-2xl border px-4 py-3 pr-12 text-left transition ${
+                      isSelected
+                        ? "border-zinc-900 bg-zinc-200 text-white"
+                        : "border-zinc-200 bg-white text-zinc-200 hover:border-zinc-300"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p
+                        className={`truncate text-sm font-semibold ${
+                          isSelected ? "text-white" : "text-zinc-900"
+                        }`}
+                      >
+                        {postDraft.title || post.title}
+                      </p>
+                      <Badge
+                        variant="outline"
+                        className={
+                          isSelected
+                            ? "border-white/30 bg-white/10 text-white"
+                            : statusBadgeClass(post.status)
+                        }
+                      >
+                        {post.status}
+                      </Badge>
+                    </div>
+                    <p
+                      className={`mt-1 text-xs ${
+                        isSelected ? "text-zinc-200" : "text-zinc-500"
+                      }`}
+                    >
+                      {captionPreview}
+                    </p>
+                    <p
+                      className={`mt-2 text-xs ${
+                        isSelected ? "text-zinc-300" : "text-zinc-400"
+                      }`}
+                    >
+                      {post.sale_event
+                        ? post.sale_event.title
+                        : "Manual social draft"}
+                      {dateLabel ? ` | ${dateLabel}` : ""}
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Delete draft ${postDraft.title || post.title}`}
+                    onClick={() => {
+                      void deleteDraft(post.id);
+                    }}
+                    disabled={deletingPostId === post.id}
+                    className={`absolute bottom-2 right-2 z-20 inline-flex h-7 w-7 items-center justify-center rounded-md border shadow-sm transition ${
+                      isSelected
+                        ? "border-white/30 bg-white/10 text-zinc-100 hover:bg-white/20"
+                        : "border-zinc-200 bg-white text-zinc-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                    }`}
+                  >
+                    {deletingPostId === post.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {draftPosts.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
+                Saved Drafts
+              </h2>
+              <p className="text-xs text-zinc-500">
+                Click a draft to open it in the editor.
+              </p>
+            </div>
+            <Badge variant="outline" className="bg-zinc-100 text-zinc-700">
+              {draftPosts.length} draft{draftPosts.length > 1 ? "s" : ""}
+            </Badge>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {draftPosts.map((post) => {
               const postDraft = drafts[post.id] || toDraftState(post);
               const trimmedCaption = (
                 postDraft.caption || post.caption_draft
@@ -554,115 +882,12 @@ export function SocialPostsPageClient(props: {
                       isSelected ? "text-zinc-300" : "text-zinc-400"
                     }`}
                   >
-                    {post.sale_event ? post.sale_event.title : "Manual social draft"}
+                    {post.sale_event
+                      ? post.sale_event.title
+                      : "Manual social draft"}
                     {dateLabel ? ` | ${dateLabel}` : ""}
                   </p>
                 </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {draftPosts.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
-                Saved Drafts
-              </h2>
-              <p className="text-xs text-zinc-500">
-                Click a draft to open it in the editor.
-              </p>
-            </div>
-            <Badge variant="outline" className="bg-zinc-100 text-zinc-700">
-              {draftPosts.length} draft{draftPosts.length > 1 ? "s" : ""}
-            </Badge>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1">
-            {draftPosts.map((post) => {
-              const postDraft = drafts[post.id] || toDraftState(post);
-              const trimmedCaption = (
-                postDraft.caption || post.caption_draft
-              ).trim();
-              const captionPreview = trimmedCaption
-                ? `${trimmedCaption.slice(0, 72)}${
-                    trimmedCaption.length > 72 ? "..." : ""
-                  }`
-                : "No caption yet";
-              const isSelected = selectedPost.id === post.id;
-              const dateLabel = formatPostDate(post.created_at);
-
-              return (
-                <div key={post.id} className="relative min-w-[240px]">
-                  <button
-                    type="button"
-                    aria-pressed={isSelected}
-                    onClick={() => setSelectedPostId(post.id)}
-                    disabled={deletingPostId === post.id}
-                    className={`w-full rounded-2xl border px-3 py-2 pr-11 text-left transition sm:px-4 sm:py-3 sm:pr-20 ${
-                      isSelected
-                        ? "border-zinc-900 bg-zinc-900 text-white"
-                        : "border-zinc-200 bg-white text-zinc-900 hover:border-zinc-300"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p
-                        className={`truncate text-sm font-semibold ${
-                          isSelected ? "text-white" : "text-zinc-900"
-                        }`}
-                      >
-                        {postDraft.title || post.title}
-                      </p>
-                      <Badge
-                        variant="outline"
-                        className={
-                          isSelected
-                            ? "border-white/30 bg-white/10 text-white"
-                            : statusBadgeClass(post.status)
-                        }
-                      >
-                        {post.status}
-                      </Badge>
-                    </div>
-                    <p
-                      className={`mt-1 h-8 overflow-hidden text-xs leading-4 sm:h-auto sm:overflow-visible ${
-                        isSelected ? "text-zinc-200" : "text-zinc-500"
-                      }`}
-                    >
-                      {captionPreview}
-                    </p>
-                    <p
-                      className={`mt-1.5 truncate text-xs ${
-                        isSelected ? "text-zinc-300" : "text-zinc-400"
-                      }`}
-                    >
-                      {post.sale_event
-                        ? post.sale_event.title
-                        : "Manual social draft"}
-                      {dateLabel ? ` | ${dateLabel}` : ""}
-                    </p>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Delete draft ${postDraft.title || post.title}`}
-                    onClick={() => {
-                      setDraftToDeleteId(post.id);
-                    }}
-                    disabled={deletingPostId === post.id}
-                    className={`absolute right-2 top-2 z-20 inline-flex h-6 w-6 items-center justify-center rounded-md border shadow-sm transition sm:h-7 sm:w-7 ${
-                      isSelected
-                        ? "border-white/30 bg-white/10 text-white hover:bg-white/20"
-                        : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-                    }`}
-                  >
-                    {deletingPostId === post.id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3.5 w-3.5" />
-                    )}
-                  </button>
-                </div>
               );
             })}
           </div>
@@ -811,6 +1036,192 @@ export function SocialPostsPageClient(props: {
             </div>
           </div>
 
+          {selectedOverlayDraft ? (
+            <div className="rounded-2xl border border-zinc-200 p-3 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  Image Composer Overlay
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => applyOverlay(selectedPost.id)}
+                  disabled={
+                    applyingOverlayPostId === selectedPost.id || !draft.mediaUrl
+                  }
+                >
+                  {applyingOverlayPostId === selectedPost.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Apply Overlay"
+                  )}
+                </Button>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-3">
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                        Theme
+                      </p>
+                      <select
+                        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={selectedOverlayDraft.theme}
+                        onChange={(event) =>
+                          updateOverlayDraft(selectedPost.id, {
+                            theme: event.target.value as SocialImageOverlayDraft["theme"],
+                          })
+                        }
+                      >
+                        {SOCIAL_IMAGE_OVERLAY_THEMES.map((theme) => (
+                          <option key={theme} value={theme}>
+                            {theme}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                        Layout
+                      </p>
+                      <select
+                        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={selectedOverlayDraft.layoutStyle || "soft-editorial"}
+                        onChange={(event) =>
+                          updateOverlayDraft(selectedPost.id, {
+                            layoutStyle:
+                              event.target.value as SocialImageOverlayDraft["layoutStyle"],
+                          })
+                        }
+                      >
+                        {SOCIAL_IMAGE_OVERLAY_LAYOUTS.map((layoutStyle) => (
+                          <option key={layoutStyle} value={layoutStyle}>
+                            {layoutStyle}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                      Card Size ({Math.round(selectedOverlayDraft.cardSizePercent || 100)}%)
+                    </p>
+                    <Input
+                      type="range"
+                      min={SOCIAL_IMAGE_CARD_SIZE_MIN}
+                      max={SOCIAL_IMAGE_CARD_SIZE_MAX}
+                      value={Math.round(selectedOverlayDraft.cardSizePercent || 100)}
+                      onChange={(event) =>
+                        updateOverlayDraft(selectedPost.id, {
+                          cardSizePercent: Number(event.target.value),
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                        Business
+                      </p>
+                      <Input
+                        value={selectedOverlayDraft.businessName}
+                        onChange={(event) =>
+                          updateOverlayDraft(selectedPost.id, {
+                            businessName: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                        Discount
+                      </p>
+                      <Input
+                        value={selectedOverlayDraft.discountLine}
+                        onChange={(event) =>
+                          updateOverlayDraft(selectedPost.id, {
+                            discountLine: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                      Title
+                    </p>
+                    <Input
+                      value={selectedOverlayDraft.titleLine}
+                      onChange={(event) =>
+                        updateOverlayDraft(selectedPost.id, {
+                          titleLine: event.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                        Dates
+                      </p>
+                      <Input
+                        value={selectedOverlayDraft.dateLine}
+                        onChange={(event) =>
+                          updateOverlayDraft(selectedPost.id, {
+                            dateLine: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                        CTA
+                      </p>
+                      <Input
+                        value={selectedOverlayDraft.ctaLine}
+                        onChange={(event) =>
+                          updateOverlayDraft(selectedPost.id, {
+                            ctaLine: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                      Support Line
+                    </p>
+                    <Input
+                      value={selectedOverlayDraft.supportLine}
+                      onChange={(event) =>
+                        updateOverlayDraft(selectedPost.id, {
+                          supportLine: event.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <SocialImageComposerPreview
+                  previewUrl={selectedOverlayPreviewUrl || null}
+                  backgroundUrl={draft.mediaUrl || null}
+                  isRendering={overlayRenderPostId === selectedPost.id}
+                  errorMessage={selectedOverlayPreviewError || null}
+                  overlayDraft={selectedOverlayDraft}
+                  onCardPositionChange={(position) =>
+                    updateOverlayDraft(selectedPost.id, position)
+                  }
+                />
+              </div>
+            </div>
+          ) : null}
+
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -850,8 +1261,7 @@ export function SocialPostsPageClient(props: {
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
               Hashtags (comma separated)
             </p>
-            <Textarea
-              className="min-h-[72px] sm:min-h-[40px]"
+            <Input
               value={draft.hashtagsCsv}
               onChange={(event) =>
                 updateDraft(selectedPost.id, {
@@ -871,69 +1281,58 @@ export function SocialPostsPageClient(props: {
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
               Channel Status
             </p>
-            {selectedPost.targets.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3">
-                <p className="text-sm font-medium text-zinc-700">
-                  No connected channels for this draft yet.
-                </p>
-                <p className="mt-1 text-xs text-zinc-500">
-                  Connect Facebook/Instagram in Business settings, then return to publish.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {selectedPost.targets.map((target) => (
-                  <div
-                    key={target.id}
-                    className="flex flex-col gap-2 rounded-xl border border-zinc-100 p-3 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-zinc-900">
-                        {platformLabel(target.social_connection.platform)} |{" "}
-                        {target.social_connection.display_name}
+            <div className="space-y-2">
+              {selectedPost.targets.map((target) => (
+                <div
+                  key={target.id}
+                  className="flex flex-col gap-2 rounded-xl border border-zinc-100 p-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-zinc-900">
+                      {platformLabel(target.social_connection.platform)} |{" "}
+                      {target.social_connection.display_name}
+                    </p>
+                    {target.last_error && (
+                      <p className="text-xs text-red-600">
+                        {target.last_error}
                       </p>
-                      {target.last_error && (
-                        <p className="text-xs text-red-600">
-                          {target.last_error}
-                        </p>
-                      )}
-                      {target.remote_permalink && (
-                        <a
-                          className="text-xs text-blue-600 underline"
-                          href={target.remote_permalink}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          View published post
-                        </a>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className={statusBadgeClass(target.status)}
+                    )}
+                    {target.remote_permalink && (
+                      <a
+                        className="text-xs text-blue-600 underline"
+                        href={target.remote_permalink}
+                        target="_blank"
+                        rel="noreferrer"
                       >
-                        {target.status}
-                      </Badge>
-                      {target.status === "FAILED" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={retryingTargetId === target.id}
-                          onClick={() => retryTarget(target.id)}
-                        >
-                          {retryingTargetId === target.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            "Retry"
-                          )}
-                        </Button>
-                      )}
-                    </div>
+                        View published post
+                      </a>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={statusBadgeClass(target.status)}
+                    >
+                      {target.status}
+                    </Badge>
+                    {target.status === "FAILED" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={retryingTargetId === target.id}
+                        onClick={() => retryTarget(target.id)}
+                      >
+                        {retryingTargetId === target.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Retry"
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-wrap justify-end gap-2">
@@ -949,14 +1348,7 @@ export function SocialPostsPageClient(props: {
               )}
             </Button>
             <Button
-              disabled={
-                publishingPostId === selectedPost.id || !hasConnectedChannels
-              }
-              title={
-                !hasConnectedChannels
-                  ? "Connect a channel first to publish."
-                  : undefined
-              }
+              disabled={publishingPostId === selectedPost.id}
               onClick={() => publishPost(selectedPost.id)}
             >
               {publishingPostId === selectedPost.id ? (
@@ -975,44 +1367,6 @@ export function SocialPostsPageClient(props: {
           )}
         </CardContent>
       </Card>
-
-      <AlertDialog
-        open={!!draftToDelete}
-        onOpenChange={(open) => {
-          if (!open && !deletingPostId) {
-            setDraftToDeleteId(null);
-          }
-        }}
-      >
-        <AlertDialogContent className="rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Social Draft?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete
-              {" "}
-              <span className="font-medium text-zinc-900">
-                {draftToDelete?.title || "this draft"}
-              </span>
-              . This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-lg" disabled={!!deletingPostId}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={!draftToDelete || !!deletingPostId}
-              onClick={() => {
-                if (!draftToDelete) return;
-                void deleteDraft(draftToDelete.id);
-              }}
-            >
-              {deletingPostId ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

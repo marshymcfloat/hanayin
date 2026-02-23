@@ -312,7 +312,7 @@ function buildPromoSvg(input: PromoImageInput) {
 </svg>`;
 }
 
-function buildSocialImagePrompt(input: PromoImageInput) {
+export function buildSocialImagePrompt(input: PromoImageInput) {
   const services = input.serviceNames?.filter(Boolean) ?? [];
   const categories = dedupeCategories(input.serviceCategories);
   const packages = input.packageNames?.filter(Boolean) ?? [];

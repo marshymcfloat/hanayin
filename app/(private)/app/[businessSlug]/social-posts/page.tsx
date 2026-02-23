@@ -63,9 +63,19 @@ export default async function SocialPostsPage({
     where: { slug: businessSlug },
     select: {
       id: true,
+      name: true,
       social_posts: {
         include: {
-          sale_event: { select: { title: true } },
+          sale_event: {
+            select: {
+              title: true,
+              description: true,
+              discount_type: true,
+              discount_value: true,
+              start_date: true,
+              end_date: true,
+            },
+          },
           targets: {
             include: {
               social_connection: {
@@ -95,6 +105,7 @@ export default async function SocialPostsPage({
       />
       <SocialPostsPageClient
         businessSlug={businessSlug}
+        businessName={business.name}
         initialPosts={business.social_posts}
         flowContext={flowContext}
       />
