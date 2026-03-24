@@ -76,7 +76,18 @@ function formatDiscount(discountType: DiscountType, discountValue: number) {
   return `PHP ${Math.max(0, Math.round(discountValue)).toLocaleString("en-PH")} OFF`;
 }
 
+function isSameCalendarDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 function formatDateRange(startDate: Date, endDate: Date) {
+  if (isSameCalendarDay(startDate, endDate)) {
+    return "TODAY ONLY";
+  }
   const formatter = new Intl.DateTimeFormat("en-PH", {
     month: "short",
     day: "numeric",
@@ -92,18 +103,34 @@ export function buildDefaultOverlayDraftFromPost(input: {
   businessName: string;
   title: string;
   saleDescription?: string | null;
-  discountType: DiscountType;
-  discountValue: number;
+  discountType?: DiscountType;
+  discountValue?: number;
   startDate: Date;
   endDate: Date;
+  actionCategory?: string;
 }) {
+  const hasDiscount = input.discountType && input.discountValue && input.discountValue > 0;
+  const isNonDiscount = input.actionCategory === "SOCIAL_ONLY" || input.actionCategory === "AWARENESS";
+
+  const discountLine = hasDiscount && !isNonDiscount
+    ? formatDiscount(input.discountType!, input.discountValue!)
+    : "";
+
+  const ctaLine = input.actionCategory === "AWARENESS"
+    ? "Follow us on ServiceFlow"
+    : "Book now on ServiceFlow";
+
+  const supportLine = isNonDiscount
+    ? (input.saleDescription || input.title)
+    : (input.saleDescription || "Limited-time offer");
+
   return sanitizeOverlayDraft({
     businessName: input.businessName,
-    discountLine: formatDiscount(input.discountType, input.discountValue),
+    discountLine,
     titleLine: input.title,
     dateLine: formatDateRange(input.startDate, input.endDate),
-    ctaLine: "Book now on ServiceFlow",
-    supportLine: input.saleDescription || "Limited-time offer",
+    ctaLine,
+    supportLine,
     theme: DEFAULT_THEME,
   });
 }

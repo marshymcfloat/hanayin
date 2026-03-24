@@ -12,6 +12,7 @@ type SelectedServiceItem = {
   packageName?: string;
   originalPrice?: number;
   discountReason?: string;
+  slotsRemaining?: number | null;
   flow_triggers?: unknown[];
 };
 
@@ -300,6 +301,14 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                   className="h-5 px-1.5 text-[10px] font-medium"
                 >
                   {service.discountReason}
+                </Badge>
+              )}
+              {service.slotsRemaining !== undefined && service.slotsRemaining !== null && (
+                <Badge
+                  variant="outline"
+                  className="h-5 px-1.5 text-[10px] font-medium border-amber-300 text-amber-700 bg-amber-50"
+                >
+                  {service.slotsRemaining} {service.slotsRemaining === 1 ? "slot" : "slots"} left
                 </Badge>
               )}
             </div>

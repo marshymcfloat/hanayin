@@ -349,13 +349,15 @@ model SaleEvent {
 
   discount_type  DiscountType @default(PERCENTAGE)
   discount_value Float        @default(0)
+  slot_limit     Int?
 
   applicable_services Service[]
   applicable_packages ServicePackage[]
 
   business_id  String
   business     Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
-  social_posts SocialPost[]
+  bookings         Booking[]
+  social_posts     SocialPost[]
   growth_campaigns Campaign[]
 
   created_at DateTime @default(now())
@@ -985,6 +987,9 @@ model Booking {
   capacity_override_reason  String?
   capacity_override_note    String?
 
+  sale_event_id Int?
+  sale_event    SaleEvent? @relation(fields: [sale_event_id], references: [id], onDelete: SetNull)
+
   // Computed columns for double-booking prevention (maintained by DB triggers)
   /// @ignore - Managed by database triggers, do not write directly
   booking_range     String?  @ignore
@@ -1000,6 +1005,7 @@ model Booking {
   @@index([customer_id, business_id, scheduled_at])
   @@index([status, hold_expires_at])
   @@index([status, reminder_sent, scheduled_at])
+  @@index([sale_event_id, status])
   @@index([customer_id])
   @@index([created_at])
   @@index([scheduled_at])
@@ -1235,6 +1241,10 @@ enum OfferType {
   STUDENT_PROMO
   PAYDAY_PROMO
   SEASONAL_PROMO
+  THEMED_PACKAGE
+  SOCIAL_REMINDER
+  CONTENT_POST
+  LOYALTY_REWARD
 }
 
 enum CampaignStatus {

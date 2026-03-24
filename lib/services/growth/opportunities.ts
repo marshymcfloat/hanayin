@@ -14,6 +14,10 @@ export async function getTodayOpportunityViews(businessId: string): Promise<Oppo
   const start = getStartOfDayPH(now);
   const end = getEndOfDayPH(now);
 
+  // Only return opportunities whose window still has at least 30 min remaining
+  const minRemainingMs = 30 * 60 * 1000;
+  const windowCutoff = new Date(now.getTime() + minRemainingMs);
+
   const [opportunities, activeCampaigns] = await Promise.all([
     prisma.opportunity.findMany({
       where: {
@@ -22,6 +26,9 @@ export async function getTodayOpportunityViews(businessId: string): Promise<Oppo
         created_at: {
           gte: start,
           lte: end,
+        },
+        time_window_end: {
+          gt: windowCutoff,
         },
       },
       orderBy: [{ total_score: "desc" }, { created_at: "desc" }],

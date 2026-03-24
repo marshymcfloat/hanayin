@@ -19,6 +19,7 @@ import { getCurrentDateTimePH } from "@/lib/date-utils";
 import {
   BookingAvailabilityError,
   CapacityOverrideInput,
+  checkSaleEventSlotLimit,
   resolveStaffSelectionOrThrow,
   StaffSelectionMode,
   validateBookingOrThrow,
@@ -227,6 +228,15 @@ export async function createBookingInDb({
           const holdExpiresAt =
             bookingStatus === "HOLD" ? getQrHoldExpiresAt() : null;
 
+          // Check sale event slot limit inside transaction for atomicity
+          const appliedSaleEventId = pricing.appliedSaleEventId ?? null;
+          if (appliedSaleEventId) {
+            await checkSaleEventSlotLimit({
+              saleEventId: appliedSaleEventId,
+              db: tx,
+            });
+          }
+
           const finalVoucherDiscount = pricing.voucherDiscount;
           const grandTotal = pricing.grandTotal;
           const downpaymentAmount = isDownpayment
@@ -258,6 +268,7 @@ export async function createBookingInDb({
               payment_status: paymentStatus,
               amount_paid: amountPaid,
               hold_expires_at: holdExpiresAt,
+              sale_event_id: appliedSaleEventId,
               scheduled_at: scheduledAt,
               estimated_end: pricing.estimatedEnd,
               capacity_override_applied: allowWalkInCapacityBypass,

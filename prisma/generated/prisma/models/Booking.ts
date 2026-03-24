@@ -32,6 +32,7 @@ export type BookingAvgAggregateOutputType = {
   grand_total: number | null
   total_discount: number | null
   downpayment: number | null
+  sale_event_id: number | null
 }
 
 export type BookingSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type BookingSumAggregateOutputType = {
   grand_total: number | null
   total_discount: number | null
   downpayment: number | null
+  sale_event_id: number | null
 }
 
 export type BookingMinAggregateOutputType = {
@@ -66,6 +68,7 @@ export type BookingMinAggregateOutputType = {
   capacity_override_applied: boolean | null
   capacity_override_reason: string | null
   capacity_override_note: string | null
+  sale_event_id: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -94,6 +97,7 @@ export type BookingMaxAggregateOutputType = {
   capacity_override_applied: boolean | null
   capacity_override_reason: string | null
   capacity_override_note: string | null
+  sale_event_id: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -122,6 +126,7 @@ export type BookingCountAggregateOutputType = {
   capacity_override_applied: number
   capacity_override_reason: number
   capacity_override_note: number
+  sale_event_id: number
   created_at: number
   updated_at: number
   _all: number
@@ -134,6 +139,7 @@ export type BookingAvgAggregateInputType = {
   grand_total?: true
   total_discount?: true
   downpayment?: true
+  sale_event_id?: true
 }
 
 export type BookingSumAggregateInputType = {
@@ -142,6 +148,7 @@ export type BookingSumAggregateInputType = {
   grand_total?: true
   total_discount?: true
   downpayment?: true
+  sale_event_id?: true
 }
 
 export type BookingMinAggregateInputType = {
@@ -168,6 +175,7 @@ export type BookingMinAggregateInputType = {
   capacity_override_applied?: true
   capacity_override_reason?: true
   capacity_override_note?: true
+  sale_event_id?: true
   created_at?: true
   updated_at?: true
 }
@@ -196,6 +204,7 @@ export type BookingMaxAggregateInputType = {
   capacity_override_applied?: true
   capacity_override_reason?: true
   capacity_override_note?: true
+  sale_event_id?: true
   created_at?: true
   updated_at?: true
 }
@@ -224,6 +233,7 @@ export type BookingCountAggregateInputType = {
   capacity_override_applied?: true
   capacity_override_reason?: true
   capacity_override_note?: true
+  sale_event_id?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -339,6 +349,7 @@ export type BookingGroupByOutputType = {
   capacity_override_applied: boolean
   capacity_override_reason: string | null
   capacity_override_note: string | null
+  sale_event_id: number | null
   created_at: Date
   updated_at: Date
   _count: BookingCountAggregateOutputType | null
@@ -390,6 +401,7 @@ export type BookingWhereInput = {
   capacity_override_applied?: Prisma.BoolFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
   capacity_override_note?: Prisma.StringNullableFilter<"Booking"> | string | null
+  sale_event_id?: Prisma.IntNullableFilter<"Booking"> | number | null
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
@@ -397,6 +409,7 @@ export type BookingWhereInput = {
   vouchers?: Prisma.VoucherListRelationFilter
   availed_services?: Prisma.AvailedServiceListRelationFilter
   payments?: Prisma.BookingPaymentListRelationFilter
+  sale_event?: Prisma.XOR<Prisma.SaleEventNullableScalarRelationFilter, Prisma.SaleEventWhereInput> | null
 }
 
 export type BookingOrderByWithRelationInput = {
@@ -423,6 +436,7 @@ export type BookingOrderByWithRelationInput = {
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity_override_note?: Prisma.SortOrderInput | Prisma.SortOrder
+  sale_event_id?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
@@ -430,6 +444,7 @@ export type BookingOrderByWithRelationInput = {
   vouchers?: Prisma.VoucherOrderByRelationAggregateInput
   availed_services?: Prisma.AvailedServiceOrderByRelationAggregateInput
   payments?: Prisma.BookingPaymentOrderByRelationAggregateInput
+  sale_event?: Prisma.SaleEventOrderByWithRelationInput
 }
 
 export type BookingWhereUniqueInput = Prisma.AtLeast<{
@@ -459,6 +474,7 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   capacity_override_applied?: Prisma.BoolFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
   capacity_override_note?: Prisma.StringNullableFilter<"Booking"> | string | null
+  sale_event_id?: Prisma.IntNullableFilter<"Booking"> | number | null
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
@@ -466,6 +482,7 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   vouchers?: Prisma.VoucherListRelationFilter
   availed_services?: Prisma.AvailedServiceListRelationFilter
   payments?: Prisma.BookingPaymentListRelationFilter
+  sale_event?: Prisma.XOR<Prisma.SaleEventNullableScalarRelationFilter, Prisma.SaleEventWhereInput> | null
 }, "id" | "paymongo_checkout_session_id" | "paymongo_payment_intent_id">
 
 export type BookingOrderByWithAggregationInput = {
@@ -492,6 +509,7 @@ export type BookingOrderByWithAggregationInput = {
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity_override_note?: Prisma.SortOrderInput | Prisma.SortOrder
+  sale_event_id?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.BookingCountOrderByAggregateInput
@@ -528,6 +546,7 @@ export type BookingScalarWhereWithAggregatesInput = {
   capacity_override_applied?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   capacity_override_note?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  sale_event_id?: Prisma.IntNullableWithAggregatesFilter<"Booking"> | number | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
 }
@@ -560,6 +579,7 @@ export type BookingCreateInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
 }
 
 export type BookingUncheckedCreateInput = {
@@ -586,6 +606,7 @@ export type BookingUncheckedCreateInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -621,6 +642,7 @@ export type BookingUpdateInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
 }
 
 export type BookingUncheckedUpdateInput = {
@@ -647,6 +669,7 @@ export type BookingUncheckedUpdateInput = {
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -678,6 +701,7 @@ export type BookingCreateManyInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -731,6 +755,7 @@ export type BookingUncheckedUpdateManyInput = {
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -769,6 +794,7 @@ export type BookingCountOrderByAggregateInput = {
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrder
   capacity_override_note?: Prisma.SortOrder
+  sale_event_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -779,6 +805,7 @@ export type BookingAvgOrderByAggregateInput = {
   grand_total?: Prisma.SortOrder
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrder
+  sale_event_id?: Prisma.SortOrder
 }
 
 export type BookingMaxOrderByAggregateInput = {
@@ -805,6 +832,7 @@ export type BookingMaxOrderByAggregateInput = {
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrder
   capacity_override_note?: Prisma.SortOrder
+  sale_event_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -833,6 +861,7 @@ export type BookingMinOrderByAggregateInput = {
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrder
   capacity_override_note?: Prisma.SortOrder
+  sale_event_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -843,6 +872,7 @@ export type BookingSumOrderByAggregateInput = {
   grand_total?: Prisma.SortOrder
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrder
+  sale_event_id?: Prisma.SortOrder
 }
 
 export type BookingScalarRelationFilter = {
@@ -894,6 +924,48 @@ export type BookingUncheckedUpdateManyWithoutBusinessNestedInput = {
   connect?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
   update?: Prisma.BookingUpdateWithWhereUniqueWithoutBusinessInput | Prisma.BookingUpdateWithWhereUniqueWithoutBusinessInput[]
   updateMany?: Prisma.BookingUpdateManyWithWhereWithoutBusinessInput | Prisma.BookingUpdateManyWithWhereWithoutBusinessInput[]
+  deleteMany?: Prisma.BookingScalarWhereInput | Prisma.BookingScalarWhereInput[]
+}
+
+export type BookingCreateNestedManyWithoutSale_eventInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutSale_eventInput, Prisma.BookingUncheckedCreateWithoutSale_eventInput> | Prisma.BookingCreateWithoutSale_eventInput[] | Prisma.BookingUncheckedCreateWithoutSale_eventInput[]
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutSale_eventInput | Prisma.BookingCreateOrConnectWithoutSale_eventInput[]
+  createMany?: Prisma.BookingCreateManySale_eventInputEnvelope
+  connect?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+}
+
+export type BookingUncheckedCreateNestedManyWithoutSale_eventInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutSale_eventInput, Prisma.BookingUncheckedCreateWithoutSale_eventInput> | Prisma.BookingCreateWithoutSale_eventInput[] | Prisma.BookingUncheckedCreateWithoutSale_eventInput[]
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutSale_eventInput | Prisma.BookingCreateOrConnectWithoutSale_eventInput[]
+  createMany?: Prisma.BookingCreateManySale_eventInputEnvelope
+  connect?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+}
+
+export type BookingUpdateManyWithoutSale_eventNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutSale_eventInput, Prisma.BookingUncheckedCreateWithoutSale_eventInput> | Prisma.BookingCreateWithoutSale_eventInput[] | Prisma.BookingUncheckedCreateWithoutSale_eventInput[]
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutSale_eventInput | Prisma.BookingCreateOrConnectWithoutSale_eventInput[]
+  upsert?: Prisma.BookingUpsertWithWhereUniqueWithoutSale_eventInput | Prisma.BookingUpsertWithWhereUniqueWithoutSale_eventInput[]
+  createMany?: Prisma.BookingCreateManySale_eventInputEnvelope
+  set?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  disconnect?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  delete?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  connect?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  update?: Prisma.BookingUpdateWithWhereUniqueWithoutSale_eventInput | Prisma.BookingUpdateWithWhereUniqueWithoutSale_eventInput[]
+  updateMany?: Prisma.BookingUpdateManyWithWhereWithoutSale_eventInput | Prisma.BookingUpdateManyWithWhereWithoutSale_eventInput[]
+  deleteMany?: Prisma.BookingScalarWhereInput | Prisma.BookingScalarWhereInput[]
+}
+
+export type BookingUncheckedUpdateManyWithoutSale_eventNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutSale_eventInput, Prisma.BookingUncheckedCreateWithoutSale_eventInput> | Prisma.BookingCreateWithoutSale_eventInput[] | Prisma.BookingUncheckedCreateWithoutSale_eventInput[]
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutSale_eventInput | Prisma.BookingCreateOrConnectWithoutSale_eventInput[]
+  upsert?: Prisma.BookingUpsertWithWhereUniqueWithoutSale_eventInput | Prisma.BookingUpsertWithWhereUniqueWithoutSale_eventInput[]
+  createMany?: Prisma.BookingCreateManySale_eventInputEnvelope
+  set?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  disconnect?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  delete?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  connect?: Prisma.BookingWhereUniqueInput | Prisma.BookingWhereUniqueInput[]
+  update?: Prisma.BookingUpdateWithWhereUniqueWithoutSale_eventInput | Prisma.BookingUpdateWithWhereUniqueWithoutSale_eventInput[]
+  updateMany?: Prisma.BookingUpdateManyWithWhereWithoutSale_eventInput | Prisma.BookingUpdateManyWithWhereWithoutSale_eventInput[]
   deleteMany?: Prisma.BookingScalarWhereInput | Prisma.BookingScalarWhereInput[]
 }
 
@@ -1026,6 +1098,7 @@ export type BookingCreateWithoutBusinessInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
 }
 
 export type BookingUncheckedCreateWithoutBusinessInput = {
@@ -1051,6 +1124,7 @@ export type BookingUncheckedCreateWithoutBusinessInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1111,8 +1185,96 @@ export type BookingScalarWhereInput = {
   capacity_override_applied?: Prisma.BoolFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
   capacity_override_note?: Prisma.StringNullableFilter<"Booking"> | string | null
+  sale_event_id?: Prisma.IntNullableFilter<"Booking"> | number | null
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
+}
+
+export type BookingCreateWithoutSale_eventInput = {
+  status?: $Enums.BookingStatus
+  payment_method?: $Enums.PaymentMethod
+  payment_status?: $Enums.PaymentStatus
+  amount_paid?: number
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
+  grand_total: number
+  total_discount: number
+  downpayment?: number | null
+  downpayment_status?: $Enums.BookingStatus | null
+  downpayment_date?: Date | string | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  reminder_sent?: boolean
+  hold_expires_at?: Date | string | null
+  capacity_override_applied?: boolean
+  capacity_override_reason?: string | null
+  capacity_override_note?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
+  business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
+  availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
+  payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+}
+
+export type BookingUncheckedCreateWithoutSale_eventInput = {
+  id?: number
+  status?: $Enums.BookingStatus
+  customer_id: string
+  business_id: string
+  payment_method?: $Enums.PaymentMethod
+  payment_status?: $Enums.PaymentStatus
+  amount_paid?: number
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
+  grand_total: number
+  total_discount: number
+  downpayment?: number | null
+  downpayment_status?: $Enums.BookingStatus | null
+  downpayment_date?: Date | string | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  reminder_sent?: boolean
+  hold_expires_at?: Date | string | null
+  capacity_override_applied?: boolean
+  capacity_override_reason?: string | null
+  capacity_override_note?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
+  availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
+  payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
+}
+
+export type BookingCreateOrConnectWithoutSale_eventInput = {
+  where: Prisma.BookingWhereUniqueInput
+  create: Prisma.XOR<Prisma.BookingCreateWithoutSale_eventInput, Prisma.BookingUncheckedCreateWithoutSale_eventInput>
+}
+
+export type BookingCreateManySale_eventInputEnvelope = {
+  data: Prisma.BookingCreateManySale_eventInput | Prisma.BookingCreateManySale_eventInput[]
+  skipDuplicates?: boolean
+}
+
+export type BookingUpsertWithWhereUniqueWithoutSale_eventInput = {
+  where: Prisma.BookingWhereUniqueInput
+  update: Prisma.XOR<Prisma.BookingUpdateWithoutSale_eventInput, Prisma.BookingUncheckedUpdateWithoutSale_eventInput>
+  create: Prisma.XOR<Prisma.BookingCreateWithoutSale_eventInput, Prisma.BookingUncheckedCreateWithoutSale_eventInput>
+}
+
+export type BookingUpdateWithWhereUniqueWithoutSale_eventInput = {
+  where: Prisma.BookingWhereUniqueInput
+  data: Prisma.XOR<Prisma.BookingUpdateWithoutSale_eventInput, Prisma.BookingUncheckedUpdateWithoutSale_eventInput>
+}
+
+export type BookingUpdateManyWithWhereWithoutSale_eventInput = {
+  where: Prisma.BookingScalarWhereInput
+  data: Prisma.XOR<Prisma.BookingUpdateManyMutationInput, Prisma.BookingUncheckedUpdateManyWithoutSale_eventInput>
 }
 
 export type BookingCreateWithoutCustomerInput = {
@@ -1142,6 +1304,7 @@ export type BookingCreateWithoutCustomerInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
 }
 
 export type BookingUncheckedCreateWithoutCustomerInput = {
@@ -1167,6 +1330,7 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1227,6 +1391,7 @@ export type BookingCreateWithoutPaymentsInput = {
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
 }
 
 export type BookingUncheckedCreateWithoutPaymentsInput = {
@@ -1253,6 +1418,7 @@ export type BookingUncheckedCreateWithoutPaymentsInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1302,6 +1468,7 @@ export type BookingUpdateWithoutPaymentsInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutPaymentsInput = {
@@ -1328,6 +1495,7 @@ export type BookingUncheckedUpdateWithoutPaymentsInput = {
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -1361,6 +1529,7 @@ export type BookingCreateWithoutVouchersInput = {
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
 }
 
 export type BookingUncheckedCreateWithoutVouchersInput = {
@@ -1387,6 +1556,7 @@ export type BookingUncheckedCreateWithoutVouchersInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
@@ -1436,6 +1606,7 @@ export type BookingUpdateWithoutVouchersInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutVouchersInput = {
@@ -1462,6 +1633,7 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
@@ -1495,6 +1667,7 @@ export type BookingCreateWithoutAvailed_servicesInput = {
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
   payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
 }
 
 export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
@@ -1521,6 +1694,7 @@ export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1570,6 +1744,7 @@ export type BookingUpdateWithoutAvailed_servicesInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
   payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
@@ -1596,6 +1771,7 @@ export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -1625,6 +1801,7 @@ export type BookingCreateManyBusinessInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1656,12 +1833,131 @@ export type BookingUpdateWithoutBusinessInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
+  total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  downpayment_status?: Prisma.NullableEnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus | null
+  downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
+  availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
+  payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
+}
+
+export type BookingUncheckedUpdateManyWithoutBusinessInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
+  total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  downpayment_status?: Prisma.NullableEnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus | null
+  downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BookingCreateManySale_eventInput = {
+  id?: number
+  status?: $Enums.BookingStatus
+  customer_id: string
+  business_id: string
+  payment_method?: $Enums.PaymentMethod
+  payment_status?: $Enums.PaymentStatus
+  amount_paid?: number
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
+  grand_total: number
+  total_discount: number
+  downpayment?: number | null
+  downpayment_status?: $Enums.BookingStatus | null
+  downpayment_date?: Date | string | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  reminder_sent?: boolean
+  hold_expires_at?: Date | string | null
+  capacity_override_applied?: boolean
+  capacity_override_reason?: string | null
+  capacity_override_note?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+}
+
+export type BookingUpdateWithoutSale_eventInput = {
+  status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
+  total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  downpayment_status?: Prisma.NullableEnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus | null
+  downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
+  availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
+  payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+}
+
+export type BookingUncheckedUpdateWithoutSale_eventInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1688,10 +1984,11 @@ export type BookingUncheckedUpdateWithoutBusinessInput = {
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
 }
 
-export type BookingUncheckedUpdateManyWithoutBusinessInput = {
+export type BookingUncheckedUpdateManyWithoutSale_eventInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1738,6 +2035,7 @@ export type BookingCreateManyCustomerInput = {
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
   capacity_override_note?: string | null
+  sale_event_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1769,6 +2067,7 @@ export type BookingUpdateWithoutCustomerInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutCustomerInput = {
@@ -1794,6 +2093,7 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -1824,6 +2124,7 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1901,6 +2202,7 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
   capacity_override_note?: boolean
+  sale_event_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1908,6 +2210,7 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   vouchers?: boolean | Prisma.Booking$vouchersArgs<ExtArgs>
   availed_services?: boolean | Prisma.Booking$availed_servicesArgs<ExtArgs>
   payments?: boolean | Prisma.Booking$paymentsArgs<ExtArgs>
+  sale_event?: boolean | Prisma.Booking$sale_eventArgs<ExtArgs>
   _count?: boolean | Prisma.BookingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["booking"]>
 
@@ -1935,10 +2238,12 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
   capacity_override_note?: boolean
+  sale_event_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  sale_event?: boolean | Prisma.Booking$sale_eventArgs<ExtArgs>
 }, ExtArgs["result"]["booking"]>
 
 export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1965,10 +2270,12 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
   capacity_override_note?: boolean
+  sale_event_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  sale_event?: boolean | Prisma.Booking$sale_eventArgs<ExtArgs>
 }, ExtArgs["result"]["booking"]>
 
 export type BookingSelectScalar = {
@@ -1995,26 +2302,30 @@ export type BookingSelectScalar = {
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
   capacity_override_note?: boolean
+  sale_event_id?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "paymongo_checkout_session_id" | "paymongo_payment_intent_id" | "paymongo_payment_method_id" | "paymongo_payment_id" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "paymongo_checkout_session_id" | "paymongo_payment_intent_id" | "paymongo_payment_method_id" | "paymongo_payment_id" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "sale_event_id" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   vouchers?: boolean | Prisma.Booking$vouchersArgs<ExtArgs>
   availed_services?: boolean | Prisma.Booking$availed_servicesArgs<ExtArgs>
   payments?: boolean | Prisma.Booking$paymentsArgs<ExtArgs>
+  sale_event?: boolean | Prisma.Booking$sale_eventArgs<ExtArgs>
   _count?: boolean | Prisma.BookingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BookingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  sale_event?: boolean | Prisma.Booking$sale_eventArgs<ExtArgs>
 }
 export type BookingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  sale_event?: boolean | Prisma.Booking$sale_eventArgs<ExtArgs>
 }
 
 export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2025,6 +2336,7 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     vouchers: Prisma.$VoucherPayload<ExtArgs>[]
     availed_services: Prisma.$AvailedServicePayload<ExtArgs>[]
     payments: Prisma.$BookingPaymentPayload<ExtArgs>[]
+    sale_event: Prisma.$SaleEventPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2050,6 +2362,7 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     capacity_override_applied: boolean
     capacity_override_reason: string | null
     capacity_override_note: string | null
+    sale_event_id: number | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["booking"]>
@@ -2451,6 +2764,7 @@ export interface Prisma__BookingClient<T, Null = never, ExtArgs extends runtime.
   vouchers<T extends Prisma.Booking$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   availed_services<T extends Prisma.Booking$availed_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$availed_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailedServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payments<T extends Prisma.Booking$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sale_event<T extends Prisma.Booking$sale_eventArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$sale_eventArgs<ExtArgs>>): Prisma.Prisma__SaleEventClient<runtime.Types.Result.GetResult<Prisma.$SaleEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2503,6 +2817,7 @@ export interface BookingFieldRefs {
   readonly capacity_override_applied: Prisma.FieldRef<"Booking", 'Boolean'>
   readonly capacity_override_reason: Prisma.FieldRef<"Booking", 'String'>
   readonly capacity_override_note: Prisma.FieldRef<"Booking", 'String'>
+  readonly sale_event_id: Prisma.FieldRef<"Booking", 'Int'>
   readonly created_at: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Booking", 'DateTime'>
 }
@@ -2970,6 +3285,25 @@ export type Booking$paymentsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.BookingPaymentScalarFieldEnum | Prisma.BookingPaymentScalarFieldEnum[]
+}
+
+/**
+ * Booking.sale_event
+ */
+export type Booking$sale_eventArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SaleEvent
+   */
+  select?: Prisma.SaleEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SaleEvent
+   */
+  omit?: Prisma.SaleEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SaleEventInclude<ExtArgs> | null
+  where?: Prisma.SaleEventWhereInput
 }
 
 /**

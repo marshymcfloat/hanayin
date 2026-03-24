@@ -51,6 +51,11 @@ export default async function SaleEventsPage({
               status: true,
             },
           },
+          _count: {
+            select: {
+              bookings: { where: { status: { not: "CANCELLED" } } },
+            },
+          },
         },
         orderBy: { created_at: "desc" },
       },

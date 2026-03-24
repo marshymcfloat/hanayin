@@ -325,7 +325,7 @@ export async function generateGrowthCampaignAction(
       businessSlug: business.slug,
       businessName: business.name,
       businessType: settings.business_type,
-      opportunityReason: opportunity.reason,
+      opportunityReason: offer.publicDescription,
       offer,
       toneProfile: settings.tone_profile,
       serviceNames: serviceCandidates.map((service) => service.name),
@@ -370,47 +370,56 @@ export async function generateGrowthCampaignAction(
         businessSlug: business.slug,
         businessName: business.name,
         title: offer.title,
-        saleDescription: opportunity.reason,
+        saleDescription: offer.publicDescription,
         captionText: primaryCaption?.text || offer.title,
-        discountType: "PERCENTAGE",
-        discountValue: offer.mechanics.discountPercent || 0,
+        discountType: offer.actionCategory === "DISCOUNT" ? "PERCENTAGE" : "PERCENTAGE",
+        discountValue: offer.actionCategory === "DISCOUNT" ? (offer.mechanics.discountPercent || 0) : 0,
         startDate: draftWindow.startDate,
         endDate: draftWindow.endDate,
         serviceNames,
         serviceCategories,
         packageNames,
+        actionCategory: offer.actionCategory,
       });
     } catch (error) {
       console.warn("Failed to auto-generate growth campaign social image:", error);
       mediaUrl = null;
     }
 
+    const isDiscountAction = offer.actionCategory === "DISCOUNT";
+
     const campaign = await prisma.$transaction(async (tx) => {
-      const saleEvent = await tx.saleEvent.create({
-        data: {
-          title: `${offer.title} (Draft Suggestion)`,
-          description: `${opportunity.reason}\nReview selected services/packages before publishing.`,
-          start_date: draftWindow.startDate,
-          end_date: draftWindow.endDate,
-          discount_type: "PERCENTAGE",
-          discount_value: offer.mechanics.discountPercent || 0,
-          business_id: business.id,
-          applicable_services: {
-            connect: serviceCandidates.map((service) => ({ id: service.id })),
+      let saleEventId: number | null = null;
+
+      if (isDiscountAction) {
+        const saleEvent = await tx.saleEvent.create({
+          data: {
+            title: offer.title,
+            description: offer.publicDescription,
+            start_date: draftWindow.startDate,
+            end_date: draftWindow.endDate,
+            discount_type: "PERCENTAGE",
+            discount_value: offer.mechanics.discountPercent || 0,
+            slot_limit: offer.mechanics.limitedSlots || null,
+            business_id: business.id,
+            applicable_services: {
+              connect: serviceCandidates.map((service) => ({ id: service.id })),
+            },
+            applicable_packages: {
+              connect: packageCandidates.map((pkg) => ({ id: pkg.id })),
+            },
           },
-          applicable_packages: {
-            connect: packageCandidates.map((pkg) => ({ id: pkg.id })),
-          },
-        },
-      });
+        });
+        saleEventId = saleEvent.id;
+      }
 
       const socialPost = await tx.socialPost.create({
         data: {
           business_id: business.id,
-          sale_event_id: saleEvent.id,
-          source: "SALE_EVENT",
+          sale_event_id: saleEventId,
+          source: isDiscountAction ? "SALE_EVENT" : "MANUAL",
           status: "DRAFT",
-          title: `${offer.title} Draft`,
+          title: offer.title,
           caption_draft: primaryCaption?.text || offer.title,
           caption_final: null,
           hashtags,
@@ -445,7 +454,7 @@ export async function generateGrowthCampaignAction(
             score: opportunity.total_score,
             confidence: opportunity.confidence_score,
           }),
-          sale_event_id: saleEvent.id,
+          sale_event_id: saleEventId,
           social_post_id: socialPost.id,
           created_by_user_id: auth.session.user.id,
           assets: {
@@ -489,7 +498,7 @@ export async function generateGrowthCampaignAction(
 
       return {
         createdCampaign,
-        saleEventId: saleEvent.id,
+        saleEventId,
         socialPostId: socialPost.id,
       };
     });

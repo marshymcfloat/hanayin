@@ -29,11 +29,15 @@ describe("promo-image prompt builder", () => {
       });
 
       expect(prompt).toContain("Create a high-quality and visually distinct social media promo visual");
+      expect(prompt).toContain("portrait and feed-ready (roughly 1024x1536 composition)");
+      expect(prompt).toContain("key subject and critical campaign text centered");
+      expect(prompt).toContain("If a person appears, prefer a modern Filipina look");
       expect(prompt).toContain(`Design profile: ${profile}.`);
       expect(prompt).toContain(BASE_PROMO_INPUT.businessName);
       expect(prompt).toContain(BASE_PROMO_INPUT.title);
       expect(prompt).toContain("15% OFF");
       expect(prompt).toContain("Hard constraints:");
+      expect(prompt).toContain("Do not generate business logos. Leave one clean top corner for manual logo overlay.");
       expect(prompt).toContain("No external logos, no watermarks, no trademarked brand marks.");
     },
   );

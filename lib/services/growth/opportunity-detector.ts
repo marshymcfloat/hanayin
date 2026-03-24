@@ -183,10 +183,10 @@ export function detectOpportunityCandidates(input: {
     candidates.push(
       buildCandidate({
         type: "PAYDAY_SPIKE",
-        reason: "Payday window is active (15/30 behavior), high intent promos can convert quickly.",
+        reason: "Payday window is active — customers have fresh budget. A timely reminder can drive bookings without discounts.",
         timeWindowStart: parseDateKeyToPHDate(dateKey, 10, 0),
         timeWindowEnd: parseDateKeyToPHDate(dateKey, 19, 0),
-        recommendedOfferTypes: ["PAYDAY_PROMO", "LIMITED_SLOTS"],
+        recommendedOfferTypes: ["SOCIAL_REMINDER"],
         urgency: 0.88,
         impact: 0.9,
         confidence: 0.78,
@@ -199,10 +199,10 @@ export function detectOpportunityCandidates(input: {
     candidates.push(
       buildCandidate({
         type: "WEEKEND_PREP",
-        reason: "Weekend prep demand window detected (Thu/Fri posting tends to pre-book weekend services).",
+        reason: "Weekend prep window detected — Thu/Fri posting tends to pre-book weekend services. A reminder can fill slots at full price.",
         timeWindowStart: parseDateKeyToPHDate(dateKey, 19, 0),
         timeWindowEnd: parseDateKeyToPHDate(dateKey, 23, 0),
-        recommendedOfferTypes: ["LIMITED_SLOTS", "BUNDLE"],
+        recommendedOfferTypes: ["SOCIAL_REMINDER", "CONTENT_POST"],
         urgency: 0.8,
         impact: 0.86,
         confidence: 0.72,
@@ -235,7 +235,10 @@ export function detectOpportunityCandidates(input: {
           reason: weatherReason,
           timeWindowStart: parseDateKeyToPHDate(dateKey, 10, 0),
           timeWindowEnd: parseDateKeyToPHDate(dateKey, 20, 0),
-          recommendedOfferTypes: ["FLASH_DEAL", "SEASONAL_PROMO", "BUNDLE"],
+          recommendedOfferTypes:
+            weather.condition === "STORM" || weather.condition === "RAINY"
+              ? ["FLASH_DEAL", "SOCIAL_REMINDER"]
+              : ["SOCIAL_REMINDER", "CONTENT_POST"],
           urgency: weather.condition === "STORM" ? 0.9 : 0.8,
           impact: weather.condition === "HOT" ? 0.78 : 0.82,
           confidence,
@@ -271,8 +274,8 @@ export function detectOpportunityCandidates(input: {
         timeWindowStart: parseDateKeyToPHDate(dateKey, 9, 0),
         timeWindowEnd: parseDateKeyToPHDate(dateKey, 20, 0),
         recommendedOfferTypes: isAcademic
-          ? ["STUDENT_PROMO", "SEASONAL_PROMO", "LIMITED_SLOTS"]
-          : ["SEASONAL_PROMO", "BUNDLE", "LIMITED_SLOTS"],
+          ? ["THEMED_PACKAGE", "CONTENT_POST"]
+          : ["THEMED_PACKAGE", "CONTENT_POST"],
         urgency: isLocal ? 0.82 : isAcademic ? 0.76 : 0.72,
         impact: isLocal ? 0.86 : isAcademic ? 0.82 : 0.78,
         confidence: isLocal ? 0.76 : isAcademic ? 0.74 : 0.69,
@@ -303,7 +306,7 @@ export function detectOpportunityCandidates(input: {
         reason: "Business anniversary window detected. Anniversary messaging can reactivate lapsed clients.",
         timeWindowStart: parseDateKeyToPHDate(dateKey, 11, 0),
         timeWindowEnd: parseDateKeyToPHDate(dateKey, 21, 0),
-        recommendedOfferTypes: ["SEASONAL_PROMO", "FLASH_DEAL"],
+        recommendedOfferTypes: ["LOYALTY_REWARD", "THEMED_PACKAGE"],
         urgency: 0.65,
         impact: 0.72,
         confidence: 0.65,
@@ -312,7 +315,13 @@ export function detectOpportunityCandidates(input: {
     );
   }
 
+  // Filter out opportunities whose window has already passed or is less than
+  // 30 minutes away from ending — no point suggesting something that can't be acted on.
+  const MIN_REMAINING_MS = 30 * 60 * 1000;
+  const cutoff = new Date(now.getTime() + MIN_REMAINING_MS);
+
   return candidates
+    .filter((c) => c.timeWindowEnd > cutoff)
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
 }

@@ -19,6 +19,7 @@ import {
   Crown,
   CreditCard,
   BarChart3,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -116,6 +117,15 @@ export function AppSidebarClient({
             title: "Social Posts",
             url: `/app/${slug}/social-posts`,
             icon: Megaphone,
+          },
+        ] satisfies NavItem[])
+      : []),
+    ...(entitlements.growth
+      ? ([
+          {
+            title: "Growth",
+            url: `/app/${slug}/growth`,
+            icon: TrendingUp,
           },
         ] satisfies NavItem[])
       : []),

@@ -5,20 +5,23 @@ import {
   isGeminiConfigured,
 } from "@/lib/services/social/gemini-client";
 
+export type ActionCategory = "DISCOUNT" | "SOCIAL_ONLY" | "AWARENESS";
+
 export type CaptionGenerationInput = {
   businessSlug: string;
   businessName: string;
   businessDescription?: string | null;
   saleTitle: string;
   saleDescription?: string | null;
-  discountType: DiscountType;
-  discountValue: number;
+  discountType?: DiscountType;
+  discountValue?: number;
   startDate: Date;
   endDate: Date;
   serviceNames?: string[];
   serviceCategories?: string[];
   packageNames?: string[];
   allowRewritePass?: boolean;
+  actionCategory?: ActionCategory;
 };
 
 export type CaptionGenerationOutput = {
@@ -97,11 +100,18 @@ type SeasonSignal = {
   seasonLine: string;
 };
 
-function formatDiscount(discountType: DiscountType, discountValue: number) {
+function formatDiscount(discountType?: DiscountType, discountValue?: number) {
+  if (!discountType || !discountValue || discountValue <= 0) {
+    return "No discount — full price";
+  }
   if (discountType === "PERCENTAGE") {
     return `${discountValue}% OFF`;
   }
   return `PHP ${discountValue.toFixed(0)} OFF`;
+}
+
+function isNonDiscountAction(input: CaptionGenerationInput): boolean {
+  return input.actionCategory === "SOCIAL_ONLY" || input.actionCategory === "AWARENESS";
 }
 
 function isSameCalendarDay(left: Date, right: Date) {
@@ -631,22 +641,36 @@ function buildRescueCaptionDraft(input: CaptionGenerationInput): CaptionGenerati
   const publicSaleDescription = sanitizeSaleDescriptionForPublic(input.saleDescription);
   const saleTitle = sanitizeSaleTitleForPublic(input.saleTitle);
 
-  const lines = [
-    pickRandom(RESCUE_HOOK_LINES),
-    `${input.businessName} has a feel-good promo for you this season.`,
-    `Sakto for ${season}, this ${saleTitle} offer is made for your glow-up goals.`,
-    `May ${formatDiscount(input.discountType, input.discountValue)} tayo for ${saleTitle}, so mas sulit ang self-care plan mo.`,
-    buildPromoTimingLine(input.startDate, input.endDate),
-    publicSaleDescription,
-    "If you've been putting off self-care dahil busy, this is a good time to finally book.",
-    "Choose any treatment that fits your self-care mood this week.",
-    items.length > 0 ? "Try these crowd favorites:" : "",
-    ...items.map((item) => `- ${item}`),
-    "Perfect for stress relief, confidence boost, and quality me-time.",
-    "Pwede solo self-care day, pwede rin with your bestie, partner, or family.",
-    "Slots are limited and preferred times fill up first, so reserve early para hindi ka maubusan.",
-    "Tap the booking link below and secure your preferred schedule in minutes.",
-  ].filter(Boolean);
+  const lines = isNonDiscountAction(input)
+    ? [
+        pickRandom(RESCUE_HOOK_LINES),
+        `${input.businessName} is here to make your ${season} extra special.`,
+        publicSaleDescription || `Treat yourself to quality self-care at ${input.businessName}.`,
+        "If you've been putting off self-care dahil busy, this is a good time to finally book.",
+        "Choose any treatment that fits your self-care mood this week.",
+        items.length > 0 ? "Here are some crowd favorites:" : "",
+        ...items.map((item) => `- ${item}`),
+        "Perfect for stress relief, confidence boost, and quality me-time.",
+        "Pwede solo self-care day, pwede rin with your bestie, partner, or family.",
+        "Preferred times fill up first, so reserve early para hindi ka maubusan.",
+        "Tap the booking link below and secure your preferred schedule in minutes.",
+      ].filter(Boolean)
+    : [
+        pickRandom(RESCUE_HOOK_LINES),
+        `${input.businessName} has a feel-good promo for you this season.`,
+        `Sakto for ${season}, this ${saleTitle} offer is made for your glow-up goals.`,
+        `May ${formatDiscount(input.discountType, input.discountValue)} tayo for ${saleTitle}, so mas sulit ang self-care plan mo.`,
+        buildPromoTimingLine(input.startDate, input.endDate),
+        publicSaleDescription,
+        "If you've been putting off self-care dahil busy, this is a good time to finally book.",
+        "Choose any treatment that fits your self-care mood this week.",
+        items.length > 0 ? "Try these crowd favorites:" : "",
+        ...items.map((item) => `- ${item}`),
+        "Perfect for stress relief, confidence boost, and quality me-time.",
+        "Pwede solo self-care day, pwede rin with your bestie, partner, or family.",
+        "Slots are limited and preferred times fill up first, so reserve early para hindi ka maubusan.",
+        "Tap the booking link below and secure your preferred schedule in minutes.",
+      ].filter(Boolean);
 
   return {
     caption: formatCaptionForSocialFeed(lines.join("\n")),
@@ -699,7 +723,9 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     `Business description: ${input.businessDescription?.trim() || "N/A"}`,
     `Sale title (primary context source): ${saleTitle}`,
     `Sale description: ${publicSaleDescription || "N/A"}`,
-    `Discount: ${formatDiscount(input.discountType, input.discountValue)}`,
+    ...(isNonDiscountAction(input)
+      ? [`Action type: ${input.actionCategory} (NOT a sale — do NOT mention discounts, promos, or price reductions)`]
+      : [`Discount: ${formatDiscount(input.discountType, input.discountValue)}`]),
     `Date window: ${dateWindow}`,
     `${season.seasonLine}`,
     `Creative variation seed: ${variation.variationSeed}`,
@@ -715,7 +741,9 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     "- First line must be a catchy hook question or statement.",
     "- Mention the season/occasion implied by the sale title in a natural way.",
     "- Use selected service categories to shape vocabulary, benefits, and hook angle.",
-    "- Include concrete benefits and a clear limited-time nudge.",
+    ...(isNonDiscountAction(input)
+      ? ["- Focus on lifestyle appeal, service quality, and booking convenience. Do NOT mention discounts, sales, percentages off, or price reductions."]
+      : ["- Include concrete benefits and a clear limited-time nudge."]),
     "- If services/packages are present, include 3-6 short bullet-style lines.",
     "- Add a warm invitation line (bestie/partner/family angle is okay when relevant).",
     "- Add a clear CTA to book through ServiceFlow.",

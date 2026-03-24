@@ -111,6 +111,7 @@ type SelectedService = {
   originalPrice?: number;
   discount?: number;
   discountReason?: string;
+  slotsRemaining?: number | null;
   packageId?: number;
   packageName?: string;
   category?: string | null;
@@ -268,6 +269,7 @@ export default function BookingForm({
               originalPrice: service.originalPrice || service.price,
               discount: discountInfo.discount,
               discountReason: discountInfo.reason,
+              slotsRemaining: discountInfo.slotsRemaining,
             };
           }
         }
@@ -839,6 +841,12 @@ export default function BookingForm({
         });
         toast.error(
           "That slot was just taken. We refreshed the latest available times.",
+        );
+        return;
+      }
+      if (code === "SALE_SLOT_LIMIT_REACHED") {
+        toast.error(
+          "This promo has reached its slot limit. The discount is no longer available.",
         );
         return;
       }

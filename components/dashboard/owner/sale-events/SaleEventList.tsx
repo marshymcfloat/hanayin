@@ -30,9 +30,11 @@ export interface SaleEvent {
   end_date: Date;
   discount_type: DiscountType;
   discount_value: number;
+  slot_limit: number | null;
   applicable_services: SaleEventRef[];
   applicable_packages: SaleEventRef[];
   social_posts?: { id: string; status: SocialPostStatus }[];
+  _count?: { bookings: number };
 }
 
 interface SaleEventListProps {
@@ -194,6 +196,11 @@ export function SaleEventList({
                       {event.applicable_services.length} Services,{" "}
                       {event.applicable_packages.length} Packages
                     </span>
+                    {event.slot_limit !== null && (
+                      <span className="text-xs font-medium text-amber-700">
+                        {event._count?.bookings ?? 0}/{event.slot_limit} slots claimed
+                      </span>
+                    )}
                     {socialSummary ? (
                       <span className="text-xs text-zinc-600">
                         Social status: {socialSummary}
@@ -313,7 +320,14 @@ export function SaleEventList({
                     </div>
                   </TableCell>
                   <TableCell className="py-4 font-medium text-zinc-600">
-                    {event.applicable_services.length + event.applicable_packages.length} Items
+                    <div className="flex flex-col">
+                      <span>{event.applicable_services.length + event.applicable_packages.length} Items</span>
+                      {event.slot_limit !== null && (
+                        <span className="text-xs font-medium text-amber-700">
+                          {event._count?.bookings ?? 0}/{event.slot_limit} slots
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="py-4 text-zinc-600">
                     <div className="flex flex-col text-xs">

@@ -64,6 +64,7 @@ export default async function SocialPostsPage({
     select: {
       id: true,
       name: true,
+      imageUrl: true,
       social_posts: {
         include: {
           sale_event: {
@@ -106,6 +107,7 @@ export default async function SocialPostsPage({
       <SocialPostsPageClient
         businessSlug={businessSlug}
         businessName={business.name}
+        businessImageUrl={business.imageUrl}
         initialPosts={business.social_posts}
         flowContext={flowContext}
       />

@@ -43,6 +43,7 @@ const schema = z.object({
   endDate: z.string(),
   discountType: z.enum([DiscountType.PERCENTAGE, DiscountType.FLAT]),
   discountValue: z.coerce.number<number>().min(0),
+  slotLimit: z.coerce.number().int().min(1).optional(),
   serviceIds: z.array(z.number()),
   packageIds: z.array(z.number()),
   createSocialDraft: z.boolean(),
@@ -106,7 +107,8 @@ export function CreateSaleEventDialog(props: Props) {
   );
 
   const form = useForm<Values>({
-    resolver: zodResolver(schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       title: "",
       description: "",
@@ -114,6 +116,7 @@ export function CreateSaleEventDialog(props: Props) {
       endDate: defaultEnd,
       discountType: "PERCENTAGE",
       discountValue: 10,
+      slotLimit: undefined,
       serviceIds: [],
       packageIds: [],
       createSocialDraft: false,
@@ -255,6 +258,7 @@ export function CreateSaleEventDialog(props: Props) {
         packageIds: data.packageIds,
         createSocialDraft: data.createSocialDraft,
         targetPlatforms: data.targetPlatforms,
+        slotLimit: typeof data.slotLimit === "number" ? data.slotLimit : null,
         socialCaptionOverride: data.socialCaptionOverride,
         socialMediaUrl: uploadedUrl,
         socialImageProfile: data.socialImageProfile,
@@ -329,6 +333,18 @@ export function CreateSaleEventDialog(props: Props) {
               <Label>Discount Value</Label>
               <Input type="number" step="0.01" {...form.register("discountValue")} />
             </div>
+          </div>
+          <div className="grid gap-2">
+            <Label>Slot Limit (optional)</Label>
+            <Input
+              type="number"
+              min={1}
+              placeholder="Leave empty for unlimited"
+              {...form.register("slotLimit")}
+            />
+            <p className="text-xs text-zinc-500">
+              Maximum number of clients who can avail this sale. Leave empty for no limit.
+            </p>
           </div>
 
           <div className="grid gap-2">

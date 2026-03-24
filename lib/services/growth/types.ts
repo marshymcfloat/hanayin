@@ -15,7 +15,28 @@ export type OfferTypeLiteral =
   | "LIMITED_SLOTS"
   | "STUDENT_PROMO"
   | "PAYDAY_PROMO"
-  | "SEASONAL_PROMO";
+  | "SEASONAL_PROMO"
+  | "THEMED_PACKAGE"
+  | "SOCIAL_REMINDER"
+  | "CONTENT_POST"
+  | "LOYALTY_REWARD";
+
+export type ActionCategory = "DISCOUNT" | "SOCIAL_ONLY" | "AWARENESS";
+
+const DISCOUNT_OFFER_TYPES: OfferTypeLiteral[] = [
+  "FLASH_DEAL", "BUNDLE", "LIMITED_SLOTS",
+  "STUDENT_PROMO", "PAYDAY_PROMO", "SEASONAL_PROMO",
+];
+
+export function getActionCategory(offerType: OfferTypeLiteral): ActionCategory {
+  if (DISCOUNT_OFFER_TYPES.includes(offerType)) return "DISCOUNT";
+  if (offerType === "THEMED_PACKAGE" || offerType === "LOYALTY_REWARD") return "SOCIAL_ONLY";
+  return "AWARENESS";
+}
+
+export function isDiscountOffer(offerType: OfferTypeLiteral): boolean {
+  return getActionCategory(offerType) === "DISCOUNT";
+}
 
 export type CaptionStyle =
   | "INFORMATIVE"
@@ -88,12 +109,18 @@ export interface OpportunityCandidate {
 
 export interface GeneratedOffer {
   title: string;
+  publicDescription: string;
   offerType: OfferTypeLiteral;
+  actionCategory: ActionCategory;
   mechanics: {
     discountPercent?: number;
     bundleServiceIds?: number[];
     freebies?: string[];
     limitedSlots?: number;
+    themeTitle?: string;
+    messagingAngle?: string;
+    contentTopic?: string;
+    rewardDescription?: string;
   };
   timeWindowStart: Date;
   timeWindowEnd: Date;
@@ -142,6 +169,6 @@ export interface GeneratedCampaignView {
   captions: CaptionVariant[];
   imagePrompts: ImagePromptVariant[];
   schedule: PostingScheduleSuggestion[];
-  saleEventId: number;
+  saleEventId: number | null;
   socialPostId: string;
 }

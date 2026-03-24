@@ -55,6 +55,7 @@ describe("detectOpportunityCandidates", () => {
 
   it("promotes local seasonal signals into HOLIDAY_SEASONAL candidate", () => {
     const context = buildBaseContext();
+    context.dailyCapacity[0].date = "2026-03-10";
     context.seasonalitySignals = [
       "LOCAL_EVENT:City Foundation Day:2026-03-15",
     ];
@@ -73,8 +74,9 @@ describe("detectOpportunityCandidates", () => {
     expect(seasonalCandidate?.metadata?.seasonalSignalType).toBe("LOCAL_EVENT");
   });
 
-  it("uses student-friendly offer mix for academic season signals", () => {
+  it("uses themed package for academic season signals (non-discount)", () => {
     const context = buildBaseContext();
+    context.dailyCapacity[0].date = "2026-03-10";
     context.seasonalitySignals = [
       "ACADEMIC:Graduation Season:2026-03-20",
     ];
@@ -89,7 +91,7 @@ describe("detectOpportunityCandidates", () => {
       (entry) => entry.type === "HOLIDAY_SEASONAL",
     );
     expect(seasonalCandidate).toBeDefined();
-    expect(seasonalCandidate?.recommendedOfferTypes).toContain("STUDENT_PROMO");
+    expect(seasonalCandidate?.recommendedOfferTypes).toContain("THEMED_PACKAGE");
     expect(seasonalCandidate?.metadata?.seasonalSignalType).toBe("ACADEMIC");
   });
 });

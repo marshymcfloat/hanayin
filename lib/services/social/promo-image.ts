@@ -28,6 +28,7 @@ type PromoImageInput = {
   serviceCategories?: string[];
   packageNames?: string[];
   imageProfile?: SocialImageProfile;
+  actionCategory?: string;
 };
 
 function escapeXml(value: string) {
@@ -150,10 +151,10 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
       "lifestyle portrait after treatment with confident smile",
     ],
     compositions: [
-      "hero subject on left, promo copy block on right",
-      "centered portrait with floating promo badges",
-      "diagonal depth composition with foreground detail",
-      "split layout: service action + headline panel",
+      "portrait-first composition with centered subject and balanced top/bottom breathing room",
+      "centered portrait with readable text lockup inside safe margins",
+      "diagonal depth composition while keeping key subject in center frame",
+      "single hero composition with clean negative space in one top corner for manual logo",
     ],
     typography: [
       "clean sans serif, medium-bold headline, minimal secondary text",
@@ -186,10 +187,10 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
       "self-care still life with flowers and towels",
     ],
     compositions: [
-      "large whitespace margins with centered hero image",
-      "rounded image frames with layered promo text blocks",
-      "asymmetric editorial grid with clean modules",
-      "soft circular masks and refined card overlays",
+      "large whitespace margins with centered hero image in portrait framing",
+      "clean editorial portrait layout with centered headline lockup",
+      "asymmetric editorial modules while preserving centered focal content",
+      "refined portrait system with one quiet top-corner logo-safe zone",
     ],
     typography: [
       "elegant serif headline with modern sans body",
@@ -222,10 +223,10 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
       "dynamic before-relaxation style storytelling frame",
     ],
     compositions: [
-      "modular card layout with strong headline panel",
-      "layered geometric blocks and badge stickers",
-      "grid of 3-5 visual tiles with one dominant hero tile",
-      "high-contrast split blocks with directional shapes",
+      "portrait modular layout with centered headline and dominant hero tile",
+      "layered geometric blocks that frame a centered subject",
+      "grid with one dominant center tile and calmer edge details",
+      "high-contrast portrait card with text and focal image aligned to center axis",
     ],
     typography: [
       "bold sans headline with compact promo labels",
@@ -258,10 +259,10 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
       "cinematic salon scene with confident subject",
     ],
     compositions: [
-      "dominant hero visual with strong text band",
-      "minimal black-white layout with one accent badge",
+      "dominant centered hero visual with strong text band",
+      "minimal black-white portrait layout with centered hierarchy",
       "centered dramatic portrait with bold headline lockup",
-      "left-heavy image mass and right-side promo details",
+      "moody framing that keeps face and key text centered and legible",
     ],
     typography: [
       "bold condensed sans uppercase headline",
@@ -342,7 +343,10 @@ export function buildSocialImagePrompt(input: PromoImageInput) {
 
   return [
     "Create a high-quality and visually distinct social media promo visual for a beauty/wellness business.",
-    "The output must be landscape and feed-ready (roughly 1200x630 composition) for Facebook and Instagram.",
+    "The output must be portrait and feed-ready (roughly 1024x1536 composition) for Facebook and Instagram.",
+    "Keep the key subject and critical campaign text centered with safe margins to avoid awkward cropping.",
+    "Do not let important text or the hero subject drift off-center or near cut-off edges.",
+    "If a person appears, prefer a modern Filipina look with authentic Filipino features and contemporary styling.",
     "Primary campaign context source is the SALE TITLE. Use title theme first, then caption details.",
     "Do not produce a generic template look. Make this composition feel unique and campaign-specific.",
     `Design profile: ${imageProfile}.`,
@@ -359,7 +363,7 @@ export function buildSocialImagePrompt(input: PromoImageInput) {
     `Caption supporting line: ${supportingCaptionLine}`,
     `Caption keywords to echo in visual mood: ${captionKeywords}`,
     "Use polished visuals, coherent typography, and readable hierarchy.",
-    "Keep text concise. Avoid gibberish words, random logos, and fake brands.",
+    "Keep text concise and centered. Avoid gibberish words, random logos, and fake brands.",
     "Include these key text elements in the design:",
     `- ${input.businessName}`,
     `- ${formatDiscount(input.discountType, input.discountValue)}`,
@@ -371,6 +375,7 @@ export function buildSocialImagePrompt(input: PromoImageInput) {
     categoryLine,
     packageLine,
     "Hard constraints:",
+    "- Do not generate business logos. Leave one clean top corner for manual logo overlay.",
     "- No external logos, no watermarks, no trademarked brand marks.",
     "- No repeated text blocks, no spelling errors, no malformed letters.",
     "- Maintain premium beauty/wellness mood aligned to the chosen profile.",

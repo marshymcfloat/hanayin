@@ -181,6 +181,7 @@ export const SaleEventScalarFieldEnum = {
   end_date: 'end_date',
   discount_type: 'discount_type',
   discount_value: 'discount_value',
+  slot_limit: 'slot_limit',
   business_id: 'business_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -614,6 +615,7 @@ export const BookingScalarFieldEnum = {
   capacity_override_applied: 'capacity_override_applied',
   capacity_override_reason: 'capacity_override_reason',
   capacity_override_note: 'capacity_override_note',
+  sale_event_id: 'sale_event_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

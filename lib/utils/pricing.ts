@@ -4,6 +4,8 @@ export type SaleEventForPricing = {
   title: string;
   discount_type: "PERCENTAGE" | "FLAT";
   discount_value: number;
+  slot_limit?: number | null;
+  slots_remaining?: number | null;
   applicable_services: SaleEventRef[];
   applicable_packages: SaleEventRef[];
 };
@@ -18,6 +20,10 @@ export const getApplicableDiscount = (
 
   const applicableEvent = saleEvents
     .filter((event) => {
+      // Skip sold-out events
+      if (event.slots_remaining !== undefined && event.slots_remaining !== null && event.slots_remaining <= 0) {
+        return false;
+      }
       if (packageId) {
         return event.applicable_packages.some((p) => p.id === packageId);
       }
@@ -50,6 +56,7 @@ export const getApplicableDiscount = (
         finalPrice: price - discountAmount,
         discount: discountAmount,
         reason: applicableEvent.title,
+        slotsRemaining: applicableEvent.slots_remaining ?? null,
       };
     }
   }

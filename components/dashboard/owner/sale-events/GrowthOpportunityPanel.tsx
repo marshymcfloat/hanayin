@@ -62,7 +62,7 @@ export function GrowthOpportunityPanel(props: {
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
   const [selectedPackageIds, setSelectedPackageIds] = useState<number[]>([]);
   const [generatedDraft, setGeneratedDraft] = useState<{
-    saleEventId: number;
+    saleEventId: number | null;
     socialPostId: string;
   } | null>(null);
 
@@ -242,7 +242,7 @@ export function GrowthOpportunityPanel(props: {
         step: 3,
         source: "sale-events",
         opportunityId: props.flowContext?.opportunityId || opportunity?.id,
-        saleEventId: generatedDraft.saleEventId,
+        saleEventId: generatedDraft.saleEventId ?? undefined,
         socialPostId: generatedDraft.socialPostId,
       })}`
     : null;

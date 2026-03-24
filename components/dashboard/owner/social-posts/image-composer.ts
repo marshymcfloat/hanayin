@@ -8,6 +8,15 @@ import {
 export const SOCIAL_IMAGE_WIDTH = 1024;
 export const SOCIAL_IMAGE_HEIGHT = 1536;
 export const OVERLAY_SNAP_GRID = 32;
+export const SOCIAL_IMAGE_LOGO_SIZE_MIN = 8;
+export const SOCIAL_IMAGE_LOGO_SIZE_MAX = 28;
+export const SOCIAL_IMAGE_LOGO_SIZE_DEFAULT = 14;
+
+export type SocialImageLogoOverlay = {
+  xPercent?: number;
+  yPercent?: number;
+  sizePercent?: number;
+};
 
 type TextContext = {
   measureText: (text: string) => { width: number };
@@ -18,14 +27,19 @@ export type WrappedTextResult = {
   truncated: boolean;
 };
 
-export async function loadImage(url: string) {
+export async function loadImage(url: string, errorMessage?: string) {
   const image = new Image();
   image.crossOrigin = "anonymous";
   image.decoding = "async";
   const loaded = new Promise<HTMLImageElement>((resolve, reject) => {
     image.onload = () => resolve(image);
     image.onerror = () =>
-      reject(new Error("Unable to load background image. This can happen due to CORS restrictions."));
+      reject(
+        new Error(
+          errorMessage ||
+            "Unable to load background image. This can happen due to CORS restrictions.",
+        ),
+      );
   });
   image.src = url;
   return loaded;
@@ -130,6 +144,11 @@ function drawBackgroundCover(
   }
 
   context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+}
+
+function clampRange(value: number, min: number, max: number, fallback: number) {
+  if (!Number.isFinite(value)) return fallback;
+  return Math.min(max, Math.max(min, value));
 }
 
 type OverlayCardLayout = {
@@ -256,16 +275,18 @@ function drawOverlayCard(context: CanvasRenderingContext2D, overlay: SocialImage
   context.lineTo(textX + s(140), cursorY - s(16));
   context.stroke();
 
-  context.fillStyle = textPrimary;
-  context.font = isPromo
-    ? `700 ${s(102)}px "Cormorant Garamond", Georgia, serif`
-    : isClean
-      ? `700 ${s(84)}px "Cormorant Garamond", Georgia, serif`
-      : `700 ${s(92)}px "Cormorant Garamond", Georgia, serif`;
-  const discountLines = wrapText(context, overlay.discountLine, maxTextWidth, 1).lines;
-  for (const line of discountLines) {
-    context.fillText(line, textX, cursorY + s(48));
-    cursorY += s(102);
+  if (overlay.discountLine.trim()) {
+    context.fillStyle = textPrimary;
+    context.font = isPromo
+      ? `700 ${s(102)}px "Cormorant Garamond", Georgia, serif`
+      : isClean
+        ? `700 ${s(84)}px "Cormorant Garamond", Georgia, serif`
+        : `700 ${s(92)}px "Cormorant Garamond", Georgia, serif`;
+    const discountLines = wrapText(context, overlay.discountLine, maxTextWidth, 1).lines;
+    for (const line of discountLines) {
+      context.fillText(line, textX, cursorY + s(48));
+      cursorY += s(102);
+    }
   }
 
   context.fillStyle = textPrimary;
@@ -325,11 +346,86 @@ function drawOverlayCard(context: CanvasRenderingContext2D, overlay: SocialImage
   context.fillText(ctaText, ctaX + s(34), ctaTop + ctaHeight / 2 + 1);
 }
 
+function drawLogoOverlay(
+  context: CanvasRenderingContext2D,
+  logoImage: HTMLImageElement,
+  overlay?: SocialImageLogoOverlay | null,
+) {
+  const sizePercent = clampRange(
+    overlay?.sizePercent ?? SOCIAL_IMAGE_LOGO_SIZE_DEFAULT,
+    SOCIAL_IMAGE_LOGO_SIZE_MIN,
+    SOCIAL_IMAGE_LOGO_SIZE_MAX,
+    SOCIAL_IMAGE_LOGO_SIZE_DEFAULT,
+  );
+  const xPercent = clampRange(overlay?.xPercent ?? 4, 0, 100, 4);
+  const yPercent = clampRange(overlay?.yPercent ?? 4, 0, 100, 4);
+
+  const boxSize = Math.round((SOCIAL_IMAGE_WIDTH * sizePercent) / 100);
+  const minX = 24;
+  const minY = 24;
+  const maxX = Math.max(minX, SOCIAL_IMAGE_WIDTH - boxSize - 24);
+  const maxY = Math.max(minY, SOCIAL_IMAGE_HEIGHT - boxSize - 24);
+  const boxX = Math.round(minX + ((maxX - minX) * xPercent) / 100);
+  const boxY = Math.round(minY + ((maxY - minY) * yPercent) / 100);
+  const boxRadius = Math.max(16, Math.round(boxSize * 0.24));
+  const innerInset = Math.max(8, Math.round(boxSize * 0.15));
+  const logoWidth = Math.max(1, boxSize - innerInset * 2);
+  const logoHeight = Math.max(1, boxSize - innerInset * 2);
+
+  context.save();
+  context.shadowColor = "rgba(14, 20, 26, 0.22)";
+  context.shadowBlur = Math.max(8, Math.round(boxSize * 0.18));
+  context.shadowOffsetY = Math.max(3, Math.round(boxSize * 0.06));
+  context.fillStyle = "rgba(255, 255, 255, 0.94)";
+  drawRoundedRect(context, boxX, boxY, boxSize, boxSize, boxRadius);
+  context.fill();
+  context.restore();
+
+  context.strokeStyle = "rgba(32, 44, 56, 0.14)";
+  context.lineWidth = Math.max(1, Math.round(boxSize * 0.02));
+  drawRoundedRect(context, boxX, boxY, boxSize, boxSize, boxRadius);
+  context.stroke();
+
+  const sourceWidth = logoImage.naturalWidth || logoImage.width || 1;
+  const sourceHeight = logoImage.naturalHeight || logoImage.height || 1;
+  const sourceRatio = sourceWidth / sourceHeight;
+  const targetRatio = logoWidth / logoHeight;
+  let drawWidth = logoWidth;
+  let drawHeight = logoHeight;
+  let drawX = boxX + innerInset;
+  let drawY = boxY + innerInset;
+
+  if (sourceRatio > targetRatio) {
+    drawWidth = logoHeight * sourceRatio;
+    drawX = boxX + innerInset - (drawWidth - logoWidth) / 2;
+  } else {
+    drawHeight = logoWidth / sourceRatio;
+    drawY = boxY + innerInset - (drawHeight - logoHeight) / 2;
+  }
+
+  context.save();
+  drawRoundedRect(
+    context,
+    boxX + innerInset,
+    boxY + innerInset,
+    logoWidth,
+    logoHeight,
+    Math.max(8, Math.round(logoWidth * 0.2)),
+  );
+  context.clip();
+  context.drawImage(logoImage, drawX, drawY, drawWidth, drawHeight);
+  context.restore();
+}
+
 export function renderComposedCanvas(
   background: CanvasImageSource,
   sourceWidth: number,
   sourceHeight: number,
-  overlay: SocialImageOverlayDraft,
+  overlay?: SocialImageOverlayDraft | null,
+  options?: {
+    logoImage?: HTMLImageElement | null;
+    logoOverlay?: SocialImageLogoOverlay | null;
+  },
 ) {
   const canvas = document.createElement("canvas");
   canvas.width = SOCIAL_IMAGE_WIDTH;
@@ -341,7 +437,12 @@ export function renderComposedCanvas(
   }
 
   drawBackgroundCover(context, background, sourceWidth, sourceHeight);
-  drawOverlayCard(context, overlay);
+  if (overlay) {
+    drawOverlayCard(context, overlay);
+  }
+  if (options?.logoImage) {
+    drawLogoOverlay(context, options.logoImage, options.logoOverlay);
+  }
   return canvas;
 }
 

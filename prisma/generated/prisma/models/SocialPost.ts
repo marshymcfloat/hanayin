@@ -726,14 +726,6 @@ export type SocialPostUpdatehashtagsInput = {
   push?: string | string[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type SocialPostCreateNestedOneWithoutTargetsInput = {
   create?: Prisma.XOR<Prisma.SocialPostCreateWithoutTargetsInput, Prisma.SocialPostUncheckedCreateWithoutTargetsInput>
   connectOrCreate?: Prisma.SocialPostCreateOrConnectWithoutTargetsInput

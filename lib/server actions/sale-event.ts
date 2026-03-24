@@ -29,6 +29,7 @@ export type CreateSaleEventParams = {
   socialCaptionOverride?: string;
   socialMediaUrl?: string;
   socialImageProfile?: SocialImageProfile;
+  slotLimit?: number | null;
 };
 
 export type UpdateSaleEventParams = {
@@ -229,6 +230,7 @@ export async function createSaleEvent(params: CreateSaleEventParams) {
           end_date: params.endDate,
           discount_type: params.discountType,
           discount_value: params.discountValue,
+          slot_limit: params.slotLimit ?? null,
           business_id: business.id,
           applicable_services: {
             connect: serviceIds.map((id) => ({ id })),
@@ -395,9 +397,26 @@ export async function getActiveSaleEvents(businessSlug: string) {
       include: {
         applicable_services: { select: { id: true } },
         applicable_packages: { select: { id: true } },
+        _count: {
+          select: {
+            bookings: { where: { status: { not: "CANCELLED" } } },
+          },
+        },
       },
     });
-    return { success: true, data: saleEvents };
+
+    const data = saleEvents.map((event) => {
+      const { _count, ...rest } = event;
+      return {
+        ...rest,
+        slots_remaining:
+          rest.slot_limit !== null
+            ? Math.max(0, rest.slot_limit - _count.bookings)
+            : null,
+      };
+    });
+
+    return { success: true, data };
   } catch (error) {
     console.error("Error fetching active sale events:", error);
     return { success: false, error: "Failed to fetch active sale events" };

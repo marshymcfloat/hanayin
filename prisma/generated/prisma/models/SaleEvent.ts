@@ -29,11 +29,13 @@ export type AggregateSaleEvent = {
 export type SaleEventAvgAggregateOutputType = {
   id: number | null
   discount_value: number | null
+  slot_limit: number | null
 }
 
 export type SaleEventSumAggregateOutputType = {
   id: number | null
   discount_value: number | null
+  slot_limit: number | null
 }
 
 export type SaleEventMinAggregateOutputType = {
@@ -44,6 +46,7 @@ export type SaleEventMinAggregateOutputType = {
   end_date: Date | null
   discount_type: $Enums.DiscountType | null
   discount_value: number | null
+  slot_limit: number | null
   business_id: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -57,6 +60,7 @@ export type SaleEventMaxAggregateOutputType = {
   end_date: Date | null
   discount_type: $Enums.DiscountType | null
   discount_value: number | null
+  slot_limit: number | null
   business_id: string | null
   created_at: Date | null
   updated_at: Date | null
@@ -70,6 +74,7 @@ export type SaleEventCountAggregateOutputType = {
   end_date: number
   discount_type: number
   discount_value: number
+  slot_limit: number
   business_id: number
   created_at: number
   updated_at: number
@@ -80,11 +85,13 @@ export type SaleEventCountAggregateOutputType = {
 export type SaleEventAvgAggregateInputType = {
   id?: true
   discount_value?: true
+  slot_limit?: true
 }
 
 export type SaleEventSumAggregateInputType = {
   id?: true
   discount_value?: true
+  slot_limit?: true
 }
 
 export type SaleEventMinAggregateInputType = {
@@ -95,6 +102,7 @@ export type SaleEventMinAggregateInputType = {
   end_date?: true
   discount_type?: true
   discount_value?: true
+  slot_limit?: true
   business_id?: true
   created_at?: true
   updated_at?: true
@@ -108,6 +116,7 @@ export type SaleEventMaxAggregateInputType = {
   end_date?: true
   discount_type?: true
   discount_value?: true
+  slot_limit?: true
   business_id?: true
   created_at?: true
   updated_at?: true
@@ -121,6 +130,7 @@ export type SaleEventCountAggregateInputType = {
   end_date?: true
   discount_type?: true
   discount_value?: true
+  slot_limit?: true
   business_id?: true
   created_at?: true
   updated_at?: true
@@ -221,6 +231,7 @@ export type SaleEventGroupByOutputType = {
   end_date: Date
   discount_type: $Enums.DiscountType
   discount_value: number
+  slot_limit: number | null
   business_id: string
   created_at: Date
   updated_at: Date
@@ -257,12 +268,14 @@ export type SaleEventWhereInput = {
   end_date?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   discount_type?: Prisma.EnumDiscountTypeFilter<"SaleEvent"> | $Enums.DiscountType
   discount_value?: Prisma.FloatFilter<"SaleEvent"> | number
+  slot_limit?: Prisma.IntNullableFilter<"SaleEvent"> | number | null
   business_id?: Prisma.StringFilter<"SaleEvent"> | string
   created_at?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   applicable_services?: Prisma.ServiceListRelationFilter
   applicable_packages?: Prisma.ServicePackageListRelationFilter
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  bookings?: Prisma.BookingListRelationFilter
   social_posts?: Prisma.SocialPostListRelationFilter
   growth_campaigns?: Prisma.CampaignListRelationFilter
 }
@@ -275,12 +288,14 @@ export type SaleEventOrderByWithRelationInput = {
   end_date?: Prisma.SortOrder
   discount_type?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
+  slot_limit?: Prisma.SortOrderInput | Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   applicable_services?: Prisma.ServiceOrderByRelationAggregateInput
   applicable_packages?: Prisma.ServicePackageOrderByRelationAggregateInput
   business?: Prisma.BusinessOrderByWithRelationInput
+  bookings?: Prisma.BookingOrderByRelationAggregateInput
   social_posts?: Prisma.SocialPostOrderByRelationAggregateInput
   growth_campaigns?: Prisma.CampaignOrderByRelationAggregateInput
 }
@@ -296,12 +311,14 @@ export type SaleEventWhereUniqueInput = Prisma.AtLeast<{
   end_date?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   discount_type?: Prisma.EnumDiscountTypeFilter<"SaleEvent"> | $Enums.DiscountType
   discount_value?: Prisma.FloatFilter<"SaleEvent"> | number
+  slot_limit?: Prisma.IntNullableFilter<"SaleEvent"> | number | null
   business_id?: Prisma.StringFilter<"SaleEvent"> | string
   created_at?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   applicable_services?: Prisma.ServiceListRelationFilter
   applicable_packages?: Prisma.ServicePackageListRelationFilter
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  bookings?: Prisma.BookingListRelationFilter
   social_posts?: Prisma.SocialPostListRelationFilter
   growth_campaigns?: Prisma.CampaignListRelationFilter
 }, "id">
@@ -314,6 +331,7 @@ export type SaleEventOrderByWithAggregationInput = {
   end_date?: Prisma.SortOrder
   discount_type?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
+  slot_limit?: Prisma.SortOrderInput | Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -335,6 +353,7 @@ export type SaleEventScalarWhereWithAggregatesInput = {
   end_date?: Prisma.DateTimeWithAggregatesFilter<"SaleEvent"> | Date | string
   discount_type?: Prisma.EnumDiscountTypeWithAggregatesFilter<"SaleEvent"> | $Enums.DiscountType
   discount_value?: Prisma.FloatWithAggregatesFilter<"SaleEvent"> | number
+  slot_limit?: Prisma.IntNullableWithAggregatesFilter<"SaleEvent"> | number | null
   business_id?: Prisma.StringWithAggregatesFilter<"SaleEvent"> | string
   created_at?: Prisma.DateTimeWithAggregatesFilter<"SaleEvent"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"SaleEvent"> | Date | string
@@ -347,11 +366,13 @@ export type SaleEventCreateInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSale_eventInput
 }
@@ -364,11 +385,13 @@ export type SaleEventUncheckedCreateInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSale_eventInput
 }
@@ -380,11 +403,13 @@ export type SaleEventUpdateInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUpdateManyWithoutSale_eventNestedInput
 }
@@ -397,11 +422,13 @@ export type SaleEventUncheckedUpdateInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSale_eventNestedInput
 }
@@ -414,6 +441,7 @@ export type SaleEventCreateManyInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -426,6 +454,7 @@ export type SaleEventUpdateManyMutationInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -438,6 +467,7 @@ export type SaleEventUncheckedUpdateManyInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -461,6 +491,7 @@ export type SaleEventCountOrderByAggregateInput = {
   end_date?: Prisma.SortOrder
   discount_type?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
+  slot_limit?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -469,6 +500,7 @@ export type SaleEventCountOrderByAggregateInput = {
 export type SaleEventAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
+  slot_limit?: Prisma.SortOrder
 }
 
 export type SaleEventMaxOrderByAggregateInput = {
@@ -479,6 +511,7 @@ export type SaleEventMaxOrderByAggregateInput = {
   end_date?: Prisma.SortOrder
   discount_type?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
+  slot_limit?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -492,6 +525,7 @@ export type SaleEventMinOrderByAggregateInput = {
   end_date?: Prisma.SortOrder
   discount_type?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
+  slot_limit?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -500,6 +534,7 @@ export type SaleEventMinOrderByAggregateInput = {
 export type SaleEventSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
+  slot_limit?: Prisma.SortOrder
 }
 
 export type SaleEventNullableScalarRelationFilter = {
@@ -555,6 +590,14 @@ export type EnumDiscountTypeFieldUpdateOperationsInput = {
 
 export type FloatFieldUpdateOperationsInput = {
   set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
@@ -653,6 +696,22 @@ export type SaleEventUncheckedUpdateManyWithoutApplicable_packagesNestedInput = 
   deleteMany?: Prisma.SaleEventScalarWhereInput | Prisma.SaleEventScalarWhereInput[]
 }
 
+export type SaleEventCreateNestedOneWithoutBookingsInput = {
+  create?: Prisma.XOR<Prisma.SaleEventCreateWithoutBookingsInput, Prisma.SaleEventUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.SaleEventCreateOrConnectWithoutBookingsInput
+  connect?: Prisma.SaleEventWhereUniqueInput
+}
+
+export type SaleEventUpdateOneWithoutBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.SaleEventCreateWithoutBookingsInput, Prisma.SaleEventUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.SaleEventCreateOrConnectWithoutBookingsInput
+  upsert?: Prisma.SaleEventUpsertWithoutBookingsInput
+  disconnect?: Prisma.SaleEventWhereInput | boolean
+  delete?: Prisma.SaleEventWhereInput | boolean
+  connect?: Prisma.SaleEventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SaleEventUpdateToOneWithWhereWithoutBookingsInput, Prisma.SaleEventUpdateWithoutBookingsInput>, Prisma.SaleEventUncheckedUpdateWithoutBookingsInput>
+}
+
 export type SaleEventCreateNestedOneWithoutGrowth_campaignsInput = {
   create?: Prisma.XOR<Prisma.SaleEventCreateWithoutGrowth_campaignsInput, Prisma.SaleEventUncheckedCreateWithoutGrowth_campaignsInput>
   connectOrCreate?: Prisma.SaleEventCreateOrConnectWithoutGrowth_campaignsInput
@@ -676,10 +735,12 @@ export type SaleEventCreateWithoutBusinessInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSale_eventInput
 }
@@ -692,10 +753,12 @@ export type SaleEventUncheckedCreateWithoutBusinessInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSale_eventInput
 }
@@ -737,6 +800,7 @@ export type SaleEventScalarWhereInput = {
   end_date?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   discount_type?: Prisma.EnumDiscountTypeFilter<"SaleEvent"> | $Enums.DiscountType
   discount_value?: Prisma.FloatFilter<"SaleEvent"> | number
+  slot_limit?: Prisma.IntNullableFilter<"SaleEvent"> | number | null
   business_id?: Prisma.StringFilter<"SaleEvent"> | string
   created_at?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
@@ -749,11 +813,13 @@ export type SaleEventCreateWithoutSocial_postsInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSale_eventInput
 }
 
@@ -765,11 +831,13 @@ export type SaleEventUncheckedCreateWithoutSocial_postsInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSale_eventInput
 }
 
@@ -796,11 +864,13 @@ export type SaleEventUpdateWithoutSocial_postsInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUpdateManyWithoutSale_eventNestedInput
 }
 
@@ -812,11 +882,13 @@ export type SaleEventUncheckedUpdateWithoutSocial_postsInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSale_eventNestedInput
 }
 
@@ -827,10 +899,12 @@ export type SaleEventCreateWithoutApplicable_servicesInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSale_eventInput
 }
@@ -843,10 +917,12 @@ export type SaleEventUncheckedCreateWithoutApplicable_servicesInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSale_eventInput
 }
@@ -879,10 +955,12 @@ export type SaleEventCreateWithoutApplicable_packagesInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSale_eventInput
 }
@@ -895,10 +973,12 @@ export type SaleEventUncheckedCreateWithoutApplicable_packagesInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
   growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSale_eventInput
 }
@@ -924,6 +1004,92 @@ export type SaleEventUpdateManyWithWhereWithoutApplicable_packagesInput = {
   data: Prisma.XOR<Prisma.SaleEventUpdateManyMutationInput, Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_packagesInput>
 }
 
+export type SaleEventCreateWithoutBookingsInput = {
+  title: string
+  description?: string | null
+  start_date: Date | string
+  end_date: Date | string
+  discount_type?: $Enums.DiscountType
+  discount_value?: number
+  slot_limit?: number | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
+  applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
+  business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
+  growth_campaigns?: Prisma.CampaignCreateNestedManyWithoutSale_eventInput
+}
+
+export type SaleEventUncheckedCreateWithoutBookingsInput = {
+  id?: number
+  title: string
+  description?: string | null
+  start_date: Date | string
+  end_date: Date | string
+  discount_type?: $Enums.DiscountType
+  discount_value?: number
+  slot_limit?: number | null
+  business_id: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
+  applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
+  growth_campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutSale_eventInput
+}
+
+export type SaleEventCreateOrConnectWithoutBookingsInput = {
+  where: Prisma.SaleEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.SaleEventCreateWithoutBookingsInput, Prisma.SaleEventUncheckedCreateWithoutBookingsInput>
+}
+
+export type SaleEventUpsertWithoutBookingsInput = {
+  update: Prisma.XOR<Prisma.SaleEventUpdateWithoutBookingsInput, Prisma.SaleEventUncheckedUpdateWithoutBookingsInput>
+  create: Prisma.XOR<Prisma.SaleEventCreateWithoutBookingsInput, Prisma.SaleEventUncheckedCreateWithoutBookingsInput>
+  where?: Prisma.SaleEventWhereInput
+}
+
+export type SaleEventUpdateToOneWithWhereWithoutBookingsInput = {
+  where?: Prisma.SaleEventWhereInput
+  data: Prisma.XOR<Prisma.SaleEventUpdateWithoutBookingsInput, Prisma.SaleEventUncheckedUpdateWithoutBookingsInput>
+}
+
+export type SaleEventUpdateWithoutBookingsInput = {
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+  discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
+  applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
+  growth_campaigns?: Prisma.CampaignUpdateManyWithoutSale_eventNestedInput
+}
+
+export type SaleEventUncheckedUpdateWithoutBookingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+  discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
+  applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
+  growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSale_eventNestedInput
+}
+
 export type SaleEventCreateWithoutGrowth_campaignsInput = {
   title: string
   description?: string | null
@@ -931,11 +1097,13 @@ export type SaleEventCreateWithoutGrowth_campaignsInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
 }
 
@@ -947,11 +1115,13 @@ export type SaleEventUncheckedCreateWithoutGrowth_campaignsInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSale_eventInput
   social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
 }
 
@@ -978,11 +1148,13 @@ export type SaleEventUpdateWithoutGrowth_campaignsInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
 }
 
@@ -994,11 +1166,13 @@ export type SaleEventUncheckedUpdateWithoutGrowth_campaignsInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
 }
 
@@ -1010,6 +1184,7 @@ export type SaleEventCreateManyBusinessInput = {
   end_date: Date | string
   discount_type?: $Enums.DiscountType
   discount_value?: number
+  slot_limit?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1021,10 +1196,12 @@ export type SaleEventUpdateWithoutBusinessInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUpdateManyWithoutSale_eventNestedInput
 }
@@ -1037,10 +1214,12 @@ export type SaleEventUncheckedUpdateWithoutBusinessInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSale_eventNestedInput
 }
@@ -1053,6 +1232,7 @@ export type SaleEventUncheckedUpdateManyWithoutBusinessInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1064,10 +1244,12 @@ export type SaleEventUpdateWithoutApplicable_servicesInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUpdateManyWithoutSale_eventNestedInput
 }
@@ -1080,10 +1262,12 @@ export type SaleEventUncheckedUpdateWithoutApplicable_servicesInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSale_eventNestedInput
 }
@@ -1096,6 +1280,7 @@ export type SaleEventUncheckedUpdateManyWithoutApplicable_servicesInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1108,10 +1293,12 @@ export type SaleEventUpdateWithoutApplicable_packagesInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUpdateManyWithoutSale_eventNestedInput
 }
@@ -1124,10 +1311,12 @@ export type SaleEventUncheckedUpdateWithoutApplicable_packagesInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSale_eventNestedInput
   social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
   growth_campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutSale_eventNestedInput
 }
@@ -1140,6 +1329,7 @@ export type SaleEventUncheckedUpdateManyWithoutApplicable_packagesInput = {
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
   discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  slot_limit?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1153,6 +1343,7 @@ export type SaleEventUncheckedUpdateManyWithoutApplicable_packagesInput = {
 export type SaleEventCountOutputType = {
   applicable_services: number
   applicable_packages: number
+  bookings: number
   social_posts: number
   growth_campaigns: number
 }
@@ -1160,6 +1351,7 @@ export type SaleEventCountOutputType = {
 export type SaleEventCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicable_services?: boolean | SaleEventCountOutputTypeCountApplicable_servicesArgs
   applicable_packages?: boolean | SaleEventCountOutputTypeCountApplicable_packagesArgs
+  bookings?: boolean | SaleEventCountOutputTypeCountBookingsArgs
   social_posts?: boolean | SaleEventCountOutputTypeCountSocial_postsArgs
   growth_campaigns?: boolean | SaleEventCountOutputTypeCountGrowth_campaignsArgs
 }
@@ -1191,6 +1383,13 @@ export type SaleEventCountOutputTypeCountApplicable_packagesArgs<ExtArgs extends
 /**
  * SaleEventCountOutputType without action
  */
+export type SaleEventCountOutputTypeCountBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingWhereInput
+}
+
+/**
+ * SaleEventCountOutputType without action
+ */
 export type SaleEventCountOutputTypeCountSocial_postsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SocialPostWhereInput
 }
@@ -1211,12 +1410,14 @@ export type SaleEventSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   end_date?: boolean
   discount_type?: boolean
   discount_value?: boolean
+  slot_limit?: boolean
   business_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   applicable_services?: boolean | Prisma.SaleEvent$applicable_servicesArgs<ExtArgs>
   applicable_packages?: boolean | Prisma.SaleEvent$applicable_packagesArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  bookings?: boolean | Prisma.SaleEvent$bookingsArgs<ExtArgs>
   social_posts?: boolean | Prisma.SaleEvent$social_postsArgs<ExtArgs>
   growth_campaigns?: boolean | Prisma.SaleEvent$growth_campaignsArgs<ExtArgs>
   _count?: boolean | Prisma.SaleEventCountOutputTypeDefaultArgs<ExtArgs>
@@ -1230,6 +1431,7 @@ export type SaleEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   end_date?: boolean
   discount_type?: boolean
   discount_value?: boolean
+  slot_limit?: boolean
   business_id?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1244,6 +1446,7 @@ export type SaleEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   end_date?: boolean
   discount_type?: boolean
   discount_value?: boolean
+  slot_limit?: boolean
   business_id?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -1258,16 +1461,18 @@ export type SaleEventSelectScalar = {
   end_date?: boolean
   discount_type?: boolean
   discount_value?: boolean
+  slot_limit?: boolean
   business_id?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type SaleEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "start_date" | "end_date" | "discount_type" | "discount_value" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["saleEvent"]>
+export type SaleEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "start_date" | "end_date" | "discount_type" | "discount_value" | "slot_limit" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["saleEvent"]>
 export type SaleEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicable_services?: boolean | Prisma.SaleEvent$applicable_servicesArgs<ExtArgs>
   applicable_packages?: boolean | Prisma.SaleEvent$applicable_packagesArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  bookings?: boolean | Prisma.SaleEvent$bookingsArgs<ExtArgs>
   social_posts?: boolean | Prisma.SaleEvent$social_postsArgs<ExtArgs>
   growth_campaigns?: boolean | Prisma.SaleEvent$growth_campaignsArgs<ExtArgs>
   _count?: boolean | Prisma.SaleEventCountOutputTypeDefaultArgs<ExtArgs>
@@ -1285,6 +1490,7 @@ export type $SaleEventPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     applicable_services: Prisma.$ServicePayload<ExtArgs>[]
     applicable_packages: Prisma.$ServicePackagePayload<ExtArgs>[]
     business: Prisma.$BusinessPayload<ExtArgs>
+    bookings: Prisma.$BookingPayload<ExtArgs>[]
     social_posts: Prisma.$SocialPostPayload<ExtArgs>[]
     growth_campaigns: Prisma.$CampaignPayload<ExtArgs>[]
   }
@@ -1296,6 +1502,7 @@ export type $SaleEventPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     end_date: Date
     discount_type: $Enums.DiscountType
     discount_value: number
+    slot_limit: number | null
     business_id: string
     created_at: Date
     updated_at: Date
@@ -1696,6 +1903,7 @@ export interface Prisma__SaleEventClient<T, Null = never, ExtArgs extends runtim
   applicable_services<T extends Prisma.SaleEvent$applicable_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$applicable_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   applicable_packages<T extends Prisma.SaleEvent$applicable_packagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$applicable_packagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  bookings<T extends Prisma.SaleEvent$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   social_posts<T extends Prisma.SaleEvent$social_postsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$social_postsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   growth_campaigns<T extends Prisma.SaleEvent$growth_campaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$growth_campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1734,6 +1942,7 @@ export interface SaleEventFieldRefs {
   readonly end_date: Prisma.FieldRef<"SaleEvent", 'DateTime'>
   readonly discount_type: Prisma.FieldRef<"SaleEvent", 'DiscountType'>
   readonly discount_value: Prisma.FieldRef<"SaleEvent", 'Float'>
+  readonly slot_limit: Prisma.FieldRef<"SaleEvent", 'Int'>
   readonly business_id: Prisma.FieldRef<"SaleEvent", 'String'>
   readonly created_at: Prisma.FieldRef<"SaleEvent", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"SaleEvent", 'DateTime'>
@@ -2178,6 +2387,30 @@ export type SaleEvent$applicable_packagesArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.ServicePackageScalarFieldEnum | Prisma.ServicePackageScalarFieldEnum[]
+}
+
+/**
+ * SaleEvent.bookings
+ */
+export type SaleEvent$bookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Booking
+   */
+  select?: Prisma.BookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Booking
+   */
+  omit?: Prisma.BookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingInclude<ExtArgs> | null
+  where?: Prisma.BookingWhereInput
+  orderBy?: Prisma.BookingOrderByWithRelationInput | Prisma.BookingOrderByWithRelationInput[]
+  cursor?: Prisma.BookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingScalarFieldEnum | Prisma.BookingScalarFieldEnum[]
 }
 
 /**

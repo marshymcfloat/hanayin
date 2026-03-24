@@ -23,6 +23,7 @@ export type CanonicalBookingService = {
   estimatedCost: number;
   discount: number;
   discountReason: string | null;
+  saleEventId: number | null;
   commissionBase: number;
 };
 
@@ -37,6 +38,7 @@ export type BookingPricingSnapshot = {
   subtotal: number;
   voucherDiscount: number;
   grandTotal: number;
+  appliedSaleEventId: number | null;
   downpaymentAmount: number | null;
   amountToPay: number;
   totalDuration: number;
@@ -169,9 +171,11 @@ export async function buildBookingPricingSnapshot({
           end_date: { gte: new Date() },
         },
         select: {
+          id: true,
           title: true,
           discount_type: true,
           discount_value: true,
+          slot_limit: true,
           applicable_services: { select: { id: true } },
           applicable_packages: { select: { id: true } },
         },
@@ -197,7 +201,7 @@ export async function buildBookingPricingSnapshot({
 
   const packageRatioById = new Map<
     number,
-    { ratio: number; reason: string | null }
+    { ratio: number; reason: string | null; saleEventId: number | null }
   >();
 
   for (const packageId of uniquePackageIds) {
@@ -212,7 +216,7 @@ export async function buildBookingPricingSnapshot({
     const bestPackageDiscount = getBestDiscountEvent(packageEvents, pkg.price);
 
     if (!bestPackageDiscount || pkg.price <= 0) {
-      packageRatioById.set(packageId, { ratio: 1, reason: null });
+      packageRatioById.set(packageId, { ratio: 1, reason: null, saleEventId: null });
       continue;
     }
 
@@ -225,6 +229,7 @@ export async function buildBookingPricingSnapshot({
     packageRatioById.set(packageId, {
       ratio,
       reason: bestPackageDiscount.event.title,
+      saleEventId: bestPackageDiscount.event.id,
     });
   }
 
@@ -248,6 +253,7 @@ export async function buildBookingPricingSnapshot({
         const packagePricing = packageRatioById.get(selected.packageId) || {
           ratio: 1,
           reason: null,
+          saleEventId: null,
         };
         const originalPrice = roundMoney(packageItemPrice);
         const price = roundMoney(originalPrice * packagePricing.ratio);
@@ -269,6 +275,7 @@ export async function buildBookingPricingSnapshot({
           estimatedCost: roundMoney(dbService.estimated_cost ?? 0),
           discount,
           discountReason: discount > 0 ? packagePricing.reason : null,
+          saleEventId: discount > 0 ? packagePricing.saleEventId : null,
           commissionBase: roundMoney(commissionBase),
         };
       }
@@ -298,6 +305,7 @@ export async function buildBookingPricingSnapshot({
         estimatedCost: roundMoney(dbService.estimated_cost ?? 0),
         discount,
         discountReason: bestServiceDiscount ? bestServiceDiscount.event.title : null,
+        saleEventId: bestServiceDiscount ? bestServiceDiscount.event.id : null,
         commissionBase: roundMoney(commissionBase),
       };
     },
@@ -380,6 +388,7 @@ export async function buildBookingPricingSnapshot({
     subtotal,
     voucherDiscount,
     grandTotal,
+    appliedSaleEventId: canonicalServices.find((s) => s.saleEventId)?.saleEventId ?? null,
     downpaymentAmount,
     amountToPay,
     totalDuration,

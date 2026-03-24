@@ -27,20 +27,22 @@ export async function generateCaptionVariants(input: {
   serviceCategories?: string[];
   packageNames?: string[];
 }): Promise<CaptionVariant[]> {
+  const isDiscount = input.offer.actionCategory === "DISCOUNT";
   const variants = await generateSocialCaptionVariants({
     businessSlug: input.businessSlug,
     businessName: input.businessName,
     businessDescription: `${input.businessType} - ${input.toneProfile}`,
     saleTitle: input.offer.title,
     saleDescription: input.opportunityReason,
-    discountType: "PERCENTAGE",
-    discountValue: input.offer.mechanics.discountPercent || 0,
+    discountType: isDiscount ? "PERCENTAGE" : undefined,
+    discountValue: isDiscount ? (input.offer.mechanics.discountPercent || 0) : undefined,
     startDate: input.offer.timeWindowStart,
     endDate: input.offer.timeWindowEnd,
     serviceNames: input.serviceNames,
     serviceCategories: input.serviceCategories,
     packageNames: input.packageNames,
-    allowRewritePass: false,
+    allowRewritePass: true,
+    actionCategory: input.offer.actionCategory,
   });
 
   const mapped = variants.map((variant) => ({

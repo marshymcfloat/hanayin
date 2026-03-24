@@ -51,7 +51,7 @@ function resolveImageSize(): ImageSize {
   ) {
     return value;
   }
-  return "1536x1024";
+  return "1024x1536";
 }
 
 function resolveImageQuality(): ImageQuality {

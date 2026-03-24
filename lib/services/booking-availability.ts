@@ -59,7 +59,8 @@ export type BookingAvailabilityErrorCode =
   | "REQUIRED_STAFF_UNAVAILABLE"
   | "WALK_IN_CAPACITY_EXCEEDED"
   | "CAPACITY_OVERRIDE_NOT_ALLOWED"
-  | "CAPACITY_OVERRIDE_REASON_REQUIRED";
+  | "CAPACITY_OVERRIDE_REASON_REQUIRED"
+  | "SALE_SLOT_LIMIT_REACHED";
 
 export class BookingAvailabilityError extends Error {
   code: BookingAvailabilityErrorCode;
@@ -969,4 +970,39 @@ export async function validateBookingOrThrow({
     staffSelectionMode,
     db,
   });
+}
+
+/**
+ * Check that a sale event with a slot limit has remaining capacity.
+ * Must be called inside a Serializable transaction for atomicity.
+ */
+export async function checkSaleEventSlotLimit({
+  saleEventId,
+  db = prisma,
+}: {
+  saleEventId: number;
+  db?: AvailabilityDbClient;
+}) {
+  const saleEvent = await db.saleEvent.findUnique({
+    where: { id: saleEventId },
+    select: { id: true, title: true, slot_limit: true },
+  });
+
+  if (!saleEvent || saleEvent.slot_limit === null) {
+    return;
+  }
+
+  const claimedCount = await db.booking.count({
+    where: {
+      sale_event_id: saleEventId,
+      status: { not: "CANCELLED" },
+    },
+  });
+
+  if (claimedCount >= saleEvent.slot_limit) {
+    throw new BookingAvailabilityError(
+      "SALE_SLOT_LIMIT_REACHED",
+      `This promo has reached its limit of ${saleEvent.slot_limit} slots. The "${saleEvent.title}" offer is no longer available.`,
+    );
+  }
 }

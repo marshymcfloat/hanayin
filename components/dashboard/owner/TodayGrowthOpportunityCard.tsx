@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   AlertTriangle,
   CalendarClock,
@@ -17,6 +17,7 @@ import {
   refreshGrowthOpportunitiesAction,
 } from "@/lib/server actions/growth";
 import type { OpportunityView } from "@/lib/services/growth/types";
+import { isDiscountOffer } from "@/lib/services/growth/types";
 import { buildGrowthFlowQuery } from "./growth/types";
 
 function formatDateTime(value: string) {
@@ -40,6 +41,15 @@ export function TodayGrowthOpportunityCard(props: {
   );
   const [showSchedule, setShowSchedule] = useState(false);
   const [isRefreshing, startRefresh] = useTransition();
+  const hasAutoRefreshed = useRef(false);
+
+  useEffect(() => {
+    if (!props.initialOpportunity && !hasAutoRefreshed.current) {
+      hasAutoRefreshed.current = true;
+      refresh();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const capacitySummary = useMemo(() => {
     if (!opportunity?.metadata) return null;
@@ -103,7 +113,14 @@ export function TodayGrowthOpportunityCard(props: {
 
       {!opportunity ? (
         <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-3 text-xs text-zinc-600">
-          No growth opportunity detected yet for today. Click refresh to recompute.
+          {isRefreshing ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="size-3 animate-spin" />
+              Checking for today&apos;s growth opportunities...
+            </span>
+          ) : (
+            "No growth opportunity detected for today."
+          )}
         </div>
       ) : (
         <>
@@ -118,8 +135,14 @@ export function TodayGrowthOpportunityCard(props: {
             {formatDateTime(opportunity.timeWindowEnd)}
           </p>
           <p className="mt-1 text-xs text-zinc-500">
-            Suggested offer:{" "}
+            Suggested action:{" "}
             {opportunity.recommendedOfferTypes.join(", ").replaceAll("_", " ")}
+            {opportunity.recommendedOfferTypes.length > 0 &&
+              !opportunity.recommendedOfferTypes.some(isDiscountOffer) && (
+              <span className="ml-1.5 inline-flex items-center rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 border border-blue-200">
+                No discount
+              </span>
+            )}
           </p>
 
           {capacitySummary ? (
@@ -141,7 +164,9 @@ export function TodayGrowthOpportunityCard(props: {
               className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
             >
               <Megaphone className="size-3" />
-              Start Step 1: Create Offer
+              {opportunity.recommendedOfferTypes.some(isDiscountOffer)
+                ? "Start Step 1: Create Offer"
+                : "Generate Social Post"}
             </Link>
             <button
               type="button"
