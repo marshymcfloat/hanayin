@@ -19,7 +19,7 @@ function createActorContext() {
       managerCanServe: true,
     },
     profile: "STAFF" as const,
-    permissions: ["BOOKING_CREATE"] as any,
+    permissions: ["BOOKING_CREATE"] as string[],
     ownerId: null,
   };
 }
@@ -29,7 +29,7 @@ function createDbWithBooking(booking: unknown) {
     booking: {
       findFirst: vi.fn().mockResolvedValue(booking),
     },
-  } as any;
+  } as unknown as Parameters<typeof resolveAddOnMutationMode>[2];
 }
 
 async function getMode(booking: unknown): Promise<AddOnMutationMode> {

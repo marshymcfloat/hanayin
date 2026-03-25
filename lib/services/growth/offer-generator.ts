@@ -229,8 +229,6 @@ function generateNonDiscountOffer(
     : null;
 
   const serviceNames = input.services.slice(0, 3).map((s) => s.name);
-  const servicesText = serviceNames.length > 0 ? serviceNames.join(", ") : "our services";
-
   let title: string;
   let mechanics: GeneratedOffer["mechanics"] = {};
   let ctaKeyword: string;

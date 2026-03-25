@@ -1454,13 +1454,10 @@ export default function BookingForm({
                         <FormControl>
                           <DatePicker
                             value={field.value as Date | undefined}
-                            onChange={useCallback(
-                              (date: Date | undefined) => {
+                            onChange={(date: Date | undefined) => {
                                 field.onChange(date);
                                 form.setValue("selectedTime", undefined);
-                              },
-                              [field, form],
-                            )}
+                              }}
                             minDate={new Date()}
                             maxDate={maxBookingDate}
                             placeholder="Pick a date"
@@ -1582,12 +1579,9 @@ export default function BookingForm({
                           slots={timeSlots}
                           alternativeSlots={alternativeSlots}
                           value={field.value}
-                          onChange={useCallback(
-                            (time: Date) => {
+                          onChange={(time: Date) => {
                               field.onChange(time);
-                            },
-                            [field],
-                          )}
+                            }}
                           isLoading={isLoadingSlots}
                           disabled={selectedServices.length === 0}
                           emptyTitle={slotEmptyState.title}
