@@ -415,3 +415,17 @@ export const CommissionCalculationBasis = {
 } as const
 
 export type CommissionCalculationBasis = (typeof CommissionCalculationBasis)[keyof typeof CommissionCalculationBasis]
+
+
+export const ExpenseCategory = {
+  SUPPLIES: 'SUPPLIES',
+  UTILITIES: 'UTILITIES',
+  RENT: 'RENT',
+  EQUIPMENT: 'EQUIPMENT',
+  MARKETING: 'MARKETING',
+  MAINTENANCE: 'MAINTENANCE',
+  PROFESSIONAL: 'PROFESSIONAL',
+  MISCELLANEOUS: 'MISCELLANEOUS'
+} as const
+
+export type ExpenseCategory = (typeof ExpenseCategory)[keyof typeof ExpenseCategory]

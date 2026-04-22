@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { CalendarClock, Loader2, Megaphone, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import {
   buildGrowthFlowQuery,
   type GrowthFlowContext,
@@ -41,6 +42,24 @@ function formatDateTime(value: string) {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function toManilaDateTimeInput(isoString: string): string {
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return "";
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Manila",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const p: Record<string, string> = {};
+  for (const part of parts) p[part.type] = part.value;
+  const hour = p.hour === "24" ? "00" : p.hour;
+  return `${p.year}-${p.month}-${p.day}T${hour}:${p.minute}`;
 }
 
 export function GrowthOpportunityPanel(props: {
@@ -65,6 +84,18 @@ export function GrowthOpportunityPanel(props: {
     saleEventId: number | null;
     socialPostId: string;
   } | null>(null);
+
+  const [customDiscount, setCustomDiscount] = useState("15");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [customSlotLimit, setCustomSlotLimit] = useState("");
+
+  useEffect(() => {
+    if (dialogOpen && opportunity) {
+      setCustomStartDate(toManilaDateTimeInput(opportunity.timeWindowStart));
+      setCustomEndDate(toManilaDateTimeInput(opportunity.timeWindowEnd));
+    }
+  }, [dialogOpen, opportunity]);
 
   const servicesByCategory = useMemo(() => {
     const grouped = props.services.reduce(
@@ -212,11 +243,21 @@ export function GrowthOpportunityPanel(props: {
     setDialogOpen(false);
     setIsGenerating(true);
 
+    const discountNum = parseFloat(customDiscount);
+    const slotNum = customSlotLimit.trim() ? parseInt(customSlotLimit, 10) : undefined;
+
     const result = await generateGrowthCampaignAction({
       businessSlug: props.businessSlug,
       opportunityId: opportunity.id,
       selectedServiceIds,
       selectedPackageIds,
+      overrides: {
+        discountPercent:
+          Number.isFinite(discountNum) && discountNum >= 1 ? discountNum : undefined,
+        startDate: customStartDate || undefined,
+        endDate: customEndDate || undefined,
+        slotLimit: slotNum && slotNum >= 1 ? slotNum : undefined,
+      },
     });
 
     setIsGenerating(false);
@@ -498,6 +539,69 @@ export function GrowthOpportunityPanel(props: {
                       )}
                     </TabsContent>
                   </Tabs>
+
+                  <div className="space-y-4 rounded-md border border-zinc-200 p-3">
+                    <p className="text-sm font-semibold text-zinc-800">Campaign Details</p>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-zinc-700">
+                          Discount %
+                        </label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={80}
+                          value={customDiscount}
+                          onChange={(e) => setCustomDiscount(e.target.value)}
+                          placeholder="e.g. 15"
+                          className="h-9 text-sm"
+                        />
+                        <p className="text-[11px] text-zinc-500">
+                          Only applied for discount-type offers (Flash Deal, Limited Slots)
+                        </p>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-zinc-700">
+                          Slot Limit{" "}
+                          <span className="font-normal text-zinc-400">(optional)</span>
+                        </label>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={customSlotLimit}
+                          onChange={(e) => setCustomSlotLimit(e.target.value)}
+                          placeholder="Leave empty for unlimited"
+                          className="h-9 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-zinc-700">Sale Window</p>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="space-y-0.5">
+                          <label className="text-[11px] text-zinc-500">Start</label>
+                          <Input
+                            type="datetime-local"
+                            value={customStartDate}
+                            onChange={(e) => setCustomStartDate(e.target.value)}
+                            className="h-9 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-0.5">
+                          <label className="text-[11px] text-zinc-500">End</label>
+                          <Input
+                            type="datetime-local"
+                            value={customEndDate}
+                            onChange={(e) => setCustomEndDate(e.target.value)}
+                            className="h-9 text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   <DialogFooter>
                     <Button

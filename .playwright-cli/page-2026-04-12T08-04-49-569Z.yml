@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceFlow
+          - generic [ref=e15]: Pro Dashboard
+      - generic [ref=e16]:
+        - list [ref=e18]:
+          - listitem [ref=e19]:
+            - link "Dashboard" [ref=e20] [cursor=pointer]:
+              - /url: /app/beautyfeel/
+              - img [ref=e21]
+              - generic [ref=e24]: Dashboard
+        - generic [ref=e25]:
+          - button "Business" [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e34]: Business
+            - img [ref=e35]
+          - button "Team" [ref=e39] [cursor=pointer]:
+            - img [ref=e41]
+            - generic [ref=e46]: Team
+            - img [ref=e47]
+          - button "Customers" [ref=e51] [cursor=pointer]:
+            - img [ref=e53]
+            - generic [ref=e55]: Customers
+            - img [ref=e56]
+        - list [ref=e59]:
+          - listitem [ref=e60]:
+            - link "Settings" [ref=e61] [cursor=pointer]:
+              - /url: /app/beautyfeel/business/
+              - img [ref=e62]
+              - generic [ref=e65]: Settings
+      - list [ref=e67]:
+        - listitem [ref=e68]:
+          - button "EL Ellaine Pe rjpern@gmail.com" [ref=e69]:
+            - generic [ref=e71]: EL
+            - generic [ref=e72]:
+              - generic [ref=e73]: Ellaine Pe
+              - generic [ref=e74]: rjpern@gmail.com
+            - img [ref=e75]
+    - main [ref=e78]:
+      - main [ref=e80]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e135] [cursor=pointer]:
+    - img [ref=e136]
+  - alert [ref=e139]

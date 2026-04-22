@@ -16,6 +16,7 @@ import {
   type BookingServiceInput,
   buildBookingPricingSnapshot,
 } from "@/lib/services/booking-pricing";
+import { checkSaleEventSlotLimit } from "@/lib/services/booking-availability";
 
 export type AddOnMutationMode = "APPEND" | "FOLLOW_UP";
 
@@ -267,6 +268,13 @@ export async function appendServicesToUntouchedBooking(params: {
         paymentMethod: booking.payment_method,
         paymentType: "FULL",
       });
+
+      if (combinedPricing.appliedSaleEventId) {
+        await checkSaleEventSlotLimit({
+          saleEventId: combinedPricing.appliedSaleEventId,
+          db: tx,
+        });
+      }
 
       const canonicalByKey = new Map(
         combinedPricing.services.map((service) => [

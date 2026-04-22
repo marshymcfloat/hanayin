@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useMemo, useOptimistic, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Employee,
@@ -12,14 +12,12 @@ import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 import { Search, Plus, Users, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -173,12 +171,12 @@ export function EmployeesPageClient({
 }: EmployeesPageClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
-    useState(false);
-  const [selectedEmployee, setSelectedEmployee] =
-    useState<EmployeeWithDetails | null>(null);
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithDetails | null>(null);
   const [formData, setFormData] = useState<EmployeeFormData>(initialFormData);
   const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -198,11 +196,7 @@ export function EmployeesPageClient({
                   profile: action.data.profile,
                   permissions: action.data.permissions,
                   specialties: action.data.specialties,
-                  user: {
-                    ...emp.user,
-                    name: action.data.name,
-                    email: action.data.email,
-                  },
+                  user: { ...emp.user, name: action.data.name, email: action.data.email },
                 }
               : emp,
           );
@@ -216,19 +210,25 @@ export function EmployeesPageClient({
 
   const filteredEmployees = useMemo(() => {
     return optimisticEmployees.filter((emp) => {
-      const matchesSearch =
+      return (
         emp.user.name.toLowerCase().includes(search.toLowerCase()) ||
-        emp.user.email.toLowerCase().includes(search.toLowerCase());
-      return matchesSearch;
+        emp.user.email.toLowerCase().includes(search.toLowerCase())
+      );
     });
   }, [optimisticEmployees, search]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    router.refresh();
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    refreshTimer.current = setTimeout(() => setIsRefreshing(false), 1200);
+  };
 
   const handleAddEmployee = async () => {
     if (!formData.name || !formData.email) {
       toast.error("Please fill in required fields");
       return;
     }
-
     setIsLoading(true);
     const result = await createEmployeeAction({
       name: formData.name,
@@ -239,7 +239,6 @@ export function EmployeesPageClient({
       permissions: formData.permissions,
       specialties: formData.specialties,
     });
-
     setIsLoading(false);
     if (result.success) {
       if ("warning" in result && result.warning) {
@@ -260,7 +259,6 @@ export function EmployeesPageClient({
       toast.error("Please fill in required fields");
       return;
     }
-
     const updateData = {
       name: formData.name,
       email: formData.email,
@@ -270,18 +268,10 @@ export function EmployeesPageClient({
       permissions: formData.permissions,
       specialties: formData.specialties,
     };
-
     setIsEditDialogOpen(false);
-
     startTransition(async () => {
-      addOptimisticUpdate({
-        type: "update",
-        employeeId: selectedEmployee.id,
-        data: updateData,
-      });
-
+      addOptimisticUpdate({ type: "update", employeeId: selectedEmployee.id, data: updateData });
       const result = await updateEmployeeAction(selectedEmployee.id, updateData);
-
       if (result.success) {
         toast.success("Employee updated successfully");
         router.refresh();
@@ -289,7 +279,6 @@ export function EmployeesPageClient({
         toast.error(result.error || "Failed to update employee");
         router.refresh();
       }
-
       setSelectedEmployee(null);
       setFormData(initialFormData);
     });
@@ -297,11 +286,7 @@ export function EmployeesPageClient({
 
   const handleDeleteEmployee = async (employeeId: number) => {
     startTransition(async () => {
-      addOptimisticUpdate({
-        type: "delete",
-        employeeId,
-      });
-
+      addOptimisticUpdate({ type: "delete", employeeId });
       const result = await deleteEmployeeAction(employeeId);
       if (result.success) {
         toast.success("Employee deleted successfully");
@@ -318,18 +303,12 @@ export function EmployeesPageClient({
       toast.error("Please enter a new password");
       return;
     }
-
     if (newPassword.length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
     }
-
     setIsLoading(true);
-    const result = await resetEmployeePasswordAction(
-      selectedEmployee.id,
-      newPassword,
-    );
-
+    const result = await resetEmployeePasswordAction(selectedEmployee.id, newPassword);
     setIsLoading(false);
     if (result.success) {
       toast.success("Password reset successfully");
@@ -365,101 +344,93 @@ export function EmployeesPageClient({
   };
 
   return (
-    <div
-      className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen"
-      data-business-slug={businessSlug}
-    >
-      <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
-        <PageHeader
-          title="Employees"
-          description="Manage your team members and their information"
-          className="mb-8"
-        >
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-95 rounded-full px-6">
-                <Plus className="h-4 w-4 mr-2" strokeWidth={2.5} />
-                <span className="font-semibold">Add Employee</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[620px] rounded-3xl p-0 gap-0 overflow-hidden">
-              <DialogHeader className="p-6 pb-2">
-                <DialogTitle className="text-xl font-bold text-zinc-900">
-                  Add New Employee
-                </DialogTitle>
-                <DialogDescription className="text-zinc-500">
-                  Create a new employee account. They will receive a temporary
-                  password via email and be required to change it.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="px-6 py-4 max-h-[68vh] overflow-y-auto">
-                <EmployeeForm
-                  formData={formData}
-                  setFormData={setFormData}
-                  categories={categories}
-                />
-              </div>
-              <DialogFooter className="p-6 pt-2 bg-zinc-50/50 border-t border-zinc-100">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAddDialogOpen(false)}
-                  className="rounded-xl"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleAddEmployee}
-                  disabled={isLoading}
-                  className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
-                >
-                  {isLoading ? "Creating..." : "Create Employee"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </PageHeader>
+    <div className="flex flex-col bg-background" data-business-slug={businessSlug}>
+      <div className="border-b border-border bg-card">
+        <div className="px-4 sm:px-8 py-5 sm:py-6 max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+              <Users className="size-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Employees</h1>
+              <p className="text-xs text-muted-foreground">
+                Manage your team members and their information.
+              </p>
+            </div>
+            <div className="ml-auto flex items-center gap-3">
+              <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                {employees.length} members
+              </span>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
+                    <Plus className="h-4 w-4 mr-2" strokeWidth={2.5} />
+                    <span className="hidden sm:inline font-semibold">Add Employee</span>
+                    <span className="sm:hidden font-semibold">Add</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl p-0 gap-0">
+                  <DialogHeader className="p-6 pb-2">
+                    <DialogTitle className="text-xl font-bold text-foreground">Add New Employee</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                      Create a new employee account. They will receive a temporary password via email.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="h-px bg-border mx-6" />
+                  <div className="px-6 py-4 max-h-[calc(90vh-160px)] overflow-y-auto">
+                    <EmployeeForm formData={formData} setFormData={setFormData} categories={categories} />
+                  </div>
+                  <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="rounded-xl cursor-pointer">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddEmployee} disabled={isLoading} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
+                      {isLoading ? "Creating..." : "Create Employee"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 items-start sm:items-center justify-between">
-          <div className="relative flex-1 w-full max-w-md">
-            <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
-            <Input
-              placeholder="Search employees..."
-              className="pl-10 h-10 rounded-xl border-zinc-200 bg-white shadow-sm focus-visible:ring-emerald-500"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+      <div className="px-4 sm:px-8 py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto w-full space-y-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search employees..."
+                className="pl-9 h-9 rounded-xl border-border bg-background"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-2 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer ml-auto"
+              onClick={handleRefresh}
+            >
+              <RefreshCcw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-10 gap-2 rounded-xl border-zinc-200 bg-white text-zinc-600 hidden md:flex"
-            onClick={() => router.refresh()}
-          >
-            <RefreshCcw className="h-4 w-4" />
-            <span>Refresh</span>
-          </Button>
-        </div>
-
-        <div className="flex-1">
           {filteredEmployees.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-zinc-200/60 shadow-sm p-12 flex flex-col items-center justify-center text-center">
-              <div className="h-12 w-12 bg-zinc-50 rounded-full flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-zinc-300" />
+            <div className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center justify-center text-center">
+              <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center mb-4">
+                <Users className="h-6 w-6 text-muted-foreground/40" />
               </div>
-              <h3 className="text-lg font-semibold text-zinc-900 mb-1">
-                No employees found
-              </h3>
-              <p className="text-zinc-500 max-w-sm mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-1">No employees found</h3>
+              <p className="text-muted-foreground max-w-sm mb-6">
                 {employees.length === 0
                   ? "Get started by adding your first team member to manage services."
                   : "Try adjusting your search terms."}
               </p>
               {employees.length === 0 && (
-                <Button
-                  onClick={() => setIsAddDialogOpen(true)}
-                  className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                >
+                <Button onClick={() => setIsAddDialogOpen(true)} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Your First Employee
                 </Button>
@@ -474,91 +445,64 @@ export function EmployeesPageClient({
             />
           )}
         </div>
+      </div>
 
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[620px] rounded-3xl p-0 gap-0 overflow-hidden">
-            <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="text-xl font-bold text-zinc-900">
-                Edit Employee
-              </DialogTitle>
-              <DialogDescription className="text-zinc-500">
-                Update employee information, profile, and permissions.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="px-6 py-4 max-h-[68vh] overflow-y-auto">
-              <EmployeeForm
-                formData={formData}
-                setFormData={setFormData}
-                categories={categories}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl p-0 gap-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="text-xl font-bold text-foreground">Edit Employee</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Update employee information, profile, and permissions.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-px bg-border mx-6" />
+          <div className="px-6 py-4 max-h-[calc(90vh-160px)] overflow-y-auto">
+            <EmployeeForm formData={formData} setFormData={setFormData} categories={categories} />
+          </div>
+          <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="rounded-xl cursor-pointer">
+              Cancel
+            </Button>
+            <Button onClick={handleEditEmployee} disabled={isLoading} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl p-0 gap-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="text-xl font-bold text-foreground">Reset Password</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Set a new password for {selectedEmployee?.user.name}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-px bg-border mx-6" />
+          <div className="grid gap-4 px-6 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                placeholder="Enter new password..."
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="h-10 rounded-xl"
               />
+              <p className="text-xs text-muted-foreground">Password must be at least 6 characters.</p>
             </div>
-            <DialogFooter className="p-6 pt-2 bg-zinc-50/50 border-t border-zinc-100">
-              <Button
-                variant="outline"
-                onClick={() => setIsEditDialogOpen(false)}
-                className="rounded-xl"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleEditEmployee}
-                disabled={isLoading}
-                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
-              >
-                {isLoading ? "Saving..." : "Save Changes"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog
-          open={isResetPasswordDialogOpen}
-          onOpenChange={setIsResetPasswordDialogOpen}
-        >
-          <DialogContent className="sm:max-w-[400px] rounded-3xl p-0 gap-0 overflow-hidden">
-            <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="text-xl font-bold text-zinc-900">
-                Reset Password
-              </DialogTitle>
-              <DialogDescription className="text-zinc-500">
-                Set a new password for {selectedEmployee?.user.name}.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 px-6 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="newPassword">New Password</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  placeholder="Enter new password..."
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="h-10 rounded-xl"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Password must be at least 6 characters.
-                </p>
-              </div>
-            </div>
-            <DialogFooter className="p-6 pt-2 bg-zinc-50/50 border-t border-zinc-100">
-              <Button
-                variant="outline"
-                onClick={() => setIsResetPasswordDialogOpen(false)}
-                className="rounded-xl"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleResetPassword}
-                disabled={isLoading}
-                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
-              >
-                {isLoading ? "Resetting..." : "Reset Password"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </section>
+          </div>
+          <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)} className="rounded-xl cursor-pointer">
+              Cancel
+            </Button>
+            <Button onClick={handleResetPassword} disabled={isLoading} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
+              {isLoading ? "Resetting..." : "Reset Password"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -596,19 +540,13 @@ function EmployeeForm({
     const nextPermissions = hasPermission
       ? formData.permissions.filter((item) => item !== permission)
       : [...formData.permissions, permission];
-
-    setFormData({
-      ...formData,
-      permissions: nextPermissions,
-    });
+    setFormData({ ...formData, permissions: nextPermissions });
   };
 
   return (
     <div className="grid gap-5">
       <div className="grid gap-2">
-        <Label htmlFor="name">
-          Full Name <span className="text-red-500">*</span>
-        </Label>
+        <Label htmlFor="name">Full Name <span className="text-destructive">*</span></Label>
         <Input
           id="name"
           placeholder="e.g., John Doe"
@@ -619,9 +557,7 @@ function EmployeeForm({
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="email">
-          Email Address <span className="text-red-500">*</span>
-        </Label>
+        <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
         <Input
           id="email"
           type="email"
@@ -632,7 +568,7 @@ function EmployeeForm({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
           <Label htmlFor="daily_rate">Daily Rate (PHP)</Label>
           <Input
@@ -642,9 +578,7 @@ function EmployeeForm({
             step="0.01"
             placeholder="0.00"
             value={formData.daily_rate}
-            onChange={(e) =>
-              setFormData({ ...formData, daily_rate: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, daily_rate: e.target.value })}
             className="h-10 rounded-xl"
           />
         </div>
@@ -658,12 +592,7 @@ function EmployeeForm({
             step="0.1"
             placeholder="0"
             value={formData.commission_percentage}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                commission_percentage: e.target.value,
-              })
-            }
+            onChange={(e) => setFormData({ ...formData, commission_percentage: e.target.value })}
             className="h-10 rounded-xl"
           />
         </div>
@@ -675,7 +604,7 @@ function EmployeeForm({
           id="staffProfile"
           value={formData.profile}
           onChange={(event) => handleProfileChange(event.target.value)}
-          className="h-10 rounded-xl border border-zinc-200 bg-white px-3 text-sm"
+          className="h-10 rounded-xl border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
         >
           {PROFILE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -684,60 +613,43 @@ function EmployeeForm({
           ))}
         </select>
         <p className="text-xs text-muted-foreground">
-          {
-            PROFILE_OPTIONS.find((item) => item.value === formData.profile)
-              ?.description
-          }
+          {PROFILE_OPTIONS.find((item) => item.value === formData.profile)?.description}
         </p>
       </div>
 
-      <div className="grid gap-3 rounded-xl border border-zinc-200 bg-zinc-50/50 p-4">
+      <div className="grid gap-3 rounded-xl border border-border bg-muted/20 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-zinc-900">Permissions</p>
-            <p className="text-xs text-zinc-500">
-              Adjust operational access for this employee.
-            </p>
+            <p className="text-sm font-semibold text-foreground">Permissions</p>
+            <p className="text-xs text-muted-foreground">Adjust operational access for this employee.</p>
           </div>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() =>
-              setFormData({
-                ...formData,
-                permissions: [...PROFILE_DEFAULT_PERMISSIONS[formData.profile]],
-              })
-            }
-            className="h-8 rounded-lg"
+            onClick={() => setFormData({ ...formData, permissions: [...PROFILE_DEFAULT_PERMISSIONS[formData.profile]] })}
+            className="h-8 rounded-lg cursor-pointer"
           >
-            Use Profile Defaults
+            Use Defaults
           </Button>
         </div>
-
         <div className="grid gap-2">
           {PERMISSION_OPTIONS.map((permission) => {
             const isChecked = formData.permissions.includes(permission.value);
             return (
               <label
                 key={permission.value}
-                className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm"
+                className="flex items-start gap-3 rounded-lg border border-border bg-background px-3 py-2.5 text-sm cursor-pointer hover:bg-accent/30 transition-colors"
               >
                 <Checkbox
                   checked={isChecked}
                   onCheckedChange={(checked) => {
-                    if (checked === true || checked === false) {
-                      togglePermission(permission.value);
-                    }
+                    if (checked === true || checked === false) togglePermission(permission.value);
                   }}
                 />
                 <span className="flex-1">
-                  <span className="block font-medium text-zinc-900">
-                    {permission.label}
-                  </span>
-                  <span className="block text-xs text-zinc-500">
-                    {permission.description}
-                  </span>
+                  <span className="block font-medium text-foreground">{permission.label}</span>
+                  <span className="block text-xs text-muted-foreground">{permission.description}</span>
                 </span>
               </label>
             );
@@ -753,7 +665,7 @@ function EmployeeForm({
             size="sm"
             variant={isGeneralist ? "default" : "outline"}
             onClick={() => setFormData({ ...formData, specialties: [] })}
-            className="rounded-full"
+            className="rounded-full cursor-pointer"
           >
             Generalist (All)
           </Button>
@@ -766,16 +678,14 @@ function EmployeeForm({
                 size="sm"
                 variant={isSelected ? "default" : "outline"}
                 onClick={() => toggleSpecialty(category)}
-                className="rounded-full capitalize"
+                className="rounded-full capitalize cursor-pointer"
               >
                 {category}
               </Button>
             );
           })}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Select specialties or choose Generalist to allow all services.
-        </p>
+        <p className="text-xs text-muted-foreground">Select specialties or choose Generalist to allow all services.</p>
       </div>
     </div>
   );

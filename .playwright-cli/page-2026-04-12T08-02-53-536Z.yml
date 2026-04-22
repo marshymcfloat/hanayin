@@ -1,0 +1,90 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceFlow
+          - generic [ref=e15]: Pro Dashboard
+      - generic [ref=e16]:
+        - list [ref=e18]:
+          - listitem [ref=e19]:
+            - link "Dashboard" [ref=e20] [cursor=pointer]:
+              - /url: /app/beautyfeel/
+              - img [ref=e21]
+              - generic [ref=e24]: Dashboard
+        - generic [ref=e25]:
+          - button "Business" [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e34]: Business
+            - img [ref=e35]
+          - button "Team" [ref=e39] [cursor=pointer]:
+            - img [ref=e41]
+            - generic [ref=e46]: Team
+            - img [ref=e47]
+          - generic [ref=e50]:
+            - button "Customers" [expanded] [ref=e51] [cursor=pointer]:
+              - img [ref=e53]
+              - generic [ref=e55]: Customers
+              - img [ref=e56]
+            - list [ref=e60]:
+              - listitem [ref=e61]:
+                - link "Customers" [ref=e62] [cursor=pointer]:
+                  - /url: /app/beautyfeel/customers/
+                  - img [ref=e64]
+                  - generic [ref=e69]: Customers
+              - listitem [ref=e70]:
+                - link "Bookings" [ref=e71] [cursor=pointer]:
+                  - /url: /app/beautyfeel/bookings/
+                  - img [ref=e72]
+                  - generic [ref=e74]: Bookings
+        - list [ref=e76]:
+          - listitem [ref=e77]:
+            - link "Settings" [ref=e78] [cursor=pointer]:
+              - /url: /app/beautyfeel/business/
+              - img [ref=e79]
+              - generic [ref=e82]: Settings
+      - list [ref=e84]:
+        - listitem [ref=e85]:
+          - button "EL Ellaine Pe rjpern@gmail.com" [ref=e86]:
+            - generic [ref=e88]: EL
+            - generic [ref=e89]:
+              - generic [ref=e90]: Ellaine Pe
+              - generic [ref=e91]: rjpern@gmail.com
+            - img [ref=e92]
+    - main [ref=e95]:
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - heading "Customers" [level=1] [ref=e101]
+            - paragraph [ref=e102]: Manage your customer database
+          - button "Add Customer" [ref=e104]:
+            - img
+            - text: Add Customer
+        - generic [ref=e106]:
+          - img [ref=e107]
+          - textbox "Search customers..." [ref=e110]
+        - table [ref=e115]:
+          - rowgroup [ref=e116]:
+            - row "Customer Phone Actions" [ref=e117]:
+              - columnheader "Customer" [ref=e118]
+              - columnheader "Phone" [ref=e119]
+              - columnheader "Actions" [ref=e120]
+          - rowgroup [ref=e121]:
+            - row "DC Daniel Canoy canoydaniel06@gmail.com -" [ref=e122] [cursor=pointer]:
+              - cell "DC Daniel Canoy canoydaniel06@gmail.com" [ref=e123]:
+                - generic [ref=e124]:
+                  - generic [ref=e126]: DC
+                  - generic [ref=e127]:
+                    - generic [ref=e128]: Daniel Canoy
+                    - generic [ref=e129]:
+                      - img [ref=e130]
+                      - text: canoydaniel06@gmail.com
+              - cell "-" [ref=e133]
+              - cell [ref=e134]:
+                - button [ref=e135]:
+                  - img
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e141] [cursor=pointer]:
+    - img [ref=e142]
+  - alert [ref=e145]

@@ -77,11 +77,13 @@ export function calculateBookingTotal({
   voucherDiscount = 0,
   paymentMethod,
   paymentType,
+  downpaymentPercentage = 50,
 }: {
   subtotal: number;
   voucherDiscount?: number;
   paymentMethod: "QRPH" | "CASH" | string;
   paymentType: "FULL" | "DOWNPAYMENT" | string;
+  downpaymentPercentage?: number;
 }): number {
   // Convert everything to cents (integers)
   const subtotalCents = Math.round(subtotal * 100);
@@ -98,9 +100,8 @@ export function calculateBookingTotal({
   let amountToPayCents = totalAfterDiscountCents;
 
   if (paymentType === "DOWNPAYMENT") {
-    // 50% downpayment
-    // Math.round to ensure we have an integer cent value
-    amountToPayCents = Math.round(totalAfterDiscountCents * 0.5);
+    const safePercentage = Math.max(1, Math.min(100, downpaymentPercentage));
+    amountToPayCents = Math.round(totalAfterDiscountCents * (safePercentage / 100));
   }
 
   // 3. Apply Convenience Fee for QRPH

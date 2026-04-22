@@ -11,7 +11,7 @@ type SelectedServiceItem = {
   packageId?: number;
   packageName?: string;
   originalPrice?: number;
-  discountReason?: string;
+  discountReason?: string | null;
   slotsRemaining?: number | null;
   flow_triggers?: unknown[];
 };

@@ -392,6 +392,57 @@ export async function updateBookingStatusAction(
   }
 }
 
+export async function markBookingNoShowAction(bookingId: number) {
+  const validation = bookingIdSchema.safeParse({ bookingId });
+  if (!validation.success) {
+    return { success: false, error: "Invalid input" };
+  }
+
+  const auth = await requireAuth({ write: true });
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
+  try {
+    const booking = await prisma.booking.findFirst({
+      where: { id: bookingId, business: { slug: businessSlug } },
+      select: { id: true, status: true, customer_id: true },
+    });
+
+    if (!booking) return { success: false, error: "Booking not found." };
+    if (booking.status === BookingStatus.CANCELLED) {
+      return { success: false, error: "Booking is already cancelled." };
+    }
+    if (booking.status === BookingStatus.COMPLETED) {
+      return { success: false, error: "Cannot mark a completed booking as no-show." };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.booking.update({
+        where: { id: bookingId },
+        data: { status: BookingStatus.CANCELLED },
+      });
+
+      const customer = await tx.customer.update({
+        where: { id: booking.customer_id },
+        data: { no_show_count: { increment: 1 }, last_no_show_at: new Date() },
+        select: { no_show_count: true },
+      });
+
+      if (customer.no_show_count >= 2) {
+        await tx.customer.update({
+          where: { id: booking.customer_id },
+          data: { trust_tier: "RESTRICTED" },
+        });
+      }
+    });
+
+    revalidatePath(`/app/${businessSlug}`);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to mark as no-show." };
+  }
+}
+
 export async function deleteBookingAction(bookingId: number) {
   const validation = bookingIdSchema.safeParse({ bookingId });
   if (!validation.success) {

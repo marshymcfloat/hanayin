@@ -57,94 +57,79 @@ interface LeaveRequestsTabProps {
 }
 
 export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
-  const getStatusColor = (status: string) => {
+  const getStatusClass = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "bg-green-500 hover:bg-green-600";
+        return "border-primary/30 bg-primary/10 text-primary";
       case "REJECTED":
-        return "bg-red-500 hover:bg-red-600";
+        return "border-destructive/30 bg-destructive/10 text-destructive";
       default:
-        return "bg-yellow-500 hover:bg-yellow-600";
+        return "border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800";
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-4">
+      <div className="md:hidden grid grid-cols-1 gap-3">
         {requests.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-zinc-100">
-            <UserIcon className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-zinc-900">
-              No requests found
-            </h3>
-            <p className="text-zinc-500">
-              There are no pending leave requests.
-            </p>
+          <div className="text-center py-12 bg-card rounded-2xl border border-border">
+            <UserIcon className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-foreground">No requests found</h3>
+            <p className="text-muted-foreground">There are no pending leave requests.</p>
           </div>
         ) : (
           requests.map((request) => (
             <div
               key={request.id}
-              className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4"
+              className="bg-card rounded-2xl p-4 border border-border flex flex-col gap-4 transition-all active:scale-[0.99]"
             >
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
-                  <Avatar
-                    className={`${getAvatarColor(request.employee.user.name)} h-10 w-10 text-white shadow-sm ring-2 ring-white`}
-                  >
+                  <Avatar className={`${getAvatarColor(request.employee.user.name)} h-10 w-10 text-white shadow-sm`}>
                     <AvatarFallback className="bg-transparent font-medium">
                       {getInitials(request.employee.user.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-zinc-900">
+                    <span className="font-semibold text-foreground">
                       {request.employee.user.name}
                     </span>
-                    <Badge
-                      className={`w-fit mt-1 border-0 ${getStatusColor(request.status)}`}
-                    >
+                    <Badge variant="outline" className={`w-fit mt-1 text-xs ${getStatusClass(request.status)}`}>
                       {request.status}
                     </Badge>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3 pt-2 border-t border-zinc-50">
-                <div className="flex items-start gap-2 text-sm text-zinc-600">
-                  <Calendar className="h-4 w-4 mt-0.5 text-zinc-400" />
+              <div className="space-y-3 pt-2 border-t border-border/50">
+                <div className="flex items-start gap-2 text-sm">
+                  <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
                   <div className="flex flex-col">
-                    <span className="text-xs text-zinc-400 font-medium uppercase">
-                      Dates
-                    </span>
-                    <span className="font-medium text-zinc-900">
+                    <span className="text-xs text-muted-foreground font-medium uppercase">Dates</span>
+                    <span className="font-medium text-foreground">
                       {format(new Date(request.start_date), "MMM d, yyyy")} -{" "}
                       {format(new Date(request.end_date), "MMM d, yyyy")}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 text-sm text-zinc-600">
-                  <MessageSquare className="h-4 w-4 mt-0.5 text-zinc-400" />
+                <div className="flex items-start gap-2 text-sm">
+                  <MessageSquare className="h-4 w-4 mt-0.5 text-muted-foreground" />
                   <div className="flex flex-col">
-                    <span className="text-xs text-zinc-400 font-medium uppercase">
-                      Reason
-                    </span>
-                    <span>{request.reason}</span>
+                    <span className="text-xs text-muted-foreground font-medium uppercase">Reason</span>
+                    <span className="text-foreground">{request.reason}</span>
                   </div>
                 </div>
               </div>
 
               {request.status === "PENDING" && (
-                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-50">
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/50">
                   <LeaveActionDialog
                     requestId={request.id}
                     action="REJECT"
                     trigger={
-                      <Button
-                        variant="outline"
-                        className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                      >
+                      <Button variant="outline" className="w-full rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 cursor-pointer">
                         Reject
                       </Button>
                     }
@@ -153,7 +138,7 @@ export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
                     requestId={request.id}
                     action="APPROVE"
                     trigger={
-                      <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                      <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
                         Approve
                       </Button>
                     }
@@ -166,39 +151,24 @@ export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+      <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
         <Table>
-          <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
-            <TableRow className="hover:bg-transparent border-zinc-100">
-              <TableHead className="pl-6 h-12 font-semibold text-zinc-500">
-                Employee
-              </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
-                Dates
-              </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
-                Reason
-              </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
-                Status
-              </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
-                Admin Comment
-              </TableHead>
-              <TableHead className="text-right pr-6 h-12 font-semibold text-zinc-500">
-                Actions
-              </TableHead>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-border bg-muted/50">
+              <TableHead className="pl-6 h-11 font-semibold text-muted-foreground">Employee</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Dates</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Reason</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Status</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Admin Comment</TableHead>
+              <TableHead className="text-right pr-6 h-11 font-semibold text-muted-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {requests.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="text-center py-12 text-muted-foreground"
-                >
+                <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
                   <div className="flex flex-col items-center gap-2">
-                    <UserIcon className="h-8 w-8 text-zinc-300" />
+                    <UserIcon className="h-8 w-8 text-muted-foreground/40" />
                     <p>No leave requests found.</p>
                   </div>
                 </TableCell>
@@ -207,43 +177,39 @@ export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
               requests.map((request) => (
                 <TableRow
                   key={request.id}
-                  className="hover:bg-zinc-50/50 transition-colors border-zinc-100"
+                  className="hover:bg-accent/30 transition-colors border-border/50"
                 >
                   <TableCell className="pl-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Avatar
-                        className={`${getAvatarColor(request.employee.user.name)} h-9 w-9 text-white shadow-sm ring-2 ring-white`}
-                      >
+                      <Avatar className={`${getAvatarColor(request.employee.user.name)} h-9 w-9 text-white shadow-sm`}>
                         <AvatarFallback className="bg-transparent font-medium">
                           {getInitials(request.employee.user.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-zinc-900">
+                      <span className="font-medium text-foreground">
                         {request.employee.user.name}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="flex flex-col text-sm">
-                      <span className="font-medium text-zinc-700">
+                      <span className="font-medium text-foreground">
                         {format(new Date(request.start_date), "MMM d, yyyy")}
                       </span>
-                      <span className="text-zinc-400 text-xs">
+                      <span className="text-muted-foreground text-xs">
                         to {format(new Date(request.end_date), "MMM d, yyyy")}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 max-w-[200px] truncate text-zinc-600">
+                  <TableCell className="py-4 max-w-[200px] truncate text-muted-foreground">
                     {request.reason}
                   </TableCell>
                   <TableCell className="py-4">
-                    <Badge
-                      className={`border-0 ${getStatusColor(request.status)}`}
-                    >
+                    <Badge variant="outline" className={getStatusClass(request.status)}>
                       {request.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4 text-zinc-500 text-sm">
+                  <TableCell className="py-4 text-muted-foreground text-sm">
                     {request.admin_comment || "-"}
                   </TableCell>
                   <TableCell className="text-right pr-6 py-4">
@@ -253,11 +219,7 @@ export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
                           requestId={request.id}
                           action="REJECT"
                           trigger={
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 border-red-200 hover:bg-red-50"
-                            >
+                            <Button size="sm" variant="outline" className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 cursor-pointer">
                               Reject
                             </Button>
                           }
@@ -266,10 +228,7 @@ export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
                           requestId={request.id}
                           action="APPROVE"
                           trigger={
-                            <Button
-                              size="sm"
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                            >
+                            <Button size="sm" className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
                               Approve
                             </Button>
                           }

@@ -56,6 +56,16 @@ function toInputJson(value: unknown): Prisma.InputJsonValue {
   return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 }
 
+function parseManilaDateTime(value: string): Date | null {
+  if (!value) return null;
+  const withTz =
+    value.includes("+") || value.endsWith("Z")
+      ? value
+      : value + "+08:00";
+  const date = new Date(withTz);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function buildDraftSaleWindow(input: {
   offerWindowStart: Date;
   offerWindowEnd: Date;
@@ -364,6 +374,23 @@ export async function generateGrowthCampaignAction(
     );
     const packageNames = packageCandidates.map((pkg) => pkg.name);
 
+    const finalDiscountPercent =
+      offer.actionCategory === "DISCOUNT" && input.overrides?.discountPercent != null
+        ? input.overrides.discountPercent
+        : (offer.mechanics.discountPercent ?? 0);
+    const finalStartDate =
+      input.overrides?.startDate
+        ? (parseManilaDateTime(input.overrides.startDate) ?? draftWindow.startDate)
+        : draftWindow.startDate;
+    const finalEndDate =
+      input.overrides?.endDate
+        ? (parseManilaDateTime(input.overrides.endDate) ?? draftWindow.endDate)
+        : draftWindow.endDate;
+    const finalSlotLimit =
+      input.overrides?.slotLimit != null
+        ? input.overrides.slotLimit
+        : (offer.mechanics.limitedSlots ?? null);
+
     let mediaUrl: string | null = null;
     try {
       mediaUrl = await generateAndUploadPromoImage({
@@ -372,10 +399,10 @@ export async function generateGrowthCampaignAction(
         title: offer.title,
         saleDescription: offer.publicDescription,
         captionText: primaryCaption?.text || offer.title,
-        discountType: offer.actionCategory === "DISCOUNT" ? "PERCENTAGE" : "PERCENTAGE",
-        discountValue: offer.actionCategory === "DISCOUNT" ? (offer.mechanics.discountPercent || 0) : 0,
-        startDate: draftWindow.startDate,
-        endDate: draftWindow.endDate,
+        discountType: "PERCENTAGE",
+        discountValue: offer.actionCategory === "DISCOUNT" ? finalDiscountPercent : 0,
+        startDate: finalStartDate,
+        endDate: finalEndDate,
         serviceNames,
         serviceCategories,
         packageNames,
@@ -396,11 +423,11 @@ export async function generateGrowthCampaignAction(
           data: {
             title: offer.title,
             description: offer.publicDescription,
-            start_date: draftWindow.startDate,
-            end_date: draftWindow.endDate,
+            start_date: finalStartDate,
+            end_date: finalEndDate,
             discount_type: "PERCENTAGE",
-            discount_value: offer.mechanics.discountPercent || 0,
-            slot_limit: offer.mechanics.limitedSlots || null,
+            discount_value: finalDiscountPercent,
+            slot_limit: finalSlotLimit,
             business_id: business.id,
             applicable_services: {
               connect: serviceCandidates.map((service) => ({ id: service.id })),

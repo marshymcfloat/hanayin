@@ -37,6 +37,7 @@ export async function updateBookingPolicy(
       public_default_payment_type: normalizeBookingPublicPaymentType(
         normalized.defaultPublicPaymentType,
       ),
+      downpayment_percentage: normalized.downpaymentPercentage,
       booking_v2_enabled: normalized.bookingV2Enabled,
     },
   });

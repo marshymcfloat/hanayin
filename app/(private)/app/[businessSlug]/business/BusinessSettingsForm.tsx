@@ -135,10 +135,10 @@ export function BusinessSettingsForm({
     <form action={onSubmit} className="space-y-6">
       <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-white border-b border-zinc-100 p-6">
-          <CardTitle className="text-xl font-bold text-zinc-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             General Information
           </CardTitle>
-          <CardDescription className="text-zinc-500">
+          <CardDescription className="text-muted-foreground">
             Basic details about your business.
           </CardDescription>
         </CardHeader>
@@ -170,7 +170,7 @@ export function BusinessSettingsForm({
                 required
                 className="rounded-xl border-zinc-200 focus-visible:ring-emerald-500"
               />
-              <p className="text-[0.8rem] text-zinc-400">
+              <p className="text-[0.8rem] text-muted-foreground">
                 Used as prefix for voucher codes (e.g. BF-123456)
               </p>
             </div>
@@ -210,7 +210,7 @@ export function BusinessSettingsForm({
               defaultValue={business.slug}
               className="bg-zinc-50 border-zinc-200 rounded-xl text-zinc-500"
             />
-            <p className="text-[0.8rem] text-zinc-400">
+            <p className="text-[0.8rem] text-muted-foreground">
               This is your unique identifier used in the URL. Only admins can
               change this.
             </p>
@@ -220,10 +220,10 @@ export function BusinessSettingsForm({
 
       <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-white border-b border-zinc-100 p-6">
-          <CardTitle className="text-xl font-bold text-zinc-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             Location
           </CardTitle>
-          <CardDescription className="text-zinc-500">
+          <CardDescription className="text-muted-foreground">
             Pin your business location on the map. This helps customers find
             you.
           </CardDescription>
@@ -241,10 +241,10 @@ export function BusinessSettingsForm({
 
       <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-white border-b border-zinc-100 p-6">
-          <CardTitle className="text-xl font-bold text-zinc-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             Operations Structure
           </CardTitle>
-          <CardDescription className="text-zinc-500">
+          <CardDescription className="text-muted-foreground">
             Configure who books, who handles queue operations, and manager service mode.
           </CardDescription>
         </CardHeader>
@@ -300,10 +300,10 @@ export function BusinessSettingsForm({
 
       <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-white border-b border-zinc-100 p-6">
-          <CardTitle className="text-xl font-bold text-zinc-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             Growth Engine Settings
           </CardTitle>
-          <CardDescription className="text-zinc-500">
+          <CardDescription className="text-muted-foreground">
             Configure defaults for opportunity and campaign generation.
           </CardDescription>
         </CardHeader>
@@ -383,10 +383,10 @@ export function BusinessSettingsForm({
 
       <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-white border-b border-zinc-100 p-6">
-          <CardTitle className="text-xl font-bold text-zinc-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             Social Channels
           </CardTitle>
-          <CardDescription className="text-zinc-500">
+          <CardDescription className="text-muted-foreground">
             Connect your Facebook Page and linked Instagram business account for
             sale-event publishing.
           </CardDescription>
@@ -414,7 +414,7 @@ export function BusinessSettingsForm({
                 className="rounded-2xl border border-zinc-200 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="text-sm font-semibold text-zinc-900">{label}</p>
+                  <p className="text-sm font-semibold text-foreground">{label}</p>
                   {connection ? (
                     <div className="space-y-1 mt-1">
                       <p className="text-sm text-zinc-600">
@@ -489,7 +489,7 @@ export function BusinessSettingsForm({
           type="submit"
           size="lg"
           disabled={isPending}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-500/20 px-8 min-w-[140px]"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/15 px-8 min-w-[140px]"
         >
           {isPending ? (
             <>

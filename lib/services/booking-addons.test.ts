@@ -19,7 +19,7 @@ function createActorContext() {
       managerCanServe: true,
     },
     profile: "STAFF" as const,
-    permissions: ["BOOKING_CREATE"] as string[],
+    permissions: ["BOOKING_CREATE" as const],
     ownerId: null,
   };
 }

@@ -1,0 +1,180 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceFlow
+          - generic [ref=e15]: Pro Dashboard
+      - generic [ref=e16]:
+        - list [ref=e18]:
+          - listitem [ref=e19]:
+            - link "Dashboard" [ref=e20] [cursor=pointer]:
+              - /url: /app/beautyfeel/
+              - img [ref=e21]
+              - generic [ref=e24]: Dashboard
+        - generic [ref=e25]:
+          - generic [ref=e27]:
+            - button "Business" [expanded] [ref=e28] [cursor=pointer]:
+              - img [ref=e30]
+              - generic [ref=e34]: Business
+              - img [ref=e35]
+            - list [ref=e39]:
+              - listitem [ref=e40]:
+                - link "Services" [ref=e41] [cursor=pointer]:
+                  - /url: /app/beautyfeel/services/
+                  - img [ref=e42]
+                  - generic [ref=e45]: Services
+              - listitem [ref=e46]:
+                - link "Packages" [ref=e47] [cursor=pointer]:
+                  - /url: /app/beautyfeel/packages/
+                  - img [ref=e48]
+                  - generic [ref=e52]: Packages
+              - listitem [ref=e53]:
+                - link "Vouchers" [ref=e54] [cursor=pointer]:
+                  - /url: /app/beautyfeel/vouchers/
+                  - img [ref=e55]
+                  - generic [ref=e57]: Vouchers
+              - listitem [ref=e58]:
+                - link "Gift Cards" [ref=e59] [cursor=pointer]:
+                  - /url: /app/beautyfeel/gift-cards/
+                  - img [ref=e60]
+                  - generic [ref=e64]: Gift Cards
+              - listitem [ref=e65]:
+                - link "Sale Events" [ref=e66] [cursor=pointer]:
+                  - /url: /app/beautyfeel/sale-events/
+                  - img [ref=e68]
+                  - generic [ref=e72]: Sale Events
+              - listitem [ref=e73]:
+                - link "Social Posts" [ref=e74] [cursor=pointer]:
+                  - /url: /app/beautyfeel/social-posts/
+                  - img [ref=e75]
+                  - generic [ref=e78]: Social Posts
+              - listitem [ref=e79]:
+                - link "Growth" [ref=e80] [cursor=pointer]:
+                  - /url: /app/beautyfeel/growth/
+                  - img [ref=e81]
+                  - generic [ref=e84]: Growth
+              - listitem [ref=e85]:
+                - link "Business Hours" [ref=e86] [cursor=pointer]:
+                  - /url: /app/beautyfeel/business-hours/
+                  - img [ref=e87]
+                  - generic [ref=e89]: Business Hours
+              - listitem [ref=e90]:
+                - link "Billing" [ref=e91] [cursor=pointer]:
+                  - /url: /app/beautyfeel/billing/
+                  - img [ref=e92]
+                  - generic [ref=e94]: Billing
+              - listitem [ref=e95]:
+                - link "Reports" [ref=e96] [cursor=pointer]:
+                  - /url: /app/beautyfeel/reports/
+                  - img [ref=e97]
+                  - generic [ref=e99]: Reports
+          - button "Team" [ref=e102] [cursor=pointer]:
+            - img [ref=e104]
+            - generic [ref=e109]: Team
+            - img [ref=e110]
+          - button "Customers" [ref=e114] [cursor=pointer]:
+            - img [ref=e116]
+            - generic [ref=e118]: Customers
+            - img [ref=e119]
+        - list [ref=e122]:
+          - listitem [ref=e123]:
+            - link "Settings" [ref=e124] [cursor=pointer]:
+              - /url: /app/beautyfeel/business/
+              - img [ref=e125]
+              - generic [ref=e128]: Settings
+      - list [ref=e130]:
+        - listitem [ref=e131]:
+          - button "EL Ellaine Pe rjpern@gmail.com" [ref=e132]:
+            - generic [ref=e134]: EL
+            - generic [ref=e135]:
+              - generic [ref=e136]: Ellaine Pe
+              - generic [ref=e137]: rjpern@gmail.com
+            - img [ref=e138]
+    - main [ref=e141]:
+      - generic [ref=e144]:
+        - generic [ref=e145]:
+          - generic [ref=e146]:
+            - generic [ref=e147]:
+              - paragraph [ref=e148]: Growth Publishing Flow
+              - paragraph [ref=e149]: "Next action: Open a social post and review caption, media, and channels."
+            - generic [ref=e150]: Step 2 of 3
+          - generic [ref=e151]:
+            - link "1. Pick opportunity" [ref=e152] [cursor=pointer]:
+              - /url: /app/beautyfeel/sale-events/?flow=growth&step=1&source=dashboard
+            - link "2. Create or confirm event" [ref=e153] [cursor=pointer]:
+              - /url: /app/beautyfeel/sale-events/?flow=growth&step=2&source=dashboard
+            - link "3. Review and publish post" [ref=e154] [cursor=pointer]:
+              - /url: /app/beautyfeel/social-posts/?flow=growth&step=3&source=sale-events
+        - generic [ref=e155]:
+          - generic [ref=e156]:
+            - heading "Sale Events" [level=2] [ref=e157]:
+              - img [ref=e159]
+              - text: Sale Events
+            - paragraph [ref=e163]: Manage your promotional campaigns and discounts.
+          - button "Create Event" [ref=e164]:
+            - img
+            - text: Create Event
+        - article [ref=e165]:
+          - generic [ref=e166]:
+            - generic [ref=e167]:
+              - img [ref=e168]
+              - heading "Today's Growth Opportunity" [level=3] [ref=e171]
+            - button "Refresh" [ref=e172]:
+              - img [ref=e173]
+              - text: Refresh
+          - paragraph [ref=e178]: You have 33 open slots today with lower occupancy than target.
+          - paragraph [ref=e179]: SLOW HOURS | Score 91% | Confidence 75%
+          - paragraph [ref=e180]: "Window: Apr 12, 2:00 PM to Apr 12, 5:00 PM"
+          - paragraph [ref=e181]: "Suggested offer: FLASH DEAL, LIMITED SLOTS"
+          - paragraph [ref=e183]: "Capacity check: 33 open slots out of 33"
+          - generic [ref=e184]:
+            - button "Create Draft Event + Post" [ref=e185]
+            - button "Best times" [ref=e186]:
+              - img [ref=e187]
+              - text: Best times
+        - table [ref=e193]:
+          - rowgroup [ref=e194]:
+            - row "Event Name Discount Scope Duration Status Social Actions" [ref=e195]:
+              - columnheader "Event Name" [ref=e196]
+              - columnheader "Discount" [ref=e197]
+              - columnheader "Scope" [ref=e198]
+              - columnheader "Duration" [ref=e199]
+              - columnheader "Status" [ref=e200]
+              - columnheader "Social" [ref=e201]
+              - columnheader "Actions" [ref=e202]
+          - rowgroup [ref=e203]:
+            - row "Quiet Hours Body Reset 15% Percentage 8 Items 0/10 slots Apr 6, 2026 to Apr 6, 2026 Expired Draft Review post" [ref=e204]:
+              - cell "Quiet Hours Body Reset" [ref=e205]:
+                - generic [ref=e207]:
+                  - img [ref=e208]
+                  - generic [ref=e211]: Quiet Hours Body Reset
+              - cell "15% Percentage" [ref=e212]:
+                - generic [ref=e213]:
+                  - generic [ref=e214]: 15%
+                  - generic [ref=e215]: Percentage
+              - cell "8 Items 0/10 slots" [ref=e216]:
+                - generic [ref=e217]:
+                  - generic [ref=e218]: 8 Items
+                  - generic [ref=e219]: 0/10 slots
+              - cell "Apr 6, 2026 to Apr 6, 2026" [ref=e220]:
+                - generic [ref=e221]:
+                  - generic [ref=e222]: Apr 6, 2026
+                  - generic [ref=e223]: to
+                  - generic [ref=e224]: Apr 6, 2026
+              - cell "Expired" [ref=e225]:
+                - generic [ref=e226]: Expired
+              - cell "Draft" [ref=e227]
+              - cell "Review post" [ref=e228]:
+                - generic [ref=e229]:
+                  - link "Review post" [ref=e230] [cursor=pointer]:
+                    - /url: /app/beautyfeel/social-posts/?flow=growth&step=3&source=sale-events&saleEventId=1&socialPostId=cmnmj0z6i0003duin2fnjo5v8
+                  - button [ref=e231]:
+                    - img
+                  - button [ref=e232]:
+                    - img
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e238] [cursor=pointer]:
+    - img [ref=e239]
+  - alert [ref=e242]

@@ -396,108 +396,98 @@ export function SalesChart({
         "flex flex-col overflow-hidden min-h-0 min-w-0",
         isEmbedded
           ? "border-0 shadow-none bg-transparent rounded-none"
-          : "rounded-[32px] border-none shadow-lg shadow-zinc-200/50 bg-white",
+          : "rounded-2xl border border-border shadow-sm bg-card",
         className,
       )}
     >
+      {/* Header */}
       <CardHeader
         className={cn(
-          "pb-4 space-y-4",
-          isEmbedded ? "px-4 pt-4" : "md:px-8 md:pt-8",
+          "pb-0",
+          isEmbedded ? "px-4 pt-4" : "px-4 sm:px-6 pt-4 sm:pt-5",
         )}
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between min-w-0">
-          <div className="space-y-1 min-w-0">
-            <CardTitle className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 truncate">
-              Financial Overview
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm text-zinc-500 font-medium truncate">
-              Revenue, expenses, and net income
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+        {/* Row 1: title + controls */}
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <CardTitle className="text-sm font-bold tracking-tight text-foreground">
+            Revenue
+          </CardTitle>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Net chip — embedded variant only */}
+            {isEmbedded && (
+              <span className="hidden sm:inline text-[10px] font-bold text-primary bg-primary/8 px-2 py-0.5 rounded-full tabular-nums">
+                ₱{netRevenue >= 1000 ? `${(netRevenue / 1000).toFixed(1)}k` : netRevenue.toLocaleString()} net
+              </span>
+            )}
+
             <Select
               value={range}
               onValueChange={(value) => setRange(value as ChartRange)}
             >
-              <SelectTrigger className="w-[120px] sm:w-[130px] rounded-xl h-9 sm:h-10 border-zinc-200 bg-zinc-50 font-medium text-xs">
-                <SelectValue placeholder="Select range" />
+              <SelectTrigger className="w-[90px] sm:w-[100px] rounded-lg h-7 border-border bg-muted/60 font-medium text-[11px]">
+                <SelectValue placeholder="Range" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
                 <SelectItem value="daily">Today</SelectItem>
-                <SelectItem value="weekly">Last 7 Days</SelectItem>
+                <SelectItem value="weekly">7 Days</SelectItem>
                 <SelectItem value="monthly">This Month</SelectItem>
                 <SelectItem value="yearly">This Year</SelectItem>
               </SelectContent>
             </Select>
+
             {reportsHref ? (
               <Button
                 asChild
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className="rounded-xl h-10 w-10 border-zinc-200 bg-white"
+                className="h-7 w-7 rounded-lg border border-border text-muted-foreground hover:text-foreground"
               >
                 <Link href={reportsHref} aria-label="Open revenue reports">
-                  <Eye className="h-4 w-4 text-zinc-500" />
+                  <Eye className="h-3.5 w-3.5" />
                 </Link>
               </Button>
             ) : null}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-          <div className="space-y-0.5 min-w-0">
-            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider truncate">
-              Net Revenue
+        {/* Row 2: NET + EXPENSES stats — card variant only, own row so it never clips */}
+        {!isEmbedded && (
+          <div className="flex items-end gap-5 mt-3 pb-1">
+            <div>
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">
+                Net
+              </p>
+              <p className="text-xl font-bold text-foreground tabular-nums leading-tight">
+                ₱{netRevenue.toLocaleString()}
+              </p>
             </div>
-            <div
-              className="text-xl lg:text-2xl font-bold text-emerald-900 truncate"
-              title={`₱${netRevenue.toLocaleString()}`}
-            >
-              ₱{netRevenue.toLocaleString()}
+            <div className="w-px h-8 bg-border self-end mb-0.5" />
+            <div>
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">
+                Expenses
+              </p>
+              <p className="text-xl font-bold text-destructive tabular-nums leading-tight">
+                ₱{totalPayroll.toLocaleString()}
+              </p>
             </div>
-            <div className="text-[10px] font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-0.5 rounded-full truncate">
-              Gross: ₱{totalRevenue.toLocaleString()}
-            </div>
-          </div>
-          <div className="space-y-0.5 min-w-0">
-            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider truncate">
-              Expenses
-            </div>
-            <div
-              className="text-xl lg:text-2xl font-bold text-red-700 truncate"
-              title={`₱${totalPayroll.toLocaleString()}`}
-            >
-              ₱{totalPayroll.toLocaleString()}
-            </div>
-            <div className="text-[10px] font-medium text-zinc-500 truncate">
-              Payroll
-            </div>
-          </div>
-          <div className="hidden lg:block space-y-0.5 min-w-0">
-            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider truncate">
-              Avg. Order
-            </div>
-            <div
-              className="text-xl lg:text-2xl font-bold text-zinc-900 truncate"
-              title={`₱${averageOrderValue.toLocaleString()}`}
-            >
-              ₱
-              {averageOrderValue.toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })}
-            </div>
-            <div className="text-[10px] font-medium text-zinc-600 truncate">
-              Per booking
+            <div className="w-px h-8 bg-border self-end mb-0.5" />
+            <div>
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide">
+                Avg. Order
+              </p>
+              <p className="text-xl font-bold text-foreground tabular-nums leading-tight">
+                ₱{averageOrderValue.toFixed(0)}
+              </p>
             </div>
           </div>
-        </div>
+        )}
       </CardHeader>
 
       <CardContent
         className={cn(
-          "py-4 flex-1 min-h-[220px] min-w-0 pb-4",
-          isEmbedded ? "px-4" : "px-4 md:px-8",
+          "flex-1 min-h-[180px] min-w-0 pt-3 pb-4",
+          isEmbedded ? "px-3" : "px-4 sm:px-5",
         )}
       >
         {isClient ? (
@@ -510,7 +500,7 @@ export function SalesChart({
             >
               <BarChart
                 data={data}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -523,7 +513,7 @@ export function SalesChart({
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
-                  dy={16}
+                  dy={8}
                   fontWeight={500}
                 />
                 <YAxis
@@ -538,7 +528,7 @@ export function SalesChart({
                   fontWeight={500}
                 />
                 <Tooltip
-                  cursor={{ fill: "#f4f4f5", radius: 8 }}
+                  cursor={{ fill: "hsl(var(--muted))", radius: 6 }}
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       const tooltipItems = payload as Array<{
@@ -551,8 +541,8 @@ export function SalesChart({
                         0,
                       );
                       return (
-                        <div className="rounded-xl border-none bg-zinc-900 p-4 shadow-xl text-white ring-1 ring-white/10 min-w-[150px]">
-                          <div className="font-bold text-sm mb-2 text-zinc-300">
+                        <div className="rounded-xl border border-border bg-card p-3 shadow-lg min-w-[130px]">
+                          <div className="font-bold text-xs mb-2 text-muted-foreground">
                             {label}
                           </div>
                           {tooltipItems.map((p) => (
@@ -560,25 +550,25 @@ export function SalesChart({
                               key={p.name}
                               className="flex items-center justify-between gap-4 text-xs"
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5">
                                 <div
                                   className="w-2 h-2 rounded-full"
                                   style={{ backgroundColor: p.color }}
                                 />
-                                <span className="text-zinc-400 capitalize">
+                                <span className="text-muted-foreground capitalize">
                                   {p.name}
                                 </span>
                               </div>
-                              <span className="font-semibold">
+                              <span className="font-semibold text-foreground tabular-nums">
                                 ₱{Number(p.value ?? 0).toLocaleString()}
                               </span>
                             </div>
                           ))}
-                          <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center">
-                            <span className="text-xs font-bold uppercase text-zinc-400">
+                          <div className="mt-1.5 pt-1.5 border-t border-border flex justify-between items-center">
+                            <span className="text-[10px] font-bold uppercase text-muted-foreground">
                               Total
                             </span>
-                            <span className="font-bold text-emerald-400">
+                            <span className="font-bold text-primary tabular-nums text-xs">
                               ₱{totalValue.toLocaleString()}
                             </span>
                           </div>
@@ -595,15 +585,15 @@ export function SalesChart({
                       dataKey={cat}
                       stackId="a"
                       fill={colors[i % colors.length]}
-                      radius={[0, 0, 0, 0]}
+                      radius={i === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                     />
                   ))
                 ) : (
                   <Bar
                     dataKey="total"
-                    fill="#10b981"
-                    radius={[6, 6, 6, 6]}
-                    barSize={range === "daily" ? 24 : 40}
+                    fill="oklch(0.627 0.194 149.214)"
+                    radius={[4, 4, 0, 0]}
+                    barSize={range === "daily" ? 20 : 32}
                   />
                 )}
               </BarChart>

@@ -7,8 +7,8 @@ import {
 
 /**
  * Promote booking to COMPLETED when all services are done and payment is settled.
- * This keeps booking status consistent regardless of whether service completion
- * or payment settlement happened first.
+ * Also upgrades the customer's trust tier from NEW → TRUSTED on first completion,
+ * so future bookings skip the OTP step.
  */
 export async function promoteBookingToCompletedIfEligible(
   tx: Prisma.TransactionClient,
@@ -20,6 +20,7 @@ export async function promoteBookingToCompletedIfEligible(
       id: true,
       status: true,
       payment_status: true,
+      customer_id: true,
     },
   });
 
@@ -42,6 +43,12 @@ export async function promoteBookingToCompletedIfEligible(
   await tx.booking.update({
     where: { id: bookingId },
     data: { status: BookingStatus.COMPLETED },
+  });
+
+  // Upgrade NEW → TRUSTED so the customer skips OTP on future bookings
+  await tx.customer.updateMany({
+    where: { id: booking.customer_id, trust_tier: "NEW" },
+    data: { trust_tier: "TRUSTED" },
   });
 
   return true;

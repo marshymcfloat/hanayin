@@ -34,7 +34,19 @@ import {
   QrCode,
   Loader2,
   PlusCircle,
+  AlertTriangle,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -45,6 +57,7 @@ import {
   getBookingQrPaymentReviewAction,
   markBookingPaidAction,
 } from "@/lib/server actions/dashboard";
+import { markBookingNoShowAction } from "@/lib/server actions/dashboard/owner";
 import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/booking-addons";
 
 type BookingWithDetails = Booking & {
@@ -86,6 +99,7 @@ export function BookingDetailsDialog({
   const [isReviewingQr, setIsReviewingQr] = useState(false);
   const [isGeneratingBalanceQr, setIsGeneratingBalanceQr] = useState(false);
   const [isMarkingPaid, setIsMarkingPaid] = useState(false);
+  const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [serviceQuantity, setServiceQuantity] = useState(1);
   const [isAddingService, setIsAddingService] = useState(false);
@@ -126,6 +140,7 @@ export function BookingDetailsDialog({
 
   const canMarkPaid =
     booking?.status !== "CANCELLED" && booking?.payment_status !== "PAID";
+  const canMarkNoShow = booking?.status === "ACCEPTED";
   const payCtaLabel = amountPaid > 0 ? "Pay Remaining" : "Pay Now";
   const canAddService = booking?.status !== "CANCELLED";
   const availableServiceOptions = useMemo(
@@ -236,6 +251,22 @@ export function BookingDetailsDialog({
     }
   };
 
+  const handleMarkNoShow = async () => {
+    setIsMarkingNoShow(true);
+    try {
+      const result = await markBookingNoShowAction(booking.id);
+      if (!result.success) {
+        toast.error(result.error || "Unable to mark as no-show.");
+        return;
+      }
+      toast.success("Booking marked as no-show.");
+      onOpenChange(false);
+      router.refresh();
+    } finally {
+      setIsMarkingNoShow(false);
+    }
+  };
+
   const handleAddService = async () => {
     if (!canAddService) {
       toast.error("Cannot add services to a cancelled booking.");
@@ -343,9 +374,26 @@ export function BookingDetailsDialog({
                       <span className="text-[10px] uppercase text-zinc-400 font-semibold tracking-wide block mb-1">
                         Full Name
                       </span>
-                      <span className="text-sm font-semibold text-zinc-900">
-                        {booking.customer.name}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-zinc-900">
+                          {booking.customer.name}
+                        </span>
+                        {booking.customer.trust_tier === "TRUSTED" && (
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50">
+                            Trusted
+                          </Badge>
+                        )}
+                        {booking.customer.trust_tier === "RESTRICTED" && (
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-red-200 text-red-700 bg-red-50">
+                            Restricted
+                          </Badge>
+                        )}
+                        {booking.customer.no_show_count > 0 && (
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-amber-200 text-amber-700 bg-amber-50">
+                            {booking.customer.no_show_count} no-show{booking.customer.no_show_count > 1 ? "s" : ""}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     {booking.customer.phone && (
                       <div>
@@ -542,6 +590,44 @@ export function BookingDetailsDialog({
               </section>
 
               <section className="flex flex-wrap justify-end gap-2 pt-2">
+                {canMarkNoShow && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-xl border-amber-200 text-amber-700 hover:bg-amber-50"
+                        disabled={isMarkingNoShow}
+                      >
+                        {isMarkingNoShow ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <AlertTriangle className="h-4 w-4 mr-2" />
+                        )}
+                        Mark as No-Show
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="rounded-2xl">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Mark as No-Show?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will cancel the booking and record a no-show for{" "}
+                          <strong>{booking.customer.name}</strong>. Customers
+                          with 2 or more no-shows are restricted from booking.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
+                          onClick={handleMarkNoShow}
+                        >
+                          Confirm No-Show
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
                 {canReviewQr && (
                   <Button
                     type="button"

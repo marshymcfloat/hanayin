@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import {
-  AlertTriangle,
   CalendarClock,
+  ChevronDown,
   Loader2,
   Megaphone,
   RefreshCcw,
@@ -19,6 +19,7 @@ import {
 import type { OpportunityView } from "@/lib/services/growth/types";
 import { isDiscountOffer } from "@/lib/services/growth/types";
 import { buildGrowthFlowQuery } from "./growth/types";
+import { cn } from "@/lib/utils";
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -39,7 +40,7 @@ export function TodayGrowthOpportunityCard(props: {
   const [opportunity, setOpportunity] = useState<OpportunityView | null>(
     props.initialOpportunity,
   );
-  const [showSchedule, setShowSchedule] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [isRefreshing, startRefresh] = useTransition();
   const hasAutoRefreshed = useRef(false);
 
@@ -50,20 +51,6 @@ export function TodayGrowthOpportunityCard(props: {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const capacitySummary = useMemo(() => {
-    if (!opportunity?.metadata) return null;
-    const openSlots =
-      typeof opportunity.metadata.openSlots === "number"
-        ? opportunity.metadata.openSlots
-        : null;
-    const capacity =
-      typeof opportunity.metadata.estimatedCapacitySlots === "number"
-        ? opportunity.metadata.estimatedCapacitySlots
-        : null;
-    if (openSlots === null || capacity === null) return null;
-    return { openSlots, capacity };
-  }, [opportunity]);
 
   const refresh = () => {
     startRefresh(async () => {
@@ -87,125 +74,121 @@ export function TodayGrowthOpportunityCard(props: {
     });
   };
 
+  const hasDiscount = opportunity?.recommendedOfferTypes.some(isDiscountOffer);
+  const ctaLabel = hasDiscount ? "Create Offer" : "Generate Post";
+
   return (
-    <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Megaphone className="size-4 text-emerald-600" />
-          <h3 className="text-sm font-semibold text-zinc-900">
-            Today&apos;s Growth Opportunity
-          </h3>
+    <div className="p-4">
+      {/* Header row */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-1.5">
+          <Megaphone className="h-3.5 w-3.5 text-primary" />
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+            Growth
+          </p>
         </div>
         <button
           type="button"
           onClick={refresh}
-          className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-50"
           disabled={isRefreshing}
+          aria-label="Refresh growth opportunity"
+          className="h-6 w-6 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-accent transition-colors cursor-pointer"
         >
           {isRefreshing ? (
-            <Loader2 className="size-3 animate-spin" />
+            <Loader2 className="h-3 w-3 animate-spin" />
           ) : (
-            <RefreshCcw className="size-3" />
+            <RefreshCcw className="h-3 w-3" />
           )}
-          Refresh
         </button>
       </div>
 
+      {/* Body */}
       {!opportunity ? (
-        <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-3 text-xs text-zinc-600">
+        <div className="rounded-xl bg-muted/50 px-3 py-3 text-xs text-muted-foreground">
           {isRefreshing ? (
             <span className="flex items-center gap-2">
-              <Loader2 className="size-3 animate-spin" />
-              Checking for today&apos;s growth opportunities...
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Checking for opportunities...
             </span>
           ) : (
             "No growth opportunity detected for today."
           )}
         </div>
       ) : (
-        <>
-          <p className="mt-3 text-sm font-medium text-zinc-900">{opportunity.reason}</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            {opportunity.type.replaceAll("_", " ")} | Score{" "}
-            {(opportunity.score * 100).toFixed(0)}% | Confidence{" "}
-            {(opportunity.confidence * 100).toFixed(0)}%
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Window: {formatDateTime(opportunity.timeWindowStart)} to{" "}
-            {formatDateTime(opportunity.timeWindowEnd)}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Suggested action:{" "}
-            {opportunity.recommendedOfferTypes.join(", ").replaceAll("_", " ")}
-            {opportunity.recommendedOfferTypes.length > 0 &&
-              !opportunity.recommendedOfferTypes.some(isDiscountOffer) && (
-              <span className="ml-1.5 inline-flex items-center rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 border border-blue-200">
-                No discount
-              </span>
-            )}
-          </p>
-
-          {capacitySummary ? (
-            <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2">
-              <p className="text-xs font-semibold text-emerald-800">
-                Capacity check: {capacitySummary.openSlots} open slots out of{" "}
-                {capacitySummary.capacity}
-              </p>
-            </div>
-          ) : null}
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Link
-              href={`/app/${props.businessSlug}/sale-events?${buildGrowthFlowQuery({
-                step: 1,
-                source: "dashboard",
-                opportunityId: opportunity.id,
-              })}`}
-              className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
-            >
-              <Megaphone className="size-3" />
-              {opportunity.recommendedOfferTypes.some(isDiscountOffer)
-                ? "Start Step 1: Create Offer"
-                : "Generate Social Post"}
-            </Link>
-            <button
-              type="button"
-              onClick={() => setShowSchedule((value) => !value)}
-              className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50"
-            >
-              <CalendarClock className="size-3" />
-              Best times
-            </button>
+        <div className="space-y-3">
+          {/* Score badge + reason */}
+          <div className="flex items-start gap-2">
+            <span className="mt-0.5 shrink-0 text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full tabular-nums">
+              {(opportunity.score * 100).toFixed(0)}%
+            </span>
+            <p className="text-xs font-medium text-foreground leading-snug">
+              {opportunity.reason}
+            </p>
           </div>
-          <p className="mt-2 text-xs text-zinc-600">
-            You&apos;ll create the offer first, then review post before publishing.
-          </p>
 
-          {showSchedule ? (
-            <div className="mt-3 space-y-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2">
-              {opportunity.suggestedPostTimes.length === 0 ? (
-                <p className="text-xs text-zinc-600">
-                  No future timestamps available for this window.
+          {/* CTA */}
+          <Link
+            href={`/app/${props.businessSlug}/sale-events?${buildGrowthFlowQuery({
+              step: 1,
+              source: "dashboard",
+              opportunityId: opportunity.id,
+            })}`}
+            className="flex items-center justify-center gap-1.5 w-full rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Megaphone className="h-3 w-3" />
+            {ctaLabel}
+          </Link>
+
+          {/* Collapsible details */}
+          <button
+            type="button"
+            onClick={() => setShowDetails((v) => !v)}
+            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            <ChevronDown
+              className={cn(
+                "h-3 w-3 transition-transform duration-200",
+                showDetails && "rotate-180",
+              )}
+            />
+            {showDetails ? "Hide details" : "Show details"}
+          </button>
+
+          {showDetails && (
+            <div className="space-y-1.5 rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-[10px] text-muted-foreground">
+              <p>
+                <span className="font-semibold text-foreground">Type:</span>{" "}
+                {opportunity.type.replaceAll("_", " ")}
+              </p>
+              <p>
+                <span className="font-semibold text-foreground">Confidence:</span>{" "}
+                {(opportunity.confidence * 100).toFixed(0)}%
+              </p>
+              <p>
+                <span className="font-semibold text-foreground">Window:</span>{" "}
+                {formatDateTime(opportunity.timeWindowStart)} → {formatDateTime(opportunity.timeWindowEnd)}
+              </p>
+              {opportunity.recommendedOfferTypes.length > 0 && (
+                <p>
+                  <span className="font-semibold text-foreground">Action:</span>{" "}
+                  {opportunity.recommendedOfferTypes.join(", ").replaceAll("_", " ")}
                 </p>
-              ) : (
-                opportunity.suggestedPostTimes.map((entry) => (
-                  <p key={entry} className="text-xs text-zinc-700">
-                    <CalendarClock className="mr-1 inline size-3 text-zinc-500" />
-                    {formatDateTime(entry)}
+              )}
+              {opportunity.suggestedPostTimes.length > 0 && (
+                <div className="space-y-0.5 pt-1 border-t border-border">
+                  <p className="font-semibold text-foreground flex items-center gap-1">
+                    <CalendarClock className="h-2.5 w-2.5" />
+                    Best times
                   </p>
-                ))
+                  {opportunity.suggestedPostTimes.slice(0, 3).map((t) => (
+                    <p key={t}>{formatDateTime(t)}</p>
+                  ))}
+                </div>
               )}
             </div>
-          ) : null}
-
-          {opportunity.metadata && typeof opportunity.metadata.risk === "string" ? (
-            <p className="mt-3 text-xs text-amber-700">
-              <AlertTriangle className="mr-1 inline size-3" />
-              Risk flag: {opportunity.metadata.risk}
-            </p>
-          ) : null}
-        </>
+          )}
+        </div>
       )}
-    </article>
+    </div>
   );
 }

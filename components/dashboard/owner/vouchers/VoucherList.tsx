@@ -45,14 +45,14 @@ export function VoucherList({
   const getStatusBadge = (voucher: Voucher) => {
     if (voucher.used_by) {
       return (
-        <Badge variant="secondary" className="bg-zinc-100 text-zinc-600">
+        <Badge variant="secondary" className="bg-muted text-muted-foreground border-border">
           Used
         </Badge>
       );
     }
     if (!voucher.is_active) {
       return (
-        <Badge variant="outline" className="text-zinc-500 border-zinc-200">
+        <Badge variant="outline" className="text-muted-foreground border-border">
           Inactive
         </Badge>
       );
@@ -74,111 +74,125 @@ export function VoucherList({
     );
   };
 
+  const formatDiscount = (voucher: Voucher) =>
+    voucher.type === "PERCENTAGE"
+      ? `${voucher.value}% OFF`
+      : `₱${voucher.value.toFixed(2)} OFF`;
+
   return (
     <>
-      {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-4">
+      {/* ── Mobile: Ticket-style cards ─────────────────── */}
+      <div className="md:hidden grid grid-cols-1 gap-3">
         {vouchers.map((voucher) => (
           <div
             key={voucher.id}
-            className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-3 transition-all active:scale-[0.99] active:bg-zinc-50/50"
+            className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
           >
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex items-center gap-1.5 bg-zinc-50 px-2.5 py-1 rounded-lg border border-zinc-100">
-                    <Ticket className="h-3.5 w-3.5 text-zinc-400" />
-                    <span className="font-mono text-sm font-semibold text-zinc-900 tracking-wide">
+            {/* Ticket top */}
+            <div className="px-4 pt-4 pb-3 bg-primary/5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Ticket className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span className="font-mono text-sm font-bold tracking-wider text-foreground truncate">
                       {voucher.code}
                     </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg cursor-pointer"
+                      onClick={() => onCopy(voucher.code, voucher.id)}
+                    >
+                      {copiedId === voucher.id ? (
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-full"
-                    onClick={() => onCopy(voucher.code, voucher.id)}
-                  >
-                    {copiedId === voucher.id ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    ) : (
-                      <Copy className="h-3.5 w-3.5" />
-                    )}
-                  </Button>
+                  <span className="text-2xl font-bold text-foreground">
+                    {formatDiscount(voucher)}
+                  </span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-lg font-bold text-zinc-900 flex items-center gap-1">
-                    {voucher.type === "PERCENTAGE"
-                      ? `${voucher.value}% OFF`
-                      : `₱${voucher.value.toFixed(2)} OFF`}
-                  </span>
-                  <span className="text-xs text-zinc-500">
-                    Min. spend:{" "}
-                    {voucher.minimum_amount > 0
-                      ? `₱${voucher.minimum_amount.toFixed(2)}`
-                      : "None"}
-                  </span>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  {getStatusBadge(voucher)}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg cursor-pointer"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[160px] rounded-xl">
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                        onClick={() => onDelete(voucher.id)}
+                      >
+                        <Trash2 className="mr-2 h-3.5 w-3.5" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="-mr-2 h-8 w-8 text-zinc-400 hover:text-zinc-600"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-[160px] rounded-xl"
-                >
-                  <DropdownMenuItem
-                    className="text-red-600 focus:text-red-700 focus:bg-red-50"
-                    onClick={() => onDelete(voucher.id)}
-                  >
-                    <Trash2 className="mr-2 h-3.5 w-3.5" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-zinc-50 mt-1">
-              <div className="flex items-center gap-1.5 text-zinc-500">
-                <Calendar className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium">
-                  Expires {format(new Date(voucher.expires_at), "MMM d, yyyy")}
+            {/* Ticket perforation line */}
+            <div className="relative flex items-center">
+              <div className="h-3.5 w-3.5 rounded-full bg-background border border-border -ml-[7px] shrink-0" />
+              <div className="flex-1 border-t border-dashed border-border/70" />
+              <div className="h-3.5 w-3.5 rounded-full bg-background border border-border -mr-[7px] shrink-0" />
+            </div>
+
+            {/* Ticket bottom */}
+            <div className="px-4 py-3 flex items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Min. spend
                 </span>
+                <p className="text-sm font-semibold text-foreground">
+                  {voucher.minimum_amount > 0
+                    ? `₱${voucher.minimum_amount.toFixed(2)}`
+                    : "None"}
+                </p>
               </div>
-              {getStatusBadge(voucher)}
+              <div className="text-right">
+                <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Expires
+                </span>
+                <p className="text-sm font-semibold text-foreground">
+                  {format(new Date(voucher.expires_at), "MMM d, yyyy")}
+                </p>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Desktop Table View */}
-      <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+      {/* ── Desktop: Table ──────────────────────────────── */}
+      <div className="hidden md:block rounded-2xl border border-border overflow-hidden shadow-sm bg-card">
         <Table>
-          <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
-            <TableRow className="hover:bg-transparent border-zinc-100">
-              <TableHead className="w-[200px] font-semibold text-zinc-500 pl-6 h-12">
+          <TableHeader className="bg-muted/60 sticky top-0 z-10 backdrop-blur-sm">
+            <TableRow className="hover:bg-transparent border-border">
+              <TableHead className="w-[200px] font-semibold text-muted-foreground pl-6 h-12">
                 Voucher Code
               </TableHead>
-              <TableHead className="font-semibold text-zinc-500 h-12">
+              <TableHead className="font-semibold text-muted-foreground h-12">
                 Discount Value
               </TableHead>
-              <TableHead className="font-semibold text-zinc-500 h-12">
+              <TableHead className="font-semibold text-muted-foreground h-12">
                 Min. Spend
               </TableHead>
-              <TableHead className="font-semibold text-zinc-500 h-12">
+              <TableHead className="font-semibold text-muted-foreground h-12">
                 Expires
               </TableHead>
-              <TableHead className="font-semibold text-zinc-500 h-12">
+              <TableHead className="font-semibold text-muted-foreground h-12">
                 Status
               </TableHead>
-              <TableHead className="text-right w-[100px] font-semibold text-zinc-500 pr-6 h-12">
+              <TableHead className="text-right w-[100px] font-semibold text-muted-foreground pr-6 h-12">
                 Actions
               </TableHead>
             </TableRow>
@@ -187,20 +201,20 @@ export function VoucherList({
             {vouchers.map((voucher) => (
               <TableRow
                 key={voucher.id}
-                className="hover:bg-zinc-50/50 transition-colors border-zinc-100 group"
+                className="hover:bg-accent/30 transition-colors border-border group"
               >
                 <TableCell className="pl-6 py-4">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-zinc-100 bg-zinc-50/50 group-hover:bg-white transition-colors">
-                      <Ticket className="h-3.5 w-3.5 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
-                      <span className="font-mono text-sm font-medium text-zinc-700">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-muted/30 group-hover:bg-background transition-colors">
+                      <Ticket className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                      <span className="font-mono text-sm font-medium text-foreground">
                         {voucher.code}
                       </span>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-zinc-400 opacity-0 group-hover:opacity-100 transition-all hover:text-emerald-600 hover:bg-emerald-50"
+                      className="h-7 w-7 text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-all hover:text-primary hover:bg-primary/10 cursor-pointer"
                       onClick={() => onCopy(voucher.code, voucher.id)}
                     >
                       {copiedId === voucher.id ? (
@@ -213,24 +227,24 @@ export function VoucherList({
                 </TableCell>
                 <TableCell className="py-4">
                   <div className="flex flex-col">
-                    <span className="font-semibold text-zinc-900">
+                    <span className="font-semibold text-foreground">
                       {voucher.type === "PERCENTAGE"
                         ? `${voucher.value}%`
                         : `₱${voucher.value.toFixed(2)}`}
                     </span>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-muted-foreground">
                       {voucher.type === "PERCENTAGE"
                         ? "Percentage"
                         : "Flat Amount"}
                     </span>
                   </div>
                 </TableCell>
-                <TableCell className="py-4 text-zinc-600 font-medium">
+                <TableCell className="py-4 text-foreground/80 font-medium">
                   {voucher.minimum_amount > 0
                     ? `₱${voucher.minimum_amount.toFixed(2)}`
                     : "—"}
                 </TableCell>
-                <TableCell className="py-4 text-zinc-600">
+                <TableCell className="py-4 text-muted-foreground">
                   {format(new Date(voucher.expires_at), "MMM d, yyyy")}
                 </TableCell>
                 <TableCell className="py-4">
@@ -240,7 +254,7 @@ export function VoucherList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="h-8 w-8 text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                     onClick={() => onDelete(voucher.id)}
                   >
                     <Trash2 className="h-4 w-4" />

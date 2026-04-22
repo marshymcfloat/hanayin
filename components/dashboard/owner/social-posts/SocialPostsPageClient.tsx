@@ -25,7 +25,7 @@ import {
   SocialPostStatus,
   SocialTargetStatus,
 } from "@/prisma/generated/prisma/enums";
-import { ImagePlus, Loader2, Megaphone, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Megaphone, Send, Trash2 } from "lucide-react";
 import {
   DEFAULT_SOCIAL_IMAGE_PROFILE,
   SOCIAL_IMAGE_PROFILE_OPTIONS,
@@ -168,7 +168,7 @@ function statusBadgeClass(status: SocialPostStatus | SocialTargetStatus) {
     case "READY":
       return "bg-blue-100 text-blue-700 border-blue-200";
     default:
-      return "bg-zinc-100 text-zinc-700 border-zinc-200";
+      return "bg-muted text-muted-foreground border-border";
   }
 }
 
@@ -782,30 +782,57 @@ export function SocialPostsPageClient(props: {
     }
   };
 
+  const pageHeader = (
+    <div className="border-b border-border bg-card px-4 sm:px-8 py-4 sm:py-5">
+      <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <Send className="h-4 w-4 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-[17px] sm:text-xl font-bold tracking-tight text-foreground">
+                Social Posts
+              </h1>
+              <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary tabular-nums">
+                {posts.length}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
+              Review, edit, and publish posts to connected channels
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (posts.length === 0) {
     return (
-      <div className="space-y-6">
-        <GrowthFlowChecklist
-          businessSlug={props.businessSlug}
-          flowContext={props.flowContext}
-          activeStep={3}
-          completedSteps={[1, ...(hasStep2Signal ? ([2] as const) : [])]}
-          nextAction={nextActionText}
-        />
-
-        <Card className="rounded-3xl border-zinc-200/70">
-          <CardContent className="py-16 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100">
-              <Megaphone className="h-6 w-6 text-zinc-500" />
+      <div className="flex flex-col bg-background">
+        {pageHeader}
+        <div className="px-4 sm:px-8 py-4 sm:py-6">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
+            <GrowthFlowChecklist
+              businessSlug={props.businessSlug}
+              flowContext={props.flowContext}
+              activeStep={3}
+              completedSteps={[1, ...(hasStep2Signal ? ([2] as const) : [])]}
+              nextAction={nextActionText}
+            />
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-12 flex flex-col items-center justify-center text-center">
+              <div className="h-12 w-12 bg-muted rounded-xl flex items-center justify-center mb-4">
+                <Megaphone className="h-6 w-6 text-muted-foreground/40" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground mb-1">
+                No social drafts yet
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Create a sale event with social draft enabled to start publishing.
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-zinc-900">
-              No social drafts yet
-            </h3>
-            <p className="mt-1 text-sm text-zinc-500">
-              Create a sale event with social draft enabled to start publishing.
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -826,7 +853,10 @@ export function SocialPostsPageClient(props: {
     (composer.includeTextOverlay || (composer.includeLogoOverlay && hasBusinessLogo));
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col bg-background">
+      {pageHeader}
+      <div className="px-4 sm:px-8 py-4 sm:py-6">
+      <div className="max-w-7xl mx-auto w-full space-y-6">
       <GrowthFlowChecklist
         businessSlug={props.businessSlug}
         flowContext={props.flowContext}
@@ -839,14 +869,14 @@ export function SocialPostsPageClient(props: {
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
                 Action needed now
               </h2>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Ready and failed posts should be reviewed first.
               </p>
             </div>
-            <Badge variant="outline" className="bg-zinc-100 text-zinc-700">
+            <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
               {actionNeededPosts.length} post
               {actionNeededPosts.length > 1 ? "s" : ""}
             </Badge>
@@ -872,16 +902,16 @@ export function SocialPostsPageClient(props: {
                     aria-pressed={isSelected}
                     onClick={() => setSelectedPostId(post.id)}
                     disabled={deletingPostId === post.id}
-                    className={`w-full rounded-2xl border px-4 py-3 pr-12 text-left transition ${
+                    className={`w-full rounded-2xl border px-4 py-3 pr-12 text-left transition-colors cursor-pointer ${
                       isSelected
-                        ? "border-zinc-900 bg-zinc-200 text-white"
-                        : "border-zinc-200 bg-white text-zinc-200 hover:border-zinc-300"
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-card hover:bg-accent/30"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p
                         className={`truncate text-sm font-semibold ${
-                          isSelected ? "text-white" : "text-zinc-900"
+                          isSelected ? "text-primary" : "text-foreground"
                         }`}
                       >
                         {postDraft.title || post.title}
@@ -890,25 +920,17 @@ export function SocialPostsPageClient(props: {
                         variant="outline"
                         className={
                           isSelected
-                            ? "border-white/30 bg-white/10 text-white"
+                            ? "border-primary/30 bg-primary/10 text-primary"
                             : statusBadgeClass(post.status)
                         }
                       >
                         {post.status}
                       </Badge>
                     </div>
-                    <p
-                      className={`mt-1 text-xs ${
-                        isSelected ? "text-zinc-200" : "text-zinc-500"
-                      }`}
-                    >
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {captionPreview}
                     </p>
-                    <p
-                      className={`mt-2 text-xs ${
-                        isSelected ? "text-zinc-300" : "text-zinc-400"
-                      }`}
-                    >
+                    <p className="mt-2 text-xs text-muted-foreground/60">
                       {post.sale_event
                         ? post.sale_event.title
                         : "Manual social draft"}
@@ -922,11 +944,7 @@ export function SocialPostsPageClient(props: {
                       void deleteDraft(post.id);
                     }}
                     disabled={deletingPostId === post.id}
-                    className={`absolute bottom-2 right-2 z-20 inline-flex h-7 w-7 items-center justify-center rounded-md border shadow-sm transition ${
-                      isSelected
-                        ? "border-white/30 bg-white/10 text-zinc-100 hover:bg-white/20"
-                        : "border-zinc-200 bg-white text-zinc-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                    }`}
+                    className="absolute bottom-2 right-2 z-20 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-muted-foreground shadow-sm transition-colors cursor-pointer hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
                   >
                     {deletingPostId === post.id ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -945,14 +963,14 @@ export function SocialPostsPageClient(props: {
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-900">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
                 Saved Drafts
               </h2>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Click a draft to open it in the editor.
               </p>
             </div>
-            <Badge variant="outline" className="bg-zinc-100 text-zinc-700">
+            <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
               {draftPosts.length} draft{draftPosts.length > 1 ? "s" : ""}
             </Badge>
           </div>
@@ -976,16 +994,16 @@ export function SocialPostsPageClient(props: {
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => setSelectedPostId(post.id)}
-                  className={`min-w-[240px] rounded-2xl border px-4 py-3 text-left transition ${
+                  className={`min-w-[240px] rounded-2xl border px-4 py-3 text-left transition-colors cursor-pointer ${
                     isSelected
-                      ? "border-zinc-900 bg-zinc-900 text-white"
-                      : "border-zinc-200 bg-white text-zinc-900 hover:border-zinc-300"
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card hover:bg-accent/30"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <p
                       className={`truncate text-sm font-semibold ${
-                        isSelected ? "text-white" : "text-zinc-900"
+                        isSelected ? "text-primary" : "text-foreground"
                       }`}
                     >
                       {postDraft.title || post.title}
@@ -994,25 +1012,17 @@ export function SocialPostsPageClient(props: {
                       variant="outline"
                       className={
                         isSelected
-                          ? "border-white/30 bg-white/10 text-white"
+                          ? "border-primary/30 bg-primary/10 text-primary"
                           : statusBadgeClass(post.status)
                       }
                     >
                       {post.status}
                     </Badge>
                   </div>
-                  <p
-                    className={`mt-1 text-xs ${
-                      isSelected ? "text-zinc-200" : "text-zinc-500"
-                    }`}
-                  >
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {captionPreview}
                   </p>
-                  <p
-                    className={`mt-2 text-xs ${
-                      isSelected ? "text-zinc-300" : "text-zinc-400"
-                    }`}
-                  >
+                  <p className="mt-2 text-xs text-muted-foreground/60">
                     {post.sale_event
                       ? post.sale_event.title
                       : "Manual social draft"}
@@ -1027,7 +1037,7 @@ export function SocialPostsPageClient(props: {
 
       {otherPosts.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Other posts
           </p>
           <div className="flex flex-wrap gap-2">
@@ -1040,10 +1050,10 @@ export function SocialPostsPageClient(props: {
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => setSelectedPostId(post.id)}
-                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  className={`rounded-full border px-3 py-1.5 text-sm transition-colors cursor-pointer ${
                     isSelected
-                      ? "border-zinc-900 bg-zinc-900 text-white"
-                      : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-foreground hover:bg-accent/30"
                   }`}
                 >
                   <span className="mr-2 inline-block max-w-[220px] truncate align-bottom">
@@ -1057,10 +1067,10 @@ export function SocialPostsPageClient(props: {
         </div>
       )}
 
-      <Card key={selectedPost.id} className="rounded-3xl border-zinc-200/70">
+      <Card key={selectedPost.id} className="rounded-2xl border-border shadow-sm">
         <CardHeader className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <CardTitle className="text-lg font-semibold text-zinc-900">
+            <CardTitle className="text-lg font-semibold text-foreground">
               {selectedPost.title}
             </CardTitle>
             <Badge
@@ -1070,7 +1080,7 @@ export function SocialPostsPageClient(props: {
               {selectedPost.status}
             </Badge>
           </div>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted-foreground">
             {selectedPost.sale_event
               ? `From sale event: ${selectedPost.sale_event.title}`
               : "Manual social draft"}
@@ -1099,7 +1109,7 @@ export function SocialPostsPageClient(props: {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Post Title
               </p>
               <Input
@@ -1111,12 +1121,13 @@ export function SocialPostsPageClient(props: {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Media URL
                 </p>
                 <Button
                   size="sm"
                   variant="outline"
+                  className="rounded-lg cursor-pointer"
                   onClick={() => generateImage(selectedPost.id)}
                   disabled={generatingImagePostId === selectedPost.id}
                 >
@@ -1138,11 +1149,11 @@ export function SocialPostsPageClient(props: {
                 }
               />
               <div className="grid gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Image Style
                 </p>
                 <select
-                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   value={draft.imageProfile}
                   onChange={(event) =>
                     updateDraft(selectedPost.id, {
@@ -1156,7 +1167,7 @@ export function SocialPostsPageClient(props: {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted-foreground">
                   {
                     SOCIAL_IMAGE_PROFILE_OPTIONS.find(
                       (option) => option.value === draft.imageProfile,
@@ -1168,9 +1179,9 @@ export function SocialPostsPageClient(props: {
           </div>
 
           {selectedOverlayDraft ? (
-            <div className="rounded-2xl border border-zinc-200 p-3 space-y-4">
+            <div className="rounded-2xl border border-border bg-muted/20 p-3 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Final Composition
                 </p>
                 <Button
@@ -1193,8 +1204,8 @@ export function SocialPostsPageClient(props: {
               </p>
 
               <div className="grid gap-2 sm:grid-cols-2">
-                <label className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-xs">
-                  <span className="font-semibold uppercase tracking-wide text-zinc-600">
+                <label className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2 text-xs">
+                  <span className="font-semibold uppercase tracking-wide text-foreground/70">
                     Text Card Overlay
                   </span>
                   <Switch
@@ -1206,8 +1217,8 @@ export function SocialPostsPageClient(props: {
                     }
                   />
                 </label>
-                <label className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-xs">
-                  <span className="font-semibold uppercase tracking-wide text-zinc-600">
+                <label className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2 text-xs">
+                  <span className="font-semibold uppercase tracking-wide text-foreground/70">
                     Business Logo Overlay
                   </span>
                   <Switch
@@ -1224,7 +1235,7 @@ export function SocialPostsPageClient(props: {
 
               {composer.includeLogoOverlay ? (
                 hasBusinessLogo ? (
-                  <div className="grid gap-3 rounded-xl border border-zinc-200 p-3">
+                  <div className="grid gap-3 rounded-xl border border-border bg-background p-3">
                     <div className="space-y-1">
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                         Logo Size ({Math.round(composer.logoOverlay.sizePercent || 0)}%)
@@ -1305,7 +1316,7 @@ export function SocialPostsPageClient(props: {
                           Theme
                         </p>
                         <select
-                          className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                          className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                           value={selectedOverlayDraft.theme}
                           onChange={(event) =>
                             updateOverlayDraft(selectedPost.id, {
@@ -1325,7 +1336,7 @@ export function SocialPostsPageClient(props: {
                           Layout
                         </p>
                         <select
-                          className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                          className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                           value={selectedOverlayDraft.layoutStyle || "soft-editorial"}
                           onChange={(event) =>
                             updateOverlayDraft(selectedPost.id, {
@@ -1447,7 +1458,7 @@ export function SocialPostsPageClient(props: {
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-3 text-xs text-zinc-600">
+                  <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
                     Text overlay controls are hidden while text card overlay is turned off.
                   </div>
                 )}
@@ -1470,7 +1481,7 @@ export function SocialPostsPageClient(props: {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Caption
               </p>
               <Button
@@ -1490,7 +1501,7 @@ export function SocialPostsPageClient(props: {
               </Button>
             </div>
             {!selectedPost.sale_event ? (
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Caption regeneration is available for sale-event drafts.
               </p>
             ) : null}
@@ -1504,7 +1515,7 @@ export function SocialPostsPageClient(props: {
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Hashtags (comma separated)
             </p>
             <Input
@@ -1523,18 +1534,18 @@ export function SocialPostsPageClient(props: {
             </p>
           )}
 
-          <div className="rounded-2xl border border-zinc-200 p-3">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <div className="rounded-2xl border border-border bg-muted/20 p-3">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Channel Status
             </p>
             <div className="space-y-2">
               {selectedPost.targets.map((target) => (
                 <div
                   key={target.id}
-                  className="flex flex-col gap-2 rounded-xl border border-zinc-100 p-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className="text-sm font-medium text-zinc-900">
+                    <p className="text-sm font-medium text-foreground">
                       {platformLabel(target.social_connection.platform)} |{" "}
                       {target.social_connection.display_name}
                     </p>
@@ -1584,35 +1595,37 @@ export function SocialPostsPageClient(props: {
           <div className="flex flex-wrap justify-end gap-2">
             <Button
               variant="outline"
+              className="rounded-xl cursor-pointer"
               disabled={savingPostId === selectedPost.id}
               onClick={() => saveDraft(selectedPost.id)}
             >
               {savingPostId === selectedPost.id ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Save Draft"
-              )}
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Save Draft
             </Button>
             <Button
+              className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
               disabled={publishingPostId === selectedPost.id}
               onClick={() => publishPost(selectedPost.id)}
             >
               {publishingPostId === selectedPost.id ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Publish to connected channels"
-              )}
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Publish to connected channels
             </Button>
           </div>
 
           {failedTargets.length > 0 && selectedPost.status === "FAILED" && (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted-foreground">
               This post has {failedTargets.length} failed channel
               {failedTargets.length > 1 ? "s" : ""}. Fix the issue and retry.
             </p>
           )}
         </CardContent>
       </Card>
+      </div>
+      </div>
     </div>
   );
 }

@@ -144,7 +144,7 @@ const ServiceFlowRow = memo(function ServiceFlowRow({
 
         <div className="bg-zinc-50/50 p-2.5 rounded-lg border border-zinc-100">
           <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-xs font-medium text-zinc-500">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
               <span>Then</span>
               <Select
                 value={flow.type}
@@ -365,7 +365,7 @@ export function ServiceForm({
             />
           </div>
         </div>
-        <p className="text-[11px] text-zinc-500">
+        <p className="text-[11px] text-muted-foreground">
           Used for estimated gross and net reporting only.
         </p>
 
@@ -453,7 +453,7 @@ export function ServiceForm({
             <div className="flex justify-center mb-2">
               <Sparkles className="h-5 w-5 text-zinc-300" />
             </div>
-            <p className="text-xs font-medium text-zinc-500">
+            <p className="text-xs font-medium text-muted-foreground">
               Automate next steps
             </p>
           </div>

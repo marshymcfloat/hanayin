@@ -11,7 +11,7 @@ import {
 
 export function PayrollPageSkeleton() {
   return (
-    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+    <div className="flex flex-col p-4 md:p-8 bg-background min-h-screen">
       <section className="flex-1 flex flex-col w-full max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

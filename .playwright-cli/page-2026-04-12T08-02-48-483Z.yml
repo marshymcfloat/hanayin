@@ -1,0 +1,107 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceFlow
+          - generic [ref=e15]: Pro Dashboard
+      - generic [ref=e16]:
+        - list [ref=e18]:
+          - listitem [ref=e19]:
+            - link "Dashboard" [ref=e20] [cursor=pointer]:
+              - /url: /app/beautyfeel/
+              - img [ref=e21]
+              - generic [ref=e24]: Dashboard
+        - generic [ref=e25]:
+          - button "Business" [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e34]: Business
+            - img [ref=e35]
+          - button "Team" [ref=e39] [cursor=pointer]:
+            - img [ref=e41]
+            - generic [ref=e46]: Team
+            - img [ref=e47]
+          - generic [ref=e50]:
+            - button "Customers" [expanded] [ref=e51] [cursor=pointer]:
+              - img [ref=e53]
+              - generic [ref=e55]: Customers
+              - img [ref=e56]
+            - list [ref=e60]:
+              - listitem [ref=e61]:
+                - link "Customers" [ref=e62] [cursor=pointer]:
+                  - /url: /app/beautyfeel/customers/
+                  - img [ref=e63]
+                  - generic [ref=e68]: Customers
+              - listitem [ref=e69]:
+                - link "Bookings" [ref=e70] [cursor=pointer]:
+                  - /url: /app/beautyfeel/bookings/
+                  - img [ref=e72]
+                  - generic [ref=e74]: Bookings
+        - list [ref=e76]:
+          - listitem [ref=e77]:
+            - link "Settings" [ref=e78] [cursor=pointer]:
+              - /url: /app/beautyfeel/business/
+              - img [ref=e79]
+              - generic [ref=e82]: Settings
+      - list [ref=e84]:
+        - listitem [ref=e85]:
+          - button "EL Ellaine Pe rjpern@gmail.com" [ref=e86]:
+            - generic [ref=e88]: EL
+            - generic [ref=e89]:
+              - generic [ref=e90]: Ellaine Pe
+              - generic [ref=e91]: rjpern@gmail.com
+            - img [ref=e92]
+    - main [ref=e95]:
+      - generic [ref=e98]:
+        - generic [ref=e100]:
+          - heading "Bookings" [level=1] [ref=e101]
+          - paragraph [ref=e102]: View and manage all your bookings.
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e107]: Bookings
+                - generic [ref=e108]: Manage and track all customer appointments
+              - button "Refresh" [ref=e109]:
+                - img
+                - generic [ref=e110]: Refresh
+            - generic [ref=e111]:
+              - generic [ref=e112]:
+                - img [ref=e113]
+                - textbox "Search by customer name or ID..." [ref=e116]
+              - combobox [ref=e117]:
+                - generic: All Status
+                - img
+          - table [ref=e121]:
+            - rowgroup [ref=e122]:
+              - row "ID Customer Date & Time Status Total Actions" [ref=e123]:
+                - columnheader "ID" [ref=e124]
+                - columnheader "Customer" [ref=e125]
+                - columnheader "Date & Time" [ref=e126]
+                - columnheader "Status" [ref=e127]
+                - columnheader "Total" [ref=e128]
+                - columnheader "Actions" [ref=e129]
+            - rowgroup [ref=e130]:
+              - row "#1 D Daniel Canoy Apr 6, 2026, 6:18 PM ACCEPTED ₱580 Open actions for booking 1" [ref=e131] [cursor=pointer]:
+                - cell "#1" [ref=e132]:
+                  - generic [ref=e133]: "#1"
+                - cell "D Daniel Canoy" [ref=e134]:
+                  - generic [ref=e135]:
+                    - generic [ref=e136]: D
+                    - generic [ref=e138]: Daniel Canoy
+                - cell "Apr 6, 2026, 6:18 PM" [ref=e139]:
+                  - generic [ref=e140]:
+                    - img [ref=e141]
+                    - text: Apr 6, 2026, 6:18 PM
+                - cell "ACCEPTED" [ref=e143]:
+                  - generic [ref=e145]: ACCEPTED
+                - cell "₱580" [ref=e146]:
+                  - generic [ref=e149]: ₱580
+                - cell "Open actions for booking 1" [ref=e150]:
+                  - button "Open actions for booking 1" [ref=e152]:
+                    - img
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e158] [cursor=pointer]:
+    - img [ref=e159]
+  - alert [ref=e162]

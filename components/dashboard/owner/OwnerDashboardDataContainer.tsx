@@ -13,6 +13,7 @@ import {
 import { getThisWeeksFlowRemindersCount } from "@/lib/data/flow-reminder-queries";
 import { getTodayOpportunityViews } from "@/lib/services/growth/opportunities";
 import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { getTodayExpenseSummary } from "@/lib/server actions/expenses";
 
 function toObjectRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -82,6 +83,7 @@ export default async function OwnerDashboardDataContainer({
     rawConflictSignals,
     chartBookingsDetailed,
     growthOpportunities,
+    todayExpenseResult,
   ] = await Promise.all([
     prisma.booking.aggregate({
       where: {
@@ -407,6 +409,7 @@ export default async function OwnerDashboardDataContainer({
     entitlements.growth
       ? getTodayOpportunityViews(business.id)
       : Promise.resolve([]),
+    getTodayExpenseSummary(businessSlug),
   ]);
 
   const totalSales = totalSalesAggregate._sum.grand_total ?? 0;
@@ -425,6 +428,9 @@ export default async function OwnerDashboardDataContainer({
     submitAttempts > 0 ? (slotJustTakenRejections / submitAttempts) * 100 : 0;
   const publicConversionRate =
     publicStarted > 0 ? (publicCompleted / publicStarted) * 100 : 0;
+
+  const todayExpenseTotal = todayExpenseResult.success ? todayExpenseResult.total : 0;
+  const todayRecentExpenses = todayExpenseResult.success ? todayExpenseResult.recentExpenses : [];
 
   const staffingConflictAlerts = rawConflictSignals.map((signal) => {
     const payload = toObjectRecord(signal.payload);
@@ -468,6 +474,8 @@ export default async function OwnerDashboardDataContainer({
       todayGrowthOpportunity={growthOpportunities[0] || null}
       growthEnabled={entitlements.growth}
       reportsEnabled={entitlements.reportsCore}
+      todayExpenseTotal={todayExpenseTotal}
+      todayRecentExpenses={todayRecentExpenses}
     />
   );
 }

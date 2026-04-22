@@ -31,6 +31,10 @@ import {
   resolveTenantActorContext,
 } from "@/lib/auth/staff-access";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
+import {
+  consumeOtpVerification,
+  resolveCustomerTrust,
+} from "@/lib/server actions/booking-otp";
 
 interface CreateBookingParams {
   customerId?: string;
@@ -44,13 +48,9 @@ interface CreateBookingParams {
   phone?: string;
   services: {
     id: number;
-    name: string;
-    price: number;
     quantity: number;
-    duration?: number;
     claimedByCurrentEmployee?: boolean;
     packageId?: number;
-    originalPrice?: number;
   }[];
   voucherCode?: string;
   isWalkIn?: boolean;
@@ -59,6 +59,8 @@ interface CreateBookingParams {
     reason: CapacityOverrideReason;
     note?: string;
   };
+  /** OTP verification ID from verifyBookingOtp — required for public bookings by NEW customers. */
+  otpVerificationId?: number;
 }
 
 export type CreateBookingResult =
@@ -107,6 +109,7 @@ export async function createBooking({
   isWalkIn = false,
   staffSelectionMode = "ANY_AVAILABLE",
   capacityOverride,
+  otpVerificationId,
 }: CreateBookingParams & {
   currentEmployeeId?: number;
 }): Promise<CreateBookingResult> {
@@ -117,8 +120,9 @@ export async function createBooking({
   const submitWarnings: string[] = [];
   try {
     const headersList = await headers();
+    const realIp = headersList.get("x-real-ip")?.trim();
     const forwardedFor = headersList.get("x-forwarded-for") || "";
-    const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
+    const clientIp = realIp || forwardedFor.split(",")[0]?.trim() || "unknown";
     const session = await getServerSession(authOptions);
 
     if (
@@ -194,6 +198,32 @@ export async function createBooking({
     }
     metricBusinessId = accessState.businessId;
     metricIsPublicBooking = !session;
+
+    // --- OTP / trust-tier gate for public bookings ---
+    if (!session && phone) {
+      const trust = await resolveCustomerTrust(phone, businessSlug);
+
+      if (trust.tier === "RESTRICTED") {
+        throw new Error("CUSTOMER_RESTRICTED");
+      }
+
+      if (trust.tier === "NEW") {
+        if (!otpVerificationId) {
+          throw new Error("OTP_REQUIRED");
+        }
+        // Consume the OTP inside the same DB operation — consumeOtpVerification
+        // is called here (non-transactional); the OTP validity window is 10 min
+        // which is already enforced by the expires_at check inside the function.
+        const valid = await consumeOtpVerification(
+          otpVerificationId,
+          phone,
+          accessState.businessId!,
+        );
+        if (!valid) {
+          throw new Error("OTP_INVALID_OR_EXPIRED");
+        }
+      }
+    }
 
     if (metricBusinessId) {
       if (metricIsPublicBooking) {
@@ -277,7 +307,7 @@ export async function createBooking({
         businessSlug,
         customerId,
         customerName,
-        services: processedServices, // Pass processed services
+        services,
         scheduledAt,
         estimatedEnd,
         employeeId,
@@ -293,7 +323,6 @@ export async function createBooking({
         staffSelectionMode,
         capacityOverride,
         allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
-        pricingSnapshot: pricing,
       });
 
       if (metricBusinessId) {
@@ -403,7 +432,7 @@ export async function createBooking({
       businessSlug,
       customerId,
       customerName,
-      services: processedServices,
+      services,
       scheduledAt,
       estimatedEnd,
       employeeId,
@@ -421,7 +450,6 @@ export async function createBooking({
       staffSelectionMode,
       capacityOverride,
       allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
-      pricingSnapshot: pricing,
     });
 
     if (metricBusinessId) {
@@ -457,6 +485,16 @@ export async function createBooking({
       warnings: submitWarnings.length > 0 ? submitWarnings : undefined,
     };
   } catch (err) {
+    // Surface OTP/trust errors directly to the client
+    if (err instanceof Error) {
+      const otpErrors = new Set([
+        "OTP_REQUIRED",
+        "OTP_INVALID_OR_EXPIRED",
+        "CUSTOMER_RESTRICTED",
+      ]);
+      if (otpErrors.has(err.message)) throw err;
+    }
+
     if (err instanceof BookingAvailabilityError) {
       if (metricBusinessId) {
         await recordBookingMetric({

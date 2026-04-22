@@ -27,6 +27,8 @@ const baseOverviewPayload: OverviewReportPayload = {
     estimatedNetMargin: 67.51,
     completionRate: 95.83,
     totalBookings: 28,
+    totalExpenses: 0,
+    trueNetProfit: 33193.12,
   },
   bookingVolume: {
     hold: 1,
@@ -60,6 +62,7 @@ const baseOverviewPayload: OverviewReportPayload = {
       spend: 3745,
     },
   ],
+  insights: [],
 };
 
 describe("serializeReportCsv (overview)", () => {

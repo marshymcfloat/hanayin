@@ -59,10 +59,10 @@ export default function ChangePasswordClient({
     <div className="min-h-screen bg-zinc-50/50 flex items-center justify-center p-4">
       <Card className="w-full max-w-lg rounded-3xl border border-zinc-100 shadow-lg shadow-zinc-200/40">
         <CardHeader className="pb-2">
-          <CardTitle className="text-2xl font-bold text-zinc-900">
+          <CardTitle className="text-2xl font-bold text-foreground">
             Change Password
           </CardTitle>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted-foreground">
             Please update your password before continuing.
           </p>
         </CardHeader>
@@ -100,7 +100,7 @@ export default function ChangePasswordClient({
           <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+            className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/15"
           >
             {isLoading ? "Updating..." : "Update Password"}
           </Button>

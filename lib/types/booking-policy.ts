@@ -9,6 +9,7 @@ export type BookingPolicy = {
   allowPublicFullPayment: boolean;
   allowPublicDownpayment: boolean;
   defaultPublicPaymentType: BookingPublicPaymentType;
+  downpaymentPercentage: number;
   bookingV2Enabled: boolean;
 };
 
@@ -20,6 +21,7 @@ export const DEFAULT_BOOKING_POLICY: BookingPolicy = {
   allowPublicFullPayment: true,
   allowPublicDownpayment: true,
   defaultPublicPaymentType: "FULL",
+  downpaymentPercentage: 50,
   bookingV2Enabled: true,
 };
 
@@ -65,6 +67,11 @@ export function normalizeBookingPolicy(
     defaultPublicPaymentType: normalizeBookingPublicPaymentType(
       policy.defaultPublicPaymentType,
     ),
+    downpaymentPercentage:
+      typeof policy.downpaymentPercentage === "number" &&
+      Number.isFinite(policy.downpaymentPercentage)
+        ? Math.max(1, Math.min(100, Math.floor(policy.downpaymentPercentage)))
+        : DEFAULT_BOOKING_POLICY.downpaymentPercentage,
     bookingV2Enabled:
       typeof policy.bookingV2Enabled === "boolean"
         ? policy.bookingV2Enabled

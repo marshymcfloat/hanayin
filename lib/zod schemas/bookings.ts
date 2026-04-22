@@ -1,19 +1,20 @@
 import { z } from "zod";
 
-const serviceSchema = z
-  .object({
-    id: z.number(),
-    name: z.string(),
-    description: z.string().nullable().optional(),
-    price: z.number(),
-    duration: z.number().nullable().optional(),
-    business_id: z.string().optional(),
-    created_at: z.coerce.date().optional(),
-    updated_at: z.coerce.date().optional(),
-    quantity: z.number().min(1).default(1),
-    // Allow extra fields like packageId, originalPrice
-  })
-  .passthrough();
+const serviceSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  price: z.number(),
+  originalPrice: z.number().optional(),
+  quantity: z.number().min(1).default(1),
+  duration: z.number().nullable().optional(),
+  claimedByCurrentEmployee: z.boolean().optional(),
+  packageId: z.number().optional(),
+  discount: z.number().optional(),
+  discountReason: z.string().nullable().optional(),
+  slotsRemaining: z.number().nullable().optional(),
+  packageName: z.string().optional(),
+  category: z.string().nullable().optional(),
+});
 
 export const paymentMethodEnum = z.enum(["CASH", "QRPH"]);
 export const paymentTypeEnum = z.enum(["FULL", "DOWNPAYMENT"]);
@@ -49,7 +50,7 @@ export const createBookingSchema = z
     scheduledAt: z.coerce.date({ message: "Please select a date and time" }),
     selectedTime: z.date().optional(),
     employeeId: z.number().optional(),
-    paymentMethod: paymentMethodEnum.default("QRPH"),
+    paymentMethod: paymentMethodEnum.default("CASH"),
     paymentType: paymentTypeEnum.default("FULL"),
     staffSelectionMode: staffSelectionModeEnum.optional(),
     capacityOverride: capacityOverrideSchema.optional(),

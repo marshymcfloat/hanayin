@@ -28,6 +28,7 @@ export type OutboxPayloadMap = {
     estimatedEnd?: string;
     grandTotal?: number;
     status: string;
+    isWalkIn?: boolean;
   };
   BOOKING_CONFIRMED: {
     bookingId: number;
@@ -37,6 +38,7 @@ export type OutboxPayloadMap = {
     estimatedEnd?: string;
     grandTotal?: number;
     status: string;
+    isWalkIn?: boolean;
   };
   BOOKING_CANCELLED: {
     bookingId: number;

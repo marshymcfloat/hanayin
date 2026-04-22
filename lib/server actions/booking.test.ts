@@ -181,10 +181,7 @@ describe("createBooking Server Action", () => {
       services: [
         {
           id: 1,
-          name: "Haircut",
-          price: 500,
           quantity: 1,
-          originalPrice: 500,
         },
       ],
       email: "john@example.com",
@@ -262,10 +259,7 @@ describe("createBooking Server Action", () => {
       services: [
         {
           id: 1,
-          name: "Haircut",
-          price: 500,
           quantity: 1,
-          originalPrice: 500,
         },
       ],
       email: "john@example.com",
@@ -332,7 +326,7 @@ describe("createBooking Server Action", () => {
       scheduledAt: mockDate,
       paymentMethod: "QRPH",
       paymentType: "FULL",
-      services: [{ id: 1, name: "Haircut", price: 500, quantity: 1 }],
+      services: [{ id: 1, quantity: 1 }],
       email: "john@example.com",
       phone: "+639171234567",
     });
@@ -373,7 +367,7 @@ describe("createBooking Server Action", () => {
         scheduledAt: mockDate,
         paymentMethod: "QRPH",
         paymentType: "FULL",
-        services: [{ id: 1, name: "Haircut", price: 500, quantity: 1 }],
+        services: [{ id: 1, quantity: 1 }],
         email: "john@example.com",
       }),
     ).rejects.toThrow("Too many booking attempts");

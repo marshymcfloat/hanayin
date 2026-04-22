@@ -132,8 +132,8 @@ const GiftCardSelectableRow = memo(function GiftCardSelectableRow({
       className={cn(
         "flex cursor-pointer items-start gap-2 rounded-lg border px-2.5 py-2 transition-colors",
         checked
-          ? "border-emerald-200 bg-emerald-50/60"
-          : "border-zinc-100 hover:bg-zinc-50",
+          ? "border-primary/30 bg-primary/5"
+          : "border-border hover:bg-accent/30",
       )}
     >
       <Checkbox
@@ -143,12 +143,12 @@ const GiftCardSelectableRow = memo(function GiftCardSelectableRow({
         className="mt-0.5"
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-zinc-900">
+        <p className="truncate text-sm font-medium text-foreground">
           {option.name}
         </p>
         <Badge
           variant="outline"
-          className="mt-1 h-5 border-zinc-200 px-1.5 text-[10px] font-normal text-zinc-600"
+          className="mt-1 h-5 border-border px-1.5 text-[10px] font-normal text-muted-foreground"
         >
           {option.category}
         </Badge>
@@ -181,7 +181,7 @@ const GiftCardSelectorTabContent = memo(function GiftCardSelectorTabContent({
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
         <Input
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
@@ -191,7 +191,7 @@ const GiftCardSelectorTabContent = memo(function GiftCardSelectorTabContent({
       </div>
       <div className="max-h-[19rem] space-y-2 overflow-y-auto">
         {options.length === 0 ? (
-          <p className="text-xs text-zinc-500">No {tab} found.</p>
+          <p className="text-xs text-muted-foreground">No {tab} found.</p>
         ) : (
           options.map((option) => (
             <GiftCardSelectableRow
@@ -250,13 +250,13 @@ const GiftCardSelectorCard = memo(function GiftCardSelectorCard({
   );
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-3">
-      <p className="mb-3 text-sm font-semibold text-zinc-900">Select Items</p>
+    <div className="rounded-xl border border-border bg-card p-3">
+      <p className="mb-3 text-sm font-semibold text-foreground">Select Items</p>
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as SelectorTab)}
       >
-        <TabsList className="grid w-full grid-cols-2 rounded-lg bg-zinc-100 p-1">
+        <TabsList className="grid w-full grid-cols-2 rounded-lg bg-muted p-1">
           <TabsTrigger value="services" className="text-xs font-semibold">
             Services ({selectedServiceIds.length})
           </TabsTrigger>
@@ -522,16 +522,16 @@ export function GiftCardForm({
             />
           </div>
 
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 text-sm">
+          <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-zinc-600">Included Services</span>
-              <span className="font-semibold text-zinc-900">
+              <span className="text-muted-foreground">Included Services</span>
+              <span className="font-semibold text-foreground">
                 {selectedServiceIds.length}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-zinc-600">Included Packages</span>
-              <span className="font-semibold text-zinc-900">
+              <span className="text-muted-foreground">Included Packages</span>
+              <span className="font-semibold text-foreground">
                 {selectedPackageIds.length}
               </span>
             </div>
@@ -553,7 +553,7 @@ export function GiftCardForm({
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="h-11 w-full rounded-xl bg-emerald-600 font-semibold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-700"
+        className="h-11 w-full rounded-xl bg-primary font-semibold text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90 cursor-pointer"
       >
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {submitLabel}

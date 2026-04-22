@@ -13,12 +13,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Employee, User, Payslip } from "@/prisma/generated/prisma/client";
 import { formatPH } from "@/lib/date-utils";
-import { Plus, Wallet, Mail } from "lucide-react";
-import { useState } from "react";
+import { Plus, Wallet, Mail, Search, RefreshCcw } from "lucide-react";
+import { useState, useRef } from "react";
 import { PayslipGenerationDialog } from "@/components/dashboard/owner/PayslipGenerationDialog";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 
 type EmployeeWithDetails = Employee & {
   user: User;
@@ -30,15 +29,22 @@ export function PayrollPageClient({
 }: {
   employees: EmployeeWithDetails[];
 }) {
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
-    null,
-  );
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
 
   const handleSuccess = () => {
     router.refresh();
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    router.refresh();
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    refreshTimer.current = setTimeout(() => setIsRefreshing(false), 1200);
   };
 
   const filteredEmployees = employees.filter(
@@ -73,121 +79,120 @@ export function PayrollPageClient({
 
   return (
     <>
-      <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
-        <section className="flex-1 flex flex-col w-full max-w-7xl mx-auto space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">
-                Payroll
-              </h1>
-              <p className="text-sm text-zinc-500 mt-1">
-                Manage employee salaries and generate payslips
-              </p>
-            </div>
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-              <Input
-                placeholder="Search employees..."
-                className="pl-10 bg-white border-zinc-200 focus-visible:ring-emerald-500"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+      <div className="flex flex-col bg-background">
+        <div className="border-b border-border bg-card">
+          <div className="px-4 sm:px-8 py-5 sm:py-6 max-w-7xl mx-auto w-full">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                <Wallet className="size-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Payroll</h1>
+                <p className="text-xs text-muted-foreground">Manage employee salaries and generate payslips.</p>
+              </div>
+              <span className="ml-auto rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                {employees.length} {employees.length === 1 ? "employee" : "employees"}
+              </span>
             </div>
           </div>
+        </div>
 
-          <div className="flex-1">
+        <div className="px-4 sm:px-8 py-4 sm:py-6">
+          <div className="max-w-7xl mx-auto w-full space-y-4">
+            <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search employees..."
+                  className="pl-9 h-9 rounded-xl border-border bg-background"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-2 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer ml-auto"
+                onClick={handleRefresh}
+              >
+                <RefreshCcw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </div>
+
             {filteredEmployees.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-2xl border border-zinc-100 shadow-sm">
-                <div className="bg-zinc-50 h-16 w-16 mobile-center rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Wallet className="h-8 w-8 text-zinc-400" />
+              <div className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center justify-center text-center">
+                <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <Wallet className="h-6 w-6 text-muted-foreground/40" />
                 </div>
-                <h3 className="text-lg font-medium text-zinc-900">
-                  No employees found
-                </h3>
-                <p className="text-zinc-500 max-w-sm mx-auto mt-1">
+                <h3 className="text-lg font-semibold text-foreground mb-1">No employees found</h3>
+                <p className="text-muted-foreground max-w-sm">
                   {employees.length === 0
                     ? "Add employees to start managing payroll."
                     : "Try adjusting your search terms."}
                 </p>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="md:hidden grid grid-cols-1 gap-4">
+              <div className="space-y-4">
+                {/* Mobile Card View */}
+                <div className="md:hidden grid grid-cols-1 gap-3">
                   {filteredEmployees.map((emp) => {
                     const lastPayslip = emp.payslips[0];
                     return (
                       <div
                         key={emp.id}
-                        className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4"
+                        className="bg-card rounded-2xl p-4 border border-border flex flex-col gap-4 transition-all active:scale-[0.99]"
                       >
                         <div className="flex items-center gap-3">
-                          <Avatar
-                            className={`${getAvatarColor(emp.user.name)} h-12 w-12 text-white shadow-sm ring-2 ring-white`}
-                          >
-                            <AvatarFallback className="bg-transparent font-medium text-lg">
+                          <Avatar className={`${getAvatarColor(emp.user.name)} h-10 w-10 text-white shadow-sm`}>
+                            <AvatarFallback className="bg-transparent font-medium">
                               {getInitials(emp.user.name)}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-bold text-zinc-900 text-lg">
+                            <span className="font-semibold text-foreground">
                               {emp.user.name}
                             </span>
-                            <span className="text-sm text-zinc-500 flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                               <Mail className="h-3.5 w-3.5" />
                               {emp.user.email}
                             </span>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-50">
-                          <div className="bg-zinc-50 p-2.5 rounded-xl border border-zinc-100">
-                            <span className="text-xs text-zinc-400 font-medium uppercase block mb-1">
-                              Daily Rate
-                            </span>
-                            <span className="font-semibold text-zinc-900 font-mono">
+                        <div className="grid grid-cols-2 gap-3 py-3 border-y border-border/50">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Daily Rate</span>
+                            <span className="font-semibold text-foreground">
                               ₱{emp.daily_rate.toLocaleString()}
                             </span>
                           </div>
-                          <div className="bg-zinc-50 p-2.5 rounded-xl border border-zinc-100">
-                            <span className="text-xs text-zinc-400 font-medium uppercase block mb-1">
-                              Commission
-                            </span>
-                            <Badge
-                              variant="secondary"
-                              className="bg-emerald-50 text-emerald-700 border-emerald-100"
-                            >
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Commission</span>
+                            <Badge variant="secondary" className="w-fit border-primary/30 bg-primary/10 text-primary">
                               {emp.commission_percentage}%
                             </Badge>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-zinc-400 font-medium uppercase">
-                              Last Payout
-                            </span>
-                            {lastPayslip ? (
-                              <div className="flex items-baseline gap-2 mt-0.5">
-                                <span className="text-sm font-medium text-zinc-900">
-                                  {formatPH(
-                                    lastPayslip.ending_date,
-                                    "PPP p",
-                                  )}
-                                </span>
-                                <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium border border-emerald-100">
-                                  ₱{lastPayslip.total_salary.toLocaleString()}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-sm text-zinc-400 italic">
-                                No history
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Last Payout</span>
+                          {lastPayslip ? (
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-sm font-medium text-foreground">
+                                {formatPH(lastPayslip.ending_date, "MMM d, yyyy")}
                               </span>
-                            )}
-                          </div>
+                              <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-border text-muted-foreground">
+                                ₱{lastPayslip.total_salary.toLocaleString()}
+                              </Badge>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground italic">No history</span>
+                          )}
                         </div>
 
                         <Button
-                          className="w-full bg-zinc-900 text-white hover:bg-zinc-800"
+                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl cursor-pointer"
                           onClick={() => {
                             setSelectedEmployeeId(emp.id);
                             setIsDialogOpen(true);
@@ -201,23 +206,24 @@ export function PayrollPageClient({
                   })}
                 </div>
 
-                <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+                {/* Desktop Table View */}
+                <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
                   <Table>
-                    <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
-                      <TableRow className="hover:bg-transparent border-zinc-100">
-                        <TableHead className="pl-6 h-12 font-semibold text-zinc-500 w-[300px]">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent border-border bg-muted/50">
+                        <TableHead className="pl-6 h-11 font-semibold text-muted-foreground w-[300px]">
                           Employee
                         </TableHead>
-                        <TableHead className="h-12 font-semibold text-zinc-500">
+                        <TableHead className="h-11 font-semibold text-muted-foreground">
                           Daily Rate
                         </TableHead>
-                        <TableHead className="h-12 font-semibold text-zinc-500">
+                        <TableHead className="h-11 font-semibold text-muted-foreground">
                           Commission
                         </TableHead>
-                        <TableHead className="h-12 font-semibold text-zinc-500">
+                        <TableHead className="h-11 font-semibold text-muted-foreground">
                           Last Payout
                         </TableHead>
-                        <TableHead className="text-right pr-6 h-12 font-semibold text-zinc-500 w-[180px]">
+                        <TableHead className="text-right pr-6 h-11 font-semibold text-muted-foreground w-[180px]">
                           Actions
                         </TableHead>
                       </TableRow>
@@ -228,51 +234,43 @@ export function PayrollPageClient({
                         return (
                           <TableRow
                             key={emp.id}
-                            className="hover:bg-zinc-50/50 transition-colors border-zinc-100"
+                            className="hover:bg-accent/30 transition-colors border-border/50"
                           >
                             <TableCell className="pl-6 py-4">
                               <div className="flex items-center gap-3">
-                                <Avatar
-                                  className={`${getAvatarColor(emp.user.name)} h-10 w-10 text-white shadow-sm ring-2 ring-white`}
-                                >
+                                <Avatar className={`${getAvatarColor(emp.user.name)} h-9 w-9 text-white shadow-sm`}>
                                   <AvatarFallback className="bg-transparent font-medium">
                                     {getInitials(emp.user.name)}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="flex flex-col">
-                                  <span className="font-semibold text-zinc-900">
+                                  <span className="font-medium text-foreground">
                                     {emp.user.name}
                                   </span>
-                                  <span className="text-xs text-zinc-500 flex items-center gap-1.5">
-                                    <Mail className="h-3 w-3 text-zinc-400" />
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                    <Mail className="h-3 w-3" />
                                     {emp.user.email}
                                   </span>
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className="py-4 font-mono text-zinc-600">
+                            <TableCell className="py-4 font-medium text-foreground">
                               ₱{emp.daily_rate.toLocaleString()}
                             </TableCell>
                             <TableCell className="py-4">
-                              <Badge
-                                variant="secondary"
-                                className="bg-emerald-50 text-emerald-700 border-emerald-100"
-                              >
+                              <Badge variant="secondary" className="border-primary/30 bg-primary/10 text-primary">
                                 {emp.commission_percentage}%
                               </Badge>
                             </TableCell>
                             <TableCell className="py-4">
                               {lastPayslip ? (
-                                <div className="flex flex-col gap-1">
-                                  <span className="text-sm font-medium text-zinc-700">
-                                    {formatPH(
-                                      lastPayslip.ending_date,
-                                      "PPP p",
-                                    )}
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-sm font-medium text-foreground">
+                                    {formatPH(lastPayslip.ending_date, "MMM d, yyyy")}
                                   </span>
-                                  <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium border border-emerald-100 w-fit">
+                                  <Badge variant="outline" className="w-fit text-[10px] h-5 px-1.5 text-muted-foreground border-border">
                                     ₱{lastPayslip.total_salary.toLocaleString()}
-                                  </span>
+                                  </Badge>
                                 </div>
                               ) : (
                                 <span className="text-muted-foreground text-sm italic">
@@ -284,7 +282,7 @@ export function PayrollPageClient({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="gap-2 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
+                                className="gap-2 rounded-xl border-border hover:bg-accent/30 cursor-pointer"
                                 onClick={() => {
                                   setSelectedEmployeeId(emp.id);
                                   setIsDialogOpen(true);
@@ -303,7 +301,7 @@ export function PayrollPageClient({
               </div>
             )}
           </div>
-        </section>
+        </div>
       </div>
 
       <PayslipGenerationDialog

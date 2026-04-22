@@ -1,5 +1,5 @@
 import React from "react";
-import { LucideIcon, ArrowUpRight } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DashboardCardProps {
@@ -20,59 +20,68 @@ export default function DashboardCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[24px] p-6 transition-all duration-300",
+        "relative overflow-hidden rounded-2xl p-5 transition-all duration-200",
         variant === "filled"
-          ? "bg-linear-to-br from-emerald-900 to-emerald-950 text-white shadow-xl shadow-emerald-900/20"
-          : "bg-white text-zinc-900 shadow-lg shadow-zinc-200/50 hover:shadow-xl hover:shadow-zinc-200/60 border border-zinc-100",
+          ? "bg-primary text-primary-foreground"
+          : "bg-card border border-border hover:border-primary/30 hover:shadow-md hover:shadow-primary/5",
       )}
     >
-      {/* Decorative background for filled variant */}
+      {/* Decorative orb for filled variant */}
       {variant === "filled" && (
-        <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+        <>
+          <div className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10" />
+          <div className="pointer-events-none absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-white/5" />
+        </>
       )}
 
-      <div className="relative z-10 flex flex-col justify-between h-full min-h-[140px]">
-        <div className="flex justify-between items-start">
-          <div
-            className={cn(
-              "p-2.5 rounded-2xl transition-transform hover:scale-110",
-              variant === "filled"
-                ? "bg-emerald-500/20 text-emerald-100"
-                : "bg-zinc-50 text-zinc-600 border border-zinc-100",
-            )}
-          >
-            {Icon ? (
-              <Icon size={20} strokeWidth={2} />
-            ) : (
-              <ArrowUpRight size={20} />
-            )}
-          </div>
+      <div className="relative z-10 flex flex-col gap-4">
+        {/* Icon */}
+        <div
+          className={cn(
+            "flex h-9 w-9 items-center justify-center rounded-xl",
+            variant === "filled"
+              ? "bg-white/20"
+              : "bg-primary/10",
+          )}
+        >
+          {Icon && (
+            <Icon
+              className={cn(
+                "h-4.5 w-4.5",
+                variant === "filled" ? "text-primary-foreground" : "text-primary",
+              )}
+              strokeWidth={2}
+            />
+          )}
         </div>
 
-        <div className="space-y-1 mt-4 min-w-0">
-          <h3
-            className={cn(
-              "text-sm font-medium tracking-wide truncate pr-2",
-              variant === "filled" ? "text-emerald-200/80" : "text-zinc-500",
-            )}
-            title={title}
-          >
-            {title}
-          </h3>
-          <div className="flex items-baseline gap-2">
-            <span
-              className="text-3xl lg:text-4xl font-bold tracking-tight truncate w-full"
-              title={typeof count === "string" ? count : count.toLocaleString()}
-            >
-              {typeof count === "number" ? count.toLocaleString() : count}
-            </span>
-          </div>
+        {/* Value */}
+        <div className="space-y-0.5">
           <p
             className={cn(
-              "text-xs font-medium pt-1 flex items-center gap-1 truncate",
-              variant === "filled" ? "text-emerald-400" : "text-emerald-600",
+              "text-xs font-semibold uppercase tracking-wider",
+              variant === "filled"
+                ? "text-primary-foreground/70"
+                : "text-muted-foreground",
             )}
-            title={description}
+          >
+            {title}
+          </p>
+          <p
+            className={cn(
+              "text-2xl font-bold tracking-tight",
+              variant === "filled" ? "text-primary-foreground" : "text-foreground",
+            )}
+          >
+            {typeof count === "number" ? count.toLocaleString() : count}
+          </p>
+          <p
+            className={cn(
+              "text-xs font-medium",
+              variant === "filled"
+                ? "text-primary-foreground/60"
+                : "text-primary",
+            )}
           >
             {description}
           </p>

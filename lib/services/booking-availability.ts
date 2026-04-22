@@ -4,6 +4,7 @@ import { StaffProfile } from "@/prisma/generated/prisma/enums";
 import { prisma } from "@/prisma/prisma";
 import type { Prisma, PrismaClient } from "@/prisma/generated/prisma/client";
 import { getBookingPolicyByBusinessSlug } from "./booking-policy";
+import type { BookingPolicy } from "@/lib/types/booking-policy";
 
 const MANILA_TIME_ZONE = "Asia/Manila";
 
@@ -47,6 +48,8 @@ export interface TimeSlot {
   availableOwnerCount: number;
   source: SlotAvailabilitySource;
   confidence: SlotConfidence;
+  /** True when same-day attendance data was used to filter providers. */
+  attendanceChecked?: boolean;
 }
 
 export type BookingAvailabilityErrorCode =
@@ -141,6 +144,45 @@ function isBookingServiceEmployee(
   employee: BusinessContext["employees"][number],
 ) {
   return employee.profile === StaffProfile.STAFF;
+}
+
+/**
+ * Returns employee IDs that are marked ABSENT, OFF, or LEAVE for the given date.
+ * Also includes employees with approved leave requests covering the date.
+ * Employees with no attendance record are assumed present (not penalized).
+ */
+async function getAbsentEmployeeIdsForDate(
+  db: AvailabilityDbClient,
+  businessId: string,
+  date: Date,
+): Promise<Set<number>> {
+  const { dayStart } = getPHDayBounds(date);
+  const dateOnly = new Date(dayStart);
+
+  const [attendanceRecords, approvedLeaves] = await Promise.all([
+    db.employeeAttendance.findMany({
+      where: {
+        employee: { business_id: businessId },
+        date: dateOnly,
+        status: { in: ["ABSENT", "OFF", "LEAVE"] },
+      },
+      select: { employee_id: true },
+    }),
+    db.leaveRequest.findMany({
+      where: {
+        employee: { business_id: businessId },
+        status: "APPROVED",
+        start_date: { lte: dateOnly },
+        end_date: { gte: dateOnly },
+      },
+      select: { employee_id: true },
+    }),
+  ]);
+
+  const ids = new Set<number>();
+  for (const r of attendanceRecords) ids.add(r.employee_id);
+  for (const r of approvedLeaves) ids.add(r.employee_id);
+  return ids;
 }
 
 async function getBusinessContext(
@@ -602,6 +644,8 @@ export async function computeSlots({
   ignoreMinLead = false,
   now = getCurrentDateTimePH(),
   db = prisma,
+  preloadedBusiness,
+  preloadedPolicy,
 }: {
   businessSlug: string;
   date: Date;
@@ -610,13 +654,18 @@ export async function computeSlots({
   ignoreMinLead?: boolean;
   now?: Date;
   db?: AvailabilityDbClient;
+  preloadedBusiness?: BusinessContext;
+  preloadedPolicy?: BookingPolicy;
 }): Promise<TimeSlot[]> {
   if (!services || services.length === 0) return [];
 
-  const [business, policy] = await Promise.all([
-    getBusinessContext(db, businessSlug),
-    getBookingPolicyByBusinessSlug(db, businessSlug),
-  ]);
+  const [business, policy] =
+    preloadedBusiness && preloadedPolicy
+      ? [preloadedBusiness, preloadedPolicy]
+      : await Promise.all([
+          getBusinessContext(db, businessSlug),
+          getBookingPolicyByBusinessSlug(db, businessSlug),
+        ]);
 
   const dayDiff = getHorizonDayDiff(date, now);
   if (dayDiff < 0 || dayDiff >= policy.bookingHorizonDays) {
@@ -637,6 +686,11 @@ export async function computeSlots({
   const effectiveSlotInterval = normalizeSlotIntervalMinutes(
     slotIntervalMinutes ?? policy.slotIntervalMinutes,
   );
+
+  const isSameDay = dateStr === nowStr;
+  const absentEmployeeIds: Set<number> = isSameDay
+    ? await getAbsentEmployeeIdsForDate(db, business.id, date)
+    : new Set();
 
   const selectedServiceRecords = await db.service.findMany({
     where: {
@@ -704,6 +758,7 @@ export async function computeSlots({
       .filter(
         (emp) =>
           isBookingServiceEmployee(emp) &&
+          !absentEmployeeIds.has(emp.id) &&
           (emp.specialties.length === 0 ||
             emp.specialties.some((specialty) => specialty.toLowerCase() === key)),
       )
@@ -786,6 +841,7 @@ export async function computeSlots({
         availableOwnerCount: 0,
         source: "WORKLOAD",
         confidence: "GUARANTEED",
+        attendanceChecked: isSameDay,
       });
     }
 
@@ -810,7 +866,10 @@ export async function listAlternativeSlots({
   limit?: number;
   db?: AvailabilityDbClient;
 }) {
-  const policy = await getBookingPolicyByBusinessSlug(db, businessSlug);
+  const [business, policy] = await Promise.all([
+    getBusinessContext(db, businessSlug),
+    getBookingPolicyByBusinessSlug(db, businessSlug),
+  ]);
   const now = getCurrentDateTimePH();
   const startDiff = Math.max(0, getHorizonDayDiff(scheduledAt, now));
   const collected: TimeSlot[] = [];
@@ -825,6 +884,8 @@ export async function listAlternativeSlots({
       services,
       db,
       now,
+      preloadedBusiness: business,
+      preloadedPolicy: policy,
     });
 
     const filtered = dayOffset === startDiff

@@ -32,6 +32,7 @@ export type BusinessAvgAggregateOutputType = {
   booking_horizon_days: number | null
   booking_min_lead_minutes: number | null
   booking_slot_interval_minutes: number | null
+  downpayment_percentage: number | null
   same_day_attendance_strict_minutes: number | null
 }
 
@@ -41,6 +42,7 @@ export type BusinessSumAggregateOutputType = {
   booking_horizon_days: number | null
   booking_min_lead_minutes: number | null
   booking_slot_interval_minutes: number | null
+  downpayment_percentage: number | null
   same_day_attendance_strict_minutes: number | null
 }
 
@@ -59,6 +61,7 @@ export type BusinessMinAggregateOutputType = {
   public_allow_full_payment: boolean | null
   public_allow_downpayment: boolean | null
   public_default_payment_type: string | null
+  downpayment_percentage: number | null
   booking_v2_enabled: boolean | null
   same_day_attendance_strict_minutes: number | null
   structure: $Enums.BusinessStructure | null
@@ -84,6 +87,7 @@ export type BusinessMaxAggregateOutputType = {
   public_allow_full_payment: boolean | null
   public_allow_downpayment: boolean | null
   public_default_payment_type: string | null
+  downpayment_percentage: number | null
   booking_v2_enabled: boolean | null
   same_day_attendance_strict_minutes: number | null
   structure: $Enums.BusinessStructure | null
@@ -109,6 +113,7 @@ export type BusinessCountAggregateOutputType = {
   public_allow_full_payment: number
   public_allow_downpayment: number
   public_default_payment_type: number
+  downpayment_percentage: number
   booking_v2_enabled: number
   same_day_attendance_strict_minutes: number
   structure: number
@@ -127,6 +132,7 @@ export type BusinessAvgAggregateInputType = {
   booking_horizon_days?: true
   booking_min_lead_minutes?: true
   booking_slot_interval_minutes?: true
+  downpayment_percentage?: true
   same_day_attendance_strict_minutes?: true
 }
 
@@ -136,6 +142,7 @@ export type BusinessSumAggregateInputType = {
   booking_horizon_days?: true
   booking_min_lead_minutes?: true
   booking_slot_interval_minutes?: true
+  downpayment_percentage?: true
   same_day_attendance_strict_minutes?: true
 }
 
@@ -154,6 +161,7 @@ export type BusinessMinAggregateInputType = {
   public_allow_full_payment?: true
   public_allow_downpayment?: true
   public_default_payment_type?: true
+  downpayment_percentage?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
   structure?: true
@@ -179,6 +187,7 @@ export type BusinessMaxAggregateInputType = {
   public_allow_full_payment?: true
   public_allow_downpayment?: true
   public_default_payment_type?: true
+  downpayment_percentage?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
   structure?: true
@@ -204,6 +213,7 @@ export type BusinessCountAggregateInputType = {
   public_allow_full_payment?: true
   public_allow_downpayment?: true
   public_default_payment_type?: true
+  downpayment_percentage?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
   structure?: true
@@ -316,6 +326,7 @@ export type BusinessGroupByOutputType = {
   public_allow_full_payment: boolean
   public_allow_downpayment: boolean
   public_default_payment_type: string
+  downpayment_percentage: number
   booking_v2_enabled: boolean
   same_day_attendance_strict_minutes: number
   structure: $Enums.BusinessStructure
@@ -364,6 +375,7 @@ export type BusinessWhereInput = {
   public_allow_full_payment?: Prisma.BoolFilter<"Business"> | boolean
   public_allow_downpayment?: Prisma.BoolFilter<"Business"> | boolean
   public_default_payment_type?: Prisma.StringFilter<"Business"> | string
+  downpayment_percentage?: Prisma.IntFilter<"Business"> | number
   booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
   structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
@@ -400,6 +412,8 @@ export type BusinessWhereInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionListRelationFilter
   onboarding_applications_converted?: Prisma.OnboardingApplicationListRelationFilter
   platform_action_logs?: Prisma.PlatformActionLogListRelationFilter
+  booking_otp_codes?: Prisma.BookingOtpCodeListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
 }
 
 export type BusinessOrderByWithRelationInput = {
@@ -417,6 +431,7 @@ export type BusinessOrderByWithRelationInput = {
   public_allow_full_payment?: Prisma.SortOrder
   public_allow_downpayment?: Prisma.SortOrder
   public_default_payment_type?: Prisma.SortOrder
+  downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
   structure?: Prisma.SortOrder
@@ -453,6 +468,8 @@ export type BusinessOrderByWithRelationInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionOrderByRelationAggregateInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationOrderByRelationAggregateInput
   platform_action_logs?: Prisma.PlatformActionLogOrderByRelationAggregateInput
+  booking_otp_codes?: Prisma.BookingOtpCodeOrderByRelationAggregateInput
+  expenses?: Prisma.ExpenseOrderByRelationAggregateInput
 }
 
 export type BusinessWhereUniqueInput = Prisma.AtLeast<{
@@ -473,6 +490,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   public_allow_full_payment?: Prisma.BoolFilter<"Business"> | boolean
   public_allow_downpayment?: Prisma.BoolFilter<"Business"> | boolean
   public_default_payment_type?: Prisma.StringFilter<"Business"> | string
+  downpayment_percentage?: Prisma.IntFilter<"Business"> | number
   booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
   structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
@@ -509,6 +527,8 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   referral_attributions_as_referred?: Prisma.ReferralAttributionListRelationFilter
   onboarding_applications_converted?: Prisma.OnboardingApplicationListRelationFilter
   platform_action_logs?: Prisma.PlatformActionLogListRelationFilter
+  booking_otp_codes?: Prisma.BookingOtpCodeListRelationFilter
+  expenses?: Prisma.ExpenseListRelationFilter
 }, "id" | "slug">
 
 export type BusinessOrderByWithAggregationInput = {
@@ -526,6 +546,7 @@ export type BusinessOrderByWithAggregationInput = {
   public_allow_full_payment?: Prisma.SortOrder
   public_allow_downpayment?: Prisma.SortOrder
   public_default_payment_type?: Prisma.SortOrder
+  downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
   structure?: Prisma.SortOrder
@@ -559,6 +580,7 @@ export type BusinessScalarWhereWithAggregatesInput = {
   public_allow_full_payment?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   public_allow_downpayment?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   public_default_payment_type?: Prisma.StringWithAggregatesFilter<"Business"> | string
+  downpayment_percentage?: Prisma.IntWithAggregatesFilter<"Business"> | number
   booking_v2_enabled?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
   structure?: Prisma.EnumBusinessStructureWithAggregatesFilter<"Business"> | $Enums.BusinessStructure
@@ -584,6 +606,7 @@ export type BusinessCreateInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -620,6 +643,8 @@ export type BusinessCreateInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateInput = {
@@ -637,6 +662,7 @@ export type BusinessUncheckedCreateInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -673,6 +699,8 @@ export type BusinessUncheckedCreateInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUpdateInput = {
@@ -690,6 +718,7 @@ export type BusinessUpdateInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -726,6 +755,8 @@ export type BusinessUpdateInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateInput = {
@@ -743,6 +774,7 @@ export type BusinessUncheckedUpdateInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -779,6 +811,8 @@ export type BusinessUncheckedUpdateInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateManyInput = {
@@ -796,6 +830,7 @@ export type BusinessCreateManyInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -821,6 +856,7 @@ export type BusinessUpdateManyMutationInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -846,6 +882,7 @@ export type BusinessUncheckedUpdateManyInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -871,6 +908,7 @@ export type BusinessCountOrderByAggregateInput = {
   public_allow_full_payment?: Prisma.SortOrder
   public_allow_downpayment?: Prisma.SortOrder
   public_default_payment_type?: Prisma.SortOrder
+  downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
   structure?: Prisma.SortOrder
@@ -887,6 +925,7 @@ export type BusinessAvgOrderByAggregateInput = {
   booking_horizon_days?: Prisma.SortOrder
   booking_min_lead_minutes?: Prisma.SortOrder
   booking_slot_interval_minutes?: Prisma.SortOrder
+  downpayment_percentage?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
 }
 
@@ -905,6 +944,7 @@ export type BusinessMaxOrderByAggregateInput = {
   public_allow_full_payment?: Prisma.SortOrder
   public_allow_downpayment?: Prisma.SortOrder
   public_default_payment_type?: Prisma.SortOrder
+  downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
   structure?: Prisma.SortOrder
@@ -930,6 +970,7 @@ export type BusinessMinOrderByAggregateInput = {
   public_allow_full_payment?: Prisma.SortOrder
   public_allow_downpayment?: Prisma.SortOrder
   public_default_payment_type?: Prisma.SortOrder
+  downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
   structure?: Prisma.SortOrder
@@ -946,6 +987,7 @@ export type BusinessSumOrderByAggregateInput = {
   booking_horizon_days?: Prisma.SortOrder
   booking_min_lead_minutes?: Prisma.SortOrder
   booking_slot_interval_minutes?: Prisma.SortOrder
+  downpayment_percentage?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
 }
 
@@ -1285,6 +1327,20 @@ export type BusinessUpdateOneRequiredWithoutCustomersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutCustomersInput, Prisma.BusinessUpdateWithoutCustomersInput>, Prisma.BusinessUncheckedUpdateWithoutCustomersInput>
 }
 
+export type BusinessCreateNestedOneWithoutBooking_otp_codesInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutBooking_otp_codesInput, Prisma.BusinessUncheckedCreateWithoutBooking_otp_codesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutBooking_otp_codesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutBooking_otp_codesNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutBooking_otp_codesInput, Prisma.BusinessUncheckedCreateWithoutBooking_otp_codesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutBooking_otp_codesInput
+  upsert?: Prisma.BusinessUpsertWithoutBooking_otp_codesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutBooking_otp_codesInput, Prisma.BusinessUpdateWithoutBooking_otp_codesInput>, Prisma.BusinessUncheckedUpdateWithoutBooking_otp_codesInput>
+}
+
 export type BusinessCreateNestedOneWithoutBookingsInput = {
   create?: Prisma.XOR<Prisma.BusinessCreateWithoutBookingsInput, Prisma.BusinessUncheckedCreateWithoutBookingsInput>
   connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutBookingsInput
@@ -1397,6 +1453,20 @@ export type BusinessUpdateOneRequiredWithoutCampaignsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutCampaignsInput, Prisma.BusinessUpdateWithoutCampaignsInput>, Prisma.BusinessUncheckedUpdateWithoutCampaignsInput>
 }
 
+export type BusinessCreateNestedOneWithoutExpensesInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutExpensesInput, Prisma.BusinessUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutExpensesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutExpensesNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutExpensesInput, Prisma.BusinessUncheckedCreateWithoutExpensesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutExpensesInput
+  upsert?: Prisma.BusinessUpsertWithoutExpensesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutExpensesInput, Prisma.BusinessUpdateWithoutExpensesInput>, Prisma.BusinessUncheckedUpdateWithoutExpensesInput>
+}
+
 export type BusinessCreateWithoutLeave_requestsInput = {
   id?: string
   name: string
@@ -1412,6 +1482,7 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -1447,6 +1518,8 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
@@ -1464,6 +1537,7 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -1499,6 +1573,8 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutLeave_requestsInput = {
@@ -1532,6 +1608,7 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -1567,6 +1644,8 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
@@ -1584,6 +1663,7 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -1619,6 +1699,8 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutBusiness_hoursInput = {
@@ -1636,6 +1718,7 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -1671,6 +1754,8 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
@@ -1688,6 +1773,7 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -1723,6 +1809,8 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBusiness_hoursInput = {
@@ -1756,6 +1844,7 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -1791,6 +1880,8 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
@@ -1808,6 +1899,7 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -1843,6 +1935,8 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSale_eventsInput = {
@@ -1860,6 +1954,7 @@ export type BusinessCreateWithoutSale_eventsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -1895,6 +1990,8 @@ export type BusinessCreateWithoutSale_eventsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSale_eventsInput = {
@@ -1912,6 +2009,7 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -1947,6 +2045,8 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSale_eventsInput = {
@@ -1980,6 +2080,7 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2015,6 +2116,8 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
@@ -2032,6 +2135,7 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2067,6 +2171,8 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSocial_connectionsInput = {
@@ -2084,6 +2190,7 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2119,6 +2226,8 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
@@ -2136,6 +2245,7 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2171,6 +2281,8 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSocial_connectionsInput = {
@@ -2204,6 +2316,7 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2239,6 +2352,8 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
@@ -2256,6 +2371,7 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2291,6 +2407,8 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSocial_postsInput = {
@@ -2308,6 +2426,7 @@ export type BusinessCreateWithoutSocial_postsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2343,6 +2462,8 @@ export type BusinessCreateWithoutSocial_postsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSocial_postsInput = {
@@ -2360,6 +2481,7 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2395,6 +2517,8 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSocial_postsInput = {
@@ -2428,6 +2552,7 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2463,6 +2588,8 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
@@ -2480,6 +2607,7 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2515,6 +2643,8 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutEmployeesInput = {
@@ -2532,6 +2662,7 @@ export type BusinessCreateWithoutEmployeesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2567,6 +2698,8 @@ export type BusinessCreateWithoutEmployeesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutEmployeesInput = {
@@ -2584,6 +2717,7 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2619,6 +2753,8 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutEmployeesInput = {
@@ -2652,6 +2788,7 @@ export type BusinessUpdateWithoutEmployeesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2687,6 +2824,8 @@ export type BusinessUpdateWithoutEmployeesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutEmployeesInput = {
@@ -2704,6 +2843,7 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2739,6 +2879,8 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSpecial_datesInput = {
@@ -2756,6 +2898,7 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2791,6 +2934,8 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
@@ -2808,6 +2953,7 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -2843,6 +2989,8 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSpecial_datesInput = {
@@ -2876,6 +3024,7 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2911,6 +3060,8 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
@@ -2928,6 +3079,7 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -2963,6 +3115,8 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutOwnersInput = {
@@ -2980,6 +3134,7 @@ export type BusinessCreateWithoutOwnersInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3015,6 +3170,8 @@ export type BusinessCreateWithoutOwnersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutOwnersInput = {
@@ -3032,6 +3189,7 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3067,6 +3225,8 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutOwnersInput = {
@@ -3100,6 +3260,7 @@ export type BusinessUpdateWithoutOwnersInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3135,6 +3296,8 @@ export type BusinessUpdateWithoutOwnersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutOwnersInput = {
@@ -3152,6 +3315,7 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3187,6 +3351,8 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSubscriptionsInput = {
@@ -3204,6 +3370,7 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3239,6 +3406,8 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
@@ -3256,6 +3425,7 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3291,6 +3461,8 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSubscriptionsInput = {
@@ -3324,6 +3496,7 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3359,6 +3532,8 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
@@ -3376,6 +3551,7 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3411,6 +3587,8 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
@@ -3428,6 +3606,7 @@ export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3463,6 +3642,8 @@ export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
@@ -3480,6 +3661,7 @@ export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3515,6 +3697,8 @@ export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSubscription_upgrade_requestsInput = {
@@ -3548,6 +3732,7 @@ export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3583,6 +3768,8 @@ export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
@@ -3600,6 +3787,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3635,6 +3823,8 @@ export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSubscription_invoicesInput = {
@@ -3652,6 +3842,7 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3687,6 +3878,8 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
@@ -3704,6 +3897,7 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3739,6 +3933,8 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSubscription_invoicesInput = {
@@ -3772,6 +3968,7 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3807,6 +4004,8 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
@@ -3824,6 +4023,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -3859,6 +4059,8 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutReferral_codeInput = {
@@ -3876,6 +4078,7 @@ export type BusinessCreateWithoutReferral_codeInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3911,6 +4114,8 @@ export type BusinessCreateWithoutReferral_codeInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutReferral_codeInput = {
@@ -3928,6 +4133,7 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -3963,6 +4169,8 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutReferral_codeInput = {
@@ -3996,6 +4204,7 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4031,6 +4240,8 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
@@ -4048,6 +4259,7 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4083,6 +4295,8 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutReferral_leads_convertedInput = {
@@ -4100,6 +4314,7 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4135,6 +4350,8 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
@@ -4152,6 +4369,7 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4187,6 +4405,8 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutReferral_leads_convertedInput = {
@@ -4220,6 +4440,7 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4255,6 +4476,8 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
@@ -4272,6 +4495,7 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4307,6 +4531,8 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
@@ -4324,6 +4550,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4359,6 +4586,8 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput = {
@@ -4376,6 +4605,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4411,6 +4641,8 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutReferral_attributions_as_referrerInput = {
@@ -4433,6 +4665,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4468,6 +4701,8 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput = {
@@ -4485,6 +4720,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4520,6 +4756,8 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutReferral_attributions_as_referredInput = {
@@ -4553,6 +4791,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4588,6 +4827,8 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput = {
@@ -4605,6 +4846,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4640,6 +4882,8 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUpsertWithoutReferral_attributions_as_referredInput = {
@@ -4668,6 +4912,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4703,6 +4948,8 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput = {
@@ -4720,6 +4967,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4755,6 +5003,8 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
@@ -4772,6 +5022,7 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4807,6 +5058,8 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput = {
@@ -4824,6 +5077,7 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -4859,6 +5113,8 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutOnboarding_applications_convertedInput = {
@@ -4892,6 +5148,7 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4927,6 +5184,8 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput = {
@@ -4944,6 +5203,7 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -4979,6 +5239,8 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutPlatform_action_logsInput = {
@@ -4996,6 +5258,7 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5031,6 +5294,8 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
@@ -5048,6 +5313,7 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5083,6 +5349,8 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutPlatform_action_logsInput = {
@@ -5116,6 +5384,7 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5151,6 +5420,8 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
@@ -5168,6 +5439,7 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5203,6 +5475,8 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutServicesInput = {
@@ -5220,6 +5494,7 @@ export type BusinessCreateWithoutServicesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5255,6 +5530,8 @@ export type BusinessCreateWithoutServicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutServicesInput = {
@@ -5272,6 +5549,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5307,6 +5585,8 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutServicesInput = {
@@ -5340,6 +5620,7 @@ export type BusinessUpdateWithoutServicesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5375,6 +5656,8 @@ export type BusinessUpdateWithoutServicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutServicesInput = {
@@ -5392,6 +5675,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5427,6 +5711,8 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutPackagesInput = {
@@ -5444,6 +5730,7 @@ export type BusinessCreateWithoutPackagesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5479,6 +5766,8 @@ export type BusinessCreateWithoutPackagesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutPackagesInput = {
@@ -5496,6 +5785,7 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5531,6 +5821,8 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutPackagesInput = {
@@ -5564,6 +5856,7 @@ export type BusinessUpdateWithoutPackagesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5599,6 +5892,8 @@ export type BusinessUpdateWithoutPackagesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutPackagesInput = {
@@ -5616,6 +5911,7 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5651,6 +5947,8 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutCustomersInput = {
@@ -5668,6 +5966,7 @@ export type BusinessCreateWithoutCustomersInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5703,6 +6002,8 @@ export type BusinessCreateWithoutCustomersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutCustomersInput = {
@@ -5720,6 +6021,7 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5755,6 +6057,8 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutCustomersInput = {
@@ -5788,6 +6092,7 @@ export type BusinessUpdateWithoutCustomersInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5823,6 +6128,8 @@ export type BusinessUpdateWithoutCustomersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutCustomersInput = {
@@ -5840,6 +6147,7 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -5875,6 +6183,244 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutBooking_otp_codesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  downpayment_percentage?: number
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutBooking_otp_codesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  downpayment_percentage?: number
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutBooking_otp_codesInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutBooking_otp_codesInput, Prisma.BusinessUncheckedCreateWithoutBooking_otp_codesInput>
+}
+
+export type BusinessUpsertWithoutBooking_otp_codesInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutBooking_otp_codesInput, Prisma.BusinessUncheckedUpdateWithoutBooking_otp_codesInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutBooking_otp_codesInput, Prisma.BusinessUncheckedCreateWithoutBooking_otp_codesInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutBooking_otp_codesInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutBooking_otp_codesInput, Prisma.BusinessUncheckedUpdateWithoutBooking_otp_codesInput>
+}
+
+export type BusinessUpdateWithoutBooking_otp_codesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutBooking_otp_codesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutBookingsInput = {
@@ -5892,6 +6438,7 @@ export type BusinessCreateWithoutBookingsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5927,6 +6474,8 @@ export type BusinessCreateWithoutBookingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutBookingsInput = {
@@ -5944,6 +6493,7 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -5979,6 +6529,8 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBookingsInput = {
@@ -6012,6 +6564,7 @@ export type BusinessUpdateWithoutBookingsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6047,6 +6600,8 @@ export type BusinessUpdateWithoutBookingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBookingsInput = {
@@ -6064,6 +6619,7 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6099,6 +6655,8 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutVouchersInput = {
@@ -6116,6 +6674,7 @@ export type BusinessCreateWithoutVouchersInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6151,6 +6710,8 @@ export type BusinessCreateWithoutVouchersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutVouchersInput = {
@@ -6168,6 +6729,7 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6203,6 +6765,8 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutVouchersInput = {
@@ -6236,6 +6800,7 @@ export type BusinessUpdateWithoutVouchersInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6271,6 +6836,8 @@ export type BusinessUpdateWithoutVouchersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutVouchersInput = {
@@ -6288,6 +6855,7 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6323,6 +6891,8 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutGift_cardsInput = {
@@ -6340,6 +6910,7 @@ export type BusinessCreateWithoutGift_cardsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6375,6 +6946,8 @@ export type BusinessCreateWithoutGift_cardsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutGift_cardsInput = {
@@ -6392,6 +6965,7 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6427,6 +7001,8 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutGift_cardsInput = {
@@ -6460,6 +7036,7 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6495,6 +7072,8 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
@@ -6512,6 +7091,7 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6547,6 +7127,8 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutService_flowsInput = {
@@ -6564,6 +7146,7 @@ export type BusinessCreateWithoutService_flowsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6599,6 +7182,8 @@ export type BusinessCreateWithoutService_flowsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutService_flowsInput = {
@@ -6616,6 +7201,7 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6651,6 +7237,8 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutService_flowsInput = {
@@ -6684,6 +7272,7 @@ export type BusinessUpdateWithoutService_flowsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6719,6 +7308,8 @@ export type BusinessUpdateWithoutService_flowsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutService_flowsInput = {
@@ -6736,6 +7327,7 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6771,6 +7363,8 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutGrowth_settingsInput = {
@@ -6788,6 +7382,7 @@ export type BusinessCreateWithoutGrowth_settingsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6823,6 +7418,8 @@ export type BusinessCreateWithoutGrowth_settingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
@@ -6840,6 +7437,7 @@ export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -6875,6 +7473,8 @@ export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutGrowth_settingsInput = {
@@ -6908,6 +7508,7 @@ export type BusinessUpdateWithoutGrowth_settingsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6943,6 +7544,8 @@ export type BusinessUpdateWithoutGrowth_settingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
@@ -6960,6 +7563,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -6995,6 +7599,8 @@ export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
@@ -7012,6 +7618,7 @@ export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -7047,6 +7654,8 @@ export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
@@ -7064,6 +7673,7 @@ export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -7099,6 +7709,8 @@ export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutGrowth_context_snapshotsInput = {
@@ -7132,6 +7744,7 @@ export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -7167,6 +7780,8 @@ export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
@@ -7184,6 +7799,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -7219,6 +7835,8 @@ export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutOpportunitiesInput = {
@@ -7236,6 +7854,7 @@ export type BusinessCreateWithoutOpportunitiesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -7271,6 +7890,8 @@ export type BusinessCreateWithoutOpportunitiesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
@@ -7288,6 +7909,7 @@ export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -7323,6 +7945,8 @@ export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutOpportunitiesInput = {
@@ -7356,6 +7980,7 @@ export type BusinessUpdateWithoutOpportunitiesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -7391,6 +8016,8 @@ export type BusinessUpdateWithoutOpportunitiesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
@@ -7408,6 +8035,7 @@ export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -7443,6 +8071,8 @@ export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutCampaignsInput = {
@@ -7460,6 +8090,7 @@ export type BusinessCreateWithoutCampaignsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -7495,6 +8126,8 @@ export type BusinessCreateWithoutCampaignsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutCampaignsInput = {
@@ -7512,6 +8145,7 @@ export type BusinessUncheckedCreateWithoutCampaignsInput = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: string
+  downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
   structure?: $Enums.BusinessStructure
@@ -7547,6 +8181,8 @@ export type BusinessUncheckedCreateWithoutCampaignsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutCampaignsInput = {
@@ -7580,6 +8216,7 @@ export type BusinessUpdateWithoutCampaignsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -7615,6 +8252,8 @@ export type BusinessUpdateWithoutCampaignsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutCampaignsInput = {
@@ -7632,6 +8271,7 @@ export type BusinessUncheckedUpdateWithoutCampaignsInput = {
   public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
@@ -7667,6 +8307,244 @@ export type BusinessUncheckedUpdateWithoutCampaignsInput = {
   referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
   onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutExpensesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  downpayment_percentage?: number
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutExpensesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  downpayment_percentage?: number
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutExpensesInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutExpensesInput, Prisma.BusinessUncheckedCreateWithoutExpensesInput>
+}
+
+export type BusinessUpsertWithoutExpensesInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutExpensesInput, Prisma.BusinessUncheckedUpdateWithoutExpensesInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutExpensesInput, Prisma.BusinessUncheckedCreateWithoutExpensesInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutExpensesInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutExpensesInput, Prisma.BusinessUncheckedUpdateWithoutExpensesInput>
+}
+
+export type BusinessUpdateWithoutExpensesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutExpensesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 
@@ -7701,6 +8579,8 @@ export type BusinessCountOutputType = {
   referral_attributions_as_referred: number
   onboarding_applications_converted: number
   platform_action_logs: number
+  booking_otp_codes: number
+  expenses: number
 }
 
 export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7730,6 +8610,8 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   referral_attributions_as_referred?: boolean | BusinessCountOutputTypeCountReferral_attributions_as_referredArgs
   onboarding_applications_converted?: boolean | BusinessCountOutputTypeCountOnboarding_applications_convertedArgs
   platform_action_logs?: boolean | BusinessCountOutputTypeCountPlatform_action_logsArgs
+  booking_otp_codes?: boolean | BusinessCountOutputTypeCountBooking_otp_codesArgs
+  expenses?: boolean | BusinessCountOutputTypeCountExpensesArgs
 }
 
 /**
@@ -7924,6 +8806,20 @@ export type BusinessCountOutputTypeCountPlatform_action_logsArgs<ExtArgs extends
   where?: Prisma.PlatformActionLogWhereInput
 }
 
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountBooking_otp_codesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingOtpCodeWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountExpensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExpenseWhereInput
+}
+
 
 export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -7940,6 +8836,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: boolean
+  downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
   structure?: boolean
@@ -7976,6 +8873,8 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   referral_attributions_as_referred?: boolean | Prisma.Business$referral_attributions_as_referredArgs<ExtArgs>
   onboarding_applications_converted?: boolean | Prisma.Business$onboarding_applications_convertedArgs<ExtArgs>
   platform_action_logs?: boolean | Prisma.Business$platform_action_logsArgs<ExtArgs>
+  booking_otp_codes?: boolean | Prisma.Business$booking_otp_codesArgs<ExtArgs>
+  expenses?: boolean | Prisma.Business$expensesArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
 
@@ -7994,6 +8893,7 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: boolean
+  downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
   structure?: boolean
@@ -8019,6 +8919,7 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: boolean
+  downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
   structure?: boolean
@@ -8044,6 +8945,7 @@ export type BusinessSelectScalar = {
   public_allow_full_payment?: boolean
   public_allow_downpayment?: boolean
   public_default_payment_type?: boolean
+  downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
   structure?: boolean
@@ -8054,7 +8956,7 @@ export type BusinessSelectScalar = {
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "structure" | "allow_employee_self_booking" | "manager_can_serve" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "downpayment_percentage" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "structure" | "allow_employee_self_booking" | "manager_can_serve" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -8084,6 +8986,8 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   referral_attributions_as_referred?: boolean | Prisma.Business$referral_attributions_as_referredArgs<ExtArgs>
   onboarding_applications_converted?: boolean | Prisma.Business$onboarding_applications_convertedArgs<ExtArgs>
   platform_action_logs?: boolean | Prisma.Business$platform_action_logsArgs<ExtArgs>
+  booking_otp_codes?: boolean | Prisma.Business$booking_otp_codesArgs<ExtArgs>
+  expenses?: boolean | Prisma.Business$expensesArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BusinessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -8120,6 +9024,8 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     referral_attributions_as_referred: Prisma.$ReferralAttributionPayload<ExtArgs>[]
     onboarding_applications_converted: Prisma.$OnboardingApplicationPayload<ExtArgs>[]
     platform_action_logs: Prisma.$PlatformActionLogPayload<ExtArgs>[]
+    booking_otp_codes: Prisma.$BookingOtpCodePayload<ExtArgs>[]
+    expenses: Prisma.$ExpensePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -8136,6 +9042,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     public_allow_full_payment: boolean
     public_allow_downpayment: boolean
     public_default_payment_type: string
+    downpayment_percentage: number
     booking_v2_enabled: boolean
     same_day_attendance_strict_minutes: number
     structure: $Enums.BusinessStructure
@@ -8566,6 +9473,8 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   referral_attributions_as_referred<T extends Prisma.Business$referral_attributions_as_referredArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$referral_attributions_as_referredArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReferralAttributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   onboarding_applications_converted<T extends Prisma.Business$onboarding_applications_convertedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$onboarding_applications_convertedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OnboardingApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   platform_action_logs<T extends Prisma.Business$platform_action_logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$platform_action_logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformActionLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  booking_otp_codes<T extends Prisma.Business$booking_otp_codesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$booking_otp_codesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingOtpCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  expenses<T extends Prisma.Business$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8609,6 +9518,7 @@ export interface BusinessFieldRefs {
   readonly public_allow_full_payment: Prisma.FieldRef<"Business", 'Boolean'>
   readonly public_allow_downpayment: Prisma.FieldRef<"Business", 'Boolean'>
   readonly public_default_payment_type: Prisma.FieldRef<"Business", 'String'>
+  readonly downpayment_percentage: Prisma.FieldRef<"Business", 'Int'>
   readonly booking_v2_enabled: Prisma.FieldRef<"Business", 'Boolean'>
   readonly same_day_attendance_strict_minutes: Prisma.FieldRef<"Business", 'Int'>
   readonly structure: Prisma.FieldRef<"Business", 'BusinessStructure'>
@@ -9664,6 +10574,54 @@ export type Business$platform_action_logsArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.PlatformActionLogScalarFieldEnum | Prisma.PlatformActionLogScalarFieldEnum[]
+}
+
+/**
+ * Business.booking_otp_codes
+ */
+export type Business$booking_otp_codesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BookingOtpCode
+   */
+  select?: Prisma.BookingOtpCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BookingOtpCode
+   */
+  omit?: Prisma.BookingOtpCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingOtpCodeInclude<ExtArgs> | null
+  where?: Prisma.BookingOtpCodeWhereInput
+  orderBy?: Prisma.BookingOtpCodeOrderByWithRelationInput | Prisma.BookingOtpCodeOrderByWithRelationInput[]
+  cursor?: Prisma.BookingOtpCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingOtpCodeScalarFieldEnum | Prisma.BookingOtpCodeScalarFieldEnum[]
+}
+
+/**
+ * Business.expenses
+ */
+export type Business$expensesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Expense
+   */
+  select?: Prisma.ExpenseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Expense
+   */
+  omit?: Prisma.ExpenseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExpenseInclude<ExtArgs> | null
+  where?: Prisma.ExpenseWhereInput
+  orderBy?: Prisma.ExpenseOrderByWithRelationInput | Prisma.ExpenseOrderByWithRelationInput[]
+  cursor?: Prisma.ExpenseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExpenseScalarFieldEnum | Prisma.ExpenseScalarFieldEnum[]
 }
 
 /**

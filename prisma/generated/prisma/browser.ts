@@ -158,6 +158,11 @@ export type PackageItem = Prisma.PackageItemModel
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model BookingOtpCode
+ * 
+ */
+export type BookingOtpCode = Prisma.BookingOtpCodeModel
+/**
  * Model Booking
  * 
  */
@@ -242,3 +247,8 @@ export type OutboxMessage = Prisma.OutboxMessageModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model Expense
+ * 
+ */
+export type Expense = Prisma.ExpenseModel

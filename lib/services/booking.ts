@@ -161,7 +161,7 @@ export async function createBookingInDb({
             db: tx,
           });
 
-          let finalCustomerId = customerId;
+          let finalCustomerId = isPublicBooking ? undefined : customerId;
 
           if (finalCustomerId) {
             const existingCustomer = await tx.customer.findUnique({
@@ -248,8 +248,8 @@ export async function createBookingInDb({
           const amountPaid =
             isOnlinePayment && paymentConfirmed
               ? principalAmountForInitialPayment
-              : !isOnlinePayment && isDownpayment
-                ? principalAmountForInitialPayment
+              : !isOnlinePayment && isWalkIn
+                ? (isDownpayment ? principalAmountForInitialPayment : grandTotal)
                 : 0;
           const paymentStatus = resolvePaymentStatus(grandTotal, amountPaid);
 
@@ -373,7 +373,7 @@ export async function createBookingInDb({
           }
 
           const eventType =
-            bookingStatus === "ACCEPTED" && !isWalkIn
+            bookingStatus === "ACCEPTED"
               ? "BOOKING_CONFIRMED"
               : "BOOKING_CREATED";
 
@@ -390,6 +390,7 @@ export async function createBookingInDb({
               estimatedEnd: pricing.estimatedEnd.toISOString(),
               grandTotal,
               status: bookingStatus,
+              isWalkIn,
             },
           });
 

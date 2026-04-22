@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo, useOptimistic, useTransition, useCallback } from "react";
+import { useState, useMemo, useOptimistic, useTransition, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Service } from "@/prisma/generated/prisma/client";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Package, Filter, RefreshCcw } from "lucide-react";
+import { Search, Plus, Package, Filter, RefreshCcw, Box } from "lucide-react";
 import {
   createServiceAction,
   updateServiceAction,
@@ -85,9 +84,18 @@ export function ServicesPageClient({
   const [formData, setFormData] = useState<ServiceFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [, startTransition] = useTransition();
 
-  // Optimistic state for instant UI updates
+  const handleRefresh = useCallback(() => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    router.refresh();
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    refreshTimerRef.current = setTimeout(() => setIsRefreshing(false), 1200);
+  }, [isRefreshing, router]);
+
   const [optimisticServices, addOptimisticUpdate] = useOptimistic(
     services,
     (state: Service[], action: OptimisticAction) => {
@@ -187,12 +195,9 @@ export function ServicesPageClient({
         })),
     };
 
-    // Close dialog immediately for better UX
     setIsEditDialogOpen(false);
 
-    // Apply optimistic update and call server action
     startTransition(async () => {
-      // Apply optimistic update
       addOptimisticUpdate({
         type: "update",
         serviceId: selectedService.id,
@@ -206,7 +211,6 @@ export function ServicesPageClient({
         router.refresh();
       } else {
         toast.error(result.error || "Failed to update service");
-        // Refresh to revert to server state on error
         router.refresh();
       }
 
@@ -219,10 +223,7 @@ export function ServicesPageClient({
   const handleDeleteService = useCallback(
     async (serviceId: number) => {
       startTransition(async () => {
-        addOptimisticUpdate({
-          type: "delete",
-          serviceId,
-        });
+        addOptimisticUpdate({ type: "delete", serviceId });
 
         const result = await deleteServiceAction(serviceId);
         if (result.success) {
@@ -258,29 +259,45 @@ export function ServicesPageClient({
   }, []);
 
   return (
-    <div
-      className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen"
-      data-business-slug={businessSlug}
-    >
-      <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
-        <PageHeader
-          title="Services"
-          description="Manage your service catalog"
-          className="mb-8"
-        >
+    <div className="flex flex-col bg-background" data-business-slug={businessSlug}>
+
+      {/* ── Page Header ────────────────────────────────── */}
+      <div className="border-b border-border bg-card px-4 sm:px-8 py-4 sm:py-5">
+        <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+              <Box className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-[17px] sm:text-xl font-bold tracking-tight text-foreground">
+                  Services
+                </h1>
+                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary tabular-nums">
+                  {filteredServices.length}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
+                Manage your service catalog
+              </p>
+            </div>
+          </div>
+
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-95 rounded-full px-6">
-                <Plus className="h-4 w-4 mr-2" strokeWidth={2.5} />
-                <span className="font-semibold">Add Service</span>
+              <Button
+                className="h-9 rounded-xl bg-primary px-3 text-primary-foreground font-semibold shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 active:scale-[0.97] cursor-pointer sm:h-10 sm:px-4"
+              >
+                <Plus className="h-4 w-4 sm:mr-2" strokeWidth={2.5} />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add Service</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[550px] rounded-3xl p-0 gap-0 overflow-hidden">
+            <DialogContent className="sm:max-w-[550px] rounded-2xl p-0 gap-0 overflow-hidden">
               <DialogHeader className="p-6 pb-2">
-                <DialogTitle className="text-xl font-bold text-zinc-900">
+                <DialogTitle className="text-xl font-bold text-foreground">
                   Add New Service
                 </DialogTitle>
-                <DialogDescription className="text-zinc-500">
+                <DialogDescription className="text-muted-foreground">
                   Create a new service offering for your clients.
                 </DialogDescription>
               </DialogHeader>
@@ -294,143 +311,153 @@ export function ServicesPageClient({
                   services={services}
                 />
               </div>
-              <DialogFooter className="p-6 pt-2 bg-zinc-50/50">
+              <DialogFooter className="p-6 pt-2 bg-muted/50">
                 <Button
                   variant="outline"
                   onClick={() => setIsAddDialogOpen(false)}
-                  className="rounded-xl border-zinc-200"
+                  className="rounded-xl"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleAddService}
                   disabled={isLoading}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-500/20"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-sm shadow-primary/20"
                 >
                   {isLoading ? "Creating..." : "Create Service"}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </PageHeader>
+        </div>
+      </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 items-start sm:items-center justify-between">
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto flex-1 max-w-2xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
-              <Input
-                placeholder="Search services..."
-                className="pl-10 h-10 rounded-xl border-zinc-200 bg-white shadow-sm focus-visible:ring-emerald-500"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl border-zinc-200 bg-white shadow-sm">
-                <div className="flex items-center gap-2 text-zinc-600">
-                  <Filter className="h-4 w-4 opacity-50" />
-                  <span className="truncate">
-                    {categoryFilter === "ALL"
-                      ? "All Categories"
-                      : categoryFilter}
-                  </span>
+      {/* ── Main Content ───────────────────────────────── */}
+      <div className="px-4 sm:px-8 py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
+
+          {/* Toolbar card */}
+          <div className="bg-card border border-border rounded-2xl shadow-sm px-3 sm:px-4 py-3">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 items-start sm:items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full sm:w-auto flex-1 max-w-xl">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                  <Input
+                    placeholder="Search services..."
+                    className="pl-9 h-9 rounded-xl border-border bg-background shadow-none focus-visible:ring-primary/30"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
                 </div>
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="ALL">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full sm:w-[175px] h-9 rounded-xl border-border bg-background shadow-none">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Filter className="h-3.5 w-3.5 opacity-60 shrink-0" />
+                      <span className="truncate text-sm">
+                        {categoryFilter === "ALL" ? "All Categories" : categoryFilter}
+                      </span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="rounded-xl">
+                    <SelectItem value="ALL" className="cursor-pointer">All Categories</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat} className="cursor-pointer">
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={isRefreshing}
+                className="h-9 gap-2 rounded-xl text-muted-foreground hover:text-foreground hidden sm:flex shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={handleRefresh}
+              >
+                <RefreshCcw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+                <span className="text-sm">{isRefreshing ? "Refreshing..." : "Refresh"}</span>
+              </Button>
+            </div>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-10 gap-2 rounded-xl border-zinc-200 bg-white text-zinc-600 hidden md:flex"
-            onClick={() => router.refresh()}
-          >
-            <RefreshCcw className="h-4 w-4" />
-            <span>Refresh</span>
-          </Button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1">
-          {filteredServices.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-zinc-200/60 shadow-sm p-12 flex flex-col items-center justify-center text-center">
-              <div className="h-12 w-12 bg-zinc-50 rounded-full flex items-center justify-center mb-4">
-                <Package className="h-6 w-6 text-zinc-300" />
+          {/* Content */}
+          <div className="flex-1">
+            {filteredServices.length === 0 ? (
+              <div className="bg-card rounded-2xl border border-border shadow-sm p-12 flex flex-col items-center justify-center text-center">
+                <div className="h-12 w-12 bg-muted rounded-xl flex items-center justify-center mb-4">
+                  <Package className="h-6 w-6 text-muted-foreground/40" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-1">
+                  No services found
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-sm mb-6">
+                  {services.length === 0
+                    ? "Get started by adding your first service offering."
+                    : "Try adjusting your search or filters to find what you're looking for."}
+                </p>
+                {services.length === 0 && (
+                  <Button
+                    onClick={() => setIsAddDialogOpen(true)}
+                    className="rounded-xl bg-primary hover:bg-primary/90 cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Service
+                  </Button>
+                )}
               </div>
-              <h3 className="text-lg font-semibold text-zinc-900 mb-1">
-                No services found
-              </h3>
-              <p className="text-zinc-500 max-w-sm mb-6">
-                {services.length === 0
-                  ? "Get started by adding your first service offering."
-                  : "Try adjusting your search or filters to find what you're looking for."}
-              </p>
-              {services.length === 0 && (
-                <Button
-                  onClick={() => setIsAddDialogOpen(true)}
-                  className="rounded-full bg-emerald-600 hover:bg-emerald-700"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Service
-                </Button>
-              )}
-            </div>
-          ) : (
-            <ServiceList
-              services={filteredServices}
-              onEdit={openEditDialog}
-              onDelete={handleDeleteService}
-            />
-          )}
-        </div>
-
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-[550px] rounded-3xl p-0 gap-0 overflow-hidden">
-            <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="text-xl font-bold text-zinc-900">
-                Edit Service
-              </DialogTitle>
-              <DialogDescription className="text-zinc-500">
-                Update the details for this service.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="px-6 py-2">
-              <ServiceForm
-                formData={formData}
-                setFormData={setFormData}
-                categories={categories}
-                newCategory={newCategory}
-                setNewCategory={setNewCategory}
-                services={services}
+            ) : (
+              <ServiceList
+                services={filteredServices}
+                onEdit={openEditDialog}
+                onDelete={handleDeleteService}
+                onCategoryClick={(cat) => setCategoryFilter(cat)}
               />
-            </div>
-            <DialogFooter className="p-6 pt-2 bg-zinc-50/50">
-              <Button
-                variant="outline"
-                onClick={() => setIsEditDialogOpen(false)}
-                className="rounded-xl border-zinc-200"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleEditService}
-                disabled={isLoading}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-500/20"
-              >
-                {isLoading ? "Saving..." : "Save Changes"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </section>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[550px] rounded-2xl p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="text-xl font-bold text-foreground">
+              Edit Service
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Update the details for this service.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 py-2">
+            <ServiceForm
+              formData={formData}
+              setFormData={setFormData}
+              categories={categories}
+              newCategory={newCategory}
+              setNewCategory={setNewCategory}
+              services={services}
+            />
+          </div>
+          <DialogFooter className="p-6 pt-2 bg-muted/50">
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+              className="rounded-xl"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditService}
+              disabled={isLoading}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-sm shadow-primary/20"
+            >
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

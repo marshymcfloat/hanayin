@@ -75,22 +75,20 @@ export default async function SaleEventsPage({
     : [];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
-      <SaleEventsPageClient
-        businessSlug={businessSlug}
-        initialEvents={business.sale_events}
-        services={business.services}
-        packages={business.packages}
-        initialOpportunity={growthOpportunities[0] || null}
-        connectedPlatforms={business.social_connections.map(
-          (connection) => connection.platform,
-        )}
-        socialPublishingEnabled={socialEnabled}
-        growthEnabled={growthEnabled}
-        growthAiEnabled={growthAiEnabled}
-        socialEnabled={socialEnabled}
-        flowContext={flowContext}
-      />
-    </div>
+    <SaleEventsPageClient
+      businessSlug={businessSlug}
+      initialEvents={business.sale_events}
+      services={business.services}
+      packages={business.packages}
+      initialOpportunity={growthOpportunities[0] || null}
+      connectedPlatforms={business.social_connections.map(
+        (connection) => connection.platform,
+      )}
+      socialPublishingEnabled={socialEnabled}
+      growthEnabled={growthEnabled}
+      growthAiEnabled={growthAiEnabled}
+      socialEnabled={socialEnabled}
+      flowContext={flowContext}
+    />
   );
 }

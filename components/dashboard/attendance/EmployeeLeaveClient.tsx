@@ -2,13 +2,6 @@
 
 import { LeaveRequest } from "@/prisma/generated/prisma/client";
 import { RequestLeaveDialog } from "./RequestLeaveDialog";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import {
@@ -59,14 +52,14 @@ export function EmployeeLeaveClient({
 }: EmployeeLeaveClientProps) {
   const [cancellingId, setCancellingId] = useState<number | null>(null);
 
-  const getStatusColor = (status: string) => {
+  const getStatusClass = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "bg-green-500 hover:bg-green-600";
+        return "border-primary/30 bg-primary/10 text-primary";
       case "REJECTED":
-        return "bg-red-500 hover:bg-red-600";
+        return "border-destructive/30 bg-destructive/10 text-destructive";
       default:
-        return "bg-yellow-500 hover:bg-yellow-600";
+        return "border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800";
     }
   };
 
@@ -89,17 +82,18 @@ export function EmployeeLeaveClient({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full md:w-auto">
+        <Button variant="outline" className="w-full md:w-auto rounded-xl cursor-pointer">
           Manage Leave Requests
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[95vw] md:max-w-5xl!  h-[80vh] flex flex-col p-0">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle>Leave Requests</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-[95vw] md:max-w-5xl! h-[80vh] flex flex-col p-0 rounded-3xl gap-0 overflow-hidden">
+        <DialogHeader className="px-6 pb-2 pt-6 shrink-0">
+          <DialogTitle className="text-xl font-bold text-foreground">Leave Requests</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Manage your leave requests and view their status.
           </DialogDescription>
         </DialogHeader>
+        <div className="h-px bg-border mx-6 shrink-0" />
 
         <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-6">
           <div className="flex justify-end">
@@ -110,76 +104,63 @@ export function EmployeeLeaveClient({
             />
           </div>
 
-          <Card className="border-0 shadow-none">
-            <CardHeader className="px-0 pt-0">
-              <CardTitle>My Requests</CardTitle>
-              <CardDescription>History of your leave requests.</CardDescription>
-            </CardHeader>
-            <CardContent className="px-0">
-              {requests.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground border rounded-lg border-dashed">
-                  No leave requests found.
-                </div>
-              ) : (
+          <div className="space-y-3">
+            <div>
+              <h3 className="text-base font-semibold text-foreground">My Requests</h3>
+              <p className="text-sm text-muted-foreground">History of your leave requests.</p>
+            </div>
+            {requests.length === 0 ? (
+              <div className="text-center py-10 text-muted-foreground border border-dashed border-border rounded-2xl">
+                No leave requests found.
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border overflow-hidden bg-card">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Dates</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Reason</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Admin Comment</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                    <TableRow className="hover:bg-transparent border-border bg-muted/50">
+                      <TableHead className="h-11 font-semibold text-muted-foreground">Dates</TableHead>
+                      <TableHead className="h-11 font-semibold text-muted-foreground">Type</TableHead>
+                      <TableHead className="h-11 font-semibold text-muted-foreground">Reason</TableHead>
+                      <TableHead className="h-11 font-semibold text-muted-foreground">Status</TableHead>
+                      <TableHead className="h-11 font-semibold text-muted-foreground">Admin Comment</TableHead>
+                      <TableHead className="text-right h-11 font-semibold text-muted-foreground">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {requests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell>
+                      <TableRow key={request.id} className="border-border/50 hover:bg-accent/30 transition-colors">
+                        <TableCell className="py-3">
                           <div className="flex flex-col">
-                            <span>
-                              {format(
-                                new Date(request.start_date),
-                                "MMM d, yyyy",
-                              )}
+                            <span className="font-medium text-foreground">
+                              {format(new Date(request.start_date), "MMM d, yyyy")}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              to{" "}
-                              {format(
-                                new Date(request.end_date),
-                                "MMM d, yyyy",
-                              )}
+                              to {format(new Date(request.end_date), "MMM d, yyyy")}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{request.type}</Badge>
+                        <TableCell className="py-3">
+                          <Badge variant="outline" className="border-border text-muted-foreground">{request.type}</Badge>
                         </TableCell>
-                        <TableCell
-                          className="max-w-[200px] truncate"
-                          title={request.reason}
-                        >
+                        <TableCell className="py-3 max-w-[200px] truncate text-muted-foreground" title={request.reason}>
                           {request.reason}
                         </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={getStatusColor(request.status)}
-                            variant="secondary"
-                          >
+                        <TableCell className="py-3">
+                          <Badge variant="outline" className={getStatusClass(request.status)}>
                             {request.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate">
+                        <TableCell className="py-3 max-w-[200px] truncate text-muted-foreground">
                           {request.admin_comment || "-"}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right py-3">
                           {request.status === "PENDING" && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
                                   disabled={cancellingId === request.id}
                                 >
                                   {cancellingId === request.id ? (
@@ -189,23 +170,18 @@ export function EmployeeLeaveClient({
                                   )}
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent>
+                              <AlertDialogContent className="rounded-2xl">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Cancel Leave Request
-                                  </AlertDialogTitle>
+                                  <AlertDialogTitle>Cancel Leave Request</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to cancel this leave
-                                    request? This action cannot be undone.
+                                    Are you sure you want to cancel this leave request? This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>
-                                    Keep Request
-                                  </AlertDialogCancel>
+                                  <AlertDialogCancel className="rounded-xl">Keep Request</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => handleCancel(request.id)}
-                                    className="bg-red-600 hover:bg-red-700"
+                                    className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                   >
                                     Yes, Cancel Request
                                   </AlertDialogAction>
@@ -218,9 +194,9 @@ export function EmployeeLeaveClient({
                     ))}
                   </TableBody>
                 </Table>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

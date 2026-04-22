@@ -4,7 +4,6 @@ import { requireTenantAccess } from "@/lib/auth/guards";
 import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
 import { prisma } from "@/prisma/prisma";
 import { SocialPostsPageClient } from "@/components/dashboard/owner/social-posts/SocialPostsPageClient";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { parseGrowthFlowContext } from "@/components/dashboard/owner/growth/types";
 import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
@@ -28,8 +27,8 @@ export default async function SocialPostsPage({
   if (auth.session.user.role !== "OWNER") {
     return (
       <div className="p-8">
-        <h1 className="text-xl font-semibold text-zinc-900">Social Posts</h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <h1 className="text-xl font-semibold text-foreground">Social Posts</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           Only owners can access social publishing.
         </p>
       </div>
@@ -40,8 +39,8 @@ export default async function SocialPostsPage({
   if (!entitlements.social) {
     return (
       <div className="p-8">
-        <h1 className="text-xl font-semibold text-zinc-900">Social Posts</h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <h1 className="text-xl font-semibold text-foreground">Social Posts</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           Social publishing is available on the Pro plan.
         </p>
       </div>
@@ -51,8 +50,8 @@ export default async function SocialPostsPage({
   if (!isSocialPublishingEnabledForBusiness(businessSlug)) {
     return (
       <div className="p-8">
-        <h1 className="text-xl font-semibold text-zinc-900">Social Posts</h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <h1 className="text-xl font-semibold text-foreground">Social Posts</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           Social publishing is currently enabled only for pilot businesses.
         </p>
       </div>
@@ -99,18 +98,12 @@ export default async function SocialPostsPage({
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <PageHeader
-        title="Social Posts"
-        description="Review, edit, publish, and retry channel posts from your sale events."
-      />
-      <SocialPostsPageClient
-        businessSlug={businessSlug}
-        businessName={business.name}
-        businessImageUrl={business.imageUrl}
-        initialPosts={business.social_posts}
-        flowContext={flowContext}
-      />
-    </div>
+    <SocialPostsPageClient
+      businessSlug={businessSlug}
+      businessName={business.name}
+      businessImageUrl={business.imageUrl}
+      initialPosts={business.social_posts}
+      flowContext={flowContext}
+    />
   );
 }

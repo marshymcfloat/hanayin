@@ -273,7 +273,7 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
 
         <Button
           type="submit"
-          className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 font-semibold"
+          className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/15 font-semibold"
           disabled={isPending}
         >
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

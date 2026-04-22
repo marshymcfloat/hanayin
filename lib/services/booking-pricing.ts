@@ -92,6 +92,7 @@ export async function buildBookingPricingSnapshot({
       slug: true,
       name: true,
       commission_calculation_basis: true,
+      downpayment_percentage: true,
     },
   });
 
@@ -328,20 +329,15 @@ export async function buildBookingPricingSnapshot({
       include: { business: { select: { slug: true } } },
     });
 
-    if (!dbVoucher) {
-      throw new Error("Voucher code not found");
-    }
+    const isInvalid =
+      !dbVoucher ||
+      dbVoucher.business.slug !== businessSlug ||
+      !dbVoucher.is_active ||
+      !!dbVoucher.used_by_id ||
+      new Date() > dbVoucher.expires_at;
 
-    if (dbVoucher.business.slug !== businessSlug) {
-      throw new Error("Voucher is not valid for this business");
-    }
-
-    if (!dbVoucher.is_active || dbVoucher.used_by_id) {
-      throw new Error("Voucher is no longer available");
-    }
-
-    if (new Date() > dbVoucher.expires_at) {
-      throw new Error("Voucher has expired");
+    if (isInvalid) {
+      throw new Error("Invalid or expired voucher code");
     }
 
     if (subtotal < dbVoucher.minimum_amount) {
@@ -360,13 +356,15 @@ export async function buildBookingPricingSnapshot({
   }
 
   const grandTotal = roundMoney(Math.max(0, subtotal - voucherDiscount));
+  const dpPercent = Math.max(1, Math.min(100, business.downpayment_percentage ?? 50));
   const downpaymentAmount =
-    paymentType === "DOWNPAYMENT" ? roundMoney(grandTotal * 0.5) : null;
+    paymentType === "DOWNPAYMENT" ? roundMoney(grandTotal * (dpPercent / 100)) : null;
   const amountToPay = calculateBookingTotal({
     subtotal,
     voucherDiscount,
     paymentMethod,
     paymentType,
+    downpaymentPercentage: dpPercent,
   });
 
   const totalDuration = canonicalServices.reduce(

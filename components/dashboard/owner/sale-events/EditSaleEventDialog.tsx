@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -147,27 +146,29 @@ export function EditSaleEventDialog(props: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {props.trigger || (
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-zinc-700">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer">
             <Pencil className="h-4 w-4" />
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Edit Sale Event</DialogTitle>
-          <DialogDescription>
-            Adjust schedule, discount, and service/package scope before publishing.
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl rounded-3xl p-0 gap-0">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle className="text-xl font-bold text-foreground">Edit Sale Event</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            Adjust schedule, discount, and service/package scope.
           </DialogDescription>
         </DialogHeader>
+        <div className="h-px bg-border mx-6" />
 
-        <div className="space-y-4">
+        <div className="px-6 py-4 space-y-4">
           <div className="grid gap-2">
             <Label>Title</Label>
-            <Input value={title} onChange={(event) => setTitle(event.target.value)} />
+            <Input className="h-10 rounded-xl" value={title} onChange={(event) => setTitle(event.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label>Description</Label>
             <Textarea
+              className="rounded-xl resize-none"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
             />
@@ -177,6 +178,7 @@ export function EditSaleEventDialog(props: Props) {
               <Label>Start</Label>
               <Input
                 type="datetime-local"
+                className="h-10 rounded-xl"
                 value={startDate}
                 onChange={(event) => setStartDate(event.target.value)}
               />
@@ -185,6 +187,7 @@ export function EditSaleEventDialog(props: Props) {
               <Label>End</Label>
               <Input
                 type="datetime-local"
+                className="h-10 rounded-xl"
                 value={endDate}
                 onChange={(event) => setEndDate(event.target.value)}
               />
@@ -194,7 +197,7 @@ export function EditSaleEventDialog(props: Props) {
             <div className="grid gap-2">
               <Label>Discount Type</Label>
               <select
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 value={discountType}
                 onChange={(event) => setDiscountType(event.target.value as DiscountType)}
               >
@@ -207,26 +210,27 @@ export function EditSaleEventDialog(props: Props) {
               <Input
                 type="number"
                 step="0.01"
+                className="h-10 rounded-xl"
                 value={discountValue}
                 onChange={(event) => setDiscountValue(Number(event.target.value) || 0)}
               />
             </div>
           </div>
 
-          <div className="space-y-3 rounded-md border p-3">
-            <p className="text-sm font-medium">Services ({serviceIds.length} selected)</p>
+          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
+            <p className="text-sm font-semibold text-foreground">Services ({serviceIds.length} selected)</p>
             {servicesByCategory.length === 0 ? (
-              <p className="text-xs text-zinc-500">No services available.</p>
+              <p className="text-xs text-muted-foreground">No services available.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {servicesByCategory.map(({ category, services }) => (
-                  <div key={category} className="rounded-md border p-3">
-                    <p className="mb-2 text-xs font-semibold text-zinc-700">{category}</p>
-                    <div className="grid gap-2 sm:grid-cols-2">
+                  <div key={category} className="rounded-lg border border-border bg-background p-3">
+                    <p className="mb-2 text-xs font-semibold text-foreground">{category}</p>
+                    <div className="grid gap-1.5 sm:grid-cols-2">
                       {services.map((service) => (
                         <label
                           key={service.id}
-                          className="flex items-center gap-2 text-sm text-zinc-700"
+                          className="flex items-center gap-2 text-sm text-foreground min-h-10 rounded-md px-2 py-1.5 cursor-pointer hover:bg-accent/30 transition-colors"
                         >
                           <Checkbox
                             checked={serviceIds.includes(service.id)}
@@ -244,14 +248,17 @@ export function EditSaleEventDialog(props: Props) {
             )}
           </div>
 
-          <div className="space-y-3 rounded-md border p-3">
-            <p className="text-sm font-medium">Packages ({packageIds.length} selected)</p>
+          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
+            <p className="text-sm font-semibold text-foreground">Packages ({packageIds.length} selected)</p>
             {props.packages.length === 0 ? (
-              <p className="text-xs text-zinc-500">No packages available.</p>
+              <p className="text-xs text-muted-foreground">No packages available.</p>
             ) : (
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-1.5 rounded-lg border border-border bg-background p-3 sm:grid-cols-2">
                 {props.packages.map((pkg) => (
-                  <label key={pkg.id} className="flex items-center gap-2 text-sm text-zinc-700">
+                  <label
+                    key={pkg.id}
+                    className="flex items-center gap-2 text-sm text-foreground min-h-10 rounded-md px-2 py-1.5 cursor-pointer hover:bg-accent/30 transition-colors"
+                  >
                     <Checkbox
                       checked={packageIds.includes(pkg.id)}
                       onCheckedChange={(checked) =>
@@ -266,14 +273,19 @@ export function EditSaleEventDialog(props: Props) {
           </div>
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+        <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" className="rounded-xl cursor-pointer" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button type="button" onClick={onSave} disabled={isSaving}>
+          <Button
+            type="button"
+            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+            onClick={onSave}
+            disabled={isSaving}
+          >
             Save Changes
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

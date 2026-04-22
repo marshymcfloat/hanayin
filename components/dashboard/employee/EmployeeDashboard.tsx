@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { LogOut, User as UserIcon } from "lucide-react";
+import { PhilippinePeso, User as UserIcon, ListTodo, CalendarCheck, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
@@ -21,11 +21,11 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BookingDialog } from "../owner/BookingDialog";
 import { GiftCardClaimDialog } from "../shared/GiftCardClaimDialog";
+import { StatPill } from "../shared/StatPill";
 import ManagerQueueBoard, {
   type ManagerQueueEmployee,
   type ManagerQueueService,
 } from "../manager/ManagerQueueBoard";
-
 import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
 import {
   type Service,
@@ -131,30 +131,74 @@ export default function EmployeeDashboard({
     [todayBookings, employeeSpecialtySet],
   );
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: "/" });
-  };
+  const servedTodayCount = useMemo(() => {
+    const today = new Date();
+    return visibleServedHistory.filter((s) => {
+      const date = new Date(s.updated_at);
+      return (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      );
+    }).length;
+  }, [visibleServedHistory]);
+
+  const salaryFormatted =
+    currentEmployeeSalary >= 1000
+      ? `₱${(currentEmployeeSalary / 1000).toFixed(1)}k`
+      : `₱${currentEmployeeSalary}`;
+
+  const roleLabel =
+    employeeProfile === StaffProfile.MANAGER
+      ? "Manager Portal"
+      : employeeProfile === StaffProfile.CASHIER
+        ? "Cashier Portal"
+        : "Employee Portal";
 
   const showQueueSection = capabilities.canClaimQueue;
   const showServedSection = capabilities.canServeQueue;
 
   return (
-    <main className="min-h-screen bg-slate-50/50 pb-24 md:pb-12 font-sans">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
-        <div className="flex flex-col">
-          <h1 className="font-bold text-lg leading-none md:text-xl text-slate-900 tracking-tight">
-            {businessName}
-          </h1>
-          <p className="text-[10px] uppercase tracking-widest font-semibold text-indigo-500 mt-1">
-            {employeeProfile === StaffProfile.MANAGER
-              ? "Manager Portal"
-              : employeeProfile === StaffProfile.CASHIER
-                ? "Cashier Portal"
-                : "Employee Portal"}
-          </p>
+    <div className="flex flex-col h-full bg-background overflow-hidden">
+
+      {/* ── Top Bar ─────────────────────────── */}
+      <header className="shrink-0 bg-card border-b border-border px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-foreground truncate leading-none">
+              {businessName}
+            </p>
+            <p className="text-[10px] text-primary font-semibold uppercase tracking-widest mt-0.5">
+              {roleLabel}
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Stat pills – desktop only, inline in header */}
+        <div className="hidden xl:flex items-center gap-2 flex-1 justify-center max-w-xl">
+          <div className="flex items-center gap-1.5 bg-primary/8 rounded-xl px-3 py-1.5">
+            <PhilippinePeso className="h-3.5 w-3.5 text-primary" />
+            <span className="text-xs font-bold text-primary tabular-nums">{salaryFormatted}</span>
+            <span className="text-[10px] text-primary/60 font-medium">Salary</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
+            <UserIcon className="h-3.5 w-3.5 text-foreground/50" />
+            <span className="text-xs font-bold text-foreground tabular-nums">{servedTodayCount}</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Served</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
+            <ListTodo className="h-3.5 w-3.5 text-foreground/50" />
+            <span className="text-xs font-bold text-foreground tabular-nums">{visiblePendingServices.length}</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Queue</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
+            <CalendarCheck className="h-3.5 w-3.5 text-foreground/50" />
+            <span className="text-xs font-bold text-foreground tabular-nums">{leaveRequests.length}</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Leaves</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
           {capabilities.canCreateBooking ? (
             <BookingDialog
               services={services}
@@ -171,24 +215,21 @@ export default function EmployeeDashboard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-full ring-2 ring-slate-100 hover:bg-slate-100 transition-all"
+                className="h-8 w-8 rounded-full ring-1 ring-border hover:bg-muted transition-all"
               >
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-slate-900 text-white text-xs font-medium">
-                    <UserIcon className="h-4 w-4" />
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+                    <UserIcon className="h-3.5 w-3.5" />
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 rounded-xl shadow-xl border-slate-100"
-            >
+            <DropdownMenuContent align="end" className="w-48 rounded-xl">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={handleSignOut}
-                className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer rounded-lg"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
@@ -198,181 +239,122 @@ export default function EmployeeDashboard({
         </div>
       </header>
 
-      {/*       <div className="md:hidden fixed bottom-6 right-6 z-50">
-        <Button
-          asChild
-          size="icon"
-          className="h-14 w-14 rounded-full shadow-xl shadow-indigo-600/30 bg-indigo-600 hover:bg-indigo-700 text-white transition-transform active:scale-90"
-        >
-          <Link href={`/${businessSlug}/booking`}>
-            <Plus className="h-7 w-7" />
-            <span className="sr-only">Add Booking</span>
-          </Link>
-        </Button>
-      </div> */}
-
-      <div className="px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-8">
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-          <div className="md:col-span-5 lg:col-span-4 order-1">
-            <AttendanceCard
-              employeeId={currentEmployeeId}
-              businessSlug={businessSlug}
-              todayAttendance={todayAttendance ?? null}
-              className="h-full shadow-lg shadow-slate-200/50 border-0"
-            />
-          </div>
-
-          <div className="md:col-span-7 lg:col-span-8 order-2 grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-indigo-100 transition-colors">
-              <div className="flex items-start justify-between">
-                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-                  Est. Salary
-                </span>
-                <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
-                  <span className="text-xs font-bold">₱</span>
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
-                  ₱{currentEmployeeSalary.toLocaleString()}
-                </span>
-                <span className="text-xs text-slate-400 mt-1 block font-medium">
-                  This Month
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-blue-100 transition-colors">
-              <div className="flex items-start justify-between">
-                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-                  Served
-                </span>
-                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
-                  <UserIcon className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
-                  {
-                    visibleServedHistory.filter((s) => {
-                      const today = new Date();
-                      const date = new Date(s.updated_at);
-                      return (
-                        date.getDate() === today.getDate() &&
-                        date.getMonth() === today.getMonth() &&
-                        date.getFullYear() === today.getFullYear()
-                      );
-                    }).length
-                  }
-                </span>
-                <span className="text-xs text-slate-400 mt-1 block font-medium">
-                  Clients Today
-                </span>
-              </div>
-            </div>
-
-            <div className="col-span-2 lg:col-span-1 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-orange-100 transition-colors">
-              <div className="flex items-start justify-between">
-                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-                  Queue
-                </span>
-                <div className="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
-                  <span className="text-xs font-bold font-mono">Q</span>
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
-                  {visiblePendingServices.length}
-                </span>
-                <span className="text-xs text-slate-400 mt-1 block font-medium">
-                  Waiting
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {capabilities.canCollectPayment ? (
-          <section>
-            <EmployeePaymentsQueue
-              businessSlug={businessSlug}
-              bookings={visibleTodayBookings}
-              employeeSpecialties={currentEmployeeSpecialties}
-            />
-          </section>
-        ) : null}
-
-        {capabilities.canQueueOverride ? (
-          <section>
-            <ManagerQueueBoard
-              businessSlug={businessSlug}
-              initialServices={managerQueueServices}
-              initialEmployees={managerQueueEmployees}
-            />
-          </section>
-        ) : null}
-
-        <section>
-          <EmployeeLeaveClient
-            employeeId={currentEmployeeId}
-            businessId={businessId}
-            businessSlug={businessSlug}
-            requests={leaveRequests}
-          />
-        </section>
-
-        {showQueueSection || showServedSection ? (
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 md:gap-10">
-            {showQueueSection ? (
-              <section
-                className={`${showServedSection ? "xl:col-span-7" : "xl:col-span-12"} space-y-5`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-slate-900">
-                      Current Queue
-                    </h2>
-                    <span className="hidden md:inline-flex h-6 items-center rounded-full bg-slate-100 px-2.5 text-xs font-bold text-slate-600">
-                      {visiblePendingServices.length}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="-mx-4 md:mx-0">
-                  <PendingServicesList
-                    services={visiblePendingServices}
-                    businessSlug={businessSlug}
-                    currentEmployeeId={currentEmployeeId}
-                    employeeSpecialties={currentEmployeeSpecialties}
-                    saleEvents={saleEvents}
-                    canClaimServices={capabilities.canClaimQueue}
-                  />
-                </div>
-              </section>
-            ) : null}
-
-            {showServedSection ? (
-              <section
-                className={`${showQueueSection ? "xl:col-span-5" : "xl:col-span-12"} space-y-5`}
-              >
-                <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-bold text-slate-900">
-                    Served History
-                  </h2>
-                </div>
-                <div className="-mx-4 md:mx-0">
-                  <EmployeeServedHistory
-                    services={visibleServedHistory}
-                    employeeSpecialties={currentEmployeeSpecialties}
-                    currentEmployeeId={currentEmployeeId}
-                    currentEmployeeCommission={currentEmployeeCommission}
-                  />
-                </div>
-              </section>
-            ) : null}
-          </div>
-        ) : null}
+      {/* ── Stat pills — mobile/tablet only ── */}
+      <div className="xl:hidden shrink-0 px-4 pt-3 pb-0">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <StatPill icon={PhilippinePeso} label="Salary" value={salaryFormatted} accent />
+          <StatPill icon={UserIcon} label="Served Today" value={servedTodayCount} />
+          <StatPill icon={ListTodo} label="Queue" value={visiblePendingServices.length} />
+          <StatPill icon={CalendarCheck} label="Leaves" value={leaveRequests.length} />
+        </div>
       </div>
-    </main>
+
+      {/* ── Main 2-column grid ─────────────── */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="h-full grid grid-cols-1 lg:grid-cols-12 gap-0">
+
+          {/* ── LEFT: Attendance + Leave ─── */}
+          <div className="lg:col-span-4 flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-y-auto no-scrollbar">
+            <div className="p-4 sm:p-5 border-b border-border">
+              <AttendanceCard
+                employeeId={currentEmployeeId}
+                businessSlug={businessSlug}
+                todayAttendance={todayAttendance ?? null}
+              />
+            </div>
+            <div className="p-4 sm:p-5">
+              <EmployeeLeaveClient
+                employeeId={currentEmployeeId}
+                businessId={businessId}
+                businessSlug={businessSlug}
+                requests={leaveRequests}
+              />
+            </div>
+          </div>
+
+          {/* ── RIGHT: Queue + Served + Payments ── */}
+          <div className="lg:col-span-8 flex flex-col overflow-hidden">
+
+            {/* Payments queue (cashier only) */}
+            {capabilities.canCollectPayment ? (
+              <div className="shrink-0 border-b border-border p-4 sm:p-5">
+                <EmployeePaymentsQueue
+                  businessSlug={businessSlug}
+                  bookings={visibleTodayBookings}
+                  employeeSpecialties={currentEmployeeSpecialties}
+                />
+              </div>
+            ) : null}
+
+            {/* Manager queue override board */}
+            {capabilities.canQueueOverride ? (
+              <div className="shrink-0 border-b border-border p-4 sm:p-5">
+                <ManagerQueueBoard
+                  businessSlug={businessSlug}
+                  initialServices={managerQueueServices}
+                  initialEmployees={managerQueueEmployees}
+                />
+              </div>
+            ) : null}
+
+            {/* Pending queue + served history */}
+            {showQueueSection || showServedSection ? (
+              <div className="flex-1 min-h-0 overflow-hidden grid grid-cols-1 xl:grid-cols-12">
+                {showQueueSection ? (
+                  <div className={`${showServedSection ? "xl:col-span-7" : "xl:col-span-12"} flex flex-col border-b xl:border-b-0 xl:border-r border-border overflow-hidden`}>
+                    <div className="shrink-0 px-4 sm:px-5 pt-4 pb-2 flex items-center justify-between">
+                      <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                        Current Queue
+                      </p>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground tabular-nums">
+                        {visiblePendingServices.length}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+                      <PendingServicesList
+                        services={visiblePendingServices}
+                        businessSlug={businessSlug}
+                        currentEmployeeId={currentEmployeeId}
+                        employeeSpecialties={currentEmployeeSpecialties}
+                        saleEvents={saleEvents}
+                        canClaimServices={capabilities.canClaimQueue}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                {showServedSection ? (
+                  <div className={`${showQueueSection ? "xl:col-span-5" : "xl:col-span-12"} flex flex-col overflow-hidden`}>
+                    <div className="shrink-0 px-4 sm:px-5 pt-4 pb-2 flex items-center justify-between">
+                      <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                        Served History
+                      </p>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground tabular-nums">
+                        {visibleServedHistory.length}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+                      <EmployeeServedHistory
+                        services={visibleServedHistory}
+                        employeeSpecialties={currentEmployeeSpecialties}
+                        currentEmployeeId={currentEmployeeId}
+                        currentEmployeeCommission={currentEmployeeCommission}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-8">
+                <p className="text-sm text-muted-foreground">
+                  No queue activity assigned to your profile.
+                </p>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </div>
   );
 }

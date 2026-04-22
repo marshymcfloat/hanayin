@@ -181,14 +181,14 @@ export function DailyAttendanceTab({
       />
 
       {/* Date Navigator */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-1.5 rounded-2xl border border-zinc-200 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
-        <div className="flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl border border-zinc-200/50">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card p-1.5 rounded-2xl border border-border">
+        <div className="flex items-center gap-1 p-1 bg-muted/80 rounded-xl border border-border/50">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => handleDateChange(subDays(currentDate, 1))}
             disabled={isPending}
-            className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-sm text-zinc-600 transition-all"
+            className="h-8 w-8 rounded-lg hover:bg-background hover:shadow-sm text-muted-foreground transition-all cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -198,11 +198,11 @@ export function DailyAttendanceTab({
               <Button
                 variant="ghost"
                 className={cn(
-                  "h-8 px-3 text-sm font-medium text-zinc-700 hover:bg-white hover:shadow-sm rounded-lg transition-all border border-transparent hover:border-zinc-200/50",
+                  "h-8 px-3 text-sm font-medium text-foreground hover:bg-background hover:shadow-sm rounded-lg transition-all border border-transparent hover:border-border/50 cursor-pointer",
                   !currentDate && "text-muted-foreground",
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4 text-zinc-500" />
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                 {currentDate ? (
                   format(currentDate, "MMMM do, yyyy")
                 ) : (
@@ -225,7 +225,7 @@ export function DailyAttendanceTab({
             size="icon"
             onClick={() => handleDateChange(addDays(currentDate, 1))}
             disabled={isPending}
-            className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-sm text-zinc-600 transition-all"
+            className="h-8 w-8 rounded-lg hover:bg-background hover:shadow-sm text-muted-foreground transition-all cursor-pointer"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -238,7 +238,7 @@ export function DailyAttendanceTab({
               size="sm"
               onClick={() => handleDateChange(new Date())}
               disabled={isPending}
-              className="h-8 text-xs font-medium rounded-lg border-zinc-200 bg-white hover:bg-zinc-50 hover:text-zinc-900"
+              className="h-8 text-xs font-medium rounded-lg border-border hover:bg-accent/30 cursor-pointer"
             >
               Go to Today
             </Button>
@@ -248,7 +248,7 @@ export function DailyAttendanceTab({
             size="icon"
             onClick={refreshData}
             disabled={isPending}
-            className="h-8 w-8 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+            className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors cursor-pointer"
           >
             <RefreshCw
               className={`h-4 w-4 ${isPending ? "animate-spin" : ""}`}
@@ -257,123 +257,80 @@ export function DailyAttendanceTab({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-5">
-        <SummaryCard
-          title="Present"
-          count={summary.PRESENT}
-          indicatorColor="bg-emerald-500"
-        />
-        <SummaryCard
-          title="Late"
-          count={summary.LATE}
-          indicatorColor="bg-amber-500"
-        />
-        <SummaryCard
-          title="Absent"
-          count={summary.ABSENT}
-          indicatorColor="bg-rose-500"
-        />
-        <SummaryCard
-          title="On Leave"
-          count={summary.LEAVE}
-          indicatorColor="bg-blue-500"
-        />
-        <SummaryCard
-          title="Off"
-          count={summary.OFF}
-          indicatorColor="bg-zinc-400"
-        />
+      <div className="grid gap-3 md:grid-cols-5">
+        <SummaryCard title="Present" count={summary.PRESENT} indicatorColor="bg-emerald-500" />
+        <SummaryCard title="Late" count={summary.LATE} indicatorColor="bg-amber-500" />
+        <SummaryCard title="Absent" count={summary.ABSENT} indicatorColor="bg-rose-500" />
+        <SummaryCard title="On Leave" count={summary.LEAVE} indicatorColor="bg-blue-500" />
+        <SummaryCard title="Off" count={summary.OFF} indicatorColor="bg-muted-foreground" />
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-4">
+      <div className="md:hidden grid grid-cols-1 gap-3">
         {optimisticData.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-zinc-100">
-            <User className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-zinc-900">
-              No employees found
-            </h3>
-            <p className="text-zinc-500">
-              Try selecting a different date or refreshing.
-            </p>
+          <div className="text-center py-12 bg-card rounded-2xl border border-border">
+            <User className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-foreground">No employees found</h3>
+            <p className="text-muted-foreground">Try selecting a different date or refreshing.</p>
           </div>
         ) : (
           optimisticData.map(({ employee, attendance }) => (
             <div
               key={employee.id}
-              className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4"
+              className="bg-card rounded-2xl p-4 border border-border flex flex-col gap-4 transition-all active:scale-[0.99]"
             >
               <div className="flex justify-between items-start">
                 <div
                   className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={() => setSelectedEmployee(employee)}
                 >
-                  <Avatar
-                    className={`${getAvatarColor(employee.user.name)} h-10 w-10 text-white shadow-sm ring-2 ring-white`}
-                  >
+                  <Avatar className={`${getAvatarColor(employee.user.name)} h-10 w-10 text-white shadow-sm`}>
                     <AvatarFallback className="bg-transparent font-medium">
                       {getInitials(employee.user.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-zinc-900">
+                    <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
                       {employee.user.name}
                     </span>
-                    <div
-                      className="flex items-center gap-1.5 mt-1"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {/* Dropdown Logic */}
-                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="pl-[52px] -mt-2 mb-2">
-                <div
-                  className="flex items-center gap-1.5 mt-1"
-                  onClick={(e) => e.stopPropagation()}
+              <div className="pl-[52px] -mt-2 mb-2" onClick={(e) => e.stopPropagation()}>
+                <Select
+                  defaultValue={attendance?.status || "ABSENT"}
+                  value={attendance?.status || "ABSENT"}
+                  onValueChange={(val) => handleStatusChange(employee.id, val as AttendanceStatus)}
                 >
-                  <Select
-                    defaultValue={attendance?.status || "ABSENT"}
-                    value={attendance?.status || "ABSENT"}
-                    onValueChange={(val) =>
-                      handleStatusChange(employee.id, val as AttendanceStatus)
-                    }
-                  >
-                    <SelectTrigger className="h-7 w-[110px] text-xs bg-zinc-50 border-zinc-200">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PRESENT">Present</SelectItem>
-                      <SelectItem value="LATE">Late</SelectItem>
-                      <SelectItem value="ABSENT">Absent</SelectItem>
-                      <SelectItem value="LEAVE">On Leave</SelectItem>
-                      <SelectItem value="OFF">Day Off</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <SelectTrigger className="h-7 w-[110px] text-xs rounded-lg border-border bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="PRESENT">Present</SelectItem>
+                    <SelectItem value="LATE">Late</SelectItem>
+                    <SelectItem value="ABSENT">Absent</SelectItem>
+                    <SelectItem value="LEAVE">On Leave</SelectItem>
+                    <SelectItem value="OFF">Day Off</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 py-3 border-t border-zinc-50">
+              <div className="grid grid-cols-2 gap-3 py-3 border-t border-border/50">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-400 font-medium uppercase tracking-wider flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Time In
                   </span>
-                  <span className="text-sm font-medium text-zinc-900">
-                    {attendance?.time_in
-                      ? format(new Date(attendance.time_in), "hh:mm a")
-                      : "-"}
+                  <span className="text-sm font-medium text-foreground">
+                    {attendance?.time_in ? format(new Date(attendance.time_in), "hh:mm a") : "-"}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-400 font-medium uppercase tracking-wider flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-1">
                     <Clock className="h-3 w-3" /> Time Out
                   </span>
-                  <span className="text-sm font-medium text-zinc-900">
-                    {attendance?.time_out
-                      ? format(new Date(attendance.time_out), "hh:mm a")
-                      : "-"}
+                  <span className="text-sm font-medium text-foreground">
+                    {attendance?.time_out ? format(new Date(attendance.time_out), "hh:mm a") : "-"}
                   </span>
                 </div>
               </div>
@@ -383,28 +340,20 @@ export function DailyAttendanceTab({
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+      <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
         <Table>
-          <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
-            <TableRow className="hover:bg-transparent border-zinc-100">
-              <TableHead className="pl-6 h-12 font-semibold text-zinc-500">
-                Employee
-              </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
-                Time In
-              </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
-                Time Out
-              </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500 w-[200px]">
-                Status
-              </TableHead>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-border bg-muted/50">
+              <TableHead className="pl-6 h-11 font-semibold text-muted-foreground">Employee</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Time In</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Time Out</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground w-[200px]">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {optimisticData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                   No employees found.
                 </TableCell>
               </TableRow>
@@ -412,37 +361,35 @@ export function DailyAttendanceTab({
               optimisticData.map(({ employee, attendance }) => (
                 <TableRow
                   key={employee.id}
-                  className="hover:bg-zinc-50/50 transition-colors border-zinc-100 group"
+                  className="hover:bg-accent/30 transition-colors border-border/50 group"
                 >
                   <TableCell
                     className="pl-6 py-4 cursor-pointer"
                     onClick={() => setSelectedEmployee(employee)}
                   >
-                    <div className="flex items-center gap-3 group-hover:translate-x-1 transition-transform duration-200">
-                      <Avatar
-                        className={`${getAvatarColor(employee.user.name)} h-9 w-9 text-white shadow-sm ring-2 ring-white`}
-                      >
+                    <div className="flex items-center gap-3">
+                      <Avatar className={`${getAvatarColor(employee.user.name)} h-9 w-9 text-white shadow-sm`}>
                         <AvatarFallback className="bg-transparent font-medium">
                           {getInitials(employee.user.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-zinc-900 group-hover:text-blue-600 transition-colors">
+                      <span className="font-medium text-foreground group-hover:text-primary transition-colors">
                         {employee.user.name}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 text-zinc-600">
+                  <TableCell className="py-4 text-muted-foreground">
                     {attendance?.time_in ? (
-                      <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded-md text-xs font-medium font-mono">
+                      <span className="bg-muted text-foreground px-2 py-1 rounded-md text-xs font-medium font-mono">
                         {format(new Date(attendance.time_in), "hh:mm a")}
                       </span>
                     ) : (
                       "-"
                     )}
                   </TableCell>
-                  <TableCell className="py-4 text-zinc-600">
+                  <TableCell className="py-4 text-muted-foreground">
                     {attendance?.time_out ? (
-                      <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded-md text-xs font-medium font-mono">
+                      <span className="bg-muted text-foreground px-2 py-1 rounded-md text-xs font-medium font-mono">
                         {format(new Date(attendance.time_out), "hh:mm a")}
                       </span>
                     ) : (
@@ -453,14 +400,12 @@ export function DailyAttendanceTab({
                     <Select
                       defaultValue={attendance?.status || "ABSENT"}
                       value={attendance?.status || "ABSENT"}
-                      onValueChange={(val) =>
-                        handleStatusChange(employee.id, val as AttendanceStatus)
-                      }
+                      onValueChange={(val) => handleStatusChange(employee.id, val as AttendanceStatus)}
                     >
-                      <SelectTrigger className="w-[140px] border-zinc-200 shadow-sm">
+                      <SelectTrigger className="w-[140px] rounded-xl border-border">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper">
                         <SelectItem value="PRESENT">Present</SelectItem>
                         <SelectItem value="LATE">Late</SelectItem>
                         <SelectItem value="ABSENT">Absent</SelectItem>
@@ -489,16 +434,14 @@ function SummaryCard({
   indicatorColor: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5 hover:border-emerald-100 transition-colors duration-300">
-      <div className="flex items-center gap-3 mb-2">
-        <div className={`w-1.5 h-1.5 rounded-full ${indicatorColor}`} />
-        <span className="text-sm font-medium text-zinc-500 uppercase tracking-wide">
+    <div className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors duration-200">
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${indicatorColor}`} />
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {title}
         </span>
       </div>
-      <div className="flex items-baseline gap-2 pl-4">
-        <span className="text-3xl font-bold text-zinc-900">{count}</span>
-      </div>
+      <span className="text-3xl font-bold text-foreground pl-3.5">{count}</span>
     </div>
   );
 }

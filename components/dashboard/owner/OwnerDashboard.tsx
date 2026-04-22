@@ -4,11 +4,10 @@ import {
   Users,
   Bell,
   AlertTriangle,
-  Activity,
+  TrendingUp,
+  CheckCircle2,
 } from "lucide-react";
-import DashboardCard from "../DashboardCard";
 import { SalesChart } from "./SalesChart";
-
 import { formatPH } from "@/lib/date-utils";
 import {
   Booking,
@@ -20,7 +19,6 @@ import {
   Voucher,
   Owner,
 } from "@/prisma/generated/prisma/client";
-
 import { BookingDialog } from "./BookingDialog";
 import { RecentBookingsWidget } from "./RecentBookingsWidget";
 import {
@@ -36,6 +34,9 @@ import { GiftCardClaimDialog } from "../shared/GiftCardClaimDialog";
 import Link from "next/link";
 import { TodayGrowthOpportunityCard } from "./TodayGrowthOpportunityCard";
 import type { OpportunityView } from "@/lib/services/growth/types";
+import { cn } from "@/lib/utils";
+import { ExpenseWidget } from "./ExpenseWidget";
+import type { ExpenseView } from "@/lib/expenses/constants";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -47,6 +48,145 @@ type BookingWithDetails = Booking & {
   })[];
 };
 
+// ── KPI Card ───────────────────────────────────────────────
+function KpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  accent = false,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  sub?: string;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl p-5 relative overflow-hidden",
+        accent
+          ? "bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/20"
+          : "bg-card border border-border shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-default",
+      )}
+    >
+      {/* Decorative circles — accent card only */}
+      {accent && (
+        <>
+          <div className="absolute -right-5 -top-5 h-24 w-24 rounded-full bg-white/10 pointer-events-none" />
+          <div className="absolute -right-1 -bottom-8 h-20 w-20 rounded-full bg-white/5 pointer-events-none" />
+        </>
+      )}
+
+      {/* Top row: label + icon */}
+      <div className="flex items-center justify-between gap-2 relative">
+        <p
+          className={cn(
+            "text-[11px] font-semibold uppercase tracking-wider",
+            accent ? "text-primary-foreground/70" : "text-muted-foreground",
+          )}
+        >
+          {label}
+        </p>
+        <div
+          className={cn(
+            "h-9 w-9 shrink-0 rounded-xl flex items-center justify-center",
+            accent ? "bg-white/20" : "bg-primary/10",
+          )}
+        >
+          <Icon
+            className={cn(
+              "h-4 w-4",
+              accent ? "text-primary-foreground" : "text-primary",
+            )}
+          />
+        </div>
+      </div>
+
+      {/* Value */}
+      <p
+        className={cn(
+          "text-[2rem] font-bold tabular-nums mt-3 leading-none relative",
+          accent ? "text-primary-foreground" : "text-foreground",
+        )}
+      >
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </p>
+
+      {/* Sub label */}
+      {sub && (
+        <p
+          className={cn(
+            "text-[11px] mt-1.5 relative",
+            accent ? "text-primary-foreground/55" : "text-muted-foreground",
+          )}
+        >
+          {sub}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Metric progress bar ────────────────────────────────────
+function MetricBar({
+  label,
+  value,
+  caption,
+}: {
+  label: string;
+  value: number;
+  caption: string;
+}) {
+  const pct = Math.min(100, Math.max(0, value));
+  const color =
+    pct >= 70
+      ? "bg-primary"
+      : pct >= 40
+        ? "bg-amber-400"
+        : "bg-destructive/60";
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs font-bold text-foreground tabular-nums">
+          {value.toFixed(1)}%
+        </span>
+      </div>
+      <div className="h-2 rounded-full bg-muted overflow-hidden">
+        <div
+          className={cn("h-full rounded-full transition-all duration-500", color)}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="text-[10px] text-muted-foreground">{caption}</p>
+    </div>
+  );
+}
+
+// ── Section card wrapper ───────────────────────────────────
+function SideCard({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow duration-200",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ── Main Dashboard ─────────────────────────────────────────
 export default async function OwnerDashboard({
   businessName,
   businessSlug,
@@ -64,6 +204,8 @@ export default async function OwnerDashboard({
   todayGrowthOpportunity,
   growthEnabled,
   reportsEnabled,
+  todayExpenseTotal,
+  todayRecentExpenses,
 }: {
   businessName: string;
   businessSlug: string;
@@ -79,11 +221,7 @@ export default async function OwnerDashboard({
     total_salary: number;
     starting_date: Date;
     ending_date: Date;
-    employee: {
-      user: {
-        name: string;
-      };
-    };
+    employee: { user: { name: string } };
   }[];
   flowRemindersThisWeek: number;
   bookingMetrics: {
@@ -110,25 +248,33 @@ export default async function OwnerDashboard({
   todayGrowthOpportunity: OpportunityView | null;
   growthEnabled: boolean;
   reportsEnabled: boolean;
+  todayExpenseTotal: number;
+  todayRecentExpenses: ExpenseView[];
 }) {
   const business = await getCachedBusinessBySlug(businessSlug);
   const services = business ? await getCachedServices(business.id) : [];
   const packages = business ? await getCachedPackages(business.id) : [];
   const categories = Array.from(new Set(services.map((s) => s.category)));
 
+  const totalSalesFormatted =
+    totalSales >= 1000
+      ? `₱${(totalSales / 1000).toFixed(1)}k`
+      : `₱${totalSales}`;
+
   return (
-    <div className="min-h-screen lg:h-screen bg-linear-to-b from-zinc-50 via-white to-zinc-50 flex flex-col overflow-hidden">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300 shrink-0">
-        <div className="flex flex-col">
-          <h1 className="font-bold text-lg leading-none md:text-xl text-slate-900 tracking-tight">
+    <div className="flex flex-col h-full bg-background">
+
+      {/* ── Header ──────────────────────────────────────────── */}
+      <header className="shrink-0 bg-card border-b border-border px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-foreground truncate leading-none">
             {businessName}
-          </h1>
-          <p className="text-[10px] uppercase tracking-widest font-semibold text-indigo-500 mt-1">
+          </p>
+          <p className="text-[10px] text-primary font-semibold uppercase tracking-widest mt-0.5">
             Owner Dashboard
           </p>
         </div>
-
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           <BookingDialog
             services={services}
             packages={packages}
@@ -139,185 +285,231 @@ export default async function OwnerDashboard({
         </div>
       </header>
 
-      <main className="flex-1 overflow-auto lg:overflow-hidden w-full max-w-[1920px] mx-auto">
-        <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-6 lg:h-full">
-          {/* Left Column: Queue & Recent Bookings (3 cols) */}
-          <div className="lg:col-span-3 flex flex-col gap-6 lg:h-full lg:overflow-hidden">
-            <section className="bg-white rounded-[28px] border border-zinc-100 flex-1 min-h-[300px] overflow-hidden">
-              <OwnerServiceQueue
-                businessSlug={businessSlug}
-                pendingServices={pendingServices}
-                claimedServices={ownerClaimedServices}
-                variant="embedded"
-                className="h-full"
-              />
-            </section>
+      {/* ── Scrollable body ─────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 sm:py-6 space-y-4 sm:space-y-5">
 
-            <section className="bg-white rounded-[28px] border border-zinc-100 flex-1 min-h-[300px] overflow-hidden">
-              <RecentBookingsWidget
-                bookings={allBookings}
-                businessSlug={businessSlug}
-                className="h-full border-none shadow-none"
-              />
-            </section>
+          {/* ── KPI Cards ───────────────────────────────────── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <KpiCard
+              icon={PhilippinePeso}
+              label="Revenue"
+              value={totalSalesFormatted}
+              sub="This month"
+              accent
+            />
+            <KpiCard
+              icon={Calendar}
+              label="Bookings Today"
+              value={bookingsToday}
+              sub="Scheduled"
+            />
+            <KpiCard
+              icon={Users}
+              label="Active Staff"
+              value={presentEmployeesToday}
+              sub="Checked in"
+            />
+            <KpiCard
+              icon={Bell}
+              label="Reminders"
+              value={flowRemindersThisWeek}
+              sub="This week"
+            />
           </div>
 
-          {/* Center Column: Charts & Key Metrics (6 cols) */}
-          <div className="lg:col-span-6 flex flex-col gap-6 lg:h-full lg:overflow-y-auto no-scrollbar">
-            <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <DashboardCard
-                variant="filled"
-                Icon={PhilippinePeso}
-                description="Total sales this period"
-                title="Revenue"
-                count={totalSales}
-              />
-              <DashboardCard
-                Icon={Calendar}
-                description="Appointments for today"
-                title="Bookings"
-                count={bookingsToday}
-              />
-              <DashboardCard
-                Icon={Users}
-                description="Staff currently present"
-                title="Active Staff"
-                count={presentEmployeesToday}
-              />
-              <DashboardCard
-                Icon={Bell}
-                description="Follow-up reminders sent"
-                title="Flow Reminders"
-                count={flowRemindersThisWeek}
-              />
-            </section>
+          {/*
+           * ── Combined main + sidebar ──────────────────────────
+           * Mobile order (flex column):
+           *   1. Sidebar (order-1) — Growth, Alerts, Queue  ← most actionable
+           *   2. Chart + Bookings (order-2)
+           *   3. Funnel (order-3)
+           * Desktop (lg:grid):
+           *   Left col-8: Chart → Bookings
+           *   Right col-4: Sidebar items (stacked)
+           */}
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-5">
 
-            <section className="bg-white rounded-[28px] border border-zinc-100 p-1 flex-1 min-h-[400px]">
+            {/* ── RIGHT sidebar — mobile: first, desktop: right ── */}
+            <div className="order-1 lg:order-2 lg:col-span-4 flex flex-col gap-4">
+
+              {/* Growth Opportunity */}
+              <SideCard className="overflow-hidden">
+                {growthEnabled ? (
+                  <TodayGrowthOpportunityCard
+                    businessSlug={businessSlug}
+                    initialOpportunity={todayGrowthOpportunity}
+                  />
+                ) : (
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <TrendingUp className="h-4 w-4 text-primary" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">
+                        Growth Opportunities
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Unlock AI-powered growth suggestions on Plus and Pro plans.
+                    </p>
+                    <Link
+                      href={`/app/${businessSlug}/billing`}
+                      className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                    >
+                      Upgrade plan →
+                    </Link>
+                  </div>
+                )}
+              </SideCard>
+
+              {/* Staffing Alerts */}
+              <SideCard className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-xl bg-amber-50 flex items-center justify-center">
+                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    </div>
+                    <p className="text-sm font-semibold text-foreground">
+                      Staffing Alerts
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      "text-[10px] font-bold px-2.5 py-1 rounded-full",
+                      staffingConflictAlerts.length > 0
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-primary/10 text-primary",
+                    )}
+                  >
+                    {staffingConflictAlerts.length > 0
+                      ? staffingConflictAlerts.length
+                      : "Clear"}
+                  </span>
+                </div>
+
+                {staffingConflictAlerts.length === 0 ? (
+                  <div className="flex items-center gap-2.5 rounded-xl bg-primary/5 border border-primary/15 px-3 py-3">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <p className="text-xs text-primary font-medium">
+                      All staffing looks good
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {staffingConflictAlerts.slice(0, 3).map((alert) => (
+                      <Link
+                        key={alert.id}
+                        href={`/app/${businessSlug}/bookings?q=${alert.bookingId}`}
+                        className="block rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5 hover:bg-amber-100 transition-colors"
+                      >
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="text-[11px] font-semibold text-foreground truncate">
+                            #{alert.bookingId} {alert.customerName}
+                          </p>
+                          <span className="text-[9px] text-amber-600 font-medium shrink-0">
+                            Open →
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {alert.scheduledAt
+                            ? formatPH(new Date(alert.scheduledAt), "MMM d, h:mm a")
+                            : "Unscheduled"}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </SideCard>
+
+              {/* Expense Widget */}
+              <ExpenseWidget
+                businessSlug={businessSlug}
+                initialTotal={todayExpenseTotal}
+                initialExpenses={todayRecentExpenses}
+              />
+
+              {/* Service Queue — compact widget */}
+              <SideCard className="overflow-hidden min-h-[280px] lg:flex-1">
+                <div className="flex items-center gap-2 px-5 pt-4 pb-1">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                  </span>
+                  <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                    Live Queue
+                  </p>
+                  <span className="ml-auto text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full tabular-nums">
+                    {pendingServices.length + ownerClaimedServices.length}
+                  </span>
+                </div>
+                <OwnerServiceQueue
+                  businessSlug={businessSlug}
+                  pendingServices={pendingServices}
+                  claimedServices={ownerClaimedServices}
+                  variant="embedded"
+                  className="h-full"
+                />
+              </SideCard>
+
+              {/* Booking Funnel — least urgent, bottom on mobile */}
+              <SideCard className="p-5 order-3 lg:order-none">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm font-semibold text-foreground">
+                    Booking Funnel
+                  </p>
+                  <span className="text-[10px] text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-medium">
+                    7d
+                  </span>
+                </div>
+                <div className="space-y-4">
+                  <MetricBar
+                    label="Slot Lookup"
+                    value={bookingMetrics.slotLookupSuccessRate}
+                    caption={`${bookingMetrics.slotLookupTotal} lookups`}
+                  />
+                  <MetricBar
+                    label="Booking Submit"
+                    value={bookingMetrics.bookingSubmitSuccessRate}
+                    caption={`${bookingMetrics.submitAttempts} attempts`}
+                  />
+                  <MetricBar
+                    label="Public Conv."
+                    value={bookingMetrics.publicConversionRate}
+                    caption={`${bookingMetrics.publicCompleted}/${bookingMetrics.publicStarted} completed`}
+                  />
+                </div>
+              </SideCard>
+
+            </div>
+
+            {/* ── LEFT main — mobile: second, desktop: left ── */}
+            <div className="order-2 lg:order-1 lg:col-span-8 flex flex-col gap-4 sm:gap-5">
+
+              {/* Chart — hero */}
               <SalesChart
                 bookings={bookings}
                 allBookings={allBookings}
                 payroll={payroll}
                 businessSlug={businessSlug}
                 reportsEnabled={reportsEnabled}
-                variant="embedded"
-                className="h-full w-full"
+                variant="card"
+                className="w-full"
               />
-            </section>
-          </div>
 
-          <div className="lg:col-span-3 flex flex-col gap-6 lg:h-full lg:overflow-y-auto no-scrollbar">
-            {growthEnabled ? (
-              <section>
-                <TodayGrowthOpportunityCard
+              {/* Recent Bookings */}
+              <div className="pb-6 lg:pb-0">
+                <RecentBookingsWidget
+                  bookings={allBookings}
                   businessSlug={businessSlug}
-                  initialOpportunity={todayGrowthOpportunity}
                 />
-              </section>
-            ) : (
-              <section className="rounded-[24px] border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-800">
-                Growth opportunities are available on Plus and Pro plans.
-              </section>
-            )}
+              </div>
 
-            <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="size-4 text-amber-600" />
-                  <h3 className="text-sm font-semibold text-zinc-900">
-                    Staffing Alerts
-                  </h3>
-                </div>
-                <span className="text-xs text-zinc-500">
-                  {staffingConflictAlerts.length} recent
-                </span>
-              </div>
-              {staffingConflictAlerts.length === 0 ? (
-                <p className="text-xs text-zinc-500">
-                  No future-booking staffing conflicts detected.
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {staffingConflictAlerts.slice(0, 4).map((alert) => (
-                    <li
-                      key={alert.id}
-                      className="rounded-xl border border-amber-200 bg-amber-50/60 px-3 py-2"
-                    >
-                      <p className="text-xs font-semibold text-zinc-900">
-                        Booking #{alert.bookingId} - {alert.customerName}
-                      </p>
-                      <p className="text-[11px] text-zinc-700">
-                        {alert.scheduledAt
-                          ? formatPH(
-                              new Date(alert.scheduledAt),
-                              "MMM d, h:mm a",
-                            )
-                          : "Unscheduled"}
-                      </p>
-                      <div className="mt-1 flex items-center justify-between gap-2">
-                        <span className="text-[10px] uppercase tracking-wide text-amber-700">
-                          {alert.trigger.replaceAll("_", " ")}
-                        </span>
-                        <Link
-                          href={`/app/${businessSlug}/bookings?q=${alert.bookingId}`}
-                          className="text-[11px] font-medium text-amber-700 underline underline-offset-2"
-                        >
-                          Open
-                        </Link>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </article>
+            </div>
 
-            <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Activity className="size-4 text-emerald-600" />
-                <h3 className="text-sm font-semibold text-zinc-900">
-                  Funnel Metrics (7d)
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                <MetricPill
-                  label="Slot Success"
-                  value={`${bookingMetrics.slotLookupSuccessRate.toFixed(1)}%`}
-                  caption={`${bookingMetrics.slotLookupTotal} lookups`}
-                />
-                <MetricPill
-                  label="Submit Success"
-                  value={`${bookingMetrics.bookingSubmitSuccessRate.toFixed(1)}%`}
-                  caption={`${bookingMetrics.submitAttempts} attempts`}
-                />
-                <MetricPill
-                  label="Public Conv."
-                  value={`${bookingMetrics.publicConversionRate.toFixed(1)}%`}
-                  caption={`${bookingMetrics.publicCompleted} / ${bookingMetrics.publicStarted}`}
-                />
-              </div>
-            </article>
           </div>
         </div>
-      </main>
-    </div>
-  );
-}
-
-function MetricPill({
-  label,
-  value,
-  caption,
-}: {
-  label: string;
-  value: string;
-  caption: string;
-}) {
-  return (
-    <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2">
-      <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-        {label}
-      </p>
-      <p className="text-lg font-bold text-zinc-900">{value}</p>
-      <p className="text-[10px] text-zinc-500">{caption}</p>
+      </div>
     </div>
   );
 }

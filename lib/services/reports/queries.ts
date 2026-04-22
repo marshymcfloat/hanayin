@@ -7,6 +7,8 @@ import type {
   CohortsReportPayload,
   CoreReportTab,
   CustomersReportPayload,
+  ExpenseCategoryRow,
+  ExpensesReportPayload,
   OperationsReportPayload,
   OpportunityRoiReportPayload,
   OverviewReportPayload,
@@ -14,10 +16,12 @@ import type {
   ReportGroupBy,
   ReportPayloadMap,
   RevenueReportPayload,
+  SmartInsight,
   StaffPerformanceRow,
   TopCustomerRow,
   TopServiceRow,
 } from "@/lib/types/reports";
+import { EXPENSE_CATEGORY_LABELS } from "@/lib/expenses/constants";
 import { prisma } from "@/prisma/prisma";
 
 const BOOKED_STATUSES = new Set(["HOLD", "ACCEPTED", "COMPLETED"]);
@@ -301,6 +305,109 @@ function getAttributedValue(summary: CampaignEventSummary) {
   return summary.attributedBookings + summary.promoRedemptions;
 }
 
+function generateSmartInsights({
+  collectedRevenue,
+  payrollTotal,
+  totalExpenses,
+  trueNetProfit,
+  discountRate,
+  repeatCustomerRate,
+  atRiskCustomers60d,
+}: {
+  collectedRevenue: number;
+  payrollTotal: number;
+  totalExpenses: number;
+  trueNetProfit: number;
+  discountRate: number;
+  repeatCustomerRate?: number;
+  atRiskCustomers60d?: number;
+}): SmartInsight[] {
+  const insights: SmartInsight[] = [];
+
+  const payrollRatio = collectedRevenue > 0 ? (payrollTotal / collectedRevenue) * 100 : 0;
+  const expenseRatio = collectedRevenue > 0 ? (totalExpenses / collectedRevenue) * 100 : 0;
+
+  if (payrollRatio > 60) {
+    insights.push({
+      id: "high-payroll",
+      severity: "warning",
+      title: "High Payroll Ratio",
+      body: `Payroll is ${payrollRatio.toFixed(1)}% of revenue. Industry target is typically 40–55%.`,
+    });
+  } else if (payrollRatio > 0 && payrollRatio <= 40) {
+    insights.push({
+      id: "healthy-payroll",
+      severity: "success",
+      title: "Healthy Payroll Ratio",
+      body: `Payroll is ${payrollRatio.toFixed(1)}% of revenue — well within the 40–55% target range.`,
+    });
+  }
+
+  if (discountRate > 25) {
+    insights.push({
+      id: "high-discount",
+      severity: "warning",
+      title: "High Discount Rate",
+      body: `Discounts are ${discountRate.toFixed(1)}% of gross revenue. Consider capping promo offers to protect margins.`,
+    });
+  }
+
+  if (totalExpenses > 0 && expenseRatio > 30) {
+    insights.push({
+      id: "high-expenses",
+      severity: "alert",
+      title: "Expenses Eating Margins",
+      body: `Operating expenses are ${expenseRatio.toFixed(1)}% of collected revenue (₱${Math.round(totalExpenses).toLocaleString()}).`,
+    });
+  } else if (totalExpenses > 0) {
+    insights.push({
+      id: "expenses-tracked",
+      severity: "info",
+      title: "Expenses Logged",
+      body: `₱${Math.round(totalExpenses).toLocaleString()} in operating expenses for this period (${expenseRatio.toFixed(1)}% of revenue).`,
+    });
+  }
+
+  if (trueNetProfit < 0 && collectedRevenue > 0) {
+    insights.push({
+      id: "negative-profit",
+      severity: "alert",
+      title: "Net Loss This Period",
+      body: `After payroll and expenses, net is −₱${Math.abs(Math.round(trueNetProfit)).toLocaleString()}. Review cost structure.`,
+    });
+  } else if (trueNetProfit > 0 && collectedRevenue > 0) {
+    const netMargin = (trueNetProfit / collectedRevenue) * 100;
+    if (netMargin > 25) {
+      insights.push({
+        id: "strong-profit",
+        severity: "success",
+        title: "Strong Net Margin",
+        body: `Net profit margin is ${netMargin.toFixed(1)}% after payroll and expenses — great work.`,
+      });
+    }
+  }
+
+  if (repeatCustomerRate !== undefined && repeatCustomerRate < 20) {
+    insights.push({
+      id: "low-repeat",
+      severity: "warning",
+      title: "Low Repeat Rate",
+      body: `Only ${repeatCustomerRate.toFixed(1)}% of customers booked more than once. Consider a rebooking campaign.`,
+    });
+  }
+
+  if (atRiskCustomers60d !== undefined && atRiskCustomers60d > 5) {
+    insights.push({
+      id: "at-risk-customers",
+      severity: "info",
+      title: `${atRiskCustomers60d} Customers At Risk`,
+      body: `${atRiskCustomers60d} customers haven't returned in 60+ days. A win-back message could recover revenue.`,
+    });
+  }
+
+  return insights;
+}
+
 export async function getOverviewReportData({
   businessId,
   range,
@@ -310,7 +417,7 @@ export async function getOverviewReportData({
   range: ReportDateRange;
   db?: PrismaClientLike;
 }): Promise<OverviewReportPayload> {
-  const [bookings, serviceRows] = await Promise.all([
+  const [bookings, serviceRows, expenseRows, payrollRowsOverview, rangeCustomers, completedByCustomerRows] = await Promise.all([
     db.booking.findMany({
       where: {
         business_id: businessId,
@@ -356,6 +463,50 @@ export async function getOverviewReportData({
           },
         },
       },
+    }),
+    db.expense.findMany({
+      where: {
+        business_id: businessId,
+        date: {
+          gte: range.startAt,
+          lte: range.endAt,
+        },
+      },
+      select: {
+        amount: true,
+      },
+    }),
+    db.payslip.findMany({
+      where: {
+        status: "PAID",
+        employee: {
+          business_id: businessId,
+        },
+        ending_date: {
+          gte: range.startAt,
+          lte: range.endAt,
+        },
+      },
+      select: {
+        total_salary: true,
+      },
+    }),
+    db.booking.findMany({
+      where: {
+        business_id: businessId,
+        created_at: { gte: range.startAt, lte: range.endAt },
+        status: NON_CANCELLED_STATUS,
+      },
+      select: { customer_id: true, grand_total: true },
+    }),
+    db.booking.findMany({
+      where: {
+        business_id: businessId,
+        status: "COMPLETED",
+        created_at: { lte: range.endAt },
+      },
+      select: { customer_id: true, created_at: true },
+      orderBy: [{ customer_id: "asc" }, { created_at: "asc" }],
     }),
   ]);
 
@@ -432,6 +583,39 @@ export async function getOverviewReportData({
     });
   }
 
+  const totalExpenses = expenseRows.reduce((sum, e) => sum + e.amount, 0);
+  const payrollTotal = payrollRowsOverview.reduce((sum, r) => sum + r.total_salary, 0);
+  const trueNetProfit = collectedRevenue - payrollTotal - totalExpenses;
+
+  // Compute repeat customer rate for insights
+  const bookingCountByCustomer = new Map<string, number>();
+  for (const booking of rangeCustomers) {
+    bookingCountByCustomer.set(booking.customer_id, (bookingCountByCustomer.get(booking.customer_id) ?? 0) + 1);
+  }
+  const activeCustomerCount = bookingCountByCustomer.size;
+  const repeatCustomerCount = [...bookingCountByCustomer.values()].filter((n) => n >= 2).length;
+  const repeatCustomerRate = activeCustomerCount > 0 ? (repeatCustomerCount / activeCustomerCount) * 100 : 0;
+
+  // At-risk customers (last completed >60d ago within range)
+  const lastCompletedByCustomer = new Map<string, Date>();
+  for (const booking of completedByCustomerRows) {
+    lastCompletedByCustomer.set(booking.customer_id, booking.created_at);
+  }
+  const atRiskCutoff = new Date(range.endAt.getTime() - 60 * DAY_MS);
+  const atRiskCustomers60d = [...lastCompletedByCustomer.values()].filter(
+    (d) => d.getTime() < atRiskCutoff.getTime(),
+  ).length;
+
+  const insights = generateSmartInsights({
+    collectedRevenue,
+    payrollTotal,
+    totalExpenses,
+    trueNetProfit,
+    discountRate: roundTo(asPercentage(totalDiscount, grossBeforeDiscount)),
+    repeatCustomerRate,
+    atRiskCustomers60d,
+  });
+
   return {
     range,
     kpis: {
@@ -446,6 +630,8 @@ export async function getOverviewReportData({
       estimatedNetMargin: roundTo(asPercentage(estimatedNetRevenue, grossRevenue)),
       completionRate: roundTo(asPercentage(completedCount, acceptedOrCompletedCount)),
       totalBookings: bookings.length,
+      totalExpenses: roundTo(totalExpenses),
+      trueNetProfit: roundTo(trueNetProfit),
     },
     bookingVolume: statusBreakdown,
     trend: buckets
@@ -473,6 +659,7 @@ export async function getOverviewReportData({
       ...item,
       spend: roundTo(item.spend),
     })),
+    insights,
   };
 }
 
@@ -1645,6 +1832,110 @@ export async function getAdvancedReportPayload({
   return getOpportunityRoiReportData({ businessId, range, db });
 }
 
+export async function getExpensesReportData({
+  businessId,
+  range,
+  db = prisma,
+}: {
+  businessId: string;
+  range: ReportDateRange;
+  db?: PrismaClientLike;
+}): Promise<ExpensesReportPayload> {
+  const [expenses, collectedBookings] = await Promise.all([
+    db.expense.findMany({
+      where: {
+        business_id: businessId,
+        date: {
+          gte: range.startAt,
+          lte: range.endAt,
+        },
+      },
+      include: {
+        created_by_user: { select: { name: true } },
+      },
+      orderBy: [{ date: "desc" }, { created_at: "desc" }],
+    }),
+    db.booking.findMany({
+      where: {
+        business_id: businessId,
+        status: { not: "CANCELLED" },
+        created_at: {
+          gte: range.startAt,
+          lte: range.endAt,
+        },
+      },
+      select: { amount_paid: true },
+    }),
+  ]);
+
+  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const collectedRevenue = collectedBookings.reduce((sum, b) => sum + b.amount_paid, 0);
+
+  const buckets = buildBuckets(range);
+  const trendMap = new Map(
+    buckets.map((bucket) => [
+      bucket.key,
+      { bucketKey: bucket.key, label: bucket.label, total: 0, count: 0 },
+    ]),
+  );
+
+  const categoryMap = new Map<string, ExpenseCategoryRow>();
+
+  for (const expense of expenses) {
+    const key = bucketKeyForDate(expense.date, range.groupBy);
+    const bucket = trendMap.get(key);
+    if (bucket) {
+      bucket.total += expense.amount;
+      bucket.count += 1;
+    }
+
+    const cat = expense.category as string;
+    const existing = categoryMap.get(cat);
+    if (existing) {
+      existing.total += expense.amount;
+      existing.count += 1;
+    } else {
+      categoryMap.set(cat, {
+        category: cat,
+        categoryLabel: EXPENSE_CATEGORY_LABELS[expense.category] ?? cat,
+        total: expense.amount,
+        count: 1,
+      });
+    }
+  }
+
+  const spanDays = Math.max(1, range.spanDays);
+
+  return {
+    range,
+    kpis: {
+      totalExpenses: roundTo(totalExpenses),
+      entryCount: expenses.length,
+      avgPerDay: roundTo(totalExpenses / spanDays),
+      topCategory: categoryMap.size > 0
+        ? [...categoryMap.values()].sort((a, b) => b.total - a.total)[0]?.categoryLabel ?? null
+        : null,
+      expenseToRevenueRatio: roundTo(asPercentage(totalExpenses, collectedRevenue)),
+    },
+    trend: buckets
+      .map((b) => trendMap.get(b.key))
+      .filter((item): item is NonNullable<typeof item> => Boolean(item))
+      .map((item) => ({ ...item, total: roundTo(item.total) })),
+    byCategory: [...categoryMap.values()]
+      .sort((a, b) => b.total - a.total)
+      .map((item) => ({ ...item, total: roundTo(item.total) })),
+    entries: expenses.slice(0, 100).map((e) => ({
+      id: e.id,
+      date: e.date,
+      category: e.category as string,
+      categoryLabel: EXPENSE_CATEGORY_LABELS[e.category] ?? (e.category as string),
+      amount: e.amount,
+      description: e.description,
+      createdByName: e.created_by_user?.name ?? null,
+    })),
+  };
+}
+
 export async function getCoreReportPayload({
   tab,
   businessId,
@@ -1664,6 +1955,9 @@ export async function getCoreReportPayload({
   }
   if (tab === "customers") {
     return getCustomersReportData({ businessId, range, db });
+  }
+  if (tab === "expenses") {
+    return getExpensesReportData({ businessId, range, db });
   }
   return getOperationsReportData({ businessId, range, db });
 }

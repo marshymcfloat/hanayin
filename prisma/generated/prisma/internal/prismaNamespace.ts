@@ -412,6 +412,7 @@ export const ModelName = {
   ServicePackage: 'ServicePackage',
   PackageItem: 'PackageItem',
   Customer: 'Customer',
+  BookingOtpCode: 'BookingOtpCode',
   Booking: 'Booking',
   BookingPayment: 'BookingPayment',
   Voucher: 'Voucher',
@@ -428,7 +429,8 @@ export const ModelName = {
   CampaignEvent: 'CampaignEvent',
   SeasonalCalendar: 'SeasonalCalendar',
   OutboxMessage: 'OutboxMessage',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  Expense: 'Expense'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -444,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "auditLog"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "auditLog" | "expense"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2520,6 +2522,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BookingOtpCode: {
+      payload: Prisma.$BookingOtpCodePayload<ExtArgs>
+      fields: Prisma.BookingOtpCodeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BookingOtpCodeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BookingOtpCodeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>
+        }
+        findFirst: {
+          args: Prisma.BookingOtpCodeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BookingOtpCodeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>
+        }
+        findMany: {
+          args: Prisma.BookingOtpCodeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>[]
+        }
+        create: {
+          args: Prisma.BookingOtpCodeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>
+        }
+        createMany: {
+          args: Prisma.BookingOtpCodeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BookingOtpCodeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>[]
+        }
+        delete: {
+          args: Prisma.BookingOtpCodeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>
+        }
+        update: {
+          args: Prisma.BookingOtpCodeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>
+        }
+        deleteMany: {
+          args: Prisma.BookingOtpCodeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BookingOtpCodeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BookingOtpCodeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>[]
+        }
+        upsert: {
+          args: Prisma.BookingOtpCodeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingOtpCodePayload>
+        }
+        aggregate: {
+          args: Prisma.BookingOtpCodeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBookingOtpCode>
+        }
+        groupBy: {
+          args: Prisma.BookingOtpCodeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingOtpCodeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BookingOtpCodeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingOtpCodeCountAggregateOutputType> | number
+        }
+      }
+    }
     Booking: {
       payload: Prisma.$BookingPayload<ExtArgs>
       fields: Prisma.BookingFieldRefs
@@ -3778,6 +3854,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Expense: {
+      payload: Prisma.$ExpensePayload<ExtArgs>
+      fields: Prisma.ExpenseFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExpenseFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExpenseFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>
+        }
+        findFirst: {
+          args: Prisma.ExpenseFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExpenseFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>
+        }
+        findMany: {
+          args: Prisma.ExpenseFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>[]
+        }
+        create: {
+          args: Prisma.ExpenseCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>
+        }
+        createMany: {
+          args: Prisma.ExpenseCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ExpenseCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>[]
+        }
+        delete: {
+          args: Prisma.ExpenseDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>
+        }
+        update: {
+          args: Prisma.ExpenseUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>
+        }
+        deleteMany: {
+          args: Prisma.ExpenseDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExpenseUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ExpenseUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>[]
+        }
+        upsert: {
+          args: Prisma.ExpenseUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExpensePayload>
+        }
+        aggregate: {
+          args: Prisma.ExpenseAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExpense>
+        }
+        groupBy: {
+          args: Prisma.ExpenseGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpenseGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExpenseCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExpenseCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3832,6 +3982,7 @@ export const BusinessScalarFieldEnum = {
   public_allow_full_payment: 'public_allow_full_payment',
   public_allow_downpayment: 'public_allow_downpayment',
   public_default_payment_type: 'public_default_payment_type',
+  downpayment_percentage: 'downpayment_percentage',
   booking_v2_enabled: 'booking_v2_enabled',
   same_day_attendance_strict_minutes: 'same_day_attendance_strict_minutes',
   structure: 'structure',
@@ -4286,12 +4437,30 @@ export const CustomerScalarFieldEnum = {
   name: 'name',
   email: 'email',
   phone: 'phone',
+  trust_tier: 'trust_tier',
+  no_show_count: 'no_show_count',
+  last_no_show_at: 'last_no_show_at',
   business_id: 'business_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const BookingOtpCodeScalarFieldEnum = {
+  id: 'id',
+  phone: 'phone',
+  business_id: 'business_id',
+  code: 'code',
+  verified: 'verified',
+  used: 'used',
+  semaphore_message_id: 'semaphore_message_id',
+  expires_at: 'expires_at',
+  created_at: 'created_at'
+} as const
+
+export type BookingOtpCodeScalarFieldEnum = (typeof BookingOtpCodeScalarFieldEnum)[keyof typeof BookingOtpCodeScalarFieldEnum]
 
 
 export const BookingScalarFieldEnum = {
@@ -4594,6 +4763,21 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const ExpenseScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  amount: 'amount',
+  category: 'category',
+  description: 'description',
+  date: 'date',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -5300,6 +5484,20 @@ export type EnumCampaignEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType
 export type ListEnumCampaignEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignEventType[]'>
     
 
+
+/**
+ * Reference to a field of type 'ExpenseCategory'
+ */
+export type EnumExpenseCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExpenseCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'ExpenseCategory[]'
+ */
+export type ListEnumExpenseCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExpenseCategory[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -5423,6 +5621,7 @@ export type GlobalOmitConfig = {
   servicePackage?: Prisma.ServicePackageOmit
   packageItem?: Prisma.PackageItemOmit
   customer?: Prisma.CustomerOmit
+  bookingOtpCode?: Prisma.BookingOtpCodeOmit
   booking?: Prisma.BookingOmit
   bookingPayment?: Prisma.BookingPaymentOmit
   voucher?: Prisma.VoucherOmit
@@ -5440,6 +5639,7 @@ export type GlobalOmitConfig = {
   seasonalCalendar?: Prisma.SeasonalCalendarOmit
   outboxMessage?: Prisma.OutboxMessageOmit
   auditLog?: Prisma.AuditLogOmit
+  expense?: Prisma.ExpenseOmit
 }
 
 /* Types for Logging */

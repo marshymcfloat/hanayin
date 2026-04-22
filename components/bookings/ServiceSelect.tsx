@@ -413,15 +413,15 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           <div className="flex items-start gap-3 w-full">
                             <div
                               className={cn(
-                                "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
+                                "flex items-center justify-center w-5 h-5 mt-0.5 rounded-md border-2 shrink-0 transition-all duration-150",
                                 isSelected
-                                  ? "bg-primary border-primary text-primary-foreground"
-                                  : "border-muted-foreground/30",
+                                  ? "bg-primary border-primary text-primary-foreground shadow-sm"
+                                  : "border-muted-foreground/30 bg-background",
                               )}
                             >
                               <Check
                                 className={cn(
-                                  "h-3 w-3",
+                                  "h-3.5 w-3.5 stroke-[3] text-white",
                                   isSelected ? "opacity-100" : "opacity-0",
                                 )}
                               />
@@ -442,9 +442,18 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                 {discountInfo && !isUnavailable && (
                                   <Badge
                                     variant="secondary"
-                                    className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
+                                    className={cn(
+                                      "h-4 px-1 text-[10px] shadow-none",
+                                      discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 3
+                                        ? "bg-red-100 text-red-700 border-red-300 animate-pulse"
+                                        : discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 5
+                                          ? "bg-amber-100 text-amber-700 border-amber-300"
+                                          : "bg-destructive/10 text-destructive border-destructive/20",
+                                    )}
                                   >
-                                    sale
+                                    {discountInfo.slotsRemaining !== null
+                                      ? `${discountInfo.slotsRemaining} ${discountInfo.slotsRemaining === 1 ? "slot" : "slots"} left`
+                                      : "sale"}
                                   </Badge>
                                 )}
                                 {noStaff && (
@@ -575,15 +584,15 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           <div className="flex items-start gap-3 w-full">
                             <div
                               className={cn(
-                                "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
+                                "flex items-center justify-center w-5 h-5 mt-0.5 rounded-md border-2 shrink-0 transition-all duration-150",
                                 isSelected
-                                  ? "bg-primary border-primary text-primary-foreground"
-                                  : "border-muted-foreground/30",
+                                  ? "bg-primary border-primary text-primary-foreground shadow-sm"
+                                  : "border-muted-foreground/30 bg-background",
                               )}
                             >
                               <Check
                                 className={cn(
-                                  "h-3 w-3",
+                                  "h-3.5 w-3.5 stroke-[3] text-white",
                                   isSelected ? "opacity-100" : "opacity-0",
                                 )}
                               />
@@ -600,9 +609,18 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                 {discountInfo && (
                                   <Badge
                                     variant="secondary"
-                                    className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
+                                    className={cn(
+                                      "h-4 px-1 text-[10px] shadow-none",
+                                      discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 3
+                                        ? "bg-red-100 text-red-700 border-red-300 animate-pulse"
+                                        : discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 5
+                                          ? "bg-amber-100 text-amber-700 border-amber-300"
+                                          : "bg-destructive/10 text-destructive border-destructive/20",
+                                    )}
                                   >
-                                    sale
+                                    {discountInfo.slotsRemaining !== null
+                                      ? `${discountInfo.slotsRemaining} ${discountInfo.slotsRemaining === 1 ? "slot" : "slots"} left`
+                                      : "sale"}
                                   </Badge>
                                 )}
                                 {noStaff && (

@@ -14,7 +14,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -286,43 +285,44 @@ export function CreateSaleEventDialog(props: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Event
+        <Button className="h-9 rounded-xl bg-primary px-3 text-primary-foreground font-semibold shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 active:scale-[0.97] cursor-pointer sm:h-10 sm:px-4">
+          <Plus className="h-4 w-4 sm:mr-2" strokeWidth={2.5} />
+          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Create Event</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Create Sale Event</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl rounded-3xl p-0 gap-0">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle className="text-xl font-bold text-foreground">Create Sale Event</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Create discounts and optionally prepare social drafts.
           </DialogDescription>
         </DialogHeader>
+        <div className="h-px bg-border mx-6" />
 
-        <div className="space-y-4">
+        <div className="px-6 py-4 space-y-4">
           <div className="grid gap-2">
             <Label>Title</Label>
-            <Input {...form.register("title")} />
+            <Input className="h-10 rounded-xl" {...form.register("title")} />
           </div>
           <div className="grid gap-2">
             <Label>Description</Label>
-            <Textarea {...form.register("description")} />
+            <Textarea className="rounded-xl resize-none" {...form.register("description")} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label>Start</Label>
-              <Input type="datetime-local" {...form.register("startDate")} />
+              <Input type="datetime-local" className="h-10 rounded-xl" {...form.register("startDate")} />
             </div>
             <div className="grid gap-2">
               <Label>End</Label>
-              <Input type="datetime-local" {...form.register("endDate")} />
+              <Input type="datetime-local" className="h-10 rounded-xl" {...form.register("endDate")} />
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label>Discount Type</Label>
               <select
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 {...form.register("discountType")}
               >
                 <option value="PERCENTAGE">Percentage</option>
@@ -331,37 +331,38 @@ export function CreateSaleEventDialog(props: Props) {
             </div>
             <div className="grid gap-2">
               <Label>Discount Value</Label>
-              <Input type="number" step="0.01" {...form.register("discountValue")} />
+              <Input type="number" step="0.01" className="h-10 rounded-xl" {...form.register("discountValue")} />
             </div>
           </div>
           <div className="grid gap-2">
-            <Label>Slot Limit (optional)</Label>
+            <Label>Slot Limit <span className="text-muted-foreground font-normal">(optional)</span></Label>
             <Input
               type="number"
               min={1}
               placeholder="Leave empty for unlimited"
+              className="h-10 rounded-xl"
               {...form.register("slotLimit")}
             />
-            <p className="text-xs text-zinc-500">
-              Maximum number of clients who can avail this sale. Leave empty for no limit.
+            <p className="text-xs text-muted-foreground">
+              Max clients who can avail this sale. Empty = no limit.
             </p>
           </div>
 
           <div className="grid gap-2">
             <Label>Applies To</Label>
-            <Tabs defaultValue="services" className="rounded-md border p-3">
-              <TabsList className="grid h-10 w-full grid-cols-2">
-                <TabsTrigger value="services">
+            <Tabs defaultValue="services" className="rounded-xl border border-border p-3 bg-muted/20">
+              <TabsList className="grid h-10 w-full grid-cols-2 rounded-lg">
+                <TabsTrigger value="services" className="rounded-md">
                   Services ({values.serviceIds.length}/{allServiceIds.length})
                 </TabsTrigger>
-                <TabsTrigger value="packages">
+                <TabsTrigger value="packages" className="rounded-md">
                   Packages ({values.packageIds.length}/{allPackageIds.length})
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="services" className="mt-3 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
-                  <label className="flex items-center gap-2 text-sm font-medium">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-2">
+                  <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                     <Checkbox
                       checked={
                         servicesAllSelected
@@ -381,6 +382,7 @@ export function CreateSaleEventDialog(props: Props) {
                     type="button"
                     variant="ghost"
                     size="xs"
+                    className="cursor-pointer"
                     onClick={() => clearSelection("serviceIds")}
                     disabled={values.serviceIds.length === 0}
                   >
@@ -389,11 +391,11 @@ export function CreateSaleEventDialog(props: Props) {
                 </div>
 
                 {servicesByCategory.length === 0 ? (
-                  <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
+                  <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
                     No services available yet.
                   </p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {servicesByCategory.map(({ category, services }) => {
                       const categoryServiceIds = services.map((service) => service.id);
                       const categoryAllSelected = isAllSelected(
@@ -405,18 +407,17 @@ export function CreateSaleEventDialog(props: Props) {
                         isPartiallySelected(values.serviceIds, categoryServiceIds);
 
                       return (
-                        <div key={category} className="rounded-md border p-3">
+                        <div key={category} className="rounded-lg border border-border bg-background p-3">
                           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                             <div>
-                              <p className="text-sm font-medium">{category}</p>
-                              <p className="text-xs text-zinc-500">
+                              <p className="text-sm font-semibold text-foreground">{category}</p>
+                              <p className="text-xs text-muted-foreground">
                                 {categoryServiceIds.filter((id) =>
                                   values.serviceIds.includes(id),
-                                ).length}
-                                /{categoryServiceIds.length} selected
+                                ).length}/{categoryServiceIds.length} selected
                               </p>
                             </div>
-                            <label className="flex items-center gap-2 text-xs font-medium text-zinc-600">
+                            <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
                               <Checkbox
                                 checked={
                                   categoryAllSelected
@@ -433,15 +434,15 @@ export function CreateSaleEventDialog(props: Props) {
                                   )
                                 }
                               />
-                              Select category
+                              Select all
                             </label>
                           </div>
 
-                          <div className="grid gap-2 sm:grid-cols-2">
+                          <div className="grid gap-1.5 sm:grid-cols-2">
                             {services.map((service) => (
                               <label
                                 key={service.id}
-                                className="flex min-h-11 items-center gap-2 rounded-sm px-1 py-1 text-sm"
+                                className="flex min-h-10 items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-accent/30 transition-colors"
                               >
                                 <Checkbox
                                   checked={values.serviceIds.includes(service.id)}
@@ -461,8 +462,8 @@ export function CreateSaleEventDialog(props: Props) {
               </TabsContent>
 
               <TabsContent value="packages" className="mt-3 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
-                  <label className="flex items-center gap-2 text-sm font-medium">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-2">
+                  <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                     <Checkbox
                       checked={
                         packagesAllSelected
@@ -482,6 +483,7 @@ export function CreateSaleEventDialog(props: Props) {
                     type="button"
                     variant="ghost"
                     size="xs"
+                    className="cursor-pointer"
                     onClick={() => clearSelection("packageIds")}
                     disabled={values.packageIds.length === 0}
                   >
@@ -490,15 +492,15 @@ export function CreateSaleEventDialog(props: Props) {
                 </div>
 
                 {props.packages.length === 0 ? (
-                  <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
+                  <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
                     No packages available yet.
                   </p>
                 ) : (
-                  <div className="grid gap-2 rounded-md border p-3 sm:grid-cols-2">
+                  <div className="grid gap-1.5 rounded-lg border border-border bg-background p-3 sm:grid-cols-2">
                     {props.packages.map((pkg) => (
                       <label
                         key={pkg.id}
-                        className="flex min-h-11 items-center gap-2 rounded-sm px-1 py-1 text-sm"
+                        className="flex min-h-10 items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-accent/30 transition-colors"
                       >
                         <Checkbox
                           checked={values.packageIds.includes(pkg.id)}
@@ -513,20 +515,20 @@ export function CreateSaleEventDialog(props: Props) {
             </Tabs>
           </div>
 
-          <div className="space-y-3 rounded-md border p-3">
+          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-3">
             <button
               type="button"
               onClick={() => setShowSocialOptions((previous) => !previous)}
-              className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-left text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-left text-sm font-semibold text-foreground hover:bg-accent/30 transition-colors cursor-pointer"
             >
               Optional: Social draft and AI helpers
             </button>
-            <p className="text-xs text-zinc-500">
-              Manual first: leave this closed to create only the sale event.
+            <p className="text-xs text-muted-foreground">
+              Leave this closed to create only the sale event.
             </p>
             {showSocialOptions ? (
               <>
-                <label className="flex items-center gap-2 text-sm font-medium">
+                <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                   <Checkbox
                     checked={values.createSocialDraft}
                     onCheckedChange={(checked) =>
@@ -544,7 +546,7 @@ export function CreateSaleEventDialog(props: Props) {
                     <div className="grid gap-2 sm:grid-cols-2">
                       {[SocialPlatform.FACEBOOK_PAGE, SocialPlatform.INSTAGRAM_BUSINESS].map(
                         (platform) => (
-                          <label key={platform} className="flex items-center gap-2 text-sm">
+                          <label key={platform} className="flex items-center gap-2 text-sm cursor-pointer">
                             <Checkbox
                               checked={values.targetPlatforms.includes(platform)}
                               disabled={!props.connectedPlatforms.includes(platform)}
@@ -564,6 +566,7 @@ export function CreateSaleEventDialog(props: Props) {
                           type="button"
                           variant="outline"
                           size="sm"
+                          className="rounded-lg cursor-pointer"
                           disabled={isGenerating}
                           onClick={generateCaption}
                         >
@@ -577,25 +580,26 @@ export function CreateSaleEventDialog(props: Props) {
                           )}
                         </Button>
                       </div>
-                      <Textarea {...form.register("socialCaptionOverride")} />
+                      <Textarea className="rounded-xl resize-none" {...form.register("socialCaptionOverride")} />
                     </div>
                     <div className="grid gap-2">
-                      <Label>Image Upload (optional)</Label>
+                      <Label>Image Upload <span className="text-muted-foreground font-normal">(optional)</span></Label>
                       <Input
                         type="file"
                         accept="image/*"
+                        className="rounded-xl"
                         onChange={(event) =>
                           setMediaFile(event.target.files?.[0] || null)
                         }
                       />
-                      <p className="text-xs text-zinc-500">
-                        If no file is uploaded, we will generate one using the selected style.
+                      <p className="text-xs text-muted-foreground">
+                        If no file is uploaded, one will be generated using the selected style.
                       </p>
                     </div>
                     <div className="grid gap-2">
                       <Label>AI Image Style</Label>
                       <select
-                        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                         {...form.register("socialImageProfile")}
                       >
                         {SOCIAL_IMAGE_PROFILE_OPTIONS.map((option) => (
@@ -604,7 +608,7 @@ export function CreateSaleEventDialog(props: Props) {
                           </option>
                         ))}
                       </select>
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-muted-foreground">
                         {
                           SOCIAL_IMAGE_PROFILE_OPTIONS.find(
                             (option) => option.value === values.socialImageProfile,
@@ -619,11 +623,16 @@ export function CreateSaleEventDialog(props: Props) {
           </div>
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+        <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" className="rounded-xl cursor-pointer" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button type="button" onClick={onSubmit} disabled={form.formState.isSubmitting}>
+          <Button
+            type="button"
+            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+            onClick={onSubmit}
+            disabled={form.formState.isSubmitting}
+          >
             {form.formState.isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -631,7 +640,7 @@ export function CreateSaleEventDialog(props: Props) {
             )}
             Create Event
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

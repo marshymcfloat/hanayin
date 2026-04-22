@@ -10,6 +10,14 @@ export const generateGrowthCampaignSchema = z.object({
       maxDiscountPercent: z.coerce.number().min(1).max(80).optional(),
     })
     .optional(),
+  overrides: z
+    .object({
+      discountPercent: z.coerce.number().min(1).max(80).optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+      slotLimit: z.coerce.number().int().min(1).optional(),
+    })
+    .optional(),
 });
 
 export const campaignEventTypeSchema = z.enum([

@@ -38,6 +38,8 @@ const overviewPayload: OverviewReportPayload = {
     estimatedNetMargin: 67.51,
     completionRate: 95.83,
     totalBookings: 28,
+    totalExpenses: 0,
+    trueNetProfit: 33193.12,
   },
   bookingVolume: {
     hold: 1,
@@ -71,6 +73,7 @@ const overviewPayload: OverviewReportPayload = {
       spend: 3745,
     },
   ],
+  insights: [],
 };
 
 const revenuePayload: RevenueReportPayload = {

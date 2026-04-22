@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -73,15 +72,16 @@ export function EditOwnerSpecialtiesDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] rounded-3xl p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-bold text-zinc-900">
+        <DialogHeader className="px-6 pb-2 pt-6">
+          <DialogTitle className="text-xl font-bold text-foreground">
             Edit Service Specialties
           </DialogTitle>
-          <DialogDescription className="text-zinc-500">
+          <DialogDescription className="text-muted-foreground">
             Update which service categories {owner?.user.name || "this owner"}{" "}
             can provide.
           </DialogDescription>
         </DialogHeader>
+        <div className="h-px bg-border mx-6" />
 
         <div className="px-6 py-4">
           <div className="grid gap-4">
@@ -126,11 +126,11 @@ export function EditOwnerSpecialtiesDialog({
           </div>
         </div>
 
-        <DialogFooter className="p-6 pt-2 bg-zinc-50/50 border-t border-zinc-100">
+        <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="rounded-xl"
+            className="rounded-xl cursor-pointer"
             disabled={isPending}
           >
             Cancel
@@ -138,11 +138,11 @@ export function EditOwnerSpecialtiesDialog({
           <Button
             onClick={handleSave}
             disabled={isPending}
-            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
           >
             {isPending ? "Saving..." : "Save Changes"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

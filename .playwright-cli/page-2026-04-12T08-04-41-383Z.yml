@@ -1,0 +1,197 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceFlow
+          - generic [ref=e15]: Pro Dashboard
+      - generic [ref=e16]:
+        - list [ref=e18]:
+          - listitem [ref=e19]:
+            - link "Dashboard" [ref=e20] [cursor=pointer]:
+              - /url: /app/beautyfeel/
+              - img [ref=e21]
+              - generic [ref=e24]: Dashboard
+        - generic [ref=e25]:
+          - generic [ref=e27]:
+            - button "Business" [expanded] [ref=e28] [cursor=pointer]:
+              - img [ref=e30]
+              - generic [ref=e34]: Business
+              - img [ref=e35]
+            - list [ref=e39]:
+              - listitem [ref=e40]:
+                - link "Services" [ref=e41] [cursor=pointer]:
+                  - /url: /app/beautyfeel/services/
+                  - img [ref=e42]
+                  - generic [ref=e45]: Services
+              - listitem [ref=e46]:
+                - link "Packages" [ref=e47] [cursor=pointer]:
+                  - /url: /app/beautyfeel/packages/
+                  - img [ref=e48]
+                  - generic [ref=e52]: Packages
+              - listitem [ref=e53]:
+                - link "Vouchers" [ref=e54] [cursor=pointer]:
+                  - /url: /app/beautyfeel/vouchers/
+                  - img [ref=e55]
+                  - generic [ref=e57]: Vouchers
+              - listitem [ref=e58]:
+                - link "Gift Cards" [ref=e59] [cursor=pointer]:
+                  - /url: /app/beautyfeel/gift-cards/
+                  - img [ref=e60]
+                  - generic [ref=e64]: Gift Cards
+              - listitem [ref=e65]:
+                - link "Sale Events" [ref=e66] [cursor=pointer]:
+                  - /url: /app/beautyfeel/sale-events/
+                  - img [ref=e67]
+                  - generic [ref=e71]: Sale Events
+              - listitem [ref=e72]:
+                - link "Social Posts" [ref=e73] [cursor=pointer]:
+                  - /url: /app/beautyfeel/social-posts/
+                  - img [ref=e75]
+                  - generic [ref=e78]: Social Posts
+              - listitem [ref=e79]:
+                - link "Growth" [ref=e80] [cursor=pointer]:
+                  - /url: /app/beautyfeel/growth/
+                  - img [ref=e81]
+                  - generic [ref=e84]: Growth
+              - listitem [ref=e85]:
+                - link "Business Hours" [ref=e86] [cursor=pointer]:
+                  - /url: /app/beautyfeel/business-hours/
+                  - img [ref=e87]
+                  - generic [ref=e89]: Business Hours
+              - listitem [ref=e90]:
+                - link "Billing" [ref=e91] [cursor=pointer]:
+                  - /url: /app/beautyfeel/billing/
+                  - img [ref=e92]
+                  - generic [ref=e94]: Billing
+              - listitem [ref=e95]:
+                - link "Reports" [ref=e96] [cursor=pointer]:
+                  - /url: /app/beautyfeel/reports/
+                  - img [ref=e97]
+                  - generic [ref=e99]: Reports
+          - button "Team" [ref=e102] [cursor=pointer]:
+            - img [ref=e104]
+            - generic [ref=e109]: Team
+            - img [ref=e110]
+          - button "Customers" [ref=e114] [cursor=pointer]:
+            - img [ref=e116]
+            - generic [ref=e118]: Customers
+            - img [ref=e119]
+        - list [ref=e122]:
+          - listitem [ref=e123]:
+            - link "Settings" [ref=e124] [cursor=pointer]:
+              - /url: /app/beautyfeel/business/
+              - img [ref=e125]
+              - generic [ref=e128]: Settings
+      - list [ref=e130]:
+        - listitem [ref=e131]:
+          - button "EL Ellaine Pe rjpern@gmail.com" [ref=e132]:
+            - generic [ref=e134]: EL
+            - generic [ref=e135]:
+              - generic [ref=e136]: Ellaine Pe
+              - generic [ref=e137]: rjpern@gmail.com
+            - img [ref=e138]
+    - main [ref=e141]:
+      - generic [ref=e143]:
+        - generic [ref=e145]:
+          - heading "Social Posts" [level=1] [ref=e146]
+          - paragraph [ref=e147]: Review, edit, publish, and retry channel posts from your sale events.
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - generic [ref=e151]:
+                - paragraph [ref=e152]: Growth Publishing Flow
+                - paragraph [ref=e153]: "Next action: Connect channels first, then publish this post."
+              - generic [ref=e154]: Step 3 of 3
+            - generic [ref=e155]:
+              - link "1. Pick opportunity" [ref=e156] [cursor=pointer]:
+                - /url: /app/beautyfeel/sale-events/?flow=growth&step=1&source=dashboard
+              - link "2. Create or confirm event" [ref=e157] [cursor=pointer]:
+                - /url: /app/beautyfeel/sale-events/?flow=growth&step=2&source=dashboard
+              - link "3. Review and publish post" [ref=e158] [cursor=pointer]:
+                - /url: /app/beautyfeel/social-posts/?flow=growth&step=3&source=sale-events
+          - generic [ref=e159]:
+            - generic [ref=e160]:
+              - generic [ref=e161]:
+                - heading "Saved Drafts" [level=2] [ref=e162]
+                - paragraph [ref=e163]: Click a draft to open it in the editor.
+              - generic [ref=e164]: 2 drafts
+            - generic [ref=e165]:
+              - button "Graduation Season Package DRAFT Want a fresh look this week? Grab this limited offer while slots are ope... Manual social draft | Apr 6" [pressed] [ref=e166]:
+                - generic [ref=e167]:
+                  - paragraph [ref=e168]: Graduation Season Package
+                  - generic [ref=e169]: DRAFT
+                - paragraph [ref=e170]: Want a fresh look this week? Grab this limited offer while slots are ope...
+                - paragraph [ref=e171]: Manual social draft | Apr 6
+              - button "Quiet Hours Body Reset DRAFT Want a fresh look this week? Grab this limited offer while slots are ope... Quiet Hours Body Reset | Apr 6" [ref=e172]:
+                - generic [ref=e173]:
+                  - paragraph [ref=e174]: Quiet Hours Body Reset
+                  - generic [ref=e175]: DRAFT
+                - paragraph [ref=e176]: Want a fresh look this week? Grab this limited offer while slots are ope...
+                - paragraph [ref=e177]: Quiet Hours Body Reset | Apr 6
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e180]:
+                - generic [ref=e181]: Graduation Season Package
+                - generic [ref=e182]: DRAFT
+              - paragraph [ref=e183]: Manual social draft
+            - generic [ref=e184]:
+              - paragraph [ref=e185]:
+                - text: No connected channels on this draft. Connect Facebook/Instagram or choose channels first.
+                - link "Open social connection settings" [ref=e186] [cursor=pointer]:
+                  - /url: /app/beautyfeel/business/
+                - text: .
+              - generic [ref=e187]:
+                - generic [ref=e188]:
+                  - paragraph [ref=e189]: Post Title
+                  - textbox [ref=e190]: Graduation Season Package
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - paragraph [ref=e193]: Media URL
+                    - button "Generate Image" [ref=e194]:
+                      - img
+                      - text: Generate Image
+                  - textbox "https://..." [ref=e195]: https://2egl37fgcso1kavw.public.blob.vercel-storage.com/social-promo-beautyfeel-1775465709252-8FUTziXAf4aubivM5eBlbgF7w008O9.png
+                  - generic [ref=e196]:
+                    - paragraph [ref=e197]: Image Style
+                    - combobox [ref=e198]:
+                      - option "Realistic Photo"
+                      - option "Soft Editorial" [selected]
+                      - option "Modern Graphic"
+                      - option "Bold Monochrome"
+                    - paragraph [ref=e199]: Clean spa aesthetic, premium whites, and elegant composition.
+              - generic [ref=e200]:
+                - generic [ref=e201]:
+                  - paragraph [ref=e202]: Final Composition
+                  - button "Apply Composition" [disabled]
+                - paragraph [ref=e203]: Text overlay is optional and starts off. Keep it off if the AI image already has good centered text.
+                - generic [ref=e204]:
+                  - generic [ref=e205]:
+                    - generic [ref=e206]: Text Card Overlay
+                    - switch "Text Card Overlay" [ref=e207] [cursor=pointer]
+                  - generic [ref=e208]:
+                    - generic [ref=e209]: Business Logo Overlay
+                    - switch "Business Logo Overlay" [disabled] [ref=e210]
+                - generic [ref=e211]:
+                  - generic [ref=e212]: Text overlay controls are hidden while text card overlay is turned off.
+                  - generic [ref=e213]:
+                    - paragraph [ref=e214]: Live Preview
+                    - img "Composed social post preview" [ref=e216]
+              - generic [ref=e217]:
+                - generic [ref=e218]:
+                  - paragraph [ref=e219]: Caption
+                  - button "Regenerate Caption" [disabled]
+                - paragraph [ref=e220]: Caption regeneration is available for sale-event drafts.
+                - textbox [ref=e221]: "Want a fresh look this week? Grab this limited offer while slots are open. BeautyFeel is here to make your current promo season extra special. Graduation Season Package — a curated self-care experience on Regular manicure, Foot spa, Manicure gel. If you've been putting off self-care dahil busy, this is a good time to finally book. Choose any treatment that fits your self-care mood this week. Here are some crowd favorites: - Regular manicure - Foot spa - Manicure gel - Pedicure gel Perfect for stress relief, confidence boost, and quality me-time. Pwede solo self-care day, pwede rin with your bestie, partner, or family. Preferred times fill up first, so reserve early para hindi ka maubusan. Tap the booking link below and secure your preferred schedule in minutes. Book now through ServiceFlow and claim your spot today. You can book yourselves in and see all services they offer. https://www.serviceflow.store/beautyfeel"
+              - generic [ref=e222]:
+                - paragraph [ref=e223]: Hashtags (comma separated)
+                - textbox [ref=e224]: "#ServiceFlow, #SelfCarePH, #SulitPromo, #BookNow, #Beautyfeel, #Nails, #Eyelash, #Skin, #RegularManicure, #FootSpa"
+              - paragraph [ref=e226]: Channel Status
+              - generic [ref=e227]:
+                - button "Save Draft" [ref=e228]
+                - button "Publish to connected channels" [ref=e229]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e235] [cursor=pointer]:
+    - img [ref=e236]
+  - alert [ref=e239]

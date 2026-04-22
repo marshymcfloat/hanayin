@@ -20,6 +20,7 @@ export const CORE_REPORT_TABS: CoreReportTab[] = [
   "revenue",
   "customers",
   "operations",
+  "expenses",
 ];
 
 export const ADVANCED_REPORT_TABS: Extract<

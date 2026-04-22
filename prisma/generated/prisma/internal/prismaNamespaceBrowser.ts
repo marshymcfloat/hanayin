@@ -79,6 +79,7 @@ export const ModelName = {
   ServicePackage: 'ServicePackage',
   PackageItem: 'PackageItem',
   Customer: 'Customer',
+  BookingOtpCode: 'BookingOtpCode',
   Booking: 'Booking',
   BookingPayment: 'BookingPayment',
   Voucher: 'Voucher',
@@ -95,7 +96,8 @@ export const ModelName = {
   CampaignEvent: 'CampaignEvent',
   SeasonalCalendar: 'SeasonalCalendar',
   OutboxMessage: 'OutboxMessage',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  Expense: 'Expense'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -129,6 +131,7 @@ export const BusinessScalarFieldEnum = {
   public_allow_full_payment: 'public_allow_full_payment',
   public_allow_downpayment: 'public_allow_downpayment',
   public_default_payment_type: 'public_default_payment_type',
+  downpayment_percentage: 'downpayment_percentage',
   booking_v2_enabled: 'booking_v2_enabled',
   same_day_attendance_strict_minutes: 'same_day_attendance_strict_minutes',
   structure: 'structure',
@@ -583,12 +586,30 @@ export const CustomerScalarFieldEnum = {
   name: 'name',
   email: 'email',
   phone: 'phone',
+  trust_tier: 'trust_tier',
+  no_show_count: 'no_show_count',
+  last_no_show_at: 'last_no_show_at',
   business_id: 'business_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const BookingOtpCodeScalarFieldEnum = {
+  id: 'id',
+  phone: 'phone',
+  business_id: 'business_id',
+  code: 'code',
+  verified: 'verified',
+  used: 'used',
+  semaphore_message_id: 'semaphore_message_id',
+  expires_at: 'expires_at',
+  created_at: 'created_at'
+} as const
+
+export type BookingOtpCodeScalarFieldEnum = (typeof BookingOtpCodeScalarFieldEnum)[keyof typeof BookingOtpCodeScalarFieldEnum]
 
 
 export const BookingScalarFieldEnum = {
@@ -891,6 +912,21 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const ExpenseScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  amount: 'amount',
+  category: 'category',
+  description: 'description',
+  date: 'date',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
 
 
 export const SortOrder = {

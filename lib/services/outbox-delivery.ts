@@ -12,6 +12,7 @@ import {
   BOOKING_DETAILS_TOKEN_TTL_SECONDS,
   createBookingSuccessToken,
 } from "@/lib/security/booking-success-token";
+import { sendSemaphorePrioritySms, truncateSms } from "@/lib/services/sms";
 
 export class NonRetryableOutboxError extends Error {
   constructor(message: string) {
@@ -65,7 +66,7 @@ async function sendHtmlEmail(params: {
   }
 }
 
-async function sendBookingCancelledEmail(
+async function sendBookingCancelledNotification(
   payload: OutboxPayloadMap["BOOKING_CANCELLED"],
 ) {
   const booking = await prisma.booking.findUnique({
@@ -75,6 +76,7 @@ async function sendBookingCancelledEmail(
         select: {
           email: true,
           name: true,
+          phone: true,
         },
       },
       business: {
@@ -86,28 +88,46 @@ async function sendBookingCancelledEmail(
   });
 
   const recipientEmail = payload.email ?? booking?.customer.email ?? null;
-  if (!recipientEmail) {
-    throw new NonRetryableOutboxError(
-      `[Outbox:BOOKING_CANCELLED] Recipient email is missing for booking ${payload.bookingId}`,
-    );
-  }
-
+  const recipientPhone = booking?.customer.phone ?? null;
   const customerName =
     payload.customerName?.trim() || booking?.customer.name || "there";
+  const firstName = customerName.split(" ")[0];
   const businessName = booking?.business.name || "your service provider";
   const reason = payload.reason;
 
-  await sendHtmlEmail({
-    to: [recipientEmail],
-    subject: `Booking canceled - ${businessName}`,
-    html: `
-      <p>Hi ${customerName},</p>
-      <p>Your booking with <strong>${businessName}</strong> was canceled.</p>
-      <p>Reason: ${reason}</p>
-      <p>If you need help rebooking, reply to this email.</p>
-    `,
-    text: `Hi ${customerName}, your booking with ${businessName} was canceled. Reason: ${reason}.`,
-  });
+  if (!recipientEmail && !recipientPhone) {
+    throw new NonRetryableOutboxError(
+      `[Outbox:BOOKING_CANCELLED] No contact info for booking ${payload.bookingId}`,
+    );
+  }
+
+  // --- SMS (priority — time-sensitive cancellation) ---
+  if (recipientPhone) {
+    const smsText = truncateSms(
+      `Hi ${firstName}, your booking at ${businessName} has been cancelled. ${reason ? `Reason: ${reason}. ` : ""}Please contact us to rebook.`,
+    );
+    const smsResult = await sendSemaphorePrioritySms(recipientPhone, smsText);
+    if (!smsResult.success) {
+      logger.warn(`[Outbox:BOOKING_CANCELLED] SMS failed for booking ${payload.bookingId}:`, {
+        error: smsResult.error,
+      });
+    }
+  }
+
+  // --- Email ---
+  if (recipientEmail) {
+    await sendHtmlEmail({
+      to: [recipientEmail],
+      subject: `Booking cancelled – ${businessName}`,
+      html: `
+        <p>Hi ${customerName},</p>
+        <p>Your booking with <strong>${businessName}</strong> was cancelled.</p>
+        ${reason ? `<p>Reason: ${reason}</p>` : ""}
+        <p>If you need help rebooking, please contact ${businessName} directly.</p>
+      `,
+      text: `Hi ${customerName}, your booking with ${businessName} was cancelled.${reason ? ` Reason: ${reason}.` : ""} Please contact us to rebook.`,
+    });
+  }
 }
 
 async function sendPaymentConfirmedEmail(
@@ -317,7 +337,7 @@ export async function deliverOutboxEvent<TType extends OutboxEventType>(params: 
       return;
     }
     case "BOOKING_CANCELLED":
-      await sendBookingCancelledEmail(
+      await sendBookingCancelledNotification(
         params.payload as OutboxPayloadMap["BOOKING_CANCELLED"],
       );
       return;

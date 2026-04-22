@@ -2,6 +2,7 @@ import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
 import { getCurrentDateTimePH, getStartOfDayPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
+import { sendSemaphoreSms, truncateSms } from "@/lib/services/sms";
 
 const RE_ENGAGEMENT_EVENT_TYPE = "RE_ENGAGEMENT_REMINDER_SENT";
 const RE_ENGAGEMENT_SEND_CONCURRENCY = 5;
@@ -65,9 +66,10 @@ export async function sendReEngagementEmails() {
       const inactiveCustomers = await prisma.customer.findMany({
         where: {
           business_id: business.id,
-          email: {
-            not: null,
-          },
+          OR: [
+            { phone: { not: null } },
+            { email: { not: null } },
+          ],
           bookings: {
             some: {
               status: "COMPLETED",
@@ -143,14 +145,12 @@ export async function sendReEngagementEmails() {
         customersToEmail,
         RE_ENGAGEMENT_SEND_CONCURRENCY,
         async (customer) => {
-          if (!customer.email) {
-            return;
-          }
+          const hasEmail = !!customer.email;
+          const hasPhone = !!customer.phone;
+          if (!hasEmail && !hasPhone) return;
 
           const lastBookingDate = customer.bookings[0]?.created_at;
-          if (!lastBookingDate) {
-            return;
-          }
+          if (!lastBookingDate) return;
 
           const customerId = String(customer.id);
           const lastSentAt = lastSentByCustomer.get(customerId);
@@ -159,79 +159,71 @@ export async function sendReEngagementEmails() {
             return;
           }
 
-          const emailHtml = generateReEngagementEmail(
-            business.name,
-            customer.name,
-            getPublicBookingLink(business.slug),
-          );
+          const bookingLink = getPublicBookingLink(business.slug);
+          const firstName = customer.name.split(" ")[0];
+          let anySuccess = false;
 
-          try {
-            const { error } = await resend.emails.send({
-              from: "ServiceFlow <reminders@serviceflow.store>",
-              to: [customer.email],
-              subject: `We Miss You at ${business.name}!`,
-              html: emailHtml,
-            });
-
-            if (error) {
-              logger.error(
-                `[Re-engagement] Failed to send email to ${customer.email}:`,
-                { error },
-              );
-              allResults.push({
-                business: business.name,
-                customerId: customer.id,
-                customerEmail: customer.email,
-                success: false,
-                error,
-              });
-            } else {
-              const sentAt = getCurrentDateTimePH();
-              logger.info(
-                `[Re-engagement] Email sent to ${customer.email} (last booking: ${lastBookingDate.toISOString()})`,
-              );
-
-              await prisma.outboxMessage.create({
-                data: {
-                  event_type: RE_ENGAGEMENT_EVENT_TYPE,
-                  aggregate_type: "Customer",
-                  aggregate_id: customerId,
-                  business_id: business.id,
-                  payload: {
-                    customerId,
-                    customerName: customer.name,
-                    customerEmail: customer.email,
-                    lastCompletedBookingId: customer.bookings[0]?.id ?? null,
-                    lastCompletedBookingAt: lastBookingDate.toISOString(),
-                    sentAt: sentAt.toISOString(),
-                  },
-                  processed: true,
-                  processed_at: sentAt,
-                },
-              });
-              lastSentByCustomer.set(customerId, sentAt);
-
-              allResults.push({
-                business: business.name,
-                customerId: customer.id,
-                customerEmail: customer.email,
-                success: true,
-              });
-            }
-          } catch (emailError) {
-            logger.error(
-              `[Re-engagement] Error sending to ${customer.email}:`,
-              {
-                emailError,
-              },
+          // --- SMS ---
+          if (hasPhone) {
+            const smsText = truncateSms(
+              `Hi ${firstName}, we miss you at ${business.name}! It's been a while. Book your next appointment: ${bookingLink}`,
             );
-            allResults.push({
-              business: business.name,
-              customerId: customer.id,
-              customerEmail: customer.email,
-              success: false,
-              error: emailError,
+            const smsResult = await sendSemaphoreSms(customer.phone!, smsText);
+            if (smsResult.success) {
+              anySuccess = true;
+              logger.info(`[Re-engagement] SMS sent to customer ${customerId}`);
+            } else {
+              logger.warn(`[Re-engagement] SMS failed for customer ${customerId}:`, { error: smsResult.error });
+            }
+          }
+
+          // --- Email ---
+          if (hasEmail) {
+            try {
+              const emailHtml = generateReEngagementEmail(business.name, customer.name, bookingLink);
+              const { error } = await resend.emails.send({
+                from: "ServiceFlow <reminders@serviceflow.store>",
+                to: [customer.email!],
+                subject: `We Miss You at ${business.name}!`,
+                html: emailHtml,
+              });
+
+              if (error) {
+                logger.warn(`[Re-engagement] Email failed for customer ${customerId}:`, { error });
+              } else {
+                anySuccess = true;
+                logger.info(`[Re-engagement] Email sent to customer ${customerId}`);
+              }
+            } catch (emailError) {
+              logger.warn(`[Re-engagement] Email error for customer ${customerId}:`, { emailError });
+            }
+          }
+
+          if (anySuccess) {
+            const sentAt = getCurrentDateTimePH();
+            await prisma.outboxMessage.create({
+              data: {
+                event_type: RE_ENGAGEMENT_EVENT_TYPE,
+                aggregate_type: "Customer",
+                aggregate_id: customerId,
+                business_id: business.id,
+                payload: {
+                  customerId,
+                  customerName: customer.name,
+                  customerEmail: customer.email ?? null,
+                  customerPhone: customer.phone ?? null,
+                  lastCompletedBookingId: customer.bookings[0]?.id ?? null,
+                  lastCompletedBookingAt: lastBookingDate.toISOString(),
+                  sentAt: sentAt.toISOString(),
+                },
+                processed: true,
+                processed_at: sentAt,
+              },
             });
+            lastSentByCustomer.set(customerId, sentAt);
+            allResults.push({ business: business.name, customerId: customer.id, customerEmail: customer.email ?? "", success: true });
+          } else {
+            allResults.push({ business: business.name, customerId: customer.id, customerEmail: customer.email ?? "", success: false });
           }
         },
       );

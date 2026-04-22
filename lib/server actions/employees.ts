@@ -156,7 +156,7 @@ export async function createEmployeeAction(data: {
             commission_percentage: data.commission_percentage,
             profile,
             permissions,
-            specialties: data.specialties ?? [],
+            specialties: (data.specialties ?? []).map((s) => s.toLowerCase()),
           },
           include: {
             user: true,
@@ -272,7 +272,7 @@ export async function updateEmployeeAction(
             commission_percentage: data.commission_percentage,
           }),
           ...(data.specialties !== undefined && {
-            specialties: data.specialties,
+            specialties: data.specialties.map((s) => s.toLowerCase()),
           }),
           ...(data.profile !== undefined && { profile: nextProfile }),
           ...(nextPermissions !== undefined && { permissions: nextPermissions }),

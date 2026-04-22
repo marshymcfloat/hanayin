@@ -3,13 +3,14 @@ export type ReportTab =
   | "revenue"
   | "customers"
   | "operations"
+  | "expenses"
   | "cohorts"
   | "attribution"
   | "opportunity";
 
 export type CoreReportTab = Extract<
   ReportTab,
-  "overview" | "revenue" | "customers" | "operations"
+  "overview" | "revenue" | "customers" | "operations" | "expenses"
 >;
 
 export type AdvancedReportTab = Extract<
@@ -39,6 +40,15 @@ export interface ReportDateRange {
   isCustom: boolean;
 }
 
+export type SmartInsightSeverity = "info" | "warning" | "success" | "alert";
+
+export interface SmartInsight {
+  id: string;
+  severity: SmartInsightSeverity;
+  title: string;
+  body: string;
+}
+
 export interface OverviewKpis {
   bookedRevenue: number;
   collectedRevenue: number;
@@ -51,6 +61,8 @@ export interface OverviewKpis {
   estimatedNetMargin: number;
   completionRate: number;
   totalBookings: number;
+  totalExpenses: number;
+  trueNetProfit: number;
 }
 
 export interface BookingVolumeBreakdown {
@@ -90,6 +102,7 @@ export interface OverviewReportPayload {
   trend: OverviewTrendPoint[];
   topServices: TopServiceRow[];
   topCustomers: TopCustomerRow[];
+  insights: SmartInsight[];
 }
 
 export interface RevenueKpis {
@@ -298,11 +311,52 @@ export interface OpportunityRoiReportPayload {
   topOpportunities: OpportunityRoiSegmentRow[];
 }
 
+export interface ExpensesKpis {
+  totalExpenses: number;
+  entryCount: number;
+  avgPerDay: number;
+  topCategory: string | null;
+  expenseToRevenueRatio: number;
+}
+
+export interface ExpenseTrendPoint {
+  bucketKey: string;
+  label: string;
+  total: number;
+  count: number;
+}
+
+export interface ExpenseCategoryRow {
+  category: string;
+  categoryLabel: string;
+  total: number;
+  count: number;
+}
+
+export interface ExpenseEntryRow {
+  id: number;
+  date: Date;
+  category: string;
+  categoryLabel: string;
+  amount: number;
+  description: string | null;
+  createdByName: string | null;
+}
+
+export interface ExpensesReportPayload {
+  range: ReportDateRange;
+  kpis: ExpensesKpis;
+  trend: ExpenseTrendPoint[];
+  byCategory: ExpenseCategoryRow[];
+  entries: ExpenseEntryRow[];
+}
+
 export type ReportPayloadMap = {
   overview: OverviewReportPayload;
   revenue: RevenueReportPayload;
   customers: CustomersReportPayload;
   operations: OperationsReportPayload;
+  expenses: ExpensesReportPayload;
 };
 
 export type AdvancedReportPayloadMap = {

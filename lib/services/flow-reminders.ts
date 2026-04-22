@@ -7,6 +7,7 @@ import {
 } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { sendSemaphoreSms, truncateSms } from "@/lib/services/sms";
 
 const FLOW_REMINDER_EVENT_TYPE = "FLOW_REMINDER_SENT";
 const FLOW_REMINDER_SEND_CONCURRENCY = 5;
@@ -151,7 +152,10 @@ export async function sendFlowReminders() {
           status: "COMPLETED",
           booking: {
             customer: {
-              email: { not: null },
+              OR: [
+                { phone: { not: null } },
+                { email: { not: null } },
+              ],
             },
           },
         },
@@ -165,6 +169,7 @@ export async function sendFlowReminders() {
                 select: {
                   name: true,
                   email: true,
+                  phone: true,
                 },
               },
               business: {
@@ -230,12 +235,14 @@ export async function sendFlowReminders() {
         sendQueue,
         FLOW_REMINDER_SEND_CONCURRENCY,
         async (item) => {
-          if (!item.booking.customer.email) {
-            return;
-          }
+          const hasEmail = !!item.booking.customer.email;
+          const hasPhone = !!item.booking.customer.phone;
+          if (!hasEmail && !hasPhone) return;
+
           const customerId = String(item.booking.customer_id);
 
           const customerName = item.booking.customer.name;
+          const firstName = customerName.split(" ")[0];
           const businessName = item.booking.business.name;
           const serviceName = flow.trigger_service.name;
           const nextServiceName = flow.suggested_service.name;
@@ -370,22 +377,41 @@ export async function sendFlowReminders() {
             </html>
          `;
 
-          const { error } = await resend.emails.send({
-            from: "ServiceFlow <reminders@serviceflow.store>",
-            to: [item.booking.customer.email],
-            subject: subject,
-            html: emailHtml,
-          });
+          let anySuccess = false;
 
-          if (error) {
-            logger.error(
-              `[Flow Reminders] Failed to send to ${item.booking.customer.email}`,
-              { error },
+          // --- SMS ---
+          if (hasPhone) {
+            const smsText = truncateSms(
+              isRequired
+                ? `Hi ${firstName}, it's time for your follow-up ${nextServiceName} at ${businessName}. Book now: ${bookingLink}`
+                : `Hi ${firstName}, we recommend ${nextServiceName} after your recent ${serviceName} at ${businessName}. Book: ${bookingLink}`,
             );
-          } else {
-            sentCount++;
+            const smsResult = await sendSemaphoreSms(item.booking.customer.phone!, smsText);
+            if (smsResult.success) {
+              anySuccess = true;
+            } else {
+              logger.warn(`[Flow Reminders] SMS failed for customer ${customerId}:`, { error: smsResult.error });
+            }
+          }
 
-          // Track this reminder in OutboxMessage for dashboard visibility
+          // --- Email ---
+          if (hasEmail) {
+            const { error } = await resend.emails.send({
+              from: "ServiceFlow <reminders@serviceflow.store>",
+              to: [item.booking.customer.email!],
+              subject,
+              html: emailHtml,
+            });
+
+            if (error) {
+              logger.warn(`[Flow Reminders] Email failed for customer ${customerId}:`, { error });
+            } else {
+              anySuccess = true;
+            }
+          }
+
+          if (anySuccess) {
+            sentCount++;
             await prisma.outboxMessage.create({
               data: {
                 event_type: FLOW_REMINDER_EVENT_TYPE,
@@ -395,7 +421,8 @@ export async function sendFlowReminders() {
                 payload: {
                   customerId,
                   customerName,
-                  customerEmail: item.booking.customer.email,
+                  customerEmail: item.booking.customer.email ?? null,
+                  customerPhone: item.booking.customer.phone ?? null,
                   triggerServiceName: serviceName,
                   suggestedServiceName: nextServiceName,
                   flowType: flow.type,

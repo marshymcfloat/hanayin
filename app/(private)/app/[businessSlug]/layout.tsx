@@ -4,6 +4,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Sparkles } from "lucide-react";
 import { SidebarSkeleton } from "@/components/dashboard/SidebarSkeleton";
 import React from "react";
 import { Metadata } from "next";
@@ -105,9 +106,14 @@ async function AppLayoutContent({
           <AppSidebar />
         </React.Suspense>
         <SidebarInset>
-          <header className="flex h-14 items-center gap-2 border-b bg-white px-4 lg:hidden">
-            <SidebarTrigger className="h-8 w-8" />
-            <span className="font-semibold">Menu</span>
+          <header className="flex h-14 items-center gap-3 border-b border-border bg-white px-4 lg:hidden sticky top-0 z-30">
+            <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors" />
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm shadow-primary/30">
+                <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+              </div>
+              <span className="text-sm font-bold tracking-tight text-foreground truncate">ServiceFlow</span>
+            </div>
           </header>
           {showReadOnlyBanner ? (
             <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">

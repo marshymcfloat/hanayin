@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Gift, Plus, RefreshCcw, Search } from "lucide-react";
 import { toast } from "sonner";
 
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -75,10 +74,20 @@ export function GiftCardsPageClient({
   );
   const [giftCardToDelete, setGiftCardToDelete] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
   const [isDeleting, startDeleteTransition] = useTransition();
+
+  const handleRefresh = () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    router.refresh();
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    refreshTimerRef.current = setTimeout(() => setIsRefreshing(false), 1200);
+  };
 
   const filteredGiftCards = useMemo(() => {
     const query = search.toLowerCase();
@@ -199,31 +208,46 @@ export function GiftCardsPageClient({
   };
 
   return (
-    <div
-      className="flex min-h-screen flex-col bg-zinc-50/50 p-4 md:p-8"
-      data-business-slug={businessSlug}
-    >
-      <section className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
-        <PageHeader
-          title="Gift Cards"
-          description="Create and manage gift cards for customer service or package claims"
-          className="mb-8"
-        >
+    <div className="flex flex-col bg-background" data-business-slug={businessSlug}>
+
+      {/* ── Page Header ────────────────────────────────── */}
+      <div className="border-b border-border bg-card px-4 sm:px-8 py-4 sm:py-5">
+        <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+              <Gift className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-[17px] sm:text-xl font-bold tracking-tight text-foreground">
+                  Gift Cards
+                </h1>
+                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary tabular-nums">
+                  {filteredGiftCards.length}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
+                Create and manage gift cards for your customers
+              </p>
+            </div>
+          </div>
+
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="rounded-full bg-emerald-600 px-6 text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 active:scale-95">
-                <Plus className="mr-2 h-4 w-4" strokeWidth={2.5} />
-                <span className="font-semibold">Create Gift Card</span>
+              <Button
+                className="h-9 rounded-xl bg-primary px-3 text-primary-foreground font-semibold shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 active:scale-[0.97] cursor-pointer sm:h-10 sm:px-4"
+              >
+                <Plus className="h-4 w-4 sm:mr-2" strokeWidth={2.5} />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Create Gift Card</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] max-w-[95%] overflow-hidden rounded-3xl p-0 md:max-w-[860px]">
               <DialogHeader className="p-6 pb-2">
-                <DialogTitle className="text-xl font-bold text-zinc-900">
+                <DialogTitle className="text-xl font-bold text-foreground">
                   Create Gift Card
                 </DialogTitle>
-                <DialogDescription className="text-zinc-500">
-                  Assign services or packages, set expiry, then send the code by
-                  email.
+                <DialogDescription className="text-muted-foreground">
+                  Assign services or packages, set expiry, then send the code by email.
                 </DialogDescription>
               </DialogHeader>
               <div className="overflow-y-auto px-6 pb-6">
@@ -241,65 +265,76 @@ export function GiftCardsPageClient({
               </div>
             </DialogContent>
           </Dialog>
-        </PageHeader>
+        </div>
+      </div>
 
-        <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="relative w-full max-w-md flex-1">
-            <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search gift cards..."
-              className="h-10 rounded-xl border-zinc-200 bg-white pl-10 shadow-sm focus-visible:ring-emerald-500"
-            />
+      {/* ── Main Content ───────────────────────────────── */}
+      <div className="px-4 sm:px-8 py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
+
+          {/* Toolbar card */}
+          <div className="bg-card border border-border rounded-2xl shadow-sm px-3 sm:px-4 py-3">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 items-start sm:items-center justify-between">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+                <Input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search gift cards..."
+                  className="pl-9 h-9 rounded-xl border-border bg-background shadow-none focus-visible:ring-primary/30"
+                />
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={isRefreshing}
+                className="h-9 gap-2 rounded-xl text-muted-foreground hover:text-foreground hidden sm:flex shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={handleRefresh}
+              >
+                <RefreshCcw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+                <span className="text-sm">{isRefreshing ? "Refreshing..." : "Refresh"}</span>
+              </Button>
+            </div>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden h-10 gap-2 rounded-xl border-zinc-200 bg-white text-zinc-600 md:flex"
-            onClick={() => router.refresh()}
-          >
-            <RefreshCcw className="h-4 w-4" />
-            <span>Refresh</span>
-          </Button>
-        </div>
-
-        <div className="flex-1">
-          {filteredGiftCards.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-zinc-200/60 bg-white p-12 text-center shadow-sm">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-50">
-                <Gift className="h-6 w-6 text-zinc-300" />
+          {/* Content */}
+          <div className="flex-1">
+            {filteredGiftCards.length === 0 ? (
+              <div className="bg-card rounded-2xl border border-border shadow-sm p-12 flex flex-col items-center justify-center text-center">
+                <div className="h-12 w-12 bg-muted rounded-xl flex items-center justify-center mb-4">
+                  <Gift className="h-6 w-6 text-muted-foreground/40" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-1">
+                  No gift cards found
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-sm mb-6">
+                  {giftCards.length === 0
+                    ? "Create your first gift card and send it directly to a customer."
+                    : "Try adjusting your search terms."}
+                </p>
+                {giftCards.length === 0 && (
+                  <Button
+                    onClick={() => setIsCreateOpen(true)}
+                    className="rounded-xl bg-primary hover:bg-primary/90 cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Gift Card
+                  </Button>
+                )}
               </div>
-              <h3 className="mb-1 text-lg font-semibold text-zinc-900">
-                No gift cards found
-              </h3>
-              <p className="mb-6 max-w-sm text-zinc-500">
-                {giftCards.length === 0
-                  ? "Start by creating your first gift card and sending it directly to the customer email."
-                  : "Try adjusting your search terms."}
-              </p>
-              {giftCards.length === 0 && (
-                <Button
-                  onClick={() => setIsCreateOpen(true)}
-                  className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Gift Card
-                </Button>
-              )}
-            </div>
-          ) : (
-            <GiftCardList
-              giftCards={filteredGiftCards}
-              copiedId={copiedId}
-              onCopy={handleCopy}
-              onEdit={setEditingGiftCard}
-              onDelete={setGiftCardToDelete}
-            />
-          )}
+            ) : (
+              <GiftCardList
+                giftCards={filteredGiftCards}
+                copiedId={copiedId}
+                onCopy={handleCopy}
+                onEdit={setEditingGiftCard}
+                onDelete={setGiftCardToDelete}
+              />
+            )}
+          </div>
         </div>
-      </section>
+      </div>
 
       <Dialog
         open={!!editingGiftCard}
@@ -307,10 +342,10 @@ export function GiftCardsPageClient({
       >
         <DialogContent className="max-h-[90vh] max-w-[95%] overflow-hidden rounded-3xl p-0 md:max-w-[860px]">
           <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="text-xl font-bold text-zinc-900">
+            <DialogTitle className="text-xl font-bold text-foreground">
               Edit Gift Card
             </DialogTitle>
-            <DialogDescription className="text-zinc-500">
+            <DialogDescription className="text-muted-foreground">
               Update customer details, code, and included services/packages.
             </DialogDescription>
           </DialogHeader>
@@ -346,9 +381,9 @@ export function GiftCardsPageClient({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => giftCardToDelete && handleDelete(giftCardToDelete)}
             >
               {isDeleting ? "Deleting..." : "Delete"}

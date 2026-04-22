@@ -37,22 +37,22 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
   return (
     <>
       {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-4">
+      <div className="md:hidden grid grid-cols-1 gap-3">
         {owners.map((owner) => (
           <Card
             key={owner.id}
-            className="bg-white rounded-2xl shadow-sm border border-zinc-100"
+            className="bg-card rounded-2xl border border-border"
           >
             <CardContent className="p-4 space-y-4">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 bg-amber-100 text-amber-700">
-                    <AvatarFallback className="bg-amber-100 text-amber-700">
+                  <Avatar className="h-10 w-10 bg-primary/10 text-primary">
+                    <AvatarFallback className="bg-primary/10 text-primary">
                       <Crown className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-sm">{owner.user.name}</p>
+                    <p className="font-medium text-sm text-foreground">{owner.user.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {owner.user.email}
                     </p>
@@ -61,15 +61,15 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-8 w-8"
+                  className="h-8 w-8 hover:bg-accent/30 hover:text-foreground cursor-pointer"
                   onClick={() => onEditSpecialties(owner)}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
               </div>
 
-              <div className="pt-3 border-t border-zinc-50">
-                <p className="text-xs text-muted-foreground mb-2">
+              <div className="pt-3 border-t border-border/50">
+                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wider">
                   Service Specialties
                 </p>
                 <div className="flex flex-wrap gap-1">
@@ -78,13 +78,13 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                       <Badge
                         key={specialty}
                         variant="secondary"
-                        className="text-xs"
+                        className="text-xs capitalize border-primary/30 bg-primary/10 text-primary"
                       >
                         {specialty}
                       </Badge>
                     ))
                   ) : (
-                    <span className="text-muted-foreground text-sm">
+                    <span className="text-muted-foreground text-sm italic">
                       All services
                     </span>
                   )}
@@ -96,14 +96,14 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+      <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
         <Table>
-          <TableHeader className="bg-zinc-50/80">
-            <TableRow className="hover:bg-transparent border-zinc-100">
-              <TableHead className="pl-6 h-12 w-[300px]">Owner</TableHead>
-              <TableHead className="h-12">Email</TableHead>
-              <TableHead className="h-12">Service Specialties</TableHead>
-              <TableHead className="text-right pr-6 h-12 w-[100px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-border bg-muted/50">
+              <TableHead className="pl-6 h-11 w-[300px] font-semibold text-muted-foreground">Owner</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Email</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Service Specialties</TableHead>
+              <TableHead className="text-right pr-6 h-11 w-[100px] font-semibold text-muted-foreground">
                 Actions
               </TableHead>
             </TableRow>
@@ -112,22 +112,22 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
             {owners.map((owner) => (
               <TableRow
                 key={owner.id}
-                className="border-zinc-100 hover:bg-zinc-50/50 transition-colors"
+                className="border-border/50 hover:bg-accent/30 transition-colors group"
               >
                 <TableCell className="pl-6 py-4">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9 bg-amber-100 text-amber-700">
-                      <AvatarFallback className="bg-amber-100 text-amber-700 text-sm font-medium">
+                    <Avatar className="h-9 w-9 bg-primary/10 text-primary">
+                      <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
                         {getInitials(owner.user.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="font-medium text-sm">
+                      <span className="font-medium text-sm text-foreground">
                         {owner.user.name}
                       </span>
                       <Badge
                         variant="outline"
-                        className="w-fit text-[10px] h-5 px-1.5 border-amber-200 text-amber-700 bg-amber-50"
+                        className="w-fit text-[10px] h-5 px-1.5 border-primary/30 text-primary bg-primary/10"
                       >
                         <Crown className="h-3 w-3 mr-0.5" />
                         Owner
@@ -147,13 +147,13 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                         <Badge
                           key={specialty}
                           variant="secondary"
-                          className="text-xs"
+                          className="text-xs capitalize border-primary/30 bg-primary/10 text-primary"
                         >
                           {specialty}
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-muted-foreground text-sm">
+                      <span className="text-muted-foreground text-sm italic">
                         All services
                       </span>
                     )}
@@ -163,7 +163,7 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 hover:bg-zinc-100"
+                    className="h-8 w-8 hover:bg-accent/30 hover:text-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all cursor-pointer"
                     onClick={() => onEditSpecialties(owner)}
                   >
                     <Edit className="h-4 w-4" />

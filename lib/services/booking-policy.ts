@@ -15,6 +15,7 @@ const BOOKING_POLICY_SELECT = {
   public_allow_full_payment: true,
   public_allow_downpayment: true,
   public_default_payment_type: true,
+  downpayment_percentage: true,
   booking_v2_enabled: true,
 } as const;
 
@@ -26,6 +27,7 @@ function mapPolicyRecord(record: {
   public_allow_full_payment: boolean;
   public_allow_downpayment: boolean;
   public_default_payment_type: string;
+  downpayment_percentage: number;
   booking_v2_enabled: boolean;
 }): BookingPolicy {
   return normalizeBookingPolicy({
@@ -40,6 +42,7 @@ function mapPolicyRecord(record: {
     defaultPublicPaymentType: normalizeBookingPublicPaymentType(
       record.public_default_payment_type,
     ),
+    downpaymentPercentage: record.downpayment_percentage,
     bookingV2Enabled: record.booking_v2_enabled,
   });
 }

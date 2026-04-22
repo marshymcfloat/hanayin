@@ -90,8 +90,14 @@ import {
   getCustomerPendingFlows,
   PendingFlow,
 } from "@/lib/server actions/flow-actions";
+import {
+  resolveCustomerTrust,
+  requestBookingOtp,
+  verifyBookingOtp,
+  type CustomerTrust,
+} from "@/lib/server actions/booking-otp";
 import { format } from "date-fns";
-import { Sparkles, Calendar, Ticket, X } from "lucide-react";
+import { Sparkles, Calendar, Ticket, X, ShieldCheck, Phone, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BookingPolicy } from "@/lib/types/booking-policy";
 import { getMaxBookingDate, getSlotEmptyState } from "./booking-form-utils";
@@ -110,7 +116,7 @@ type SelectedService = {
   duration?: number | null;
   originalPrice?: number;
   discount?: number;
-  discountReason?: string;
+  discountReason?: string | null;
   slotsRemaining?: number | null;
   packageId?: number;
   packageName?: string;
@@ -163,7 +169,7 @@ export default function BookingForm({
       scheduledAt: undefined,
       employeeId:
         isEmployee && currentEmployeeId ? currentEmployeeId : undefined,
-      paymentMethod: isEmployee ? "CASH" : "QRPH",
+      paymentMethod: "CASH",
 
       paymentType: "FULL",
       staffSelectionMode: "ANY_AVAILABLE",
@@ -238,6 +244,123 @@ export default function BookingForm({
   >(null);
   const [pendingFlows, setPendingFlows] = useState<PendingFlow[]>([]);
   const [claimedUniqueIds, setClaimedUniqueIds] = useState<string[]>([]);
+
+  // --- Phone-first OTP verification (public bookings only) ---
+  const [otpPhone, setOtpPhone] = useState("");
+  const [otpTier, setOtpTier] = useState<CustomerTrust | null>(null);
+  const [otpCustomerName, setOtpCustomerName] = useState<string | undefined>(undefined);
+  const [otpCustomerEmail, setOtpCustomerEmail] = useState<string | undefined>(undefined);
+  const [otpPrefilled, setOtpPrefilled] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpVerificationId, setOtpVerificationId] = useState<number | undefined>(undefined);
+  const [isCheckingTrust, setIsCheckingTrust] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpCooldown, setOtpCooldown] = useState(0);
+
+  // Start countdown timer when a cooldown is set
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpCooldown((prev) => {
+        if (prev <= 1) { clearInterval(timer); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpCooldown]);
+
+  const isOtpVerified = !!otpVerificationId || otpTier === "TRUSTED";
+  // Public users must complete OTP before the rest of the form unlocks
+  const isPublicVerified = isEmployee || isOtpVerified;
+
+  const handleCheckTrust = useCallback(async () => {
+    if (!otpPhone.trim() || !businessSlug) return;
+    setIsCheckingTrust(true);
+    setOtpError(null);
+    setOtpTier(null);
+    setOtpSent(false);
+    setOtpVerificationId(undefined);
+    setOtpCode("");
+    try {
+      const result = await resolveCustomerTrust(otpPhone.trim(), businessSlug);
+      setOtpTier(result.tier);
+      setOtpCustomerName(result.customerName);
+      setOtpCustomerEmail(result.customerEmail);
+      if (result.tier === "TRUSTED") {
+        let prefilled = false;
+        if (result.customerName) {
+          form.setValue("customerName", result.customerName, { shouldValidate: true });
+          prefilled = true;
+        }
+        if (result.customerEmail) {
+          form.setValue("email", result.customerEmail, { shouldValidate: true });
+          prefilled = true;
+        }
+        form.setValue("phone", otpPhone.trim(), { shouldValidate: true });
+        if (prefilled) setOtpPrefilled(true);
+      }
+    } catch {
+      setOtpError("Could not check your number. Please try again.");
+    } finally {
+      setIsCheckingTrust(false);
+    }
+  }, [otpPhone, businessSlug, form]);
+
+  const handleSendOtp = useCallback(async () => {
+    if (!otpPhone.trim() || !businessSlug || isSendingOtp) return;
+    setIsSendingOtp(true);
+    setOtpError(null);
+    try {
+      const result = await requestBookingOtp(otpPhone.trim(), businessSlug);
+      if (result.success) {
+        setOtpSent(true);
+        setOtpCode("");
+        if (result.cooldownSeconds) setOtpCooldown(result.cooldownSeconds);
+      } else {
+        setOtpError(result.error ?? "Failed to send code.");
+        if (result.cooldownSeconds) setOtpCooldown(result.cooldownSeconds);
+      }
+    } catch {
+      setOtpError("Failed to send verification code. Please try again.");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  }, [otpPhone, businessSlug, isSendingOtp]);
+
+  const handleVerifyOtp = useCallback(async () => {
+    if (!otpPhone.trim() || !otpCode.trim() || !businessSlug || isVerifyingOtp) return;
+    setIsVerifyingOtp(true);
+    setOtpError(null);
+    try {
+      const result = await verifyBookingOtp(otpPhone.trim(), otpCode.trim(), businessSlug);
+      if (result.success && result.verificationId) {
+        setOtpVerificationId(result.verificationId);
+        setOtpTier(result.customerTier ?? "NEW");
+        form.setValue("phone", otpPhone.trim(), { shouldValidate: true });
+        let prefilled = false;
+        if (result.customerName) {
+          setOtpCustomerName(result.customerName);
+          form.setValue("customerName", result.customerName, { shouldValidate: true });
+          prefilled = true;
+        }
+        if (result.customerEmail) {
+          setOtpCustomerEmail(result.customerEmail);
+          form.setValue("email", result.customerEmail, { shouldValidate: true });
+          prefilled = true;
+        }
+        if (prefilled) setOtpPrefilled(true);
+      } else {
+        setOtpError(result.error ?? "Invalid code. Please try again.");
+      }
+    } catch {
+      setOtpError("Verification failed. Please try again.");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  }, [otpPhone, otpCode, businessSlug, form, isVerifyingOtp]);
 
   useEffect(() => {
     async function fetchFlows() {
@@ -783,6 +906,19 @@ export default function BookingForm({
     },
     onError: (error) => {
       const code = error instanceof Error ? error.message : "";
+      if (code === "OTP_REQUIRED" || code === "OTP_INVALID_OR_EXPIRED") {
+        setOtpVerificationId(undefined);
+        setOtpTier("NEW");
+        toast.error("Verification expired. Please re-verify your number.");
+        return;
+      }
+      if (code === "CUSTOMER_RESTRICTED") {
+        toast.error(
+          "Your account has been restricted. Please contact the business to book.",
+          { duration: 8000 },
+        );
+        return;
+      }
       if (code === "DATE_OUTSIDE_HORIZON") {
         toast.error("Selected date is outside the booking window.");
         return;
@@ -846,7 +982,26 @@ export default function BookingForm({
       }
       if (code === "SALE_SLOT_LIMIT_REACHED") {
         toast.error(
-          "This promo has reached its slot limit. The discount is no longer available.",
+          "This promo just filled up. You can still book at regular price.",
+          {
+            duration: 8000,
+            action: {
+              label: "Book at regular price",
+              onClick: () => {
+                const currentServices = form.getValues("services") as SelectedService[];
+                form.setValue(
+                  "services",
+                  currentServices.map((s) => ({
+                    ...s,
+                    price: s.originalPrice ?? s.price,
+                    discount: 0,
+                    discountReason: undefined,
+                    slotsRemaining: null,
+                  })),
+                );
+              },
+            },
+          },
         );
         return;
       }
@@ -894,13 +1049,10 @@ export default function BookingForm({
           const uniqueId = buildServiceClaimUniqueId(s, i);
           return {
             id: s.id,
-            name: s.name,
-            price: s.price,
-            originalPrice: s.originalPrice,
             quantity: 1,
-            duration: s.duration || 30,
             claimedByCurrentEmployee:
               claimStepEnabled && claimedUniqueIds.includes(uniqueId),
+            packageId: s.packageId,
           };
         }),
       );
@@ -930,11 +1082,12 @@ export default function BookingForm({
         paymentType: data.paymentType,
         services: flatServicesPayload,
         email: data.email,
-        phone: data.phone?.trim() || undefined,
+        phone: data.phone?.trim() || otpPhone.trim() || undefined,
         voucherCode: appliedVoucher?.code,
         isWalkIn: effectiveIsWalkIn,
         staffSelectionMode: computedStaffSelectionMode,
         capacityOverride: normalizedCapacityOverride,
+        otpVerificationId: isEmployee ? undefined : otpVerificationId,
       });
     },
     [
@@ -952,6 +1105,8 @@ export default function BookingForm({
       showCapacityOverrideForm,
       capacityOverrideReason,
       capacityOverrideNote,
+      otpPhone,
+      otpVerificationId,
     ],
   );
 
@@ -970,8 +1125,8 @@ export default function BookingForm({
   const customerEmailValue = (customerEmailInput || "").trim();
   const isCustomerDetailsComplete = isEmployee
     ? !!customerId || customerNameValue.length >= 2
-    : customerNameValue.length >= 2 && customerEmailValue.length > 0;
-  const canAccessStep2 = isStep1Complete;
+    : customerNameValue.length >= 2;
+  const canAccessStep2 = isPublicVerified && isStep1Complete;
   const canAccessStep3 = canAccessStep2 && isStep2Complete;
   const canAccessStep4 = canAccessStep3 && isStep3Complete;
   const canAccessStep5 = canAccessStep4;
@@ -1014,26 +1169,28 @@ export default function BookingForm({
   const usesFixedMobileActionBar = resolvedMobileActionBarMode === "fixed";
 
   const paymentMethodOptions = useMemo(() => {
-    return isEmployee
-      ? [
-          {
-            value: "CASH" as const,
-            label: "Cash",
-            disabled: !hasReviewedDetails,
-          },
-          {
-            value: "QRPH" as const,
-            label: "QR Payment",
-            disabled: !hasReviewedDetails,
-          },
-        ]
-      : [
-          {
-            value: "QRPH" as const,
-            label: "QR Payment",
-            disabled: !hasReviewedDetails,
-          },
-        ];
+    // Public customers always pay at the salon (CASH); no online payment
+    if (!isEmployee) {
+      return [
+        {
+          value: "CASH" as const,
+          label: "Pay at salon",
+          disabled: !hasReviewedDetails,
+        },
+      ];
+    }
+    return [
+      {
+        value: "CASH" as const,
+        label: "Cash",
+        disabled: !hasReviewedDetails,
+      },
+      {
+        value: "QRPH" as const,
+        label: "QR Payment",
+        disabled: !hasReviewedDetails,
+      },
+    ];
   }, [isEmployee, hasReviewedDetails]);
 
   const paymentTypeOptions = useMemo(() => {
@@ -1046,7 +1203,7 @@ export default function BookingForm({
         },
         {
           value: "DOWNPAYMENT" as const,
-          label: "50%",
+          label: `${bookingPolicy?.downpaymentPercentage ?? 50}%`,
           disabled: !hasReviewedDetails,
         },
       ];
@@ -1062,7 +1219,7 @@ export default function BookingForm({
       },
       {
         value: "DOWNPAYMENT" as const,
-        label: "50%",
+        label: `${bookingPolicy?.downpaymentPercentage ?? 50}%`,
         disabled: !hasReviewedDetails || !allowsDownpayment,
       },
     ];
@@ -1134,61 +1291,299 @@ export default function BookingForm({
           />
 
           <div className="order-0 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
-            <div className="flex flex-wrap gap-2">
-              {[
+            {/* Step progress bar */}
+            {(() => {
+              const steps = [
+                ...(!isEmployee ? [{ step: 0, label: "Verify", done: isOtpVerified }] : []),
                 { step: 1, label: "Services", done: isStep1Complete },
-                { step: 2, label: "Date", done: isStep2Complete },
-                { step: 3, label: "Time", done: isStep3Complete },
-                {
-                  step: 4,
-                  label: claimStepEnabled ? "Claim" : "Staff",
-                  done: canAccessStep4,
-                },
-                {
-                  step: 5,
-                  label: "Customer Details",
-                  done: isCustomerDetailsComplete,
-                },
-                {
-                  step: 6,
-                  label: "Review & Payment",
-                  done: hasReviewedDetails,
-                },
-              ].map((item) => (
-                <span
-                  key={item.step}
-                  className={cn(
-                    "inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide",
-                    item.done
-                      ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                      : currentStep === item.step
-                        ? "border-primary/40 bg-primary/10 text-primary"
-                        : "border-zinc-200 bg-white text-zinc-500",
-                  )}
-                >
-                  {item.step}. {item.label}
-                </span>
-              ))}
-            </div>
+                { step: 2, label: "Date & Time", done: isStep3Complete },
+                { step: 3, label: claimStepEnabled ? "Claim" : "Staff", done: canAccessStep4 },
+                { step: 4, label: "Details", done: isCustomerDetailsComplete },
+                { step: 5, label: "Confirm", done: hasReviewedDetails },
+              ];
+              const doneCount = steps.filter((s) => s.done).length;
+              const pct = Math.round((doneCount / steps.length) * 100);
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Booking Progress
+                    </span>
+                    <span className="text-xs font-bold text-primary">{pct}%</span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {steps.map((item) => (
+                      <span
+                        key={item.step}
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-all duration-200",
+                          item.done
+                            ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                            : currentStep === item.step
+                              ? "border-primary/40 bg-primary/10 text-primary shadow-sm"
+                              : "border-zinc-200 bg-white text-zinc-400",
+                        )}
+                      >
+                        {item.done && (
+                          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 12 12">
+                            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                        {item.step === 0 ? item.label : `${item.step}. ${item.label}`}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
-          {canAccessStep5 && (
-            <div className="order-50 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  5
-                </span>
-                <h3 className="font-semibold text-lg tracking-tight">
-                  Customer Details
-                </h3>
+          {/* Phone OTP Verification — public users only */}
+          {!isEmployee && (
+            <div
+              className={cn(
+                "order-[5] rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5 transition-all duration-300",
+                isOtpVerified
+                  ? "border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-card"
+                  : "border-border",
+              )}
+            >
+              {/* Header */}
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className={cn(
+                  "flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition-all duration-300",
+                  isOtpVerified ? "bg-emerald-100" : "bg-primary/10",
+                )}>
+                  <ShieldCheck className={cn("h-4 w-4", isOtpVerified ? "text-emerald-600" : "text-primary")} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-base tracking-tight leading-none">
+                    {isOtpVerified ? "Identity Verified" : "Verify Your Number"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {isOtpVerified
+                      ? otpTier === "TRUSTED" ? "Returning customer — no code needed" : "One-time verification complete"
+                      : "Required to confirm your booking"}
+                  </p>
+                </div>
+                {isOtpVerified && (
+                  <span className="shrink-0 text-[10px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-full uppercase tracking-wide">
+                    {otpTier === "TRUSTED" ? "Trusted" : "Verified"}
+                  </span>
+                )}
               </div>
+
+              {isOtpVerified ? (
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                  {/* Verified identity card */}
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-white/70 p-3">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-emerald-100 shrink-0">
+                      {otpCustomerName ? (
+                        <span className="text-sm font-bold text-emerald-700">
+                          {otpCustomerName.charAt(0).toUpperCase()}
+                        </span>
+                      ) : (
+                        <Phone className="h-4 w-4 text-emerald-600" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {otpCustomerName && (
+                        <p className="text-sm font-semibold text-foreground truncate">{otpCustomerName}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">{otpPhone}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpTier(null);
+                        setOtpVerificationId(undefined);
+                        setOtpSent(false);
+                        setOtpCode("");
+                        setOtpError(null);
+                        setOtpPhone("");
+                        setOtpCustomerName(undefined);
+                        setOtpCustomerEmail(undefined);
+                        setOtpPrefilled(false);
+                        form.setValue("customerName", "", { shouldValidate: false });
+                        form.setValue("email", "", { shouldValidate: false });
+                        form.setValue("phone", "", { shouldValidate: false });
+                      }}
+                      className="shrink-0 text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 cursor-pointer transition-colors"
+                    >
+                      Change
+                    </button>
+                  </div>
+                  {otpCustomerName && (
+                    <p className="text-xs text-emerald-700 font-medium pl-0.5">
+                      Welcome back, {otpCustomerName.split(" ")[0]}! Your details have been pre-filled below.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {!otpTier && (
+                    <>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Enter your mobile number to continue. Returning customers skip verification automatically.
+                      </p>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium select-none pointer-events-none">
+                            +63
+                          </span>
+                          <input
+                            type="tel"
+                            value={otpPhone}
+                            onChange={(e) => { setOtpPhone(e.target.value); setOtpError(null); }}
+                            onKeyDown={(e) => e.key === "Enter" && handleCheckTrust()}
+                            placeholder="9XX XXX XXXX"
+                            className="flex h-11 w-full rounded-lg border border-input bg-background pl-11 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={handleCheckTrust}
+                          disabled={!otpPhone.trim() || isCheckingTrust}
+                          className="h-11 px-5 shrink-0 cursor-pointer"
+                        >
+                          {isCheckingTrust ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Continue"
+                          )}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+
+                  {otpTier === "RESTRICTED" && (
+                    <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-1">
+                      <p className="text-sm font-semibold text-destructive">Account Restricted</p>
+                      <p className="text-sm text-destructive/80">
+                        Your account has been flagged due to missed appointments.
+                        Please contact the business directly to book.
+                      </p>
+                    </div>
+                  )}
+
+                  {otpTier === "NEW" && (
+                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 border px-3 py-2">
+                        <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-muted-foreground">
+                          Sending to <span className="font-semibold text-foreground">{otpPhone}</span>
+                        </span>
+                      </div>
+
+                      {!otpSent ? (
+                        <Button
+                          type="button"
+                          onClick={handleSendOtp}
+                          disabled={isSendingOtp || otpCooldown > 0}
+                          className="w-full h-11 cursor-pointer"
+                        >
+                          {isSendingOtp ? (
+                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sending code…</>
+                          ) : otpCooldown > 0 ? (
+                            `Resend in ${otpCooldown}s`
+                          ) : (
+                            "Send verification code"
+                          )}
+                        </Button>
+                      ) : (
+                        <div className="space-y-2.5">
+                          <p className="text-xs text-muted-foreground">Enter the 6-digit code we sent you:</p>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={6}
+                              value={otpCode}
+                              onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, "")); setOtpError(null); }}
+                              onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()}
+                              placeholder="· · · · · ·"
+                              className="flex h-12 w-full rounded-lg border border-input bg-background px-4 py-2 text-center text-lg tracking-[0.5em] font-mono ring-offset-background placeholder:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
+                            />
+                            <Button
+                              type="button"
+                              onClick={handleVerifyOtp}
+                              disabled={otpCode.length < 6 || isVerifyingOtp}
+                              className="h-12 px-5 shrink-0 cursor-pointer"
+                            >
+                              {isVerifyingOtp ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                "Verify"
+                              )}
+                            </Button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleSendOtp}
+                            disabled={isSendingOtp || otpCooldown > 0}
+                            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {otpCooldown > 0 ? `Resend in ${otpCooldown}s` : "Didn't receive it? Resend"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {otpError && (
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2">
+                      <p className="text-xs text-destructive">{otpError}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {canAccessStep5 && (
+            <div className="order-50 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                  <span className="text-xs font-bold text-primary">4</span>
+                </div>
+                <h3 className="font-semibold text-lg tracking-tight flex-1">
+                  Your Details
+                </h3>
+                {!isEmployee && otpPrefilled && (
+                  <span className="text-[10px] font-semibold text-primary/80 bg-primary/8 border border-primary/20 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                    Auto-filled
+                  </span>
+                )}
+              </div>
+
+              {!isEmployee && otpPrefilled && (
+                <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                  <p className="text-xs text-primary/80 leading-relaxed">
+                    We pre-filled your details from a previous booking. Feel free to update anything that&apos;s changed.
+                  </p>
+                </div>
+              )}
 
               <FormField
                 control={form.control}
                 name="customerName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5">
+                      Full Name
+                      {!isEmployee && otpPrefilled && otpCustomerName && (
+                        <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                          Pre-filled
+                        </span>
+                      )}
+                    </FormLabel>
                     <FormControl>
                       {isEmployee ? (
                         <CustomerSearchInput
@@ -1198,7 +1593,15 @@ export default function BookingForm({
                           {...field}
                         />
                       ) : (
-                        <Input placeholder="Enter your full name" {...field} />
+                        <Input
+                          placeholder="Enter your full name"
+                          className={cn(
+                            otpPrefilled && otpCustomerName && field.value
+                              ? "border-emerald-300 bg-emerald-50/30 focus-visible:ring-emerald-400/50"
+                              : "",
+                          )}
+                          {...field}
+                        />
                       )}
                     </FormControl>
                     <FormMessage />
@@ -1210,29 +1613,42 @@ export default function BookingForm({
                 control={form.control}
                 name="email"
                 render={({ field }) => {
+                  const isPrefilled = !isEmployee && otpPrefilled && !!otpCustomerEmail;
                   return (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="flex items-center gap-1.5">
+                        Email
+                        {isPrefilled && (
+                          <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                            Pre-filled
+                          </span>
+                        )}
+                      </FormLabel>
                       {isEmployee && existingCustomerEmail ? (
-                        <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
+                        <div className="text-sm bg-amber-50 text-amber-800 p-3 rounded-lg border border-amber-200">
                           This customer already has an email linked (
-                          <span className="font-mono">
-                            {maskEmail(existingCustomerEmail)}
-                          </span>
-                          ).
-                          <br />
-                          <span className="text-xs opacity-80">
-                            To change it, update their profile separately.
-                          </span>
+                          <span className="font-mono">{maskEmail(existingCustomerEmail)}</span>
+                          ).{" "}
+                          <span className="text-xs opacity-80">To change it, update their profile separately.</span>
                         </div>
                       ) : (
                         <>
                           <FormControl>
-                            <Input placeholder="email@example.com" {...field} />
+                            <Input
+                              placeholder="email@example.com"
+                              className={cn(
+                                isPrefilled && field.value
+                                  ? "border-emerald-300 bg-emerald-50/30 focus-visible:ring-emerald-400/50"
+                                  : "",
+                              )}
+                              {...field}
+                            />
                           </FormControl>
-                          <p className="text-xs text-muted-foreground">
-                            Required for QR payments.
-                          </p>
+                          {!isEmployee && (
+                            <p className="text-xs text-muted-foreground">
+                              Optional — we&apos;ll send your booking confirmation here.
+                            </p>
+                          )}
                           <FormMessage />
                         </>
                       )}
@@ -1247,31 +1663,29 @@ export default function BookingForm({
                 render={({ field }) => {
                   return (
                     <FormItem>
-                      <FormLabel>Contact Number (Optional)</FormLabel>
+                      <FormLabel>Contact Number</FormLabel>
                       {isEmployee && existingCustomerPhone ? (
-                        <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
+                        <div className="text-sm bg-amber-50 text-amber-800 p-3 rounded-lg border border-amber-200">
                           This customer already has a contact number linked (
-                          <span className="font-mono">
-                            {existingCustomerPhone}
-                          </span>
-                          ).
-                          <br />
-                          <span className="text-xs opacity-80">
-                            To change it, update their profile separately.
+                          <span className="font-mono">{existingCustomerPhone}</span>
+                          ).{" "}
+                          <span className="text-xs opacity-80">To change it, update their profile separately.</span>
+                        </div>
+                      ) : !isEmployee && isOtpVerified ? (
+                        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2.5">
+                          <Phone className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                          <span className="text-sm font-medium text-emerald-800">{otpPhone}</span>
+                          <span className="ml-auto text-[10px] font-semibold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                            Verified
                           </span>
                         </div>
                       ) : (
                         <>
                           <FormControl>
-                            <Input
-                              type="tel"
-                              placeholder="+63 9XX XXX XXXX"
-                              {...field}
-                            />
+                            <Input type="tel" placeholder="+63 9XX XXX XXXX" {...field} />
                           </FormControl>
                           <p className="text-xs text-muted-foreground">
-                            Optional. Add this so we can contact you if we need
-                            to clarify your booking details.
+                            Optional — so we can contact you if we need to clarify your booking.
                           </p>
                           <FormMessage />
                         </>
@@ -1393,21 +1807,21 @@ export default function BookingForm({
           <div
             className={cn(
               "order-20 space-y-6 rounded-2xl border bg-card/90 p-4 shadow-sm transition-all duration-300 sm:p-5",
-              !canAccessStep2 && "pointer-events-none opacity-60",
+              !canAccessStep2 && "pointer-events-none opacity-50",
             )}
           >
             <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  2
-                </span>
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                  <span className="text-xs font-bold text-primary">2</span>
+                </div>
                 <h3 className="font-semibold text-lg tracking-tight">
-                  Booking Setup
+                  Date
                 </h3>
               </div>
 
               {!canAccessStep2 && (
-                <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                <p className="rounded-xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                   Select at least one service first to unlock date selection.
                 </p>
               )}
@@ -1523,12 +1937,12 @@ export default function BookingForm({
 
           {/* Service Selection */}
           <div className="order-10 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                1
-              </span>
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                <span className="text-xs font-bold text-primary">1</span>
+              </div>
               <h3 className="font-semibold text-lg tracking-tight">
-                Select Services
+                Services
               </h3>
             </div>
 
@@ -1556,13 +1970,13 @@ export default function BookingForm({
 
           {canAccessStep3 && !effectiveIsWalkIn && selectedDate && (
             <>
-              <div className="order-30 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                    3
-                  </span>
+              <div className="order-30 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                    <span className="text-xs font-bold text-primary">3</span>
+                  </div>
                   <h3 className="font-semibold text-lg tracking-tight">
-                    Select Time Slot
+                    Time Slot
                   </h3>
                 </div>
 
@@ -1606,11 +2020,11 @@ export default function BookingForm({
           {canAccessStep4 &&
             (effectiveIsWalkIn || selectedTime) &&
             !isEmployee && (
-              <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                    4
-                  </span>
+              <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 sm:p-5">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                    <span className="text-xs font-bold text-primary">4</span>
+                  </div>
                   <h3 className="font-semibold text-lg tracking-tight">
                     Preferred Staff
                   </h3>
@@ -1660,12 +2074,12 @@ export default function BookingForm({
             (effectiveIsWalkIn || selectedTime) &&
             claimStepEnabled &&
             selectedServices.length > 0 && (
-              <div className="order-40 space-y-3 rounded-2xl border bg-card/90 p-3 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:space-y-4 sm:p-5">
+              <div className="order-40 space-y-3 rounded-2xl border bg-card/90 p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 sm:space-y-4 sm:p-5">
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                      4
-                    </span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                      <span className="text-xs font-bold text-primary">4</span>
+                    </div>
                     <h3 className="font-semibold text-lg tracking-tight">
                       Claim Services
                     </h3>
@@ -1710,13 +2124,13 @@ export default function BookingForm({
             )}
 
           {canReviewAndConfirm && (
-            <div className="order-[60] space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  6
-                </span>
+            <div className="order-[60] space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 sm:p-5">
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                  <span className="text-xs font-bold text-primary">5</span>
+                </div>
                 <h3 className="font-semibold text-lg tracking-tight">
-                  Review & Payment
+                  Review &amp; Confirm
                 </h3>
               </div>
 
@@ -1865,12 +2279,12 @@ export default function BookingForm({
         <div className="w-full lg:w-[360px] lg:shrink-0">
           <div className="space-y-4 lg:sticky lg:top-4">
             <Card className="overflow-hidden border shadow-lg shadow-black/5">
-              <CardHeader className="border-b bg-muted/30 pb-4">
+              <CardHeader className="border-b bg-muted/20 pb-4">
                 <CardTitle className="flex items-center justify-between text-base">
-                  <span>Booking Summary</span>
+                  <span className="font-bold">Booking Summary</span>
                   {selectedServices.length > 0 && (
-                    <Badge variant="secondary" className="font-normal text-xs">
-                      {selectedServices.length} items
+                    <Badge variant="secondary" className="font-medium text-xs bg-primary/10 text-primary border-primary/20">
+                      {selectedServices.length} {selectedServices.length === 1 ? "service" : "services"}
                     </Badge>
                   )}
                 </CardTitle>
@@ -1886,6 +2300,18 @@ export default function BookingForm({
 
                 {selectedServices.length > 0 && (
                   <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    {selectedServices.some(
+                      (s) => s.slotsRemaining !== null && s.slotsRemaining !== undefined && s.slotsRemaining > 0 && s.slotsRemaining <= 3,
+                    ) && (
+                      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 flex items-start gap-2">
+                        <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                        <span>
+                          Limited promo slots remaining — complete your booking to
+                          secure the sale price.
+                        </span>
+                      </div>
+                    )}
+
                     <Separator />
 
                     {canReviewAndConfirm && (
@@ -1917,6 +2343,7 @@ export default function BookingForm({
                           )}
                         />
 
+                        {isEmployee && (
                         <FormField
                           control={form.control}
                           name="paymentType"
@@ -1937,6 +2364,7 @@ export default function BookingForm({
                             </FormItem>
                           )}
                         />
+                        )}
 
                         <div className="flex flex-col gap-6">
                           {/* Voucher Application */}
@@ -2040,7 +2468,7 @@ export default function BookingForm({
                             <div className="flex justify-between items-center text-sm text-emerald-600">
                               <span className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                Downpayment (50%)
+                                Downpayment ({bookingPolicy?.downpaymentPercentage ?? 50}%)
                               </span>
                               <span className="font-medium tabular-nums">
                                 - ₱

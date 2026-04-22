@@ -19,7 +19,7 @@ export default async function GrowthPlannerPage({
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold">Access Denied</h1>
-        <p className="mt-2 text-sm text-zinc-500">You do not have access to this page.</p>
+        <p className="mt-2 text-sm text-muted-foreground">You do not have access to this page.</p>
       </div>
     );
   }
@@ -29,7 +29,7 @@ export default async function GrowthPlannerPage({
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold">Growth Planner</h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           Growth features are available on Plus and Pro plans.
         </p>
       </div>
@@ -65,17 +65,15 @@ export default async function GrowthPlannerPage({
   });
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <GrowthPlannerPageClient
-        businessSlug={businessSlug}
-        businessName={business.name}
-        events={events.map((e) => ({
-          ...e,
-          date: e.date.toISOString(),
-        }))}
-        year={year}
-        month={month}
-      />
-    </div>
+    <GrowthPlannerPageClient
+      businessSlug={businessSlug}
+      businessName={business.name}
+      events={events.map((e) => ({
+        ...e,
+        date: e.date.toISOString(),
+      }))}
+      year={year}
+      month={month}
+    />
   );
 }

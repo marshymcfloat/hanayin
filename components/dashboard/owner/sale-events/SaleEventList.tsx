@@ -132,7 +132,7 @@ export function SaleEventList({
       );
     }
     return (
-      <Badge className="border border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+      <Badge className="border border-primary/30 bg-primary/10 text-primary hover:bg-primary/10">
         Active
       </Badge>
     );
@@ -140,16 +140,15 @@ export function SaleEventList({
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 py-16 text-center">
-        <div className="mb-4 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-transform duration-300 hover:scale-105">
-          <Percent className="h-8 w-8 text-emerald-600" />
+      <div className="bg-card rounded-2xl border border-border shadow-sm p-12 flex flex-col items-center justify-center text-center">
+        <div className="h-12 w-12 bg-muted rounded-xl flex items-center justify-center mb-4">
+          <Percent className="h-6 w-6 text-muted-foreground/40" />
         </div>
-        <h3 className="mb-2 text-lg font-semibold text-zinc-900">
+        <h3 className="text-base font-semibold text-foreground mb-1">
           No sale events yet
         </h3>
-        <p className="max-w-sm text-sm leading-relaxed text-zinc-500">
-          Create a new sale event to attract more customers and boost your
-          revenue.
+        <p className="text-sm text-muted-foreground max-w-sm">
+          Create a new sale event to attract more customers and boost your revenue.
         </p>
       </div>
     );
@@ -157,7 +156,8 @@ export function SaleEventList({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 md:hidden">
+      {/* Mobile Card View */}
+      <div className="grid grid-cols-1 gap-3 md:hidden">
         {events.map((event) => {
           const socialSummary = getSocialSummaryLabel(event.social_posts);
           const socialPostId = getPrioritySocialPostId(event.social_posts);
@@ -174,25 +174,25 @@ export function SaleEventList({
           return (
             <div
               key={event.id}
-              className="flex flex-col gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.99] active:bg-zinc-50/50"
+              className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-accent/20"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
                   <div className="mb-2 flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 rounded-lg border border-zinc-100 bg-zinc-50 px-2.5 py-1">
-                      <Sparkles className="h-3.5 w-3.5 text-zinc-400" />
-                      <span className="text-sm font-medium tracking-wide text-zinc-900">
+                    <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-2.5 py-1">
+                      <Sparkles className="h-3.5 w-3.5 text-primary/60" />
+                      <span className="text-sm font-semibold tracking-wide text-foreground truncate">
                         {event.title}
                       </span>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="flex items-center gap-1 text-lg font-bold text-zinc-900">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-lg font-bold text-foreground">
                       {event.discount_type === "PERCENTAGE"
                         ? `${event.discount_value}% OFF`
                         : `PHP ${event.discount_value.toFixed(2)} OFF`}
                     </span>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-muted-foreground">
                       {event.applicable_services.length} Services,{" "}
                       {event.applicable_packages.length} Packages
                     </span>
@@ -202,14 +202,14 @@ export function SaleEventList({
                       </span>
                     )}
                     {socialSummary ? (
-                      <span className="text-xs text-zinc-600">
-                        Social status: {socialSummary}
+                      <span className="text-xs text-muted-foreground">
+                        Social: {socialSummary}
                       </span>
                     ) : null}
                   </div>
                 </div>
 
-                <div className="-mr-2 flex items-center gap-1">
+                <div className="-mr-2 flex items-center gap-0.5 shrink-0">
                   <EditSaleEventDialog
                     businessSlug={businessSlug}
                     event={event}
@@ -219,7 +219,7 @@ export function SaleEventList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-zinc-400 hover:bg-red-50 hover:text-red-600"
+                    className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                     onClick={() => onDelete(event.id)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -227,11 +227,11 @@ export function SaleEventList({
                 </div>
               </div>
 
-              <div className="mt-1 flex items-center justify-between border-t border-zinc-50 pt-3">
-                <div className="flex items-center gap-1.5 text-zinc-500">
-                  <Calendar className="h-3.5 w-3.5" />
+              <div className="flex items-center justify-between border-t border-border/60 pt-2.5">
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <Calendar className="h-3.5 w-3.5 text-muted-foreground/50" />
                   <span className="text-xs font-medium">
-                    {format(new Date(event.start_date), "MMM d")} -{" "}
+                    {format(new Date(event.start_date), "MMM d")} –{" "}
                     {format(new Date(event.end_date), "MMM d, yyyy")}
                   </span>
                 </div>
@@ -241,7 +241,7 @@ export function SaleEventList({
               {reviewHref ? (
                 <Link
                   href={reviewHref}
-                  className="inline-flex w-fit rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700"
+                  className="inline-flex w-fit rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
                 >
                   Review post (Step 3)
                 </Link>
@@ -251,27 +251,28 @@ export function SaleEventList({
         })}
       </div>
 
-      <div className="hidden overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-sm md:block">
+      {/* Desktop Table View */}
+      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:block">
         <Table>
-          <TableHeader className="sticky top-0 z-10 bg-zinc-50/80 backdrop-blur-sm">
-            <TableRow className="border-zinc-100 hover:bg-transparent">
-              <TableHead className="h-12 w-[200px] pl-6 font-semibold text-zinc-500">
+          <TableHeader>
+            <TableRow className="border-border hover:bg-transparent bg-muted/50">
+              <TableHead className="h-12 w-[220px] pl-6 font-semibold text-muted-foreground">
                 Event Name
               </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
+              <TableHead className="h-12 font-semibold text-muted-foreground">
                 Discount
               </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">Scope</TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
+              <TableHead className="h-12 font-semibold text-muted-foreground">Scope</TableHead>
+              <TableHead className="h-12 font-semibold text-muted-foreground">
                 Duration
               </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
+              <TableHead className="h-12 font-semibold text-muted-foreground">
                 Status
               </TableHead>
-              <TableHead className="h-12 font-semibold text-zinc-500">
+              <TableHead className="h-12 font-semibold text-muted-foreground">
                 Social
               </TableHead>
-              <TableHead className="h-12 w-[160px] pr-6 text-right font-semibold text-zinc-500">
+              <TableHead className="h-12 w-[160px] pr-6 text-right font-semibold text-muted-foreground">
                 Actions
               </TableHead>
             </TableRow>
@@ -293,35 +294,33 @@ export function SaleEventList({
               return (
                 <TableRow
                   key={event.id}
-                  className="group border-zinc-100 transition-colors hover:bg-zinc-50/50"
+                  className="group border-border transition-colors hover:bg-accent/30"
                 >
                   <TableCell className="py-4 pl-6">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="flex items-center gap-1.5 rounded-lg border border-zinc-100 bg-zinc-50/50 px-2.5 py-1 transition-colors group-hover:bg-white">
-                        <Sparkles className="h-3.5 w-3.5 text-zinc-400 transition-colors group-hover:text-emerald-500" />
-                        <span className="text-sm font-medium text-zinc-700">
-                          {event.title}
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 px-2.5 py-1 w-fit max-w-[180px]">
+                      <Sparkles className="h-3.5 w-3.5 text-primary/60 shrink-0" />
+                      <span className="text-sm font-medium text-foreground truncate">
+                        {event.title}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="flex flex-col">
-                      <span className="font-semibold text-zinc-900">
+                      <span className="font-semibold text-foreground">
                         {event.discount_type === "PERCENTAGE"
                           ? `${event.discount_value}%`
                           : `PHP ${event.discount_value.toFixed(2)}`}
                       </span>
-                      <span className="text-xs text-zinc-500">
+                      <span className="text-xs text-muted-foreground">
                         {event.discount_type === "PERCENTAGE"
                           ? "Percentage"
                           : "Flat Amount"}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 font-medium text-zinc-600">
+                  <TableCell className="py-4">
                     <div className="flex flex-col">
-                      <span>{event.applicable_services.length + event.applicable_packages.length} Items</span>
+                      <span className="font-medium text-foreground">{event.applicable_services.length + event.applicable_packages.length} Items</span>
                       {event.slot_limit !== null && (
                         <span className="text-xs font-medium text-amber-700">
                           {event._count?.bookings ?? 0}/{event.slot_limit} slots
@@ -329,21 +328,21 @@ export function SaleEventList({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 text-zinc-600">
+                  <TableCell className="py-4 text-muted-foreground">
                     <div className="flex flex-col text-xs">
                       <span>{format(new Date(event.start_date), "MMM d, yyyy")}</span>
-                      <span className="text-zinc-400">to</span>
+                      <span className="text-muted-foreground/50">to</span>
                       <span>{format(new Date(event.end_date), "MMM d, yyyy")}</span>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">{getStatusBadge(event)}</TableCell>
-                  <TableCell className="py-4 text-sm text-zinc-600">
-                    {socialSummary || "No post draft"}
+                  <TableCell className="py-4 text-sm text-muted-foreground">
+                    {socialSummary || "—"}
                   </TableCell>
                   <TableCell className="py-4 pr-6 text-right">
                     <div className="flex items-center justify-end gap-1">
                       {reviewHref ? (
-                        <Button asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm" className="rounded-lg text-xs h-7 cursor-pointer">
                           <Link href={reviewHref}>Review post</Link>
                         </Button>
                       ) : null}
@@ -356,7 +355,7 @@ export function SaleEventList({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                        className="h-8 w-8 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                         onClick={() => onDelete(event.id)}
                       >
                         <Trash2 className="h-4 w-4" />

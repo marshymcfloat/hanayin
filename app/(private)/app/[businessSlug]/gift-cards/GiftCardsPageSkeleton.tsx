@@ -52,7 +52,7 @@ export function GiftCardsPageSkeleton() {
             ))}
           </div>
 
-          <div className="hidden overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-sm md:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:block">
             <Table>
               <TableHeader className="bg-zinc-50/80">
                 <TableRow>

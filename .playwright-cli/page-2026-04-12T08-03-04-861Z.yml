@@ -1,0 +1,135 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceFlow
+          - generic [ref=e15]: Pro Dashboard
+      - generic [ref=e16]:
+        - list [ref=e18]:
+          - listitem [ref=e19]:
+            - link "Dashboard" [ref=e20] [cursor=pointer]:
+              - /url: /app/beautyfeel/
+              - img [ref=e21]
+              - generic [ref=e24]: Dashboard
+        - generic [ref=e25]:
+          - button "Business" [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e34]: Business
+            - img [ref=e35]
+          - generic [ref=e38]:
+            - button "Team" [expanded] [ref=e39] [cursor=pointer]:
+              - img [ref=e41]
+              - generic [ref=e46]: Team
+              - img [ref=e47]
+            - list [ref=e51]:
+              - listitem [ref=e52]:
+                - link "Employees" [ref=e53] [cursor=pointer]:
+                  - /url: /app/beautyfeel/employees/
+                  - img [ref=e55]
+                  - generic [ref=e59]: Employees
+              - listitem [ref=e60]:
+                - link "Owners" [ref=e61] [cursor=pointer]:
+                  - /url: /app/beautyfeel/owners/
+                  - img [ref=e62]
+                  - generic [ref=e64]: Owners
+              - listitem [ref=e65]:
+                - link "Attendance" [ref=e66] [cursor=pointer]:
+                  - /url: /app/beautyfeel/attendance/
+                  - img [ref=e67]
+                  - generic [ref=e70]: Attendance
+              - listitem [ref=e71]:
+                - link "Payroll" [ref=e72] [cursor=pointer]:
+                  - /url: /app/beautyfeel/payroll/
+                  - img [ref=e73]
+                  - generic [ref=e76]: Payroll
+          - button "Customers" [ref=e79] [cursor=pointer]:
+            - img [ref=e81]
+            - generic [ref=e83]: Customers
+            - img [ref=e84]
+        - list [ref=e87]:
+          - listitem [ref=e88]:
+            - link "Settings" [ref=e89] [cursor=pointer]:
+              - /url: /app/beautyfeel/business/
+              - img [ref=e90]
+              - generic [ref=e93]: Settings
+      - list [ref=e95]:
+        - listitem [ref=e96]:
+          - button "EL Ellaine Pe rjpern@gmail.com" [ref=e97]:
+            - generic [ref=e99]: EL
+            - generic [ref=e100]:
+              - generic [ref=e101]: Ellaine Pe
+              - generic [ref=e102]: rjpern@gmail.com
+            - img [ref=e103]
+    - main [ref=e106]:
+      - generic [ref=e109]:
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - heading "Employees" [level=1] [ref=e112]
+            - paragraph [ref=e113]: Manage your team members and their information
+          - button "Add Employee" [ref=e115]:
+            - img
+            - generic [ref=e116]: Add Employee
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - img [ref=e119]
+            - textbox "Search employees..." [ref=e122]
+          - button "Refresh" [ref=e123]:
+            - img
+            - generic [ref=e124]: Refresh
+        - table [ref=e128]:
+          - rowgroup [ref=e129]:
+            - row "Employee Daily Rate Commission Profile Services Last Payout Actions" [ref=e130]:
+              - columnheader "Employee" [ref=e131]
+              - columnheader "Daily Rate" [ref=e132]
+              - columnheader "Commission" [ref=e133]
+              - columnheader "Profile" [ref=e134]
+              - columnheader "Services" [ref=e135]
+              - columnheader "Last Payout" [ref=e136]
+              - columnheader "Actions" [ref=e137]
+          - rowgroup [ref=e138]:
+            - row "DC Daniel Canoy daniel@beautyfeel.com PHP 598.834 10% Staff 0 completed Never" [ref=e139]:
+              - cell "DC Daniel Canoy daniel@beautyfeel.com" [ref=e140]:
+                - generic [ref=e141]:
+                  - generic [ref=e143]: DC
+                  - generic [ref=e144]:
+                    - generic [ref=e145]: Daniel Canoy
+                    - generic [ref=e146]: daniel@beautyfeel.com
+              - cell "PHP 598.834" [ref=e147]
+              - cell "10%" [ref=e148]:
+                - generic [ref=e149]: 10%
+              - cell "Staff" [ref=e150]:
+                - generic [ref=e151]: Staff
+              - cell "0 completed" [ref=e152]:
+                - generic [ref=e153]:
+                  - generic [ref=e154]: "0"
+                  - generic [ref=e155]: completed
+              - cell "Never" [ref=e156]
+              - cell [ref=e157]:
+                - button [ref=e158]:
+                  - img
+            - row "JD Jan David Almirante jan@beautyfeel.com PHP 524.547 10% Staff 0 completed Never" [ref=e159]:
+              - cell "JD Jan David Almirante jan@beautyfeel.com" [ref=e160]:
+                - generic [ref=e161]:
+                  - generic [ref=e163]: JD
+                  - generic [ref=e164]:
+                    - generic [ref=e165]: Jan David Almirante
+                    - generic [ref=e166]: jan@beautyfeel.com
+              - cell "PHP 524.547" [ref=e167]
+              - cell "10%" [ref=e168]:
+                - generic [ref=e169]: 10%
+              - cell "Staff" [ref=e170]:
+                - generic [ref=e171]: Staff
+              - cell "0 completed" [ref=e172]:
+                - generic [ref=e173]:
+                  - generic [ref=e174]: "0"
+                  - generic [ref=e175]: completed
+              - cell "Never" [ref=e176]
+              - cell [ref=e177]:
+                - button [ref=e178]:
+                  - img
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e184] [cursor=pointer]:
+    - img [ref=e185]
+  - alert [ref=e188]

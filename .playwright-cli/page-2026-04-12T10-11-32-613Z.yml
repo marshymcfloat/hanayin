@@ -1,0 +1,85 @@
+- generic [active] [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - button "Toggle Sidebar" [ref=e6]:
+        - img
+        - generic [ref=e7]: Toggle Sidebar
+      - generic [ref=e8]: Menu
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - heading "Employees" [level=1] [ref=e14]
+          - paragraph [ref=e15]: Manage your team members and their information
+        - button "Add Employee" [ref=e17]:
+          - img
+          - generic [ref=e18]: Add Employee
+      - generic [ref=e20]:
+        - img [ref=e21]
+        - textbox "Search employees..." [ref=e24]
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - generic [ref=e31]: DC
+              - generic [ref=e32]:
+                - generic [ref=e33]:
+                  - generic [ref=e34]: Daniel Canoy
+                  - generic [ref=e35]: Staff
+                - generic [ref=e36]:
+                  - img [ref=e37]
+                  - text: daniel@beautyfeel.com
+            - button [ref=e40]:
+              - img
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - generic [ref=e43]: Daily Rate
+              - generic [ref=e44]:
+                - img [ref=e45]
+                - text: PHP598.834
+            - generic [ref=e48]:
+              - generic [ref=e49]: Commission
+              - generic [ref=e51]: 10%
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - img [ref=e54]
+              - generic [ref=e57]:
+                - strong [ref=e58]: "0"
+                - text: services
+            - generic [ref=e59]:
+              - img [ref=e60]
+              - generic [ref=e62]: No payout yet
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - generic [ref=e67]: JD
+              - generic [ref=e68]:
+                - generic [ref=e69]:
+                  - generic [ref=e70]: Jan David Almirante
+                  - generic [ref=e71]: Staff
+                - generic [ref=e72]:
+                  - img [ref=e73]
+                  - text: jan@beautyfeel.com
+            - button [ref=e76]:
+              - img
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: Daily Rate
+              - generic [ref=e80]:
+                - img [ref=e81]
+                - text: PHP524.547
+            - generic [ref=e84]:
+              - generic [ref=e85]: Commission
+              - generic [ref=e87]: 10%
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - img [ref=e90]
+              - generic [ref=e93]:
+                - strong [ref=e94]: "0"
+                - text: services
+            - generic [ref=e95]:
+              - img [ref=e96]
+              - generic [ref=e98]: No payout yet
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e104] [cursor=pointer]:
+    - img [ref=e105]
+  - alert [ref=e108]

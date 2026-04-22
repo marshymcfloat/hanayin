@@ -47,7 +47,18 @@ function formatDiscount(discountType: DiscountType, discountValue: number) {
   return `PHP ${discountValue.toFixed(0)} OFF`;
 }
 
+function isSameCalendarDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 function formatDates(startDate: Date, endDate: Date) {
+  if (isSameCalendarDay(startDate, endDate)) {
+    return "One Day Only";
+  }
   const formatter = new Intl.DateTimeFormat("en-PH", {
     month: "short",
     day: "numeric",
@@ -323,63 +334,87 @@ export function buildSocialImagePrompt(input: PromoImageInput) {
   const seasonTheme = inferSeasonThemeFromTitle(input);
   const variationSeed = `${Date.now().toString(36)}-${Math.floor(Math.random() * 1_000_000)}`;
 
-  const serviceLine =
+  const isNonDiscountAction =
+    input.actionCategory === "SOCIAL_ONLY" || input.actionCategory === "AWARENESS";
+  const hasRealDiscount = input.discountValue > 0 && !isNonDiscountAction;
+
+  const serviceContext =
     services.length > 0
-      ? `Relevant services: ${services.slice(0, 6).join(", ")}`
-      : "Relevant services: none provided";
-  const packageLine =
-    packages.length > 0
-      ? `Relevant packages: ${packages.slice(0, 6).join(", ")}`
-      : "Relevant packages: none provided";
-  const categoryLine =
-    categories.length > 0
-      ? `Service categories (selected): ${categories.join(", ")}`
-      : "Service categories (selected): none provided";
-  const supportingCaptionLine = captionSignals.supportingLines[0] || "No supporting caption line.";
-  const captionKeywords =
-    captionSignals.keywords.length > 0
-      ? captionSignals.keywords.join(", ")
-      : "none";
+      ? services.slice(0, 5).join(", ")
+      : packages.length > 0
+        ? packages.slice(0, 5).join(", ")
+        : categories.length > 0
+          ? categories.join(", ")
+          : null;
+
+  const discountCopyLine = hasRealDiscount
+    ? `Discount badge — design this as a standout graphic element: "${formatDiscount(input.discountType, input.discountValue)}"`
+    : null;
+
+  const dateCopyLine = `Date line — subtle but readable: "${formatDates(input.startDate, input.endDate)}"`;
+
+  const descriptionLine = input.saleDescription?.trim()
+    ? `Supporting tagline — smaller, secondary text: "${input.saleDescription.trim()}"`
+    : serviceContext
+      ? `Services tagline — small supporting text: "${serviceContext}"`
+      : null;
+
+  const hookContext =
+    captionSignals.hookLine !== "No existing caption hook provided."
+      ? captionSignals.hookLine
+      : null;
 
   return [
-    "Create a high-quality and visually distinct social media promo visual for a beauty/wellness business.",
-    "The output must be portrait and feed-ready (roughly 1024x1536 composition) for Facebook and Instagram.",
-    "Keep the key subject and critical campaign text centered with safe margins to avoid awkward cropping.",
-    "Do not let important text or the hero subject drift off-center or near cut-off edges.",
-    "If a person appears, prefer a modern Filipina look with authentic Filipino features and contemporary styling.",
-    "Primary campaign context source is the SALE TITLE. Use title theme first, then caption details.",
-    "Do not produce a generic template look. Make this composition feel unique and campaign-specific.",
-    `Design profile: ${imageProfile}.`,
-    `Profile baseline direction: ${blueprint.baselineDirection}`,
-    `Season/occasion cue from title: ${seasonTheme}`,
+    "You are a world-class art director and graphic designer creating a complete social media promotional poster for a Filipino beauty and wellness brand.",
+    "Think: Marie Claire Philippines meets a premium salon brand campaign. Harper's Bazaar Beauty editorial quality.",
+    "",
+    "WHAT TO CREATE:",
+    "A single, finished promotional image where photography and typography are designed as one cohesive piece.",
+    "The text must feel intentionally placed and typographically crafted — not stamped on top. It belongs to the image.",
+    "Portrait format, 1024x1536, ready for Instagram and Facebook feed.",
+    "",
+    `DESIGN PROFILE: ${imageProfile}`,
+    `Profile direction: ${blueprint.baselineDirection}`,
+    `Season and occasion: ${seasonTheme}`,
     `Variation seed: ${variationSeed}`,
-    `Primary subject direction: ${pickRandom(blueprint.subjects)}`,
-    `Composition direction: ${pickRandom(blueprint.compositions)}`,
-    `Typography direction: ${pickRandom(blueprint.typography)}`,
-    `Color palette direction: ${pickRandom(blueprint.palette)}`,
-    `Texture direction: ${pickRandom(blueprint.texture)}`,
-    `Camera/framing direction: ${pickRandom(blueprint.camera)}`,
-    `Caption hook to visually support: ${captionSignals.hookLine}`,
-    `Caption supporting line: ${supportingCaptionLine}`,
-    `Caption keywords to echo in visual mood: ${captionKeywords}`,
-    "Use polished visuals, coherent typography, and readable hierarchy.",
-    "Keep text concise and centered. Avoid gibberish words, random logos, and fake brands.",
-    "Include these key text elements in the design:",
-    `- ${input.businessName}`,
-    `- ${formatDiscount(input.discountType, input.discountValue)}`,
-    `- ${input.title}`,
-    `- ${input.saleDescription?.trim() || "Limited-time offer"}`,
-    `- ${formatDates(input.startDate, input.endDate)}`,
-    "- Book now on ServiceFlow",
-    serviceLine,
-    categoryLine,
-    packageLine,
-    "Hard constraints:",
-    "- Do not generate business logos. Leave one clean top corner for manual logo overlay.",
-    "- No external logos, no watermarks, no trademarked brand marks.",
-    "- No repeated text blocks, no spelling errors, no malformed letters.",
-    "- Maintain premium beauty/wellness mood aligned to the chosen profile.",
-  ].join("\n");
+    "",
+    "PHOTOGRAPHY DIRECTION:",
+    `Subject: ${pickRandom(blueprint.subjects)}`,
+    `Composition: ${pickRandom(blueprint.compositions)}`,
+    `Color palette: ${pickRandom(blueprint.palette)}`,
+    `Texture and finish: ${pickRandom(blueprint.texture)}`,
+    `Camera and framing: ${pickRandom(blueprint.camera)}`,
+    "If a person appears: modern Filipina look, authentic Filipino features, natural make-up. Candid, genuine expression — not a stock photo pose. Natural skin texture, no AI plastic skin glow.",
+    "",
+    "TYPOGRAPHY DIRECTION:",
+    `Typography style: ${pickRandom(blueprint.typography)}`,
+    "Design the type with strong hierarchy — the headline should dominate, secondary elements should support, not compete.",
+    "All text must be perfectly legible with correct spelling. Zero gibberish, zero malformed letters.",
+    "Typography must be tastefully integrated into the composition — not floating randomly or awkwardly positioned.",
+    "",
+    "COPY TO DESIGN INTO THE POSTER:",
+    `Business name — top area, refined and elegant: "${input.businessName}"`,
+    `Campaign headline — most prominent, well-kerned: "${input.title}"`,
+    ...(discountCopyLine ? [discountCopyLine] : []),
+    dateCopyLine,
+    ...(descriptionLine ? [descriptionLine] : []),
+    `Call to action — clean, understated at the bottom: "Book now on ServiceFlow"`,
+    ...(hookContext ? [`Emotional mood to echo in the visual: "${hookContext}"`] : []),
+    "",
+    "QUALITY STANDARDS:",
+    "- This must look like a poster a senior human designer spent hours crafting, not a generated template",
+    "- Natural editorial lighting — no artificial AI glow, no over-saturated colors",
+    "- Real photographic depth and texture",
+    "- The overall result must be premium, tasteful, and campaign-specific — not generic",
+    "",
+    "HARD CONSTRAINTS:",
+    "- Only the business name and campaign copy listed above — no other brand names, logos, or watermarks",
+    "- No repeated text blocks, no spelling errors, no malformed or broken letters",
+    "- No uncanny-valley faces or artificial skin",
+    "- No generic template borders or promotional card shapes that look like web UI components",
+  ]
+    .filter((line) => line !== null && line !== undefined)
+    .join("\n");
 }
 
 function mimeTypeToExtension(mimeType: string) {

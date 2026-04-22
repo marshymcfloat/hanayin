@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Save, Copy } from "lucide-react";
+import { Loader2, Save, Copy, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 
 import {
   updateBusinessHours,
@@ -203,287 +202,301 @@ export function BusinessHoursClient({
   };
 
   return (
-    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
-      <section className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <PageHeader
-            title="Business Hours"
-            description="Configure your operating hours for different service categories."
-            className="mb-0"
-          />
-          <Button
-            onClick={saveChanges}
-            disabled={isSaving}
-            className="min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 rounded-xl"
-          >
-            {isSaving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Save Changes
-          </Button>
-        </div>
-
-        <Tabs
-          value={activeCategory}
-          onValueChange={setActiveCategory}
-          className="w-full"
-        >
-          <Card className="rounded-3xl border-zinc-200 shadow-sm overflow-hidden mb-6">
-            <CardHeader className="bg-white border-b border-zinc-100">
-              <CardTitle className="text-xl font-bold text-zinc-900">
-                Booking Policy
-              </CardTitle>
-              <CardDescription className="text-zinc-500">
-                Control how far ahead customers can book and what payment options
-                are available publicly.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5 p-6 bg-white">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="booking-horizon-days">Booking Horizon (days)</Label>
-                  <Input
-                    id="booking-horizon-days"
-                    type="number"
-                    min={1}
-                    max={90}
-                    value={policy.bookingHorizonDays}
-                    onChange={(event) =>
-                      updateNumericPolicy("bookingHorizonDays", event.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="booking-min-lead">Min Lead (minutes)</Label>
-                  <Input
-                    id="booking-min-lead"
-                    type="number"
-                    min={0}
-                    max={720}
-                    value={policy.minLeadMinutes}
-                    onChange={(event) =>
-                      updateNumericPolicy("minLeadMinutes", event.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="booking-slot-interval">Slot Interval (minutes)</Label>
-                  <Input
-                    id="booking-slot-interval"
-                    type="number"
-                    min={5}
-                    max={120}
-                    value={policy.slotIntervalMinutes}
-                    onChange={(event) =>
-                      updateNumericPolicy("slotIntervalMinutes", event.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="flex items-center justify-between rounded-xl border p-3">
-                  <div>
-                    <p className="text-sm font-medium">Allow Full Payment (Public)</p>
-                    <p className="text-xs text-zinc-500">
-                      Customers can choose full payment online.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={policy.allowPublicFullPayment}
-                    onCheckedChange={(checked) =>
-                      setPolicy((prev) => ({
-                        ...prev,
-                        allowPublicFullPayment: checked,
-                      }))
-                    }
-                  />
-                </label>
-                <label className="flex items-center justify-between rounded-xl border p-3">
-                  <div>
-                    <p className="text-sm font-medium">
-                      Allow Downpayment (Public)
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      Customers can choose 50% downpayment.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={policy.allowPublicDownpayment}
-                    onCheckedChange={(checked) =>
-                      setPolicy((prev) => ({
-                        ...prev,
-                        allowPublicDownpayment: checked,
-                      }))
-                    }
-                  />
-                </label>
-                <label className="flex items-center justify-between rounded-xl border p-3 sm:col-span-2">
-                  <div>
-                    <p className="text-sm font-medium">Enable Booking V2</p>
-                    <p className="text-xs text-zinc-500">
-                      Turns on future-date slot generation using roster mode.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={policy.bookingV2Enabled}
-                    onCheckedChange={(checked) =>
-                      setPolicy((prev) => ({
-                        ...prev,
-                        bookingV2Enabled: checked,
-                      }))
-                    }
-                  />
-                </label>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="default-public-payment">Default Public Payment Type</Label>
-                <Select
-                  value={policy.defaultPublicPaymentType}
-                  onValueChange={(value: "FULL" | "DOWNPAYMENT") =>
-                    setPolicy((prev) => ({
-                      ...prev,
-                      defaultPublicPaymentType: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger id="default-public-payment" className="w-full max-w-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="FULL">Full Payment</SelectItem>
-                    <SelectItem value="DOWNPAYMENT">Downpayment (50%)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-
-          <TabsList className="flex flex-wrap h-auto w-full justify-start gap-2 bg-transparent p-0 mb-6">
-            {displayCategories.map((category) => (
-              <TabsTrigger
-                key={category}
-                value={category}
-                className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 px-6 py-2.5 rounded-full transition-all"
+    <div className="flex flex-col bg-background">
+      <div className="border-b border-border bg-card">
+        <div className="px-4 sm:px-8 py-5 sm:py-6 max-w-4xl mx-auto w-full">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+              <Clock className="size-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Business Hours</h1>
+              <p className="text-xs text-muted-foreground">
+                Configure operating hours for different service categories.
+              </p>
+            </div>
+            <div className="ml-auto">
+              <Button
+                onClick={saveChanges}
+                disabled={isSaving}
+                className="min-w-[130px] bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl cursor-pointer"
               >
-                {category === "GENERAL" ? "General Hours" : category}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+                {isSaving ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          {displayCategories.map((category) => (
-            <TabsContent key={category} value={category} className="mt-0">
-              <Card className="rounded-3xl border-zinc-200 shadow-sm overflow-hidden">
-                <CardHeader className="bg-white border-b border-zinc-100">
-                  <CardTitle className="text-xl font-bold text-zinc-900">
-                    {category === "GENERAL"
-                      ? "General Operating Hours"
-                      : `${category} Hours`}
-                  </CardTitle>
-                  <CardDescription className="text-zinc-500">
-                    Set the weekly schedule for{" "}
-                    {category === "GENERAL" ? "general services" : category}.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 p-6 bg-white">
-                  {DAYS.map((dayName, index) => {
-                    const hour = getHourForDay(index);
-                    return (
-                      <div
-                        key={index}
-                        className={`flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border transition-all ${
-                          hour.is_closed
-                            ? "bg-zinc-50/50 border-zinc-100"
-                            : "bg-white border-zinc-200 shadow-sm hover:border-emerald-200/50 hover:shadow-emerald-500/5"
-                        }`}
-                      >
-                        <div className="w-40 flex items-center gap-3">
-                          <Switch
-                            checked={!hour.is_closed}
-                            onCheckedChange={() => toggleClosed(index)}
-                            className="data-[state=checked]:bg-emerald-600"
-                          />
-                          <span
-                            className={`font-medium ${
-                              hour.is_closed ? "text-zinc-400" : "text-zinc-700"
-                            }`}
-                          >
-                            {dayName}
-                          </span>
-                        </div>
+      <div className="px-4 sm:px-8 py-4 sm:py-6">
+        <div className="max-w-4xl mx-auto w-full">
+          <Tabs
+            value={activeCategory}
+            onValueChange={setActiveCategory}
+            className="w-full"
+          >
+            <Card className="rounded-3xl border-border bg-card shadow-sm overflow-hidden mb-6">
+              <CardHeader className="bg-card border-b border-border">
+                <CardTitle className="text-xl font-bold text-foreground">
+                  Booking Policy
+                </CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Control how far ahead customers can book and what payment options
+                  are available publicly.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5 p-6">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="booking-horizon-days">Booking Horizon (days)</Label>
+                    <Input
+                      id="booking-horizon-days"
+                      type="number"
+                      min={1}
+                      max={90}
+                      className="rounded-xl"
+                      value={policy.bookingHorizonDays}
+                      onChange={(event) =>
+                        updateNumericPolicy("bookingHorizonDays", event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="booking-min-lead">Min Lead (minutes)</Label>
+                    <Input
+                      id="booking-min-lead"
+                      type="number"
+                      min={0}
+                      max={720}
+                      className="rounded-xl"
+                      value={policy.minLeadMinutes}
+                      onChange={(event) =>
+                        updateNumericPolicy("minLeadMinutes", event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="booking-slot-interval">Slot Interval (minutes)</Label>
+                    <Input
+                      id="booking-slot-interval"
+                      type="number"
+                      min={5}
+                      max={120}
+                      className="rounded-xl"
+                      value={policy.slotIntervalMinutes}
+                      onChange={(event) =>
+                        updateNumericPolicy("slotIntervalMinutes", event.target.value)
+                      }
+                    />
+                  </div>
+                </div>
 
-                        <div className="flex-1 flex items-center gap-4">
-                          {hour.is_closed ? (
-                            <div className="text-sm text-zinc-400 italic px-2 flex items-center gap-2">
-                              <span className="w-2 h-2 rounded-full bg-zinc-300"></span>
-                              Closed
-                            </div>
-                          ) : (
-                            <>
-                              <div className="flex items-center gap-3">
-                                <Select
-                                  value={hour.open_time}
-                                  onValueChange={(v) =>
-                                    handleTimeChange(index, "open_time", v)
-                                  }
-                                >
-                                  <SelectTrigger className="w-[110px] rounded-lg border-zinc-200 focus:ring-emerald-500">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {generateTimeOptions().map((t) => (
-                                      <SelectItem key={t} value={t}>
-                                        {t}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <span className="text-zinc-400 font-medium">
-                                  -
-                                </span>
-                                <Select
-                                  value={hour.close_time}
-                                  onValueChange={(v) =>
-                                    handleTimeChange(index, "close_time", v)
-                                  }
-                                >
-                                  <SelectTrigger className="w-[110px] rounded-lg border-zinc-200 focus:ring-emerald-500">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {generateTimeOptions().map((t) => (
-                                      <SelectItem key={t} value={t}>
-                                        {t}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="flex items-center justify-between rounded-xl border border-border p-3 cursor-pointer hover:bg-accent/30 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium">Allow Full Payment (Public)</p>
+                      <p className="text-xs text-muted-foreground">
+                        Customers can choose full payment online.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={policy.allowPublicFullPayment}
+                      onCheckedChange={(checked) =>
+                        setPolicy((prev) => ({
+                          ...prev,
+                          allowPublicFullPayment: checked,
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between rounded-xl border border-border p-3 cursor-pointer hover:bg-accent/30 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium">
+                        Allow Downpayment (Public)
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Customers can choose 50% downpayment.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={policy.allowPublicDownpayment}
+                      onCheckedChange={(checked) =>
+                        setPolicy((prev) => ({
+                          ...prev,
+                          allowPublicDownpayment: checked,
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between rounded-xl border border-border p-3 cursor-pointer hover:bg-accent/30 transition-colors sm:col-span-2">
+                    <div>
+                      <p className="text-sm font-medium">Enable Booking V2</p>
+                      <p className="text-xs text-muted-foreground">
+                        Turns on future-date slot generation using roster mode.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={policy.bookingV2Enabled}
+                      onCheckedChange={(checked) =>
+                        setPolicy((prev) => ({
+                          ...prev,
+                          bookingV2Enabled: checked,
+                        }))
+                      }
+                    />
+                  </label>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="default-public-payment">Default Public Payment Type</Label>
+                  <Select
+                    value={policy.defaultPublicPaymentType}
+                    onValueChange={(value: "FULL" | "DOWNPAYMENT") =>
+                      setPolicy((prev) => ({
+                        ...prev,
+                        defaultPublicPaymentType: value,
+                      }))
+                    }
+                  >
+                    <SelectTrigger id="default-public-payment" className="w-full max-w-sm rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectItem value="FULL">Full Payment</SelectItem>
+                      <SelectItem value="DOWNPAYMENT">Downpayment (50%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <TabsList className="flex flex-wrap h-auto w-full justify-start gap-2 bg-transparent p-0 mb-6">
+              {displayCategories.map((category) => (
+                <TabsTrigger
+                  key={category}
+                  value={category}
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border border-border bg-card text-foreground hover:bg-accent/30 px-6 py-2.5 rounded-full transition-all cursor-pointer"
+                >
+                  {category === "GENERAL" ? "General Hours" : category}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {displayCategories.map((category) => (
+              <TabsContent key={category} value={category} className="mt-0">
+                <Card className="rounded-3xl border-border bg-card shadow-sm overflow-hidden">
+                  <CardHeader className="bg-card border-b border-border">
+                    <CardTitle className="text-xl font-bold text-foreground">
+                      {category === "GENERAL"
+                        ? "General Operating Hours"
+                        : `${category} Hours`}
+                    </CardTitle>
+                    <CardDescription className="text-muted-foreground">
+                      Set the weekly schedule for{" "}
+                      {category === "GENERAL" ? "general services" : category}.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-6">
+                    {DAYS.map((dayName, index) => {
+                      const hour = getHourForDay(index);
+                      return (
+                        <div
+                          key={index}
+                          className={`flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border transition-all ${
+                            hour.is_closed
+                              ? "bg-muted/30 border-border"
+                              : "bg-card border-border hover:border-primary/20"
+                          }`}
+                        >
+                          <div className="w-40 flex items-center gap-3">
+                            <Switch
+                              checked={!hour.is_closed}
+                              onCheckedChange={() => toggleClosed(index)}
+                            />
+                            <span
+                              className={`font-medium ${
+                                hour.is_closed ? "text-muted-foreground" : "text-foreground"
+                              }`}
+                            >
+                              {dayName}
+                            </span>
+                          </div>
+
+                          <div className="flex-1 flex items-center gap-4">
+                            {hour.is_closed ? (
+                              <div className="text-sm text-muted-foreground italic px-2 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-muted-foreground/30"></span>
+                                Closed
                               </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center gap-3">
+                                  <Select
+                                    value={hour.open_time}
+                                    onValueChange={(v) =>
+                                      handleTimeChange(index, "open_time", v)
+                                    }
+                                  >
+                                    <SelectTrigger className="w-[110px] rounded-xl border-border">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent position="popper">
+                                      {generateTimeOptions().map((t) => (
+                                        <SelectItem key={t} value={t}>
+                                          {t}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <span className="text-muted-foreground font-medium">
+                                    -
+                                  </span>
+                                  <Select
+                                    value={hour.close_time}
+                                    onValueChange={(v) =>
+                                      handleTimeChange(index, "close_time", v)
+                                    }
+                                  >
+                                    <SelectTrigger className="w-[110px] rounded-xl border-border">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent position="popper">
+                                      {generateTimeOptions().map((t) => (
+                                        <SelectItem key={t} value={t}>
+                                          {t}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
 
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="ml-auto text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-                                onClick={() => copyToAllDays(index)}
-                                title="Copy to all days"
-                              >
-                                <Copy className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="ml-auto text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                                  onClick={() => copyToAllDays(index)}
+                                  title="Copy to all days"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
-      </section>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 }

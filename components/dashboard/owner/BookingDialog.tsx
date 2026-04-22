@@ -41,7 +41,7 @@ export function BookingDialog({
       <DialogTrigger asChild>
         <Button
           aria-label="Create new booking"
-          className="h-9 rounded-xl bg-emerald-600 px-2.5 text-white shadow-sm shadow-emerald-500/25 transition-all hover:bg-emerald-700 active:scale-[0.98] sm:h-11 sm:px-4"
+          className="h-9 rounded-xl bg-primary px-3 text-primary-foreground font-semibold shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 active:scale-[0.97] cursor-pointer sm:h-10 sm:px-4"
         >
           <Plus className="h-4 w-4 sm:mr-2" strokeWidth={3} />
           <span className="sr-only font-semibold sm:not-sr-only sm:whitespace-nowrap">
@@ -52,7 +52,7 @@ export function BookingDialog({
       <DialogContent className="h-[90dvh] w-[95vw] max-w-none gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[90vh] sm:max-w-5xl sm:rounded-2xl sm:border">
         <DialogHeader className="sticky top-0 z-20  border-b bg-background/95 px-4 py-3 backdrop-blur-sm sm:px-6 sm:py-4">
           <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <CalendarPlus className="h-4 w-4 text-emerald-600" />
+            <CalendarPlus className="h-4 w-4 text-primary" />
             Create New Booking
           </DialogTitle>
         </DialogHeader>

@@ -4,13 +4,6 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { formatPH } from "@/lib/date-utils";
@@ -67,14 +60,6 @@ type OwnerClaimedQueryResponse =
   | OwnerClaimedResponse
   | { success: boolean; error?: string; data?: OwnerClaimedService[] };
 
-/**
- * Usage:
- * <OwnerServiceQueue
- *   businessSlug="my-biz"
- *   pendingServices={pendingServices}
- *   claimedServices={claimedServices}
- * />
- */
 export default function OwnerServiceQueue({
   businessSlug,
   pendingServices: initialPending,
@@ -152,12 +137,8 @@ export default function OwnerServiceQueue({
 
   const refreshLists = async () => {
     await Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: pendingKey,
-      }),
-      queryClient.invalidateQueries({
-        queryKey: claimedKey,
-      }),
+      queryClient.invalidateQueries({ queryKey: pendingKey }),
+      queryClient.invalidateQueries({ queryKey: claimedKey }),
     ]);
   };
 
@@ -282,275 +263,230 @@ export default function OwnerServiceQueue({
   const isEmbedded = variant === "embedded";
 
   return (
-    <Card
+    <div
       className={cn(
-        "flex flex-col overflow-hidden h-full",
-        isEmbedded
-          ? "border-0 shadow-none bg-transparent rounded-none"
-          : "rounded-[32px] border-none shadow-lg shadow-zinc-200/50 bg-white",
+        "flex h-full min-h-0 flex-col overflow-hidden",
+        !isEmbedded && "rounded-2xl border border-border shadow-sm bg-card",
         className,
       )}
     >
-      <CardHeader
-        className={cn("pb-2", isEmbedded ? "px-4 pt-4" : "md:px-8 md:pt-8")}
-      >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-lg sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Owner Queue
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-base text-zinc-500 font-medium">
-              Claim and serve customers as the owner.
-            </CardDescription>
-          </div>
-          <Button
-            variant="outline"
-            onClick={handleRefresh}
-            className="w-full sm:w-auto rounded-2xl h-10 sm:h-11 border-zinc-200 bg-zinc-50 font-medium text-xs sm:text-sm"
-            disabled={isRefreshing}
-          >
-            <RefreshCcw
-              className={cn(
-                "h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2",
-                isRefreshing && "animate-spin",
-              )}
-            />
-            Refresh
-          </Button>
+      {/* Header */}
+      <div className="shrink-0 flex items-center justify-between gap-2 px-4 pt-4 pb-3">
+        <div>
+          <p className="text-sm font-bold text-foreground leading-none">Queue</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide font-medium">
+            Owner Service Queue
+          </p>
         </div>
-      </CardHeader>
-
-      <CardContent
-        className={cn(
-          "flex-1 min-h-0 overflow-hidden p-0", // Adjusted for proper scrolling
-        )}
-      >
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => {
-            if (value === "pending" || value === "claimed") {
-              setActiveTab(value);
-            }
-          }}
-          className="h-full flex flex-col"
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          aria-label="Refresh queue"
+          className="h-7 w-7 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
         >
-          <div className={cn("px-4 sm:px-6", isEmbedded && "px-4")}>
-            <TabsList className="w-full grid grid-cols-2 rounded-2xl bg-zinc-50 border border-zinc-100 p-1 shadow-sm h-12 overflow-hidden items-stretch">
-              <TabsTrigger
-                value="pending"
-                className="rounded-xl h-full py-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm"
-              >
-                Pending
-                <span className="ml-2 text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+          <RefreshCcw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          if (value === "pending" || value === "claimed") setActiveTab(value);
+        }}
+        className="flex flex-1 min-h-0 flex-col"
+      >
+        <div className="shrink-0 px-4 pb-2">
+          <TabsList className="w-full grid grid-cols-2 rounded-xl bg-muted/60 p-1 h-8">
+            <TabsTrigger
+              value="pending"
+              className="rounded-lg h-full text-[11px] font-semibold data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm cursor-pointer"
+            >
+              Pending
+              {pendingServices.length > 0 && (
+                <span className="ml-1.5 text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full tabular-nums">
                   {pendingServices.length}
                 </span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="claimed"
-                className="rounded-xl h-full py-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm"
-              >
-                My Claims
-                <span className="ml-2 text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value="claimed"
+              className="rounded-lg h-full text-[11px] font-semibold data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm cursor-pointer"
+            >
+              In Progress
+              {claimedServices.length > 0 && (
+                <span className="ml-1.5 text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full tabular-nums">
                   {claimedServices.length}
                 </span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <ScrollArea className="flex-1">
-            <div
-              className={cn(
-                "space-y-3 p-4 sm:p-6 pt-2",
-                isEmbedded && "p-4 pt-4",
               )}
-            >
-              <TabsContent value="pending" className="mt-0 space-y-3 m-0">
-                {pendingServices.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center py-10 border-2 border-dashed border-zinc-100 rounded-2xl bg-white">
-                    <div className="h-10 w-10 rounded-full bg-zinc-50 text-zinc-300 flex items-center justify-center">
-                      <Inbox className="h-5 w-5" />
-                    </div>
-                    <p className="mt-3 text-sm font-semibold text-zinc-900">
-                      No pending services
-                    </p>
-                    <p className="text-xs text-zinc-500 max-w-[200px]">
-                      The queue is clear for now.
-                    </p>
-                  </div>
-                ) : (
-                  pendingServices.map((item) => {
-                    const isBusy =
-                      actionState.id === item.id &&
-                      actionState.type === "claim";
-                    return (
-                      <div
-                        key={item.id}
-                        className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="space-y-1.5 min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-zinc-900 text-sm truncate">
-                                {item.service.name}
-                              </h4>
-                              {item.package && (
-                                <Badge
-                                  variant="secondary"
-                                  className="bg-zinc-100 text-zinc-700 border border-zinc-200 text-[9px] font-semibold h-4 px-1 shrink-0"
-                                >
-                                  {item.package.name}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-xs text-zinc-500 font-medium truncate">
-                              {item.booking.customer.name}
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
-                              <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-1.5 py-0.5 rounded-md whitespace-nowrap">
-                                <Clock className="h-3 w-3" />
-                                {renderTime(getDisplayTime(item))}
-                              </span>
-                              {item.service.duration && (
-                                <span className="whitespace-nowrap">
-                                  {item.service.duration} mins
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            <span className="text-xs font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
-                              ₱{item.price.toLocaleString()}
-                            </span>
-                            <Button
-                              size="sm"
-                              className="h-9 min-h-[36px] w-[70px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 text-xs"
-                              onClick={() => handleClaim(item.id)}
-                              disabled={isBusy}
-                            >
-                              {isBusy ? "..." : "Claim"}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </TabsContent>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-              <TabsContent value="claimed" className="mt-0 space-y-3 m-0">
-                {claimedServices.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center py-10 border-2 border-dashed border-zinc-100 rounded-2xl bg-zinc-50/60">
-                    <div className="h-10 w-10 rounded-full bg-white text-zinc-300 flex items-center justify-center">
-                      <UserCheck className="h-5 w-5" />
-                    </div>
-                    <p className="mt-3 text-sm font-semibold text-zinc-900">
-                      No claimed services
-                    </p>
-                    <p className="text-xs text-zinc-500 max-w-[200px]">
-                      Claim pending services.
-                    </p>
-                  </div>
-                ) : (
-                  claimedServices.map((item) => {
-                    const isServing =
-                      actionState.id === item.id &&
-                      actionState.type === "serve";
-                    const isUnclaiming =
-                      actionState.id === item.id &&
-                      actionState.type === "unclaim";
-                    const isUnserving =
-                      actionState.id === item.id &&
-                      actionState.type === "unserve";
-                    return (
-                      <div
-                        key={item.id}
-                        className="rounded-2xl border border-zinc-100 bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="space-y-1.5 min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-zinc-900 text-sm truncate">
-                                {item.service.name}
-                              </h4>
-                              <Badge
-                                variant="outline"
-                                className="text-[9px] px-1.5 py-0.5 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50 shrink-0"
-                              >
-                                {item.status}
-                              </Badge>
-                              {item.package && (
-                                <Badge
-                                  variant="secondary"
-                                  className="bg-zinc-100 text-zinc-700 border border-zinc-200 text-[9px] font-semibold h-4 px-1 shrink-0"
-                                >
-                                  {item.package.name}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-xs text-zinc-500 font-medium truncate">
-                              {item.booking.customer.name}
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
-                              <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-1.5 py-0.5 rounded-md whitespace-nowrap">
-                                <Clock className="h-3 w-3" />
-                                {renderTime(getDisplayTime(item))}
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="px-3 pb-4 space-y-1.5">
+            {/* Pending Tab */}
+            <TabsContent value="pending" className="mt-0 space-y-1.5 m-0">
+              {pendingServices.length === 0 ? (
+                <EmptyState
+                  icon={<Inbox className="h-4 w-4 text-muted-foreground" />}
+                  message="Queue is clear"
+                />
+              ) : (
+                pendingServices.map((item) => {
+                  const isBusy =
+                    actionState.id === item.id && actionState.type === "claim";
+                  return (
+                    <ServiceCard key={item.id}>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <div className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0 mt-0.5" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-foreground truncate leading-tight">
+                            {item.service.name}
+                            {item.package && (
+                              <span className="ml-1 text-[9px] font-medium text-muted-foreground">
+                                ({item.package.name})
                               </span>
-                              {item.claimed_at && (
-                                <span className="text-zinc-400 whitespace-nowrap">
-                                  Claimed {formatPH(item.claimed_at, "h:mm a")}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            <span className="text-xs font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
-                              ₱{item.price.toLocaleString()}
+                            )}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate">
+                            {item.booking.customer.name}
+                            {" · "}
+                            <span className="inline-flex items-center gap-0.5">
+                              <Clock className="h-2.5 w-2.5 inline" />
+                              {renderTime(getDisplayTime(item))}
                             </span>
-                            <div className="flex items-center gap-1.5">
-                              <Button
-                                size="sm"
-                                className="h-9 min-h-[36px] w-[70px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 text-xs"
-                                onClick={() => handleServe(item.id)}
-                                disabled={isServing}
-                              >
-                                {isServing ? "..." : "Serve"}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-9 min-h-[36px] w-9 rounded-xl border-zinc-200 text-zinc-600 hover:text-zinc-900 p-0"
-                                onClick={() =>
-                                  item.status === "CLAIMED"
-                                    ? handleUnclaim(item.id)
-                                    : handleUnserve(item.id)
-                                }
-                                disabled={isUnclaiming || isUnserving}
-                                title={
-                                  item.status === "CLAIMED"
-                                    ? "Unclaim"
-                                    : "Undo Serve"
-                                }
-                              >
-                                {isUnclaiming || isUnserving ? (
-                                  <RefreshCcw className="h-3.5 w-3.5 animate-spin" />
-                                ) : item.status === "CLAIMED" ? (
-                                  <XCircle className="h-3.5 w-3.5" />
-                                ) : (
-                                  <CheckCircle2 className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
+                          </p>
                         </div>
                       </div>
-                    );
-                  })
-                )}
-              </TabsContent>
-            </div>
-          </ScrollArea>
-        </Tabs>
-      </CardContent>
-    </Card>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] font-bold text-foreground tabular-nums">
+                          ₱{item.price.toLocaleString()}
+                        </span>
+                        <Button
+                          size="sm"
+                          className="h-6 px-2.5 rounded-lg text-[11px] font-semibold cursor-pointer"
+                          onClick={() => handleClaim(item.id)}
+                          disabled={isBusy}
+                        >
+                          {isBusy ? "..." : "Claim"}
+                        </Button>
+                      </div>
+                    </ServiceCard>
+                  );
+                })
+              )}
+            </TabsContent>
+
+            {/* Claimed Tab */}
+            <TabsContent value="claimed" className="mt-0 space-y-1.5 m-0">
+              {claimedServices.length === 0 ? (
+                <EmptyState
+                  icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
+                  message="Nothing in progress"
+                />
+              ) : (
+                claimedServices.map((item) => {
+                  const isServing =
+                    actionState.id === item.id && actionState.type === "serve";
+                  const isUnclaiming =
+                    actionState.id === item.id && actionState.type === "unclaim";
+                  const isUnserving =
+                    actionState.id === item.id && actionState.type === "unserve";
+                  const isDone = item.status === "COMPLETED";
+                  return (
+                    <ServiceCard key={item.id}>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <div
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full shrink-0 mt-0.5",
+                            isDone ? "bg-primary" : "bg-blue-400",
+                          )}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-foreground truncate leading-tight">
+                            {item.service.name}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate">
+                            {item.booking.customer.name}
+                            {" · "}
+                            <Badge
+                              variant="outline"
+                              className="text-[8px] px-1 border-primary/20 text-primary bg-primary/5 h-3.5"
+                            >
+                              {item.status}
+                            </Badge>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="text-[10px] font-bold text-foreground tabular-nums">
+                          ₱{item.price.toLocaleString()}
+                        </span>
+                        {!isDone && (
+                          <Button
+                            size="sm"
+                            className="h-6 px-2.5 rounded-lg text-[11px] font-semibold cursor-pointer"
+                            onClick={() => handleServe(item.id)}
+                            disabled={isServing}
+                          >
+                            {isServing ? "..." : "Done"}
+                          </Button>
+                        )}
+                        <button
+                          type="button"
+                          className="h-6 w-6 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-accent transition-colors cursor-pointer"
+                          onClick={() =>
+                            isDone
+                              ? handleUnserve(item.id)
+                              : handleUnclaim(item.id)
+                          }
+                          disabled={isUnclaiming || isUnserving}
+                          title={isDone ? "Undo Serve" : "Unclaim"}
+                        >
+                          {isUnclaiming || isUnserving ? (
+                            <RefreshCcw className="h-3 w-3 animate-spin" />
+                          ) : isDone ? (
+                            <CheckCircle2 className="h-3 w-3 text-primary" />
+                          ) : (
+                            <XCircle className="h-3 w-3" />
+                          )}
+                        </button>
+                      </div>
+                    </ServiceCard>
+                  );
+                })
+              )}
+            </TabsContent>
+          </div>
+        </ScrollArea>
+      </Tabs>
+    </div>
+  );
+}
+
+function ServiceCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 hover:border-primary/30 hover:bg-accent/30 transition-colors">
+      {children}
+    </div>
+  );
+}
+
+function EmptyState({
+  icon,
+  message,
+}: {
+  icon: React.ReactNode;
+  message: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-10 rounded-xl border-2 border-dashed border-border bg-background/50 mt-1">
+      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center mb-2">
+        {icon}
+      </div>
+      <p className="text-xs font-semibold text-foreground">{message}</p>
+    </div>
   );
 }

@@ -8,6 +8,8 @@ import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 const prismaMock = vi.hoisted(() => ({
   service: { findMany: vi.fn() },
   booking: { findMany: vi.fn() },
+  employeeAttendance: { findMany: vi.fn() },
+  leaveRequest: { findMany: vi.fn() },
 }));
 
 const cachedMock = vi.hoisted(() => ({
@@ -70,12 +72,15 @@ describe("booking-availability workload model", () => {
       allowPublicFullPayment: true,
       allowPublicDownpayment: true,
       defaultPublicPaymentType: "FULL",
+      downpaymentPercentage: 50,
       bookingV2Enabled: true,
     });
     prismaMock.service.findMany.mockResolvedValue([
       { id: 1, category: "GENERAL", duration: 30 },
     ]);
     prismaMock.booking.findMany.mockResolvedValue([]);
+    prismaMock.employeeAttendance.findMany.mockResolvedValue([]);
+    prismaMock.leaveRequest.findMany.mockResolvedValue([]);
   });
 
   it("returns guaranteed workload slots", async () => {

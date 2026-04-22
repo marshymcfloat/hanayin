@@ -382,7 +382,7 @@ export function PackageForm({
         <Button
           type="submit"
           disabled={isLoading}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/15"
         >
           {isLoading
             ? "Saving..."

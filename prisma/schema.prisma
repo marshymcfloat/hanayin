@@ -31,6 +31,7 @@ model Business {
   public_allow_full_payment          Boolean @default(true)
   public_allow_downpayment           Boolean @default(true)
   public_default_payment_type        String  @default("FULL")
+  downpayment_percentage             Int     @default(50)
   booking_v2_enabled                 Boolean @default(true)
   same_day_attendance_strict_minutes Int     @default(120)
   structure                          BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
@@ -66,6 +67,8 @@ model Business {
   onboarding_applications_converted OnboardingApplication[]    @relation("ConvertedBusinessOnboardingApplication")
   platform_action_logs              PlatformActionLog[]
   commission_calculation_basis      CommissionCalculationBasis @default(ORIGINAL_PRICE)
+  booking_otp_codes                 BookingOtpCode[]
+  expenses                          Expense[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -461,6 +464,7 @@ model User {
   owner                            Owner?
   social_posts_created             SocialPost[]               @relation("SocialPostCreatedBy")
   growth_campaigns_created         Campaign[]                 @relation("GrowthCampaignCreatedBy")
+  expenses_created                 Expense[]                  @relation("ExpenseCreatedBy")
   awarded_subscription_credits     SubscriptionCreditLedger[] @relation("CreditAwardedByUser")
   platform_action_logs             PlatformActionLog[]        @relation("PlatformActorUser")
   reviewed_onboarding_applications OnboardingApplication[]    @relation("ReviewedByPlatformUser")
@@ -937,6 +941,11 @@ model Customer {
   email String?
   phone String?
 
+  // Trust tier system for ghost-booking prevention
+  trust_tier      String    @default("NEW")   // NEW | TRUSTED | RESTRICTED
+  no_show_count   Int       @default(0)
+  last_no_show_at DateTime?
+
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
@@ -949,6 +958,24 @@ model Customer {
   @@index([business_id, name])
   @@index([business_id, email])
   @@index([business_id, phone])
+  @@index([business_id, trust_tier])
+}
+
+model BookingOtpCode {
+  id          Int      @id @default(autoincrement())
+  phone       String
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  code        String
+  verified    Boolean  @default(false)
+  used        Boolean  @default(false)
+  semaphore_message_id String?
+  expires_at  DateTime
+
+  created_at DateTime @default(now())
+
+  @@index([phone, business_id, expires_at])
+  @@index([business_id])
 }
 
 model Booking {
@@ -1482,4 +1509,36 @@ model AuditLog {
   @@index([entity_type, entity_id, action])
   @@index([business_id, created_at])
   @@index([actor_id])
+}
+
+enum ExpenseCategory {
+  SUPPLIES
+  UTILITIES
+  RENT
+  EQUIPMENT
+  MARKETING
+  MAINTENANCE
+  PROFESSIONAL
+  MISCELLANEOUS
+}
+
+model Expense {
+  id          Int             @id @default(autoincrement())
+  business_id String
+  business    Business        @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  amount      Float
+  category    ExpenseCategory
+  description String?
+  date        DateTime
+
+  created_by_user_id String?
+  created_by_user    User?   @relation("ExpenseCreatedBy", fields: [created_by_user_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, date])
+  @@index([business_id, category])
+  @@index([business_id, date, category])
 }

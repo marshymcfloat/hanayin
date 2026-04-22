@@ -2,7 +2,6 @@ import { prisma } from "@/prisma/prisma";
 import { getCachedBusinessBySlug } from "@/lib/data/cached";
 import { notFound } from "next/navigation";
 import { BookingList } from "@/components/dashboard/owner/BookingList";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,35 +10,29 @@ import { requireTenantAccess } from "@/lib/auth/guards";
 
 function BookingsPageSkeleton() {
   return (
-    <div className="space-y-4">
-      {/* Search and filter skeleton */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Skeleton className="h-10 flex-1" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-      {/* Table header skeleton */}
-      <div className="hidden md:grid md:grid-cols-6 gap-4 p-4 border-b">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-16" />
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-4 w-16" />
-        <Skeleton className="h-4 w-12" />
-      </div>
-      {/* Table rows skeleton */}
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 border-b"
-        >
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-5 w-20" />
-          <Skeleton className="h-5 w-24" />
-          <Skeleton className="h-6 w-20 rounded-full" />
-          <Skeleton className="h-8 w-8 rounded-md" />
+    <div className="flex flex-col bg-background">
+      <div className="border-b border-border bg-card px-4 sm:px-8 py-5 sm:py-6">
+        <div className="max-w-7xl mx-auto w-full flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          <div className="space-y-1.5">
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-3 w-48" />
+          </div>
         </div>
-      ))}
+      </div>
+      <div className="px-4 sm:px-8 py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto w-full space-y-4">
+          <div className="flex gap-3 rounded-2xl border border-border bg-card px-4 py-3">
+            <Skeleton className="h-9 flex-1 max-w-md rounded-xl" />
+            <Skeleton className="h-9 w-32 rounded-xl" />
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -52,18 +45,9 @@ export default function BookingsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-8 bg-zinc-50/50">
-      <section className="flex-1 flex flex-col bg-white overflow-hidden rounded-xl md:rounded-3xl border border-gray-200 shadow-xl p-4 md:p-6">
-        <PageHeader
-          title="Bookings"
-          description="View and manage all your bookings."
-          className="mb-6"
-        />
-        <Suspense fallback={<BookingsPageSkeleton />}>
-          <BookingsContent params={params} searchParams={searchParams} />
-        </Suspense>
-      </section>
-    </div>
+    <Suspense fallback={<BookingsPageSkeleton />}>
+      <BookingsContent params={params} searchParams={searchParams} />
+    </Suspense>
   );
 }
 

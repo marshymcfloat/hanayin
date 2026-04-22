@@ -10,7 +10,7 @@ import {
 
 export function EmployeesPageSkeleton() {
   return (
-    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+    <div className="flex flex-col p-4 md:p-8 bg-background min-h-screen">
       <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
         {/* Header Skeleton */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
