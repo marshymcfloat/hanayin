@@ -1,4 +1,5 @@
 -- Migration: Replace QRPH with ONLINE payment method, drop paymongo columns
+-- prisma-disable-migration-transaction
 
 -- Step 1: Add ONLINE value to existing enum
 ALTER TYPE "PaymentMethod" ADD VALUE IF NOT EXISTS 'ONLINE';
