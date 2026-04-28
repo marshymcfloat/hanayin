@@ -1,0 +1,269 @@
+{
+  "_meta": {
+    "purpose": "Standalone AI image generation + design profile for lifestyle/awareness social posts",
+    "aesthetic": "Warm Earthy Luxury Editorial — extracted from ESTHBeautyInc 36-tile grid analysis",
+    "use_case": "Posts that keep your social media page alive — service emphasis, mood, aspirational beauty content",
+    "NOT_for": "App UI, brand identity, or feature announcements — those use brand-profile.json",
+    "source": "design.md — ESTHBeautyInc Design System & Style Guide"
+  },
+
+  "core_aesthetic": {
+    "name": "Warm Earthy Luxury Editorial",
+    "feel": "Like afternoon sunlight streaming through linen curtains — warm, intimate, glowing, effortlessly elegant",
+    "mood_words": ["golden hour warmth", "dewy luminosity", "intimate closeness", "soft luxury", "knowledgeable warmth", "effortless elegance", "sun-kissed glow"],
+    "avoid_mood": ["clinical", "sterile", "cool-toned", "dark/moody", "corporate", "trendy/maximalist"]
+  },
+
+  "color_system": {
+    "palette_name": "Golden Hour",
+    "swatches": {
+      "warm_cream":     { "hex": "#F5EBD8", "usage": "Primary background for text-heavy tiles" },
+      "soft_beige":     { "hex": "#E8D9C0", "usage": "Secondary background, card fills" },
+      "off_white":      { "hex": "#FAF6EF", "usage": "Lightest background — product showcase tiles" },
+      "ivory":          { "hex": "#F0E6D3", "usage": "Tag/pill backgrounds" },
+      "honey_gold":     { "hex": "#C8A456", "usage": "Warm overlay tint on photography, accents" },
+      "deep_amber":     { "hex": "#8B6914", "usage": "Accent text, decorative elements, bullet markers" },
+      "warm_taupe":     { "hex": "#B8A088", "usage": "Muted background for contrast tiles, pill borders" },
+      "rich_brown":     { "hex": "#5C3D1E", "usage": "Dark text on light backgrounds" },
+      "charcoal_warm":  { "hex": "#3A2E24", "usage": "Primary body text on light backgrounds" },
+      "muted_text":     { "hex": "#7A6B5A", "usage": "Secondary/muted text on light backgrounds" },
+      "pure_white":     { "hex": "#FFFFFF", "usage": "Text on dark/photo backgrounds, pill outlines" }
+    },
+    "text_colors": {
+      "on_light": "#3A2E24",
+      "on_dark_or_photo": "#FFFFFF",
+      "muted_on_light": "#7A6B5A",
+      "accent": "#8B6914"
+    },
+    "photography_overlays": {
+      "gradient_scrim": "linear-gradient(180deg, transparent 40%, rgba(58,46,36,0.4) 100%)",
+      "warm_tint": "rgba(200,164,86,0.12)",
+      "side_scrim": "linear-gradient(to right, rgba(58,46,36,0.5), transparent)"
+    },
+    "photography_temperature": {
+      "rule": "All imagery warm-shifted — golden-hour amber tones",
+      "shadows": "Brown/sepia, never blue or cool gray",
+      "highlights": "Warm amber/orange push, not blown-out white",
+      "skin": "Sun-kissed, luminous, dewy, golden"
+    },
+    "strict_no_go": [
+      "Pure black #000000 — use #3A2E24 instead",
+      "Any cool gray or silver",
+      "Blue, teal, electric, neon",
+      "Hot pink or fuchsia",
+      "#16a34a emerald green — app UI only, never social posts"
+    ]
+  },
+
+  "typography": {
+    "hierarchy": {
+      "1_brand_mark":  { "font": "DM Sans", "weight": 300, "size": "7px", "placement": "top-left or top-right corner", "case": "lowercase or small caps", "color": "matches headline color or white on photo" },
+      "2_kicker":      { "font": "DM Sans, Outfit, Satoshi, Inter", "weight": 400, "size": "10px", "case": "Sentence case", "usage": "Eyebrow above headline — 'The Benefits of', 'The Truth About', 'Why'" },
+      "3_headline":    { "font": "Playfair Display, Cormorant Garamond, Didot", "weight": "400–500", "size": "28px–42px", "lineHeight": "0.95", "letterSpacing": "-0.01em", "italicRule": "Italicize 1–2 key words — the ingredient, treatment name, or action verb" },
+      "4_body":        { "font": "DM Sans, Outfit, Satoshi, Inter", "weight": 300, "size": "10px–13px", "lineHeight": "1.5", "case": "Sentence case" },
+      "5_cta_url":     { "font": "DM Sans", "weight": 400, "size": "7px", "pattern": "→  [url or CTA text]", "placement": "bottom-right" }
+    },
+    "headline_italic_rule": {
+      "description": "The signature move — in every multi-word headline, 1–2 words are italic, the rest roman. Creates visual 'bounce'.",
+      "italic_words_are": "The key ingredient, treatment name, or action verb",
+      "pattern": "[Roman] [Italic] [Roman]  OR  [Italic] [Roman]",
+      "examples": [
+        "Why *Retinol* is the Gold Standard",
+        "*Niacinamide* Repair Serum",
+        "How to *Handle* Acne Scars",
+        "The Role of *Antioxidants* in Skincare"
+      ],
+      "google_fonts": "https://fonts.google.com/share?selection.family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500|DM+Sans:wght@300;400"
+    },
+    "accent_script": {
+      "usage": "Rare — 1 in 10 tiles. A single word in brush/handwritten script for extra emphasis.",
+      "font": "Casual brush script or handwritten italic"
+    }
+  },
+
+  "decorative_elements": {
+    "asterisk_motif": {
+      "glyph": "✱",
+      "font": "Same serif as headline",
+      "size": "Roughly matches headline x-height",
+      "placement": "Floating near headline (top-right of a keyword), or standalone in a corner",
+      "color": "Same as headline text",
+      "role": "Brand signature / quality seal / decorative flourish — the most important recurring motif"
+    },
+    "pills_tags": {
+      "border_radius": "999px (fully rounded)",
+      "border": "1px solid #B8A088",
+      "background": "transparent or #FAF6EF",
+      "padding": "6px 16px",
+      "text": "DM Sans, 10px, #3A2E24",
+      "usage": "Listing treatments, benefits, steps — arranged in cloud/scatter or inline"
+    },
+    "info_bubbles": {
+      "border_radius": "12px",
+      "background": "rgba(245,235,216,0.85)",
+      "padding": "8px 14px",
+      "arrangement": "Scattered cloud layout — never strict grid",
+      "usage": "Post-treatment care steps, benefit lists, quick tips"
+    },
+    "bullet_markers": {
+      "glyphs": ["◆", "●"],
+      "size": "5px",
+      "color": "#8B6914"
+    },
+    "thin_rule": {
+      "style": "1px horizontal line, warm-toned",
+      "usage": "Section separator between headline and body — minimal, never decorative border"
+    },
+    "arrow": {
+      "glyph": "→",
+      "usage": "Before URL ('→  www.serviceflow.store') and before CTAs ('→  Follow for more!')"
+    }
+  },
+
+  "layout_patterns": {
+    "A_photo_overlay": {
+      "frequency": "40% of posts",
+      "description": "Full-bleed photography. Headline overlaid bottom-left or center. No background card — text lives directly on photo.",
+      "overlay": "Slight warm dark gradient or photo's own tonal contrast handles legibility",
+      "text_color": "White",
+      "text_position": "Bottom-left, bottom-center, or center-left",
+      "best_for": "Service spotlight, mood posts, single bold statement",
+      "example": "Dewy skin close-up + overlay 'Why Professional Extractions *Matter*?' in white Playfair Display"
+    },
+    "B_split_photo_info": {
+      "frequency": "25% of posts",
+      "description": "Left half: close-up photo. Right half: warm-cream solid background with headline + bullet list. OR top/bottom split.",
+      "divider": "Colors abut cleanly — no harsh divider line",
+      "text_color": "Charcoal warm #3A2E24 on cream panel",
+      "best_for": "Service explainers, tip lists, treatment benefits",
+      "example": "Photo left: hands holding serum. Right: cream bg, headline '*Vitamin C* Serum', 3 bullet benefits"
+    },
+    "C_product_showcase": {
+      "frequency": "15% of posts",
+      "description": "Light/cream background. Product image centered or offset. Large serif headline wraps around product. Lots of white space.",
+      "text_color": "#3A2E24 on light bg",
+      "best_for": "Product launches, retail, ingredient highlights",
+      "example": "Off-white bg, amber dropper bottle center, 'Collagen *Boosting* Cream' serif headline wrapping"
+    },
+    "D_text_educational": {
+      "frequency": "10% of posts",
+      "description": "Warm beige/cream bg. Structured info — bullet lists, numbered steps, pill tag clouds. Headline at top.",
+      "text_color": "#3A2E24",
+      "best_for": "How-to guides, layering order, skincare routines",
+      "example": "Warm cream bg, 'How to *Layer* Skincare Products', steps in DM Sans with ◆ bullets"
+    },
+    "E_teaser_engagement": {
+      "frequency": "10% of posts",
+      "description": "Same warm palette. More playful/mysterious — 'Coming Soon', 'Ask Your Esthetician!', sneak peeks.",
+      "best_for": "Engagement posts, announcements, Q&A prompts"
+    }
+  },
+
+  "composition_rules": {
+    "text_alignment": "Left-aligned or center-left — NEVER centered like a greeting card",
+    "multi_line_headline": "Lines stack vertically with tight leading (0.95) — form a compact visual block",
+    "crop": "Tight — subject fills 70–100% of frame. Product may be partially cropped at tile edge.",
+    "depth_of_field": "Shallow — background always soft/blurred warm bokeh",
+    "negative_space": "Deliberately positioned for text overlay placement — not accidental",
+    "layout_padding": { "outer": "24px–32px", "between_elements": "8px–16px" },
+    "tile_size": "1080×1080px square (1:1) for Instagram"
+  },
+
+  "photography": {
+    "subjects": [
+      "Extreme close-up face/skin — dewy, glowing, sun-kissed. Chin to forehead, or isolated cheeks/lips/jawline.",
+      "Hands + product — dropper bottles, serums, creams being applied or held — natural, unposed",
+      "Texture shots — cream swatches on skin, foam, water/oil droplets",
+      "Body fragments — shoulders, collarbones, hands — always intimate, never full body",
+      "Single product on warm surface — partially cropped at edge is fine"
+    ],
+    "lighting": {
+      "type": "Golden hour / warm studio side-light or backlight",
+      "quality": "Soft diffused — no harsh shadows, no flash, light leaks and lens flare are welcome",
+      "effect": "Warm halo/glow on skin and product edges"
+    },
+    "color_grading": {
+      "highlights": "Push warm amber/orange",
+      "shadows": "Brown/sepia — never blue",
+      "skin": "Warm, luminous, slightly golden — like shooting through a honey-colored filter",
+      "saturation": "Slightly desaturated overall, warm tones preserved",
+      "film_feel": "Optional slight grain for texture and authenticity"
+    },
+    "composition": {
+      "crop": "70–100% subject fill",
+      "dof": "Shallow, blurred background",
+      "negative_space": "Intentional — placed where headline text will live"
+    }
+  },
+
+  "ai_generation_prompts": {
+    "master_photo_prompt": "Luxury beauty editorial photography, extreme close-up Filipino skin macro, warm golden-hour light, amber earthy tones, cream and honey color palette, dewy glowing sun-kissed skin, shallow depth of field warm bokeh, soft side-lighting or backlighting, warm LUT color grade — amber highlights sepia shadows, slight film grain, 4:5 portrait OR 1:1 square, intimate unposed feeling, ESTHBeautyInc editorial aesthetic",
+
+    "skin_close_up": "Extreme close-up Filipino skin, dewy moisture glow, visible skin texture, warm amber sidelight, sun-kissed caramel skin tone, cream background bokeh, luxury skincare editorial photography, warm honey color grade, intimate tight crop",
+
+    "hands_product": "Hands holding amber glass dropper bottle, warm studio light, serum being applied on skin, honey-toned skin, warm earthy background, close-up tight crop, unposed natural feeling, luxury beauty editorial, warm LUT, no cool tones",
+
+    "product_standalone": "Amber glass serum bottle on warm cream linen surface, soft warm side-lighting, subtle product shadow, warm off-white background #FAF6EF, luxury skincare product photography, honey color grade, no cold tones, partially cropped at edge",
+
+    "ambient_mood": "Luxury spa texture, warm cream linen, amber wood tones, skincare products arranged on warm surface, golden afternoon light through sheer curtains, warm earthy mood, no people, ambient editorial shot",
+
+    "text_overlay_spec": {
+      "headline_font": "Playfair Display or Cormorant Garamond",
+      "headline_weight": "Regular 400 or Medium 500",
+      "headline_lineheight": "0.95 — very tight, lines almost touch",
+      "italic_rule": "Set 1–2 key words in italic — the treatment name, ingredient, or action verb. Everything else roman.",
+      "kicker_above": "Optional small DM Sans kicker above headline — e.g. 'The Benefits of' or 'Why'",
+      "text_color_on_photo": "Pure white #FFFFFF",
+      "text_color_on_light_bg": "#3A2E24",
+      "brand_mark": "Top corner — '@serviceflow_ph' or 'SERVICEFLOW.' in tiny DM Sans light, 7px",
+      "asterisk": "✱ floating near headline or in a corner — same serif font as headline",
+      "cta": "Bottom-right — '→  serviceflow.store' in tiny DM Sans, 7px"
+    },
+
+    "negative_prompts": "no cool gray, no blue tones, no green, no neon, no pure black, no heavy makeup, no forced smiling, no stock photo, no busy background, no clinical/medical look, no harsh shadows, no flash photography, no cold tones whatsoever",
+
+    "midjourney_suffix": "--style raw --ar 1:1 --v 6 --q 2 --s 750",
+    "portrait_ratio_suffix": "--style raw --ar 4:5 --v 6 --q 2 --s 750",
+
+    "canva_magic_media_prompt": "Luxury beauty editorial, close-up dewy Filipino skin, warm golden hour light, amber and cream palette, honey color grade, intimate unposed, shallow depth of field, ESTHBeautyInc aesthetic"
+  },
+
+  "sample_post_brief": {
+    "_note": "Example: How to use this profile to brief a post",
+    "topic": "Service spotlight — Facial Extraction Treatment",
+    "archetype": "A — Photo Overlay",
+    "photo_direction": "Extreme close-up of Filipino woman's cheek/pore area, dewy glowing skin, warm amber sidelight, shallow DOF, honey color grade",
+    "overlay_gradient": "linear-gradient(180deg, transparent 40%, rgba(58,46,36,0.4) 100%) on bottom half",
+    "kicker": "The Truth About",
+    "headline_text": "Why Professional Extractions *Matter*?",
+    "headline_font": "Playfair Display Regular + Italic for 'Matter'",
+    "headline_color": "#FFFFFF",
+    "headline_size": "36px, line-height 0.95",
+    "asterisk": "✱ top-right of headline block",
+    "brand_mark": "top-left: '@serviceflow_ph' DM Sans Light 7px white",
+    "cta": "bottom-right: '→  serviceflow.store' DM Sans 7px white"
+  },
+
+  "content_categories": {
+    "ingredient_spotlights":    { "examples": ["Niacinamide", "Retinol", "Vitamin C", "Hyaluronic Acid"], "frequency": "high" },
+    "treatment_education":      { "examples": ["HydraFacial", "LED Light Therapy", "Extractions", "Chemical Peel"], "frequency": "high" },
+    "skincare_routines":        { "examples": ["How to Layer Products", "Post-Treatment Care", "5-Minute Routine"], "frequency": "medium" },
+    "service_promo":            { "examples": ["Collagen Treatment", "Glow Facial", "Lash Lift & Tint"], "frequency": "medium" },
+    "tips_and_advice":          { "examples": ["Lip Care Tips", "Signs You Need a Facial", "Post-Facial Mistakes"], "frequency": "medium" },
+    "engagement":               { "examples": ["Ask Your Esthetician!", "Coming Soon", "Sneak Peek"], "frequency": "low" }
+  },
+
+  "grid_rhythm": {
+    "rule": "3-column Instagram grid — alternating photo-heavy, text/product, photo-heavy",
+    "never": [
+      "3 photo-heavy tiles in same row — break with at least one text/product tile",
+      "3 text-heavy tiles in same row — include at least one photo",
+      "3 tiles with the same background lightness in a row"
+    ],
+    "recommend": [
+      "Alternate warm-dark and warm-light backgrounds across each row",
+      "Product showcase tiles work best in center column",
+      "Overall grid should feel like a cohesive warm tapestry, not a random collage"
+    ]
+  }
+}

@@ -15,10 +15,6 @@ vi.mock("@/lib/services/booking", () => ({
   createBookingInDb: vi.fn(),
 }));
 
-vi.mock("./paymongo", () => ({
-  createPayMongoQrPaymentIntent: vi.fn(),
-}));
-
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
 }));
@@ -66,7 +62,6 @@ import { headers } from "next/headers";
 import { getServerSession } from "next-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { createBookingInDb } from "@/lib/services/booking";
-import { createPayMongoQrPaymentIntent } from "./paymongo";
 import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
 import {
   resolveStaffSelectionOrThrow,
@@ -76,17 +71,10 @@ import {
 const mockedHeaders = vi.mocked(headers);
 const mockedGetServerSession = vi.mocked(getServerSession);
 const mockedRateLimit = vi.mocked(rateLimit);
-const mockedBuildBookingPricingSnapshot = vi.mocked(
-  buildBookingPricingSnapshot,
-);
+const mockedBuildBookingPricingSnapshot = vi.mocked(buildBookingPricingSnapshot);
 const mockedCreateBookingInDb = vi.mocked(createBookingInDb);
-const mockedCreatePayMongoQrPaymentIntent = vi.mocked(
-  createPayMongoQrPaymentIntent,
-);
 const mockedBusinessFindUnique = vi.mocked(prismaMock.business.findUnique);
-const mockedResolveStaffSelectionOrThrow = vi.mocked(
-  resolveStaffSelectionOrThrow,
-);
+const mockedResolveStaffSelectionOrThrow = vi.mocked(resolveStaffSelectionOrThrow);
 const mockedValidateBookingOrThrow = vi.mocked(validateBookingOrThrow);
 
 describe("createBooking Server Action", () => {
@@ -275,82 +263,6 @@ describe("createBooking Server Action", () => {
     });
   });
 
-  it("should use configured app URL for PayMongo return URL", async () => {
-    const mockBusiness = {
-      id: "biz_1",
-      slug: "demo-business",
-      name: "Demo Business",
-      commission_calculation_basis: "ORIGINAL_PRICE" as const,
-    };
-
-    mockedBuildBookingPricingSnapshot.mockResolvedValue({
-      business: mockBusiness,
-      services: [
-        {
-          id: 1,
-          name: "Haircut",
-          quantity: 1,
-          duration: 30,
-          price: 500,
-          originalPrice: 500,
-          estimatedCost: 200,
-          discount: 0,
-          discountReason: null,
-          saleEventId: null,
-          commissionBase: 500,
-        },
-      ],
-      subtotal: 500,
-      voucherDiscount: 0,
-      grandTotal: 500,
-      appliedSaleEventId: null,
-      downpaymentAmount: null,
-      amountToPay: 500,
-      totalDuration: 30,
-      estimatedEnd: new Date(mockDate.getTime() + 30 * 60 * 1000),
-      voucher: null,
-    });
-
-    mockedCreatePayMongoQrPaymentIntent.mockResolvedValue({
-      paymentIntentId: "pi_123",
-      paymentMethodId: "pm_123",
-      qrImage: "qr-img",
-      expiresAt: "2026-02-10T00:10:00.000Z",
-    });
-
-    mockedCreateBookingInDb.mockResolvedValue({ id: 321 } as never);
-
-    const result = await createBooking({
-      customerName: "John Doe",
-      businessSlug: "demo-business",
-      scheduledAt: mockDate,
-      paymentMethod: "QRPH",
-      paymentType: "FULL",
-      services: [{ id: 1, quantity: 1 }],
-      email: "john@example.com",
-      phone: "+639171234567",
-    });
-
-    expect(mockedCreatePayMongoQrPaymentIntent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        returnUrl:
-          "https://demo.serviceflow.test/demo-business/booking/success",
-        billing: expect.objectContaining({
-          phone: "+639171234567",
-        }),
-      }),
-    );
-
-    expect(result).toEqual(
-      expect.objectContaining({
-        type: "qrph",
-        paymentIntentId: "pi_123",
-        paymentMethodId: "pm_123",
-        bookingId: 321,
-      }),
-    );
-  });
-
   it("should rate-limit unauthenticated booking attempts", async () => {
     mockedGetServerSession.mockResolvedValue(null);
     mockedRateLimit.mockResolvedValue({
@@ -365,7 +277,7 @@ describe("createBooking Server Action", () => {
         customerName: "John Doe",
         businessSlug: "demo-business",
         scheduledAt: mockDate,
-        paymentMethod: "QRPH",
+        paymentMethod: "CASH",
         paymentType: "FULL",
         services: [{ id: 1, quantity: 1 }],
         email: "john@example.com",

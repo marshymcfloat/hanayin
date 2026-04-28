@@ -16,10 +16,13 @@ function createTemplates(
   return seeds.map((seed) => ({ ...seed, businessType }));
 }
 
+// Public-facing headlines — these go on the website, image, and caption.
+// Never use language that hints the business is slow ("rescue", "quiet hours",
+// "fill window") — that is internal opportunity terminology.
 export const SALON_TEMPLATES = createTemplates("SALON", [
-  { id: "salon-1", offerType: "FLASH_DEAL", headline: "2PM Glow Rescue", angle: "slow-hours-fill", overlay: "MIDDAY GLOW" },
+  { id: "salon-1", offerType: "FLASH_DEAL", headline: "Mid-Week Glow Treat", angle: "slow-hours-fill", overlay: "MIDDAY GLOW" },
   { id: "salon-2", offerType: "PAYDAY_PROMO", headline: "Payday Hair Reset", angle: "payday", overlay: "PAYDAY HAIR DAY" },
-  { id: "salon-3", offerType: "LIMITED_SLOTS", headline: "Friday Blowout Rush", angle: "weekend-prep", overlay: "FRIDAY SLOTS" },
+  { id: "salon-3", offerType: "LIMITED_SLOTS", headline: "Friday Blowout Slots", angle: "weekend-prep", overlay: "FRIDAY SLOTS" },
   { id: "salon-4", offerType: "BUNDLE", headline: "Color + Treatment Duo", angle: "bundle-value", overlay: "DUO SAVINGS" },
   { id: "salon-5", offerType: "SEASONAL_PROMO", headline: "Valentine Date-Ready Hair", angle: "seasonal", overlay: "DATE READY" },
   { id: "salon-6", offerType: "FLASH_DEAL", headline: "Rainy Day Hair Spa", angle: "weather-hook", overlay: "RAINY RESET" },
@@ -30,7 +33,7 @@ export const SALON_TEMPLATES = createTemplates("SALON", [
 ]);
 
 export const SPA_TEMPLATES = createTemplates("SPA", [
-  { id: "spa-1", offerType: "FLASH_DEAL", headline: "Quiet Hours Body Reset", angle: "slow-hours-fill", overlay: "SELF-CARE NOW" },
+  { id: "spa-1", offerType: "FLASH_DEAL", headline: "Mid-Week Body Reset", angle: "slow-hours-fill", overlay: "SELF-CARE NOW" },
   { id: "spa-2", offerType: "PAYDAY_PROMO", headline: "Payday Relax Pass", angle: "payday", overlay: "PAYDAY RELAX" },
   { id: "spa-3", offerType: "LIMITED_SLOTS", headline: "Weekend Recovery Slots", angle: "weekend-prep", overlay: "LIMITED SLOTS" },
   { id: "spa-4", offerType: "BUNDLE", headline: "Massage + Scrub Pair", angle: "bundle-value", overlay: "PAIR OFFER" },
@@ -43,9 +46,9 @@ export const SPA_TEMPLATES = createTemplates("SPA", [
 ]);
 
 export const BARBERSHOP_TEMPLATES = createTemplates("BARBERSHOP", [
-  { id: "barber-1", offerType: "FLASH_DEAL", headline: "2PM Fresh Fade Window", angle: "slow-hours-fill", overlay: "FRESH FADE" },
+  { id: "barber-1", offerType: "FLASH_DEAL", headline: "Mid-Day Fade Refresh", angle: "slow-hours-fill", overlay: "FRESH FADE" },
   { id: "barber-2", offerType: "PAYDAY_PROMO", headline: "Payday Groom Boost", angle: "payday", overlay: "PAYDAY FRESH" },
-  { id: "barber-3", offerType: "LIMITED_SLOTS", headline: "Friday Cut Queue", angle: "weekend-prep", overlay: "FRIDAY CUTS" },
+  { id: "barber-3", offerType: "LIMITED_SLOTS", headline: "Friday Cut Slots", angle: "weekend-prep", overlay: "FRIDAY CUTS" },
   { id: "barber-4", offerType: "BUNDLE", headline: "Cut + Beard Detail", angle: "bundle-value", overlay: "CUT + BEARD" },
   { id: "barber-5", offerType: "SEASONAL_PROMO", headline: "Holiday Sharp Look", angle: "seasonal", overlay: "SHARP LOOK" },
   { id: "barber-6", offerType: "FLASH_DEAL", headline: "Rainy Day Fresh-Up", angle: "weather-hook", overlay: "RAINY FRESH" },
@@ -62,7 +65,7 @@ export const CLINIC_TEMPLATES = createTemplates("CLINIC", [
   { id: "clinic-4", offerType: "BUNDLE", headline: "Consult + Follow-Up Bundle", angle: "bundle-value", overlay: "BUNDLE CARE" },
   { id: "clinic-5", offerType: "SEASONAL_PROMO", headline: "Holiday Skin Readiness", angle: "seasonal", overlay: "SEASON READY" },
   { id: "clinic-6", offerType: "FLASH_DEAL", headline: "Rainy Day Skin Care", angle: "weather-hook", overlay: "RAINY CARE" },
-  { id: "clinic-7", offerType: "LIMITED_SLOTS", headline: "Evening Check-Up Window", angle: "after-work", overlay: "EVENING SLOT" },
+  { id: "clinic-7", offerType: "LIMITED_SLOTS", headline: "Evening Check-Up Slot", angle: "after-work", overlay: "EVENING SLOT" },
   { id: "clinic-8", offerType: "BUNDLE", headline: "Assessment + Plan Session", angle: "combo", overlay: "PLAN SESSION" },
   { id: "clinic-9", offerType: "STUDENT_PROMO", headline: "Student Skin Review", angle: "student", overlay: "STUDENT CARE" },
   { id: "clinic-10", offerType: "SEASONAL_PROMO", headline: "Summer Skin Defense", angle: "seasonal", overlay: "SUMMER DEFENSE" },

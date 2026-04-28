@@ -1,5 +1,4 @@
 import { getCurrentDateTimePH } from "@/lib/date-utils";
-import { createPayMongoCheckoutSessionDetailed } from "@/lib/server actions/paymongo";
 import { BillingInterval, CreditSource, InvoiceStatus, LeadStatus, ReferralStatus, SubscriptionStatus } from "@/prisma/generated/prisma/enums";
 import { prisma } from "@/prisma/prisma";
 
@@ -19,7 +18,6 @@ export const DEFAULT_SUBSCRIPTION_PLAN_CODE: SubscriptionPlanCode =
   "STARTER_MONTHLY";
 
 export type SubscriptionEnforcementMode = "OFF" | "WARN_ONLY" | "ON";
-export type BillingCollectionMode = "MANUAL_ONLY" | "PAYMONGO_CHECKOUT";
 
 export function getSubscriptionEnforcementMode(): SubscriptionEnforcementMode {
   const mode = process.env.SUBSCRIPTION_ENFORCEMENT_MODE ?? "OFF";
@@ -27,20 +25,12 @@ export function getSubscriptionEnforcementMode(): SubscriptionEnforcementMode {
   return "OFF";
 }
 
-export function isRecurringEnabled() {
-  return process.env.PAYMONGO_RECURRING_ENABLED === "true";
-}
-
-export function getBillingCollectionMode(): BillingCollectionMode {
-  const mode = process.env.BILLING_COLLECTION_MODE ?? "MANUAL_ONLY";
-  if (mode === "PAYMONGO_CHECKOUT") {
-    return "PAYMONGO_CHECKOUT";
-  }
-  return "MANUAL_ONLY";
+export function getBillingCollectionMode() {
+  return "MANUAL_ONLY" as const;
 }
 
 export function isManualCollectionOnly() {
-  return getBillingCollectionMode() === "MANUAL_ONLY";
+  return true;
 }
 
 export function getDefaultTrialMonths() {
@@ -236,7 +226,6 @@ export async function ensureBusinessSubscription(
       plan_id: plan.id,
       status: SubscriptionStatus.TRIALING,
       collection_method: "MANUAL_CHECKOUT",
-      recurring_enabled: isRecurringEnabled(),
       current_period_start: now,
       current_period_end: periodEnd,
       trial_ends_at: trialEndsAt,
@@ -358,86 +347,11 @@ export async function createInvoiceForSubscription(subscriptionId: string, reaso
   });
 }
 
-export async function createCheckoutForInvoice(invoiceId: string) {
-  if (isManualCollectionOnly()) {
-    throw new Error(MANUAL_COLLECTION_MODE_ERROR);
-  }
-
-  const invoice = await prisma.subscriptionInvoice.findUnique({
-    where: { id: invoiceId },
-    include: {
-      business: {
-        select: {
-          slug: true,
-          name: true,
-        },
-      },
-      business_subscription: {
-        select: {
-          id: true,
-        },
-      },
-      plan: {
-        select: {
-          name: true,
-          code: true,
-        },
-      },
-    },
-  });
-
-  if (!invoice) throw new Error("Invoice not found");
-  if (invoice.amount_due <= 0) throw new Error("Invoice has no outstanding balance");
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const lineItemName = `${invoice.plan.name} (${invoice.plan.code})`;
-
-  const checkout = await createPayMongoCheckoutSessionDetailed({
-    line_items: [
-      {
-        name: lineItemName,
-        quantity: 1,
-        currency: "PHP",
-        amount: invoice.amount_due,
-        description: `Subscription invoice ${invoice.id}`,
-      },
-    ],
-    description: `ServiceFlow subscription invoice ${invoice.id}`,
-    success_url: `${appUrl}/app/${invoice.business.slug}/billing/?invoice=${invoice.id}&status=success`,
-    cancel_url: `${appUrl}/app/${invoice.business.slug}/billing/?invoice=${invoice.id}&status=cancel`,
-    metadata: {
-      billing_context: "SUBSCRIPTION",
-      invoiceId: invoice.id,
-      businessId: invoice.business_id,
-      subscriptionId: invoice.business_subscription.id,
-      planCode: invoice.plan.code,
-    },
-    allowed_payment_methods: ["qrph", "gcash", "card"],
-  });
-
-  await prisma.subscriptionInvoice.update({
-    where: { id: invoice.id },
-    data: {
-      paymongo_checkout_session_id: checkout.checkoutSessionId ?? null,
-      status: InvoiceStatus.OPEN,
-      metadata: {
-        checkoutUrl: checkout.checkoutUrl,
-        generatedAt: getCurrentDateTimePH().toISOString(),
-      },
-    },
-  });
-
-  return checkout;
-}
-
 export async function markInvoicePaid(params: {
   invoiceId: string;
   paidAmountCentavos: number;
-  paymentIntentId?: string | null;
-  paymentMethodId?: string | null;
-  paymentId?: string | null;
 }) {
-  const { invoiceId, paidAmountCentavos, paymentIntentId, paymentMethodId, paymentId } = params;
+  const { invoiceId, paidAmountCentavos } = params;
   return prisma.$transaction(async (tx) => {
     const invoice = await tx.subscriptionInvoice.findUnique({
       where: { id: invoiceId },
@@ -461,9 +375,6 @@ export async function markInvoicePaid(params: {
         status: InvoiceStatus.PAID,
         amount_paid: settledAmount,
         paid_at: now,
-        paymongo_payment_intent_id: paymentIntentId,
-        paymongo_payment_method_id: paymentMethodId,
-        paymongo_payment_id: paymentId,
       },
     });
 

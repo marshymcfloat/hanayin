@@ -63,55 +63,28 @@ export const getApplicableDiscount = (
   return null;
 };
 
-/**
- * Calculates the final booking total using integer math to avoid floating point errors.
- *
- * @param params.subtotal - The total price of all services after item-level discounts
- * @param params.voucherDiscount - The total discount amount from a voucher
- * @param params.paymentMethod - The payment method (e.g., "QRPH", "CASH")
- * @param params.paymentType - "FULL" or "DOWNPAYMENT"
- * @returns The final amount to charge in standard units (e.g. pesos), rounded to 2 decimal places if needed, but calculated precisely.
- */
 export function calculateBookingTotal({
   subtotal,
   voucherDiscount = 0,
-  paymentMethod,
+  paymentMethod: _paymentMethod,
   paymentType,
   downpaymentPercentage = 50,
 }: {
   subtotal: number;
   voucherDiscount?: number;
-  paymentMethod: "QRPH" | "CASH" | string;
+  paymentMethod: "ONLINE" | "CASH" | string;
   paymentType: "FULL" | "DOWNPAYMENT" | string;
   downpaymentPercentage?: number;
 }): number {
-  // Convert everything to cents (integers)
   const subtotalCents = Math.round(subtotal * 100);
   const voucherDiscountCents = Math.round(voucherDiscount * 100);
+  const totalAfterDiscountCents = Math.max(0, subtotalCents - voucherDiscountCents);
 
-  // 1. Apply Voucher Discount
-  // Ensure we don't go below zero
-  const totalAfterDiscountCents = Math.max(
-    0,
-    subtotalCents - voucherDiscountCents,
-  );
-
-  // 2. Apply Payment Type (Downpayment vs Full)
   let amountToPayCents = totalAfterDiscountCents;
-
   if (paymentType === "DOWNPAYMENT") {
     const safePercentage = Math.max(1, Math.min(100, downpaymentPercentage));
     amountToPayCents = Math.round(totalAfterDiscountCents * (safePercentage / 100));
   }
 
-  // 3. Apply Convenience Fee for QRPH
-  if (paymentMethod === "QRPH") {
-    // 1.5% fee
-    // We calculate the fee separately and add it, rounding the fee to the nearest cent
-    const feeCents = Math.round(amountToPayCents * 0.015);
-    amountToPayCents += feeCents;
-  }
-
-  // Convert back to standard unit
   return amountToPayCents / 100;
 }

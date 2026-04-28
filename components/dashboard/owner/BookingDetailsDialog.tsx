@@ -31,7 +31,6 @@ import {
   Mail,
   Receipt,
   CheckCircle2,
-  QrCode,
   Loader2,
   PlusCircle,
   AlertTriangle,
@@ -51,10 +50,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import QrPaymentPanel from "@/components/bookings/QrPaymentPanel";
 import {
-  createBookingBalanceQrAction,
-  getBookingQrPaymentReviewAction,
   markBookingPaidAction,
 } from "@/lib/server actions/dashboard";
 import { markBookingNoShowAction } from "@/lib/server actions/dashboard/owner";
@@ -96,20 +92,11 @@ export function BookingDetailsDialog({
   onOpenChange,
 }: BookingDetailsDialogProps) {
   const router = useRouter();
-  const [isReviewingQr, setIsReviewingQr] = useState(false);
-  const [isGeneratingBalanceQr, setIsGeneratingBalanceQr] = useState(false);
   const [isMarkingPaid, setIsMarkingPaid] = useState(false);
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [serviceQuantity, setServiceQuantity] = useState(1);
   const [isAddingService, setIsAddingService] = useState(false);
-  const [qrReviewData, setQrReviewData] = useState<{
-    qrImage: string;
-    expiresAt?: string;
-    amountLabel: string;
-    status: "pending" | "paid" | "failed" | "expired";
-  } | null>(null);
-
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
       case "ACCEPTED":
@@ -126,17 +113,6 @@ export function BookingDetailsDialog({
   const amountPaid = Math.max(0, booking?.amount_paid || 0);
   const remainingBalance = Math.max(0, (booking?.grand_total || 0) - amountPaid);
   const bookingDateTime = booking?.scheduled_at ?? booking?.created_at ?? new Date();
-
-  const canReviewQr =
-    booking?.payment_method === "QRPH" &&
-    booking?.payment_status !== "PAID" &&
-    Boolean(booking?.paymongo_payment_intent_id);
-
-  const canGenerateBalanceQr =
-    booking?.payment_method === "QRPH" &&
-    booking?.status !== "CANCELLED" &&
-    booking?.payment_status !== "PAID" &&
-    remainingBalance > 0;
 
   const canMarkPaid =
     booking?.status !== "CANCELLED" && booking?.payment_status !== "PAID";
@@ -185,56 +161,6 @@ export function BookingDetailsDialog({
   }, [booking?.id, open]);
 
   if (!booking) return null;
-
-  const handleReviewQr = async () => {
-    setIsReviewingQr(true);
-    try {
-      const result = await getBookingQrPaymentReviewAction(booking.id);
-
-      if (!result.success || !("data" in result) || !result.data) {
-        toast.error(result.error || "Unable to load QR payment.");
-        return;
-      }
-
-      const qrData = result.data;
-      const amount =
-        typeof qrData.amount === "number" ? qrData.amount : remainingBalance;
-
-      setQrReviewData({
-        qrImage: qrData.qrImage,
-        expiresAt: qrData.expiresAt,
-        status: qrData.status,
-        amountLabel: formatCurrency(amount),
-      });
-    } finally {
-      setIsReviewingQr(false);
-    }
-  };
-
-  const handleGenerateBalanceQr = async () => {
-    setIsGeneratingBalanceQr(true);
-    try {
-      const result = await createBookingBalanceQrAction(booking.id);
-      if (!result.success || !("data" in result) || !result.data) {
-        toast.error(result.error || "Unable to generate balance QR.");
-        return;
-      }
-
-      const qrData = result.data;
-      const amount =
-        typeof qrData.amount === "number" ? qrData.amount : remainingBalance;
-
-      setQrReviewData({
-        qrImage: qrData.qrImage,
-        expiresAt: qrData.expiresAt,
-        status: qrData.status,
-        amountLabel: formatCurrency(amount),
-      });
-      router.refresh();
-    } finally {
-      setIsGeneratingBalanceQr(false);
-    }
-  };
 
   const handleMarkPaid = async () => {
     setIsMarkingPaid(true);
@@ -628,38 +554,6 @@ export function BookingDetailsDialog({
                     </AlertDialogContent>
                   </AlertDialog>
                 )}
-                {canReviewQr && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                    onClick={handleReviewQr}
-                    disabled={isReviewingQr || isGeneratingBalanceQr}
-                  >
-                    {isReviewingQr ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <QrCode className="h-4 w-4 mr-2" />
-                    )}
-                    Review QR
-                  </Button>
-                )}
-                {canGenerateBalanceQr && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-xl border-blue-200 text-blue-700 hover:bg-blue-50"
-                    onClick={handleGenerateBalanceQr}
-                    disabled={isGeneratingBalanceQr || isReviewingQr}
-                  >
-                    {isGeneratingBalanceQr ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <QrCode className="h-4 w-4 mr-2" />
-                    )}
-                    {payCtaLabel}
-                  </Button>
-                )}
                 {canMarkPaid && (
                   <Button
                     type="button"
@@ -730,16 +624,6 @@ export function BookingDetailsDialog({
         </DialogContent>
       </Dialog>
 
-      {qrReviewData && (
-        <QrPaymentPanel
-          qrImage={qrReviewData.qrImage}
-          amountLabel={qrReviewData.amountLabel}
-          status={qrReviewData.status}
-          expiresAt={qrReviewData.expiresAt}
-          onClose={() => setQrReviewData(null)}
-          onRetry={handleReviewQr}
-        />
-      )}
     </>
   );
 }

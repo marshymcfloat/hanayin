@@ -18,10 +18,6 @@ vi.mock("@/lib/date-utils", () => ({
   getCurrentDateTimePH: getCurrentDateTimePHMock,
 }));
 
-vi.mock("@/lib/server actions/paymongo", () => ({
-  createPayMongoCheckoutSessionDetailed: vi.fn(),
-}));
-
 vi.mock("@/prisma/prisma", () => ({
   prisma: prismaMock,
 }));

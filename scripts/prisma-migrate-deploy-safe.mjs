@@ -1,6 +1,14 @@
 import { spawnSync } from "node:child_process";
 
-const TARGET_MIGRATION = "20260216091540_add_subscription_upgrade_request";
+// Migrations that are known to fail on first attempt due to PostgreSQL
+// transaction limitations (e.g. using a newly-added enum value in the same
+// transaction as ALTER TYPE ... ADD VALUE). They are safe to roll back and
+// retry because idempotent guards (IF NOT EXISTS / IF EXISTS) ensure the
+// retry succeeds.
+const KNOWN_FAILING_MIGRATIONS = [
+  "20260216091540_add_subscription_upgrade_request",
+  "20260425000000_remove_qrph_replace_online",
+];
 
 function runPrisma(args, { allowFailure = false } = {}) {
   const result = spawnSync("npx", ["prisma", ...args], {
@@ -28,45 +36,39 @@ function runPrisma(args, { allowFailure = false } = {}) {
   return { exitCode, output };
 }
 
-function isKnownHistoricalMigrationFailure(output) {
+function detectFailedMigration(output) {
+  if (!output.includes("P3009") && !output.includes("P3018")) return null;
   return (
-    output.includes(TARGET_MIGRATION) &&
-    (output.includes("P3009") || output.includes("P3018"))
+    KNOWN_FAILING_MIGRATIONS.find((m) => output.includes(m)) ?? null
   );
 }
 
 console.log("[PrismaDeploySafe] Running prisma migrate deploy...");
 const initial = runPrisma(["migrate", "deploy"], { allowFailure: true });
-if (initial.exitCode === 0) {
-  process.exit(0);
-}
+if (initial.exitCode === 0) process.exit(0);
 
-if (!isKnownHistoricalMigrationFailure(initial.output)) {
-  process.exit(initial.exitCode);
-}
+const failedMigration = detectFailedMigration(initial.output);
+if (!failedMigration) process.exit(initial.exitCode);
 
 console.log(
-  `[PrismaDeploySafe] Recovering failed historical migration: ${TARGET_MIGRATION}`,
+  `[PrismaDeploySafe] Recovering failed migration: ${failedMigration}`,
 );
-runPrisma(["migrate", "resolve", "--rolled-back", TARGET_MIGRATION], {
+runPrisma(["migrate", "resolve", "--rolled-back", failedMigration], {
   allowFailure: true,
 });
 
 const retryAfterRollback = runPrisma(["migrate", "deploy"], {
   allowFailure: true,
 });
-if (retryAfterRollback.exitCode === 0) {
-  process.exit(0);
-}
+if (retryAfterRollback.exitCode === 0) process.exit(0);
 
-if (!isKnownHistoricalMigrationFailure(retryAfterRollback.output)) {
-  process.exit(retryAfterRollback.exitCode);
-}
+const stillFailed = detectFailedMigration(retryAfterRollback.output);
+if (!stillFailed) process.exit(retryAfterRollback.exitCode);
 
 console.log(
-  `[PrismaDeploySafe] Marking historical migration as applied: ${TARGET_MIGRATION}`,
+  `[PrismaDeploySafe] Marking migration as applied: ${stillFailed}`,
 );
-runPrisma(["migrate", "resolve", "--applied", TARGET_MIGRATION], {
+runPrisma(["migrate", "resolve", "--applied", stillFailed], {
   allowFailure: true,
 });
 

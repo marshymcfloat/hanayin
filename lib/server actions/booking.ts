@@ -2,7 +2,6 @@
 
 import { createBookingInDb } from "@/lib/services/booking";
 
-import { createPayMongoQrPaymentIntent } from "./paymongo";
 import { prisma } from "@/prisma/prisma";
 import {
   PaymentMethod,
@@ -13,11 +12,9 @@ import {
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
-import { createBookingSuccessToken } from "@/lib/security/booking-success-token";
 import { rateLimit } from "@/lib/rate-limit";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
-import { getQrExpirySeconds } from "@/lib/payments/config";
 import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/billing/subscription-service";
 import {
   BookingAvailabilityError,
@@ -65,33 +62,8 @@ interface CreateBookingParams {
 
 export type CreateBookingResult =
   | { type: "redirect"; url: string; warnings?: string[] }
-  | {
-      type: "qrph";
-      paymentIntentId: string;
-      paymentMethodId: string;
-      bookingId: number;
-      qrImage: string;
-      successToken: string;
-      expiresAt?: string;
-      warnings?: string[];
-    }
   | { type: "internal"; url: string; warnings?: string[] };
 
-function getPublicAppUrl() {
-  const configuredAppUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
-
-  if (!configuredAppUrl) {
-    return "http://localhost:3000";
-  }
-
-  try {
-    const url = new URL(configuredAppUrl);
-    return url.toString().replace(/\/$/, "");
-  } catch {
-    throw new Error("NEXT_PUBLIC_APP_URL must be a valid absolute URL");
-  }
-}
 
 export async function createBooking({
   customerId,
@@ -302,132 +274,6 @@ export async function createBooking({
       db: prisma,
     });
 
-    if (paymentMethod === "CASH") {
-      const booking = await createBookingInDb({
-        businessSlug,
-        customerId,
-        customerName,
-        services,
-        scheduledAt,
-        estimatedEnd,
-        employeeId,
-        currentEmployeeId,
-        paymentMethod: "CASH",
-        paymentType,
-        email,
-        phone,
-        voucherCode: pricing.voucher?.code,
-        totalDiscount: pricing.voucherDiscount,
-        isPublicBooking: !session,
-        isWalkIn,
-        staffSelectionMode,
-        capacityOverride,
-        allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
-      });
-
-      if (metricBusinessId) {
-        await recordBookingMetric({
-          businessId: metricBusinessId,
-          action: "BOOKING_SUBMIT_SUCCESS",
-          outcome: "SUCCESS",
-          metadata: {
-            isPublicBooking: metricIsPublicBooking,
-            paymentMethod,
-            paymentType,
-            bookingId: booking.id,
-            assignmentDowngraded,
-            capacityOverrideApplied: walkInCapacityBypassAllowed,
-          },
-        });
-        if (metricIsPublicBooking) {
-          await recordBookingMetric({
-            businessId: metricBusinessId,
-            action: "PUBLIC_BOOKING_COMPLETED",
-            outcome: "COMPLETED",
-            metadata: {
-              bookingId: booking.id,
-              completionPath: "CASH",
-              assignmentDowngraded,
-              capacityOverrideApplied: walkInCapacityBypassAllowed,
-            },
-          });
-        }
-      }
-
-      if (!isWalkIn) {
-        // Email is handled via Outbox (BOOKING_CONFIRMED event)
-        // await sendBookingConfirmation(booking.id);
-      }
-
-      revalidatePath(`/app/${businessSlug}`);
-      return {
-        type: "internal",
-        url: `/app/${businessSlug}/bookings/${booking.id}?created=true`,
-        warnings: submitWarnings.length > 0 ? submitWarnings : undefined,
-      };
-    }
-
-    if (!email) {
-      throw new Error("Email is required for QR payments");
-    }
-
-    const metadata = {
-      businessSlug,
-      businessName: pricing.business.name,
-      customerId,
-      customerName,
-      email,
-      phone,
-      scheduledAt: scheduledAt.toISOString(),
-      estimatedEnd: estimatedEnd.toISOString(),
-      employeeId: employeeId?.toString(),
-      currentEmployeeId: currentEmployeeId?.toString(),
-      paymentMethod,
-      paymentType,
-      voucherCode: pricing.voucher?.code,
-      isWalkIn: isWalkIn ? "true" : "false",
-      staffSelectionMode,
-      capacityOverrideReason: capacityOverride?.reason,
-      capacityOverrideNote: capacityOverride?.note,
-      capacityOverrideApplied: walkInCapacityBypassAllowed ? "true" : "false",
-      services: JSON.stringify(
-        processedServices.map((s) => ({
-          id: s.id,
-          name: s.name,
-          price: s.price,
-          quantity: s.quantity,
-          duration: s.duration || 30,
-          claimedByCurrentEmployee: s.claimedByCurrentEmployee,
-          packageId: s.packageId,
-          originalPrice: s.originalPrice,
-          discount: s.discount,
-          discountReason: s.discountReason,
-          commissionBase: s.commissionBase,
-        })),
-      ),
-    };
-
-    const publicAppUrl = getPublicAppUrl();
-    const returnUrl = new URL(
-      `/${businessSlug}/booking/success`,
-      `${publicAppUrl}/`,
-    ).toString();
-
-    const paymongoDescription = `${pricing.business.name} (${pricing.business.slug}) - ${paymentType === "DOWNPAYMENT" ? "Downpayment for " : ""}Booking for ${customerName}`;
-
-    const qrPayment = await createPayMongoQrPaymentIntent({
-      amount: Math.round(amountToPay * 100),
-      description: paymongoDescription,
-      metadata,
-      billing: {
-        name: customerName,
-        email,
-        phone,
-      },
-      returnUrl,
-      expirySeconds: getQrExpirySeconds(),
-    });
-
     const booking = await createBookingInDb({
       businessSlug,
       customerId,
@@ -437,14 +283,12 @@ export async function createBooking({
       estimatedEnd,
       employeeId,
       currentEmployeeId,
-      paymentMethod: "QRPH",
+      paymentMethod,
       paymentType,
       email,
       phone,
       voucherCode: pricing.voucher?.code,
       totalDiscount: pricing.voucherDiscount,
-      paymongoPaymentIntentId: qrPayment.paymentIntentId,
-      paymongoPaymentMethodId: qrPayment.paymentMethodId,
       isPublicBooking: !session,
       isWalkIn,
       staffSelectionMode,
@@ -462,26 +306,28 @@ export async function createBooking({
           paymentMethod,
           paymentType,
           bookingId: booking.id,
-          completionPath: "QRPH_HOLD",
           assignmentDowngraded,
           capacityOverrideApplied: walkInCapacityBypassAllowed,
         },
       });
+      if (metricIsPublicBooking) {
+        await recordBookingMetric({
+          businessId: metricBusinessId,
+          action: "PUBLIC_BOOKING_COMPLETED",
+          outcome: "COMPLETED",
+          metadata: {
+            bookingId: booking.id,
+            assignmentDowngraded,
+            capacityOverrideApplied: walkInCapacityBypassAllowed,
+          },
+        });
+      }
     }
 
     revalidatePath(`/app/${businessSlug}`);
-
     return {
-      type: "qrph",
-      paymentIntentId: qrPayment.paymentIntentId,
-      paymentMethodId: qrPayment.paymentMethodId,
-      bookingId: booking.id,
-      qrImage: qrPayment.qrImage,
-      successToken: createBookingSuccessToken({
-        bookingId: booking.id,
-        businessSlug,
-      }),
-      expiresAt: qrPayment.expiresAt,
+      type: "internal",
+      url: `/app/${businessSlug}/bookings/${booking.id}?created=true`,
       warnings: submitWarnings.length > 0 ? submitWarnings : undefined,
     };
   } catch (err) {

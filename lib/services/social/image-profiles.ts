@@ -3,6 +3,7 @@ export const SOCIAL_IMAGE_PROFILES = [
   "SOFT_EDITORIAL",
   "MODERN_GRAPHIC",
   "BOLD_MONOCHROME",
+  "WARM_EDITORIAL",
 ] as const;
 
 export type SocialImageProfile = (typeof SOCIAL_IMAGE_PROFILES)[number];
@@ -16,24 +17,34 @@ export const SOCIAL_IMAGE_PROFILE_OPTIONS: Array<{
   description: string;
 }> = [
   {
-    value: "PHOTO_REALISTIC",
-    label: "Realistic Photo",
-    description: "Natural people, true-to-life lighting, and lifestyle vibe.",
-  },
-  {
     value: "SOFT_EDITORIAL",
     label: "Soft Editorial",
-    description: "Clean spa aesthetic, premium whites, and elegant composition.",
+    description:
+      "Clean spa aesthetic, premium whites, magazine-style composition. A safe, classy default.",
+  },
+  {
+    value: "PHOTO_REALISTIC",
+    label: "Realistic Photo",
+    description:
+      "Natural people, true-to-life lighting, lifestyle vibe. Best when you want authenticity.",
+  },
+  {
+    value: "WARM_EDITORIAL",
+    label: "Warm Luxury Editorial",
+    description:
+      "Golden-hour warmth, caramel tones, dewy-skin macro. Beauty editorial energy.",
   },
   {
     value: "MODERN_GRAPHIC",
     label: "Modern Graphic",
-    description: "Template-like social post with shapes, framing, and bold layout.",
+    description:
+      "Bold colors and crisp shapes. Punchy on the feed. Image is graphic but contains no text.",
   },
   {
     value: "BOLD_MONOCHROME",
     label: "Bold Monochrome",
-    description: "Dark high-contrast style with strong typography and dramatic feel.",
+    description:
+      "Cinematic black and white, dramatic light, single confident subject.",
   },
 ];
 

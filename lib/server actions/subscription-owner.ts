@@ -5,10 +5,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import {
-  createCheckoutForInvoice,
   createInvoiceForSubscription,
   ensureDefaultPlans,
   getBillingCollectionMode,
+  MANUAL_COLLECTION_MODE_ERROR,
   SUBSCRIPTION_PLAN_CODES,
 } from "@/features/billing/subscription-service";
 import { requireAuth } from "@/lib/auth/guards";
@@ -68,17 +68,11 @@ export async function createOwnerSubscriptionCheckoutAction(invoiceId: string) {
     return { success: false as const, error: "Forbidden" };
   }
 
-  const checkout = await createCheckoutForInvoice(invoiceId);
-  revalidatePath(`/app/${auth.businessSlug}/billing`);
-  return { success: true as const, data: checkout };
+  return { success: false as const, error: MANUAL_COLLECTION_MODE_ERROR };
 }
 
-export async function redirectOwnerSubscriptionCheckoutAction(invoiceId: string) {
-  const result = await createOwnerSubscriptionCheckoutAction(invoiceId);
-  if (!result.success) {
-    throw new Error(result.error);
-  }
-  redirect(result.data.checkoutUrl);
+export async function redirectOwnerSubscriptionCheckoutAction(_invoiceId: string) {
+  throw new Error(MANUAL_COLLECTION_MODE_ERROR);
 }
 
 export async function requestOwnerPlanUpgradeAction(

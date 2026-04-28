@@ -81,7 +81,7 @@ export async function buildBookingPricingSnapshot({
   businessSlug: string;
   scheduledAt: Date;
   services: BookingServiceInput[];
-  paymentMethod: "CASH" | "QRPH";
+  paymentMethod: "CASH" | "ONLINE";
   paymentType: "FULL" | "DOWNPAYMENT";
   voucherCode?: string;
 }): Promise<BookingPricingSnapshot> {

@@ -67,8 +67,6 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
-import QrPaymentPanel from "./QrPaymentPanel";
-import { getPayMongoPaymentIntentStatus } from "@/lib/server actions/paymongo";
 
 export type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
@@ -439,16 +437,6 @@ export default function BookingForm({
   >("");
   const [capacityOverrideNote, setCapacityOverrideNote] = useState("");
   const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
-  const [qrPayment, setQrPayment] = useState<{
-    paymentIntentId: string;
-    bookingId: number;
-    qrImage: string;
-    successToken: string;
-    expiresAt?: string;
-  } | null>(null);
-  const [qrStatus, setQrStatus] = useState<
-    "pending" | "paid" | "failed" | "expired"
-  >("pending");
   const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
@@ -460,74 +448,6 @@ export default function BookingForm({
     }
   }, [canceled, businessSlug, router]);
 
-  const { data: paymentIntentStatus } = useQuery({
-    queryKey: ["paymongoIntentStatus", qrPayment?.paymentIntentId],
-    queryFn: () =>
-      qrPayment
-        ? getPayMongoPaymentIntentStatus(
-            qrPayment.paymentIntentId,
-            businessSlug,
-          )
-        : Promise.resolve(null),
-    enabled: !!qrPayment && qrStatus === "pending",
-    refetchInterval: qrPayment && qrStatus === "pending" ? 5000 : false,
-  });
-
-  useEffect(() => {
-    if (!qrPayment || !paymentIntentStatus) return;
-
-    const status = paymentIntentStatus.status;
-    if (status === "succeeded") {
-      setQrStatus("paid");
-      if (!hasRedirected && businessSlug) {
-        if (isEmployee) {
-          form.reset();
-          setIsWalkIn(false);
-          setHasReviewedDetails(false);
-          setClaimedUniqueIds([]);
-          setPendingFlows([]);
-          setExistingCustomerEmail(null);
-          setExistingCustomerPhone(null);
-          setQrPayment(null);
-          toast.success("Payment Received! Booking confirmed.");
-
-          if (onSuccess) onSuccess();
-        } else {
-          setHasRedirected(true);
-          setTimeout(() => {
-            const bookingId = qrPayment?.bookingId;
-            const successToken = qrPayment?.successToken;
-            const successUrl = bookingId
-              ? `/${businessSlug}/booking/success?bookingId=${bookingId}${successToken ? `&token=${encodeURIComponent(successToken)}` : ""}`
-              : `/${businessSlug}/booking/success`;
-            // Use window.location.href to ensure full page reload and clear any open modals
-            window.location.href = successUrl;
-          }, 1200);
-        }
-      }
-      return;
-    }
-
-    if (status === "canceled" || status === "failed") {
-      setQrStatus("failed");
-      return;
-    }
-
-    if (qrPayment.expiresAt) {
-      const expired = new Date(qrPayment.expiresAt).getTime() <= Date.now();
-      if (expired) {
-        setQrStatus("expired");
-      }
-    }
-  }, [
-    paymentIntentStatus,
-    qrPayment,
-    businessSlug,
-    hasRedirected,
-    form,
-    isEmployee,
-    onSuccess,
-  ]);
 
   const handleWalkInToggle = useCallback(() => {
     if (!isEmployee) return;
@@ -774,10 +694,7 @@ export default function BookingForm({
     });
   }, [total, voucherDiscountAmount, paymentMethod, paymentType]);
 
-  const convenienceFee = useMemo(() => {
-    if (paymentMethod !== "QRPH") return 0;
-    return Math.max(0, totalWithFee - finalAmountToPay);
-  }, [paymentMethod, totalWithFee, finalAmountToPay]);
+  const convenienceFee = 0;
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: [
@@ -893,16 +810,6 @@ export default function BookingForm({
         return;
       }
 
-      if (result.type === "qrph") {
-        setQrPayment({
-          paymentIntentId: result.paymentIntentId,
-          bookingId: result.bookingId,
-          qrImage: result.qrImage,
-          successToken: result.successToken,
-          expiresAt: result.expiresAt,
-        });
-        setQrStatus("pending");
-      }
     },
     onError: (error) => {
       const code = error instanceof Error ? error.message : "";
@@ -1186,8 +1093,8 @@ export default function BookingForm({
         disabled: !hasReviewedDetails,
       },
       {
-        value: "QRPH" as const,
-        label: "QR Payment",
+        value: "ONLINE" as const,
+        label: "Paid Online (GCash / Maya)",
         disabled: !hasReviewedDetails,
       },
     ];
@@ -1262,24 +1169,6 @@ export default function BookingForm({
             : "pb-0",
         )}
       >
-        {qrPayment && (
-          <QrPaymentPanel
-            qrImage={qrPayment.qrImage}
-            amountLabel={`₱${totalWithFee.toFixed(2)}`}
-            status={qrStatus}
-            expiresAt={qrPayment.expiresAt}
-            onClose={() => {
-              setQrPayment(null);
-              setQrStatus("pending");
-              setHasRedirected(false);
-            }}
-            onRetry={() => {
-              setQrPayment(null);
-              setQrStatus("pending");
-              setHasRedirected(false);
-            }}
-          />
-        )}
         <div className={cn("flex flex-col gap-4 pb-4 sm:pb-4 lg:pb-4")}>
           {/* Hidden Fields & Identification */}
           <FormField
@@ -2499,11 +2388,6 @@ export default function BookingForm({
                               ? "Due Now"
                               : "Total Amount"}
                           </p>
-                          {paymentMethod === "QRPH" && (
-                            <p className="text-[10px] text-muted-foreground">
-                              Includes 1.5% fee
-                            </p>
-                          )}
                         </div>
                         <div className="text-2xl font-bold text-primary tabular-nums tracking-tight">
                           ₱
@@ -2514,18 +2398,6 @@ export default function BookingForm({
                         </div>
                       </div>
 
-                      {paymentMethod === "QRPH" && (
-                        <div className="flex justify-between items-center text-xs text-muted-foreground/80 mt-1">
-                          <span>Convenience Fee (1.5%)</span>
-                          <span className="tabular-nums">
-                            + ₱
-                            {convenienceFee.toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                      )}
 
                       <Button
                         disabled={isSubmitDisabled}

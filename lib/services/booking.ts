@@ -1,7 +1,6 @@
 import { prisma } from "@/prisma/prisma";
 import { publishEvent } from "./outbox";
 import {
-  BookingPaymentType,
   PaymentStatus,
   Prisma,
 } from "@/prisma/generated/prisma/client";
@@ -14,7 +13,6 @@ import {
   normalizeCustomerEmail,
   normalizeCustomerPhone,
 } from "./customer-matching";
-import { getQrHoldExpiresAt } from "@/lib/payments/config";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import {
   BookingAvailabilityError,
@@ -41,18 +39,13 @@ export type BookingServiceParams = {
   estimatedEnd: Date;
   employeeId?: number | null;
   currentEmployeeId?: number | null;
-  paymentMethod: "CASH" | "QRPH";
+  paymentMethod: "CASH" | "ONLINE";
 
   paymentType: "FULL" | "DOWNPAYMENT";
   email?: string;
   phone?: string;
   voucherCode?: string;
   totalDiscount?: number;
-  paymentConfirmed?: boolean;
-  paymongoCheckoutSessionId?: string;
-  paymongoPaymentIntentId?: string;
-  paymongoPaymentMethodId?: string;
-  paymongoPaymentId?: string;
   isPublicBooking?: boolean;
   isWalkIn?: boolean;
   staffSelectionMode?: StaffSelectionMode;
@@ -95,11 +88,6 @@ export async function createBookingInDb({
   email,
   phone,
   voucherCode,
-  paymentConfirmed = false,
-  paymongoCheckoutSessionId,
-  paymongoPaymentIntentId,
-  paymongoPaymentMethodId,
-  paymongoPaymentId,
   isPublicBooking = false,
   isWalkIn = false,
   staffSelectionMode = "ANY_AVAILABLE",
@@ -222,11 +210,6 @@ export async function createBookingInDb({
           }
 
           const isDownpayment = paymentType === "DOWNPAYMENT";
-          const isOnlinePayment = paymentMethod === "QRPH";
-          const bookingStatus =
-            isOnlinePayment && !paymentConfirmed ? "HOLD" : "ACCEPTED";
-          const holdExpiresAt =
-            bookingStatus === "HOLD" ? getQrHoldExpiresAt() : null;
 
           // Check sale event slot limit inside transaction for atomicity
           const appliedSaleEventId = pricing.appliedSaleEventId ?? null;
@@ -245,12 +228,10 @@ export async function createBookingInDb({
           const principalAmountForInitialPayment = isDownpayment
             ? downpaymentAmount || 0
             : grandTotal;
-          const amountPaid =
-            isOnlinePayment && paymentConfirmed
-              ? principalAmountForInitialPayment
-              : !isOnlinePayment && isWalkIn
-                ? (isDownpayment ? principalAmountForInitialPayment : grandTotal)
-                : 0;
+          // Walk-ins pay immediately; all other bookings are settled when services are done
+          const amountPaid = isWalkIn
+            ? (isDownpayment ? principalAmountForInitialPayment : grandTotal)
+            : 0;
           const paymentStatus = resolvePaymentStatus(grandTotal, amountPaid);
 
           const booking = await tx.booking.create({
@@ -260,14 +241,9 @@ export async function createBookingInDb({
               grand_total: grandTotal,
               total_discount: finalVoucherDiscount,
               payment_method: paymentMethod,
-              paymongo_checkout_session_id: paymongoCheckoutSessionId,
-              paymongo_payment_intent_id: paymongoPaymentIntentId,
-              paymongo_payment_method_id: paymongoPaymentMethodId,
-              paymongo_payment_id: paymongoPaymentId,
-              status: bookingStatus,
+              status: "ACCEPTED",
               payment_status: paymentStatus,
               amount_paid: amountPaid,
-              hold_expires_at: holdExpiresAt,
               sale_event_id: appliedSaleEventId,
               scheduled_at: scheduledAt,
               estimated_end: pricing.estimatedEnd,
@@ -350,32 +326,8 @@ export async function createBookingInDb({
             }
           }
 
-          if (isOnlinePayment) {
-            const paymentTypeForRecord: BookingPaymentType = isDownpayment
-              ? BookingPaymentType.DOWNPAYMENT
-              : BookingPaymentType.FULL;
 
-            await tx.bookingPayment.create({
-              data: {
-                booking_id: booking.id,
-                type: paymentTypeForRecord,
-                status: paymentConfirmed ? "SUCCEEDED" : "PENDING",
-                payment_method: "QRPH",
-                amount_principal: principalAmountForInitialPayment,
-                amount_charged: pricing.amountToPay,
-                paymongo_payment_intent_id: paymongoPaymentIntentId,
-                paymongo_payment_method_id: paymongoPaymentMethodId,
-                paymongo_payment_id: paymongoPaymentId,
-                expires_at: paymentConfirmed ? null : holdExpiresAt,
-                paid_at: paymentConfirmed ? getCurrentDateTimePH() : null,
-              },
-            });
-          }
-
-          const eventType =
-            bookingStatus === "ACCEPTED"
-              ? "BOOKING_CONFIRMED"
-              : "BOOKING_CREATED";
+          const eventType = "BOOKING_CONFIRMED";
 
           await publishEvent(tx as Prisma.TransactionClient, {
             type: eventType,
@@ -389,7 +341,7 @@ export async function createBookingInDb({
               scheduledAt: scheduledAt.toISOString(),
               estimatedEnd: pricing.estimatedEnd.toISOString(),
               grandTotal,
-              status: bookingStatus,
+              status: "ACCEPTED",
               isWalkIn,
             },
           });

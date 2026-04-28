@@ -12,7 +12,10 @@
       "Bash(python \"C:\\\\Users\\\\LENOVO\\\\.claude\\\\skills\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"dashboard responsive mobile tabs navigation filter\" --domain ux -n 6)",
       "Bash(python \"C:\\\\Users\\\\LENOVO\\\\.claude\\\\skills\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"revenue trend line area bar chart time series\" --domain chart -n 4)",
       "Bash(python \"C:\\\\Users\\\\LENOVO\\\\.claude\\\\skills\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"SaaS analytics admin panel data dashboard\" --domain product -n 3)",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "Bash(python skills/ui-ux-pro-max/scripts/search.py \"SaaS dashboard notification history email template service booking\" --design-system -p \"ServiceFlow\")",
+      "Bash(python \"C:\\\\Users\\\\LENOVO\\\\.claude\\\\skills\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"SaaS dashboard notification history activity feed service booking\" --design-system -p \"ServiceFlow\")",
+      "PowerShell(head -200)"
     ]
   }
 }

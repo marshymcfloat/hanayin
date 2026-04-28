@@ -20,6 +20,7 @@ import {
   CreditCard,
   BarChart3,
   TrendingUp,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -146,6 +147,7 @@ export function AppSidebarClient({
         ? [
             { title: "Customers", url: `/app/${slug}/customers`, icon: Users },
             { title: "Bookings", url: `/app/${slug}/bookings`, icon: Calendar },
+            { title: "Notifications", url: `/app/${slug}/notifications`, icon: Bell },
           ]
         : [
             { title: "Bookings", url: `/app/${slug}/bookings`, icon: Calendar },

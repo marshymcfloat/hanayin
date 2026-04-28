@@ -7,6 +7,7 @@ import {
   sendSemaphoreOtp,
   normalizePhilippinePhone,
 } from "@/lib/services/sms-otp";
+import { BookingStatus } from "@/prisma/generated/prisma/client";
 
 const OTP_EXPIRY_MINUTES = 10;
 const OTP_COOLDOWN_SECONDS = 60;
@@ -40,23 +41,48 @@ export async function resolveCustomerTrust(
   if (!business) return { tier: "NEW", requiresOtp: true };
 
   const normalizedPhone = normalizePhilippinePhone(phone);
-  // Also check the local 09XX format in case it was stored that way
+  // Build all formats the phone may have been stored as
   const localPhone =
     normalizedPhone.startsWith("63") && normalizedPhone.length === 12
       ? "0" + normalizedPhone.slice(2)
+      : normalizedPhone;
+  // Short 10-digit format (9XXXXXXXXX) — stored when user types in the +63 prefixed input
+  const shortPhone =
+    normalizedPhone.startsWith("63") && normalizedPhone.length === 12
+      ? normalizedPhone.slice(2)
       : normalizedPhone;
 
   const customer = await prisma.customer.findFirst({
     where: {
       business_id: business.id,
-      phone: { in: [normalizedPhone, localPhone] },
+      phone: { in: [normalizedPhone, localPhone, shortPhone] },
     },
-    select: { trust_tier: true, name: true, no_show_count: true, email: true },
+    select: { id: true, trust_tier: true, name: true, no_show_count: true, email: true },
   });
 
   if (!customer) return { tier: "NEW", requiresOtp: true };
 
-  const tier = (customer.trust_tier as CustomerTrust) ?? "NEW";
+  let tier = (customer.trust_tier as CustomerTrust) ?? "NEW";
+
+  // Backfill: if tier is still NEW but the customer has a completed booking,
+  // promote inline so existing customers skip OTP without needing a data migration.
+  if (tier === "NEW") {
+    const completedBooking = await prisma.booking.findFirst({
+      where: {
+        customer_id: customer.id,
+        business_id: business.id,
+        status: BookingStatus.COMPLETED,
+      },
+      select: { id: true },
+    });
+    if (completedBooking) {
+      await prisma.customer.updateMany({
+        where: { id: customer.id, trust_tier: "NEW" },
+        data: { trust_tier: "TRUSTED" },
+      });
+      tier = "TRUSTED";
+    }
+  }
 
   return {
     tier,
@@ -225,11 +251,15 @@ export async function verifyBookingOtp(
     normalizedPhone.startsWith("63") && normalizedPhone.length === 12
       ? "0" + normalizedPhone.slice(2)
       : normalizedPhone;
+  const shortPhone =
+    normalizedPhone.startsWith("63") && normalizedPhone.length === 12
+      ? normalizedPhone.slice(2)
+      : normalizedPhone;
 
   const customer = await prisma.customer.findFirst({
     where: {
       business_id: business.id,
-      phone: { in: [normalizedPhone, localPhone] },
+      phone: { in: [normalizedPhone, localPhone, shortPhone] },
     },
     select: { trust_tier: true, name: true, email: true },
   });
@@ -258,12 +288,16 @@ export async function consumeOtpVerification(
     normalizedPhone.startsWith("63") && normalizedPhone.length === 12
       ? "0" + normalizedPhone.slice(2)
       : normalizedPhone;
+  const shortPhone =
+    normalizedPhone.startsWith("63") && normalizedPhone.length === 12
+      ? normalizedPhone.slice(2)
+      : normalizedPhone;
 
   const otpRecord = await prisma.bookingOtpCode.findFirst({
     where: {
       id: verificationId,
       business_id: businessId,
-      phone: { in: [normalizedPhone, localPhone] },
+      phone: { in: [normalizedPhone, localPhone, shortPhone] },
       verified: true,
       used: false,
       expires_at: { gte: new Date() },

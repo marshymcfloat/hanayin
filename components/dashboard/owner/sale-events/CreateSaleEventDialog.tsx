@@ -18,6 +18,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -51,6 +58,7 @@ const schema = z.object({
   ),
   socialCaptionOverride: z.string().optional(),
   socialImageProfile: z.enum(SOCIAL_IMAGE_PROFILES),
+  socialImageDirection: z.string().max(200).optional(),
 });
 
 type Values = z.infer<typeof schema>;
@@ -122,6 +130,7 @@ export function CreateSaleEventDialog(props: Props) {
       targetPlatforms: props.connectedPlatforms,
       socialCaptionOverride: "",
       socialImageProfile: DEFAULT_SOCIAL_IMAGE_PROFILE,
+      socialImageDirection: "",
     },
   });
 
@@ -261,6 +270,7 @@ export function CreateSaleEventDialog(props: Props) {
         socialCaptionOverride: data.socialCaptionOverride,
         socialMediaUrl: uploadedUrl,
         socialImageProfile: data.socialImageProfile,
+        socialImageDirection: data.socialImageDirection?.trim() || undefined,
       });
 
       if (!result.success) {
@@ -321,17 +331,27 @@ export function CreateSaleEventDialog(props: Props) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label>Discount Type</Label>
-              <select
-                className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                {...form.register("discountType")}
+              <Select
+                value={values.discountType}
+                onValueChange={(v) => form.setValue("discountType", v as DiscountType)}
               >
-                <option value="PERCENTAGE">Percentage</option>
-                <option value="FLAT">Flat</option>
-              </select>
+                <SelectTrigger className="h-10 rounded-xl cursor-pointer">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PERCENTAGE">Percentage (%)</SelectItem>
+                  <SelectItem value="FLAT">Flat amount (₱)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-2">
-              <Label>Discount Value</Label>
-              <Input type="number" step="0.01" className="h-10 rounded-xl" {...form.register("discountValue")} />
+              <Label>
+                Discount Value{" "}
+                <span className="font-normal text-muted-foreground">
+                  {values.discountType === "PERCENTAGE" ? "(%)" : "(₱)"}
+                </span>
+              </Label>
+              <Input type="number" step="0.01" min={0} className="h-10 rounded-xl" {...form.register("discountValue")} />
             </div>
           </div>
           <div className="grid gap-2">
@@ -598,22 +618,40 @@ export function CreateSaleEventDialog(props: Props) {
                     </div>
                     <div className="grid gap-2">
                       <Label>AI Image Style</Label>
-                      <select
-                        className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                        {...form.register("socialImageProfile")}
+                      <Select
+                        value={values.socialImageProfile}
+                        onValueChange={(v) => form.setValue("socialImageProfile", v as typeof values.socialImageProfile)}
                       >
-                        {SOCIAL_IMAGE_PROFILE_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="h-10 rounded-xl cursor-pointer">
+                          <SelectValue placeholder="Select style" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SOCIAL_IMAGE_PROFILE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <p className="text-xs text-muted-foreground">
-                        {
-                          SOCIAL_IMAGE_PROFILE_OPTIONS.find(
-                            (option) => option.value === values.socialImageProfile,
-                          )?.description
-                        }
+                        {SOCIAL_IMAGE_PROFILE_OPTIONS.find((o) => o.value === values.socialImageProfile)?.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground">
+                        Image direction <span className="text-muted-foreground font-normal">(optional)</span>
+                      </label>
+                      <Textarea
+                        placeholder='Describe the look you want — e.g. "young woman getting a facial, autumn tones, cozy studio"'
+                        value={values.socialImageDirection ?? ""}
+                        onChange={(e) => form.setValue("socialImageDirection", e.target.value)}
+                        rows={2}
+                        maxLength={200}
+                        className="resize-none text-sm rounded-xl"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Guide the AI on what to show in the generated image.
                       </p>
                     </div>
                   </>

@@ -1,4 +1,6 @@
 import { Resend } from "resend";
+import { render } from "@react-email/render";
+import { BookingCancelledEmail } from "@/components/emails/BookingCancelledEmail";
 
 import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/prisma";
@@ -116,15 +118,13 @@ async function sendBookingCancelledNotification(
 
   // --- Email ---
   if (recipientEmail) {
+    const emailHtml = await render(
+      BookingCancelledEmail({ customerName, businessName, reason }),
+    );
     await sendHtmlEmail({
       to: [recipientEmail],
       subject: `Booking cancelled – ${businessName}`,
-      html: `
-        <p>Hi ${customerName},</p>
-        <p>Your booking with <strong>${businessName}</strong> was cancelled.</p>
-        ${reason ? `<p>Reason: ${reason}</p>` : ""}
-        <p>If you need help rebooking, please contact ${businessName} directly.</p>
-      `,
+      html: emailHtml,
       text: `Hi ${customerName}, your booking with ${businessName} was cancelled.${reason ? ` Reason: ${reason}.` : ""} Please contact us to rebook.`,
     });
   }
@@ -366,6 +366,8 @@ export async function deliverOutboxEvent<TType extends OutboxEventType>(params: 
       );
       return;
     case "FLOW_REMINDER_SENT":
+      return;
+    case "RE_ENGAGEMENT_REMINDER_SENT":
       return;
     case "SOCIAL_TARGET_PUBLISH":
       await deliverSocialTargetPublish({

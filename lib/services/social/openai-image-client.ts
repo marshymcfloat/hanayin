@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
+const DEFAULT_OPENAI_IMAGE_TIMEOUT_MS = 60_000;
 
 type OpenAIImageData = {
   b64_json?: string;
@@ -56,10 +57,23 @@ function resolveImageSize(): ImageSize {
 
 function resolveImageQuality(): ImageQuality {
   const value = process.env.OPENAI_IMAGE_QUALITY;
-  if (value === "low" || value === "medium" || value === "high" || value === "auto") {
+  if (
+    value === "low" ||
+    value === "medium" ||
+    value === "high" ||
+    value === "auto"
+  ) {
     return value;
   }
   return "high";
+}
+
+function resolveTimeoutMs() {
+  const value = Number(process.env.OPENAI_IMAGE_TIMEOUT_MS);
+  if (!Number.isFinite(value) || value <= 0) {
+    return DEFAULT_OPENAI_IMAGE_TIMEOUT_MS;
+  }
+  return Math.floor(value);
 }
 
 function outputFormatToMimeType(outputFormat: OutputFormat) {
@@ -73,10 +87,16 @@ function outputFormatToMimeType(outputFormat: OutputFormat) {
   }
 }
 
-async function fetchImageFromUrl(url: string) {
-  const response = await fetch(url);
+function isAbortError(error: unknown) {
+  return error instanceof Error && error.name === "AbortError";
+}
+
+async function fetchImageFromUrl(url: string, signal: AbortSignal) {
+  const response = await fetch(url, { signal });
   if (!response.ok) {
-    throw new Error(`OpenAI image URL fetch failed with status ${response.status}`);
+    throw new Error(
+      `OpenAI image URL fetch failed with status ${response.status}`,
+    );
   }
   const contentType = response.headers.get("content-type") || "image/png";
   const bytes = Buffer.from(await response.arrayBuffer());
@@ -93,28 +113,46 @@ export async function generateOpenAIImage(input: { prompt: string }) {
   const outputFormat = resolveOutputFormat();
   const size = resolveImageSize();
   const quality = resolveImageQuality();
+  const timeoutMs = resolveTimeoutMs();
 
-  const response = await fetch(OPENAI_IMAGES_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      prompt: input.prompt,
-      size,
-      quality,
-      output_format: outputFormat,
-      n: 1,
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response: Response;
+  try {
+    response = await fetch(OPENAI_IMAGES_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        prompt: input.prompt,
+        size,
+        quality,
+        output_format: outputFormat,
+        n: 1,
+      }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw new Error(
+        `OpenAI image generation timed out after ${timeoutMs}ms`,
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
 
   const payload = (await response.json()) as OpenAIImagesResponse;
 
   if (!response.ok || payload.error) {
     const message =
-      payload.error?.message || `OpenAI image generation failed with status ${response.status}`;
+      payload.error?.message ||
+      `OpenAI image generation failed with status ${response.status}`;
     throw new Error(message);
   }
 
@@ -138,7 +176,17 @@ export async function generateOpenAIImage(input: { prompt: string }) {
   }
 
   if (image.url) {
-    return fetchImageFromUrl(image.url);
+    // Use a fresh, smaller timeout for the follow-up download.
+    const downloadController = new AbortController();
+    const downloadTimer = setTimeout(
+      () => downloadController.abort(),
+      Math.min(timeoutMs, 30_000),
+    );
+    try {
+      return await fetchImageFromUrl(image.url, downloadController.signal);
+    } finally {
+      clearTimeout(downloadTimer);
+    }
   }
 
   throw new Error("OpenAI image response did not include image bytes or URL");

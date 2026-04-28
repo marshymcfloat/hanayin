@@ -4,7 +4,7 @@ import { createBookingSchema } from "./bookings";
 const basePayload = {
   services: [{ id: 1, name: "Haircut", price: 500, quantity: 1 }],
   scheduledAt: new Date("2026-02-15T12:00:00.000Z"),
-  paymentMethod: "QRPH" as const,
+  paymentMethod: "CASH" as const,
   paymentType: "FULL" as const,
   email: "customer@example.com",
 };

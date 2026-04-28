@@ -65,7 +65,38 @@ const INTERNAL_SIGNAL_PATTERNS = [
   "opportunity signal",
   "confidence score",
   "can drive prep bookings",
+  // Internal opportunity terminology — must NEVER leak into a public caption.
+  // Keep these in lowercase; the matcher already lowercases the line.
+  "quiet hours",
+  "slow hours",
+  "low traffic",
+  "low-traffic",
+  "dead hours",
+  "off-peak hours",
+  "off peak hours",
+  "fill window",
+  "fill the window",
+  "rescue",
 ];
+
+const INTERNAL_TITLE_TOKENS: ReadonlyArray<{ pattern: RegExp; replacement: string }> = [
+  { pattern: /\bquiet\s+hours?\b/gi, replacement: "Mid-Week" },
+  { pattern: /\bslow\s+hours?\b/gi, replacement: "Mid-Week" },
+  { pattern: /\bdead\s+hours?\b/gi, replacement: "Mid-Week" },
+  { pattern: /\boff[-\s]?peak\b/gi, replacement: "Mid-Week" },
+  { pattern: /\b(2|3|4|5)\s*pm\s+rescue\b/gi, replacement: "Afternoon Treat" },
+  { pattern: /\brescue\b/gi, replacement: "Refresh" },
+];
+
+// If a legacy or owner-edited title still contains internal-sounding words,
+// soften them before they reach the public caption / image overlay.
+function neutralizePublicTitle(value: string): string {
+  let out = value;
+  for (const rule of INTERNAL_TITLE_TOKENS) {
+    out = out.replace(rule.pattern, rule.replacement);
+  }
+  return out.replace(/\s{2,}/g, " ").trim();
+}
 const RESCUE_HOOK_LINES = [
   "Quick glow-up day? We got you.",
   "If your week needs a reset, this is your sign.",
@@ -134,11 +165,10 @@ function formatDateWindow(startDate: Date, endDate: Date) {
 }
 
 function buildPromoTimingLine(startDate: Date, endDate: Date) {
-  const window = formatDateWindow(startDate, endDate);
   if (isSameCalendarDay(startDate, endDate)) {
-    return `One-day promo on ${window}.`;
+    return "Flash sale — today only.";
   }
-  return `Promo runs ${window}.`;
+  return `Promo runs ${formatDateWindow(startDate, endDate)}.`;
 }
 
 function toHashtagSeed(value: string) {
@@ -201,7 +231,7 @@ function sanitizeSaleTitleForPublic(value: string) {
     .replace(/\s{2,}/g, " ")
     .trim();
 
-  return cleaned || value.trim();
+  return neutralizePublicTitle(cleaned || value.trim());
 }
 
 function buildFallbackHashtags(input: CaptionGenerationInput) {
@@ -657,9 +687,8 @@ function buildRescueCaptionDraft(input: CaptionGenerationInput): CaptionGenerati
       ].filter(Boolean)
     : [
         pickRandom(RESCUE_HOOK_LINES),
-        `${input.businessName} has a feel-good promo for you this season.`,
-        `Sakto for ${season}, this ${saleTitle} offer is made for your glow-up goals.`,
-        `May ${formatDiscount(input.discountType, input.discountValue)} tayo for ${saleTitle}, so mas sulit ang self-care plan mo.`,
+        `${saleTitle} is live at ${input.businessName} — feel-good self-care, ready when you are.`,
+        `Enjoy ${formatDiscount(input.discountType, input.discountValue)} on this round, so mas sulit ang self-care plan mo.`,
         buildPromoTimingLine(input.startDate, input.endDate),
         publicSaleDescription,
         "If you've been putting off self-care dahil busy, this is a good time to finally book.",
@@ -752,6 +781,8 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     "- Avoid dense paragraph blocks. Keep one main idea per line.",
     "- Keep tone local, relatable, and not scripted.",
     "- Avoid repeating generic work-stress intros. Use varied hook styles.",
+    "- Mention the sale title at most twice, and never on two consecutive lines — vary the wording so it does not feel repeated.",
+    "- NEVER imply the business is slow, struggling, has empty slots due to low demand, or is having a hard time getting customers. NEVER use phrases like \"quiet hours\", \"slow hours\", \"dead hours\", \"off-peak\", \"fill the window\", or \"rescue\".",
     '- Never output internal reasoning/meta lines like "Focused categories:" or "based on your ... promo."',
     '- Never include operational lines like "window is active", "15/30 behavior", or confidence/impact scoring.',
     "- Avoid fake urgency, medical claims, or spammy wording.",
@@ -796,6 +827,8 @@ function buildGeminiRewritePrompt(input: CaptionGenerationInput, caption: string
     "- Keep spacing clean: add blank lines between hook, body, bullet list, and CTA.",
     "- Avoid dense paragraph blocks. Keep one main idea per line.",
     "- Avoid repeating generic work-stress intros. Use a fresh hook.",
+    "- Mention the sale title at most twice, never on two consecutive lines.",
+    "- NEVER imply the business is slow, struggling, has low demand, or is having a hard time getting customers. NEVER use \"quiet hours\", \"slow hours\", \"dead hours\", \"off-peak\", \"fill window\", or \"rescue\".",
     '- Never include operational lines like "window is active", "15/30 behavior", or scoring hints.',
     "- Sound human, local, and warm.",
     '- Do not include internal/meta phrases like "Focused categories:" or "based on your ... promo."',
@@ -986,6 +1019,59 @@ function parseCaptionCandidate(responseText: string, fallbackHashtags: string[])
     caption: formatCaptionForSocialFeed(cleanCaptionText(plainText)),
     hashtags: hashtags.length > 0 ? hashtags : fallbackHashtags,
   };
+}
+
+export type OrganicPostCategory =
+  | "SERVICE_SHOWCASE"
+  | "BEHIND_THE_SCENES"
+  | "TIPS_EDUCATION"
+  | "SEASONAL_GREETING"
+  | "TEAM_SPOTLIGHT"
+  | "GENERAL";
+
+export type OrganicCaptionInput = {
+  businessSlug: string;
+  businessName: string;
+  businessDescription?: string | null;
+  topic: string;
+  category: OrganicPostCategory;
+  serviceNames?: string[];
+  mood?: string;
+  visualFocus?: string;
+  ownerContext?: string;
+};
+
+const ORGANIC_CATEGORY_INSTRUCTIONS: Record<OrganicPostCategory, string> = {
+  SERVICE_SHOWCASE: "Highlight the service quality, benefits, and what makes this treatment special. Focus on the client experience and outcome.",
+  BEHIND_THE_SCENES: "Give followers a warm, authentic peek behind the scenes. Highlight the team's passion, the preparation, and the care put into every client visit.",
+  TIPS_EDUCATION: "Share practical beauty, wellness, or self-care tips. Be informative, relatable, and position the business as a trusted expert.",
+  SEASONAL_GREETING: "Create a warm seasonal or holiday greeting that connects the occasion with self-care or a visit to the business. Feel genuine, not salesy.",
+  TEAM_SPOTLIGHT: "Celebrate the team or a specific skill. Make followers feel the warmth and professionalism of the staff.",
+  GENERAL: "Engage the audience with a warm, conversational post that builds community and encourages interaction.",
+};
+
+export async function generateOrganicCaptionDraft(
+  input: OrganicCaptionInput,
+): Promise<CaptionGenerationOutput> {
+  const today = new Date();
+
+  const contextParts = [ORGANIC_CATEGORY_INSTRUCTIONS[input.category]];
+  if (input.mood) contextParts.push(`Tone/mood for this post: ${input.mood}.`);
+  if (input.visualFocus) contextParts.push(`Visual focus: ${input.visualFocus}.`);
+  if (input.ownerContext) contextParts.push(`Additional owner context: ${input.ownerContext}`);
+
+  return generateSocialCaptionDraft({
+    businessSlug: input.businessSlug,
+    businessName: input.businessName,
+    businessDescription: input.businessDescription,
+    saleTitle: input.topic,
+    serviceNames: input.serviceNames ?? [],
+    actionCategory: "SOCIAL_ONLY",
+    startDate: today,
+    endDate: today,
+    allowRewritePass: true,
+    saleDescription: contextParts.join(" "),
+  });
 }
 
 export async function generateSocialCaptionDraft(

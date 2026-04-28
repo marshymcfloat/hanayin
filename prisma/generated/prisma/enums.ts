@@ -236,7 +236,7 @@ export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof Attendance
 
 export const PaymentMethod = {
   CASH: 'CASH',
-  QRPH: 'QRPH'
+  ONLINE: 'ONLINE'
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

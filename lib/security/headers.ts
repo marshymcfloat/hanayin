@@ -15,7 +15,6 @@ const connectSrc = [
 
 const frameSrc = [
   "'self'",
-  "https://checkout.paymongo.com",
   ...parseCspList(process.env.NEXT_PUBLIC_CSP_FRAME_SRC),
 ];
 

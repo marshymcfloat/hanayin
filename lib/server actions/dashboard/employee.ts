@@ -5,26 +5,18 @@ import {
   AvailedServiceStatus,
   BookingStatus,
   PaymentStatus,
-  Prisma,
   ServiceProviderType,
 } from "@/prisma/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
-import {
-  createPayMongoQrPaymentIntent,
-  getPayMongoPaymentIntentById,
-} from "@/lib/server actions/paymongo";
 import { getApplicableDiscount } from "@/lib/utils/pricing";
-import { calculateBookingTotal } from "@/lib/utils/pricing";
-import { getQrExpirySeconds } from "@/lib/payments/config";
 import {
   getCurrentDateTimePH,
   getEndOfDayPH,
   getStartOfDayPH,
 } from "@/lib/date-utils";
 import { promoteBookingToCompletedIfEligible } from "@/lib/services/booking-status";
-import { publishEvent } from "@/lib/services/outbox";
 import {
   getEmployeeSpecialtySet,
   hasAnyAllowedCategoryForEmployee,
@@ -674,8 +666,6 @@ export async function getManagerQueueBoardAction() {
   }
 }
 
-type QrReviewStatus = "pending" | "paid" | "failed" | "expired";
-
 type EmployeeAuthResult =
   | {
       success: true;
@@ -687,72 +677,6 @@ type EmployeeAuthResult =
   | { success: false; error: string };
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function mapPayMongoStatusToQrReviewStatus(
-  status: string | undefined,
-  expiresAt?: string,
-): QrReviewStatus {
-  const normalizedStatus = status?.toLowerCase();
-
-  if (normalizedStatus === "succeeded") return "paid";
-  if (normalizedStatus === "failed" || normalizedStatus === "canceled") {
-    return "failed";
-  }
-  if (normalizedStatus === "expired") return "expired";
-
-  if (expiresAt && new Date(expiresAt).getTime() <= Date.now()) {
-    return "expired";
-  }
-
-  return "pending";
-}
-
-async function resolveQrReviewPayload(
-  paymentIntentId: string,
-  fallbackAmount: number,
-) {
-  const paymentIntent = await getPayMongoPaymentIntentById(paymentIntentId);
-  const attributes = paymentIntent?.attributes;
-
-  if (!isRecord(attributes)) {
-    return null;
-  }
-
-  const nextAction = attributes.next_action;
-  const nextActionRecord = isRecord(nextAction) ? nextAction : null;
-  const code = nextActionRecord && isRecord(nextActionRecord.code)
-    ? nextActionRecord.code
-    : null;
-  const redirect = nextActionRecord && isRecord(nextActionRecord.redirect)
-    ? nextActionRecord.redirect
-    : null;
-
-  const qrImageCandidate =
-    (code?.image_url as string | undefined) ||
-    (redirect?.url as string | undefined) ||
-    (redirect?.checkout_url as string | undefined);
-
-  if (!qrImageCandidate) {
-    return null;
-  }
-
-  const expiresAt = (code?.expires_at as string | undefined) || undefined;
-  const amountFromIntent =
-    typeof attributes.amount === "number" ? attributes.amount / 100 : null;
-  const status =
-    typeof attributes.status === "string" ? attributes.status : undefined;
-
-  return {
-    qrImage: qrImageCandidate,
-    expiresAt,
-    amount: amountFromIntent ?? fallbackAmount,
-    status: mapPayMongoStatusToQrReviewStatus(status, expiresAt),
-  };
-}
 
 function getTodayBookingFilter() {
   const startOfToday = getStartOfDayPH();
@@ -846,7 +770,6 @@ export async function getEmployeeTodayBookingsAction() {
         amount_paid: true,
         created_at: true,
         scheduled_at: true,
-        paymongo_payment_intent_id: true,
         customer: {
           select: {
             name: true,
@@ -890,286 +813,6 @@ export async function getEmployeeTodayBookingsAction() {
   }
 }
 
-export async function createEmployeeBookingBalanceQrAction(bookingId: number) {
-  const validation = bookingIdSchema.safeParse({ bookingId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid booking ID." };
-  }
-
-  const auth = await requireEmployeeAuth({
-    write: true,
-    permission: StaffPermission.PAYMENT_COLLECT,
-  });
-  if (!auth.success) return auth;
-  const { businessSlug } = auth;
-
-  try {
-    const booking = await prisma.booking.findFirst({
-      where: {
-        id: bookingId,
-        business: { slug: businessSlug },
-        status: { not: BookingStatus.CANCELLED },
-        ...getTodayBookingFilter(),
-      },
-      select: {
-        id: true,
-        status: true,
-        payment_method: true,
-        payment_status: true,
-        grand_total: true,
-        amount_paid: true,
-        customer: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-        payments: {
-          where: { status: "PENDING" },
-          orderBy: { created_at: "desc" },
-          take: 1,
-          select: {
-            id: true,
-            amount_principal: true,
-            amount_charged: true,
-            paymongo_payment_intent_id: true,
-          },
-        },
-      },
-    });
-
-    if (!booking) {
-      return { success: false, error: "Booking not found for today." };
-    }
-
-    if (booking.payment_method !== "QRPH") {
-      return { success: false, error: "This booking is not set to QR payment." };
-    }
-
-    const remainingBalance = roundMoney(
-      Math.max(0, booking.grand_total - booking.amount_paid),
-    );
-
-    if (booking.payment_status === PaymentStatus.PAID || remainingBalance <= 0) {
-      return { success: false, error: "This booking is already fully paid." };
-    }
-
-    const pendingPayment = booking.payments[0];
-    const pendingPrincipalAmount = pendingPayment
-      ? roundMoney(Math.max(0, pendingPayment.amount_principal))
-      : null;
-    const hasMatchingPendingPrincipal =
-      pendingPrincipalAmount !== null &&
-      Math.abs(pendingPrincipalAmount - remainingBalance) < 0.01;
-
-    if (pendingPayment?.paymongo_payment_intent_id) {
-      if (hasMatchingPendingPrincipal) {
-        const existingQr = await resolveQrReviewPayload(
-          pendingPayment.paymongo_payment_intent_id,
-          pendingPayment.amount_charged,
-        );
-
-        if (existingQr && existingQr.status === "pending") {
-          return { success: true, data: existingQr };
-        }
-      }
-
-      await prisma.bookingPayment.updateMany({
-        where: {
-          booking_id: booking.id,
-          status: "PENDING",
-        },
-        data: {
-          status: "EXPIRED",
-        },
-      });
-    }
-
-    if (!booking.customer.email) {
-      return {
-        success: false,
-        error: "Customer email is required to generate a QR payment.",
-      };
-    }
-
-    const amountToCharge = calculateBookingTotal({
-      subtotal: remainingBalance,
-      voucherDiscount: 0,
-      paymentMethod: "QRPH",
-      paymentType: "FULL",
-    });
-    const configuredAppUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.APP_URL ||
-      "http://localhost:3000";
-    const returnUrl = `${configuredAppUrl.replace(/\/$/, "")}/${businessSlug}/booking/success`;
-
-    const qrPayment = await createPayMongoQrPaymentIntent({
-      amount: Math.round(amountToCharge * 100),
-      description: `Employee initiated payment for booking #${booking.id}`,
-      metadata: {
-        bookingId: String(booking.id),
-        businessSlug,
-        stage: "BALANCE",
-        principalAmount: remainingBalance.toFixed(2),
-        initiatedBy: "EMPLOYEE",
-      },
-      billing: {
-        name: booking.customer.name,
-        email: booking.customer.email,
-      },
-      returnUrl,
-      expirySeconds: getQrExpirySeconds(),
-    });
-
-    await prisma.$transaction(async (tx) => {
-      await tx.booking.update({
-        where: { id: booking.id },
-        data: {
-          paymongo_payment_intent_id: qrPayment.paymentIntentId,
-          paymongo_payment_method_id: qrPayment.paymentMethodId,
-        },
-      });
-
-      await tx.bookingPayment.create({
-        data: {
-          booking_id: booking.id,
-          type: booking.amount_paid > 0 ? "BALANCE" : "FULL",
-          status: "PENDING",
-          payment_method: "QRPH",
-          amount_principal: remainingBalance,
-          amount_charged: amountToCharge,
-          paymongo_payment_intent_id: qrPayment.paymentIntentId,
-          paymongo_payment_method_id: qrPayment.paymentMethodId,
-          expires_at: qrPayment.expiresAt ? new Date(qrPayment.expiresAt) : null,
-        },
-      });
-    });
-
-    revalidatePath(`/app/${businessSlug}`);
-    return {
-      success: true,
-      data: {
-        qrImage: qrPayment.qrImage,
-        expiresAt: qrPayment.expiresAt,
-        amount: amountToCharge,
-        status: "pending" as QrReviewStatus,
-      },
-    };
-  } catch (error) {
-    console.error("Error creating employee booking QR payment:", error);
-    return { success: false, error: "Failed to generate QR payment." };
-  }
-}
-
-export async function getEmployeeBookingQrPaymentReviewAction(bookingId: number) {
-  const validation = bookingIdSchema.safeParse({ bookingId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid booking ID." };
-  }
-
-  const auth = await requireEmployeeAuth({
-    permission: StaffPermission.PAYMENT_COLLECT,
-  });
-  if (!auth.success) return auth;
-  const { businessSlug } = auth;
-
-  try {
-    const booking = await prisma.booking.findFirst({
-      where: {
-        id: bookingId,
-        business: { slug: businessSlug },
-        status: { not: BookingStatus.CANCELLED },
-        ...getTodayBookingFilter(),
-      },
-      select: {
-        id: true,
-        payment_method: true,
-        payment_status: true,
-        grand_total: true,
-        amount_paid: true,
-        paymongo_payment_intent_id: true,
-        payments: {
-          where: { status: "PENDING" },
-          orderBy: { created_at: "desc" },
-          take: 1,
-          select: {
-            id: true,
-            amount_charged: true,
-            paymongo_payment_intent_id: true,
-          },
-        },
-      },
-    });
-
-    if (!booking) {
-      return { success: false, error: "Booking not found for today." };
-    }
-
-    if (booking.payment_method !== "QRPH") {
-      return {
-        success: false,
-        error: "This booking does not use QR payment.",
-      };
-    }
-
-    const remainingBalance = roundMoney(
-      Math.max(0, booking.grand_total - booking.amount_paid),
-    );
-
-    if (booking.payment_status === PaymentStatus.PAID || remainingBalance <= 0) {
-      return { success: false, error: "Booking is already fully paid." };
-    }
-
-    const pendingPayment = booking.payments[0];
-    const paymentIntentId =
-      pendingPayment?.paymongo_payment_intent_id ||
-      booking.paymongo_payment_intent_id;
-
-    if (!paymentIntentId) {
-      return {
-        success: false,
-        error: "No active QR payment found. Generate a new QR payment.",
-      };
-    }
-
-    const fallbackAmount =
-      pendingPayment?.amount_charged ||
-      calculateBookingTotal({
-        subtotal: remainingBalance,
-        voucherDiscount: 0,
-        paymentMethod: "QRPH",
-        paymentType: "FULL",
-      });
-    const qrPayload = await resolveQrReviewPayload(
-      paymentIntentId,
-      fallbackAmount,
-    );
-
-    if (!qrPayload) {
-      if (pendingPayment?.id) {
-        await prisma.bookingPayment.update({
-          where: { id: pendingPayment.id },
-          data: { status: "EXPIRED" },
-        });
-      }
-
-      return {
-        success: false,
-        error: "QR code is no longer available. Generate a new QR payment.",
-      };
-    }
-
-    return {
-      success: true,
-      data: qrPayload,
-    };
-  } catch (error) {
-    console.error("Error getting employee booking QR review:", error);
-    return { success: false, error: "Failed to fetch QR payment details." };
-  }
-}
-
 export async function markEmployeeBookingPaidAction(bookingId: number) {
   const validation = bookingIdSchema.safeParse({ bookingId });
   if (!validation.success) {
@@ -1193,13 +836,11 @@ export async function markEmployeeBookingPaidAction(bookingId: number) {
       },
       select: {
         id: true,
-        business_id: true,
         status: true,
         payment_status: true,
         payment_method: true,
         grand_total: true,
         amount_paid: true,
-        hold_expires_at: true,
       },
     });
 
@@ -1221,8 +862,7 @@ export async function markEmployeeBookingPaidAction(bookingId: number) {
         data: {
           amount_paid: booking.grand_total,
           payment_status: PaymentStatus.PAID,
-          status: booking.status === "HOLD" ? "ACCEPTED" : booking.status,
-          hold_expires_at: booking.status === "HOLD" ? null : booking.hold_expires_at,
+          status: booking.status,
         },
       });
 
@@ -1232,7 +872,7 @@ export async function markEmployeeBookingPaidAction(bookingId: number) {
             booking_id: booking.id,
             type: "MANUAL",
             status: "SUCCEEDED",
-            payment_method: booking.payment_method === "QRPH" ? "QRPH" : "CASH",
+            payment_method: booking.payment_method,
             amount_principal: remainingBalance,
             amount_charged: remainingBalance,
             paid_at: getCurrentDateTimePH(),
@@ -1240,19 +880,6 @@ export async function markEmployeeBookingPaidAction(bookingId: number) {
               source: "EMPLOYEE_MARK_PAID",
               employeeId,
             },
-          },
-        });
-      }
-
-      if (booking.status === "HOLD") {
-        await publishEvent(tx as Prisma.TransactionClient, {
-          type: "BOOKING_CONFIRMED",
-          aggregateType: "Booking",
-          aggregateId: String(booking.id),
-          businessId: booking.business_id,
-          payload: {
-            bookingId: booking.id,
-            status: "ACCEPTED",
           },
         });
       }

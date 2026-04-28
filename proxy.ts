@@ -4,15 +4,6 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 function getApiRateLimitConfig(pathname: string) {
-  if (pathname.startsWith("/api/paymongo/webhook")) {
-    return {
-      windowMs: 60 * 1000,
-      maxRequests: 90,
-      namespace: "service-flow:rate-limit:webhook",
-      onStoreError: "deny" as const,
-    };
-  }
-
   if (pathname.startsWith("/api/auth")) {
     return {
       windowMs: 60 * 1000,

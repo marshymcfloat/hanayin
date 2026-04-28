@@ -9,6 +9,7 @@ export const OUTBOX_EVENT_TYPES = [
   "REMINDER_DUE",
   "PAYSLIP_GENERATED",
   "FLOW_REMINDER_SENT",
+  "RE_ENGAGEMENT_REMINDER_SENT",
   "MANUAL_PAYMENT_SUBMITTED",
   "SOCIAL_TARGET_PUBLISH",
 ] as const;
@@ -78,11 +79,25 @@ export type OutboxPayloadMap = {
   FLOW_REMINDER_SENT: {
     customerId: string;
     customerName: string;
-    customerEmail: string;
+    customerEmail: string | null;
+    customerPhone?: string | null;
     triggerServiceName: string;
     suggestedServiceName: string;
     flowType: string;
     sentAt: string;
+    smsSent?: boolean;
+    emailSent?: boolean;
+  };
+  RE_ENGAGEMENT_REMINDER_SENT: {
+    customerId: string;
+    customerName: string;
+    customerEmail: string | null;
+    customerPhone?: string | null;
+    lastCompletedBookingId?: number | null;
+    lastCompletedBookingAt: string;
+    sentAt: string;
+    smsSent?: boolean;
+    emailSent?: boolean;
   };
   MANUAL_PAYMENT_SUBMITTED: {
     invoiceId: string;
@@ -264,11 +279,26 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
       return {
         customerId: requireString(payload, "customerId", eventType),
         customerName: requireString(payload, "customerName", eventType),
-        customerEmail: requireString(payload, "customerEmail", eventType),
+        customerEmail: optionalString(payload, "customerEmail") ?? null,
+        customerPhone: optionalString(payload, "customerPhone") ?? null,
         triggerServiceName: requireString(payload, "triggerServiceName", eventType),
         suggestedServiceName: requireString(payload, "suggestedServiceName", eventType),
         flowType: requireString(payload, "flowType", eventType),
         sentAt: requireString(payload, "sentAt", eventType),
+        smsSent: typeof payload.smsSent === "boolean" ? payload.smsSent : undefined,
+        emailSent: typeof payload.emailSent === "boolean" ? payload.emailSent : undefined,
+      } as OutboxPayloadMap[TType];
+    case "RE_ENGAGEMENT_REMINDER_SENT":
+      return {
+        customerId: requireString(payload, "customerId", eventType),
+        customerName: requireString(payload, "customerName", eventType),
+        customerEmail: optionalString(payload, "customerEmail") ?? null,
+        customerPhone: optionalString(payload, "customerPhone") ?? null,
+        lastCompletedBookingId: optionalNumber(payload, "lastCompletedBookingId") ?? null,
+        lastCompletedBookingAt: requireString(payload, "lastCompletedBookingAt", eventType),
+        sentAt: requireString(payload, "sentAt", eventType),
+        smsSent: typeof payload.smsSent === "boolean" ? payload.smsSent : undefined,
+        emailSent: typeof payload.emailSent === "boolean" ? payload.emailSent : undefined,
       } as OutboxPayloadMap[TType];
     case "MANUAL_PAYMENT_SUBMITTED":
       return {

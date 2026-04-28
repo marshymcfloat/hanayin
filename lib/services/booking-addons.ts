@@ -38,7 +38,6 @@ type AddOnModeResolution = {
     | "BOOKING_NOT_ACCEPTED"
     | "HAS_PAYMENT"
     | "HAS_STARTED_SERVICE"
-    | "HAS_PENDING_QR"
     | "UNTOUCHED";
 };
 
@@ -48,7 +47,6 @@ type BookingStateSnapshot = {
   amount_paid: number;
   payment_status: PaymentStatus;
   availed_services: Array<{ status: AvailedServiceStatus }>;
-  payments: Array<{ id: number }>;
 };
 
 function getActorAuditMetadata(actor: ActorContext) {
@@ -107,11 +105,6 @@ function resolveModeFromSnapshot(
     return { mode: "FOLLOW_UP", reason: "HAS_STARTED_SERVICE" };
   }
 
-  const hasPendingQr = booking.payments.length > 0;
-  if (hasPendingQr) {
-    return { mode: "FOLLOW_UP", reason: "HAS_PENDING_QR" };
-  }
-
   return { mode: "APPEND", reason: "UNTOUCHED" };
 }
 
@@ -136,16 +129,6 @@ export async function resolveAddOnMutationMode(
         select: {
           status: true,
         },
-      },
-      payments: {
-        where: {
-          status: "PENDING",
-          payment_method: "QRPH",
-        },
-        select: {
-          id: true,
-        },
-        take: 1,
       },
     },
   });
@@ -206,14 +189,6 @@ export async function appendServicesToUntouchedBooking(params: {
               final_price: true,
             },
             orderBy: [{ scheduled_at: "asc" }, { created_at: "asc" }],
-          },
-          payments: {
-            where: {
-              status: "PENDING",
-              payment_method: "QRPH",
-            },
-            select: { id: true },
-            take: 1,
           },
         },
       });

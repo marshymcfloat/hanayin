@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { DiscountType } from "@/prisma/generated/prisma/enums";
 import { SOCIAL_IMAGE_PROFILES } from "./image-profiles";
-import { buildSocialImagePrompt } from "./promo-image";
+import {
+  buildOrganicImagePrompt,
+  buildSocialImagePrompt,
+} from "./promo-image";
 
 const BASE_PROMO_INPUT = {
   businessSlug: "beautyfeel",
@@ -21,24 +24,55 @@ const BASE_PROMO_INPUT = {
 
 describe("promo-image prompt builder", () => {
   it.each(SOCIAL_IMAGE_PROFILES)(
-    "builds a profile-scoped prompt for %s",
+    "produces a photography-only prompt for %s and forbids embedded text",
     (profile) => {
       const prompt = buildSocialImagePrompt({
         ...BASE_PROMO_INPUT,
         imageProfile: profile,
       });
 
-      expect(prompt).toContain("Create a high-quality and visually distinct social media promo visual");
-      expect(prompt).toContain("portrait and feed-ready (roughly 1024x1536 composition)");
-      expect(prompt).toContain("key subject and critical campaign text centered");
-      expect(prompt).toContain("If a person appears, prefer a modern Filipina look");
-      expect(prompt).toContain(`Design profile: ${profile}.`);
+      expect(prompt).toContain(`DESIGN PROFILE: ${profile}`);
+      expect(prompt).toContain("THIS IS A PHOTOGRAPH");
+      expect(prompt).toContain(
+        "Absolutely NO text, letters, words, numbers, or symbols anywhere in the image.",
+      );
       expect(prompt).toContain(BASE_PROMO_INPUT.businessName);
       expect(prompt).toContain(BASE_PROMO_INPUT.title);
-      expect(prompt).toContain("15% OFF");
-      expect(prompt).toContain("Hard constraints:");
-      expect(prompt).toContain("Do not generate business logos. Leave one clean top corner for manual logo overlay.");
-      expect(prompt).toContain("No external logos, no watermarks, no trademarked brand marks.");
+      // The discount must NOT be rendered into the image — it stays in caption.
+      expect(prompt).toContain(
+        "DO NOT render this number in the image",
+      );
     },
   );
+
+  it("respects owner-supplied direction when provided", () => {
+    const prompt = buildSocialImagePrompt({
+      ...BASE_PROMO_INPUT,
+      ownerImageDirection: "soft autumn tones, woman in her 30s",
+    });
+
+    expect(prompt).toContain(
+      "soft autumn tones, woman in her 30s",
+    );
+  });
+});
+
+describe("organic image prompt builder", () => {
+  it("emits a pure photography brief with no in-image text", () => {
+    const prompt = buildOrganicImagePrompt({
+      businessSlug: "beautyfeel",
+      businessName: "BeautyFeel",
+      topic: "Glow Routine for Rainy Season",
+      category: "TIPS_EDUCATION",
+      captionText: "Pro tip: layer your serums.",
+      imageProfile: "SOFT_EDITORIAL",
+    });
+
+    expect(prompt).toContain("THIS IS A PHOTOGRAPH");
+    expect(prompt).toContain("BeautyFeel");
+    expect(prompt).toContain(
+      "Absolutely NO text, letters, words, numbers, or symbols anywhere in the image.",
+    );
+    expect(prompt).toContain("Glow Routine for Rainy Season");
+  });
 });

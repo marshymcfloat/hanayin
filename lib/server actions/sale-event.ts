@@ -29,6 +29,7 @@ export type CreateSaleEventParams = {
   socialCaptionOverride?: string;
   socialMediaUrl?: string;
   socialImageProfile?: SocialImageProfile;
+  socialImageDirection?: string;
   slotLimit?: number | null;
 };
 
@@ -213,6 +214,7 @@ export async function createSaleEvent(params: CreateSaleEventParams) {
             ),
             packageNames: business.packages.map((pkg) => pkg.name),
             imageProfile: params.socialImageProfile,
+            ownerImageDirection: params.socialImageDirection,
           });
         } catch (error) {
           console.warn("Failed to auto-generate social promo image:", error);

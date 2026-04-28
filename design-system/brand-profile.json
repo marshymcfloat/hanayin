@@ -1,0 +1,253 @@
+{
+  "brand": {
+    "name": "ServiceFlow",
+    "tagline": "Run Your Salon Like a Pro. Book More. Stress Less.",
+    "description": "All-in-one management system for salons, spas, clinics, and barbershops in the Philippines.",
+    "market": "Local beauty businesses — salons, barbershops, nail studios, spas, aesthetic clinics",
+    "locale": "Philippines",
+    "social_handle": "@serviceflow_ph",
+    "tone": ["professional", "friendly", "modern", "approachable", "confident", "local"]
+  },
+
+  "app_colors": {
+    "note": "These are the actual app/brand colors — used in the dashboard UI and brand identity.",
+    "primary": { "hex": "#16a34a", "name": "Emerald Green" },
+    "primary_light": { "hex": "#d1fae5", "name": "Emerald Tint" },
+    "background": { "hex": "#f9fafb", "name": "Off-White" },
+    "card": { "hex": "#ffffff", "name": "Pure White" },
+    "foreground": { "hex": "#0f172a", "name": "Near Black" },
+    "gradient_hero": "from #16a34a → #10b981 → #14b8a6 (green to teal)"
+  },
+
+  "app_typography": {
+    "note": "Fonts used inside the actual app.",
+    "display": "Space Grotesk — geometric modern sans, used for headings",
+    "body": "IBM Plex Sans — clean neutral, used for UI copy",
+    "mono": "JetBrains Mono — code, IDs, reference numbers"
+  },
+
+  "social_post_visual_profile": {
+    "note": "This section defines the aesthetic for all social media content — inspired by luxury beauty editorial style (warm earthy tones, mixed typography, cinematic photography).",
+
+    "aesthetic_name": "Warm Luxury Editorial Beauty",
+    "reference_brand": "ESTHBeautyInc-style — luxury skincare editorial meets Filipino beauty industry",
+
+    "color_palette": {
+      "description": "Warm earthy tones. No cold colors. The entire palette lives in the caramel-to-cream-to-deep-brown spectrum.",
+      "colors": {
+        "warm_cream": { "hex": "#F0E4CF", "usage": "Light backgrounds, text panels, soft overlays" },
+        "caramel": { "hex": "#C4955A", "usage": "Mid-tone backgrounds, warm gradient base" },
+        "deep_amber": { "hex": "#8B5E2A", "usage": "Dark backgrounds, rich warm panels" },
+        "espresso": { "hex": "#3D2010", "usage": "Darkest tone — deep background for contrast posts" },
+        "golden_tan": { "hex": "#D4A96A", "usage": "Warm accent, gradient highlight" },
+        "off_white": { "hex": "#FAF3E8", "usage": "Near-white, clean background alternative" },
+        "pure_white": { "hex": "#FFFFFF", "usage": "Text on dark/photo backgrounds, product labels" }
+      },
+      "no_go_colors": ["#16a34a (keep emerald green for app UI only, not social posts)", "neon", "electric blue", "hot pink", "cool gray", "black (#000000)"],
+      "text_colors": {
+        "on_dark_bg": "#FFFFFF — clean white, slightly warm",
+        "on_light_bg": "#3D2010 — deep espresso brown",
+        "on_photo": "#FFFFFF with optional very subtle text shadow"
+      },
+      "gradient_options": [
+        "linear-gradient(135deg, #F0E4CF, #C4955A) — cream to caramel",
+        "linear-gradient(180deg, #D4A96A, #8B5E2A) — golden to espresso",
+        "linear-gradient(to bottom, transparent, rgba(61,32,16,0.7)) — photo scrim overlay"
+      ]
+    },
+
+    "typography_on_posts": {
+      "description": "The signature look is a MIXED typography system — large serif italic paired with bold sans-serif. This creates the luxury editorial tension.",
+      "headline_combination": {
+        "sans_part": {
+          "font": "Cormorant Garamond Bold OR Playfair Display Bold (sans-serif feel at display size)",
+          "style": "normal/regular weight word",
+          "example": "'Why' in 'Why Professional Extractions Matter'"
+        },
+        "serif_italic_part": {
+          "font": "Cormorant Garamond Italic OR Playfair Display Italic",
+          "style": "italic, slightly larger, creates visual rhythm",
+          "example": "'Professional Extractions' in italic, 'Matter?' in regular"
+        },
+        "rule": "Alternate between regular and italic within the same headline for luxury editorial rhythm"
+      },
+      "font_stack_for_ai": {
+        "primary": "Cormorant Garamond — high-contrast serif, feels expensive, editorial",
+        "alternative": "Playfair Display — similar editorial luxury serif",
+        "body_small": "Inter or DM Sans Light — clean, airy, used for bullet points and captions",
+        "google_fonts": "https://fonts.google.com/share?selection.family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600|DM+Sans:wght@300;400"
+      },
+      "sizing": {
+        "hero_headline": "Very large — takes up 40–60% of the frame width",
+        "sub_headline": "Medium — 1/3 size of hero",
+        "body_bullets": "Small, light weight — generous line height",
+        "brand_name": "Tiny, all-caps or small-caps — top corner, subtle"
+      },
+      "decorative_elements": {
+        "asterisk": "* — used as a decorative separator/accent, placed near headlines",
+        "arrow": "→ — used for website URL or 'follow for more' CTA at bottom",
+        "thin_line": "1px horizontal line — used to separate headline from bullet list",
+        "circle_outline": "Thin circle/oval — used for radial diagram layouts",
+        "note": "All decorative elements are white and very minimal — never overwhelming"
+      }
+    },
+
+    "photography_style": {
+      "subject": [
+        "Close-up skin macro — pores, texture, dewy glow",
+        "Face/eyes/lips partial shots — intimate, not full portrait",
+        "Hands holding product — natural, unposed",
+        "Amber/brown glass product bottles (serums, droppers)",
+        "White minimalist tubes and packaging",
+        "Flat lay on neutral warm surface"
+      ],
+      "lighting": [
+        "Warm golden hour light — 3200–4000K temperature",
+        "Soft diffused — no harsh shadows",
+        "Skin should look dewy, glowing, healthy",
+        "Backlit or side-lit for skin glow effect",
+        "Never flash photography — always natural or warm studio"
+      ],
+      "color_grading": [
+        "Warm LUT — push oranges and yellows, desaturate greens/blues",
+        "Slightly faded highlights — not blown out white",
+        "Deep warm shadows — not pure black",
+        "Skin tones should read golden/caramel, not red or pink",
+        "Overall feel: like a warm afternoon in a luxury spa"
+      ],
+      "composition": [
+        "Subject fills most of frame — tight crops are preferred",
+        "Text overlay on dark or gradient areas of the photo",
+        "Leave breathing room on one side for text block",
+        "Portrait orientation (4:5 or 9:16) preferred",
+        "Square (1:1) also used frequently"
+      ],
+      "models": [
+        "Diverse skin tones — Filipino beauty is the focus",
+        "Clean, glowing skin — no heavy makeup look",
+        "Natural, unposed feeling — not stock photo",
+        "Calm, confident expression — never smiling too hard",
+        "Clothing: beige, cream, white, light tan only — never loud colors"
+      ]
+    },
+
+    "layout_patterns": {
+      "pattern_1_photo_text_overlay": {
+        "description": "Full bleed photo background with text in lower-left or upper-left corner",
+        "text_area": "Bottom 35% or top-left quadrant",
+        "overlay": "Subtle dark gradient scrim where text sits",
+        "text_color": "White",
+        "best_for": "Feature announcements, single product spotlight, mood posts"
+      },
+      "pattern_2_split_product_info": {
+        "description": "Photo takes 50-60% of frame, remaining space is warm solid color (caramel or cream) with text and bullet list",
+        "divider": "None — colors blend or abut cleanly",
+        "best_for": "Product feature breakdowns, tip lists"
+      },
+      "pattern_3_full_editorial_headline": {
+        "description": "Large close-up photo fills entire frame, huge mixed-typography headline overlaid in center or left",
+        "text_color": "White",
+        "accent": "Asterisk (*) placed near headline",
+        "best_for": "Bold statements, technique names (Dermaplaning, HydraFacial)"
+      },
+      "pattern_4_solid_bg_with_product": {
+        "description": "Warm solid or gradient background (caramel/cream/espresso), product image floating with slight shadow",
+        "text_position": "Around the product or below",
+        "best_for": "Product launches, promos, ingredient highlights"
+      },
+      "pattern_5_radial_diagram": {
+        "description": "Circular layout with subject in center, labels arranged radially around face/body",
+        "line_style": "Thin white lines connecting to labels",
+        "best_for": "Ingredient benefits, skincare routine order, layering guides"
+      },
+      "pattern_6_bullet_list_editorial": {
+        "description": "Large italic serif headline + numbered or bulleted list below, photo background",
+        "list_style": "Small white text, light weight, with small icon or asterisk as bullet",
+        "best_for": "How-to guides, tips, best practices"
+      }
+    },
+
+    "branding_on_posts": {
+      "logo_placement": "Top-left corner — small, subtle, all-caps brand name",
+      "logo_style": "Wordmark only — e.g. 'ServiceFlow.' or '@serviceflow_ph' in small caps",
+      "logo_color": "White (on photo/dark bg) or espresso brown (on light bg)",
+      "website_url": "Bottom of post — very small, light weight, with → arrow prefix",
+      "badge_element": "Small pill badge in top corner — e.g. 'SALON MANAGEMENT · PH' in tiny caps"
+    },
+
+    "content_types_mapped_to_style": {
+      "tip_content": {
+        "pattern": "pattern_1 or pattern_6",
+        "example_headlines": [
+          "3 Ways to Reduce No-Shows",
+          "Why Automated Reminders Work",
+          "How to Set Up Your Booking Page"
+        ]
+      },
+      "feature_spotlight": {
+        "pattern": "pattern_3 or pattern_4",
+        "example_headlines": [
+          "SMS *Reminders*",
+          "Payroll. *Automated.*",
+          "Real-Time Queue. *Live.*"
+        ]
+      },
+      "social_proof": {
+        "pattern": "pattern_1",
+        "example_headlines": [
+          "From 5 no-shows a week to zero.",
+          "₱80K in revenue this month.",
+          "*Built* for Filipino salons."
+        ]
+      },
+      "product_education": {
+        "pattern": "pattern_2 or pattern_5",
+        "example_headlines": [
+          "What is *Walk-In Mode*?",
+          "The Booking Flow, *Explained*",
+          "How Commission Tracking *Works*"
+        ]
+      }
+    },
+
+    "ai_image_generation_prompts": {
+      "base_prompt": "Luxury beauty editorial photography, warm earthy tones, caramel and cream color palette, close-up skin macro, golden warm lighting, Filipino model, dewy glowing skin, amber glass product bottles, minimalist composition, soft diffused light, warm LUT color grade, fashion editorial style, 4:5 portrait ratio",
+      "background_prompt": "Warm gradient background, caramel to cream, soft bokeh, luxury spa aesthetic, no cold tones, earthy warm palette",
+      "product_prompt": "Amber glass serum bottle, white minimalist packaging, floating on warm cream background, soft studio lighting, subtle shadow, clean luxury product photography",
+      "typography_prompt_notes": [
+        "Use Cormorant Garamond or Playfair Display",
+        "Mix italic and regular weight in same headline",
+        "White text on photo backgrounds",
+        "Large display size — headline should feel bold and editorial",
+        "Add single asterisk (*) as decorative accent near main headline"
+      ]
+    }
+  },
+
+  "post_copy_guide": {
+    "voice": "Confident but warm. Speaks to Filipino salon owners directly. Short punchy sentences. Mix Tagalog flavor in casualness but write in English.",
+    "headline_formulas": [
+      "[Feature Name] * [Short benefit phrase]",
+      "Why [Pain Point] is [Solution]",
+      "[Number] ways your [thing] does [benefit]",
+      "The [Adjective] way to [task].",
+      "[Bold claim]. *[Qualifier or twist.*]"
+    ],
+    "sample_headlines": [
+      "Booking Reminders. *Automated.*",
+      "Why Manual Payroll is *Costing* You Time",
+      "3 Signs Your Salon Needs Better Software",
+      "The Smarter Way to *Track* Commissions.",
+      "No more no-shows. *Seriously.*",
+      "₱0 setup. *Start today.*",
+      "Built for salons *in the Philippines.*",
+      "Your front desk, *while you sleep.*"
+    ],
+    "cta_options": [
+      "Follow for more salon tips →",
+      "Link in bio to start free →",
+      "DM us 'DEMO' to get started",
+      "Try free at serviceflow.store →"
+    ]
+  }
+}

@@ -80,6 +80,18 @@ export default function OwnerServiceQueue({
     type: "claim" | "serve" | "unclaim" | "unserve" | null;
   }>({ id: null, type: null });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Track IDs being hidden optimistically so background refetches don't flash them back
+  const [hiddenClaimedIds, setHiddenClaimedIds] = useState<Set<number>>(new Set());
+  const [hiddenPendingIds, setHiddenPendingIds] = useState<Set<number>>(new Set());
+
+  const hideClaimedId = (id: number) =>
+    setHiddenClaimedIds((prev) => new Set([...prev, id]));
+  const revealClaimedId = (id: number) =>
+    setHiddenClaimedIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+  const hidePendingId = (id: number) =>
+    setHiddenPendingIds((prev) => new Set([...prev, id]));
+  const revealPendingId = (id: number) =>
+    setHiddenPendingIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
 
   const pendingKey = ["owner-pending-services", businessSlug];
   const claimedKey = ["owner-claimed-services", businessSlug];
@@ -111,6 +123,16 @@ export default function OwnerServiceQueue({
     }
     return [];
   }, [claimedResponse]);
+
+  const visiblePending = useMemo(
+    () => pendingServices.filter((item) => !hiddenPendingIds.has(item.id)),
+    [pendingServices, hiddenPendingIds],
+  );
+
+  const visibleClaimed = useMemo(
+    () => claimedServices.filter((item) => !hiddenClaimedIds.has(item.id)),
+    [claimedServices, hiddenClaimedIds],
+  );
 
   const setAction = (id: number, type: typeof actionState.type) =>
     setActionState({ id, type });
@@ -154,6 +176,7 @@ export default function OwnerServiceQueue({
     const target = previousPending.find((item) => item.id === serviceId);
 
     setAction(serviceId, "claim");
+    hidePendingId(serviceId);
     if (target) {
       const optimisticClaim: OwnerClaimedService = {
         ...target,
@@ -171,7 +194,9 @@ export default function OwnerServiceQueue({
     if (result.success) {
       toast.success("Service claimed");
       await refreshLists();
+      revealPendingId(serviceId);
     } else {
+      revealPendingId(serviceId);
       setPendingCache(previousPending);
       setClaimedCache(previousClaimed);
       toast.error(result.error || "Unable to claim service");
@@ -184,6 +209,7 @@ export default function OwnerServiceQueue({
     const target = previousClaimed.find((item) => item.id === serviceId);
 
     setAction(serviceId, "unclaim");
+    hideClaimedId(serviceId);
     if (target) {
       const pendingItem: OwnerPendingService = {
         id: target.id,
@@ -204,7 +230,9 @@ export default function OwnerServiceQueue({
     if (result.success) {
       toast.success("Service returned to queue");
       await refreshLists();
+      revealClaimedId(serviceId);
     } else {
+      revealClaimedId(serviceId);
       setPendingCache(previousPending);
       setClaimedCache(previousClaimed);
       toast.error(result.error || "Unable to unclaim service");
@@ -215,6 +243,7 @@ export default function OwnerServiceQueue({
     const previousClaimed = getClaimedCache();
 
     setAction(serviceId, "serve");
+    hideClaimedId(serviceId);
     setClaimedCache(previousClaimed.filter((item) => item.id !== serviceId));
 
     const result = await markServiceServedAsOwnerAction(serviceId);
@@ -223,7 +252,9 @@ export default function OwnerServiceQueue({
     if (result.success) {
       toast.success("Service marked as served");
       await refreshLists();
+      revealClaimedId(serviceId);
     } else {
+      revealClaimedId(serviceId);
       setClaimedCache(previousClaimed);
       toast.error(result.error || "Unable to mark service as served");
     }
@@ -304,9 +335,9 @@ export default function OwnerServiceQueue({
               className="rounded-lg h-full text-[11px] font-semibold data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm cursor-pointer"
             >
               Pending
-              {pendingServices.length > 0 && (
+              {visiblePending.length > 0 && (
                 <span className="ml-1.5 text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full tabular-nums">
-                  {pendingServices.length}
+                  {visiblePending.length}
                 </span>
               )}
             </TabsTrigger>
@@ -315,9 +346,9 @@ export default function OwnerServiceQueue({
               className="rounded-lg h-full text-[11px] font-semibold data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm cursor-pointer"
             >
               In Progress
-              {claimedServices.length > 0 && (
+              {visibleClaimed.length > 0 && (
                 <span className="ml-1.5 text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full tabular-nums">
-                  {claimedServices.length}
+                  {visibleClaimed.length}
                 </span>
               )}
             </TabsTrigger>
@@ -328,13 +359,13 @@ export default function OwnerServiceQueue({
           <div className="px-3 pb-4 space-y-1.5">
             {/* Pending Tab */}
             <TabsContent value="pending" className="mt-0 space-y-1.5 m-0">
-              {pendingServices.length === 0 ? (
+              {visiblePending.length === 0 ? (
                 <EmptyState
                   icon={<Inbox className="h-4 w-4 text-muted-foreground" />}
                   message="Queue is clear"
                 />
               ) : (
-                pendingServices.map((item) => {
+                visiblePending.map((item) => {
                   const isBusy =
                     actionState.id === item.id && actionState.type === "claim";
                   return (
@@ -381,13 +412,13 @@ export default function OwnerServiceQueue({
 
             {/* Claimed Tab */}
             <TabsContent value="claimed" className="mt-0 space-y-1.5 m-0">
-              {claimedServices.length === 0 ? (
+              {visibleClaimed.length === 0 ? (
                 <EmptyState
                   icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
                   message="Nothing in progress"
                 />
               ) : (
-                claimedServices.map((item) => {
+                visibleClaimed.map((item) => {
                   const isServing =
                     actionState.id === item.id && actionState.type === "serve";
                   const isUnclaiming =
@@ -408,16 +439,16 @@ export default function OwnerServiceQueue({
                           <p className="text-xs font-semibold text-foreground truncate leading-tight">
                             {item.service.name}
                           </p>
-                          <p className="text-[10px] text-muted-foreground truncate">
-                            {item.booking.customer.name}
-                            {" · "}
+                          <span className="flex items-center gap-1 text-[10px] text-muted-foreground truncate">
+                            <span className="truncate">{item.booking.customer.name}</span>
+                            <span>·</span>
                             <Badge
                               variant="outline"
-                              className="text-[8px] px-1 border-primary/20 text-primary bg-primary/5 h-3.5"
+                              className="text-[8px] px-1 border-primary/20 text-primary bg-primary/5 h-3.5 shrink-0"
                             >
                               {item.status}
                             </Badge>
-                          </p>
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">

@@ -19,12 +19,9 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Loader2, QrCode, ReceiptText } from "lucide-react";
-import QrPaymentPanel from "@/components/bookings/QrPaymentPanel";
+import { CheckCircle2, Loader2, ReceiptText } from "lucide-react";
 import { toast } from "sonner";
 import {
-  createEmployeeBookingBalanceQrAction,
-  getEmployeeBookingQrPaymentReviewAction,
   getEmployeeTodayBookingsAction,
   markEmployeeBookingPaidAction,
 } from "@/lib/server actions/dashboard";
@@ -43,7 +40,6 @@ export type EmployeePaymentBooking = {
   amount_paid: number;
   created_at: Date;
   scheduled_at: Date | null;
-  paymongo_payment_intent_id: string | null;
   customer: {
     name: string;
     email: string | null;
@@ -119,8 +115,6 @@ export default function EmployeePaymentsQueue({
   const [selectedBooking, setSelectedBooking] =
     useState<EmployeePaymentBooking | null>(null);
   const [actionId, setActionId] = useState<number | null>(null);
-  const [qrPanel, setQrPanel] = useState<QrPanelState>(null);
-
   const queryKey = ["employee-today-bookings", businessSlug];
   const { data: bookings = [] } = useQuery({
     queryKey,
@@ -150,62 +144,8 @@ export default function EmployeePaymentsQueue({
     return visibleBookings.filter((booking) => booking.payment_status !== "PAID");
   }, [activeTab, visibleBookings]);
 
-  const openQrPanel = (data: {
-    qrImage: string;
-    amount?: number;
-    expiresAt?: string;
-    status: "pending" | "paid" | "failed" | "expired";
-  }) => {
-    const fallbackBooking = selectedBooking;
-    const fallbackRemaining = fallbackBooking
-      ? roundMoney(
-          Math.max(0, fallbackBooking.grand_total - fallbackBooking.amount_paid),
-        )
-      : 0;
-
-    setQrPanel({
-      qrImage: data.qrImage,
-      expiresAt: data.expiresAt,
-      status: data.status,
-      amountLabel: formatCurrency(data.amount ?? fallbackRemaining),
-    });
-  };
-
   const refreshBookings = async () => {
     await queryClient.invalidateQueries({ queryKey });
-  };
-
-  const handleReviewQr = async (booking: EmployeePaymentBooking) => {
-    setActionId(booking.id);
-    setSelectedBooking(booking);
-    try {
-      const result = await getEmployeeBookingQrPaymentReviewAction(booking.id);
-      if (!result.success || !("data" in result) || !result.data) {
-        toast.error(result.error || "Unable to load QR payment.");
-        return;
-      }
-
-      openQrPanel(result.data);
-    } finally {
-      setActionId(null);
-    }
-  };
-
-  const handleGenerateQr = async (booking: EmployeePaymentBooking) => {
-    setActionId(booking.id);
-    setSelectedBooking(booking);
-    try {
-      const result = await createEmployeeBookingBalanceQrAction(booking.id);
-      if (!result.success || !("data" in result) || !result.data) {
-        toast.error(result.error || "Unable to generate QR payment.");
-        return;
-      }
-
-      openQrPanel(result.data);
-      await refreshBookings();
-    } finally {
-      setActionId(null);
-    }
   };
 
   const handleMarkPaid = async (booking: EmployeePaymentBooking) => {
@@ -233,12 +173,6 @@ export default function EmployeePaymentsQueue({
     const remainingBalance = roundMoney(
       Math.max(0, booking.grand_total - amountPaid),
     );
-    const canGenerateQr =
-      booking.payment_method === "QRPH" &&
-      booking.payment_status !== "PAID" &&
-      booking.status !== "CANCELLED" &&
-      remainingBalance > 0;
-    const canReviewQr = canGenerateQr && Boolean(booking.paymongo_payment_intent_id);
     const canMarkPaid =
       booking.status !== "CANCELLED" && booking.payment_status !== "PAID";
     const payLabel = amountPaid > 0 ? "Pay Remaining" : "Pay Now";
@@ -257,40 +191,6 @@ export default function EmployeePaymentsQueue({
           >
             <ReceiptText className="h-3 w-3 mr-1" />
             Details
-          </Button>
-        )}
-        {canReviewQr && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-7 shrink-0 rounded-md border-emerald-200 px-2 text-[11px] font-medium text-emerald-700 hover:bg-emerald-50"
-            disabled={isLoading}
-            onClick={() => handleReviewQr(booking)}
-          >
-            {isLoading ? (
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            ) : (
-              <QrCode className="h-3 w-3 mr-1" />
-            )}
-            Review
-          </Button>
-        )}
-        {canGenerateQr && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-7 shrink-0 rounded-md border-blue-200 px-2 text-[11px] font-medium text-blue-700 hover:bg-blue-50"
-            disabled={isLoading}
-            onClick={() => handleGenerateQr(booking)}
-          >
-            {isLoading ? (
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            ) : (
-              <QrCode className="h-3 w-3 mr-1" />
-            )}
-            {payLabel === "Pay Remaining" ? "Pay" : "Pay Now"}
           </Button>
         )}
         {canMarkPaid && (
@@ -538,19 +438,6 @@ export default function EmployeePaymentsQueue({
         </DialogContent>
       </Dialog>
 
-      {qrPanel && (
-        <QrPaymentPanel
-          qrImage={qrPanel.qrImage}
-          amountLabel={qrPanel.amountLabel}
-          status={qrPanel.status}
-          expiresAt={qrPanel.expiresAt}
-          onClose={() => setQrPanel(null)}
-          onRetry={() => {
-            if (!selectedBooking) return;
-            void handleReviewQr(selectedBooking);
-          }}
-        />
-      )}
     </>
   );
 }

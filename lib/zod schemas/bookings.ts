@@ -16,7 +16,7 @@ const serviceSchema = z.object({
   category: z.string().nullable().optional(),
 });
 
-export const paymentMethodEnum = z.enum(["CASH", "QRPH"]);
+export const paymentMethodEnum = z.enum(["CASH", "ONLINE"]);
 export const paymentTypeEnum = z.enum(["FULL", "DOWNPAYMENT"]);
 export const staffSelectionModeEnum = z.enum([
   "ANY_AVAILABLE",
@@ -74,10 +74,6 @@ export const createBookingSchema = z
   .refine((data) => data.customerId || data.customerName, {
     message: "Please select an existing customer or enter a new customer name",
     path: ["customerName"],
-  })
-  .refine((data) => data.paymentMethod !== "QRPH" || !!data.email, {
-    message: "Email is required for QR payments",
-    path: ["email"],
   });
 
 export type CreateBookingTypes = z.infer<typeof createBookingSchema>;

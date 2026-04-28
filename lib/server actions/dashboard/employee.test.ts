@@ -50,7 +50,6 @@ vi.mock("@/lib/utils/pricing", () => ({
 
 import {
   claimServiceAction,
-  createEmployeeBookingBalanceQrAction,
   getEmployeeTodayBookingsAction,
   markEmployeeBookingPaidAction,
   unclaimServiceAction,
@@ -196,7 +195,6 @@ describe("Employee Dashboard Actions", () => {
           amount_paid: 0,
           created_at: new Date(),
           scheduled_at: null,
-          paymongo_payment_intent_id: null,
           customer: { name: "Jane", email: "jane@example.com" },
           availed_services: [
             {
@@ -214,31 +212,6 @@ describe("Employee Dashboard Actions", () => {
 
       expect(result).toHaveLength(1);
       expect(prismaMock.booking.findMany).toHaveBeenCalled();
-    });
-
-    it("blocks QR generation when actor context is non-employee", async () => {
-      resolveTenantActorContextMock.mockResolvedValue({
-        success: true,
-        actorType: "OWNER",
-        businessId: "biz-1",
-        businessSlug: "test-business",
-        userId: "owner-1",
-        role: "OWNER",
-        ownerId: 55,
-        employeeId: null,
-        businessPolicy: {
-          structure: "OWNER_EMPLOYEE_SELF_SERVICE",
-          allowEmployeeSelfBooking: true,
-          managerCanServe: true,
-        },
-        profile: null,
-        permissions: [],
-      });
-
-      const result = await createEmployeeBookingBalanceQrAction(123);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Unauthorized");
     });
 
     it("blocks mark paid when actor lacks payment permission", async () => {

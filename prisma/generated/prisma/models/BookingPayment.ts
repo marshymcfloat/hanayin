@@ -48,9 +48,6 @@ export type BookingPaymentMinAggregateOutputType = {
   payment_method: $Enums.PaymentMethod | null
   amount_principal: number | null
   amount_charged: number | null
-  paymongo_payment_intent_id: string | null
-  paymongo_payment_method_id: string | null
-  paymongo_payment_id: string | null
   expires_at: Date | null
   paid_at: Date | null
   created_at: Date | null
@@ -65,9 +62,6 @@ export type BookingPaymentMaxAggregateOutputType = {
   payment_method: $Enums.PaymentMethod | null
   amount_principal: number | null
   amount_charged: number | null
-  paymongo_payment_intent_id: string | null
-  paymongo_payment_method_id: string | null
-  paymongo_payment_id: string | null
   expires_at: Date | null
   paid_at: Date | null
   created_at: Date | null
@@ -82,9 +76,6 @@ export type BookingPaymentCountAggregateOutputType = {
   payment_method: number
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id: number
-  paymongo_payment_method_id: number
-  paymongo_payment_id: number
   expires_at: number
   paid_at: number
   metadata: number
@@ -116,9 +107,6 @@ export type BookingPaymentMinAggregateInputType = {
   payment_method?: true
   amount_principal?: true
   amount_charged?: true
-  paymongo_payment_intent_id?: true
-  paymongo_payment_method_id?: true
-  paymongo_payment_id?: true
   expires_at?: true
   paid_at?: true
   created_at?: true
@@ -133,9 +121,6 @@ export type BookingPaymentMaxAggregateInputType = {
   payment_method?: true
   amount_principal?: true
   amount_charged?: true
-  paymongo_payment_intent_id?: true
-  paymongo_payment_method_id?: true
-  paymongo_payment_id?: true
   expires_at?: true
   paid_at?: true
   created_at?: true
@@ -150,9 +135,6 @@ export type BookingPaymentCountAggregateInputType = {
   payment_method?: true
   amount_principal?: true
   amount_charged?: true
-  paymongo_payment_intent_id?: true
-  paymongo_payment_method_id?: true
-  paymongo_payment_id?: true
   expires_at?: true
   paid_at?: true
   metadata?: true
@@ -255,9 +237,6 @@ export type BookingPaymentGroupByOutputType = {
   payment_method: $Enums.PaymentMethod
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id: string | null
-  paymongo_payment_method_id: string | null
-  paymongo_payment_id: string | null
   expires_at: Date | null
   paid_at: Date | null
   metadata: runtime.JsonValue | null
@@ -296,9 +275,6 @@ export type BookingPaymentWhereInput = {
   payment_method?: Prisma.EnumPaymentMethodFilter<"BookingPayment"> | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFilter<"BookingPayment"> | number
   amount_charged?: Prisma.FloatFilter<"BookingPayment"> | number
-  paymongo_payment_intent_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
-  paymongo_payment_method_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
-  paymongo_payment_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   expires_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   paid_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   metadata?: Prisma.JsonNullableFilter<"BookingPayment">
@@ -315,9 +291,6 @@ export type BookingPaymentOrderByWithRelationInput = {
   payment_method?: Prisma.SortOrder
   amount_principal?: Prisma.SortOrder
   amount_charged?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
   paid_at?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -328,8 +301,6 @@ export type BookingPaymentOrderByWithRelationInput = {
 
 export type BookingPaymentWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  paymongo_payment_intent_id?: string
-  paymongo_payment_id?: string
   AND?: Prisma.BookingPaymentWhereInput | Prisma.BookingPaymentWhereInput[]
   OR?: Prisma.BookingPaymentWhereInput[]
   NOT?: Prisma.BookingPaymentWhereInput | Prisma.BookingPaymentWhereInput[]
@@ -339,14 +310,13 @@ export type BookingPaymentWhereUniqueInput = Prisma.AtLeast<{
   payment_method?: Prisma.EnumPaymentMethodFilter<"BookingPayment"> | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFilter<"BookingPayment"> | number
   amount_charged?: Prisma.FloatFilter<"BookingPayment"> | number
-  paymongo_payment_method_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   expires_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   paid_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   metadata?: Prisma.JsonNullableFilter<"BookingPayment">
   created_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
   booking?: Prisma.XOR<Prisma.BookingScalarRelationFilter, Prisma.BookingWhereInput>
-}, "id" | "paymongo_payment_intent_id" | "paymongo_payment_id">
+}, "id">
 
 export type BookingPaymentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -356,9 +326,6 @@ export type BookingPaymentOrderByWithAggregationInput = {
   payment_method?: Prisma.SortOrder
   amount_principal?: Prisma.SortOrder
   amount_charged?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
   paid_at?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -382,9 +349,6 @@ export type BookingPaymentScalarWhereWithAggregatesInput = {
   payment_method?: Prisma.EnumPaymentMethodWithAggregatesFilter<"BookingPayment"> | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatWithAggregatesFilter<"BookingPayment"> | number
   amount_charged?: Prisma.FloatWithAggregatesFilter<"BookingPayment"> | number
-  paymongo_payment_intent_id?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
-  paymongo_payment_method_id?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
-  paymongo_payment_id?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
   expires_at?: Prisma.DateTimeNullableWithAggregatesFilter<"BookingPayment"> | Date | string | null
   paid_at?: Prisma.DateTimeNullableWithAggregatesFilter<"BookingPayment"> | Date | string | null
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"BookingPayment">
@@ -398,9 +362,6 @@ export type BookingPaymentCreateInput = {
   payment_method?: $Enums.PaymentMethod
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   expires_at?: Date | string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -417,9 +378,6 @@ export type BookingPaymentUncheckedCreateInput = {
   payment_method?: $Enums.PaymentMethod
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   expires_at?: Date | string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -433,9 +391,6 @@ export type BookingPaymentUpdateInput = {
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
   amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -452,9 +407,6 @@ export type BookingPaymentUncheckedUpdateInput = {
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
   amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -470,9 +422,6 @@ export type BookingPaymentCreateManyInput = {
   payment_method?: $Enums.PaymentMethod
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   expires_at?: Date | string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -486,9 +435,6 @@ export type BookingPaymentUpdateManyMutationInput = {
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
   amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -504,9 +450,6 @@ export type BookingPaymentUncheckedUpdateManyInput = {
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
   amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -532,9 +475,6 @@ export type BookingPaymentCountOrderByAggregateInput = {
   payment_method?: Prisma.SortOrder
   amount_principal?: Prisma.SortOrder
   amount_charged?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   paid_at?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
@@ -557,9 +497,6 @@ export type BookingPaymentMaxOrderByAggregateInput = {
   payment_method?: Prisma.SortOrder
   amount_principal?: Prisma.SortOrder
   amount_charged?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   paid_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -574,9 +511,6 @@ export type BookingPaymentMinOrderByAggregateInput = {
   payment_method?: Prisma.SortOrder
   amount_principal?: Prisma.SortOrder
   amount_charged?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   paid_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -646,9 +580,6 @@ export type BookingPaymentCreateWithoutBookingInput = {
   payment_method?: $Enums.PaymentMethod
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   expires_at?: Date | string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -663,9 +594,6 @@ export type BookingPaymentUncheckedCreateWithoutBookingInput = {
   payment_method?: $Enums.PaymentMethod
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   expires_at?: Date | string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -710,9 +638,6 @@ export type BookingPaymentScalarWhereInput = {
   payment_method?: Prisma.EnumPaymentMethodFilter<"BookingPayment"> | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFilter<"BookingPayment"> | number
   amount_charged?: Prisma.FloatFilter<"BookingPayment"> | number
-  paymongo_payment_intent_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
-  paymongo_payment_method_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
-  paymongo_payment_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   expires_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   paid_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   metadata?: Prisma.JsonNullableFilter<"BookingPayment">
@@ -727,9 +652,6 @@ export type BookingPaymentCreateManyBookingInput = {
   payment_method?: $Enums.PaymentMethod
   amount_principal: number
   amount_charged: number
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   expires_at?: Date | string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -743,9 +665,6 @@ export type BookingPaymentUpdateWithoutBookingInput = {
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
   amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -760,9 +679,6 @@ export type BookingPaymentUncheckedUpdateWithoutBookingInput = {
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
   amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -777,9 +693,6 @@ export type BookingPaymentUncheckedUpdateManyWithoutBookingInput = {
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
   amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -797,9 +710,6 @@ export type BookingPaymentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   payment_method?: boolean
   amount_principal?: boolean
   amount_charged?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   expires_at?: boolean
   paid_at?: boolean
   metadata?: boolean
@@ -816,9 +726,6 @@ export type BookingPaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   payment_method?: boolean
   amount_principal?: boolean
   amount_charged?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   expires_at?: boolean
   paid_at?: boolean
   metadata?: boolean
@@ -835,9 +742,6 @@ export type BookingPaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   payment_method?: boolean
   amount_principal?: boolean
   amount_charged?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   expires_at?: boolean
   paid_at?: boolean
   metadata?: boolean
@@ -854,9 +758,6 @@ export type BookingPaymentSelectScalar = {
   payment_method?: boolean
   amount_principal?: boolean
   amount_charged?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   expires_at?: boolean
   paid_at?: boolean
   metadata?: boolean
@@ -864,7 +765,7 @@ export type BookingPaymentSelectScalar = {
   updated_at?: boolean
 }
 
-export type BookingPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "booking_id" | "type" | "status" | "payment_method" | "amount_principal" | "amount_charged" | "paymongo_payment_intent_id" | "paymongo_payment_method_id" | "paymongo_payment_id" | "expires_at" | "paid_at" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["bookingPayment"]>
+export type BookingPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "booking_id" | "type" | "status" | "payment_method" | "amount_principal" | "amount_charged" | "expires_at" | "paid_at" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["bookingPayment"]>
 export type BookingPaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
 }
@@ -888,9 +789,6 @@ export type $BookingPaymentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     payment_method: $Enums.PaymentMethod
     amount_principal: number
     amount_charged: number
-    paymongo_payment_intent_id: string | null
-    paymongo_payment_method_id: string | null
-    paymongo_payment_id: string | null
     expires_at: Date | null
     paid_at: Date | null
     metadata: runtime.JsonValue | null
@@ -1327,9 +1225,6 @@ export interface BookingPaymentFieldRefs {
   readonly payment_method: Prisma.FieldRef<"BookingPayment", 'PaymentMethod'>
   readonly amount_principal: Prisma.FieldRef<"BookingPayment", 'Float'>
   readonly amount_charged: Prisma.FieldRef<"BookingPayment", 'Float'>
-  readonly paymongo_payment_intent_id: Prisma.FieldRef<"BookingPayment", 'String'>
-  readonly paymongo_payment_method_id: Prisma.FieldRef<"BookingPayment", 'String'>
-  readonly paymongo_payment_id: Prisma.FieldRef<"BookingPayment", 'String'>
   readonly expires_at: Prisma.FieldRef<"BookingPayment", 'DateTime'>
   readonly paid_at: Prisma.FieldRef<"BookingPayment", 'DateTime'>
   readonly metadata: Prisma.FieldRef<"BookingPayment", 'Json'>

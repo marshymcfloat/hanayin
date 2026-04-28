@@ -9,7 +9,6 @@ import { z } from "zod";
 import {
   addMonths,
   assignReferralAttributionOnOnboarding,
-  createCheckoutForInvoice,
   createInvoiceForSubscription,
   DEFAULT_SUBSCRIPTION_PLAN_CODE,
   ensureBusinessSubscription,
@@ -17,6 +16,7 @@ import {
   ensureReferralCode,
   getDefaultTrialMonths,
   getPeriodEnd,
+  MANUAL_COLLECTION_MODE_ERROR,
   SUBSCRIPTION_PLAN_CODES,
   getSubscriptionEnforcementMode,
   markInvoicePaid,
@@ -368,29 +368,12 @@ async function canAccessInvoice(invoiceId: string) {
   return { success: true as const, isPlatformAdmin: false };
 }
 
-export async function createSubscriptionCheckoutAction(invoiceId: string) {
-  const access = await canAccessInvoice(invoiceId);
-  if (!access.success) return access;
-
-  const checkout = await createCheckoutForInvoice(invoiceId);
-  revalidatePath("/platform/invoices");
-
-  return { success: true as const, data: checkout };
+export async function createSubscriptionCheckoutAction(_invoiceId: string) {
+  return { success: false as const, error: MANUAL_COLLECTION_MODE_ERROR };
 }
 
-export async function retryInvoiceCollectionAction(invoiceId: string) {
-  const access = await canAccessInvoice(invoiceId);
-  if (!access.success) return access;
-
-  await prisma.subscriptionInvoice.update({
-    where: { id: invoiceId },
-    data: {
-      status: "OPEN",
-    },
-  });
-  const checkout = await createCheckoutForInvoice(invoiceId);
-  revalidatePath("/platform/invoices");
-  return { success: true as const, data: checkout };
+export async function retryInvoiceCollectionAction(_invoiceId: string) {
+  return { success: false as const, error: MANUAL_COLLECTION_MODE_ERROR };
 }
 
 export async function applyCreditAdjustmentAction(

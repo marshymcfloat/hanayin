@@ -8,7 +8,8 @@ import {
   requireOwnerTenantWriteAccess,
   requireTenantAccess,
 } from "@/lib/auth/guards";
-import { generateSocialCaptionDraft } from "@/lib/services/social/caption-generator";
+import { generateSocialCaptionDraft, generateOrganicCaptionDraft, type OrganicPostCategory } from "@/lib/services/social/caption-generator";
+import { generateAndUploadOrganicImage, type OrganicImageInput } from "@/lib/services/social/promo-image";
 import { generateAndUploadPromoImage } from "@/lib/services/social/promo-image";
 import { publishEvent, publishEvents } from "@/lib/services/outbox";
 import { prisma } from "@/prisma/prisma";
@@ -198,6 +199,168 @@ export async function generateSocialCaptionAction(input: {
   }
 }
 
+export async function createOrganicSocialPostAction(input: {
+  businessSlug: string;
+  topic: string;
+  category: OrganicPostCategory;
+  serviceNames?: string[];
+  visualMood?: string;
+  visualFocus?: string;
+  imageProfile?: string;
+  generateImageNow?: boolean;
+  ownerDirection?: string;
+}) {
+  const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
+  if (!auth.success) return auth;
+
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
+  if (featureError) return featureError;
+
+  try {
+    const business = await prisma.business.findUnique({
+      where: { slug: input.businessSlug },
+      select: { id: true, name: true, description: true },
+    });
+
+    if (!business) {
+      return { success: false as const, error: "Business not found." };
+    }
+
+    const aiError = await ensureAiAccess(input.businessSlug);
+    let captionDraft = "";
+    let hashtags: string[] = [];
+    let mediaUrl: string | null = null;
+
+    if (!aiError) {
+      try {
+        const generated = await generateOrganicCaptionDraft({
+          businessSlug: input.businessSlug,
+          businessName: business.name,
+          businessDescription: business.description,
+          topic: input.topic,
+          category: input.category,
+          serviceNames: input.serviceNames ?? [],
+          mood: input.visualMood,
+          visualFocus: input.visualFocus,
+          ownerContext: input.ownerDirection,
+        });
+        captionDraft = generated.caption;
+        hashtags = generated.hashtags;
+      } catch {
+        // fallback to empty draft
+      }
+
+      if (input.generateImageNow) {
+        try {
+          const { isSocialImageProfile } = await import("@/lib/services/social/image-profiles");
+          const imageProfileValue = input.imageProfile && isSocialImageProfile(input.imageProfile)
+            ? input.imageProfile
+            : undefined;
+
+          const organicImageInput: OrganicImageInput = {
+            businessSlug: input.businessSlug,
+            businessName: business.name,
+            topic: input.topic,
+            category: input.category,
+            captionText: captionDraft || null,
+            imageProfile: imageProfileValue,
+            visualMood: input.visualMood,
+            visualFocus: input.visualFocus,
+            ownerDirection: input.ownerDirection,
+            imprintBusinessName: true,
+          };
+          mediaUrl = await generateAndUploadOrganicImage(organicImageInput);
+        } catch {
+          // image generation is best-effort
+        }
+      }
+    }
+
+    const post = await prisma.socialPost.create({
+      data: {
+        business_id: business.id,
+        source: "MANUAL",
+        title: input.topic.trim(),
+        caption_draft: captionDraft,
+        hashtags,
+        media_url: mediaUrl,
+        status: captionDraft ? "READY" : "DRAFT",
+        created_by_user_id: auth.session.user.id,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        entity_type: "SocialPost",
+        entity_id: post.id,
+        action: "ORGANIC_POST_CREATED",
+        actor_id: auth.session.user.id,
+        actor_type: "USER",
+        business_id: business.id,
+        changes: {
+          topic: input.topic,
+          category: input.category,
+          visualMood: input.visualMood ?? null,
+          visualFocus: input.visualFocus ?? null,
+          generatedImage: !!mediaUrl,
+        },
+      },
+    });
+
+    revalidatePath(`/app/${input.businessSlug}/social-posts`);
+    return { success: true as const, data: { postId: post.id } };
+  } catch (error) {
+    console.error("Error creating organic social post:", error);
+    return { success: false as const, error: "Failed to create post." };
+  }
+}
+
+export async function generateOrganicCaptionAction(input: {
+  businessSlug: string;
+  topic: string;
+  category: OrganicPostCategory;
+  serviceNames?: string[];
+  visualMood?: string;
+  visualFocus?: string;
+  ownerContext?: string;
+}) {
+  const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
+  if (!auth.success) return auth;
+
+  const featureError = await ensureSocialPublishingAccess(input.businessSlug);
+  if (featureError) return featureError;
+  const aiError = await ensureAiAccess(input.businessSlug);
+  if (aiError) return aiError;
+
+  try {
+    const business = await prisma.business.findUnique({
+      where: { slug: input.businessSlug },
+      select: { name: true, description: true },
+    });
+
+    if (!business) {
+      return { success: false as const, error: "Business not found." };
+    }
+
+    const generated = await generateOrganicCaptionDraft({
+      businessSlug: input.businessSlug,
+      businessName: business.name,
+      businessDescription: business.description,
+      topic: input.topic,
+      category: input.category,
+      serviceNames: input.serviceNames ?? [],
+      mood: input.visualMood,
+      visualFocus: input.visualFocus,
+      ownerContext: input.ownerContext,
+    });
+
+    return { success: true as const, data: generated };
+  } catch (error) {
+    console.error("Error generating organic caption:", error);
+    return { success: false as const, error: "Unable to generate caption." };
+  }
+}
+
 export async function updateSocialPostDraftAction(input: {
   businessSlug: string;
   postId: string;
@@ -361,40 +524,44 @@ export async function generateSocialPostImageAction(input: {
       return { success: false as const, error: "Social post draft not found." };
     }
 
-    if (!post.sale_event) {
-      return {
-        success: false as const,
-        error:
-          "Auto image generation is currently available for sale-event social drafts only.",
-      };
-    }
-
     const imageProfile = input.imageProfile || DEFAULT_SOCIAL_IMAGE_PROFILE;
     if (!isSocialImageProfile(imageProfile)) {
       return { success: false as const, error: "Invalid image profile selected." };
     }
 
-    const mediaUrl = await generateAndUploadPromoImage({
-      businessSlug: post.business.slug,
-      businessName: post.business.name,
-      title: post.sale_event.title,
-      saleDescription: post.sale_event.description,
-      captionText: post.caption_final || post.caption_draft,
-      discountType: post.sale_event.discount_type,
-      discountValue: post.sale_event.discount_value,
-      startDate: post.sale_event.start_date,
-      endDate: post.sale_event.end_date,
-      serviceNames: post.sale_event.applicable_services.map(
-        (service) => service.name,
-      ),
-      serviceCategories: Array.from(
-        new Set(post.sale_event.applicable_services.map((service) => service.category)),
-      ),
-      packageNames: post.sale_event.applicable_packages.map(
-        (pkg) => pkg.name,
-      ),
-      imageProfile,
-    });
+    let mediaUrl: string | null | undefined;
+
+    if (!post.sale_event) {
+      // Organic post — pure photography with a small brand-name watermark.
+      mediaUrl = await generateAndUploadOrganicImage({
+        businessSlug: post.business.slug,
+        businessName: post.business.name,
+        topic: post.title,
+        category: "GENERAL",
+        captionText: post.caption_final || post.caption_draft,
+        imageProfile,
+        imprintBusinessName: true,
+      });
+    } else {
+      const today = new Date();
+      mediaUrl = await generateAndUploadPromoImage({
+        businessSlug: post.business.slug,
+        businessName: post.business.name,
+        title: post.sale_event.title,
+        saleDescription: post.sale_event.description,
+        captionText: post.caption_final || post.caption_draft,
+        discountType: post.sale_event.discount_type,
+        discountValue: post.sale_event.discount_value,
+        startDate: post.sale_event.start_date ?? today,
+        endDate: post.sale_event.end_date ?? today,
+        serviceNames: post.sale_event.applicable_services.map((service) => service.name),
+        serviceCategories: Array.from(
+          new Set(post.sale_event.applicable_services.map((service) => service.category)),
+        ),
+        packageNames: post.sale_event.applicable_packages.map((pkg) => pkg.name),
+        imageProfile,
+      });
+    }
 
     if (!mediaUrl) {
       return {
@@ -484,33 +651,33 @@ export async function regenerateSocialPostCaptionAction(input: {
       return { success: false as const, error: "Social post draft not found." };
     }
 
-    if (!post.sale_event) {
-      return {
-        success: false as const,
-        error: "Caption regeneration is currently available for sale-event drafts only.",
-      };
+    let generated;
+    if (post.sale_event) {
+      generated = await generateSocialCaptionDraft({
+        businessSlug: post.business.slug,
+        businessName: post.business.name,
+        businessDescription: post.business.description,
+        saleTitle: post.sale_event.title,
+        saleDescription: post.sale_event.description,
+        discountType: post.sale_event.discount_type,
+        discountValue: post.sale_event.discount_value,
+        startDate: post.sale_event.start_date,
+        endDate: post.sale_event.end_date,
+        serviceNames: post.sale_event.applicable_services.map((service) => service.name),
+        serviceCategories: Array.from(
+          new Set(post.sale_event.applicable_services.map((service) => service.category)),
+        ),
+        packageNames: post.sale_event.applicable_packages.map((pkg) => pkg.name),
+      });
+    } else {
+      generated = await generateOrganicCaptionDraft({
+        businessSlug: post.business.slug,
+        businessName: post.business.name,
+        businessDescription: post.business.description,
+        topic: post.title,
+        category: "GENERAL",
+      });
     }
-
-    const generated = await generateSocialCaptionDraft({
-      businessSlug: post.business.slug,
-      businessName: post.business.name,
-      businessDescription: post.business.description,
-      saleTitle: post.sale_event.title,
-      saleDescription: post.sale_event.description,
-      discountType: post.sale_event.discount_type,
-      discountValue: post.sale_event.discount_value,
-      startDate: post.sale_event.start_date,
-      endDate: post.sale_event.end_date,
-      serviceNames: post.sale_event.applicable_services.map(
-        (service) => service.name,
-      ),
-      serviceCategories: Array.from(
-        new Set(post.sale_event.applicable_services.map((service) => service.category)),
-      ),
-      packageNames: post.sale_event.applicable_packages.map(
-        (pkg) => pkg.name,
-      ),
-    });
 
     return {
       success: true as const,

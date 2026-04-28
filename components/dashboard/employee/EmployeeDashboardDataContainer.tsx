@@ -258,7 +258,6 @@ export default async function EmployeeDashboardDataContainer({
       amount_paid: true,
       created_at: true,
       scheduled_at: true,
-      paymongo_payment_intent_id: true,
       customer: {
         select: {
           name: true,
