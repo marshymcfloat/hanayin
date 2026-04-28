@@ -94,7 +94,6 @@ export function GrowthOpportunityPanel(props: {
     if (dialogOpen && opportunity) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCustomStartDate(toManilaDateTimeInput(opportunity.timeWindowStart));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCustomEndDate(toManilaDateTimeInput(opportunity.timeWindowEnd));
     }
   }, [dialogOpen, opportunity]);
