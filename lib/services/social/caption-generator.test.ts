@@ -41,7 +41,7 @@ describe("generateSocialCaptionDraft", () => {
     delete process.env.GEMINI_KEY;
     const output = await generateSocialCaptionDraft(BASE_INPUT);
 
-    expect(output.caption).toContain("Glow Studio has a feel-good promo for you this season.");
+    expect(output.caption).toContain("Summer Hair Refresh is live at Glow Studio");
     expectRequiredEnding(output.caption);
     expect(output.hashtags).toContain("#ServiceFlow");
   });
@@ -54,7 +54,7 @@ describe("generateSocialCaptionDraft", () => {
       endDate: new Date("2026-02-14T23:59:59.000Z"),
     });
 
-    expect(output.caption).toContain("One-day promo on");
+    expect(output.caption).toContain("Flash sale — today only.");
     expect(output.caption).not.toMatch(/from\s+\w+\s+\d+\s+to\s+\w+\s+\d+/i);
   });
 
@@ -65,7 +65,7 @@ describe("generateSocialCaptionDraft", () => {
       saleTitle: "Holiday Stress-Off Package (Draft Suggestion)",
     });
 
-    expect(output.caption).toContain("Holiday Stress-Off Package offer");
+    expect(output.caption).toContain("Holiday Stress-Off Package is live");
     expect(output.caption).not.toContain("(Draft Suggestion)");
   });
 
@@ -190,7 +190,7 @@ describe("generateSocialCaptionDraft", () => {
     );
 
     const output = await generateSocialCaptionDraft(BASE_INPUT);
-    expect(output.caption).toContain("Glow Studio has a feel-good promo for you this season.");
+    expect(output.caption).toContain("Summer Hair Refresh is live at Glow Studio");
     expectRequiredEnding(output.caption);
     expect(output.hashtags).toContain("#ServiceFlow");
   });

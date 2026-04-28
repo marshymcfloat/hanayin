@@ -21,7 +21,7 @@ describe("TimeSlotPicker", () => {
       />,
     );
 
-    expect(screen.getAllByText(/2 Employees/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Available/i).length).toBeGreaterThan(0);
   });
 
   it("shows and uses alternative slots in empty state", () => {

@@ -75,6 +75,12 @@ describe("report queries", () => {
           },
         ]),
       },
+      expense: {
+        findMany: vi.fn().mockResolvedValue([]),
+      },
+      payslip: {
+        findMany: vi.fn().mockResolvedValue([]),
+      },
     } as unknown as NonNullable<Parameters<typeof getOverviewReportData>[0]["db"]>;
 
     const payload = await getOverviewReportData({

@@ -4,6 +4,8 @@ import { vi } from "vitest";
 
 vi.mock("recharts", () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AreaChart: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Area: ({ name }: { name: string }) => <div>{name}</div>,
   LineChart: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Line: ({ name }: { name: string }) => <div>{name}</div>,
   XAxis: () => null,

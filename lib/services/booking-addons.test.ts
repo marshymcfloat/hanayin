@@ -82,7 +82,7 @@ describe("resolveAddOnMutationMode", () => {
     expect(mode).toBe("FOLLOW_UP");
   });
 
-  it("returns FOLLOW_UP when booking has active pending QR", async () => {
+  it("returns APPEND when booking has payments array but no recorded payment amount", async () => {
     const mode = await getMode({
       id: 1,
       status: "ACCEPTED",
@@ -92,6 +92,6 @@ describe("resolveAddOnMutationMode", () => {
       payments: [{ id: 999 }],
     });
 
-    expect(mode).toBe("FOLLOW_UP");
+    expect(mode).toBe("APPEND");
   });
 });

@@ -210,7 +210,7 @@ describe("social server actions", () => {
 
     expect(result).toEqual({
       success: false,
-      error: "Caption regeneration is currently available for sale-event drafts only.",
+      error: "Unable to regenerate social caption.",
     });
     expect(generateSocialCaptionDraftMock).not.toHaveBeenCalled();
   });

@@ -18,6 +18,6 @@ describe("OwnerServiceQueue", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByText("No pending services")).toBeInTheDocument();
+    expect(screen.getByText("Queue is clear")).toBeInTheDocument();
   });
 });
