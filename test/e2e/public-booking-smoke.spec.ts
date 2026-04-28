@@ -95,7 +95,7 @@ test.describe("Public booking smoke", () => {
     }
 
     const selectServicesHeading = page.getByRole("heading", {
-      name: "Select Services",
+      name: "Services",
     });
     const modalBadge = page.getByText("Secure booking").first();
     const fullPageBusinessHeading = page.getByRole("heading", {
