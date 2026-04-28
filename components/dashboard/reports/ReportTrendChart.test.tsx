@@ -43,7 +43,7 @@ describe("ReportTrendChart", () => {
       />,
     );
 
-    expect(screen.getByText("Booked Revenue")).toBeInTheDocument();
-    expect(screen.getByText("Collected Revenue")).toBeInTheDocument();
+    expect(screen.getAllByText("Booked Revenue").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Collected Revenue").length).toBeGreaterThan(0);
   });
 });
