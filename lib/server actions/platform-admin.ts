@@ -22,7 +22,7 @@ import {
   markInvoicePaid,
   qualifyAndRewardReferralForBusiness,
 } from "@/features/billing/subscription-service";
-import { requireAuth, requirePlatformAdmin } from "@/lib/auth/guards";
+import { requirePlatformAdmin } from "@/lib/auth/guards";
 import { authOptions } from "@/lib/next auth/options";
 import {
   BusinessStructure,

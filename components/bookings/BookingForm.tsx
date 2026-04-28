@@ -229,10 +229,6 @@ export default function BookingForm({
     control: form.control,
     name: "customerName",
   }) as string;
-  const customerEmailInput = useWatch({
-    control: form.control,
-    name: "email",
-  }) as string;
 
   const [existingCustomerEmail, setExistingCustomerEmail] = useState<
     string | null

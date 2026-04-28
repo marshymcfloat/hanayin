@@ -163,7 +163,6 @@ export default function EmployeePaymentsQueue({
     booking: EmployeePaymentBooking,
     options?: { includeDetails?: boolean },
   ) => {
-    const amountPaid = roundMoney(Math.max(0, booking.amount_paid));
     const canMarkPaid =
       booking.status !== "CANCELLED" && booking.payment_status !== "PAID";
     const isLoading = actionId === booking.id;
