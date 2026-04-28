@@ -342,32 +342,6 @@ export async function createSubscriptionInvoiceAction(
   return { success: true as const, data: invoice };
 }
 
-async function canAccessInvoice(invoiceId: string) {
-  const platformAuth = await requirePlatformAdmin();
-  if (platformAuth.success) {
-    return { success: true as const, isPlatformAdmin: true };
-  }
-
-  const tenantAuth = await requireAuth();
-  if (!tenantAuth.success) return tenantAuth;
-
-  const invoice = await prisma.subscriptionInvoice.findUnique({
-    where: { id: invoiceId },
-    select: {
-      business: {
-        select: { slug: true },
-      },
-    },
-  });
-  if (!invoice) return { success: false as const, error: "Invoice not found" };
-
-  if (invoice.business.slug !== tenantAuth.businessSlug) {
-    return { success: false as const, error: "Forbidden" };
-  }
-
-  return { success: true as const, isPlatformAdmin: false };
-}
-
 export async function createSubscriptionCheckoutAction(_invoiceId: string) {
   return { success: false as const, error: MANUAL_COLLECTION_MODE_ERROR };
 }

@@ -53,12 +53,6 @@ export type EmployeePaymentBooking = {
   }>;
 };
 
-type QrPanelState = {
-  qrImage: string;
-  expiresAt?: string;
-  amountLabel: string;
-  status: "pending" | "paid" | "failed" | "expired";
-} | null;
 
 const formatCurrency = (amount: number) =>
   `PHP ${amount.toLocaleString(undefined, {
@@ -170,12 +164,8 @@ export default function EmployeePaymentsQueue({
     options?: { includeDetails?: boolean },
   ) => {
     const amountPaid = roundMoney(Math.max(0, booking.amount_paid));
-    const remainingBalance = roundMoney(
-      Math.max(0, booking.grand_total - amountPaid),
-    );
     const canMarkPaid =
       booking.status !== "CANCELLED" && booking.payment_status !== "PAID";
-    const payLabel = amountPaid > 0 ? "Pay Remaining" : "Pay Now";
     const isLoading = actionId === booking.id;
     const includeDetails = Boolean(options?.includeDetails);
 

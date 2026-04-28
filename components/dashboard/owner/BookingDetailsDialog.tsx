@@ -117,7 +117,6 @@ export function BookingDetailsDialog({
   const canMarkPaid =
     booking?.status !== "CANCELLED" && booking?.payment_status !== "PAID";
   const canMarkNoShow = booking?.status === "ACCEPTED";
-  const payCtaLabel = amountPaid > 0 ? "Pay Remaining" : "Pay Now";
   const canAddService = booking?.status !== "CANCELLED";
   const availableServiceOptions = useMemo(
     () =>

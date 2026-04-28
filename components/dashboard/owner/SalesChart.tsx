@@ -14,7 +14,6 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -133,7 +132,6 @@ export function SalesChart({
 
   const {
     data,
-    totalRevenue,
     totalPayroll,
     netRevenue,
     averageOrderValue,

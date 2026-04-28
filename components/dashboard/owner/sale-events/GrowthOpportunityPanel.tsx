@@ -90,6 +90,7 @@ export function GrowthOpportunityPanel(props: {
   const [customEndDate, setCustomEndDate] = useState("");
   const [customSlotLimit, setCustomSlotLimit] = useState("");
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (dialogOpen && opportunity) {
       setCustomStartDate(toManilaDateTimeInput(opportunity.timeWindowStart));

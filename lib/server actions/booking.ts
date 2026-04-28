@@ -238,7 +238,6 @@ export async function createBooking({
       voucherCode,
     });
     const processedServices = pricing.services;
-    const amountToPay = pricing.amountToPay;
     const estimatedEnd = pricing.estimatedEnd;
 
     const staffResolution = await resolveStaffSelectionOrThrow({

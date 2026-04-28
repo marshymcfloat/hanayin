@@ -437,7 +437,6 @@ export default function BookingForm({
   >("");
   const [capacityOverrideNote, setCapacityOverrideNote] = useState("");
   const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
-  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
     if (canceled === "true") {
@@ -693,8 +692,6 @@ export default function BookingForm({
       paymentType,
     });
   }, [total, voucherDiscountAmount, paymentMethod, paymentType]);
-
-  const convenienceFee = 0;
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: [
@@ -1029,7 +1026,6 @@ export default function BookingForm({
   const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
   const isStep3Complete = effectiveIsWalkIn || !!selectedTime;
   const customerNameValue = (customerNameInput || "").trim();
-  const customerEmailValue = (customerEmailInput || "").trim();
   const isCustomerDetailsComplete = isEmployee
     ? !!customerId || customerNameValue.length >= 2
     : customerNameValue.length >= 2;
