@@ -1,3 +1,5 @@
+import { normalizePhilippinePhone } from "./sms-otp";
+
 export function normalizeCustomerEmail(value?: string | null) {
   if (!value) return undefined;
   const trimmed = value.trim();
@@ -5,10 +7,32 @@ export function normalizeCustomerEmail(value?: string | null) {
   return trimmed.toLowerCase();
 }
 
+/**
+ * Normalize a phone number for storage and exact-match lookups.
+ *
+ * For Philippine numbers we canonicalize to the international `639XXXXXXXXXX`
+ * form so that "0917 123 4567", "+63 917 123 4567" and "917-123-4567" all hit
+ * the same Customer row. Non-PH numbers fall through with whitespace trimmed.
+ */
 export function normalizeCustomerPhone(value?: string | null) {
   if (!value) return undefined;
   const trimmed = value.trim();
-  return trimmed || undefined;
+  if (!trimmed) return undefined;
+
+  // Strip whitespace, dashes, parens before checking PH formats.
+  const cleaned = trimmed.replace(/[\s\-\(\)]/g, "");
+
+  // PH numbers normalize to canonical 12-digit 639XXXXXXXXXX. Anything that
+  // doesn't match a known PH pattern falls through unchanged.
+  if (
+    /^\+?63\d{10}$/.test(cleaned) ||
+    /^09\d{9}$/.test(cleaned) ||
+    /^9\d{9}$/.test(cleaned)
+  ) {
+    return normalizePhilippinePhone(cleaned);
+  }
+
+  return cleaned;
 }
 
 export type CustomerLookupDelegate = {
@@ -52,6 +76,83 @@ export async function findExistingCustomerByContact({
       },
       orderBy: { created_at: "asc" },
     });
+  }
+
+  return null;
+}
+
+/**
+ * Richer lookup used by the staff CustomerPicker and the duplicate-detection
+ * confirmation dialog. Returns name + contact so the UI can show "Maria Santos
+ * (0917 123 4567)" rather than just an opaque match.
+ */
+export type CustomerCandidate = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+};
+
+export type RichCustomerLookupDelegate = {
+  findFirst: (args: {
+    where: {
+      business_id: string;
+      email?: { equals: string; mode: "insensitive" };
+      phone?: string;
+    };
+    orderBy: { created_at: "asc" };
+    select: {
+      id: true;
+      name: true;
+      email: true;
+      phone: true;
+    };
+  }) => Promise<CustomerCandidate | null>;
+};
+
+/**
+ * Look up an existing customer by email (preferred) or phone for the staff
+ * duplicate-confirmation flow. Caller is expected to pre-normalize both
+ * inputs via normalizeCustomerEmail / normalizeCustomerPhone.
+ *
+ * Returns null when there's nothing to confirm — caller proceeds to create.
+ */
+export async function findDuplicateCustomerCandidate({
+  customerDelegate,
+  businessId,
+  email,
+  phone,
+}: {
+  customerDelegate: RichCustomerLookupDelegate;
+  businessId: string;
+  email?: string;
+  phone?: string;
+}): Promise<
+  | (CustomerCandidate & { matchedOn: "email" | "phone" })
+  | null
+> {
+  if (email) {
+    const byEmail = await customerDelegate.findFirst({
+      where: {
+        business_id: businessId,
+        email: { equals: email, mode: "insensitive" },
+      },
+      orderBy: { created_at: "asc" },
+      select: { id: true, name: true, email: true, phone: true },
+    });
+    if (byEmail) return { ...byEmail, matchedOn: "email" };
+  }
+
+  if (phone) {
+    const byPhone = await customerDelegate.findFirst({
+      where: {
+        business_id: businessId,
+        phone,
+      },
+      orderBy: { created_at: "asc" },
+      select: { id: true, name: true, email: true, phone: true },
+    });
+    if (byPhone) return { ...byPhone, matchedOn: "phone" };
   }
 
   return null;

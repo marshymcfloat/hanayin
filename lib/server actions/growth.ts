@@ -15,12 +15,21 @@ import { generateImagePromptVariants } from "@/lib/services/growth/image-prompt-
 import { recommendPostingSchedule } from "@/lib/services/growth/schedule-recommender";
 import { trackCampaignEvent } from "@/lib/services/growth/campaign-tracker";
 import { generateAndUploadPromoImage } from "@/lib/services/social/promo-image";
-import type { GeneratedCampaignView, GrowthContextPayload } from "@/lib/services/growth/types";
+import type {
+  GeneratedCampaignView,
+  GrowthContextPayload,
+  OpportunityTypeLiteral,
+} from "@/lib/services/growth/types";
 import {
   generateGrowthCampaignSchema,
   trackGrowthCampaignEventSchema,
 } from "@/lib/zod-schemas/growth";
 import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { recommendCampaignStyling } from "@/lib/services/growth/styling-recommender";
+import {
+  isSocialImageProfile,
+  type SocialImageProfile,
+} from "@/lib/services/social/image-profiles";
 
 function normalizeHashtags(hashtags: string[]) {
   return Array.from(
@@ -331,6 +340,26 @@ export async function generateGrowthCampaignAction(
       constraints: input.constraints,
     });
 
+    // Engine-recommended styling: if the owner didn't specify a tone or
+    // image profile in the dialog, fall back to a reasonable default based
+    // on the opportunity type and dominant service category.
+    const stylingRecommendation = recommendCampaignStyling({
+      opportunityType: opportunity.type as OpportunityTypeLiteral,
+      serviceCategories: serviceCandidates.map((s) => s.category),
+      serviceNames: serviceCandidates.map((s) => s.name),
+    });
+    const captionTone =
+      input.styling?.captionTone && input.styling.captionTone !== "AUTO"
+        ? input.styling.captionTone
+        : stylingRecommendation.captionTone;
+    const imageProfileSelection: SocialImageProfile = isSocialImageProfile(
+      input.styling?.imageProfile ?? "",
+    )
+      ? (input.styling!.imageProfile as SocialImageProfile)
+      : stylingRecommendation.imageProfile;
+    const ownerCaptionDirection = input.styling?.ownerCaptionDirection?.trim();
+    const ownerImageDirection = input.styling?.ownerImageDirection?.trim();
+
     const captions = await generateCaptionVariants({
       businessSlug: business.slug,
       businessName: business.name,
@@ -343,6 +372,8 @@ export async function generateGrowthCampaignAction(
         new Set(serviceCandidates.map((service) => service.category)),
       ),
       packageNames: packageCandidates.map((pkg) => pkg.name),
+      captionTone,
+      ownerCaptionDirection,
     });
 
     const imagePrompts = await generateImagePromptVariants({
@@ -407,6 +438,8 @@ export async function generateGrowthCampaignAction(
         serviceCategories,
         packageNames,
         actionCategory: offer.actionCategory,
+        imageProfile: imageProfileSelection,
+        ownerImageDirection,
       });
     } catch (error) {
       console.warn("Failed to auto-generate growth campaign social image:", error);

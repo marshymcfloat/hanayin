@@ -25,12 +25,64 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   buildGrowthFlowQuery,
   type GrowthFlowContext,
 } from "../growth/types";
+import { recommendCampaignStyling } from "@/lib/services/growth/styling-recommender";
+import {
+  SOCIAL_IMAGE_PROFILE_OPTIONS,
+  type SocialImageProfile,
+} from "@/lib/services/social/image-profiles";
+import type { CaptionTone } from "@/lib/zod-schemas/growth";
+import type { OpportunityTypeLiteral } from "@/lib/services/growth/types";
 
 type ServiceOption = { id: number; name: string; category: string };
+
+const CAPTION_TONE_OPTIONS: Array<{
+  value: CaptionTone;
+  label: string;
+  hint: string;
+}> = [
+  {
+    value: "AUTO",
+    label: "Recommended (auto)",
+    hint: "Let the engine pick the voice based on this opportunity.",
+  },
+  {
+    value: "FRIENDLY_TAGLISH",
+    label: "Friendly Taglish",
+    hint: "Warm, conversational, like texting a friend who hypes you up.",
+  },
+  {
+    value: "PREMIUM_LUXURY",
+    label: "Premium / luxury",
+    hint: "Refined and editorial. Restraint over hype. No emoji.",
+  },
+  {
+    value: "WITTY_PLAYFUL",
+    label: "Witty / playful",
+    hint: "Cheeky one-liners, observational humor. Stay tasteful.",
+  },
+  {
+    value: "WARM_NURTURING",
+    label: "Warm / nurturing",
+    hint: "Gentle, no pressure — focus on rest and recovery.",
+  },
+  {
+    value: "DIRECT_URGENT",
+    label: "Direct / urgent",
+    hint: "Confident, present-tense, every line moves toward booking.",
+  },
+];
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -89,6 +141,29 @@ export function GrowthOpportunityPanel(props: {
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
   const [customSlotLimit, setCustomSlotLimit] = useState("");
+
+  // Voice & visuals overrides — engine recommendations as defaults.
+  const [captionTone, setCaptionTone] = useState<CaptionTone>("AUTO");
+  const [imageProfile, setImageProfile] = useState<SocialImageProfile | "AUTO">(
+    "AUTO",
+  );
+  const [ownerCaptionDirection, setOwnerCaptionDirection] = useState("");
+  const [ownerImageDirection, setOwnerImageDirection] = useState("");
+
+  // Compute the recommendation from the currently selected opportunity +
+  // services so the dialog can show "Recommended" hints next to the auto
+  // choices and pre-fill the underlying selections accordingly.
+  const stylingRecommendation = useMemo(() => {
+    if (!opportunity) return null;
+    const selectedServices = props.services.filter((s) =>
+      selectedServiceIds.includes(s.id),
+    );
+    return recommendCampaignStyling({
+      opportunityType: opportunity.type as OpportunityTypeLiteral,
+      serviceCategories: selectedServices.map((s) => s.category),
+      serviceNames: selectedServices.map((s) => s.name),
+    });
+  }, [opportunity, selectedServiceIds, props.services]);
 
   useEffect(() => {
     if (dialogOpen && opportunity) {
@@ -258,6 +333,12 @@ export function GrowthOpportunityPanel(props: {
         startDate: customStartDate || undefined,
         endDate: customEndDate || undefined,
         slotLimit: slotNum && slotNum >= 1 ? slotNum : undefined,
+      },
+      styling: {
+        captionTone,
+        imageProfile: imageProfile === "AUTO" ? undefined : imageProfile,
+        ownerCaptionDirection: ownerCaptionDirection.trim() || undefined,
+        ownerImageDirection: ownerImageDirection.trim() || undefined,
       },
     });
 
@@ -600,6 +681,136 @@ export function GrowthOpportunityPanel(props: {
                             className="h-9 text-sm"
                           />
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Voice & visuals — owner-overridable. Defaults come from
+                        recommendCampaignStyling based on the opportunity type
+                        and the dominant service category. */}
+                    <div className="space-y-3 rounded-lg border border-zinc-100 bg-zinc-50/40 p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-zinc-700">
+                          Voice & visuals
+                        </p>
+                        {stylingRecommendation && (
+                          <span
+                            className="text-[10px] font-medium text-emerald-700"
+                            title={stylingRecommendation.rationale}
+                          >
+                            Engine recommends:{" "}
+                            {stylingRecommendation.captionTone
+                              .toLowerCase()
+                              .replace(/_/g, " ")}{" "}
+                            +{" "}
+                            {stylingRecommendation.imageProfile
+                              .toLowerCase()
+                              .replace(/_/g, " ")}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-zinc-700">
+                            Caption voice
+                          </label>
+                          <Select
+                            value={captionTone}
+                            onValueChange={(value) =>
+                              setCaptionTone(value as CaptionTone)
+                            }
+                          >
+                            <SelectTrigger className="h-9 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CAPTION_TONE_OPTIONS.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  <div className="flex flex-col">
+                                    <span>{opt.label}</span>
+                                    <span className="text-[10px] text-zinc-500">
+                                      {opt.hint}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-zinc-700">
+                            Image style
+                          </label>
+                          <Select
+                            value={imageProfile}
+                            onValueChange={(value) =>
+                              setImageProfile(value as SocialImageProfile | "AUTO")
+                            }
+                          >
+                            <SelectTrigger className="h-9 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="AUTO">
+                                <div className="flex flex-col">
+                                  <span>Recommended (auto)</span>
+                                  <span className="text-[10px] text-zinc-500">
+                                    Pick based on service category.
+                                  </span>
+                                </div>
+                              </SelectItem>
+                              {SOCIAL_IMAGE_PROFILE_OPTIONS.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  <div className="flex flex-col">
+                                    <span>{opt.label}</span>
+                                    <span className="text-[10px] text-zinc-500">
+                                      {opt.description}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-zinc-700">
+                          Caption direction{" "}
+                          <span className="font-normal text-zinc-400">
+                            (optional)
+                          </span>
+                        </label>
+                        <Textarea
+                          value={ownerCaptionDirection}
+                          onChange={(e) =>
+                            setOwnerCaptionDirection(e.target.value)
+                          }
+                          placeholder='e.g. "lean into the bestie-bonding angle" or "mention rainy season"'
+                          rows={2}
+                          className="text-sm"
+                          maxLength={400}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-zinc-700">
+                          Image direction{" "}
+                          <span className="font-normal text-zinc-400">
+                            (optional)
+                          </span>
+                        </label>
+                        <Textarea
+                          value={ownerImageDirection}
+                          onChange={(e) =>
+                            setOwnerImageDirection(e.target.value)
+                          }
+                          placeholder='e.g. "show eyelash extensions specifically, focus on closed eyes" or "warm candlelit ambiance"'
+                          rows={2}
+                          className="text-sm"
+                          maxLength={400}
+                        />
                       </div>
                     </div>
                   </div>

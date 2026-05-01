@@ -22,9 +22,9 @@ const BASE_INPUT = {
 function expectRequiredEnding(caption: string) {
   expect(caption).toContain("Book now through ServiceFlow and claim your spot today.");
   expect(caption).toContain(`www.serviceflow.store/${BASE_INPUT.businessSlug}`);
-  expect(caption).toMatch(
-    /You can book yourselves in and see all services they offer\.|and see everything they offer\./,
-  );
+  // Discovery line in first-person plural ("we offer") because the post is
+  // from the business itself; "yourself" because we're addressing one reader.
+  expect(caption).toContain("Tap through to see everything we offer and book yourself in.");
   expect(caption.trim().endsWith(`www.serviceflow.store/${BASE_INPUT.businessSlug}`)).toBe(
     true,
   );

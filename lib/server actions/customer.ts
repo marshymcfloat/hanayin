@@ -3,32 +3,197 @@
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
+import { normalizePhilippinePhone } from "@/lib/services/sms-otp";
 
-export async function searchCustomer(name: string, businessSlug: string) {
+export type CustomerSearchHit = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  trust_tier: string;
+  no_show_count: number;
+  /**
+   * The most recent booking date, if any. Lets the picker show
+   * "Last visit: Apr 12" so staff can disambiguate similarly-named records.
+   */
+  lastBookingAt: Date | null;
+};
+
+/**
+ * Multi-field customer search used by the staff CustomerPicker.
+ *
+ * Matches a single query string against name (prefix), email (contains), and
+ * phone (suffix on canonicalized PH digits). When the query parses as a phone
+ * number we also match the canonical 639XXXXXXXXXX form so "0917..." finds a
+ * record stored as "+639...". Returns up to 8 results with last-visit dates.
+ *
+ * Tenant scope is locked to the authenticated session — `businessSlug` from
+ * the caller is ignored.
+ */
+export async function searchCustomer(query: string, businessSlug: string) {
   const auth = await requireAuth();
   if (!auth.success) return { success: false, error: "Unauthorized" };
 
+  const tenantSlug = auth.businessSlug;
+  void businessSlug;
+
+  const trimmed = query.trim();
+  if (!trimmed) return { success: true, data: [] as CustomerSearchHit[] };
+
   try {
-    // Force tenant scope from authenticated session, never from caller input.
-    const tenantSlug = auth.businessSlug;
-    void businessSlug;
+    // If the query looks like a phone number, prefer phone matching against
+    // the canonical 639XXXXXXXXXX form. Falls back to substring match for
+    // partial-digit searches like "917" or "0917".
+    const looksLikePhone = /^[\d+\s\-()]+$/.test(trimmed) && /\d/.test(trimmed);
+    const digitsOnly = trimmed.replace(/\D/g, "");
+    const canonicalPhone = looksLikePhone
+      ? normalizePhilippinePhone(trimmed)
+      : null;
+
+    const business = await prisma.business.findUnique({
+      where: { slug: tenantSlug },
+      select: { id: true },
+    });
+    if (!business) {
+      return { success: false, error: "Business not found" };
+    }
+
+    const orConditions: Array<Record<string, unknown>> = [
+      { name: { startsWith: trimmed, mode: "insensitive" } },
+    ];
+
+    // Email match (only when the query looks vaguely email-y to avoid noise on
+    // very short queries like "a").
+    if (trimmed.length >= 2 && /[a-zA-Z@.]/.test(trimmed)) {
+      orConditions.push({
+        email: { contains: trimmed, mode: "insensitive" },
+      });
+    }
+
+    // Phone match: try both the canonical normalized form and a substring on
+    // the digits-only query so partial entries like "917" still surface hits.
+    if (looksLikePhone && digitsOnly.length >= 3) {
+      if (canonicalPhone) {
+        orConditions.push({ phone: canonicalPhone });
+      }
+      orConditions.push({ phone: { contains: digitsOnly } });
+    }
 
     const customers = await prisma.customer.findMany({
       where: {
-        name: {
-          startsWith: name,
-          mode: "insensitive",
-        },
-        business: {
-          slug: tenantSlug,
+        business_id: business.id,
+        OR: orConditions,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        trust_tier: true,
+        no_show_count: true,
+        bookings: {
+          orderBy: { scheduled_at: "desc" },
+          take: 1,
+          select: { scheduled_at: true, created_at: true },
         },
       },
-      take: 5,
+      orderBy: { name: "asc" },
+      take: 8,
     });
 
-    return { success: true, data: customers };
-  } catch {
+    const hits: CustomerSearchHit[] = customers.map((c) => {
+      const last = c.bookings[0];
+      return {
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        phone: c.phone,
+        trust_tier: c.trust_tier,
+        no_show_count: c.no_show_count,
+        lastBookingAt: last?.scheduled_at ?? last?.created_at ?? null,
+      };
+    });
+
+    return { success: true, data: hits };
+  } catch (error) {
+    console.error("Search customer error:", error);
     return { success: false, error: "Failed to search customers" };
+  }
+}
+
+/**
+ * Pre-submission duplicate check for the staff booking form.
+ *
+ * When staff is about to create a booking for a NEW customer (no customerId),
+ * call this with the typed name + phone + email. If a Customer with the same
+ * normalized contact already exists in this business, return the candidate so
+ * the form can surface a confirmation dialog ("Use Maria Santos / Create new").
+ *
+ * Returns null when there's no duplicate to confirm — caller can submit
+ * directly. Tenant scope is locked to the authenticated session.
+ */
+export async function findDuplicateCustomerForBooking(input: {
+  name: string;
+  email?: string;
+  phone?: string;
+}) {
+  const auth = await requireAuth();
+  if (!auth.success) return { success: false, error: "Unauthorized" } as const;
+
+  try {
+    const business = await prisma.business.findUnique({
+      where: { slug: auth.businessSlug },
+      select: { id: true },
+    });
+    if (!business) {
+      return { success: false, error: "Business not found" } as const;
+    }
+
+    const { normalizeCustomerEmail, normalizeCustomerPhone, findDuplicateCustomerCandidate } =
+      await import("@/lib/services/customer-matching");
+
+    const normalizedEmail = normalizeCustomerEmail(input.email);
+    const normalizedPhone = normalizeCustomerPhone(input.phone);
+
+    if (!normalizedEmail && !normalizedPhone) {
+      return { success: true, data: null } as const;
+    }
+
+    const candidate = await findDuplicateCustomerCandidate({
+      customerDelegate: prisma.customer,
+      businessId: business.id,
+      email: normalizedEmail,
+      phone: normalizedPhone,
+    });
+
+    if (!candidate) return { success: true, data: null } as const;
+
+    // Heuristic: warn the form when the typed name disagrees with the
+    // matched record's name. Staff should pause before silently linking a
+    // booking under a name that doesn't belong to that record.
+    const typedName = input.name.trim().toLowerCase();
+    const recordName = candidate.name.trim().toLowerCase();
+    const nameMismatch =
+      typedName.length > 0 &&
+      recordName.length > 0 &&
+      typedName !== recordName &&
+      !recordName.includes(typedName) &&
+      !typedName.includes(recordName);
+
+    return {
+      success: true,
+      data: {
+        id: candidate.id,
+        name: candidate.name,
+        email: candidate.email,
+        phone: candidate.phone,
+        matchedOn: candidate.matchedOn,
+        nameMismatch,
+      },
+    } as const;
+  } catch (error) {
+    console.error("Duplicate customer lookup error:", error);
+    return { success: false, error: "Failed to check for duplicates" } as const;
   }
 }
 

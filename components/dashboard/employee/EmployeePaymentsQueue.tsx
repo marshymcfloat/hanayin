@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import { formatPH } from "@/lib/date-utils";
 import type {
   BookingStatus,
@@ -40,10 +41,14 @@ export type EmployeePaymentBooking = {
   amount_paid: number;
   created_at: Date;
   scheduled_at: Date | null;
+  // customer is null for anonymous walk-ins. Use getBookingCustomerName() to
+  // render the display name with the proper fallback.
   customer: {
     name: string;
     email: string | null;
-  };
+  } | null;
+  is_anonymous_walk_in?: boolean | null;
+  customer_label?: string | null;
   availed_services: Array<{
     id: number;
     service: {
@@ -270,7 +275,7 @@ export default function EmployeePaymentsQueue({
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="text-[13px] font-semibold text-slate-900">
-                            {booking.customer.name}
+                            {getBookingCustomerName(booking)}
                           </p>
                           <p className="text-[11px] text-slate-500">
                             Booking #{booking.id} - {getRelativeScheduledLabel(booking)}
@@ -366,7 +371,10 @@ export default function EmployeePaymentsQueue({
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              Booking #{selectedBooking?.id} - {selectedBooking?.customer.name}
+              Booking #{selectedBooking?.id}
+              {selectedBooking
+                ? ` - ${getBookingCustomerName(selectedBooking)}`
+                : ""}
             </DialogTitle>
           </DialogHeader>
           {selectedBooking && (

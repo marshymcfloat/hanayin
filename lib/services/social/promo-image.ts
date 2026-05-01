@@ -150,8 +150,8 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
     baseline:
       "Believable lifestyle photography in a real beauty/wellness setting. Avoid the AI-template look.",
     subjects: [
-      "candid client moment during a treatment, natural expression, soft window light",
-      "therapist hands working delicately on client, shallow depth of field",
+      "candid client portrait during a treatment, natural relaxed expression, soft window light — face and upper body only",
+      "extreme close-up of a single person's hands applying product to their own skin, shallow depth of field — no other hands in frame",
       "post-treatment portrait — fresh, glowing skin, genuine relaxed smile",
       "lifestyle moment of a client checking themselves in a salon mirror, calm and content",
     ],
@@ -247,7 +247,7 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
       "Cinematic monochrome — premium contrast, dramatic directional light, single confident subject.",
     subjects: [
       "high-contrast portrait with sculpted directional light, neutral expression",
-      "treatment action shot — hands and skin — in moody monochrome",
+      "close-up of a single person's hands against skin texture in moody monochrome — no other hands in frame",
       "close-up of texture details (skin, fabric, hair) under directional light",
       "wider salon scene with confident subject in cinematic light",
     ],
@@ -369,9 +369,15 @@ function buildPhotographyPrompt(input: {
     "HARD CONSTRAINTS:",
     "- Absolutely NO text, letters, words, numbers, or symbols anywhere in the image.",
     "- NO logos, NO watermarks, NO discount badges, NO sale signs, NO price tags, NO promotional banners.",
-    "- NO uncanny-valley faces, NO AI plastic skin, NO malformed hands or fingers.",
     "- NO over-saturation, NO HDR glow, NO cartoonish colors.",
     "- Do NOT make this look like a designed poster, ad template, or social-card mockup.",
+    "ANATOMY CONSTRAINTS (strictly enforced):",
+    "- Every person must have a NORMAL, CORRECT human anatomy — exactly 2 arms, 2 hands, 10 fingers total.",
+    "- NEVER show more than ONE person's hands in the same frame at the same time.",
+    "- If a treatment involves both a client and a therapist, crop tightly enough that only ONE set of hands is visible — never both.",
+    "- Prefer shots of the client's face/skin result, a single person's hands, or a product close-up rather than a two-person interaction.",
+    "- NO extra limbs, floating hands, merged fingers, or anatomically incorrect extremities of any kind.",
+    "- Faces must have correct proportions: two eyes, one nose, one mouth — never distorted or duplicated features.",
     input.ownerDirection ? "" : null,
     input.ownerDirection
       ? `OWNER'S ADDITIONAL DIRECTION: "${input.ownerDirection}". Incorporate this naturally into the photograph.`
@@ -379,6 +385,180 @@ function buildPhotographyPrompt(input: {
   ];
 
   return lines.filter((line) => line !== null && line !== undefined).join("\n");
+}
+
+// ─── Service-category subject pools ─────────────────────────────────────────
+//
+// The generic per-profile blueprint subjects produce off-topic visuals when
+// the actual sale is for a specific service category — e.g. an Eyelash
+// promo shouldn't surface a serum-bottle macro just because the random pick
+// landed there. These pools keep the visual MATTER aligned with what's
+// actually being sold, while the chosen profile still controls the mood,
+// palette, and finish.
+//
+// All entries enforce a single-person rule and avoid disallowed compositions
+// like "two people's hands in frame" (which the underlying gen models
+// frequently get wrong).
+
+type ServiceCategoryKey =
+  | "EYELASH"
+  | "BROW"
+  | "NAILS"
+  | "SKIN"
+  | "FACIAL"
+  | "MASSAGE"
+  | "SPA"
+  | "HAIR"
+  | "MAKEUP"
+  | "BODY"
+  | "WAXING";
+
+const SUBJECT_BY_CATEGORY: Record<ServiceCategoryKey, readonly string[]> = {
+  EYELASH: [
+    "extreme close-up of one eye with long, perfectly styled eyelash extensions — eye gently closed, soft directional light, lashes fanned and curled",
+    "macro shot of an eye area mid-lash-extension service — clean isolation pads under the eye, ONE technician's gloved fingertip with a single tweezer visible, never both technician and client hands in the same frame, sterile precision",
+    "lash-tray flat-lay on a clean linen surface — individual lash trays, lash tweezers, fan brush — top-down macro, no people",
+    "after-look portrait of a calm client's resting face — eyes closed, softly fanned natural-looking extensions visible, warm light",
+    "before-and-after style single hero shot focused on the upper face — full set of crisp lash extensions, no skincare props",
+  ],
+  BROW: [
+    "close-up of an eyebrow being shaped with a single brow brush — only client's brow visible, no second hand in frame",
+    "after-look portrait of perfectly groomed, lifted brows — natural arch, soft fluffy hairs, gentle skin texture",
+    "brow-lamination tools flat-lay — brow brush, gel pots, micro scissors on a linen surface, top-down macro",
+    "macro of a brow being measured with mapping string against the face — single technician hand only, precise studio light",
+  ],
+  NAILS: [
+    "elegant overhead shot of one client's hands resting on a clean towel showing a fresh manicure — polish glossy, cuticles tidy, no other hands in frame",
+    "close-up macro of just-painted nails being held up to soft light — one hand only, polished bottle softly out of focus behind",
+    "nail-art detail shot — single hand laying flat, intricate art on one nail in sharp focus, the rest gently bokeh",
+    "flat-lay of polish bottles, nail file, cuticle oil on a marble surface — top-down macro, no people",
+    "pedicure-result close-up — clean toes with fresh polish on a plush towel, no hands in frame",
+  ],
+  SKIN: [
+    "extreme close-up of dewy, freshly-treated skin on a single cheek — sidelight catching natural moisture, no products visible",
+    "amber dropper bottle held in one client hand near (but not on) the face — bottle sharp, face softly out of focus",
+    "single hand applying serum to one cheek — calm expression, no second person's hands visible",
+    "after-facial portrait — relaxed face, glowing skin, soft natural light, eyes closed",
+    "skincare flat-lay — dropper, jar, ceramic spoon, fresh herbs on cream linen — top-down macro, no people",
+  ],
+  FACIAL: [
+    "client lying back during a facial — eyes closed, soft towel around hair, gentle ambient light, ONE technician hand applying product visible at the edge of the frame, never two pairs of hands",
+    "post-facial portrait — calm closed eyes, freshly cleansed luminous skin, no makeup",
+    "facial-bar flat-lay — sheet masks, jade roller, ceramic bowl with floating petals, soft linen ground",
+    "macro of a single hand smoothing cream onto the cheek — only client's face and one hand in frame",
+  ],
+  MASSAGE: [
+    "view of a single shoulder and neck during a massage — therapist's gloved hand with massage oil visible at the edge, never two pairs of hands at once, soft warm light",
+    "still life of massage props — folded towels, river stones, bottle of oil, small candle on a wooden surface, top-down",
+    "after-massage portrait — face down on the table, calm relaxed expression, eyes closed, soft towels framing the face",
+    "macro of a single hand gliding along a forearm with oil — only one person's hand visible, warm sidelight",
+  ],
+  SPA: [
+    "spa still life — folded white towels, small ceramic bowl, sprig of eucalyptus, small candle on a stone surface, warm ambient light",
+    "footbath close-up — feet in a wooden basin with petals floating, no hands in frame",
+    "calm portrait of a client wrapped in a soft robe and head-towel, eyes closed, candlelit warmth",
+    "macro of steaming herbal tea served in a ceramic cup beside spa towels — no people",
+  ],
+  HAIR: [
+    "after-look portrait of fresh hair color or treatment — glossy, hydrated hair, soft side light, single subject only",
+    "close-up of glossy hair detail — strands catching the light, no people's hands in frame",
+    "salon-station flat-lay — single brush, single tinted bowl, comb, on a clean counter, top-down",
+    "client mid-treatment — head only, eyes closed, ONE stylist hand visible at the edge holding a brush, never two pairs of hands",
+  ],
+  MAKEUP: [
+    "after-makeup portrait — clean, polished look, natural skin texture under the makeup, soft light, single subject only",
+    "macro of a perfectly painted lip with a single brush hovering — one hand only",
+    "makeup-tools flat-lay — brushes lined up, palette open, lipstick on linen, top-down macro, no people",
+    "close-up of just one eye with finished eyeshadow — closed gently, lashes visible, no second hand in frame",
+  ],
+  BODY: [
+    "single bare shoulder and collarbone with golden rim light — luminous skin texture, no products in frame",
+    "body-care still life — body scrub jar, loofah, towel, bar of soap on a stone surface, top-down macro",
+    "macro of moisturizer being applied to a single forearm — one hand only, soft warm light",
+    "after-treatment portrait — relaxed shoulders in a soft robe, calm closed eyes",
+  ],
+  WAXING: [
+    "post-wax leg detail — clean smooth skin against a soft white towel, no hands in frame",
+    "tools-of-the-trade flat-lay — wax pot, spatula, strips, clean towel — top-down on a clean surface, no people",
+    "macro of fingers checking a cooled wax strip on a clean tray — one hand only, never two",
+    "after-look close-up of an eyebrow shape post-wax — single client face, no technician hands",
+  ],
+};
+
+const CATEGORY_ALIAS: Record<string, ServiceCategoryKey> = {
+  // Direct category names (case-insensitive match below)
+  EYELASH: "EYELASH",
+  EYELASHES: "EYELASH",
+  LASHES: "EYELASH",
+  LASH: "EYELASH",
+  BROW: "BROW",
+  BROWS: "BROW",
+  EYEBROW: "BROW",
+  EYEBROWS: "BROW",
+  NAIL: "NAILS",
+  NAILS: "NAILS",
+  MANICURE: "NAILS",
+  PEDICURE: "NAILS",
+  SKIN: "SKIN",
+  SKINCARE: "SKIN",
+  FACIAL: "FACIAL",
+  FACIALS: "FACIAL",
+  FACE: "FACIAL",
+  MASSAGE: "MASSAGE",
+  MASSAGES: "MASSAGE",
+  SPA: "SPA",
+  WELLNESS: "SPA",
+  HAIR: "HAIR",
+  HAIRCUT: "HAIR",
+  COLOR: "HAIR",
+  COLORING: "HAIR",
+  MAKEUP: "MAKEUP",
+  COSMETICS: "MAKEUP",
+  BODY: "BODY",
+  WAXING: "WAXING",
+  WAX: "WAXING",
+};
+
+/**
+ * Pick a service-category-aware subject for the image. We look across both
+ * service categories AND service NAMES (since service names are what owners
+ * type and may carry the category signal even when the category column is
+ * generic). Returns null when nothing maps cleanly — caller falls back to
+ * the profile's generic subject pool.
+ */
+function pickServiceAwareSubject(
+  serviceNames: string[],
+  serviceCategories: string[],
+): string | null {
+  const haystack = [...serviceCategories, ...serviceNames]
+    .map((value) => value.toUpperCase())
+    .join(" ");
+  if (!haystack.trim()) return null;
+
+  // Score each category by how many of its alias tokens appear in the
+  // service names + categories. Highest hit count wins.
+  const scores = new Map<ServiceCategoryKey, number>();
+  for (const [alias, key] of Object.entries(CATEGORY_ALIAS)) {
+    // Word-boundary match so "BROWN" doesn't trigger BROW.
+    const re = new RegExp(`\\b${alias}\\b`);
+    if (re.test(haystack)) {
+      scores.set(key, (scores.get(key) ?? 0) + 1);
+    }
+  }
+
+  let bestKey: ServiceCategoryKey | null = null;
+  let bestScore = 0;
+  for (const [key, score] of scores) {
+    if (score > bestScore) {
+      bestKey = key;
+      bestScore = score;
+    }
+  }
+
+  if (!bestKey) return null;
+  const pool = SUBJECT_BY_CATEGORY[bestKey];
+  if (!pool || pool.length === 0) return null;
+  return pickRandom(pool);
 }
 
 export function buildSocialImagePrompt(input: PromoImageInput): string {
@@ -412,6 +592,11 @@ export function buildSocialImagePrompt(input: PromoImageInput): string {
 
   const contextLine = `Campaign "${input.title}" for ${input.businessName} — ${discountBlurb}. Window: ${dateRange}.${input.saleDescription ? ` ${input.saleDescription.trim()}.` : ""}`;
 
+  // Prefer a service-category-aware subject so the image actually shows what's
+  // being sold. Falls back to the profile's generic subject pool when the
+  // services don't map to a known category.
+  const subjectOverride = pickServiceAwareSubject(services, categories);
+
   return buildPhotographyPrompt({
     imageProfile: input.imageProfile || DEFAULT_SOCIAL_IMAGE_PROFILE,
     variant: "promo",
@@ -423,12 +608,13 @@ export function buildSocialImagePrompt(input: PromoImageInput): string {
     visualMood: null,
     visualFocus: null,
     ownerDirection: input.ownerImageDirection?.trim() || null,
+    subjectOverride: subjectOverride ?? undefined,
   });
 }
 
 const ORGANIC_CATEGORY_SUBJECT: Record<OrganicPostCategory, string> = {
   SERVICE_SHOWCASE:
-    "Close-up of a beauty or wellness treatment in progress — therapist's hands working on client skin, elegant tools nearby, warm shallow-depth bokeh background, candid and natural moment.",
+    "Close-up beauty or wellness result — a single person's glowing skin, well-groomed nails, or relaxed hands after a treatment, elegant tools nearby, warm shallow-depth bokeh background. Only ONE person's hands visible at a time.",
   BEHIND_THE_SCENES:
     "Candid documentary moment — a staff member preparing their workstation, laying out tools, or reviewing notes before a client arrives. Natural window light, unstaged and real.",
   TIPS_EDUCATION:

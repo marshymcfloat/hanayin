@@ -22,6 +22,14 @@ export async function sendBookingConfirmation(bookingId: number) {
       return { success: false, error: "Booking not found" };
     }
 
+    // Anonymous walk-ins have no Customer profile — skip the SMS confirmation.
+    if (!booking.customer) {
+      logger.info(
+        `[BookingConfirmation] Booking ${bookingId} is an anonymous walk-in — no SMS to send.`,
+      );
+      return { success: true };
+    }
+
     if (!booking.customer.phone) {
       logger.warn(
         `[BookingConfirmation] Booking ${bookingId} customer has no phone — skipping.`,

@@ -13,7 +13,164 @@ type ServiceLite = {
   name: string;
   price: number;
   duration: number | null;
+  category?: string | null;
 };
+
+// ─── Category-aware title generation ────────────────────────────────────────
+//
+// Templates produce business-type-level titles like "Mid-Week Body Reset" for
+// any spa, but a spa selling eyelash extensions shouldn't get a "Body Reset"
+// headline. When we can detect a dominant service category from the selected
+// services or their explicit category labels, we synthesize a more specific
+// headline using TITLE_NOUN_BY_CATEGORY. Falls back to the template headline
+// when no clear category dominates.
+
+type TitleCategoryKey =
+  | "EYELASH"
+  | "BROW"
+  | "NAILS"
+  | "SKIN"
+  | "FACIAL"
+  | "MASSAGE"
+  | "SPA"
+  | "HAIR"
+  | "MAKEUP"
+  | "BODY"
+  | "WAXING";
+
+const TITLE_NOUN_BY_CATEGORY: Record<TitleCategoryKey, string> = {
+  EYELASH: "Lash",
+  BROW: "Brow",
+  NAILS: "Mani",
+  SKIN: "Glow",
+  FACIAL: "Facial",
+  MASSAGE: "Massage",
+  SPA: "Spa",
+  HAIR: "Hair",
+  MAKEUP: "Glam",
+  BODY: "Body",
+  WAXING: "Smooth",
+};
+
+const TITLE_CATEGORY_ALIAS: Record<string, TitleCategoryKey> = {
+  EYELASH: "EYELASH",
+  EYELASHES: "EYELASH",
+  LASH: "EYELASH",
+  LASHES: "EYELASH",
+  BROW: "BROW",
+  BROWS: "BROW",
+  EYEBROW: "BROW",
+  EYEBROWS: "BROW",
+  NAIL: "NAILS",
+  NAILS: "NAILS",
+  MANICURE: "NAILS",
+  PEDICURE: "NAILS",
+  SKIN: "SKIN",
+  SKINCARE: "SKIN",
+  FACIAL: "FACIAL",
+  FACIALS: "FACIAL",
+  FACE: "FACIAL",
+  MASSAGE: "MASSAGE",
+  MASSAGES: "MASSAGE",
+  SPA: "SPA",
+  WELLNESS: "SPA",
+  HAIR: "HAIR",
+  HAIRCUT: "HAIR",
+  COLOR: "HAIR",
+  COLORING: "HAIR",
+  MAKEUP: "MAKEUP",
+  COSMETICS: "MAKEUP",
+  GLAM: "MAKEUP",
+  BODY: "BODY",
+  WAXING: "WAXING",
+  WAX: "WAXING",
+};
+
+function inferDominantCategory(services: ServiceLite[]): TitleCategoryKey | null {
+  if (services.length === 0) return null;
+  const haystack = services
+    .flatMap((s) => [s.category ?? "", s.name])
+    .map((value) => value.toUpperCase())
+    .join(" ");
+  if (!haystack.trim()) return null;
+
+  const scores = new Map<TitleCategoryKey, number>();
+  for (const [alias, key] of Object.entries(TITLE_CATEGORY_ALIAS)) {
+    const re = new RegExp(`\\b${alias}\\b`);
+    if (re.test(haystack)) {
+      scores.set(key, (scores.get(key) ?? 0) + 1);
+    }
+  }
+
+  let bestKey: TitleCategoryKey | null = null;
+  let bestScore = 0;
+  for (const [key, score] of scores) {
+    if (score > bestScore) {
+      bestKey = key;
+      bestScore = score;
+    }
+  }
+  return bestKey;
+}
+
+/**
+ * Build a category-aware title from the template's "angle" (slow-hours-fill,
+ * payday, weekend-prep, etc.) and the selected services. Returns null when
+ * no category matches — caller should fall back to the template headline.
+ */
+function buildCategoryAwareDiscountTitle(
+  angle: string,
+  services: ServiceLite[],
+): string | null {
+  const category = inferDominantCategory(services);
+  if (!category) return null;
+  const noun = TITLE_NOUN_BY_CATEGORY[category];
+
+  switch (angle) {
+    case "slow-hours-fill":
+      return `Mid-Week ${noun} Reset`;
+    case "payday":
+      return `Payday ${noun} Treat`;
+    case "weekend-prep":
+      return `Weekend ${noun} Slots`;
+    case "weather-hook":
+      return `Cozy ${noun} Hour`;
+    case "after-work":
+    case "commute-hour":
+      return `After-Work ${noun} Quick-Pick`;
+    case "bundle-value":
+    case "combo":
+      return `${noun} Combo Deal`;
+    case "seasonal":
+      return `Seasonal ${noun} Pick`;
+    case "graduation":
+      return `Grad-Ready ${noun}`;
+    case "student":
+      return `Student ${noun} Deal`;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Same idea but for SOCIAL_REMINDER (no-discount) titles. Substitutes the
+ * category noun into the active-voice headlines.
+ */
+function buildCategoryAwareReminderTitle(
+  opportunityType: OpportunityTypeLiteral,
+  weatherCondition: string | null,
+  services: ServiceLite[],
+): string | null {
+  const category = inferDominantCategory(services);
+  if (!category) return null;
+  const noun = TITLE_NOUN_BY_CATEGORY[category];
+
+  if (opportunityType === "PAYDAY_SPIKE") return `Payday ${noun} Picks`;
+  if (opportunityType === "WEEKEND_PREP") return `Weekend ${noun} Slots Open`;
+  if (weatherCondition === "HOT") return `Cool-Down ${noun} Session`;
+  if (weatherCondition === "RAINY") return `Rainy-Day ${noun} Drop`;
+  return `This Week's ${noun} Slots`;
+}
 
 const OFFER_BY_OPPORTUNITY: Record<OpportunityTypeLiteral, OfferTypeLiteral[]> = {
   SLOW_HOURS: ["FLASH_DEAL", "LIMITED_SLOTS"],
@@ -159,9 +316,17 @@ function generateDiscountOffer(
   const template = templatePool.find((entry) => entry.offerType === offerType) || templatePool[0];
 
   const firstService = selectedServices[0]?.name || "selected services";
-  const title = template
-    ? template.headline
-    : `${offerType.replaceAll("_", " ")} for ${firstService}`;
+  // Prefer a category-specific headline (e.g. "Mid-Week Lash Reset" instead of
+  // the generic "Mid-Week Body Reset") when the selected services cluster
+  // around a specific category.
+  const categoryAwareTitle = template
+    ? buildCategoryAwareDiscountTitle(template.angle, selectedServices)
+    : null;
+  const title =
+    categoryAwareTitle ??
+    (template
+      ? template.headline
+      : `${offerType.replaceAll("_", " ")} for ${firstService}`);
   const ctaKeyword = normalizeCtaKeyword(title);
 
   const riskFlags: string[] = [];
@@ -252,18 +417,37 @@ function generateNonDiscountOffer(
     }
 
     case "SOCIAL_REMINDER": {
+      // Titles read as headlines on the social image, so they should be
+      // active and inviting — not "Reminder" (which feels passive and was
+      // also clashing with the urgency-styled image badge). Pair each
+      // headline with a complementary messaging angle for the caption body.
       const angle = input.opportunity.type === "PAYDAY_SPIKE"
-        ? "Payday is here — treat yourself. Book your preferred time before slots fill up."
+        ? "Payday treat day — pick a slot you actually want before they fill up."
         : input.opportunity.type === "WEEKEND_PREP"
-          ? "Weekend is coming — secure your slot now for a hassle-free experience."
+          ? "Get weekend-ready without the rush — claim your preferred time now."
           : weatherCondition
-            ? `${weatherCondition === "HOT" ? "Beat the heat" : "Cozy weather"} — perfect time for some self-care.`
-            : "Your schedule matters — book ahead and skip the wait.";
-      title = input.opportunity.type === "PAYDAY_SPIKE"
-        ? "Payday Self-Care Reminder"
-        : input.opportunity.type === "WEEKEND_PREP"
-          ? "Weekend Prep Reminder"
-          : "Self-Care Reminder";
+            ? `${weatherCondition === "HOT" ? "Beat the heat" : "Cozy weather"} — perfect window for some self-care.`
+            : "Open slots this week — book ahead and skip the wait.";
+      // Try a category-aware headline first so a reminder for eyelash services
+      // says "Weekend Lash Slots Open" rather than the generic "Weekend Glow
+      // Slots Open". Falls back to the previous generic strings.
+      const reminderServices = input.services.slice(0, 3);
+      const categoryAwareReminderTitle = buildCategoryAwareReminderTitle(
+        input.opportunity.type,
+        weatherCondition,
+        reminderServices,
+      );
+      title =
+        categoryAwareReminderTitle ??
+        (input.opportunity.type === "PAYDAY_SPIKE"
+          ? "Payday Pamper Picks"
+          : input.opportunity.type === "WEEKEND_PREP"
+            ? "Weekend Glow Slots Open"
+            : weatherCondition === "HOT"
+              ? "Cool-Down Self-Care"
+              : weatherCondition === "RAINY"
+                ? "Rainy-Day Pamper Drop"
+                : "This Week's Open Slots");
       mechanics = { messagingAngle: angle };
       ctaKeyword = "BOOK";
       terms = ["No discount — this is a booking reminder post.", "Encourage customers to book at regular price."];

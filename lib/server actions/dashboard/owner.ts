@@ -412,6 +412,18 @@ export async function markBookingNoShowAction(bookingId: number) {
       return { success: false, error: "Cannot mark a completed booking as no-show." };
     }
 
+    // Anonymous walk-ins have no Customer to track no-shows against — only
+    // cancel the booking.
+    if (!booking.customer_id) {
+      await prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: BookingStatus.CANCELLED },
+      });
+      revalidatePath(`/app/${businessSlug}`);
+      return { success: true };
+    }
+
+    const linkedCustomerId = booking.customer_id;
     await prisma.$transaction(async (tx) => {
       await tx.booking.update({
         where: { id: bookingId },
@@ -419,14 +431,14 @@ export async function markBookingNoShowAction(bookingId: number) {
       });
 
       const customer = await tx.customer.update({
-        where: { id: booking.customer_id },
+        where: { id: linkedCustomerId },
         data: { no_show_count: { increment: 1 }, last_no_show_at: new Date() },
         select: { no_show_count: true },
       });
 
       if (customer.no_show_count >= 2) {
         await tx.customer.update({
-          where: { id: booking.customer_id },
+          where: { id: linkedCustomerId },
           data: { trust_tier: "RESTRICTED" },
         });
       }

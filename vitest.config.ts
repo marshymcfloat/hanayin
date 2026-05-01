@@ -6,7 +6,16 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./test/setup.ts"],
-    exclude: [...configDefaults.exclude, "test/e2e/**", "tests/**"],
+    exclude: [
+      ...configDefaults.exclude,
+      "test/e2e/**",
+      "tests/**",
+      // Stale Claude worktrees contain old copies of the codebase whose imports
+      // have since been moved/removed; they would fail with module-resolution
+      // errors and pollute the test report. The worktrees keep their own
+      // vitest.config.ts so they're still runnable standalone if needed.
+      ".claude/worktrees/**",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],

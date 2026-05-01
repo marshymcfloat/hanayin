@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatPH } from "@/lib/date-utils";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import {
   Search,
   Trash2,
@@ -68,7 +69,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 type BookingWithDetails = Booking & {
-  customer: Customer;
+  customer: Customer | null;
   vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
@@ -113,10 +114,12 @@ export function BookingList({
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
       const searchLower = search.toLowerCase();
+      const customerName = getBookingCustomerName(booking).toLowerCase();
       const matchesSearch =
-        booking.customer.name.toLowerCase().includes(searchLower) ||
+        customerName.includes(searchLower) ||
         booking.id.toString().includes(searchLower) ||
-        (booking.customer.phone && booking.customer.phone.includes(searchLower));
+        (booking.customer?.phone &&
+          booking.customer.phone.includes(searchLower));
       const matchesStatus = statusFilter === "ALL" || booking.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -207,7 +210,10 @@ export function BookingList({
               <AlertDialogTitle>Delete Booking?</AlertDialogTitle>
               <AlertDialogDescription>
                 This will permanently delete the booking for{" "}
-                <span className="font-semibold text-foreground">{booking.customer.name}</span>.
+                <span className="font-semibold text-foreground">
+                  {getBookingCustomerName(booking)}
+                </span>
+                .
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -292,11 +298,11 @@ export function BookingList({
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                          {booking.customer.name.charAt(0)}
+                          {getBookingCustomerName(booking).charAt(0)}
                         </div>
                         <div className="flex flex-col">
                           <span className="font-semibold text-foreground line-clamp-1">
-                            {booking.customer.name}
+                            {getBookingCustomerName(booking)}
                           </span>
                           <span className="text-xs text-muted-foreground font-medium">
                             #{booking.id}
@@ -388,13 +394,13 @@ export function BookingList({
                         <TableCell className="py-4">
                           <div className="flex items-center gap-3">
                             <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shadow-sm">
-                              {booking.customer.name.charAt(0)}
+                              {getBookingCustomerName(booking).charAt(0)}
                             </div>
                             <div className="flex flex-col">
                               <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                                {booking.customer.name}
+                                {getBookingCustomerName(booking)}
                               </span>
-                              {booking.customer.phone && (
+                              {booking.customer?.phone && (
                                 <span className="text-xs text-muted-foreground">{booking.customer.phone}</span>
                               )}
                             </div>

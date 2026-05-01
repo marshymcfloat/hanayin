@@ -19,10 +19,22 @@ describe("createBookingSchema customerName", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const issues = result.error.issues.map((issue) => issue.message);
+      // Schema message now also mentions the anonymous walk-in path since
+      // staff can satisfy the customer step three different ways.
       expect(issues).toContain(
-        "Please select an existing customer or enter a new customer name",
+        "Please select an existing customer, enter a new customer name, or mark as an anonymous walk-in",
       );
     }
+  });
+
+  it("accepts payloads marked as anonymous walk-in even without a customer name", () => {
+    const result = createBookingSchema.safeParse({
+      ...basePayload,
+      customerName: "",
+      isAnonymousWalkIn: true,
+    });
+
+    expect(result.success).toBe(true);
   });
 
   it("rejects too-short customer names after trim", () => {

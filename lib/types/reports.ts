@@ -153,6 +153,15 @@ export interface CustomersKpis {
   repeatCustomerRate: number;
   rebookingWithin45Rate: number;
   atRiskCustomers60d: number;
+  /**
+   * Bookings recorded as anonymous walk-ins (no Customer profile linked) in
+   * the period. These bookings count in revenue but are excluded from
+   * customer rankings and re-engagement campaigns. Surfaced on the dashboard
+   * so owners can see the cost of skipping contact-info collection.
+   */
+  anonymousWalkInBookings: number;
+  anonymousWalkInRevenue: number;
+  anonymousWalkInShareOfBookings: number;
 }
 
 export interface CustomersTrendPoint {

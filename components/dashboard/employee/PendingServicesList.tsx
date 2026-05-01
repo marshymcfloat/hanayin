@@ -4,6 +4,7 @@ import { formatPH } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Inbox, Clock as ClockIcon, RefreshCcw } from "lucide-react";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import {
   Dialog,
   DialogContent,
@@ -39,7 +40,9 @@ export interface PendingService {
   booking: {
     customer: {
       name: string;
-    };
+    } | null;
+    is_anonymous_walk_in?: boolean | null;
+    customer_label?: string | null;
     scheduled_at?: Date | null;
     created_at?: Date | null;
     downpayment: number | null;
@@ -161,7 +164,7 @@ export default function PendingServicesList({
             </div>
           ) : (
             visibleServices.map((item) => {
-              const customerInitials = item.booking.customer.name
+              const customerInitials = getBookingCustomerName(item.booking)
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -209,7 +212,7 @@ export default function PendingServicesList({
                         </div>
 
                         <p className="text-xs font-medium text-slate-500">
-                          {item.booking.customer.name}
+                          {getBookingCustomerName(item.booking)}
                         </p>
 
                         <div className="flex items-center gap-3 pt-1">
@@ -264,7 +267,9 @@ export default function PendingServicesList({
               Are you sure you want to claim this service?
               <br />
               <strong>{selectedService?.service.name}</strong> for{" "}
-              {selectedService?.booking.customer.name}
+              {selectedService
+                ? getBookingCustomerName(selectedService.booking)
+                : ""}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">

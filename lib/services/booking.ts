@@ -52,6 +52,34 @@ export type BookingServiceParams = {
   capacityOverride?: CapacityOverrideInput;
   allowWalkInCapacityBypass?: boolean;
   pricingSnapshot?: Awaited<ReturnType<typeof buildBookingPricingSnapshot>>;
+  /**
+   * When true, record the booking without linking it to a Customer record.
+   * Reserved for staff-created bookings where the customer chose not to share
+   * contact info. customer_id is left null and is_anonymous_walk_in is set.
+   * The customerName field becomes the booking's customer_label.
+   * Implies isPublicBooking=false (only staff can opt in).
+   */
+  isAnonymousWalkIn?: boolean;
+  /**
+   * When true, skip the silent-link path in findExistingCustomerByContact and
+   * always create a new Customer row even if a record with the same email/phone
+   * exists. Set by the form after staff explicitly confirms "create new anyway"
+   * in the duplicate-detection dialog. Ignored for public bookings.
+   */
+  forceCreateCustomer?: boolean;
+};
+
+/**
+ * Returned by findDuplicateCustomer when staff submits a new-customer booking
+ * whose email or phone matches an existing record. The form surfaces this as
+ * a confirmation dialog defaulting to "use existing".
+ */
+export type DuplicateCustomerCandidate = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  matchedOn: "email" | "phone";
 };
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
@@ -90,13 +118,18 @@ export async function createBookingInDb({
   voucherCode,
   isPublicBooking = false,
   isWalkIn = false,
+  isAnonymousWalkIn = false,
+  forceCreateCustomer = false,
   staffSelectionMode = "ANY_AVAILABLE",
   capacityOverride,
   allowWalkInCapacityBypass = false,
   pricingSnapshot,
 }: BookingServiceParams) {
-  const normalizedEmail = normalizeCustomerEmail(email);
-  const normalizedPhone = normalizeCustomerPhone(phone);
+  // Anonymous walk-ins are a staff-only path. Public bookings always require a
+  // tracked customer (verified by phone OTP).
+  const anonymous = isAnonymousWalkIn && !isPublicBooking;
+  const normalizedEmail = anonymous ? undefined : normalizeCustomerEmail(email);
+  const normalizedPhone = anonymous ? undefined : normalizeCustomerPhone(phone);
   const maxRetries = 3;
   let attempt = 0;
 
@@ -149,9 +182,16 @@ export async function createBookingInDb({
             db: tx,
           });
 
-          let finalCustomerId = isPublicBooking ? undefined : customerId;
+          let finalCustomerId: string | undefined = anonymous
+            ? undefined
+            : isPublicBooking
+              ? undefined
+              : customerId;
 
-          if (finalCustomerId) {
+          if (anonymous) {
+            // Anonymous walk-in: skip all customer resolution. Booking will be
+            // written with customer_id=null and customer_label=customerName.
+          } else if (finalCustomerId) {
             const existingCustomer = await tx.customer.findUnique({
               where: { id: finalCustomerId },
             });
@@ -173,12 +213,26 @@ export async function createBookingInDb({
               }
             }
           } else {
-            const existingCustomer = await findExistingCustomerByContact({
-              customerDelegate: tx.customer,
-              businessId: business.id,
-              email: normalizedEmail,
-              phone: normalizedPhone,
-            });
+            // For staff bookings the form surfaces a duplicate-confirmation
+            // dialog before reaching this code (see findDuplicateCustomer).
+            // forceCreateCustomer=true means staff confirmed "create new
+            // anyway" — skip the silent-link branch entirely.
+            const existingCustomer =
+              !forceCreateCustomer && !isPublicBooking
+                ? await findExistingCustomerByContact({
+                    customerDelegate: tx.customer,
+                    businessId: business.id,
+                    email: normalizedEmail,
+                    phone: normalizedPhone,
+                  })
+                : isPublicBooking
+                  ? await findExistingCustomerByContact({
+                      customerDelegate: tx.customer,
+                      businessId: business.id,
+                      email: normalizedEmail,
+                      phone: normalizedPhone,
+                    })
+                  : null;
 
             if (existingCustomer) {
               finalCustomerId = existingCustomer.id;
@@ -237,7 +291,11 @@ export async function createBookingInDb({
           const booking = await tx.booking.create({
             data: {
               business_id: business.id,
-              customer_id: finalCustomerId,
+              // customer_id is null for anonymous walk-ins; otherwise the
+              // resolved Customer.id from the block above.
+              customer_id: finalCustomerId ?? null,
+              is_anonymous_walk_in: anonymous,
+              customer_label: anonymous ? customerName : null,
               grand_total: grandTotal,
               total_discount: finalVoucherDiscount,
               payment_method: paymentMethod,

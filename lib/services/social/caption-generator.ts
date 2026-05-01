@@ -22,6 +22,38 @@ export type CaptionGenerationInput = {
   packageNames?: string[];
   allowRewritePass?: boolean;
   actionCategory?: ActionCategory;
+  /**
+   * Owner-selected (or engine-recommended) caption tone. Maps to a
+   * specific voice instruction injected into the LLM prompt. "AUTO" or
+   * undefined means the engine picks based on the offer + season.
+   */
+  captionTone?:
+    | "AUTO"
+    | "FRIENDLY_TAGLISH"
+    | "PREMIUM_LUXURY"
+    | "WITTY_PLAYFUL"
+    | "WARM_NURTURING"
+    | "DIRECT_URGENT";
+  /**
+   * Free-text owner direction. Inserted into the LLM prompt verbatim so
+   * the writer can lean into specific angles ("emphasize the bestie-bonding
+   * angle", "mention rainy season").
+   */
+  ownerCaptionDirection?: string;
+};
+
+const TONE_GUIDE: Record<NonNullable<CaptionGenerationInput["captionTone"]>, string> = {
+  AUTO: "",
+  FRIENDLY_TAGLISH:
+    "Voice: warm, conversational Filipino-English. Like texting a friend who's hyping you up about self-care. Light humor okay, no slang that ages badly.",
+  PREMIUM_LUXURY:
+    "Voice: refined, considered, slightly editorial. Speak as a premium spa/clinic — feel boutique. Use restraint. No exclamation marks, no emoji.",
+  WITTY_PLAYFUL:
+    "Voice: cheeky, clever, a little tongue-in-cheek. One-liners and observational humor. Stay tasteful — never mean-spirited.",
+  WARM_NURTURING:
+    "Voice: gentle, reassuring, like a caring friend. Acknowledge that life is busy, invite without pressure, focus on rest and recovery.",
+  DIRECT_URGENT:
+    "Voice: confident, direct, present-tense. Short punchy lines. Make the booking window obvious. No padding — every line moves the reader closer to booking.",
 };
 
 export type CaptionGenerationOutput = {
@@ -48,8 +80,16 @@ const MAX_HASHTAG_LENGTH = 28;
 const MIN_ACCEPTABLE_WORDS = 55;
 const MIN_ACCEPTABLE_LINES = 8;
 const REQUIRED_CTA_LINE = "Book now through ServiceFlow and claim your spot today.";
+// Voice note: posts are FROM the business, so first-person plural ("we / our")
+// not third-person ("they"). Caller is the singular reader, so "yourself".
 const REQUIRED_DISCOVERY_LINE =
-  "You can book yourselves in and see all services they offer.";
+  "Tap through to see everything we offer and book yourself in.";
+// Legacy variants we still strip if they sneak through from older drafts —
+// keeps re-runs idempotent and doesn't double up old/new copy on edits.
+const LEGACY_DISCOVERY_LINES = [
+  "you can book yourselves in and see all services they offer.",
+  "and see all what they offer",
+];
 const STYLE_ORDER: SocialCaptionStyle[] = [
   "INFORMATIVE",
   "FUNNY_LIGHT",
@@ -164,10 +204,17 @@ function formatDateWindow(startDate: Date, endDate: Date) {
   return `${formatter.format(startDate)} to ${formatter.format(endDate)}`;
 }
 
-function buildPromoTimingLine(startDate: Date, endDate: Date) {
-  if (isSameCalendarDay(startDate, endDate)) {
-    return "Flash sale — today only.";
+function buildPromoTimingLine(
+  startDate: Date,
+  endDate: Date,
+  options: { isNonDiscount?: boolean } = {},
+) {
+  const sameDay = isSameCalendarDay(startDate, endDate);
+  if (options.isNonDiscount) {
+    if (sameDay) return "Bookings open today.";
+    return `Bookings open ${formatDateWindow(startDate, endDate)}.`;
   }
+  if (sameDay) return "Flash sale — today only.";
   return `Promo runs ${formatDateWindow(startDate, endDate)}.`;
 }
 
@@ -535,7 +582,7 @@ function isServiceFlowEndingLine(line: string) {
     normalized.startsWith("http://www.serviceflow") ||
     normalized.startsWith("https://www.serviceflow") ||
     normalized === REQUIRED_DISCOVERY_LINE.toLowerCase() ||
-    normalized === "and see all what they offer"
+    LEGACY_DISCOVERY_LINES.includes(normalized)
   );
 }
 
@@ -663,9 +710,42 @@ function isLowQualityCaption(value: string) {
   return words < MIN_ACCEPTABLE_WORDS || lines < MIN_ACCEPTABLE_LINES || looksTruncated(value);
 }
 
+/**
+ * Title-case a service name while preserving common abbreviations and small
+ * connector words. Owners enter service names with inconsistent casing —
+ * "Regular manicure" / "Manicure gel" / "Eyelash Perming" — and the rescue
+ * caption used to surface them verbatim, which read like a cobbled-together
+ * list. This normalizer lower-bounds presentation quality without forcing
+ * owners to clean up their service catalog first.
+ */
+const PRESERVE_TOKENS_LOWER = new Set(["of", "and", "the", "to", "for", "in", "with"]);
+const ALWAYS_UPPER_TOKENS = new Set(["BB", "AHA", "BHA", "HD", "DIY", "VIP", "PH"]);
+
+function titleCaseServiceName(value: string): string {
+  return value
+    .trim()
+    .split(/\s+/)
+    .map((rawWord, index) => {
+      if (!rawWord) return rawWord;
+      if (ALWAYS_UPPER_TOKENS.has(rawWord.toUpperCase())) {
+        return rawWord.toUpperCase();
+      }
+      const lower = rawWord.toLowerCase();
+      if (index > 0 && PRESERVE_TOKENS_LOWER.has(lower)) {
+        return lower;
+      }
+      // Handle hyphenated tokens segment-by-segment.
+      return lower
+        .split("-")
+        .map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1) : part))
+        .join("-");
+    })
+    .join(" ");
+}
+
 function buildRescueCaptionDraft(input: CaptionGenerationInput): CaptionGenerationOutput {
-  const services = (input.serviceNames ?? []).slice(0, 4);
-  const packages = (input.packageNames ?? []).slice(0, 2);
+  const services = (input.serviceNames ?? []).slice(0, 4).map(titleCaseServiceName);
+  const packages = (input.packageNames ?? []).slice(0, 2).map(titleCaseServiceName);
   const items = [...services, ...packages].slice(0, 5);
   const season = inferSeasonSignal(input).seasonLabel.toLowerCase();
   const publicSaleDescription = sanitizeSaleDescriptionForPublic(input.saleDescription);
@@ -674,10 +754,16 @@ function buildRescueCaptionDraft(input: CaptionGenerationInput): CaptionGenerati
   const lines = isNonDiscountAction(input)
     ? [
         pickRandom(RESCUE_HOOK_LINES),
-        `${input.businessName} is here to make your ${season} extra special.`,
-        publicSaleDescription || `Treat yourself to quality self-care at ${input.businessName}.`,
+        // Lead with the actual offer angle (publicDescription) instead of
+        // the old generic "is here to make your ${season} extra special"
+        // filler line. Falls back to a soft invite if nothing was passed.
+        publicSaleDescription ||
+          `Open slots at ${input.businessName} — book a self-care window that fits your schedule.`,
+        // Always anchor the timeframe so the reader knows when to act.
+        buildPromoTimingLine(input.startDate, input.endDate, {
+          isNonDiscount: true,
+        }),
         "If you've been putting off self-care dahil busy, this is a good time to finally book.",
-        "Choose any treatment that fits your self-care mood this week.",
         items.length > 0 ? "Here are some crowd favorites:" : "",
         ...items.map((item) => `- ${item}`),
         "Perfect for stress relief, confidence boost, and quality me-time.",
@@ -733,14 +819,25 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     : "Packages: none listed";
   const saleTitle = sanitizeSaleTitleForPublic(input.saleTitle);
 
+  // Owner-driven tone overrides the generic "playful + witty" default. AUTO
+  // means no override — the prompt keeps its existing variation system.
+  const toneOverride =
+    input.captionTone && input.captionTone !== "AUTO"
+      ? TONE_GUIDE[input.captionTone]
+      : "";
+  const ownerDirection = input.ownerCaptionDirection?.trim();
+
   return [
     "Write a high-converting social media caption for a Filipino audience.",
-    "Voice: playful, witty, natural, and human.",
+    toneOverride || "Voice: playful, witty, natural, and human.",
     "Language: Taglish (Filipino + English), everyday conversational style.",
     "Goal: invite and persuade customers to book now.",
     "Use clear line breaks for readability. Emojis are optional and should be minimal.",
     "Primary campaign context must rely on Sale title first, then sale description, then date window.",
     "Infer season/occasion mostly from the sale title and make that theme explicit in the caption.",
+    ownerDirection
+      ? `Owner's voice direction (treat as a soft requirement, not a literal quote): ${ownerDirection}`
+      : "",
     "",
     "Output format:",
     "Prefer valid JSON with this exact shape:",
@@ -1138,4 +1235,3 @@ export async function generateSocialCaptionDraft(
     return rescue;
   }
 }
-

@@ -29,6 +29,17 @@ import { toast } from "sonner";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { verifyVoucherAction } from "@/lib/server actions/vouchers";
+import { findDuplicateCustomerForBooking } from "@/lib/server actions/customer";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
 import {
@@ -48,7 +59,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
-import CustomerSearchInput from "./CustomerSearchInput";
+import CustomerPicker, {
+  type CustomerPickerValue,
+} from "./CustomerPicker";
 import ServiceSelect from "./ServiceSelect";
 import SelectedServiceList from "./SelectedServiceList";
 import DatePicker from "./DatePicker";
@@ -120,11 +133,6 @@ type SelectedService = {
   packageName?: string;
   category?: string | null;
   claimedByCurrentEmployee?: boolean;
-};
-
-type SelectedCustomer = {
-  email?: string | null;
-  phone?: string | null;
 };
 
 function roundUpToInterval(date: Date, intervalMinutes: number) {
@@ -238,6 +246,34 @@ export default function BookingForm({
   >(null);
   const [pendingFlows, setPendingFlows] = useState<PendingFlow[]>([]);
   const [claimedUniqueIds, setClaimedUniqueIds] = useState<string[]>([]);
+
+  // ─── Staff customer picker state ────────────────────────────────────────
+  // Replaces the old name+email+phone pile for staff-created bookings.
+  // Three modes: existing (linked profile), new (entering details), anonymous
+  // (no contact info). Only used when isEmployee=true.
+  const [pickerValue, setPickerValue] = useState<CustomerPickerValue | null>(
+    null,
+  );
+  // The matched customer surfaced in the duplicate-confirmation dialog. When
+  // non-null, the dialog is open and submission is paused.
+  const [pendingDuplicate, setPendingDuplicate] = useState<{
+    id: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    matchedOn: "email" | "phone";
+    nameMismatch: boolean;
+  } | null>(null);
+  // Set to true after staff explicitly confirms "create new anyway" so the
+  // server skips its silent-link path and writes a fresh Customer row.
+  const [forceCreateCustomer, setForceCreateCustomer] = useState(false);
+  // Submission payload pending duplicate confirmation — pulled out of onSubmit
+  // so we can re-fire createBookingAction once the dialog resolves.
+  // Typed loosely; mirrors the shape passed to createBookingAction below.
+  const [pendingSubmitPayload, setPendingSubmitPayload] = useState<
+    Record<string, unknown> | null
+  >(null);
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
 
   // --- Phone-first OTP verification (public bookings only) ---
   const [otpPhone, setOtpPhone] = useState("");
@@ -402,22 +438,68 @@ export default function BookingForm({
     }
   }, [saleEvents, selectedServices, form]);
 
-  const handleCustomerSelect = useCallback(
-    (customer: SelectedCustomer | null) => {
-      if (customer === null) {
+  /**
+   * Picker → form bridge. Translates the three picker modes into the form's
+   * existing customerId / customerName / email / phone shape so the rest of
+   * the submission pipeline doesn't need to know about CustomerPicker.
+   * Anonymous walk-ins are tracked separately via pickerValue.mode.
+   *
+   * (Replaces the legacy handleCustomerSelect callback that was wired to the
+   * old CustomerSearchInput. existingCustomerEmail/Phone state stays so the
+   * existing read-only "linked profile" notices below still surface when a
+   * customer is picked.)
+   */
+  const handlePickerChange = useCallback(
+    (value: CustomerPickerValue | null) => {
+      setPickerValue(value);
+      // Reset force-create whenever the picker target changes.
+      setForceCreateCustomer(false);
+
+      if (!value) {
+        form.setValue("customerId", "", { shouldValidate: false });
+        form.setValue("customerName", "", { shouldValidate: false });
+        form.setValue("email", "", { shouldValidate: false });
+        form.setValue("phone", "", { shouldValidate: false });
         setExistingCustomerEmail(null);
         setExistingCustomerPhone(null);
-        form.setValue("email", "", { shouldValidate: true });
-        form.setValue("phone", "", { shouldValidate: true });
-      } else {
-        const selectedEmail = customer?.email || "";
-        const selectedPhone = customer?.phone || "";
-
-        setExistingCustomerEmail(customer?.email || null);
-        setExistingCustomerPhone(customer?.phone || null);
-        form.setValue("email", selectedEmail, { shouldValidate: true });
-        form.setValue("phone", selectedPhone, { shouldValidate: true });
+        return;
       }
+
+      if (value.mode === "existing") {
+        form.setValue("customerId", value.customer.id, { shouldValidate: true });
+        form.setValue("customerName", value.customer.name, {
+          shouldValidate: true,
+        });
+        form.setValue("email", value.customer.email ?? "", {
+          shouldValidate: true,
+        });
+        form.setValue("phone", value.customer.phone ?? "", {
+          shouldValidate: true,
+        });
+        setExistingCustomerEmail(value.customer.email);
+        setExistingCustomerPhone(value.customer.phone);
+        return;
+      }
+
+      if (value.mode === "new") {
+        form.setValue("customerId", "", { shouldValidate: true });
+        form.setValue("customerName", value.name, { shouldValidate: true });
+        form.setValue("email", value.email ?? "", { shouldValidate: true });
+        form.setValue("phone", value.phone ?? "", { shouldValidate: true });
+        setExistingCustomerEmail(null);
+        setExistingCustomerPhone(null);
+        return;
+      }
+
+      // anonymous
+      form.setValue("customerId", "", { shouldValidate: false });
+      form.setValue("customerName", value.label || "Anonymous walk-in", {
+        shouldValidate: false,
+      });
+      form.setValue("email", "", { shouldValidate: false });
+      form.setValue("phone", "", { shouldValidate: false });
+      setExistingCustomerEmail(null);
+      setExistingCustomerPhone(null);
     },
     [form],
   );
@@ -972,7 +1054,10 @@ export default function BookingForm({
             }
           : undefined;
 
-      createBookingAction({
+      const isAnonymousWalkIn =
+        isEmployee && pickerValue?.mode === "anonymous";
+
+      const submitPayload = {
         customerId: data.customerId || undefined,
         customerName: capitalizedCustomerName,
         businessSlug,
@@ -981,14 +1066,62 @@ export default function BookingForm({
         paymentMethod: data.paymentMethod,
         paymentType: data.paymentType,
         services: flatServicesPayload,
-        email: data.email,
-        phone: data.phone?.trim() || otpPhone.trim() || undefined,
+        email: isAnonymousWalkIn ? undefined : data.email,
+        phone: isAnonymousWalkIn
+          ? undefined
+          : data.phone?.trim() || otpPhone.trim() || undefined,
         voucherCode: appliedVoucher?.code,
-        isWalkIn: effectiveIsWalkIn,
+        isWalkIn: effectiveIsWalkIn || isAnonymousWalkIn,
+        isAnonymousWalkIn,
+        forceCreateCustomer,
         staffSelectionMode: computedStaffSelectionMode,
         capacityOverride: normalizedCapacityOverride,
         otpVerificationId: isEmployee ? undefined : otpVerificationId,
-      });
+      } as const;
+
+      // Staff "new customer" path: pre-flight duplicate check. If a record
+      // with the same email/phone already exists, surface a confirmation
+      // dialog before submitting. Skipped for: anonymous walk-ins, picks
+      // against an existing customer, public bookings, and force-create.
+      const shouldCheckDuplicate =
+        isEmployee &&
+        !isAnonymousWalkIn &&
+        !forceCreateCustomer &&
+        !data.customerId &&
+        pickerValue?.mode === "new" &&
+        ((data.email && data.email.trim().length > 0) ||
+          (data.phone && data.phone.trim().length > 0));
+
+      if (shouldCheckDuplicate) {
+        setIsCheckingDuplicate(true);
+        findDuplicateCustomerForBooking({
+          name: capitalizedCustomerName,
+          email: data.email?.trim() || undefined,
+          phone: data.phone?.trim() || undefined,
+        })
+          .then((result) => {
+            setIsCheckingDuplicate(false);
+            if (result.success && result.data) {
+              // Pause submission, show the dialog. Stash the payload so we
+              // can re-fire it after staff resolves the dialog.
+              setPendingDuplicate(result.data);
+              setPendingSubmitPayload({ ...submitPayload });
+              return;
+            }
+            // No duplicate (or lookup failed) — proceed.
+            createBookingAction(submitPayload);
+          })
+          .catch(() => {
+            setIsCheckingDuplicate(false);
+            // Don't block the booking on a dedup-check failure — the server
+            // will fall through to its own silent-link logic which is the
+            // pre-existing behavior.
+            createBookingAction(submitPayload);
+          });
+        return;
+      }
+
+      createBookingAction(submitPayload);
     },
     [
       businessSlug,
@@ -1007,8 +1140,60 @@ export default function BookingForm({
       capacityOverrideNote,
       otpPhone,
       otpVerificationId,
+      pickerValue,
+      forceCreateCustomer,
     ],
   );
+
+  /**
+   * Dialog action: staff confirms "use existing customer" — link this booking
+   * to the matched record instead of creating a new one. Re-fires the pending
+   * submission payload with customerId set to the duplicate's id.
+   */
+  const handleConfirmUseExisting = useCallback(() => {
+    if (!pendingDuplicate || !pendingSubmitPayload) return;
+    const payload = {
+      ...pendingSubmitPayload,
+      customerId: pendingDuplicate.id,
+      // Use the existing record's name for the booking — staff can edit the
+      // customer's name separately if it really needs to change.
+      customerName: pendingDuplicate.name,
+      forceCreateCustomer: false,
+    };
+    setPendingDuplicate(null);
+    setPendingSubmitPayload(null);
+    // Sync the picker into "existing" mode so the form reflects the choice.
+    handlePickerChange({
+      mode: "existing",
+      customer: {
+        id: pendingDuplicate.id,
+        name: pendingDuplicate.name,
+        email: pendingDuplicate.email,
+        phone: pendingDuplicate.phone,
+      },
+    });
+    createBookingAction(payload as Parameters<typeof createBookingAction>[0]);
+  }, [
+    pendingDuplicate,
+    pendingSubmitPayload,
+    handlePickerChange,
+    createBookingAction,
+  ]);
+
+  /**
+   * Dialog action: staff confirms "create new anyway" — even though a record
+   * with this email/phone exists, staff insists this is a different person.
+   * Re-fires submission with forceCreateCustomer set so the server skips its
+   * silent-link path and writes a fresh Customer row.
+   */
+  const handleConfirmCreateAnyway = useCallback(() => {
+    if (!pendingSubmitPayload) return;
+    const payload = { ...pendingSubmitPayload, forceCreateCustomer: true };
+    setForceCreateCustomer(true);
+    setPendingDuplicate(null);
+    setPendingSubmitPayload(null);
+    createBookingAction(payload as Parameters<typeof createBookingAction>[0]);
+  }, [pendingSubmitPayload, createBookingAction]);
 
   const isSubmitDisabled =
     isPending ||
@@ -1022,8 +1207,12 @@ export default function BookingForm({
   const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
   const isStep3Complete = effectiveIsWalkIn || !!selectedTime;
   const customerNameValue = (customerNameInput || "").trim();
+  // Staff: anonymous walk-in is a complete customer step on its own; otherwise
+  // require either a linked customer or a typed-in name (>=2 chars).
   const isCustomerDetailsComplete = isEmployee
-    ? !!customerId || customerNameValue.length >= 2
+    ? pickerValue?.mode === "anonymous" ||
+      !!customerId ||
+      customerNameValue.length >= 2
     : customerNameValue.length >= 2;
   const canAccessStep2 = isPublicVerified && isStep1Complete;
   const canAccessStep3 = canAccessStep2 && isStep2Complete;
@@ -1452,28 +1641,47 @@ export default function BookingForm({
                 </div>
               )}
 
-              <FormField
-                control={form.control}
-                name="customerName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-1.5">
-                      Full Name
-                      {!isEmployee && otpPrefilled && otpCustomerName && (
-                        <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
-                          Pre-filled
-                        </span>
-                      )}
-                    </FormLabel>
-                    <FormControl>
-                      {isEmployee ? (
-                        <CustomerSearchInput
-                          form={form}
-                          businessSlug={businessSlug!}
-                          onCustomerSelect={handleCustomerSelect}
-                          {...field}
-                        />
-                      ) : (
+              {isEmployee ? (
+                // Staff path: single CustomerPicker handles all three modes
+                // (existing / new / anonymous walk-in). The picker writes back
+                // into form fields via handlePickerChange so submission stays
+                // unchanged downstream.
+                <div className="space-y-2">
+                  <FormLabel>Customer</FormLabel>
+                  <CustomerPicker
+                    businessSlug={businessSlug!}
+                    value={pickerValue}
+                    onChange={handlePickerChange}
+                  />
+                  {/* Surface the form's customerName error if the picker is
+                      empty when the user tries to advance/submit. */}
+                  <FormField
+                    control={form.control}
+                    name="customerName"
+                    render={() => (
+                      <FormItem>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ) : (
+                // Public path: unchanged. Name input here, plus the email/phone
+                // FormFields below.
+                <FormField
+                  control={form.control}
+                  name="customerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1.5">
+                        Full Name
+                        {otpPrefilled && otpCustomerName && (
+                          <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                            Pre-filled
+                          </span>
+                        )}
+                      </FormLabel>
+                      <FormControl>
                         <Input
                           placeholder="Enter your full name"
                           className={cn(
@@ -1483,37 +1691,32 @@ export default function BookingForm({
                           )}
                           {...field}
                         />
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => {
-                  const isPrefilled = !isEmployee && otpPrefilled && !!otpCustomerEmail;
-                  return (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1.5">
-                        Email
-                        {isPrefilled && (
-                          <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
-                            Pre-filled
-                          </span>
-                        )}
-                      </FormLabel>
-                      {isEmployee && existingCustomerEmail ? (
-                        <div className="text-sm bg-amber-50 text-amber-800 p-3 rounded-lg border border-amber-200">
-                          This customer already has an email linked (
-                          <span className="font-mono">{maskEmail(existingCustomerEmail)}</span>
-                          ).{" "}
-                          <span className="text-xs opacity-80">To change it, update their profile separately.</span>
-                        </div>
-                      ) : (
-                        <>
+              {/* Email + Phone fields — public-only. Staff fields are inside
+                  the CustomerPicker for the "new" mode. */}
+              {!isEmployee && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => {
+                      const isPrefilled = otpPrefilled && !!otpCustomerEmail;
+                      return (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-1.5">
+                            Email
+                            {isPrefilled && (
+                              <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                                Pre-filled
+                              </span>
+                            )}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="email@example.com"
@@ -1525,56 +1728,45 @@ export default function BookingForm({
                               {...field}
                             />
                           </FormControl>
-                          {!isEmployee && (
-                            <p className="text-xs text-muted-foreground">
-                              Optional — we&apos;ll send your booking confirmation here.
-                            </p>
-                          )}
-                          <FormMessage />
-                        </>
-                      )}
-                    </FormItem>
-                  );
-                }}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Contact Number</FormLabel>
-                      {isEmployee && existingCustomerPhone ? (
-                        <div className="text-sm bg-amber-50 text-amber-800 p-3 rounded-lg border border-amber-200">
-                          This customer already has a contact number linked (
-                          <span className="font-mono">{existingCustomerPhone}</span>
-                          ).{" "}
-                          <span className="text-xs opacity-80">To change it, update their profile separately.</span>
-                        </div>
-                      ) : !isEmployee && isOtpVerified ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2.5">
-                          <Phone className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                          <span className="text-sm font-medium text-emerald-800">{otpPhone}</span>
-                          <span className="ml-auto text-[10px] font-semibold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">
-                            Verified
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          <FormControl>
-                            <Input type="tel" placeholder="+63 9XX XXX XXXX" {...field} />
-                          </FormControl>
                           <p className="text-xs text-muted-foreground">
-                            Optional — so we can contact you if we need to clarify your booking.
+                            Optional — we&apos;ll send your booking confirmation here.
                           </p>
                           <FormMessage />
-                        </>
-                      )}
-                    </FormItem>
-                  );
-                }}
-              />
+                        </FormItem>
+                      );
+                    }}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Number</FormLabel>
+                        {isOtpVerified ? (
+                          <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2.5">
+                            <Phone className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                            <span className="text-sm font-medium text-emerald-800">{otpPhone}</span>
+                            <span className="ml-auto text-[10px] font-semibold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                              Verified
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            <FormControl>
+                              <Input type="tel" placeholder="+63 9XX XXX XXXX" {...field} />
+                            </FormControl>
+                            <p className="text-xs text-muted-foreground">
+                              Optional — so we can contact you if we need to clarify your booking.
+                            </p>
+                            <FormMessage />
+                          </>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </div>
           )}
 
@@ -1711,13 +1903,18 @@ export default function BookingForm({
                 <div className="flex items-center justify-between rounded-2xl border bg-secondary/20 p-4 shadow-sm">
                   <div className="flex-1 mr-4">
                     <p className="text-sm font-semibold text-foreground">
-                      Walk-in / Immediate
+                      Book for right now
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Start booking immediately without scheduling
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                      Time-shortcut for walk-ins — skips date/time picker.
+                      Customer info is still collected above.
                     </p>
                   </div>
                   <div
+                    role="switch"
+                    aria-checked={effectiveIsWalkIn}
+                    aria-label="Book for right now"
+                    tabIndex={0}
                     className={cn(
                       "w-12 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
                       effectiveIsWalkIn
@@ -1725,6 +1922,12 @@ export default function BookingForm({
                         : "bg-muted-foreground/30",
                     )}
                     onClick={handleWalkInToggle}
+                    onKeyDown={(e) => {
+                      if (e.key === " " || e.key === "Enter") {
+                        e.preventDefault();
+                        handleWalkInToggle();
+                      }
+                    }}
                   >
                     <div
                       className={cn(
@@ -1805,8 +2008,7 @@ export default function BookingForm({
                 </>
               ) : effectiveIsWalkIn ? (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground">
-                  Walk-in is enabled. This booking will start immediately
-                  without a scheduled slot.
+                  Booking will start immediately at the next available slot.
                 </div>
               ) : (
                 <div className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground">
@@ -2392,12 +2594,12 @@ export default function BookingForm({
 
 
                       <Button
-                        disabled={isSubmitDisabled}
+                        disabled={isSubmitDisabled || isCheckingDuplicate}
                         type="submit"
                         size="lg"
                         className="hidden w-full font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98] lg:flex"
                       >
-                        {isPending
+                        {isPending || isCheckingDuplicate
                           ? "Processing..."
                           : paymentMethod === "CASH"
                             ? "Confirm Booking"
@@ -2433,12 +2635,12 @@ export default function BookingForm({
               </p>
             </div>
             <Button
-              disabled={isSubmitDisabled}
+              disabled={isSubmitDisabled || isCheckingDuplicate}
               type="submit"
               size="lg"
               className="h-11 flex-1 font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]"
             >
-              {isPending
+              {isPending || isCheckingDuplicate
                 ? "Processing..."
                 : paymentMethod === "CASH"
                   ? "Confirm Booking"
@@ -2447,6 +2649,79 @@ export default function BookingForm({
           </div>
         </div>
       </form>
+
+      {/* Duplicate-customer confirmation — staff-only. Defaults to "use existing"
+          (safer for data quality); "create anyway" is the explicit override. */}
+      <AlertDialog
+        open={!!pendingDuplicate}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDuplicate(null);
+            setPendingSubmitPayload(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Possible duplicate customer</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {pendingDuplicate?.matchedOn === "phone"
+                    ? "We found a customer with this phone number:"
+                    : "We found a customer with this email:"}
+                </p>
+                {pendingDuplicate && (
+                  <div className="rounded-lg border bg-muted/40 p-3 space-y-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {pendingDuplicate.name}
+                    </p>
+                    {pendingDuplicate.phone && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <Phone className="h-3 w-3" />
+                        {pendingDuplicate.phone}
+                      </p>
+                    )}
+                    {pendingDuplicate.email && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {pendingDuplicate.email}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {pendingDuplicate?.nameMismatch && (
+                  <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-2 leading-relaxed">
+                    Heads-up: the name you typed doesn&apos;t match this
+                    record. Double-check before linking.
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Link this booking to the existing customer, or create a new
+                  separate record anyway?
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="sm:order-1">
+              Cancel
+            </AlertDialogCancel>
+            <button
+              type="button"
+              onClick={handleConfirmCreateAnyway}
+              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer sm:order-2"
+            >
+              Create new anyway
+            </button>
+            <AlertDialogAction
+              onClick={handleConfirmUseExisting}
+              className="sm:order-3"
+            >
+              Use existing customer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Form>
   );
 }

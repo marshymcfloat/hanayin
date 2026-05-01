@@ -70,11 +70,29 @@ export const createBookingSchema = z
         { message: "Invalid contact number" },
       ),
     voucherCode: z.string().optional(),
+    /**
+     * Staff-only: when true, the booking is recorded with no Customer link.
+     * The customerName becomes a free-text label on the booking. customerId,
+     * email, and phone are ignored. Only honored when a session is present
+     * (server enforces this).
+     */
+    isAnonymousWalkIn: z.boolean().optional(),
+    /**
+     * Staff-only: when staff confirms "create new anyway" in the duplicate
+     * dialog, this skips the silent-link path on the server so a fresh
+     * Customer record is always created even if email/phone collide.
+     */
+    forceCreateCustomer: z.boolean().optional(),
   })
-  .refine((data) => data.customerId || data.customerName, {
-    message: "Please select an existing customer or enter a new customer name",
-    path: ["customerName"],
-  });
+  .refine(
+    (data) =>
+      data.isAnonymousWalkIn || data.customerId || data.customerName,
+    {
+      message:
+        "Please select an existing customer, enter a new customer name, or mark as an anonymous walk-in",
+      path: ["customerName"],
+    },
+  );
 
 export type CreateBookingTypes = z.infer<typeof createBookingSchema>;
 export type PaymentMethod = z.infer<typeof paymentMethodEnum>;

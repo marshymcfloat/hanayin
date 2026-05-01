@@ -414,10 +414,20 @@ export async function createFollowUpAddOnBooking(params: {
     throw new Error("Booking not found");
   }
 
+  // Follow-up bookings inherit the parent's customer profile. Anonymous
+  // walk-ins have no profile to inherit — the staff would have to recreate
+  // the customer record manually, which defeats the "follow-up" affordance.
+  if (!parentBooking.customer || !parentBooking.customer_id) {
+    throw new Error(
+      "Cannot create a follow-up for an anonymous walk-in booking. Create a new booking instead.",
+    );
+  }
+
+  const parentCustomer = parentBooking.customer;
   const followUp = await createBookingInDb({
     businessSlug: params.actorContext.businessSlug,
     customerId: parentBooking.customer_id,
-    customerName: parentBooking.customer.name,
+    customerName: parentCustomer.name,
     services: expandedServices,
     scheduledAt: getCurrentDateTimePH(),
     estimatedEnd: getCurrentDateTimePH(),
@@ -425,8 +435,8 @@ export async function createFollowUpAddOnBooking(params: {
     currentEmployeeId: params.currentEmployeeId,
     paymentMethod: "CASH",
     paymentType: "FULL",
-    email: parentBooking.customer.email || undefined,
-    phone: parentBooking.customer.phone || undefined,
+    email: parentCustomer.email || undefined,
+    phone: parentCustomer.phone || undefined,
     isPublicBooking: false,
     isWalkIn: true,
     staffSelectionMode: params.staffSelectionMode || "ANY_AVAILABLE",

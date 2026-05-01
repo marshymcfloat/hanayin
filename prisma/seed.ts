@@ -650,7 +650,117 @@ async function main() {
     });
   }
 
-  console.log("\n✅ Seeding finished successfully!");
+  // ============================================
+  // 2. SAMPLE CUSTOMERS + BOOKINGS
+  // ============================================
+  // Gives the staff CustomerPicker something to search against on first load,
+  // exercises the duplicate-detection flow, populates customer rankings on
+  // the Reports page, and includes one anonymous walk-in so the new
+  // is_anonymous_walk_in metric surfaces.
+  console.log(" Creating sample customers + bookings...");
+
+  const bfServiceRows = await prisma.service.findMany({
+    where: { business_id: beautyFeel.id },
+    orderBy: { id: "asc" },
+    take: 4,
+  });
+  const bfEmployeeRows = await prisma.employee.findMany({
+    where: { business_id: beautyFeel.id },
+    orderBy: { id: "asc" },
+    take: 1,
+  });
+  const primaryEmployee = bfEmployeeRows[0] ?? null;
+
+  if (bfServiceRows.length === 0) {
+    console.log("   ⚠ Skipping sample bookings — no services to attach.");
+  } else {
+    const sampleCustomers = [
+      { name: "Maria Santos", email: "maria.santos@example.com", phone: "639171234001", trust_tier: "TRUSTED", no_show_count: 0 },
+      { name: "Juan dela Cruz", email: null, phone: "639171234002", trust_tier: "NEW", no_show_count: 0 },
+      { name: "Ana Rodriguez", email: "ana.rodriguez@example.com", phone: "639171234003", trust_tier: "TRUSTED", no_show_count: 0 },
+      { name: "Pedro Reyes", email: null, phone: "639171234004", trust_tier: "NEW", no_show_count: 0 },
+      { name: "Sofia Mendoza", email: "sofia.mendoza@example.com", phone: "639171234005", trust_tier: "RESTRICTED", no_show_count: 2 },
+    ] as const;
+
+    const customerIdsByName = new Map<string, string>();
+    for (const c of sampleCustomers) {
+      const created = await prisma.customer.create({
+        data: {
+          name: c.name,
+          email: c.email,
+          phone: c.phone,
+          trust_tier: c.trust_tier,
+          no_show_count: c.no_show_count,
+          last_no_show_at: c.no_show_count > 0 ? new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) : null,
+          business_id: beautyFeel.id,
+        },
+      });
+      customerIdsByName.set(c.name, created.id);
+    }
+
+    const createSampleBooking = async (opts: {
+      customerName: string | null;
+      isAnonymousWalkIn?: boolean;
+      customerLabel?: string | null;
+      serviceIndex: number;
+      daysAgo: number;
+      status: "ACCEPTED" | "COMPLETED" | "CANCELLED";
+      paid: boolean;
+    }) => {
+      const service = bfServiceRows[opts.serviceIndex % bfServiceRows.length];
+      const scheduledAt = new Date(Date.now() - opts.daysAgo * 24 * 60 * 60 * 1000);
+      const estimatedEnd = new Date(scheduledAt.getTime() + (service.duration ?? 30) * 60 * 1000);
+      const grandTotal = service.price;
+      const customerId = opts.customerName ? customerIdsByName.get(opts.customerName) ?? null : null;
+
+      await prisma.booking.create({
+        data: {
+          business_id: beautyFeel.id,
+          customer_id: customerId,
+          is_anonymous_walk_in: !!opts.isAnonymousWalkIn,
+          customer_label: opts.customerLabel ?? null,
+          status: opts.status,
+          grand_total: grandTotal,
+          total_discount: 0,
+          payment_method: "CASH",
+          payment_status: opts.paid ? "PAID" : "UNPAID",
+          amount_paid: opts.paid ? grandTotal : 0,
+          scheduled_at: scheduledAt,
+          estimated_end: estimatedEnd,
+          availed_services: {
+            create: {
+              price: service.price,
+              estimated_cost: service.estimated_cost ?? 0,
+              discount: 0,
+              final_price: service.price,
+              commission_base: service.price,
+              status: opts.status === "COMPLETED" ? "COMPLETED" : "PENDING",
+              service_id: service.id,
+              served_by_id: opts.status === "COMPLETED" ? primaryEmployee?.id ?? null : null,
+              served_by_type: opts.status === "COMPLETED" && primaryEmployee ? "EMPLOYEE" : null,
+              served_at: opts.status === "COMPLETED" ? scheduledAt : null,
+              completed_at: opts.status === "COMPLETED" ? estimatedEnd : null,
+              scheduled_at: scheduledAt,
+              estimated_end: estimatedEnd,
+            },
+          },
+        },
+      });
+    }
+
+    await createSampleBooking({ customerName: "Maria Santos", serviceIndex: 0, daysAgo: 30, status: "COMPLETED", paid: true });
+    await createSampleBooking({ customerName: "Maria Santos", serviceIndex: 1, daysAgo: 14, status: "COMPLETED", paid: true });
+    await createSampleBooking({ customerName: "Maria Santos", serviceIndex: 2, daysAgo: 3, status: "COMPLETED", paid: true });
+    await createSampleBooking({ customerName: "Ana Rodriguez", serviceIndex: 1, daysAgo: 21, status: "COMPLETED", paid: true });
+    await createSampleBooking({ customerName: "Ana Rodriguez", serviceIndex: 3, daysAgo: 7, status: "COMPLETED", paid: true });
+    await createSampleBooking({ customerName: "Juan dela Cruz", serviceIndex: 2, daysAgo: 10, status: "COMPLETED", paid: true });
+    await createSampleBooking({ customerName: "Pedro Reyes", serviceIndex: 0, daysAgo: 2, status: "ACCEPTED", paid: false });
+    await createSampleBooking({ customerName: null, isAnonymousWalkIn: true, customerLabel: "Walk-in #1", serviceIndex: 0, daysAgo: 5, status: "COMPLETED", paid: true });
+    await createSampleBooking({ customerName: null, isAnonymousWalkIn: true, customerLabel: "Tourist (cash)", serviceIndex: 3, daysAgo: 1, status: "COMPLETED", paid: true });
+
+    console.log(`   ✓ Created ${sampleCustomers.length} customers and 9 bookings`);
+  }
+
   console.log("\n✅ Seeding finished successfully!");
   console.log("\n📋 Accounts created with default credentials.");
   console.log("   See README or seed script for details.");

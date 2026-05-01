@@ -39,7 +39,8 @@ import { ExpenseWidget } from "./ExpenseWidget";
 import type { ExpenseView } from "@/lib/expenses/constants";
 
 type BookingWithDetails = Booking & {
-  customer: Customer;
+  // Nullable for anonymous walk-ins; render via getBookingCustomerName.
+  customer: Customer | null;
   vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;

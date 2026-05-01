@@ -58,6 +58,17 @@ interface CreateBookingParams {
   };
   /** OTP verification ID from verifyBookingOtp — required for public bookings by NEW customers. */
   otpVerificationId?: number;
+  /**
+   * Staff-only: skip Customer creation entirely. customer_id will be null on
+   * the resulting Booking and the customerName is stored as customer_label.
+   */
+  isAnonymousWalkIn?: boolean;
+  /**
+   * Staff-only: when staff confirms "create new anyway" in the duplicate
+   * dialog, skip the silent-link path in the customer-resolution block and
+   * always create a fresh Customer record.
+   */
+  forceCreateCustomer?: boolean;
 }
 
 export type CreateBookingResult =
@@ -82,6 +93,8 @@ export async function createBooking({
   staffSelectionMode = "ANY_AVAILABLE",
   capacityOverride,
   otpVerificationId,
+  isAnonymousWalkIn = false,
+  forceCreateCustomer = false,
 }: CreateBookingParams & {
   currentEmployeeId?: number;
 }): Promise<CreateBookingResult> {
@@ -290,6 +303,10 @@ export async function createBooking({
       totalDiscount: pricing.voucherDiscount,
       isPublicBooking: !session,
       isWalkIn,
+      // Anonymous walk-ins are staff-only — `!session` blocks public callers
+      // from setting it. forceCreateCustomer is also staff-only.
+      isAnonymousWalkIn: !!session && isAnonymousWalkIn,
+      forceCreateCustomer: !!session && forceCreateCustomer,
       staffSelectionMode,
       capacityOverride,
       allowWalkInCapacityBypass: walkInCapacityBypassAllowed,

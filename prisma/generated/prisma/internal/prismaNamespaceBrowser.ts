@@ -616,6 +616,8 @@ export const BookingScalarFieldEnum = {
   id: 'id',
   status: 'status',
   customer_id: 'customer_id',
+  is_anonymous_walk_in: 'is_anonymous_walk_in',
+  customer_label: 'customer_label',
   business_id: 'business_id',
   payment_method: 'payment_method',
   payment_status: 'payment_status',

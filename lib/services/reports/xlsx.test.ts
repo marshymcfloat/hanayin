@@ -124,6 +124,9 @@ const customersPayload: CustomersReportPayload = {
     repeatCustomerRate: 43.14,
     rebookingWithin45Rate: 31.5,
     atRiskCustomers60d: 12,
+    anonymousWalkInBookings: 0,
+    anonymousWalkInRevenue: 0,
+    anonymousWalkInShareOfBookings: 0,
   },
   trend: [
     {

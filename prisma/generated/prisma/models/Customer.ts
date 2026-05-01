@@ -485,11 +485,6 @@ export type CustomerSumOrderByAggregateInput = {
   no_show_count?: Prisma.SortOrder
 }
 
-export type CustomerScalarRelationFilter = {
-  is?: Prisma.CustomerWhereInput
-  isNot?: Prisma.CustomerWhereInput
-}
-
 export type CustomerNullableScalarRelationFilter = {
   is?: Prisma.CustomerWhereInput | null
   isNot?: Prisma.CustomerWhereInput | null
@@ -543,10 +538,12 @@ export type CustomerCreateNestedOneWithoutBookingsInput = {
   connect?: Prisma.CustomerWhereUniqueInput
 }
 
-export type CustomerUpdateOneRequiredWithoutBookingsNestedInput = {
+export type CustomerUpdateOneWithoutBookingsNestedInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutBookingsInput, Prisma.CustomerUncheckedCreateWithoutBookingsInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutBookingsInput
   upsert?: Prisma.CustomerUpsertWithoutBookingsInput
+  disconnect?: Prisma.CustomerWhereInput | boolean
+  delete?: Prisma.CustomerWhereInput | boolean
   connect?: Prisma.CustomerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutBookingsInput, Prisma.CustomerUpdateWithoutBookingsInput>, Prisma.CustomerUncheckedUpdateWithoutBookingsInput>
 }

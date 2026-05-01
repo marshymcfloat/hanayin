@@ -2,12 +2,22 @@ import sharp from "sharp";
 
 import { logger } from "@/lib/logger";
 import { DiscountType } from "@/prisma/generated/prisma/enums";
+import { getEmbeddedFontStyles } from "@/lib/services/social/font-loader";
 
 // ─── Layout constants (portrait 1024×1536 — Instagram & Facebook safe) ──────
 
 const W = 1024;
 const H = 1536;
-const PAD = 60;
+const PAD = 76; // Generous side padding so headlines never hug the canvas edge.
+
+// Headline rendering. Cormorant Garamond at 84px renders roughly 0.55 × fontSize
+// per character on average mixed-case text — used as a width estimator below
+// so we can detect overflow without measuring rendered glyphs.
+const HEADLINE_FONT_SIZE = 84;
+const HEADLINE_AVG_CHAR_WIDTH_FACTOR = 0.55;
+const HEADLINE_MAX_WIDTH = W - PAD * 2;
+const HEADLINE_MAX_CHARS_PER_LINE = 18; // Conservative: serif + caps ≈ wider real width.
+const HEADLINE_MAX_LINES = 3;
 
 // Maximum lengths for safety. Keep text tight so the SVG renderer never wraps
 // awkwardly. We also clip on word boundaries below.
@@ -125,20 +135,36 @@ function isSameCalendarDay(a: Date, b: Date) {
 }
 
 /**
- * Build the date label that appears in the overlay. Same-day windows render
- * as "FLASH SALE" rather than "APR 27 – APR 27", which reads weirdly.
+ * Build the date label that appears in the overlay. The label varies by
+ * whether the post carries an actual discount:
+ *
+ *   - DISCOUNT same-day  → "FLASH SALE — TODAY ONLY"  (urgency drum-beat)
+ *   - DISCOUNT range     → "APR 27 – APR 30"
+ *   - non-discount same-day → "BOOK TODAY"  (no fake urgency)
+ *   - non-discount range    → "BOOK BY APR 30"
+ *
+ * Previously the function hardcoded "FLASH SALE" for every same-day window,
+ * which produced contradictions like a "Weekend Prep Reminder" headline with
+ * a "FLASH SALE — TODAY ONLY" badge underneath. The two labels imply
+ * different campaign types.
  */
 export function buildOverlayDateLabel(
   startDate: Date,
   endDate: Date,
+  options: { isNonDiscount?: boolean } = {},
 ): string {
-  if (isSameCalendarDay(startDate, endDate)) {
-    return "FLASH SALE — TODAY ONLY";
-  }
+  const sameDay = isSameCalendarDay(startDate, endDate);
   const formatter = new Intl.DateTimeFormat("en-PH", {
     month: "short",
     day: "numeric",
   });
+
+  if (options.isNonDiscount) {
+    if (sameDay) return "BOOK TODAY";
+    return `BOOK BY ${formatter.format(endDate).toUpperCase()}`;
+  }
+
+  if (sameDay) return "FLASH SALE — TODAY ONLY";
   return `${formatter.format(startDate)} – ${formatter.format(endDate)}`.toUpperCase();
 }
 
@@ -201,25 +227,48 @@ function wrapForOverlay(
 // ─── SVG renderers ──────────────────────────────────────────────────────────
 
 async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
+  const fontStyles = await getEmbeddedFontStyles();
   const businessName = clampWords(input.businessName, FIELD_LIMITS.businessName);
   const headlineFull = clampWords(input.headline, FIELD_LIMITS.headline);
   const dateLabel = clampWords(
-    buildOverlayDateLabel(input.startDate, input.endDate),
+    buildOverlayDateLabel(input.startDate, input.endDate, {
+      isNonDiscount: input.isNonDiscount,
+    }),
     FIELD_LIMITS.dateLabel,
   );
   const discountLabel = input.isNonDiscount
     ? null
     : formatDiscountLabel(input.discountType, input.discountValue);
 
-  // Wrap the headline (max 2 lines, ~20 chars per line for legibility).
-  const headlineLines = wrapForOverlay(headlineFull, 22, 2);
+  // Wrap the headline conservatively, then add a per-line textLength fallback
+  // for any line whose estimated rendered width still exceeds the safe zone.
+  // Without the fallback, capital-heavy serif text like "Weekend Prep Reminder"
+  // would slide off the right edge — chars-per-line wrapping alone is not
+  // pixel-aware.
+  const headlineLines = wrapForOverlay(
+    headlineFull,
+    HEADLINE_MAX_CHARS_PER_LINE,
+    HEADLINE_MAX_LINES,
+  );
 
   const headlineLineHeight = 92;
   const headlineBaseY = H - PAD - 220; // anchor area for the bottom block
   const headlineSvg = headlineLines
     .map((line, index) => {
-      const y = headlineBaseY - (headlineLines.length - 1 - index) * headlineLineHeight;
-      return `<text x="${PAD}" y="${y}" class="headline">${escapeXml(line)}</text>`;
+      const y =
+        headlineBaseY -
+        (headlineLines.length - 1 - index) * headlineLineHeight;
+      const estimatedWidth =
+        line.length * HEADLINE_FONT_SIZE * HEADLINE_AVG_CHAR_WIDTH_FACTOR;
+      // Only force textLength when the line would overflow — preserves
+      // natural letter spacing for short titles, gracefully squishes long ones.
+      // lengthAdjust="spacingAndGlyphs" scales both inter-letter spacing and
+      // the glyphs themselves, which is more graceful than per-letter scaling.
+      const fitAttrs =
+        estimatedWidth > HEADLINE_MAX_WIDTH
+          ? ` textLength="${HEADLINE_MAX_WIDTH}" lengthAdjust="spacingAndGlyphs"`
+          : "";
+      return `<text x="${PAD}" y="${y}" class="headline"${fitAttrs}>${escapeXml(line)}</text>`;
     })
     .join("");
 
@@ -234,24 +283,22 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
 
   const brandSvg = `<text x="${PAD}" y="${PAD + 28}" class="brand">${escapeXml(businessName.toUpperCase())}</text>`;
 
-  // Soft bottom gradient scrim — keeps the text legible on any background.
+  // Bottom gradient scrim — strengthened from the original 0.78 → 0.88 max
+  // opacity and pulled up from 0.4×H → 0.5×H so headline contrast holds even
+  // on light backgrounds (cream towels, beige spa scenes, sunlit photos).
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
-    <linearGradient id="bottomScrim" x1="0" y1="${H * 0.4}" x2="0" y2="${H}" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bottomScrim" x1="0" y1="${H * 0.5}" x2="0" y2="${H}" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0"/>
-      <stop offset="0.55" stop-color="rgb(8,12,16)" stop-opacity="0.45"/>
-      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0.78"/>
+      <stop offset="0.5" stop-color="rgb(8,12,16)" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0.88"/>
     </linearGradient>
     <linearGradient id="topScrim" x1="0" y1="0" x2="0" y2="${PAD * 2.2}" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0.40"/>
       <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0"/>
     </linearGradient>
     <style>
-      .brand { font-family: 'DM Sans','Helvetica Neue',Arial,sans-serif; font-weight: 500; font-size: 26px; letter-spacing: 0.18em; fill: rgba(255,255,255,0.92); }
-      .headline { font-family: 'Cormorant Garamond','Playfair Display',Georgia,serif; font-weight: 600; font-size: 84px; fill: #ffffff; }
-      .discount { font-family: 'DM Sans','Helvetica Neue',Arial,sans-serif; font-weight: 700; font-size: 64px; letter-spacing: 0.04em; fill: #ffffff; }
-      .date { font-family: 'DM Sans','Helvetica Neue',Arial,sans-serif; font-weight: 600; font-size: 28px; letter-spacing: 0.16em; fill: rgba(255,255,255,0.86); }
-      .cta { font-family: 'DM Sans','Helvetica Neue',Arial,sans-serif; font-weight: 500; font-size: 24px; letter-spacing: 0.06em; fill: rgba(255,255,255,0.78); }
+      ${fontStyles}
     </style>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#topScrim)"/>
@@ -268,6 +315,13 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
 
 async function renderWatermarkSvg(input: OrganicOverlayInput) {
   const businessName = clampWords(input.businessName, FIELD_LIMITS.businessName);
+  const fontStyles = await getEmbeddedFontStyles();
+
+  // Watermark uses a smaller brand font size — override just the size here.
+  const watermarkFontStyles = fontStyles.replace(
+    /\.brand\s*\{[^}]*font-size:\s*[\d.]+px/,
+    ".brand { font-family: 'DM Sans',Arial,sans-serif; font-weight: 500; font-size: 22px",
+  );
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
@@ -276,7 +330,7 @@ async function renderWatermarkSvg(input: OrganicOverlayInput) {
       <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0"/>
     </linearGradient>
     <style>
-      .brand { font-family: 'DM Sans','Helvetica Neue',Arial,sans-serif; font-weight: 500; font-size: 22px; letter-spacing: 0.18em; fill: rgba(255,255,255,0.92); }
+      ${watermarkFontStyles}
     </style>
   </defs>
   <rect width="${W}" height="120" fill="url(#topScrim)"/>

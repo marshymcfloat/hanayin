@@ -77,10 +77,14 @@ export async function promoteBookingToCompletedIfEligible(
     data: { status: BookingStatus.COMPLETED },
   });
 
-  await tx.customer.updateMany({
-    where: { id: booking.customer_id, trust_tier: "NEW" },
-    data: { trust_tier: "TRUSTED" },
-  });
+  // Anonymous walk-ins have no Customer profile to upgrade — skip the trust
+  // tier promotion when customer_id is null.
+  if (booking.customer_id) {
+    await tx.customer.updateMany({
+      where: { id: booking.customer_id, trust_tier: "NEW" },
+      data: { trust_tier: "TRUSTED" },
+    });
+  }
 
   return true;
 }

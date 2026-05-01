@@ -4,6 +4,7 @@ import { parseReportDateRange } from "./date-range";
 import {
   getAttributionReportData,
   getCohortsReportData,
+  getCustomersReportData,
   getOpportunityRoiReportData,
   getOverviewReportData,
 } from "./queries";
@@ -340,6 +341,83 @@ describe("report queries", () => {
       opportunities: 2,
       convertedOpportunities: 2,
       attributedValue: 550,
+    });
+  });
+
+  it("excludes anonymous walk-ins from rankings/active-customer math but counts them as KPIs", async () => {
+    const range = parseReportDateRange({
+      preset: "custom",
+      start: "2026-04-01",
+      end: "2026-04-30",
+      groupBy: "day",
+      now: new Date("2026-04-30T10:00:00+08:00"),
+    });
+
+    const db = {
+      customer: {
+        findMany: vi.fn().mockResolvedValue([
+          { id: "c1", name: "Maria", created_at: new Date("2026-04-05") },
+        ]),
+      },
+      booking: {
+        findMany: vi
+          .fn()
+          // rangeBookings — mix of linked and anonymous
+          .mockResolvedValueOnce([
+            {
+              customer_id: "c1",
+              grand_total: 1000,
+              created_at: new Date("2026-04-10"),
+              is_anonymous_walk_in: false,
+              customer: { name: "Maria" },
+            },
+            {
+              customer_id: "c1",
+              grand_total: 500,
+              created_at: new Date("2026-04-15"),
+              is_anonymous_walk_in: false,
+              customer: { name: "Maria" },
+            },
+            {
+              customer_id: null,
+              grand_total: 800,
+              created_at: new Date("2026-04-20"),
+              is_anonymous_walk_in: true,
+              customer: null,
+            },
+            {
+              customer_id: null,
+              grand_total: 200,
+              created_at: new Date("2026-04-22"),
+              is_anonymous_walk_in: true,
+              customer: null,
+            },
+          ])
+          // completedBookings — empty for this test
+          .mockResolvedValueOnce([]),
+      },
+    } as unknown as NonNullable<Parameters<typeof getCustomersReportData>[0]["db"]>;
+
+    const payload = await getCustomersReportData({
+      businessId: "biz_1",
+      range,
+      db,
+    });
+
+    // Anonymous walk-ins surface as their own metric.
+    expect(payload.kpis.anonymousWalkInBookings).toBe(2);
+    expect(payload.kpis.anonymousWalkInRevenue).toBe(1000);
+    // 2 of 4 bookings = 50% anonymous.
+    expect(payload.kpis.anonymousWalkInShareOfBookings).toBe(50);
+    // Active customers = unique linked customer_ids = 1 (just Maria).
+    expect(payload.kpis.activeCustomers).toBe(1);
+    // Top customers ranking ignores anonymous bookings.
+    expect(payload.topCustomers).toHaveLength(1);
+    expect(payload.topCustomers[0]).toMatchObject({
+      customerId: "c1",
+      customerName: "Maria",
+      bookings: 2,
+      spend: 1500,
     });
   });
 });

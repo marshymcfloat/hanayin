@@ -69,6 +69,10 @@ export async function sendBookingReminders() {
     await runInChunks(bookings, BOOKING_REMINDER_CONCURRENCY, async (booking) => {
       const scheduledAt = booking.scheduled_at;
       if (!scheduledAt) return;
+      // Anonymous walk-ins have no Customer profile and therefore can't be
+      // reminded. Skip defensively even though the where clause already filters
+      // on `customer.phone IS NOT NULL` (which implies a non-null relation).
+      if (!booking.customer) return;
 
       const scheduledTime = formatPH(scheduledAt, "h:mm a");
       const businessName = booking.business.name;

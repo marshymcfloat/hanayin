@@ -89,10 +89,13 @@ async function sendBookingCancelledNotification(
     },
   });
 
-  const recipientEmail = payload.email ?? booking?.customer.email ?? null;
-  const recipientPhone = booking?.customer.phone ?? null;
+  // Anonymous walk-ins have no customer relation — the booking carries no
+  // contactable record. The fallback below to payload.email still runs, but
+  // we don't reach into a null relation.
+  const recipientEmail = payload.email ?? booking?.customer?.email ?? null;
+  const recipientPhone = booking?.customer?.phone ?? null;
   const customerName =
-    payload.customerName?.trim() || booking?.customer.name || "there";
+    payload.customerName?.trim() || booking?.customer?.name || "there";
   const firstName = customerName.split(" ")[0];
   const businessName = booking?.business.name || "your service provider";
   const reason = payload.reason;

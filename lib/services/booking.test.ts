@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  findDuplicateCustomerCandidate,
   findExistingCustomerByContact,
   normalizeCustomerEmail,
   normalizeCustomerPhone,
 } from "./customer-matching";
+import {
+  getBookingCustomerName,
+  isLinkedToCustomerProfile,
+} from "@/lib/utils/booking-customer";
 
 describe("customer contact normalization", () => {
   it("normalizes email to lowercase and trims whitespace", () => {
@@ -14,10 +19,17 @@ describe("customer contact normalization", () => {
     expect(normalizeCustomerEmail("   ")).toBeUndefined();
   });
 
-  it("trims phone and keeps exact digits/symbols", () => {
-    expect(normalizeCustomerPhone("  +63 917 123 4567  ")).toBe(
-      "+63 917 123 4567",
-    );
+  it("canonicalizes PH phone numbers across all common formats", () => {
+    // All three of these are the same number — a duplicate detection regression
+    // would silently double-create customer records.
+    expect(normalizeCustomerPhone("  +63 917 123 4567  ")).toBe("639171234567");
+    expect(normalizeCustomerPhone("0917 123 4567")).toBe("639171234567");
+    expect(normalizeCustomerPhone("9171234567")).toBe("639171234567");
+    expect(normalizeCustomerPhone("(0917) 123-4567")).toBe("639171234567");
+  });
+
+  it("leaves non-PH numbers untouched (whitespace stripped)", () => {
+    expect(normalizeCustomerPhone("+1 415 555 1234")).toBe("+14155551234");
   });
 
   it("returns undefined for blank phone", () => {
@@ -87,5 +99,119 @@ describe("findExistingCustomerByContact", () => {
 
     expect(result).toBeNull();
     expect(findFirst).not.toHaveBeenCalled();
+  });
+});
+
+describe("findDuplicateCustomerCandidate", () => {
+  it("surfaces a phone match with name + matchedOn for the confirmation dialog", async () => {
+    const findFirst = vi
+      .fn()
+      .mockResolvedValueOnce(null) // email pass — no match
+      .mockResolvedValueOnce({
+        id: "cus_42",
+        name: "Maria Santos",
+        email: null,
+        phone: "639171234567",
+      });
+
+    const result = await findDuplicateCustomerCandidate({
+      customerDelegate: { findFirst },
+      businessId: "biz_1",
+      email: "different@example.com",
+      phone: "639171234567",
+    });
+
+    expect(result).toEqual({
+      id: "cus_42",
+      name: "Maria Santos",
+      email: null,
+      phone: "639171234567",
+      matchedOn: "phone",
+    });
+  });
+
+  it("returns null when there's nothing to confirm", async () => {
+    const findFirst = vi.fn().mockResolvedValue(null);
+
+    const result = await findDuplicateCustomerCandidate({
+      customerDelegate: { findFirst },
+      businessId: "biz_1",
+      email: undefined,
+      phone: undefined,
+    });
+
+    expect(result).toBeNull();
+    expect(findFirst).not.toHaveBeenCalled();
+  });
+});
+
+describe("getBookingCustomerName", () => {
+  it("returns the customer's name for a normal booking", () => {
+    expect(
+      getBookingCustomerName({
+        is_anonymous_walk_in: false,
+        customer_label: null,
+        customer: { name: "Maria Santos" },
+      }),
+    ).toBe("Maria Santos");
+  });
+
+  it("formats anonymous walk-ins with their label", () => {
+    expect(
+      getBookingCustomerName({
+        is_anonymous_walk_in: true,
+        customer_label: "Walk-in #3",
+        customer: null,
+      }),
+    ).toBe("Walk-in: Walk-in #3");
+  });
+
+  it("falls back to a default for anonymous walk-ins with no label", () => {
+    expect(
+      getBookingCustomerName({
+        is_anonymous_walk_in: true,
+        customer_label: null,
+        customer: null,
+      }),
+    ).toBe("Anonymous walk-in");
+  });
+
+  it("handles a missing customer gracefully", () => {
+    expect(
+      getBookingCustomerName({
+        is_anonymous_walk_in: false,
+        customer_label: null,
+        customer: null,
+      }),
+    ).toBe("Unknown customer");
+  });
+});
+
+describe("isLinkedToCustomerProfile", () => {
+  it("is true for normal bookings with a customer", () => {
+    expect(
+      isLinkedToCustomerProfile({
+        is_anonymous_walk_in: false,
+        customer: { name: "Maria" },
+      }),
+    ).toBe(true);
+  });
+
+  it("is false for anonymous walk-ins", () => {
+    expect(
+      isLinkedToCustomerProfile({
+        is_anonymous_walk_in: true,
+        customer: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("is false when the customer relation is missing", () => {
+    expect(
+      isLinkedToCustomerProfile({
+        is_anonymous_walk_in: false,
+        customer: null,
+      }),
+    ).toBe(false);
   });
 });

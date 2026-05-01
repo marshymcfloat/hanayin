@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPH } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import type {
   Booking,
   Customer,
@@ -57,7 +58,7 @@ import { markBookingNoShowAction } from "@/lib/server actions/dashboard/owner";
 import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/booking-addons";
 
 type BookingWithDetails = Booking & {
-  customer: Customer;
+  customer: Customer | null;
   vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
@@ -301,26 +302,34 @@ export function BookingDetailsDialog({
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-zinc-900">
-                          {booking.customer.name}
+                          {getBookingCustomerName(booking)}
                         </span>
-                        {booking.customer.trust_tier === "TRUSTED" && (
+                        {booking.is_anonymous_walk_in && (
+                          <Badge
+                            variant="outline"
+                            className="text-[9px] px-1.5 py-0.5 rounded-md border-amber-200 text-amber-700 bg-amber-50"
+                          >
+                            Anonymous walk-in
+                          </Badge>
+                        )}
+                        {booking.customer?.trust_tier === "TRUSTED" && (
                           <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50">
                             Trusted
                           </Badge>
                         )}
-                        {booking.customer.trust_tier === "RESTRICTED" && (
+                        {booking.customer?.trust_tier === "RESTRICTED" && (
                           <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-red-200 text-red-700 bg-red-50">
                             Restricted
                           </Badge>
                         )}
-                        {booking.customer.no_show_count > 0 && (
+                        {booking.customer && booking.customer.no_show_count > 0 && (
                           <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-amber-200 text-amber-700 bg-amber-50">
                             {booking.customer.no_show_count} no-show{booking.customer.no_show_count > 1 ? "s" : ""}
                           </Badge>
                         )}
                       </div>
                     </div>
-                    {booking.customer.phone && (
+                    {booking.customer?.phone && (
                       <div>
                         <span className="text-[10px] uppercase text-zinc-400 font-semibold tracking-wide block mb-1">
                           Phone Number
@@ -333,7 +342,7 @@ export function BookingDetailsDialog({
                         </div>
                       </div>
                     )}
-                    {booking.customer.email && (
+                    {booking.customer?.email && (
                       <div className="sm:col-span-2">
                         <span className="text-[10px] uppercase text-zinc-400 font-semibold tracking-wide block mb-1">
                           Email Address
@@ -537,8 +546,9 @@ export function BookingDetailsDialog({
                         <AlertDialogTitle>Mark as No-Show?</AlertDialogTitle>
                         <AlertDialogDescription>
                           This will cancel the booking and record a no-show for{" "}
-                          <strong>{booking.customer.name}</strong>. Customers
-                          with 2 or more no-shows are restricted from booking.
+                          <strong>{getBookingCustomerName(booking)}</strong>.
+                          Customers with 2 or more no-shows are restricted from
+                          booking.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

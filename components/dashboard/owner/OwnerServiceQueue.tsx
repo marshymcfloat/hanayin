@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { formatPH } from "@/lib/date-utils";
@@ -36,7 +37,9 @@ export type OwnerPendingService = {
   booking: {
     customer: {
       name: string;
-    };
+    } | null;
+    is_anonymous_walk_in?: boolean | null;
+    customer_label?: string | null;
     scheduled_at?: Date | null;
     created_at?: Date | null;
   };
@@ -382,7 +385,7 @@ export default function OwnerServiceQueue({
                             )}
                           </p>
                           <p className="text-[10px] text-muted-foreground truncate">
-                            {item.booking.customer.name}
+                            {getBookingCustomerName(item.booking)}
                             {" · "}
                             <span className="inline-flex items-center gap-0.5">
                               <Clock className="h-2.5 w-2.5 inline" />
@@ -440,7 +443,7 @@ export default function OwnerServiceQueue({
                             {item.service.name}
                           </p>
                           <span className="flex items-center gap-1 text-[10px] text-muted-foreground truncate">
-                            <span className="truncate">{item.booking.customer.name}</span>
+                            <span className="truncate">{getBookingCustomerName(item.booking)}</span>
                             <span>·</span>
                             <Badge
                               variant="outline"

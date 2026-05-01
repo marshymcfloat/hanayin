@@ -982,8 +982,21 @@ model Booking {
   id Int @id @default(autoincrement())
 
   status      BookingStatus @default(ACCEPTED)
-  customer    Customer      @relation(fields: [customer_id], references: [id], onDelete: Cascade)
-  customer_id String
+  // customer_id is nullable to support anonymous walk-ins (booking with no
+  // tracked customer profile). When customer_id is null, is_anonymous_walk_in
+  // must be true and customer_label captures the staff-typed identifier.
+  customer    Customer?     @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  customer_id String?
+
+  // True when the booking was recorded without linking to a Customer profile.
+  // The customer chose not to share contact info. Booking still counts in
+  // revenue, but is excluded from customer rankings, trust tier, no-show
+  // tracking, and re-engagement campaigns.
+  is_anonymous_walk_in Boolean @default(false)
+  // Free-text label staff typed for an anonymous walk-in (e.g. "Walk-in #3",
+  // "Guy in red shirt"). Lets the booking still be identifiable in lists
+  // without polluting the Customer table. Null for non-anonymous bookings.
+  customer_label       String?
 
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
   business_id String
@@ -1032,6 +1045,7 @@ model Booking {
   @@index([customer_id])
   @@index([created_at])
   @@index([scheduled_at])
+  @@index([business_id, is_anonymous_walk_in])
 }
 
 model BookingPayment {

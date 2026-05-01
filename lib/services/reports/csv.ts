@@ -523,6 +523,33 @@ function buildCustomersCsv(payload: CustomersReportPayload) {
       startDate: start,
       endDate: end,
     }),
+    createRow({
+      section: "Summary",
+      item: "Customers",
+      metric: "Anonymous Walk-in Bookings",
+      value: payload.kpis.anonymousWalkInBookings ?? 0,
+      unit: "Count",
+      startDate: start,
+      endDate: end,
+    }),
+    createRow({
+      section: "Summary",
+      item: "Customers",
+      metric: "Anonymous Walk-in Revenue",
+      value: payload.kpis.anonymousWalkInRevenue ?? 0,
+      unit: "Currency",
+      startDate: start,
+      endDate: end,
+    }),
+    createRow({
+      section: "Summary",
+      item: "Customers",
+      metric: "Anonymous Walk-in Share of Bookings",
+      value: payload.kpis.anonymousWalkInShareOfBookings ?? 0,
+      unit: "Percent",
+      startDate: start,
+      endDate: end,
+    }),
     ...payload.trend.flatMap((item) => [
       createRow({
         section: "Daily Trend",

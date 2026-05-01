@@ -194,13 +194,18 @@ function buildBuckets(range: ReportDateRange): TimeBucket[] {
 
 function buildTopCustomersFromBookings(
   bookings: Array<{
-    customer_id: string;
+    customer_id: string | null;
     grand_total: number;
-    customer: { name: string };
+    customer: { name: string } | null;
+    is_anonymous_walk_in?: boolean;
   }>,
 ) {
   const map = new Map<string, TopCustomerRow>();
   for (const booking of bookings) {
+    // Anonymous walk-ins (customer_id null) are excluded from the top-customers
+    // ranking by design — there's no profile to rank.
+    if (!booking.customer_id || !booking.customer) continue;
+
     const existing = map.get(booking.customer_id);
     if (existing) {
       existing.bookings += 1;
@@ -434,6 +439,7 @@ export async function getOverviewReportData({
         amount_paid: true,
         total_discount: true,
         created_at: true,
+        is_anonymous_walk_in: true,
         customer: {
           select: {
             name: true,
@@ -587,9 +593,11 @@ export async function getOverviewReportData({
   const payrollTotal = payrollRowsOverview.reduce((sum, r) => sum + r.total_salary, 0);
   const trueNetProfit = collectedRevenue - payrollTotal - totalExpenses;
 
-  // Compute repeat customer rate for insights
+  // Compute repeat customer rate for insights. Anonymous walk-ins (customer_id
+  // null) are excluded — they have no profile to count repeat visits against.
   const bookingCountByCustomer = new Map<string, number>();
   for (const booking of rangeCustomers) {
+    if (!booking.customer_id) continue;
     bookingCountByCustomer.set(booking.customer_id, (bookingCountByCustomer.get(booking.customer_id) ?? 0) + 1);
   }
   const activeCustomerCount = bookingCountByCustomer.size;
@@ -599,6 +607,7 @@ export async function getOverviewReportData({
   // At-risk customers (last completed >60d ago within range)
   const lastCompletedByCustomer = new Map<string, Date>();
   for (const booking of completedByCustomerRows) {
+    if (!booking.customer_id) continue;
     lastCompletedByCustomer.set(booking.customer_id, booking.created_at);
   }
   const atRiskCutoff = new Date(range.endAt.getTime() - 60 * DAY_MS);
@@ -868,6 +877,7 @@ export async function getCustomersReportData({
         customer_id: true,
         grand_total: true,
         created_at: true,
+        is_anonymous_walk_in: true,
         customer: {
           select: {
             name: true,
@@ -904,13 +914,27 @@ export async function getCustomersReportData({
     spend: roundTo(item.spend),
   }));
 
+  // Anonymous walk-in metrics: bookings without a Customer profile linked.
+  // Counted in revenue, excluded from rankings/active-customer math.
+  let anonymousWalkInBookings = 0;
+  let anonymousWalkInRevenue = 0;
+
   for (const booking of rangeBookings) {
+    if (booking.is_anonymous_walk_in || !booking.customer_id) {
+      anonymousWalkInBookings += 1;
+      anonymousWalkInRevenue += booking.grand_total;
+      continue;
+    }
     const current = bookingsByCustomer.get(booking.customer_id) ?? 0;
     bookingsByCustomer.set(booking.customer_id, current + 1);
   }
 
   const activeCustomers = bookingsByCustomer.size;
   const repeatCustomers = [...bookingsByCustomer.values()].filter((count) => count >= 2).length;
+  const anonymousWalkInShareOfBookings =
+    rangeBookings.length > 0
+      ? roundTo(asPercentage(anonymousWalkInBookings, rangeBookings.length))
+      : 0;
 
   const buckets = buildBuckets(range);
   const trendMap = new Map(
@@ -934,6 +958,7 @@ export async function getCustomersReportData({
   }
 
   for (const booking of rangeBookings) {
+    if (booking.is_anonymous_walk_in || !booking.customer_id) continue;
     const key = bucketKeyForDate(booking.created_at, range.groupBy);
     const bucket = trendMap.get(key);
     if (!bucket) continue;
@@ -946,6 +971,7 @@ export async function getCustomersReportData({
 
   const completedByCustomer = new Map<string, Date[]>();
   for (const booking of completedBookings) {
+    if (!booking.customer_id) continue;
     const list = completedByCustomer.get(booking.customer_id) ?? [];
     list.push(booking.created_at);
     completedByCustomer.set(booking.customer_id, list);
@@ -989,6 +1015,9 @@ export async function getCustomersReportData({
         asPercentage(rebookedWithin45Customers.size, eligibleRebookingCustomers.size),
       ),
       atRiskCustomers60d,
+      anonymousWalkInBookings,
+      anonymousWalkInRevenue: roundTo(anonymousWalkInRevenue),
+      anonymousWalkInShareOfBookings,
     },
     trend: buckets
       .map((bucket) => trendMap.get(bucket.key))
@@ -1301,8 +1330,16 @@ export async function getCohortsReportData({
   >();
 
   for (const booking of bookings) {
+    // Anonymous walk-ins have no Customer profile, so they can't belong to a
+    // cohort. Skip them — they're surfaced separately via the
+    // anonymousWalkIn KPIs in the customers report.
+    if (!booking.customer_id) continue;
     const customerBookings = bookingsByCustomer.get(booking.customer_id) ?? [];
-    customerBookings.push(booking);
+    customerBookings.push({
+      customer_id: booking.customer_id,
+      created_at: booking.created_at,
+      grand_total: booking.grand_total,
+    });
     bookingsByCustomer.set(booking.customer_id, customerBookings);
   }
 

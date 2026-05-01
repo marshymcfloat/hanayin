@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import {
   Card,
   CardContent,
@@ -49,7 +50,9 @@ export type QueueService = {
   booking: {
     customer: {
       name: string;
-    };
+    } | null;
+    is_anonymous_walk_in?: boolean | null;
+    customer_label?: string | null;
     scheduled_at: Date | null;
     created_at: Date;
   };
@@ -156,7 +159,7 @@ export function ManagerQueueCard({
           <div className="flex items-center text-xs text-zinc-500">
             <User className="mr-2 h-3.5 w-3.5 text-zinc-400" />
             <span className="font-medium text-zinc-700 truncate max-w-[150px]">
-              {service.booking.customer.name}
+              {getBookingCustomerName(service.booking)}
             </span>
           </div>
           <div className="flex items-center text-xs text-zinc-500">

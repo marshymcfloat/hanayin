@@ -237,6 +237,10 @@ export async function sendFlowReminders() {
         sendQueue,
         FLOW_REMINDER_SEND_CONCURRENCY,
         async (item) => {
+          // Anonymous walk-ins have no customer profile and can't be sent
+          // flow reminders — skip them defensively.
+          if (!item.booking.customer || !item.booking.customer_id) return;
+
           const hasEmail = !!item.booking.customer.email;
           const hasPhone = !!item.booking.customer.phone;
           if (!hasEmail && !hasPhone) return;

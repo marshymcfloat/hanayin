@@ -17,9 +17,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 
 type BookingWithDetails = Booking & {
-  customer: Customer;
+  // customer can be null on anonymous walk-ins. The widget falls back to the
+  // customer_label via getBookingCustomerName.
+  customer: Customer | null;
   vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
@@ -102,11 +105,11 @@ export function RecentBookingsWidget({
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="h-6 w-6 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[9px]">
-                    {booking.customer.name.charAt(0)}
+                    {getBookingCustomerName(booking).charAt(0)}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-foreground truncate leading-tight">
-                      {booking.customer.name}
+                      {getBookingCustomerName(booking)}
                     </p>
                     <p className="text-[9px] text-muted-foreground tabular-nums">
                       #{booking.id} · {getDisplayTime(booking)}
@@ -171,11 +174,11 @@ export function RecentBookingsWidget({
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="h-8 w-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                    {booking.customer.name.charAt(0)}
+                    {getBookingCustomerName(booking).charAt(0)}
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="font-semibold text-sm text-foreground truncate">
-                      {booking.customer.name}
+                      {getBookingCustomerName(booking)}
                     </span>
                     <span className="text-xs text-muted-foreground tabular-nums">
                       {getDisplayTime(booking)} · #{booking.id}

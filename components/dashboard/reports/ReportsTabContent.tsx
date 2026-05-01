@@ -478,6 +478,7 @@ function RevenueContent({ payload }: { payload: RevenueReportPayload }) {
 }
 
 function CustomersContent({ payload }: { payload: CustomersReportPayload }) {
+  const anon = payload.kpis.anonymousWalkInBookings ?? 0;
   return (
     <div className="space-y-6">
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -499,6 +500,31 @@ function CustomersContent({ payload }: { payload: CustomersReportPayload }) {
           caption="Haven't returned in 60 days"
         />
       </section>
+
+      {anon > 0 && (
+        <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+              <span className="text-base">⚠️</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-amber-900">
+                Anonymous Walk-ins
+              </h3>
+              <p className="text-xs text-amber-900/80 mt-0.5 leading-relaxed">
+                {formatCurrency(payload.kpis.anonymousWalkInRevenue ?? 0)} from{" "}
+                {formatNumber(anon)} bookings (
+                {formatPercent(
+                  payload.kpis.anonymousWalkInShareOfBookings ?? 0,
+                )}{" "}
+                of bookings) had no contact info collected. Collecting phone or
+                email on these would unlock re-engagement, history tracking,
+                and rankings.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <ChartSection title="Customer Activity Trend">
         <ReportTrendChart

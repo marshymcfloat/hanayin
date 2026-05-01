@@ -64,8 +64,9 @@ export function buildCaptionGeneratorPrompt(input: {
     "- No fake urgency or false claims.",
     "- Avoid politics, tragedy, disasters, or sensitive public events.",
     "- Keep CTA practical and booking-focused.",
+    "- Voice: write in first-person plural FROM the business (we / our / us). Never refer to the business in third person (no \"they\", \"them\", \"the business\").",
     "- End each caption with these two lines exactly:",
-    "You can book yourselves in and see all services they offer.",
+    "Tap through to see everything we offer and book yourself in.",
     "https://www.serviceflow.store/<businessSlug>",
   ].join("\n");
 }

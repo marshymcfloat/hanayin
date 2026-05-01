@@ -468,6 +468,24 @@ function buildCustomersWorkbook(payload: CustomersReportPayload) {
         metric_value: payload.kpis.atRiskCustomers60d,
         unit: "count",
       },
+      {
+        metric_key: "anonymous_walk_in_bookings",
+        metric_label: "Anonymous Walk-in Bookings",
+        metric_value: payload.kpis.anonymousWalkInBookings ?? 0,
+        unit: "count",
+      },
+      {
+        metric_key: "anonymous_walk_in_revenue",
+        metric_label: "Anonymous Walk-in Revenue",
+        metric_value: payload.kpis.anonymousWalkInRevenue ?? 0,
+        unit: "currency",
+      },
+      {
+        metric_key: "anonymous_walk_in_share_of_bookings",
+        metric_label: "Anonymous Walk-in Share of Bookings",
+        metric_value: payload.kpis.anonymousWalkInShareOfBookings ?? 0,
+        unit: "percent",
+      },
     ],
   });
 

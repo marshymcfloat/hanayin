@@ -3,6 +3,7 @@
 import { formatPH } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import {
   markServiceServedAction,
   unclaimServiceAction,
@@ -46,9 +47,13 @@ export interface ServedService {
     category: string;
   };
   booking: {
+    // Nullable to support anonymous walk-ins (customer_id = null on the booking).
+    // Use getBookingCustomerName() to render — it falls back to the label.
     customer: {
       name: string;
-    };
+    } | null;
+    is_anonymous_walk_in?: boolean | null;
+    customer_label?: string | null;
     scheduled_at?: Date | null;
     created_at?: Date | null;
     downpayment: number | null;
@@ -195,7 +200,7 @@ export default function EmployeeServedHistory({
             </div>
           ) : (
             visibleServices.map((item) => {
-              const customerInitials = item.booking.customer.name
+              const customerInitials = getBookingCustomerName(item.booking)
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -226,7 +231,7 @@ export default function EmployeeServedHistory({
                         )}
                       </div>
                       <div className="text-xs text-slate-500 font-medium">
-                        {item.booking.customer.name}
+                        {getBookingCustomerName(item.booking)}
                       </div>
                     </div>
                   </div>
@@ -286,7 +291,7 @@ export default function EmployeeServedHistory({
               <div className="flex items-center gap-4 pb-4 border-b">
                 <Avatar className="h-12 w-12 border">
                   <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
-                    {selectedService.booking.customer.name
+                    {getBookingCustomerName(selectedService.booking)
                       .slice(0, 2)
                       .toUpperCase()}
                   </AvatarFallback>
@@ -296,7 +301,7 @@ export default function EmployeeServedHistory({
                     {selectedService.service.name}
                   </h3>
                   <p className="text-muted-foreground">
-                    {selectedService.booking.customer.name}
+                    {getBookingCustomerName(selectedService.booking)}
                   </p>
                 </div>
               </div>
