@@ -103,9 +103,15 @@ export async function addBookingServiceOrCreateFollowUpAction(
     throw new Error(actorContext.error);
   }
 
+  // Accept either the legacy BOOKING_CREATE gate (existing managers,
+  // staff, cashiers all have this when they can create bookings at all)
+  // or the new BOOKING_MODIFY gate (preferred going forward — see
+  // docs/role-permissions-matrix.md). Owners short-circuit through
+  // hasStaffPermission and pass either branch.
   if (
     actorContext.actorType === "EMPLOYEE" &&
-    !hasStaffPermission(actorContext, StaffPermission.BOOKING_CREATE)
+    !hasStaffPermission(actorContext, StaffPermission.BOOKING_CREATE) &&
+    !hasStaffPermission(actorContext, StaffPermission.BOOKING_MODIFY)
   ) {
     throw new Error("Forbidden");
   }

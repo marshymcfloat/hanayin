@@ -5,6 +5,7 @@ export const OUTBOX_EVENT_TYPES = [
   "BOOKING_CONFIRMED",
   "BOOKING_CANCELLED",
   "BOOKING_STAFFING_CONFLICT_DETECTED",
+  "BOOKING_SERVICE_REMOVED",
   "PAYMENT_CONFIRMED",
   "REMINDER_DUE",
   "PAYSLIP_GENERATED",
@@ -55,6 +56,16 @@ export type OutboxPayloadMap = {
     trigger: string;
     detectedAt: string;
     customerName?: string | null;
+  };
+  BOOKING_SERVICE_REMOVED: {
+    bookingId: number;
+    availedServiceId: number;
+    serviceName: string;
+    refundAmount: number;
+    newGrandTotal: number;
+    actorUserId: string;
+    customerName?: string | null;
+    email?: string | null;
   };
   PAYMENT_CONFIRMED: {
     bookingId: number;
@@ -251,6 +262,17 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         trigger: requireString(payload, "trigger", eventType),
         detectedAt: requireString(payload, "detectedAt", eventType),
         customerName: optionalString(payload, "customerName"),
+      } as OutboxPayloadMap[TType];
+    case "BOOKING_SERVICE_REMOVED":
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        availedServiceId: requireNumber(payload, "availedServiceId", eventType),
+        serviceName: requireString(payload, "serviceName", eventType),
+        refundAmount: requireNumber(payload, "refundAmount", eventType),
+        newGrandTotal: requireNumber(payload, "newGrandTotal", eventType),
+        actorUserId: requireString(payload, "actorUserId", eventType),
+        customerName: optionalString(payload, "customerName"),
+        email: optionalString(payload, "email"),
       } as OutboxPayloadMap[TType];
     case "PAYMENT_CONFIRMED":
       return {

@@ -133,11 +133,14 @@ describe("addBookingServiceOrCreateFollowUpAction", () => {
     expect(mocks.appendServicesToUntouchedBooking).not.toHaveBeenCalled();
   });
 
-  it("rejects employee actors without BOOKING_CREATE permission", async () => {
+  it("rejects employee actors with neither BOOKING_CREATE nor BOOKING_MODIFY", async () => {
+    // Both permission checks must fail. The action calls
+    // hasStaffPermission twice (once per gate); set the mock to
+    // always return false so both branches deny.
     mocks.resolveTenantActorContext.mockResolvedValueOnce(
       createEmployeeContext(false),
     );
-    mocks.hasStaffPermission.mockReturnValueOnce(false);
+    mocks.hasStaffPermission.mockReturnValue(false);
 
     await expect(
       addBookingServiceOrCreateFollowUpAction({
@@ -145,5 +148,25 @@ describe("addBookingServiceOrCreateFollowUpAction", () => {
         services: [{ id: 99, quantity: 1 }],
       }),
     ).rejects.toThrow("Forbidden");
+  });
+
+  it("accepts an employee that has BOOKING_MODIFY but not BOOKING_CREATE", async () => {
+    // First call (BOOKING_CREATE) returns false, second call
+    // (BOOKING_MODIFY) returns true. The widened gate accepts either,
+    // so the action proceeds with the append flow.
+    mocks.hasStaffPermission
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true)
+      // Any subsequent calls (none expected on the happy path) default
+      // to true to match beforeEach.
+      .mockReturnValue(true);
+
+    const result = await addBookingServiceOrCreateFollowUpAction({
+      bookingId: 1,
+      services: [{ id: 99, quantity: 1 }],
+    });
+
+    expect(result).toEqual({ mode: "APPENDED", bookingId: 1 });
+    expect(mocks.appendServicesToUntouchedBooking).toHaveBeenCalled();
   });
 });
