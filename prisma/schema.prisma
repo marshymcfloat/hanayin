@@ -25,15 +25,15 @@ model Business {
   latitude  Float?
   longitude Float?
 
-  booking_horizon_days               Int     @default(14)
-  booking_min_lead_minutes           Int     @default(30)
-  booking_slot_interval_minutes      Int     @default(30)
-  public_allow_full_payment          Boolean @default(true)
-  public_allow_downpayment           Boolean @default(true)
-  public_default_payment_type        String  @default("FULL")
-  downpayment_percentage             Int     @default(50)
-  booking_v2_enabled                 Boolean @default(true)
-  same_day_attendance_strict_minutes Int     @default(120)
+  booking_horizon_days               Int               @default(14)
+  booking_min_lead_minutes           Int               @default(30)
+  booking_slot_interval_minutes      Int               @default(30)
+  public_allow_full_payment          Boolean           @default(true)
+  public_allow_downpayment           Boolean           @default(true)
+  public_default_payment_type        String            @default("FULL")
+  downpayment_percentage             Int               @default(50)
+  booking_v2_enabled                 Boolean           @default(true)
+  same_day_attendance_strict_minutes Int               @default(120)
   structure                          BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
   allow_employee_self_booking        Boolean           @default(true)
   manager_can_serve                  Boolean           @default(true)
@@ -46,6 +46,7 @@ model Business {
   sale_events                       SaleEvent[]
   social_connections                SocialConnection[]
   social_posts                      SocialPost[]
+  social_post_requests              SocialPostRequest[]
   vouchers                          Voucher[]
   gift_cards                        GiftCard[]
   special_dates                     SpecialDate[]
@@ -61,12 +62,12 @@ model Business {
   subscription_upgrade_requests     SubscriptionPlanUpgradeRequest[]
   subscription_invoices             SubscriptionInvoice[]
   referral_code                     ReferralCode?
-  referral_leads_converted          ReferralLead[]             @relation("ConvertedBusinessReferralLead")
-  referral_attributions_as_referrer ReferralAttribution[]      @relation("ReferrerBusiness")
-  referral_attributions_as_referred ReferralAttribution[]      @relation("ReferredBusiness")
-  onboarding_applications_converted OnboardingApplication[]    @relation("ConvertedBusinessOnboardingApplication")
+  referral_leads_converted          ReferralLead[]                   @relation("ConvertedBusinessReferralLead")
+  referral_attributions_as_referrer ReferralAttribution[]            @relation("ReferrerBusiness")
+  referral_attributions_as_referred ReferralAttribution[]            @relation("ReferredBusiness")
+  onboarding_applications_converted OnboardingApplication[]          @relation("ConvertedBusinessOnboardingApplication")
   platform_action_logs              PlatformActionLog[]
-  commission_calculation_basis      CommissionCalculationBasis @default(ORIGINAL_PRICE)
+  commission_calculation_basis      CommissionCalculationBasis       @default(ORIGINAL_PRICE)
   booking_otp_codes                 BookingOtpCode[]
   expenses                          Expense[]
 
@@ -119,6 +120,15 @@ enum StaffPermission {
   QUEUE_SERVE_SELF
   QUEUE_OVERRIDE_ALL
   CATALOG_MANAGE
+  // Booking-editor (Phase 1) — see docs/role-permissions-matrix.md
+  BOOKING_MODIFY
+  BOOKING_MARK_NO_SHOW
+  BOOKING_ADJUST_PRICE
+  BOOKING_CANCEL
+  // Social-post-request — see docs/social-post-request-design.md
+  SOCIAL_POST_REQUEST_CREATE
+  SOCIAL_POST_REVIEW
+  SOCIAL_POST_PUBLISH
 }
 
 enum BillingInterval {
@@ -357,8 +367,8 @@ model SaleEvent {
   applicable_services Service[]
   applicable_packages ServicePackage[]
 
-  business_id  String
-  business     Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business_id      String
+  business         Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
   bookings         Booking[]
   social_posts     SocialPost[]
   growth_campaigns Campaign[]
@@ -419,8 +429,11 @@ model SocialPost {
   published_at         DateTime?
   last_error           String?
 
-  targets SocialPostTarget[]
+  targets          SocialPostTarget[]
   growth_campaigns Campaign[]
+  // 1:0..1 — set when this SocialPost was approved from a request
+  // (see SocialPostRequest.social_post_id @unique).
+  source_request   SocialPostRequest? @relation("SocialPostFromRequest")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -459,17 +472,23 @@ model User {
   hashed_password String
   name            String
 
-  role                             Role                       @default(EMPLOYEE)
-  employee                         Employee?
-  owner                            Owner?
-  social_posts_created             SocialPost[]               @relation("SocialPostCreatedBy")
-  growth_campaigns_created         Campaign[]                 @relation("GrowthCampaignCreatedBy")
-  expenses_created                 Expense[]                  @relation("ExpenseCreatedBy")
-  awarded_subscription_credits     SubscriptionCreditLedger[] @relation("CreditAwardedByUser")
-  platform_action_logs             PlatformActionLog[]        @relation("PlatformActorUser")
-  reviewed_onboarding_applications OnboardingApplication[]    @relation("ReviewedByPlatformUser")
+  role                                    Role                             @default(EMPLOYEE)
+  employee                                Employee?
+  owner                                   Owner?
+  social_posts_created                    SocialPost[]                     @relation("SocialPostCreatedBy")
+  growth_campaigns_created                Campaign[]                       @relation("GrowthCampaignCreatedBy")
+  expenses_created                        Expense[]                        @relation("ExpenseCreatedBy")
+  awarded_subscription_credits            SubscriptionCreditLedger[]       @relation("CreditAwardedByUser")
+  platform_action_logs                    PlatformActionLog[]              @relation("PlatformActorUser")
+  reviewed_onboarding_applications        OnboardingApplication[]          @relation("ReviewedByPlatformUser")
   submitted_subscription_upgrade_requests SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeRequestedBy")
   reviewed_subscription_upgrade_requests  SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeReviewedBy")
+  // Booking-editor + social-post-request back-relations
+  cancelled_bookings                      Booking[]                        @relation("BookingCancelledBy")
+  booking_notes_created                   BookingNote[]                    @relation("BookingNoteCreatedBy")
+  booking_price_adjustments_created       BookingPriceAdjustment[]         @relation("BookingPriceAdjustmentCreatedBy")
+  submitted_social_post_requests          SocialPostRequest[]              @relation("SocialPostRequestRequestedBy")
+  reviewed_social_post_requests           SocialPostRequest[]              @relation("SocialPostRequestReviewedBy")
 
   must_change_password     Boolean   @default(false)
   temp_password_expires_at DateTime?
@@ -486,7 +505,7 @@ model Employee {
   commission_percentage Float                @default(0)
   daily_rate            Float                @default(0)
   profile               StaffProfile         @default(STAFF)
-  permissions           StaffPermission[]    @default([BOOKING_CREATE, PAYMENT_COLLECT, QUEUE_CLAIM_SELF, QUEUE_SERVE_SELF])
+  permissions           StaffPermission[]    @default([BOOKING_CREATE, PAYMENT_COLLECT, QUEUE_CLAIM_SELF, QUEUE_SERVE_SELF, SOCIAL_POST_REQUEST_CREATE])
   specialties           String[]             @default([]) // Array of service categories this employee can perform
   attendance            EmployeeAttendance[]
 
@@ -582,8 +601,8 @@ model SubscriptionPlan {
   currency         String          @default("PHP")
   is_active        Boolean         @default(true)
 
-  subscriptions BusinessSubscription[]
-  invoices      SubscriptionInvoice[]
+  subscriptions               BusinessSubscription[]
+  invoices                    SubscriptionInvoice[]
   upgrade_requests_as_current SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeCurrentPlan")
   upgrade_requests_as_target  SubscriptionPlanUpgradeRequest[] @relation("SubscriptionUpgradeTargetPlan")
 
@@ -615,9 +634,9 @@ model BusinessSubscription {
   canceled_at          DateTime?
   started_at           DateTime  @default(now())
 
-  payment_method SubscriptionPaymentMethod?
-  invoices       SubscriptionInvoice[]
-  credits        SubscriptionCreditLedger[]
+  payment_method   SubscriptionPaymentMethod?
+  invoices         SubscriptionInvoice[]
+  credits          SubscriptionCreditLedger[]
   upgrade_requests SubscriptionPlanUpgradeRequest[]
 
   created_at DateTime @default(now())
@@ -637,7 +656,7 @@ model SubscriptionPlanUpgradeRequest {
   business_subscription    BusinessSubscription @relation(fields: [business_subscription_id], references: [id], onDelete: Cascade)
 
   requested_by_user_id String
-  requested_by_user    User @relation("SubscriptionUpgradeRequestedBy", fields: [requested_by_user_id], references: [id], onDelete: Restrict)
+  requested_by_user    User   @relation("SubscriptionUpgradeRequestedBy", fields: [requested_by_user_id], references: [id], onDelete: Restrict)
 
   current_plan_id String
   current_plan    SubscriptionPlan @relation("SubscriptionUpgradeCurrentPlan", fields: [current_plan_id], references: [id], onDelete: Restrict)
@@ -650,7 +669,7 @@ model SubscriptionPlanUpgradeRequest {
   review_note  String?
 
   reviewed_by_user_id String?
-  reviewed_by_user    User? @relation("SubscriptionUpgradeReviewedBy", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
+  reviewed_by_user    User?     @relation("SubscriptionUpgradeReviewedBy", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
   reviewed_at         DateTime?
 
   created_at DateTime @default(now())
@@ -819,14 +838,14 @@ model ReferralAttribution {
 model OnboardingApplication {
   id String @id @default(cuid())
 
-  business_name String
-  owner_name    String
-  owner_email   String
-  owner_phone   String?
-  notes         String?
-  requested_structure                    BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
-  requested_allow_employee_self_booking  Boolean           @default(true)
-  requested_manager_can_serve            Boolean           @default(true)
+  business_name                         String
+  owner_name                            String
+  owner_email                           String
+  owner_phone                           String?
+  notes                                 String?
+  requested_structure                   BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
+  requested_allow_employee_self_booking Boolean           @default(true)
+  requested_manager_can_serve           Boolean           @default(true)
 
   referral_code_input String?
   referral_code_id    String?
@@ -873,13 +892,13 @@ model PlatformActionLog {
 }
 
 model Service {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  price       Float
-  estimated_cost Float @default(0)
-  duration    Int?
-  category    String
+  id             Int     @id @default(autoincrement())
+  name           String
+  description    String?
+  price          Float
+  estimated_cost Float   @default(0)
+  duration       Int?
+  category       String
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
@@ -942,7 +961,7 @@ model Customer {
   phone String?
 
   // Trust tier system for ghost-booking prevention
-  trust_tier      String    @default("NEW")   // NEW | TRUSTED | RESTRICTED
+  trust_tier      String    @default("NEW") // NEW | TRUSTED | RESTRICTED
   no_show_count   Int       @default(0)
   last_no_show_at DateTime?
 
@@ -962,15 +981,15 @@ model Customer {
 }
 
 model BookingOtpCode {
-  id          Int      @id @default(autoincrement())
-  phone       String
-  business_id String
-  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
-  code        String
-  verified    Boolean  @default(false)
-  used        Boolean  @default(false)
+  id                   Int      @id @default(autoincrement())
+  phone                String
+  business_id          String
+  business             Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  code                 String
+  verified             Boolean  @default(false)
+  used                 Boolean  @default(false)
   semaphore_message_id String?
-  expires_at  DateTime
+  expires_at           DateTime
 
   created_at DateTime @default(now())
 
@@ -1003,23 +1022,23 @@ model Booking {
 
   vouchers Voucher[]
 
-  payment_method               PaymentMethod    @default(CASH)
-  payment_status               PaymentStatus    @default(UNPAID)
-  amount_paid                  Float            @default(0)
-  availed_services             AvailedService[]
-  payments                     BookingPayment[]
-  grand_total                  Float
-  total_discount               Float
-  downpayment                  Float?
-  downpayment_status           BookingStatus?   @default(ACCEPTED)
-  downpayment_date             DateTime?
+  payment_method     PaymentMethod    @default(CASH)
+  payment_status     PaymentStatus    @default(UNPAID)
+  amount_paid        Float            @default(0)
+  availed_services   AvailedService[]
+  payments           BookingPayment[]
+  grand_total        Float
+  total_discount     Float
+  downpayment        Float?
+  downpayment_status BookingStatus?   @default(ACCEPTED)
+  downpayment_date   DateTime?
 
   // Scheduling fields
-  scheduled_at    DateTime? // When the booking is scheduled to start
-  estimated_end   DateTime? // Calculated from service durations
-  reminder_sent   Boolean   @default(false)
-  hold_expires_at DateTime? // Legacy: was used for QRPH payment hold
-  capacity_override_applied Boolean @default(false)
+  scheduled_at              DateTime? // When the booking is scheduled to start
+  estimated_end             DateTime? // Calculated from service durations
+  reminder_sent             Boolean   @default(false)
+  hold_expires_at           DateTime? // Legacy: was used for QRPH payment hold
+  capacity_override_applied Boolean   @default(false)
   capacity_override_reason  String?
   capacity_override_note    String?
 
@@ -1029,8 +1048,18 @@ model Booking {
   // Computed columns for double-booking prevention (maintained by DB triggers)
   /// @ignore - Managed by database triggers, do not write directly
   booking_range     String?  @ignore
-  /// @ignore - Managed by database triggers, do not write directly  
+  /// @ignore - Managed by database triggers, do not write directly
   is_active_booking Boolean? @ignore
+
+  // Soft-cancel (Booking-editor Phase 1). Distinct from status =
+  // CANCELLED so we can support a 24h "undo" window before scrubbing.
+  cancelled_at        DateTime?
+  cancelled_by_id     String?
+  cancelled_by        User?     @relation("BookingCancelledBy", fields: [cancelled_by_id], references: [id], onDelete: SetNull)
+  cancellation_reason String?
+
+  notes             BookingNote[]
+  price_adjustments BookingPriceAdjustment[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1046,6 +1075,7 @@ model Booking {
   @@index([created_at])
   @@index([scheduled_at])
   @@index([business_id, is_anonymous_walk_in])
+  @@index([cancelled_by_id])
 }
 
 model BookingPayment {
@@ -1155,7 +1185,7 @@ model AvailedService {
 
   // Pricing
   price           Float // Original service price at time of booking
-  estimated_cost  Float @default(0) // Owner-defined estimated service cost snapshot
+  estimated_cost  Float   @default(0) // Owner-defined estimated service cost snapshot
   discount        Float   @default(0) // Discount amount applied
   discount_reason String? // "SALE_EVENT", "MANUAL", "FAMILY_DISCOUNT", etc.
   final_price     Float // price - discount = what customer pays
@@ -1188,6 +1218,8 @@ model AvailedService {
   // Scheduling fields
   scheduled_at  DateTime? // When this specific service starts
   estimated_end DateTime? // scheduled_at + duration
+
+  price_adjustments BookingPriceAdjustment[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1400,9 +1432,9 @@ model Campaign {
   offer_type OfferType
   offer_json Json
 
-  schedule_json       Json
-  risk_flags          String[] @default([])
-  why_this_suggested  String
+  schedule_json        Json
+  risk_flags           String[] @default([])
+  why_this_suggested   String
   opportunity_snapshot Json?
 
   sale_event_id Int?
@@ -1412,7 +1444,7 @@ model Campaign {
   social_post    SocialPost? @relation(fields: [social_post_id], references: [id], onDelete: SetNull)
 
   created_by_user_id String?
-  created_by_user    User? @relation("GrowthCampaignCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+  created_by_user    User?   @relation("GrowthCampaignCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
 
   assets CampaignAsset[]
   events CampaignEvent[]
@@ -1460,14 +1492,14 @@ model CampaignEvent {
 model SeasonalCalendar {
   id String @id @default(cuid())
 
-  country_code String @default("PH")
+  country_code String   @default("PH")
   event_date   DateTime
   event_name   String
   event_type   String
   payday_rule  String?
-  weight       Float   @default(1)
+  weight       Float    @default(1)
   metadata     Json?
-  is_active    Boolean @default(true)
+  is_active    Boolean  @default(true)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1496,6 +1528,104 @@ model OutboxMessage {
   @@index([processed, attempts, created_at])
   @@index([business_id])
   @@index([event_type])
+}
+
+// Booking-editor (Phase 1) — see docs/booking-editor-design.md §8.
+
+enum BookingNoteVisibility {
+  INTERNAL
+  CUSTOMER_VISIBLE
+}
+
+model BookingNote {
+  id         String                @id @default(cuid())
+  booking_id Int
+  booking    Booking               @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  body       String
+  visibility BookingNoteVisibility @default(INTERNAL)
+
+  created_by_user_id String?
+  created_by_user    User?   @relation("BookingNoteCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+
+  @@index([booking_id, created_at])
+  @@index([created_by_user_id])
+}
+
+model BookingPriceAdjustment {
+  id                 String          @id @default(cuid())
+  booking_id         Int
+  booking            Booking         @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  // Optional link to a specific service line. When null, the adjustment
+  // applies to the booking as a whole (e.g. a friend-of-the-house
+  // discount on the total).
+  availed_service_id Int?
+  availed_service    AvailedService? @relation(fields: [availed_service_id], references: [id], onDelete: SetNull)
+
+  // Negative for discounts, positive for surcharges. Applied on top of
+  // the underlying service's pricing chain.
+  delta_amount Float
+  reason       String
+
+  created_by_user_id String?
+  created_by_user    User?   @relation("BookingPriceAdjustmentCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+
+  @@index([booking_id, created_at])
+  @@index([availed_service_id])
+  @@index([created_by_user_id])
+}
+
+// Social-post-request — see docs/social-post-request-design.md §3.
+
+enum SocialPostRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model SocialPostRequest {
+  id          String   @id @default(cuid())
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  // Submission
+  requested_by_user_id String
+  requested_by_user    User      @relation("SocialPostRequestRequestedBy", fields: [requested_by_user_id], references: [id], onDelete: Cascade)
+  topic                String
+  brief                String?
+  // Stored as String, validated at the application boundary via the
+  // existing OrganicPostCategory union in
+  // lib/services/social/caption-generator.ts. Kept un-enumed here so we
+  // can iterate categories in code without migrations.
+  category             String
+  // Same rationale: validated against captionToneSchema in
+  // lib/zod-schemas/growth.ts. Null means "let the owner decide".
+  desired_tone         String?
+  attachment_url       String?
+  due_date             DateTime?
+
+  // Lifecycle
+  status              SocialPostRequestStatus @default(PENDING)
+  reviewed_by_user_id String?
+  reviewed_by_user    User?                   @relation("SocialPostRequestReviewedBy", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
+  reviewed_at         DateTime?
+  rejection_reason    String?
+
+  // Conversion link to the SocialPost the owner approved this into.
+  // Unique because each request maps to at most one SocialPost.
+  social_post_id String?     @unique
+  social_post    SocialPost? @relation("SocialPostFromRequest", fields: [social_post_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, status, created_at])
+  @@index([requested_by_user_id])
+  @@index([reviewed_by_user_id])
 }
 
 // Audit Trail: records who changed what and when
@@ -1529,9 +1659,9 @@ enum ExpenseCategory {
 }
 
 model Expense {
-  id          Int             @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   business_id String
-  business    Business        @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   amount      Float
   category    ExpenseCategory

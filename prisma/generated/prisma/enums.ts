@@ -43,7 +43,14 @@ export const StaffPermission = {
   QUEUE_CLAIM_SELF: 'QUEUE_CLAIM_SELF',
   QUEUE_SERVE_SELF: 'QUEUE_SERVE_SELF',
   QUEUE_OVERRIDE_ALL: 'QUEUE_OVERRIDE_ALL',
-  CATALOG_MANAGE: 'CATALOG_MANAGE'
+  CATALOG_MANAGE: 'CATALOG_MANAGE',
+  BOOKING_MODIFY: 'BOOKING_MODIFY',
+  BOOKING_MARK_NO_SHOW: 'BOOKING_MARK_NO_SHOW',
+  BOOKING_ADJUST_PRICE: 'BOOKING_ADJUST_PRICE',
+  BOOKING_CANCEL: 'BOOKING_CANCEL',
+  SOCIAL_POST_REQUEST_CREATE: 'SOCIAL_POST_REQUEST_CREATE',
+  SOCIAL_POST_REVIEW: 'SOCIAL_POST_REVIEW',
+  SOCIAL_POST_PUBLISH: 'SOCIAL_POST_PUBLISH'
 } as const
 
 export type StaffPermission = (typeof StaffPermission)[keyof typeof StaffPermission]
@@ -415,6 +422,24 @@ export const CommissionCalculationBasis = {
 } as const
 
 export type CommissionCalculationBasis = (typeof CommissionCalculationBasis)[keyof typeof CommissionCalculationBasis]
+
+
+export const BookingNoteVisibility = {
+  INTERNAL: 'INTERNAL',
+  CUSTOMER_VISIBLE: 'CUSTOMER_VISIBLE'
+} as const
+
+export type BookingNoteVisibility = (typeof BookingNoteVisibility)[keyof typeof BookingNoteVisibility]
+
+
+export const SocialPostRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type SocialPostRequestStatus = (typeof SocialPostRequestStatus)[keyof typeof SocialPostRequestStatus]
 
 
 export const ExpenseCategory = {

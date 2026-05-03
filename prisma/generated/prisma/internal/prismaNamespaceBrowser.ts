@@ -96,6 +96,9 @@ export const ModelName = {
   CampaignEvent: 'CampaignEvent',
   SeasonalCalendar: 'SeasonalCalendar',
   OutboxMessage: 'OutboxMessage',
+  BookingNote: 'BookingNote',
+  BookingPriceAdjustment: 'BookingPriceAdjustment',
+  SocialPostRequest: 'SocialPostRequest',
   AuditLog: 'AuditLog',
   Expense: 'Expense'
 } as const
@@ -635,6 +638,9 @@ export const BookingScalarFieldEnum = {
   capacity_override_reason: 'capacity_override_reason',
   capacity_override_note: 'capacity_override_note',
   sale_event_id: 'sale_event_id',
+  cancelled_at: 'cancelled_at',
+  cancelled_by_id: 'cancelled_by_id',
+  cancellation_reason: 'cancellation_reason',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -892,6 +898,53 @@ export const OutboxMessageScalarFieldEnum = {
 } as const
 
 export type OutboxMessageScalarFieldEnum = (typeof OutboxMessageScalarFieldEnum)[keyof typeof OutboxMessageScalarFieldEnum]
+
+
+export const BookingNoteScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  body: 'body',
+  visibility: 'visibility',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at'
+} as const
+
+export type BookingNoteScalarFieldEnum = (typeof BookingNoteScalarFieldEnum)[keyof typeof BookingNoteScalarFieldEnum]
+
+
+export const BookingPriceAdjustmentScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  availed_service_id: 'availed_service_id',
+  delta_amount: 'delta_amount',
+  reason: 'reason',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at'
+} as const
+
+export type BookingPriceAdjustmentScalarFieldEnum = (typeof BookingPriceAdjustmentScalarFieldEnum)[keyof typeof BookingPriceAdjustmentScalarFieldEnum]
+
+
+export const SocialPostRequestScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  requested_by_user_id: 'requested_by_user_id',
+  topic: 'topic',
+  brief: 'brief',
+  category: 'category',
+  desired_tone: 'desired_tone',
+  attachment_url: 'attachment_url',
+  due_date: 'due_date',
+  status: 'status',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  rejection_reason: 'rejection_reason',
+  social_post_id: 'social_post_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SocialPostRequestScalarFieldEnum = (typeof SocialPostRequestScalarFieldEnum)[keyof typeof SocialPostRequestScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {

@@ -243,6 +243,21 @@ export type SeasonalCalendar = Prisma.SeasonalCalendarModel
  */
 export type OutboxMessage = Prisma.OutboxMessageModel
 /**
+ * Model BookingNote
+ * 
+ */
+export type BookingNote = Prisma.BookingNoteModel
+/**
+ * Model BookingPriceAdjustment
+ * 
+ */
+export type BookingPriceAdjustment = Prisma.BookingPriceAdjustmentModel
+/**
+ * Model SocialPostRequest
+ * 
+ */
+export type SocialPostRequest = Prisma.SocialPostRequestModel
+/**
  * Model AuditLog
  * 
  */

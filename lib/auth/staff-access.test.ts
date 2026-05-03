@@ -28,20 +28,28 @@ import {
 
 describe("staff access helpers", () => {
   it("returns default permissions for each staff profile", () => {
+    // Defaults come from docs/role-permissions-matrix.md.
     expect(getDefaultPermissionsForProfile(StaffProfile.STAFF)).toEqual([
       StaffPermission.BOOKING_CREATE,
       StaffPermission.PAYMENT_COLLECT,
       StaffPermission.QUEUE_CLAIM_SELF,
       StaffPermission.QUEUE_SERVE_SELF,
+      StaffPermission.SOCIAL_POST_REQUEST_CREATE,
     ]);
     expect(getDefaultPermissionsForProfile(StaffProfile.CASHIER)).toEqual([
       StaffPermission.BOOKING_CREATE,
       StaffPermission.PAYMENT_COLLECT,
+      StaffPermission.SOCIAL_POST_REQUEST_CREATE,
     ]);
+    // Use arrayContaining for MANAGER so adding flags doesn't churn this
+    // test on every matrix tweak. Spot-check the four permissions that
+    // distinguish a manager from a regular staff member.
     expect(getDefaultPermissionsForProfile(StaffProfile.MANAGER)).toEqual(
       expect.arrayContaining([
         StaffPermission.QUEUE_OVERRIDE_ALL,
         StaffPermission.CATALOG_MANAGE,
+        StaffPermission.BOOKING_MODIFY,
+        StaffPermission.SOCIAL_POST_REVIEW,
       ]),
     );
   });
