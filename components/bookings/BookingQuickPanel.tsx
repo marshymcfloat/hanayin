@@ -99,9 +99,20 @@ export function deriveViewerContext(input: {
   if (profile === "MANAGER") {
     return {
       role: "MANAGER",
-      canAddService: perms.has("BOOKING_CREATE") || hasOverride,
+      // Per docs/role-permissions-matrix.md: managers can add services
+      // when they have BOOKING_MODIFY (or the legacy BOOKING_CREATE).
+      // QUEUE_OVERRIDE_ALL also implies the manager can shape booking
+      // scope as part of running the floor.
+      canAddService:
+        perms.has("BOOKING_MODIFY") ||
+        perms.has("BOOKING_CREATE") ||
+        hasOverride,
       canMarkPaid: perms.has("PAYMENT_COLLECT") || hasOverride,
-      canMarkNoShow: hasOverride,
+      // canMarkNoShow now sources from the dedicated permission flag,
+      // not QUEUE_OVERRIDE_ALL. The default-permissions matrix grants
+      // BOOKING_MARK_NO_SHOW to managers automatically; this just
+      // narrows the gate to the explicit flag.
+      canMarkNoShow: perms.has("BOOKING_MARK_NO_SHOW"),
       // Owners only — managers shouldn't be able to permanently delete
       // bookings even with override, since delete is irreversible.
       canDelete: false,

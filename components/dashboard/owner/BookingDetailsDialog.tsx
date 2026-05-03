@@ -35,6 +35,8 @@ import {
   Loader2,
   PlusCircle,
   AlertTriangle,
+  Trash2,
+  History,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -56,6 +58,10 @@ import {
 } from "@/lib/server actions/dashboard";
 import { markBookingNoShowAction } from "@/lib/server actions/dashboard/owner";
 import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/booking-addons";
+import { removeBookingServiceAction } from "@/lib/server actions/booking-modify";
+import { showActionErrorToast } from "@/components/feedback/permission-toasts";
+import { AuditTrail } from "@/components/audit/AuditTrail";
+import { AvailedServiceStatus, PaymentStatus } from "@/prisma/generated/prisma/enums";
 
 type BookingWithDetails = Booking & {
   customer: Customer | null;
@@ -65,6 +71,33 @@ type BookingWithDetails = Booking & {
     served_by: (Employee & { user: User }) | null;
     served_by_owner: (Owner & { user: User }) | null;
   })[];
+};
+
+/**
+ * Permissions snapshot for the viewer. Computed server-side and passed down
+ * so action buttons can render in one of three states: visible-and-clickable,
+ * visible-but-disabled-with-tooltip, or hidden entirely. When omitted, the
+ * dialog defaults to "owner" behavior (everything enabled) so existing
+ * callers (BookingList from the owner dashboard) keep working unchanged.
+ */
+export type BookingViewerContext = {
+  role: "OWNER" | "MANAGER" | "CASHIER" | "STAFF";
+  /** True when the viewer is allowed to add services to this booking. */
+  canAddService: boolean;
+  /** True when the viewer is allowed to record payment on this booking. */
+  canMarkPaid: boolean;
+  /** True when the viewer is allowed to mark this booking as a no-show. */
+  canMarkNoShow: boolean;
+  /** True when the viewer is allowed to delete this booking outright. */
+  canDelete: boolean;
+};
+
+const DEFAULT_OWNER_VIEWER: BookingViewerContext = {
+  role: "OWNER",
+  canAddService: true,
+  canMarkPaid: true,
+  canMarkNoShow: true,
+  canDelete: true,
 };
 
 interface BookingDetailsDialogProps {
@@ -78,6 +111,11 @@ interface BookingDetailsDialogProps {
   }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * Permissions of the user viewing this dialog. Omit for owner-only
+   * callers — defaults to a fully-enabled OWNER context.
+   */
+  viewerContext?: BookingViewerContext;
 }
 
 const formatCurrency = (amount: number) =>
@@ -91,6 +129,7 @@ export function BookingDetailsDialog({
   servicesCatalog = [],
   open,
   onOpenChange,
+  viewerContext = DEFAULT_OWNER_VIEWER,
 }: BookingDetailsDialogProps) {
   const router = useRouter();
   const [isMarkingPaid, setIsMarkingPaid] = useState(false);
@@ -98,6 +137,8 @@ export function BookingDetailsDialog({
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [serviceQuantity, setServiceQuantity] = useState(1);
   const [isAddingService, setIsAddingService] = useState(false);
+  const [removingLineId, setRemovingLineId] = useState<number | null>(null);
+  const [isAuditOpen, setIsAuditOpen] = useState(false);
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
       case "ACCEPTED":
@@ -160,7 +201,46 @@ export function BookingDetailsDialog({
     setServiceQuantity(1);
   }, [booking?.id, open]);
 
+  // Reset audit-trail open state when the dialog opens / closes / booking changes.
+  useEffect(() => {
+    if (!open) setIsAuditOpen(false);
+  }, [open, booking?.id]);
+
   if (!booking) return null;
+
+  // Mirrors checkAvailedServiceRemovable in lib/services/booking-modify.ts.
+  // Re-implemented in the client purely to decide whether to render the
+  // Remove control for a line — the server action remains the security
+  // boundary, this is just UX. Keep these rules in sync with the helper.
+  const bookingHasPayment =
+    Math.round((booking.amount_paid ?? 0) * 100) / 100 > 0 ||
+    booking.payment_status !== PaymentStatus.UNPAID;
+  const isLineRemovable = (line: { status: AvailedServiceStatus }) =>
+    booking.status === "ACCEPTED" &&
+    !bookingHasPayment &&
+    line.status === AvailedServiceStatus.PENDING &&
+    booking.availed_services.length > 1;
+
+  const handleRemoveLine = async (availedServiceId: number) => {
+    setRemovingLineId(availedServiceId);
+    try {
+      const result = await removeBookingServiceAction({
+        bookingId: booking.id,
+        availedServiceId,
+      });
+      if (!result.success) {
+        showActionErrorToast(result.error, { action: "remove this service" });
+        return;
+      }
+      toast.success("Service removed");
+      router.refresh();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      showActionErrorToast(message, { action: "remove this service" });
+    } finally {
+      setRemovingLineId(null);
+    }
+  };
 
   const handleMarkPaid = async () => {
     setIsMarkingPaid(true);
@@ -378,10 +458,19 @@ export function BookingDetailsDialog({
                         <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">
                           Price
                         </th>
+                        {viewerContext.canAddService && (
+                          <th
+                            className="px-2 py-3 text-right font-semibold text-xs uppercase tracking-wider w-12"
+                            aria-label="Row actions"
+                          />
+                        )}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-50 bg-white">
-                      {booking.availed_services.map((as) => (
+                      {booking.availed_services.map((as) => {
+                        const removable = isLineRemovable(as);
+                        const isRemovingThis = removingLineId === as.id;
+                        return (
                         <tr
                           key={as.id}
                           className="hover:bg-zinc-50/50 transition-colors"
@@ -425,15 +514,70 @@ export function BookingDetailsDialog({
                           <td className="px-4 py-3.5 text-right font-medium text-zinc-700">
                             {formatCurrency(as.price)}
                           </td>
+                          {viewerContext.canAddService && (
+                            <td className="px-2 py-3.5 text-right">
+                              {removable ? (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 text-zinc-400 hover:text-destructive hover:bg-destructive/10"
+                                      aria-label={`Remove ${as.service.name}`}
+                                      disabled={isRemovingThis}
+                                    >
+                                      {isRemovingThis ? (
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                      ) : (
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      )}
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent className="rounded-2xl">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        Remove {as.service.name}?
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This adjusts the booking total by
+                                        {" "}
+                                        <span className="font-semibold text-foreground">
+                                          {formatCurrency(as.final_price)}
+                                        </span>
+                                        . The customer is not notified
+                                        automatically.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel className="rounded-xl">
+                                        Cancel
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        onClick={() => handleRemoveLine(as.id)}
+                                      >
+                                        Remove
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              ) : null}
+                            </td>
+                          )}
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
               </section>
 
+              {viewerContext.canAddService && (
               <Separator className="bg-zinc-100" />
+              )}
 
+              {viewerContext.canAddService && (
               <section className="space-y-3">
                 <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                   <PlusCircle className="h-3.5 w-3.5" /> Add Service
@@ -522,9 +666,35 @@ export function BookingDetailsDialog({
                   </div>
                 )}
               </section>
+              )}
+
+              {/* Audit history — owners + managers per role-permissions matrix.
+                  Backed by getEntityAuditHistoryAction which enforces the same
+                  rule server-side. */}
+              {(viewerContext.role === "OWNER" ||
+                viewerContext.role === "MANAGER") && (
+                <section className="space-y-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsAuditOpen((v) => !v)}
+                    className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-wider hover:text-zinc-600 transition-colors"
+                    aria-expanded={isAuditOpen}
+                  >
+                    <History className="h-3.5 w-3.5" />
+                    {isAuditOpen ? "Hide history" : "View history"}
+                  </button>
+                  {isAuditOpen && (
+                    <AuditTrail
+                      entityType="Booking"
+                      entityId={String(booking.id)}
+                      limit={25}
+                    />
+                  )}
+                </section>
+              )}
 
               <section className="flex flex-wrap justify-end gap-2 pt-2">
-                {canMarkNoShow && (
+                {canMarkNoShow && viewerContext.canMarkNoShow && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -563,7 +733,7 @@ export function BookingDetailsDialog({
                     </AlertDialogContent>
                   </AlertDialog>
                 )}
-                {canMarkPaid && (
+                {canMarkPaid && viewerContext.canMarkPaid && (
                   <Button
                     type="button"
                     variant="outline"

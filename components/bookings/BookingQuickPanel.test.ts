@@ -39,12 +39,14 @@ describe("deriveBookingViewerContext (preferred)", () => {
     });
   });
 
-  it("MANAGER with QUEUE_OVERRIDE_ALL gets the manager flag set", () => {
+  it("MANAGER with full default flags gets every panel action except delete", () => {
     const ctx = deriveBookingViewerContext(
       viewer({
         staffProfile: StaffProfile.MANAGER,
         permissions: [
           StaffPermission.BOOKING_CREATE,
+          StaffPermission.BOOKING_MODIFY,
+          StaffPermission.BOOKING_MARK_NO_SHOW,
           StaffPermission.PAYMENT_COLLECT,
           StaffPermission.QUEUE_OVERRIDE_ALL,
         ],
@@ -57,6 +59,20 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canMarkNoShow: true,
       canDelete: false,
     });
+  });
+
+  it("MANAGER without BOOKING_MARK_NO_SHOW cannot mark no-show", () => {
+    const ctx = deriveBookingViewerContext(
+      viewer({
+        staffProfile: StaffProfile.MANAGER,
+        permissions: [
+          StaffPermission.BOOKING_MODIFY,
+          StaffPermission.PAYMENT_COLLECT,
+          StaffPermission.QUEUE_OVERRIDE_ALL,
+        ],
+      }),
+    );
+    expect(ctx.canMarkNoShow).toBe(false);
   });
 
   it("CASHIER without QUEUE_OVERRIDE_ALL cannot mark no-show or delete", () => {

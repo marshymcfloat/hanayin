@@ -398,6 +398,26 @@ export async function markBookingNoShowAction(bookingId: number) {
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
+  // Per docs/role-permissions-matrix.md: BOOKING_MARK_NO_SHOW gates this
+  // action. Owners short-circuit via hasStaffPermission. Lazy-importing
+  // resolveTenantActorContext / hasStaffPermission keeps the existing
+  // call sites that rely on this module's surface area (and its bigger
+  // imports) unaffected.
+  const { resolveTenantActorContext, hasStaffPermission } = await import(
+    "@/lib/auth/staff-access"
+  );
+  const { StaffPermission } = await import("@/prisma/generated/prisma/enums");
+  const actorContext = await resolveTenantActorContext(
+    businessSlug,
+    auth.session.user.id,
+  );
+  if (!actorContext.success) {
+    return { success: false, error: actorContext.error };
+  }
+  if (!hasStaffPermission(actorContext, StaffPermission.BOOKING_MARK_NO_SHOW)) {
+    return { success: false, error: "Forbidden" };
+  }
+
   try {
     const booking = await prisma.booking.findFirst({
       where: { id: bookingId, business: { slug: businessSlug } },
