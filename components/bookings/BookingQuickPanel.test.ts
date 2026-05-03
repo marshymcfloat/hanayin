@@ -36,6 +36,9 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canMarkPaid: true,
       canMarkNoShow: true,
       canDelete: true,
+      canCancel: true,
+      canAdjustPrice: true,
+      canReassignStaff: true,
     });
   });
 
@@ -47,6 +50,8 @@ describe("deriveBookingViewerContext (preferred)", () => {
           StaffPermission.BOOKING_CREATE,
           StaffPermission.BOOKING_MODIFY,
           StaffPermission.BOOKING_MARK_NO_SHOW,
+          StaffPermission.BOOKING_ADJUST_PRICE,
+          StaffPermission.BOOKING_CANCEL,
           StaffPermission.PAYMENT_COLLECT,
           StaffPermission.QUEUE_OVERRIDE_ALL,
         ],
@@ -58,6 +63,9 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canMarkPaid: true,
       canMarkNoShow: true,
       canDelete: false,
+      canCancel: true,
+      canAdjustPrice: true,
+      canReassignStaff: true,
     });
   });
 
@@ -75,7 +83,20 @@ describe("deriveBookingViewerContext (preferred)", () => {
     expect(ctx.canMarkNoShow).toBe(false);
   });
 
-  it("CASHIER without QUEUE_OVERRIDE_ALL cannot mark no-show or delete", () => {
+  it("MANAGER without BOOKING_CANCEL cannot cancel", () => {
+    const ctx = deriveBookingViewerContext(
+      viewer({
+        staffProfile: StaffProfile.MANAGER,
+        permissions: [
+          StaffPermission.BOOKING_MODIFY,
+          StaffPermission.QUEUE_OVERRIDE_ALL,
+        ],
+      }),
+    );
+    expect(ctx.canCancel).toBe(false);
+  });
+
+  it("CASHIER without QUEUE_OVERRIDE_ALL cannot mark no-show, delete, or cancel", () => {
     const ctx = deriveBookingViewerContext(
       viewer({
         staffProfile: StaffProfile.CASHIER,
@@ -91,6 +112,9 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canMarkPaid: true,
       canMarkNoShow: false,
       canDelete: false,
+      canCancel: false,
+      canAdjustPrice: false,
+      canReassignStaff: false,
     });
   });
 
@@ -107,6 +131,9 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canMarkPaid: true,
       canMarkNoShow: false,
       canDelete: false,
+      canCancel: false,
+      canAdjustPrice: false,
+      canReassignStaff: false,
     });
   });
 });
@@ -135,6 +162,9 @@ describe("deriveViewerContext (legacy API still works)", () => {
       canMarkPaid: false,
       canMarkNoShow: false,
       canDelete: false,
+      canCancel: false,
+      canAdjustPrice: false,
+      canReassignStaff: false,
     });
   });
 });

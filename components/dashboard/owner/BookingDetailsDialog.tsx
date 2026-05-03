@@ -61,6 +61,12 @@ import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/bo
 import { removeBookingServiceAction } from "@/lib/server actions/booking-modify";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import { AuditTrail } from "@/components/audit/AuditTrail";
+import { RescheduleDialog } from "@/components/dashboard/owner/booking-actions/RescheduleDialog";
+import { CancelBookingDialog } from "@/components/dashboard/owner/booking-actions/CancelBookingDialog";
+import { AdjustPriceDialog } from "@/components/dashboard/owner/booking-actions/AdjustPriceDialog";
+import { ReassignStaffDialog } from "@/components/dashboard/owner/booking-actions/ReassignStaffDialog";
+import { BookingNotesPanel } from "@/components/dashboard/owner/booking-actions/BookingNotesPanel";
+import { SwapServiceDialog } from "@/components/dashboard/owner/booking-actions/SwapServiceDialog";
 import { AvailedServiceStatus, PaymentStatus } from "@/prisma/generated/prisma/enums";
 
 type BookingWithDetails = Booking & {
@@ -90,6 +96,23 @@ export type BookingViewerContext = {
   canMarkNoShow: boolean;
   /** True when the viewer is allowed to delete this booking outright. */
   canDelete: boolean;
+  /**
+   * True when the viewer is allowed to soft-cancel the booking.
+   * Distinct from canDelete (irreversible). Defaults align with the
+   * matrix: OWNER + MANAGER (with BOOKING_CANCEL) only.
+   */
+  canCancel: boolean;
+  /**
+   * True when the viewer is allowed to apply a price adjustment
+   * (manual discount or surcharge with a reason).
+   */
+  canAdjustPrice: boolean;
+  /**
+   * True when the viewer is allowed to reassign a service line to a
+   * different staff member. Powered by QUEUE_OVERRIDE_ALL — managers
+   * and owners only.
+   */
+  canReassignStaff: boolean;
 };
 
 const DEFAULT_OWNER_VIEWER: BookingViewerContext = {
@@ -98,6 +121,9 @@ const DEFAULT_OWNER_VIEWER: BookingViewerContext = {
   canMarkPaid: true,
   canMarkNoShow: true,
   canDelete: true,
+  canCancel: true,
+  canAdjustPrice: true,
+  canReassignStaff: true,
 };
 
 interface BookingDetailsDialogProps {
@@ -220,6 +246,12 @@ export function BookingDetailsDialog({
     !bookingHasPayment &&
     line.status === AvailedServiceStatus.PENDING &&
     booking.availed_services.length > 1;
+  // Mirrors checkAvailedServiceReassignable: PENDING or CLAIMED only,
+  // and the booking itself is still active.
+  const isLineReassignable = (line: { status: AvailedServiceStatus }) =>
+    booking.status !== "CANCELLED" &&
+    (line.status === AvailedServiceStatus.PENDING ||
+      line.status === AvailedServiceStatus.CLAIMED);
 
   const handleRemoveLine = async (availedServiceId: number) => {
     setRemovingLineId(availedServiceId);
@@ -458,9 +490,10 @@ export function BookingDetailsDialog({
                         <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">
                           Price
                         </th>
-                        {viewerContext.canAddService && (
+                        {(viewerContext.canAddService ||
+                          viewerContext.canReassignStaff) && (
                           <th
-                            className="px-2 py-3 text-right font-semibold text-xs uppercase tracking-wider w-12"
+                            className="px-2 py-3 text-right font-semibold text-xs uppercase tracking-wider w-28"
                             aria-label="Row actions"
                           />
                         )}
@@ -514,55 +547,81 @@ export function BookingDetailsDialog({
                           <td className="px-4 py-3.5 text-right font-medium text-zinc-700">
                             {formatCurrency(as.price)}
                           </td>
-                          {viewerContext.canAddService && (
+                          {(viewerContext.canAddService ||
+                            viewerContext.canReassignStaff) && (
                             <td className="px-2 py-3.5 text-right">
-                              {removable ? (
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-7 w-7 text-zinc-400 hover:text-destructive hover:bg-destructive/10"
-                                      aria-label={`Remove ${as.service.name}`}
-                                      disabled={isRemovingThis}
-                                    >
-                                      {isRemovingThis ? (
-                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                      ) : (
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                      )}
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent className="rounded-2xl">
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>
-                                        Remove {as.service.name}?
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        This adjusts the booking total by
-                                        {" "}
-                                        <span className="font-semibold text-foreground">
-                                          {formatCurrency(as.final_price)}
-                                        </span>
-                                        . The customer is not notified
-                                        automatically.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel className="rounded-xl">
-                                        Cancel
-                                      </AlertDialogCancel>
-                                      <AlertDialogAction
-                                        className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                        onClick={() => handleRemoveLine(as.id)}
+                              <div className="flex items-center justify-end gap-1">
+                                {viewerContext.canReassignStaff &&
+                                  isLineReassignable(as) && (
+                                    <ReassignStaffDialog
+                                      availedServiceId={as.id}
+                                      serviceName={as.service.name}
+                                      currentEmployeeName={
+                                        as.served_by?.user.name ??
+                                        as.served_by_owner?.user.name ??
+                                        null
+                                      }
+                                      currentEmployeeId={
+                                        as.served_by_id ?? null
+                                      }
+                                    />
+                                  )}
+                                {viewerContext.canAddService && removable && (
+                                  <SwapServiceDialog
+                                    bookingId={booking.id}
+                                    availedServiceId={as.id}
+                                    currentServiceName={as.service.name}
+                                    currentServiceId={as.service.id}
+                                    servicesCatalog={servicesCatalog}
+                                  />
+                                )}
+                                {viewerContext.canAddService && removable && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 text-zinc-400 hover:text-destructive hover:bg-destructive/10"
+                                        aria-label={`Remove ${as.service.name}`}
+                                        disabled={isRemovingThis}
                                       >
-                                        Remove
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              ) : null}
+                                        {isRemovingThis ? (
+                                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        )}
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="rounded-2xl">
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                          Remove {as.service.name}?
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This adjusts the booking total by{" "}
+                                          <span className="font-semibold text-foreground">
+                                            {formatCurrency(as.final_price)}
+                                          </span>
+                                          . The customer is not notified
+                                          automatically.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel className="rounded-xl">
+                                          Cancel
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                          className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                          onClick={() => handleRemoveLine(as.id)}
+                                        >
+                                          Remove
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                              </div>
                             </td>
                           )}
                         </tr>
@@ -668,6 +727,18 @@ export function BookingDetailsDialog({
               </section>
               )}
 
+              {/* Notes — any tenant user can read; INTERNAL writable by all,
+                  CUSTOMER_VISIBLE writes gated by canAddService (BOOKING_MODIFY). */}
+              <section className="space-y-2 pt-1">
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                  Notes
+                </h3>
+                <BookingNotesPanel
+                  bookingId={booking.id}
+                  canAddCustomerVisible={viewerContext.canAddService}
+                />
+              </section>
+
               {/* Audit history — owners + managers per role-permissions matrix.
                   Backed by getEntityAuditHistoryAction which enforces the same
                   rule server-side. */}
@@ -694,6 +765,38 @@ export function BookingDetailsDialog({
               )}
 
               <section className="flex flex-wrap justify-end gap-2 pt-2">
+                {viewerContext.canAddService &&
+                  booking.status === "ACCEPTED" &&
+                  booking.scheduled_at && (
+                    <RescheduleDialog
+                      bookingId={booking.id}
+                      currentScheduledAt={
+                        booking.scheduled_at instanceof Date
+                          ? booking.scheduled_at.toISOString()
+                          : booking.scheduled_at
+                      }
+                    />
+                  )}
+                {viewerContext.canAdjustPrice &&
+                  booking.status === "ACCEPTED" &&
+                  booking.payment_status !== "PAID" && (
+                    <AdjustPriceDialog
+                      bookingId={booking.id}
+                      lines={booking.availed_services.map((as) => ({
+                        id: as.id,
+                        serviceName: as.service.name,
+                        finalPrice: as.final_price,
+                      }))}
+                    />
+                  )}
+                {viewerContext.canCancel &&
+                  booking.status !== "CANCELLED" &&
+                  booking.status !== "COMPLETED" && (
+                    <CancelBookingDialog
+                      bookingId={booking.id}
+                      customerLabel={getBookingCustomerName(booking)}
+                    />
+                  )}
                 {canMarkNoShow && viewerContext.canMarkNoShow && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

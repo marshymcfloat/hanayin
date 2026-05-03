@@ -89,6 +89,9 @@ export function deriveViewerContext(input: {
       canMarkPaid: true,
       canMarkNoShow: true,
       canDelete: true,
+      canCancel: true,
+      canAdjustPrice: true,
+      canReassignStaff: true,
     };
   }
 
@@ -116,6 +119,9 @@ export function deriveViewerContext(input: {
       // Owners only — managers shouldn't be able to permanently delete
       // bookings even with override, since delete is irreversible.
       canDelete: false,
+      canCancel: perms.has("BOOKING_CANCEL"),
+      canAdjustPrice: perms.has("BOOKING_ADJUST_PRICE"),
+      canReassignStaff: hasOverride,
     };
   }
 
@@ -127,6 +133,9 @@ export function deriveViewerContext(input: {
       // No-show is a queue/scheduling decision, not a payment one.
       canMarkNoShow: false,
       canDelete: false,
+      canCancel: false,
+      canAdjustPrice: perms.has("BOOKING_ADJUST_PRICE"),
+      canReassignStaff: false,
     };
   }
 
@@ -138,5 +147,8 @@ export function deriveViewerContext(input: {
     canMarkPaid: perms.has("PAYMENT_COLLECT"),
     canMarkNoShow: false,
     canDelete: false,
+    canCancel: false,
+    canAdjustPrice: false,
+    canReassignStaff: false,
   };
 }
