@@ -143,12 +143,25 @@ export class BookingAddOnStateRaceError extends Error {
   }
 }
 
-export async function appendServicesToUntouchedBooking(params: {
-  bookingId: number;
-  actorContext: ActorContext;
-  services: AddOnServiceInput[];
-  currentEmployeeId?: number;
-}) {
+/**
+ * Tx-bound version of {@link appendServicesToUntouchedBooking}. Use this
+ * directly when an outer caller (e.g. swapBookingServiceAction) needs
+ * to share a single transaction with the append step. The public
+ * function below is a thin wrapper that opens its own Serializable tx
+ * and delegates here.
+ *
+ * Inside this function `tx` is required — every DB read/write must go
+ * through it, otherwise atomicity is lost.
+ */
+export async function appendServicesToUntouchedBookingInTx(
+  tx: Prisma.TransactionClient,
+  params: {
+    bookingId: number;
+    actorContext: ActorContext;
+    services: AddOnServiceInput[];
+    currentEmployeeId?: number;
+  },
+) {
   const expandedServices = expandServiceSelections(params.services);
 
   if (expandedServices.length === 0) {
@@ -157,9 +170,7 @@ export async function appendServicesToUntouchedBooking(params: {
 
   const actorMeta = getActorAuditMetadata(params.actorContext);
 
-  return prisma.$transaction(
-    async (tx) => {
-      const booking = await tx.booking.findFirst({
+  const booking = await tx.booking.findFirst({
         where: {
           id: params.bookingId,
           business: {
@@ -366,10 +377,25 @@ export async function appendServicesToUntouchedBooking(params: {
         },
       });
 
-      return {
-        bookingId: booking.id,
-      };
-    },
+  return {
+    bookingId: booking.id,
+  };
+}
+
+/**
+ * Public, self-contained version. Opens a Serializable transaction and
+ * delegates to {@link appendServicesToUntouchedBookingInTx}. Existing
+ * callers (e.g. addBookingServiceOrCreateFollowUpAction) keep working
+ * unchanged — the public signature is identical to before the refactor.
+ */
+export async function appendServicesToUntouchedBooking(params: {
+  bookingId: number;
+  actorContext: ActorContext;
+  services: AddOnServiceInput[];
+  currentEmployeeId?: number;
+}) {
+  return prisma.$transaction(
+    async (tx) => appendServicesToUntouchedBookingInTx(tx, params),
     {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
     },
