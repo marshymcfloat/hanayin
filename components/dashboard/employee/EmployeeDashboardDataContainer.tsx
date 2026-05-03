@@ -280,6 +280,44 @@ export default async function EmployeeDashboardDataContainer({
     take: 50,
   });
 
+  // Managers get a parallel "full detail" copy of today's bookings so
+  // they can open BookingQuickPanel from their dashboard. We don't widen
+  // the lightweight todayBookings query above because the existing
+  // payments queue / cashier paths use only the narrow EmployeePaymentBooking
+  // shape, and adding joins everywhere would balloon query cost for roles
+  // that don't need it. Restricted to MANAGER profile only.
+  const managerBookings =
+    employeeProfile === StaffProfile.MANAGER
+      ? await prisma.booking.findMany({
+          where: {
+            business_id: business.id,
+            status: { not: "CANCELLED" },
+            OR: [
+              {
+                scheduled_at: { gte: startOfToday, lte: endOfToday },
+              },
+              {
+                scheduled_at: null,
+                created_at: { gte: startOfToday, lte: endOfToday },
+              },
+            ],
+          },
+          include: {
+            customer: true,
+            vouchers: true,
+            availed_services: {
+              include: {
+                service: true,
+                served_by: { include: { user: true } },
+                served_by_owner: { include: { user: true } },
+              },
+            },
+          },
+          orderBy: [{ scheduled_at: "asc" }, { created_at: "desc" }],
+          take: 50,
+        })
+      : [];
+
   const services = await getCachedServices(business.id);
   const packages = await getCachedPackages(business.id);
   const categories = Array.from(new Set(services.map((s) => s.category)));
@@ -362,6 +400,7 @@ export default async function EmployeeDashboardDataContainer({
         pendingServices={pendingServices}
         servedHistory={servedHistory}
         todayBookings={todayBookings}
+        managerBookings={managerBookings}
         services={services}
         packages={packages}
         categories={categories}
