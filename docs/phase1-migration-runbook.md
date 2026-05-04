@@ -178,3 +178,73 @@ no code references them after the revert.
 - Cashier and Staff get `SOCIAL_POST_REQUEST_CREATE` only; they cannot review or publish.
 
 That's it. Once verified, Phase 1 is in place and the Phase 2 server-action work for either feature can begin in parallel against the new schema.
+
+## 7. Anti-pattern: enum value rename / removal in one migration
+
+Prisma's auto-generated migration for "rename enum value `QRPH` → `ONLINE`" looks like this:
+
+```sql
+ALTER TYPE "PaymentMethod" ADD VALUE 'ONLINE';
+UPDATE "Booking" SET "payment_method" = 'ONLINE' WHERE "payment_method" = 'QRPH';
+ALTER TYPE "PaymentMethod" RENAME VALUE 'QRPH' TO 'ONLINE';   -- or DROP / re-cast
+```
+
+It looks reasonable. It's wrong on Prisma Postgres (and on any vanilla Postgres without extra ceremony). The error you'll see is:
+
+```
+ERROR: unsafe use of new value "ONLINE" of enum type "PaymentMethod"
+HINT:  New enum values must be committed before they can be used.
+```
+
+### Why it fails
+
+`ALTER TYPE ... ADD VALUE` requires the new value to be **committed in its own transaction** before it can be referenced. Prisma wraps every migration in a single transaction (and on Prisma Postgres / Accelerate, we cannot turn that off — `-- prisma-disable-migration-transaction` is a no-op there). So `ADD VALUE 'ONLINE'` and `UPDATE ... SET 'ONLINE'` cannot both live inside the same migration on this stack.
+
+`prisma migrate dev` will accept the file, then fail at deploy time with `P3006`. We hit this with the `20260425000000_remove_qrph_replace_online` migration.
+
+### The fix: never use the new enum value of the old type
+
+Sidestep the constraint entirely by creating a brand-new enum, casting via a `USING CASE`, and dropping the old one — all in one transaction-safe DDL block:
+
+```sql
+DROP TYPE IF EXISTS "PaymentMethod_new";
+
+CREATE TYPE "PaymentMethod_new" AS ENUM ('CASH', 'ONLINE');
+
+ALTER TABLE "Booking"
+  ALTER COLUMN "payment_method"
+  TYPE "PaymentMethod_new"
+  USING (
+    CASE "payment_method"::text
+      WHEN 'QRPH' THEN 'ONLINE'
+      ELSE "payment_method"::text
+    END
+  )::"PaymentMethod_new";
+
+DROP TYPE "PaymentMethod";
+ALTER TYPE "PaymentMethod_new" RENAME TO "PaymentMethod";
+```
+
+Why this works: the cast happens against a column that is being *re-typed*, not against a value of the old type. Postgres is happy because the new enum exists fully before any row touches it. The whole block runs in one transaction, replay-safe, no `prisma-disable-migration-transaction` directive needed.
+
+### Rule of thumb
+
+When a Prisma diff suggests `ALTER TYPE ... ADD VALUE` followed by a usage of that value in the **same migration**:
+
+1. Stop. Do not deploy.
+2. Either split into two migrations (one to `ADD VALUE`, deploy, then a follow-up to use it), **or**
+3. Use the `CREATE TYPE ..._new` + `USING CASE` pattern above.
+
+(2) is fine for self-hosted Postgres but doesn't help on Prisma Postgres if the application reads the column before the second migration deploys. (3) is the universal answer.
+
+### Related: removing an enum value
+
+PostgreSQL has no `DROP VALUE` for enums. Removing a value requires the same `_new` swap pattern. The rules are the same.
+
+### Where this anti-pattern shows up
+
+- `payment_method` (QRPH → ONLINE — the original case).
+- Any future enum where business naming changes (`status`, `tier`, role labels). When you see one of these in a schema PR, double-check the generated migration and apply the swap pattern preemptively.
+
+The runbook in §2 above has a `migrate diff --script` step. Add a code-review check: if the generated SQL contains both `ADD VALUE` and a reference to that value, reject and rewrite using the swap pattern.
+

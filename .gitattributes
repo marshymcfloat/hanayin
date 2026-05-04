@@ -1,0 +1,77 @@
+# Wave G1: line-ending normalization.
+#
+# Without this, ~150 source files show up as phantom-modified between
+# Windows checkouts and Linux/CI checkouts because Git auto-converts
+# CRLF↔LF based on `core.autocrlf`. Fix: store everything as LF in the
+# repo, and let Git materialize CRLF on disk only for the Windows-only
+# script formats that genuinely need it.
+#
+# How to apply after merging this file:
+#   1. git add .gitattributes
+#   2. git commit -m "chore: normalize line endings"
+#   3. git add --renormalize .
+#   4. git commit -m "chore: renormalize line endings to LF"
+
+# Default: detect text vs. binary, store text as LF.
+* text=auto eol=lf
+
+# --- Source code — explicit LF, no autodetect surprises ---
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.js        text eol=lf
+*.jsx       text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.json      text eol=lf
+*.jsonc     text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.toml      text eol=lf
+*.css       text eol=lf
+*.scss      text eol=lf
+*.html      text eol=lf
+*.md        text eol=lf
+*.mdx       text eol=lf
+*.txt       text eol=lf
+*.sh        text eol=lf
+*.env*      text eol=lf
+*.prisma    text eol=lf
+*.sql       text eol=lf
+*.graphql   text eol=lf
+*.svg       text eol=lf
+
+# --- Windows-only scripts — must keep CRLF or cmd.exe chokes ---
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+
+# --- Binary assets — Git must never touch these ---
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.avif      binary
+*.ico       binary
+*.icns      binary
+*.pdf       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.otf       binary
+*.eot       binary
+*.zip       binary
+*.gz        binary
+*.tgz       binary
+*.tar       binary
+*.7z        binary
+*.mp3       binary
+*.mp4       binary
+*.wav       binary
+*.webm      binary
+*.mov       binary
+
+# --- Lockfiles — keep diffs sane, don't try to merge them ---
+package-lock.json   text eol=lf -diff
+yarn.lock           text eol=lf -diff
+pnpm-lock.yaml      text eol=lf -diff

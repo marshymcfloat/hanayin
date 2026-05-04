@@ -2,6 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { generateOfferFromOpportunity } from "@/lib/services/growth/offer-generator";
 
+// Wave G3: services use deliberately neutral names ("Express Treatment",
+// "Quick Session") that don't match any TITLE_CATEGORY_ALIAS key. The
+// category-aware title generator was added after these tests were
+// originally authored, and "Facial" / "Massage" both hit aliases and
+// override the template headline — making the title assertions fail
+// (or appear flaky depending on tie-break order). Using alias-free
+// names lets the SPA template headlines flow through, which is what
+// these tests actually mean to assert.
 function buildBaseInput() {
   return {
     opportunity: {
@@ -20,8 +28,8 @@ function buildBaseInput() {
       avoidCheapWording: false,
     },
     services: [
-      { id: 1, name: "Facial", price: 600, duration: 60 },
-      { id: 2, name: "Massage", price: 800, duration: 90 },
+      { id: 1, name: "Express Treatment", price: 600, duration: 60 },
+      { id: 2, name: "Quick Session", price: 800, duration: 90 },
     ],
   };
 }
