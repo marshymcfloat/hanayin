@@ -51,6 +51,18 @@ export type CaptionGenerationInput = {
   customRescueBuilder?: (
     input: CaptionGenerationInput,
   ) => CaptionGenerationOutput;
+  /**
+   * Wave I1: when set, drives the footer policy in
+   * `enforceServiceFlowEnding`. Promotional categories (sale events with
+   * postCategory undefined, or organic SERVICE_SHOWCASE) keep the
+   * "Book now…" CTA. Non-promotional categories (TIPS_EDUCATION,
+   * BEHIND_THE_SCENES, SEASONAL_GREETING, TEAM_SPOTLIGHT, GENERAL) get a
+   * soft engagement CTA that doesn't push booking. This fixes a leak
+   * where Wave H's "no book now" rule guarded only the Gemini prompt,
+   * leaving the post-processing footer append to inject "Book now"
+   * onto educational and team-spotlight captions regardless.
+   */
+  postCategory?: OrganicPostCategory;
 };
 
 const TONE_GUIDE: Record<NonNullable<CaptionGenerationInput["captionTone"]>, string> = {
@@ -292,17 +304,70 @@ function sanitizeSaleTitleForPublic(value: string) {
   return neutralizePublicTitle(cleaned || value.trim());
 }
 
+/**
+ * Wave K1: hashtag-side mirror of selectFooterPolicy. Non-promotional
+ * organic posts (tips, behind-the-scenes, seasonal greetings, team
+ * spotlights, general) should never carry "book now" / "flash sale" /
+ * "sulit promo" hashtags — they undercut the educational tone and
+ * confuse the algorithmic feed about what kind of content this is.
+ */
+export function isPromotionalCaptionContext(
+  input: Pick<CaptionGenerationInput, "postCategory">,
+): boolean {
+  // Sale-event paths leave postCategory unset; organic SERVICE_SHOWCASE
+  // is also promotional. Everything else is non-promotional.
+  return !input.postCategory || input.postCategory === "SERVICE_SHOWCASE";
+}
+
+const PROMOTIONAL_HASHTAG_NAMES = [
+  "BookNow",
+  "BookNowPH",
+  "SulitPromo",
+  "FlashSale",
+  "FlashSaleAlert",
+  "LimitedSlots",
+  "LimitedSlotsOnly",
+  "Promo",
+  "PromoAlert",
+  "Sale",
+  "SaleAlert",
+  "TodayOnly",
+] as const;
+
+function isPromotionalHashtag(tag: string): boolean {
+  // Compare without leading # and case-insensitively. The seed array is
+  // lowercased once so this stays O(n) over a tiny constant list.
+  const stripped = tag.replace(/^#/, "").toLowerCase();
+  return PROMOTIONAL_HASHTAG_NAMES.some(
+    (promo) => promo.toLowerCase() === stripped,
+  );
+}
+
+function filterPromotionalHashtags(
+  hashtags: string[],
+  input: Pick<CaptionGenerationInput, "postCategory">,
+): string[] {
+  if (isPromotionalCaptionContext(input)) return hashtags;
+  return hashtags.filter((tag) => !isPromotionalHashtag(tag));
+}
+
 function buildFallbackHashtags(input: CaptionGenerationInput) {
   const serviceTags = (input.serviceNames ?? [])
     .map((name) => toHashtagSeed(name))
     .filter((tag) => tag.length > 0 && tag.length <= MAX_HASHTAG_LENGTH)
     .slice(0, 2);
 
+  // Wave K1: only promotional contexts get the "BookNow / SulitPromo"
+  // tags. Educational and other non-promo posts get a calmer set
+  // anchored on ServiceFlow + SelfCarePH + business / category tags.
+  const promoTags = isPromotionalCaptionContext(input)
+    ? ["SulitPromo", "BookNow"]
+    : [];
+
   return uniqueHashtags([
     "ServiceFlow",
     "SelfCarePH",
-    "SulitPromo",
-    "BookNow",
+    ...promoTags,
     toHashtagSeed(input.businessName),
     ...dedupeCategories(input.serviceCategories).map((category) =>
       toHashtagSeed(category),
@@ -585,19 +650,107 @@ function formatCaptionForSocialFeed(value: string) {
   return outputLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
+// Wave I1: every footer line we strip during regeneration. Promotional
+// categories produce REQUIRED_CTA_LINE / REQUIRED_DISCOVERY_LINE; the
+// soft-CTA categories produce one of SOFT_FOOTER_VARIANTS. We strip
+// them all on every pass so re-renders never double up, regardless of
+// whether the caption was originally generated as promotional and
+// later switched to educational (or vice versa).
+const SOFT_FOOTER_VARIANTS = [
+  "Save this for later — or send it to a friend who's curious.",
+  "Drop by the page anytime — we share little moments often.",
+  "Visit the page anytime — we'll be here.",
+  "Say hi when you visit — they'd love to meet you.",
+  "We'd love to hear what you think — drop a comment.",
+  "Visit the page to see what else we share.",
+  "Visit the page to see what else we've been up to.",
+  "Visit the page to learn more about the team.",
+  "Visit the page to keep up with what we share.",
+] as const;
+
+const STRIPPABLE_FOOTER_LINES_LOWER = new Set<string>([
+  REQUIRED_CTA_LINE.toLowerCase(),
+  REQUIRED_DISCOVERY_LINE.toLowerCase(),
+  ...SOFT_FOOTER_VARIANTS.map((line) => line.toLowerCase()),
+  ...LEGACY_DISCOVERY_LINES,
+]);
+
+// "Wishing you a restful season from all of us at <Business>." varies by
+// businessName so we can't list it as a literal — match by prefix.
+const SEASONAL_SIGNOFF_PREFIX = "wishing you a restful season from all of us at ";
+
 function isServiceFlowEndingLine(line: string) {
   const normalized = line.trim().toLowerCase();
-  return (
+  if (
     normalized.startsWith("book now through serviceflow") ||
     normalized.startsWith("www.serviceflow") ||
     normalized.startsWith("http://www.serviceflow") ||
     normalized.startsWith("https://www.serviceflow") ||
-    normalized === REQUIRED_DISCOVERY_LINE.toLowerCase() ||
-    LEGACY_DISCOVERY_LINES.includes(normalized)
-  );
+    normalized.startsWith(SEASONAL_SIGNOFF_PREFIX)
+  ) {
+    return true;
+  }
+  return STRIPPABLE_FOOTER_LINES_LOWER.has(normalized);
 }
 
-function enforceServiceFlowEnding(caption: string, businessSlug: string) {
+type FooterPolicy = {
+  ctaLine: string;
+  discoveryLine: string;
+};
+
+/**
+ * Wave I1: choose the footer based on the post category.
+ *
+ * - Sale-event captions (postCategory undefined) and organic
+ *   SERVICE_SHOWCASE keep the booking-forward "Book now…" footer —
+ *   that's the entire point of those posts.
+ * - Everything else (TIPS_EDUCATION, BEHIND_THE_SCENES,
+ *   SEASONAL_GREETING, TEAM_SPOTLIGHT, GENERAL) gets a soft,
+ *   category-appropriate engagement CTA so educational and seasonal
+ *   posts stop ending with a booking pitch that contradicts their
+ *   own body copy.
+ */
+function selectFooterPolicy(input: CaptionGenerationInput): FooterPolicy {
+  if (!input.postCategory || input.postCategory === "SERVICE_SHOWCASE") {
+    return {
+      ctaLine: REQUIRED_CTA_LINE,
+      discoveryLine: REQUIRED_DISCOVERY_LINE,
+    };
+  }
+  switch (input.postCategory) {
+    case "TIPS_EDUCATION":
+      return {
+        ctaLine: "Save this for later — or send it to a friend who's curious.",
+        discoveryLine: "Visit the page to see what else we share.",
+      };
+    case "BEHIND_THE_SCENES":
+      return {
+        ctaLine: "Drop by the page anytime — we share little moments often.",
+        discoveryLine: "Visit the page to see what else we've been up to.",
+      };
+    case "SEASONAL_GREETING":
+      return {
+        ctaLine: `Wishing you a restful season from all of us at ${input.businessName}.`,
+        discoveryLine: "Visit the page anytime — we'll be here.",
+      };
+    case "TEAM_SPOTLIGHT":
+      return {
+        ctaLine: "Say hi when you visit — they'd love to meet you.",
+        discoveryLine: "Visit the page to learn more about the team.",
+      };
+    case "GENERAL":
+    default:
+      return {
+        ctaLine: "We'd love to hear what you think — drop a comment.",
+        discoveryLine: "Visit the page to keep up with what we share.",
+      };
+  }
+}
+
+function enforceServiceFlowEnding(
+  caption: string,
+  input: CaptionGenerationInput,
+) {
   const bodyLines = caption
     .split("\n")
     .map((line) => line.trimEnd())
@@ -607,10 +760,11 @@ function enforceServiceFlowEnding(caption: string, businessSlug: string) {
     bodyLines.pop();
   }
 
+  const policy = selectFooterPolicy(input);
   const footerLines = [
-    REQUIRED_CTA_LINE,
-    REQUIRED_DISCOVERY_LINE,
-    buildServiceFlowUrl(businessSlug),
+    policy.ctaLine,
+    policy.discoveryLine,
+    buildServiceFlowUrl(input.businessSlug),
   ];
 
   const body = bodyLines.join("\n").trim();
@@ -715,10 +869,24 @@ function looksTruncated(value: string) {
   return incompleteEndings.some((ending) => trimmed.endsWith(ending));
 }
 
-function isLowQualityCaption(value: string) {
+// Wave M1: Sale-event captions need promo copy + dates + discount + CTA so
+// the 55-word / 8-line floor is appropriate. Organic captions are tighter
+// by nature — a great educational tip card can land in 6 lines / 40 words.
+// Using one threshold for both meant great organic Gemini output got
+// rejected and we silently fell back to the rescue every time. Now each
+// path can pass its own floor.
+const ORGANIC_MIN_ACCEPTABLE_WORDS = 40;
+const ORGANIC_MIN_ACCEPTABLE_LINES = 5;
+
+function isLowQualityCaption(
+  value: string,
+  options: { minWords?: number; minLines?: number } = {},
+) {
+  const minWords = options.minWords ?? MIN_ACCEPTABLE_WORDS;
+  const minLines = options.minLines ?? MIN_ACCEPTABLE_LINES;
   const words = countWords(value);
   const lines = countNonEmptyLines(value);
-  return words < MIN_ACCEPTABLE_WORDS || lines < MIN_ACCEPTABLE_LINES || looksTruncated(value);
+  return words < minWords || lines < minLines || looksTruncated(value);
 }
 
 /**
@@ -875,18 +1043,26 @@ export function buildOrganicRescueCaption(
 
   switch (input.category) {
     case "TIPS_EDUCATION": {
+      // Wave M2: educational-shape rescue. Even without the LLM, the
+      // post should read like the business is *teaching* — opener +
+      // "did you know" hook + 4 question-led facts + practical
+      // "additional tip" + soft close. Question framing makes each
+      // bullet feel inviting, not preachy. Topic is folded into the
+      // first bullet so the post is at least notionally about it.
       const opener = pickRandom(TIPS_EDUCATION_OPENERS);
       lines = [
         opener,
-        `Today's topic: ${topic}.`,
+        `A quick education break on ${topic}.`,
         "",
-        "A few things worth knowing:",
-        `• Be consistent — small habits compound faster than dramatic resets.`,
-        `• Listen to what your skin / body is telling you, not the trend cycle.`,
-        `• Ask before you experiment — your stylist or therapist has seen it before.`,
+        "Here's what people often ask us:",
+        `• Did you know consistency matters more than intensity? Small steady habits beat dramatic resets every time.`,
+        `• What's the right pace? Listen to what your body is telling you — not what's trending this week.`,
+        `• When should you ask for help? Before you experiment. Your stylist or therapist has likely seen it before.`,
+        `• What's the biggest myth? That faster is better. Slower, kinder care lasts longer and feels better.`,
+        `• Additional tip: write down one question about ${topic} you've been wondering about — bring it to your next visit.`,
         "",
         directionLine,
-        `If you want to talk through ${topic} with us, we're around.`,
+        `If you'd like to talk through ${topic} with us, we're around.`,
       ].filter(Boolean);
       break;
     }
@@ -973,9 +1149,16 @@ function finalizeCaptionOutput(
   output: CaptionGenerationOutput,
   input: CaptionGenerationInput,
 ): CaptionGenerationOutput {
+  const rawHashtags =
+    output.hashtags.length > 0 ? output.hashtags : buildFallbackHashtags(input);
   return {
-    caption: enforceServiceFlowEnding(output.caption, input.businessSlug),
-    hashtags: output.hashtags.length > 0 ? output.hashtags : buildFallbackHashtags(input),
+    caption: enforceServiceFlowEnding(output.caption, input),
+    // Wave K1: defense-in-depth filter. Gemini sometimes returns
+    // "#BookNow"-style tags on educational posts because the broader
+    // training set associates beauty/wellness captions with promo
+    // hashtags. Strip them here so the policy holds even when the
+    // upstream prompt didn't catch it.
+    hashtags: filterPromotionalHashtags(rawHashtags, input),
   };
 }
 
@@ -1401,6 +1584,36 @@ function buildOrganicGeminiPrompt(input: OrganicCaptionInput): string {
     ? `Additional context from the owner: ${input.ownerContext}`
     : "";
 
+  // Wave M3: TIPS_EDUCATION gets a structural scaffold so the LLM
+  // produces inviting "did you know" + facts + "additional tip" content
+  // instead of generic life maxims. Other categories keep the open
+  // shape because their goal is connection, not teaching.
+  const isTipsEducation = input.category === "TIPS_EDUCATION";
+  const educationalScaffold = isTipsEducation
+    ? [
+        "",
+        "STRUCTURE for this educational post (follow this shape but write naturally — do NOT label the lines):",
+        "",
+        `  Open with a tight one-sentence hook that names the topic ("${input.topic}") and signals there's something interesting about it worth pausing for.`,
+        "  Then a second line that draws the reader in with curiosity — phrased as a question or a 'did you know' framing.",
+        "",
+        '  Then a section header line: "Here\'s what people often ask us:" (or a close natural variant).',
+        "",
+        `  Then exactly FIVE bullet lines. Each bullet starts with "• " (a U+2022 bullet + space) and is a single line of text, 12–24 words long. Concrete and confident — no vague filler.`,
+        `    - The first bullet uses "Did you know..." framing and teaches a specific fact about ${input.topic}.`,
+        `    - The next three bullets each pose a question relevant to ${input.topic} ("What about X?", "When should you...?", "What's the biggest myth?") followed by a one-line answer that teaches something specific.`,
+        `    - The fifth bullet must start with "Additional tip:" and give a small practical action the reader can take TODAY related to ${input.topic} — a self-action like "write down a question" or "check your skincare ingredients", NOT a booking pitch.`,
+        "",
+        "  Close with a warm one-line invitation to engage (no booking pressure) followed by a soft community line.",
+        "",
+        "EDUCATIONAL CONTENT QUALITY RULES:",
+        `  - Every bullet must teach the reader something specific to ${input.topic}. Generic life maxims ("be consistent", "listen to your body") are not acceptable on their own.`,
+        "  - If you don't have a topic-specific fact, ask a topic-specific question that prompts curiosity.",
+        "  - No vague filler ('it varies', 'depends on the person'). Be specific and confident.",
+        "  - Use real newline characters between lines in the JSON caption value (the field is a string with embedded \\n).",
+      ]
+    : [];
+
   return [
     "Write a high-quality social media caption for a Filipino audience.",
     toneOverride || "Voice: warm, natural, human — never salesy.",
@@ -1424,6 +1637,7 @@ function buildOrganicGeminiPrompt(input: OrganicCaptionInput): string {
     ownerDirection
       ? `Owner's voice direction (treat as a soft requirement, not a literal quote): ${ownerDirection}`
       : "",
+    ...educationalScaffold,
     "",
     "Output format:",
     "Prefer valid JSON with this exact shape:",
@@ -1435,7 +1649,9 @@ function buildOrganicGeminiPrompt(input: OrganicCaptionInput): string {
     ...buildOrganicCategoryInstructions(input.category),
     "",
     "Universal requirements:",
-    "- Write 8–14 lines and at least 70 words.",
+    isTipsEducation
+      ? "- Write 11–14 lines and 110–150 words. Educational posts must pack value — short captions feel hollow."
+      : "- Write 8–14 lines and at least 70 words.",
     "- Use clear line breaks. One main idea per line.",
     "- The topic must appear naturally in the caption body — never as a hard heading or label.",
     "- Tie back to the business at most ONCE, softly, and only when it fits the category.",
@@ -1470,6 +1686,11 @@ function adaptOrganicInputForFinalize(
     actionCategory: "SOCIAL_ONLY",
     captionTone: input.captionTone,
     ownerCaptionDirection: input.ownerCaptionDirection,
+    // Wave I1: pass through the organic post category so
+    // selectFooterPolicy can pick a soft engagement CTA for
+    // non-promotional categories instead of always appending the
+    // "Book now…" sale CTA.
+    postCategory: input.category,
   };
 }
 
@@ -1489,6 +1710,10 @@ export async function generateOrganicCaptionDraft(
   );
 
   if (!isGeminiConfigured()) {
+    logger.warn(
+      "[Social] generateOrganicCaptionDraft falling back to rescue: GEMINI_KEY not set",
+      { category: input.category, topic: input.topic },
+    );
     return rescue;
   }
 
@@ -1503,21 +1728,76 @@ export async function generateOrganicCaptionDraft(
       maxOutputTokens: 1200,
     });
 
-    const candidate = parseCaptionCandidate(responseText, rescue.hashtags);
-    if (!candidate) {
+    if (!responseText || !responseText.trim()) {
+      logger.warn(
+        "[Social] generateOrganicCaptionDraft falling back to rescue: Gemini returned empty text",
+        { category: input.category, topic: input.topic, model },
+      );
       return rescue;
     }
 
-    if (!isLowQualityCaption(candidate.caption)) {
+    const candidate = parseCaptionCandidate(responseText, rescue.hashtags);
+    if (!candidate) {
+      logger.warn(
+        "[Social] generateOrganicCaptionDraft falling back to rescue: parseCaptionCandidate returned null",
+        {
+          category: input.category,
+          topic: input.topic,
+          responsePreview: responseText.slice(0, 200),
+        },
+      );
+      return rescue;
+    }
+
+    // Wave M1: organic captions use looser thresholds — see comment on
+    // ORGANIC_MIN_ACCEPTABLE_*. Without this, well-formed but tight
+    // educational captions ("Did you know X? - bullet - bullet - bullet
+    // - tip - close") were rejected as too short and the rescue fired
+    // every time, producing identical body across different topics.
+    if (
+      !isLowQualityCaption(candidate.caption, {
+        minWords: ORGANIC_MIN_ACCEPTABLE_WORDS,
+        minLines: ORGANIC_MIN_ACCEPTABLE_LINES,
+      })
+    ) {
+      logger.info(
+        "[Social] generateOrganicCaptionDraft used Gemini output",
+        {
+          category: input.category,
+          topic: input.topic,
+          words: candidate.caption.trim().split(/\s+/).length,
+          lines: candidate.caption.split(/\r?\n/).filter((l) => l.trim()).length,
+        },
+      );
       return finalizeCaptionOutput(candidate, adapted);
     }
 
+    logger.warn(
+      "[Social] generateOrganicCaptionDraft falling back to rescue: caption failed organic quality gate",
+      {
+        category: input.category,
+        topic: input.topic,
+        words: candidate.caption.trim().split(/\s+/).length,
+        lines: candidate.caption.split(/\r?\n/).filter((l) => l.trim()).length,
+        minWords: ORGANIC_MIN_ACCEPTABLE_WORDS,
+        minLines: ORGANIC_MIN_ACCEPTABLE_LINES,
+        captionPreview: candidate.caption.slice(0, 200),
+      },
+    );
     // Low-quality output — return rescue rather than rewriting via the
     // sale-event rewrite prompt (which would push it back toward
     // promo voice). We accept that organic posts get one shot at AI
     // and fall back to the category rescue otherwise.
     return rescue;
-  } catch {
+  } catch (error) {
+    logger.warn(
+      "[Social] generateOrganicCaptionDraft falling back to rescue: Gemini call threw",
+      {
+        category: input.category,
+        topic: input.topic,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      },
+    );
     return rescue;
   }
 }

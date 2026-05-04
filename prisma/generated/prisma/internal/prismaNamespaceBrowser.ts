@@ -221,6 +221,7 @@ export const SocialPostScalarFieldEnum = {
   sale_event_id: 'sale_event_id',
   source: 'source',
   status: 'status',
+  category: 'category',
   title: 'title',
   caption_draft: 'caption_draft',
   caption_final: 'caption_final',

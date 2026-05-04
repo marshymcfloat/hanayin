@@ -104,3 +104,72 @@ describe("buildOrganicRescueCaption — per-category structure", () => {
     expect(result.caption).toMatch(/self-care/i);
   });
 });
+
+/**
+ * Wave M2 — TIPS_EDUCATION rescue is now structurally educational, not
+ * a list of generic life maxims.
+ *
+ * Old shape (the bug): "Be consistent / Listen to your body / Ask
+ * before you experiment" — same body across every topic, taught nothing.
+ *
+ * New shape: opener + topic-aware education break + "Here's what people
+ * often ask us:" + 5 question-led bullets + "Additional tip:" + soft
+ * close. Hits ~12 lines / 100+ words even when fully templated. The
+ * "Additional tip:" line is the practical action hook the user
+ * specifically asked for.
+ */
+describe("buildOrganicRescueCaption — Wave M2 TIPS_EDUCATION shape", () => {
+  it("contains an Additional tip line", () => {
+    const result = buildOrganicRescueCaption({
+      category: "TIPS_EDUCATION",
+      ...BASE_INPUT,
+    });
+    expect(result.caption).toMatch(/Additional tip:/);
+  });
+
+  it("uses inviting question framing — 'Did you know' or 'often ask us'", () => {
+    const result = buildOrganicRescueCaption({
+      category: "TIPS_EDUCATION",
+      ...BASE_INPUT,
+    });
+    expect(result.caption).toMatch(/Did you know|often ask us/i);
+  });
+
+  it("renders at least 5 bullet lines (4 educational + 1 additional tip)", () => {
+    const result = buildOrganicRescueCaption({
+      category: "TIPS_EDUCATION",
+      ...BASE_INPUT,
+    });
+    // formatCaptionForSocialFeed may normalize unicode • to ASCII -.
+    // Count both for forward compatibility.
+    const bulletLines = result.caption
+      .split(/\r?\n/)
+      .filter((line) => /^[•-]\s/.test(line.trim()));
+    expect(bulletLines.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("hits a substantial body length (>= 90 words)", () => {
+    const result = buildOrganicRescueCaption({
+      category: "TIPS_EDUCATION",
+      ...BASE_INPUT,
+    });
+    // Educational posts that are too short feel hollow. The user
+    // explicitly asked for substantial content.
+    const wordCount = result.caption.trim().split(/\s+/).length;
+    expect(wordCount).toBeGreaterThanOrEqual(90);
+  });
+
+  it("weaves the topic into the body, not just the header", () => {
+    const result = buildOrganicRescueCaption({
+      category: "TIPS_EDUCATION",
+      ...BASE_INPUT,
+      topic: "lipo suction",
+    });
+    // The new rescue mentions the topic at least twice — once in the
+    // education-break opener, once in the additional-tip bullet.
+    const occurrences = (
+      result.caption.match(/lipo suction/gi) ?? []
+    ).length;
+    expect(occurrences).toBeGreaterThanOrEqual(2);
+  });
+});

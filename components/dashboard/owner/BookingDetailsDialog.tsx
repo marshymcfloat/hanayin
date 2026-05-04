@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPH } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -359,7 +358,21 @@ export function BookingDetailsDialog({
             the full viewport (zero gap, no rounded corners) so floor
             staff on phones don't have to deal with a tiny modal. From
             `md:` up, it returns to its centered card shape. */}
-        <DialogContent className="w-screen h-[100dvh] max-w-none rounded-none p-0 gap-0 flex flex-col overflow-hidden bg-white border-none shadow-2xl md:w-auto md:h-auto md:max-w-2xl md:max-h-[85vh] md:rounded-3xl">
+        <DialogContent
+          // N1 (revised): consistent dialog sizing across all breakpoints
+          // — 95% width, 90% height, rounded corners, capped at max-w-2xl
+          // on big monitors so the modal doesn't get awkwardly wide. The
+          // internal layout is header (shrink-0) + scrollable body
+          // (flex-1 overflow-y-auto) + sticky action footer (shrink-0).
+          // Replaced Radix ScrollArea with native overflow-y-auto because
+          // ScrollArea was breaking touch scroll on mobile.
+          className="w-[95vw] max-w-2xl h-[90vh] max-h-[90vh] rounded-3xl p-0 gap-0 flex flex-col overflow-hidden bg-white border border-zinc-200 shadow-2xl"
+        >
+          {/* small grab indicator — purely visual; consistent across
+              breakpoints to keep the dialog feel uniform. */}
+          <div className="flex shrink-0 justify-center pt-2 pb-1 bg-zinc-50/50">
+            <div className="h-1 w-10 rounded-full bg-zinc-300" />
+          </div>
           <DialogHeader className="p-6 pb-4 bg-zinc-50/50 border-b border-zinc-100 flex shrink-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
@@ -404,8 +417,9 @@ export function BookingDetailsDialog({
             </div>
           </DialogHeader>
 
-          <ScrollArea className="flex-1">
-            <div className="p-6 space-y-8">
+          <div className="flex-1 overflow-y-auto overscroll-contain">
+            {/* pb-28 on mobile = room for the sticky action footer. */}
+            <div className="p-4 pb-28 space-y-6 md:p-6 md:pb-6 md:space-y-8">
               <section className="space-y-3">
                 <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                   <UserIcon className="h-3.5 w-3.5" /> Customer Information
@@ -768,95 +782,6 @@ export function BookingDetailsDialog({
                 </section>
               )}
 
-              <section className="flex flex-wrap justify-end gap-2 pt-2">
-                {viewerContext.canAddService &&
-                  booking.status === "ACCEPTED" &&
-                  booking.scheduled_at && (
-                    <RescheduleDialog
-                      bookingId={booking.id}
-                      currentScheduledAt={
-                        booking.scheduled_at instanceof Date
-                          ? booking.scheduled_at.toISOString()
-                          : booking.scheduled_at
-                      }
-                    />
-                  )}
-                {viewerContext.canAdjustPrice &&
-                  booking.status === "ACCEPTED" &&
-                  booking.payment_status !== "PAID" && (
-                    <AdjustPriceDialog
-                      bookingId={booking.id}
-                      lines={booking.availed_services.map((as) => ({
-                        id: as.id,
-                        serviceName: as.service.name,
-                        finalPrice: as.final_price,
-                      }))}
-                    />
-                  )}
-                {viewerContext.canCancel &&
-                  booking.status !== "CANCELLED" &&
-                  booking.status !== "COMPLETED" && (
-                    <CancelBookingDialog
-                      bookingId={booking.id}
-                      customerLabel={getBookingCustomerName(booking)}
-                    />
-                  )}
-                {canMarkNoShow && viewerContext.canMarkNoShow && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="rounded-xl border-amber-200 text-amber-700 hover:bg-amber-50"
-                        disabled={isMarkingNoShow}
-                      >
-                        {isMarkingNoShow ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <AlertTriangle className="h-4 w-4 mr-2" />
-                        )}
-                        Mark as No-Show
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-2xl">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Mark as No-Show?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will cancel the booking and record a no-show for{" "}
-                          <strong>{getBookingCustomerName(booking)}</strong>.
-                          Customers with 2 or more no-shows are restricted from
-                          booking.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
-                          onClick={handleMarkNoShow}
-                        >
-                          Confirm No-Show
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-                {canMarkPaid && viewerContext.canMarkPaid && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-xl border-zinc-200 text-zinc-700 hover:bg-zinc-100"
-                    onClick={handleMarkPaid}
-                    disabled={isMarkingPaid}
-                  >
-                    {isMarkingPaid ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                    )}
-                    Mark as Paid
-                  </Button>
-                )}
-              </section>
 
               <section className="flex justify-end pt-2">
                 <div className="w-full sm:w-2/3 md:w-1/2 bg-zinc-50/50 rounded-xl border border-zinc-100 p-5 space-y-3">
@@ -906,7 +831,102 @@ export function BookingDetailsDialog({
                 </div>
               </section>
             </div>
-          </ScrollArea>
+          </div>
+
+          {/* N1: sticky action footer. Lifts the action buttons out of
+              the scrollable body so they're always reachable. The
+              footer is visible only when at least one viewer-permitted
+              action is renderable — empty footers would just take up
+              space. */}
+          <div className="shrink-0 border-t border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 px-4 py-3 md:px-6 md:py-4 flex flex-wrap items-center justify-end gap-2">
+            {viewerContext.canAddService &&
+              booking.status === "ACCEPTED" &&
+              booking.scheduled_at && (
+                <RescheduleDialog
+                  bookingId={booking.id}
+                  currentScheduledAt={
+                    booking.scheduled_at instanceof Date
+                      ? booking.scheduled_at.toISOString()
+                      : booking.scheduled_at
+                  }
+                />
+              )}
+            {viewerContext.canAdjustPrice &&
+              booking.status === "ACCEPTED" &&
+              booking.payment_status !== "PAID" && (
+                <AdjustPriceDialog
+                  bookingId={booking.id}
+                  lines={booking.availed_services.map((as) => ({
+                    id: as.id,
+                    serviceName: as.service.name,
+                    finalPrice: as.final_price,
+                  }))}
+                />
+              )}
+            {viewerContext.canCancel &&
+              booking.status !== "CANCELLED" &&
+              booking.status !== "COMPLETED" && (
+                <CancelBookingDialog
+                  bookingId={booking.id}
+                  customerLabel={getBookingCustomerName(booking)}
+                />
+              )}
+            {canMarkNoShow && viewerContext.canMarkNoShow && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl border-amber-200 text-amber-700 hover:bg-amber-50"
+                    disabled={isMarkingNoShow}
+                  >
+                    {isMarkingNoShow ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                    )}
+                    Mark as No-Show
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-2xl">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Mark as No-Show?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will cancel the booking and record a no-show for{" "}
+                      <strong>{getBookingCustomerName(booking)}</strong>.
+                      Customers with 2 or more no-shows are restricted from
+                      booking.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
+                      onClick={handleMarkNoShow}
+                    >
+                      Confirm No-Show
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {canMarkPaid && viewerContext.canMarkPaid && (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-xl border-zinc-200 text-zinc-700 hover:bg-zinc-100"
+                onClick={handleMarkPaid}
+                disabled={isMarkingPaid}
+              >
+                {isMarkingPaid ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                )}
+                Mark as Paid
+              </Button>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 

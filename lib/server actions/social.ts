@@ -19,6 +19,9 @@ import {
   isSocialImageProfile,
   type SocialImageProfile,
 } from "@/lib/services/social/image-profiles";
+import { inferCreativeBrief } from "@/lib/services/social/creative-brief";
+import { resolveTenantActorContext } from "@/lib/auth/staff-access";
+import { startOrganicPostTimer } from "@/lib/telemetry/social-organic-events";
 
 function normalizeHashtags(hashtags: string[]) {
   return Array.from(
@@ -250,6 +253,57 @@ export async function createOrganicSocialPostAction(input: {
   const featureError = await ensureSocialPublishingAccess(input.businessSlug);
   if (featureError) return featureError;
 
+  // Wave J4 — telemetry. Compute the inferred brief up front (pure) so we
+  // can compare it against what the owner actually sent, and resolve the
+  // actor context so the event carries businessId + role. If actor
+  // resolution fails for any reason, telemetry skips silently — never
+  // breaks the action.
+  const trimmedTopic = input.topic.trim();
+  const inferredBrief = inferCreativeBrief({
+    category: input.category,
+    topic: trimmedTopic,
+  });
+  const actor = await resolveTenantActorContext(
+    input.businessSlug,
+    auth.session.user.id,
+  ).catch(() => null);
+  const finishTelemetry = actor && actor.success
+    ? startOrganicPostTimer({
+        action: "CREATED",
+        businessId: actor.businessId,
+        actorRole: actor.actorType,
+        category: input.category,
+        inferredImageProfile: inferredBrief.imageProfile,
+        inferredCaptionTone: inferredBrief.captionTone,
+      })
+    : null;
+
+  // Resolve "actual" caption tone using the same rule the dialog uses:
+  // "AUTO" / undefined / null all mean "fall back to the inferred tone".
+  const actualCaptionTone =
+    input.captionTone && input.captionTone !== "AUTO"
+      ? input.captionTone
+      : inferredBrief.captionTone;
+  const ownerOverrodeCaptionTone =
+    !!input.captionTone && input.captionTone !== "AUTO";
+  const ownerOverrodeMood =
+    !!input.visualMood &&
+    input.visualMood.trim().length > 0 &&
+    input.visualMood !== inferredBrief.mood;
+  const ownerOverrodeFocus =
+    !!input.visualFocus &&
+    input.visualFocus.trim().length > 0 &&
+    input.visualFocus !== inferredBrief.visualFocus;
+  const validImageProfileOverride =
+    input.imageProfile && isSocialImageProfile(input.imageProfile)
+      ? (input.imageProfile as SocialImageProfile)
+      : null;
+  const ownerOverrodeImageProfile =
+    !!validImageProfileOverride &&
+    validImageProfileOverride !== inferredBrief.imageProfile;
+  const actualImageProfile: SocialImageProfile =
+    validImageProfileOverride ?? inferredBrief.imageProfile;
+
   try {
     const business = await prisma.business.findUnique({
       where: { slug: input.businessSlug },
@@ -257,10 +311,23 @@ export async function createOrganicSocialPostAction(input: {
     });
 
     if (!business) {
+      finishTelemetry?.({
+        success: false,
+        errorCode: "BUSINESS_NOT_FOUND",
+        actualImageProfile,
+        actualCaptionTone,
+        ownerOverrodeMood,
+        ownerOverrodeFocus,
+        ownerOverrodeImageProfile,
+        ownerOverrodeCaptionTone,
+        educationalOverlayApplied: false,
+        aiInvoked: false,
+      });
       return { success: false as const, error: "Business not found." };
     }
 
     const aiError = await ensureAiAccess(input.businessSlug);
+    const aiInvoked = !aiError;
     let captionDraft = "";
     let hashtags: string[] = [];
     let mediaUrl: string | null = null;
@@ -288,18 +355,13 @@ export async function createOrganicSocialPostAction(input: {
 
       if (input.generateImageNow) {
         try {
-          const { isSocialImageProfile } = await import("@/lib/services/social/image-profiles");
-          const imageProfileValue = input.imageProfile && isSocialImageProfile(input.imageProfile)
-            ? input.imageProfile
-            : undefined;
-
           const organicImageInput: OrganicImageInput = {
             businessSlug: input.businessSlug,
             businessName: business.name,
             topic: input.topic,
             category: input.category,
             captionText: captionDraft || null,
-            imageProfile: imageProfileValue,
+            imageProfile: validImageProfileOverride ?? actualImageProfile,
             visualMood: input.visualMood,
             visualFocus: input.visualFocus,
             ownerDirection: input.ownerDirection,
@@ -312,11 +374,24 @@ export async function createOrganicSocialPostAction(input: {
       }
     }
 
+    // Wave H6: the educational overlay is composed only when an image was
+    // actually uploaded AND the actual profile is EDUCATIONAL AND we had a
+    // non-empty topic to use as the headline. Mirror that logic here so
+    // the telemetry flag accurately reports whether the overlay actually
+    // got applied (vs. quietly skipped because of a missing topic).
+    const educationalOverlayApplied =
+      !!mediaUrl &&
+      actualImageProfile === "EDUCATIONAL" &&
+      trimmedTopic.length > 0;
+
     const post = await prisma.$transaction(async (tx) => {
       const created = await tx.socialPost.create({
         data: {
           business_id: business.id,
           source: "MANUAL",
+          // Wave L1: persist category so regenerate-caption + future
+          // category-aware features have a stable source of truth.
+          category: input.category,
           title: input.topic.trim(),
           caption_draft: captionDraft,
           hashtags,
@@ -368,9 +443,32 @@ export async function createOrganicSocialPostAction(input: {
     });
 
     revalidatePath(`/app/${input.businessSlug}/social-posts`);
+    finishTelemetry?.({
+      success: true,
+      actualImageProfile,
+      actualCaptionTone,
+      ownerOverrodeMood,
+      ownerOverrodeFocus,
+      ownerOverrodeImageProfile,
+      ownerOverrodeCaptionTone,
+      educationalOverlayApplied,
+      aiInvoked,
+    });
     return { success: true as const, data: { postId: post.id } };
   } catch (error) {
     console.error("Error creating organic social post:", error);
+    finishTelemetry?.({
+      success: false,
+      errorCode: "UNKNOWN",
+      actualImageProfile,
+      actualCaptionTone,
+      ownerOverrodeMood,
+      ownerOverrodeFocus,
+      ownerOverrodeImageProfile,
+      ownerOverrodeCaptionTone,
+      educationalOverlayApplied: false,
+      aiInvoked: false,
+    });
     return { success: false as const, error: "Failed to create post." };
   }
 }
@@ -692,6 +790,15 @@ export async function regenerateSocialPostCaptionAction(input: {
             description: true,
           },
         },
+        // Wave L1: include source_request so the regenerate path can
+        // recover category for posts that came through the approval
+        // workflow even when the SocialPost's own column is null
+        // (rows created before the L1 migration ran).
+        source_request: {
+          select: {
+            category: true,
+          },
+        },
         sale_event: {
           select: {
             title: true,
@@ -730,12 +837,20 @@ export async function regenerateSocialPostCaptionAction(input: {
         packageNames: post.sale_event.applicable_packages.map((pkg) => pkg.name),
       });
     } else {
+      // Wave L1: prefer the post's own category, fall back to the
+      // source request when the post came through the approval flow,
+      // and only as a last resort default to GENERAL. This was the
+      // user-reported bug where TIPS_EDUCATION posts regenerated as
+      // generic "small note for the community" copy.
+      const resolvedCategory = (post.category ??
+        post.source_request?.category ??
+        "GENERAL") as OrganicPostCategory;
       generated = await generateOrganicCaptionDraft({
         businessSlug: post.business.slug,
         businessName: post.business.name,
         businessDescription: post.business.description,
         topic: post.title,
-        category: "GENERAL",
+        category: resolvedCategory,
       });
     }
 
