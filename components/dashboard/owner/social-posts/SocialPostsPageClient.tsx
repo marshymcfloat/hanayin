@@ -4,6 +4,16 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -178,6 +188,127 @@ function isLikelyImageUrl(value: string) {
   }
 }
 
+function SelectableLane(props: {
+  title: string;
+  description: string;
+  countLabel: string;
+  posts: SocialPostView[];
+  drafts: Record<string, DraftState>;
+  selectedPostId: string;
+  deletingPostId: string | null;
+  onSelect: (postId: string) => void;
+  onRequestDelete: (postId: string) => void;
+  isDeletable: (post: SocialPostView) => boolean;
+}) {
+  return (
+    <div className="space-y-2.5 sm:space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h2 className="text-[13px] sm:text-sm font-semibold uppercase tracking-wide text-foreground">
+            {props.title}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {props.description}
+          </p>
+        </div>
+        <Badge
+          variant="outline"
+          className="bg-muted text-muted-foreground border-border shrink-0"
+        >
+          {props.countLabel}
+        </Badge>
+      </div>
+      <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-none">
+        {props.posts.map((post) => {
+          const postDraft = props.drafts[post.id] || toDraftState(post);
+          const trimmedCaption = (
+            postDraft.caption || post.caption_draft
+          ).trim();
+          const captionPreview = trimmedCaption
+            ? `${trimmedCaption.slice(0, 72)}${
+                trimmedCaption.length > 72 ? "..." : ""
+              }`
+            : "No caption yet";
+          const isSelected = props.selectedPostId === post.id;
+          const dateLabel = formatPostDate(post.created_at);
+          const canDelete = props.isDeletable(post);
+          const isDeleting = props.deletingPostId === post.id;
+
+          return (
+            <div
+              key={post.id}
+              className="relative w-[78vw] max-w-[280px] sm:w-auto sm:min-w-[260px] sm:max-w-[300px] shrink-0 snap-start"
+            >
+              <button
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => props.onSelect(post.id)}
+                disabled={isDeleting}
+                className={`w-full h-full rounded-2xl border px-4 py-3 ${
+                  canDelete ? "pb-10" : ""
+                } text-left transition-colors cursor-pointer ${
+                  isSelected
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:bg-accent/30"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p
+                    className={`truncate text-sm font-semibold ${
+                      isSelected ? "text-primary" : "text-foreground"
+                    }`}
+                  >
+                    {postDraft.title || post.title}
+                  </p>
+                  <Badge
+                    variant="outline"
+                    className={
+                      isSelected
+                        ? "border-primary/30 bg-primary/10 text-primary shrink-0"
+                        : `${statusBadgeClass(post.status)} shrink-0`
+                    }
+                  >
+                    {post.status}
+                  </Badge>
+                </div>
+                <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">
+                  {captionPreview}
+                </p>
+                <p className="mt-2 text-[11px] text-muted-foreground/70 truncate">
+                  {post.sale_event
+                    ? post.sale_event.title
+                    : "Manual social draft"}
+                  {dateLabel ? ` · ${dateLabel}` : ""}
+                </p>
+              </button>
+              {canDelete && (
+                <button
+                  type="button"
+                  aria-label={`Delete post ${postDraft.title || post.title}`}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    props.onRequestDelete(post.id);
+                  }}
+                  disabled={isDeleting}
+                  className="absolute bottom-2 right-2 z-20 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-muted-foreground shadow-sm transition-colors cursor-pointer hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function SocialPostsPageClient(props: {
   businessSlug: string;
   businessName: string;
@@ -194,6 +325,8 @@ export function SocialPostsPageClient(props: {
     string | null
   >(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const [postPendingDelete, setPostPendingDelete] =
+    useState<SocialPostView | null>(null);
   const [regeneratingCaptionPostId, setRegeneratingCaptionPostId] = useState<
     string | null
   >(null);
@@ -385,14 +518,21 @@ export function SocialPostsPageClient(props: {
     }
   };
 
-  const deleteDraft = async (postId: string) => {
-    const post = posts.find((entry) => entry.id === postId);
-    if (!post || post.status !== "DRAFT") return;
+  // Posts already pushed to a social platform should not be deletable from
+  // here — see the matching guard in deleteSocialPostDraftAction.
+  const isDeletable = (post: SocialPostView) =>
+    post.status !== "PUBLISHED" && post.status !== "PUBLISHING";
 
-    const confirmed = window.confirm(
-      `Delete draft "${post.title}"? This action cannot be undone.`,
-    );
-    if (!confirmed) return;
+  const requestDelete = (postId: string) => {
+    const post = posts.find((entry) => entry.id === postId);
+    if (!post || !isDeletable(post)) return;
+    setPostPendingDelete(post);
+  };
+
+  const confirmDelete = async () => {
+    const post = postPendingDelete;
+    if (!post) return;
+    const postId = post.id;
 
     setDeletingPostId(postId);
     try {
@@ -420,12 +560,13 @@ export function SocialPostsPageClient(props: {
         return next;
       });
 
-      toast.success("Draft deleted.");
+      toast.success("Post deleted.");
       router.refresh();
     } catch {
-      toast.error("Unexpected error while deleting draft.");
+      toast.error("Unexpected error while deleting post.");
     } finally {
       setDeletingPostId(null);
+      setPostPendingDelete(null);
     }
   };
 
@@ -479,22 +620,22 @@ export function SocialPostsPageClient(props: {
   };
 
   const pageHeader = (
-    <div className="border-b border-border bg-card px-4 sm:px-8 py-4 sm:py-5">
-      <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+    <div className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur-sm px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+      <div className="flex items-center justify-between gap-3 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
             <Send className="h-4 w-4 text-primary" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-[17px] sm:text-xl font-bold tracking-tight text-foreground">
+              <h1 className="text-base sm:text-lg lg:text-xl font-bold tracking-tight text-foreground">
                 Social Posts
               </h1>
               <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary tabular-nums">
                 {posts.length}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
+            <p className="text-xs text-muted-foreground mt-0.5 hidden md:block">
               Generate, review, and publish to your connected channels.
             </p>
           </div>
@@ -506,7 +647,7 @@ export function SocialPostsPageClient(props: {
         >
           <PenLine className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Post something</span>
-          <span className="sm:hidden">Post</span>
+          <span className="sm:hidden">New</span>
         </Button>
       </div>
     </div>
@@ -515,10 +656,10 @@ export function SocialPostsPageClient(props: {
   if (posts.length === 0) {
     return (
       <>
-        <div className="flex flex-col bg-background">
+        <div className="flex flex-col bg-background min-h-screen">
           {pageHeader}
-          <div className="px-4 sm:px-8 py-4 sm:py-6">
-            <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
+          <div className="px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
+            <div className="max-w-7xl mx-auto w-full flex flex-col gap-5">
               <GrowthFlowChecklist
                 businessSlug={props.businessSlug}
                 flowContext={props.flowContext}
@@ -526,7 +667,7 @@ export function SocialPostsPageClient(props: {
                 completedSteps={[1, ...(hasStep2Signal ? ([2] as const) : [])]}
                 nextAction={nextActionText}
               />
-              <div className="bg-card rounded-2xl border border-border shadow-sm p-12 flex flex-col items-center justify-center text-center">
+              <div className="bg-card rounded-2xl border border-border shadow-sm px-6 py-10 sm:px-10 sm:py-14 flex flex-col items-center justify-center text-center">
                 <div className="h-12 w-12 bg-muted rounded-xl flex items-center justify-center mb-4">
                   <Megaphone className="h-6 w-6 text-muted-foreground/40" />
                 </div>
@@ -577,10 +718,10 @@ export function SocialPostsPageClient(props: {
 
   return (
     <>
-      <div className="flex flex-col bg-background">
+      <div className="flex flex-col bg-background min-h-screen">
         {pageHeader}
-        <div className="px-4 sm:px-8 py-4 sm:py-6">
-          <div className="max-w-7xl mx-auto w-full space-y-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
+          <div className="max-w-7xl mx-auto w-full space-y-5 sm:space-y-7">
             <GrowthFlowChecklist
               businessSlug={props.businessSlug}
               flowContext={props.flowContext}
@@ -593,25 +734,27 @@ export function SocialPostsPageClient(props: {
                 than 14 days. Encourages owners to keep the page active without
                 being preachy about it. */}
             {daysSinceLastPost !== null && daysSinceLastPost >= 14 && (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 sm:px-5 sm:py-4 flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100">
-                  <Megaphone className="h-4 w-4 text-amber-700" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-amber-900">
-                    Your page has been quiet for{" "}
-                    {daysSinceLastPost < 30
-                      ? `${daysSinceLastPost} days`
-                      : `${Math.floor(daysSinceLastPost / 7)} weeks`}
-                  </p>
-                  <p className="text-xs text-amber-900/80 mt-0.5 leading-relaxed">
-                    Steady posting keeps your page in feeds. Try a quick organic
-                    post — it doesn&apos;t have to be tied to a sale.
-                  </p>
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 sm:px-5 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100">
+                    <Megaphone className="h-4 w-4 text-amber-700" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-amber-900">
+                      Your page has been quiet for{" "}
+                      {daysSinceLastPost < 30
+                        ? `${daysSinceLastPost} days`
+                        : `${Math.floor(daysSinceLastPost / 7)} weeks`}
+                    </p>
+                    <p className="text-xs text-amber-900/80 mt-0.5 leading-relaxed">
+                      Steady posting keeps your page in feeds. Try a quick
+                      organic post — it doesn&apos;t have to be tied to a sale.
+                    </p>
+                  </div>
                 </div>
                 <Button
                   size="sm"
-                  className="shrink-0 gap-1.5"
+                  className="shrink-0 gap-1.5 w-full sm:w-auto"
                   onClick={() => setCreateDialogOpen(true)}
                 >
                   <PenLine className="h-3.5 w-3.5" />
@@ -621,179 +764,33 @@ export function SocialPostsPageClient(props: {
             )}
 
             {actionNeededPosts.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                      Action needed now
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Ready and failed posts should be reviewed first.
-                    </p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="bg-muted text-muted-foreground border-border"
-                  >
-                    {actionNeededPosts.length} post
-                    {actionNeededPosts.length > 1 ? "s" : ""}
-                  </Badge>
-                </div>
-                <div className="flex gap-3 overflow-x-auto pb-1">
-                  {actionNeededPosts.map((post) => {
-                    const postDraft = drafts[post.id] || toDraftState(post);
-                    const trimmedCaption = (
-                      postDraft.caption || post.caption_draft
-                    ).trim();
-                    const captionPreview = trimmedCaption
-                      ? `${trimmedCaption.slice(0, 72)}${
-                          trimmedCaption.length > 72 ? "..." : ""
-                        }`
-                      : "No caption yet";
-                    const isSelected = selectedPost.id === post.id;
-                    const dateLabel = formatPostDate(post.created_at);
-
-                    return (
-                      <div key={post.id} className="relative min-w-[240px]">
-                        <button
-                          type="button"
-                          aria-pressed={isSelected}
-                          onClick={() => setSelectedPostId(post.id)}
-                          disabled={deletingPostId === post.id}
-                          className={`w-full rounded-2xl border px-4 py-3 pr-12 text-left transition-colors cursor-pointer ${
-                            isSelected
-                              ? "border-primary bg-primary/10"
-                              : "border-border bg-card hover:bg-accent/30"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <p
-                              className={`truncate text-sm font-semibold ${
-                                isSelected ? "text-primary" : "text-foreground"
-                              }`}
-                            >
-                              {postDraft.title || post.title}
-                            </p>
-                            <Badge
-                              variant="outline"
-                              className={
-                                isSelected
-                                  ? "border-primary/30 bg-primary/10 text-primary"
-                                  : statusBadgeClass(post.status)
-                              }
-                            >
-                              {post.status}
-                            </Badge>
-                          </div>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {captionPreview}
-                          </p>
-                          <p className="mt-2 text-xs text-muted-foreground/60">
-                            {post.sale_event
-                              ? post.sale_event.title
-                              : "Manual social draft"}
-                            {dateLabel ? ` | ${dateLabel}` : ""}
-                          </p>
-                        </button>
-                        <button
-                          type="button"
-                          aria-label={`Delete draft ${postDraft.title || post.title}`}
-                          onClick={() => {
-                            void deleteDraft(post.id);
-                          }}
-                          disabled={deletingPostId === post.id}
-                          className="absolute bottom-2 right-2 z-20 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-muted-foreground shadow-sm transition-colors cursor-pointer hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          {deletingPostId === post.id ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <SelectableLane
+                title="Action needed now"
+                description="Ready and failed posts should be reviewed first."
+                countLabel={`${actionNeededPosts.length} post${actionNeededPosts.length > 1 ? "s" : ""}`}
+                posts={actionNeededPosts}
+                drafts={drafts}
+                selectedPostId={selectedPost.id}
+                deletingPostId={deletingPostId}
+                onSelect={setSelectedPostId}
+                onRequestDelete={requestDelete}
+                isDeletable={isDeletable}
+              />
             )}
 
             {draftPosts.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-                      Saved Drafts
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Click a draft to open it in the editor.
-                    </p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="bg-muted text-muted-foreground border-border"
-                  >
-                    {draftPosts.length} draft{draftPosts.length > 1 ? "s" : ""}
-                  </Badge>
-                </div>
-                <div className="flex gap-3 overflow-x-auto pb-1">
-                  {draftPosts.map((post) => {
-                    const postDraft = drafts[post.id] || toDraftState(post);
-                    const trimmedCaption = (
-                      postDraft.caption || post.caption_draft
-                    ).trim();
-                    const captionPreview = trimmedCaption
-                      ? `${trimmedCaption.slice(0, 72)}${
-                          trimmedCaption.length > 72 ? "..." : ""
-                        }`
-                      : "No caption yet";
-                    const isSelected = selectedPost.id === post.id;
-                    const dateLabel = formatPostDate(post.created_at);
-
-                    return (
-                      <button
-                        key={post.id}
-                        type="button"
-                        aria-pressed={isSelected}
-                        onClick={() => setSelectedPostId(post.id)}
-                        className={`min-w-[240px] rounded-2xl border px-4 py-3 text-left transition-colors cursor-pointer ${
-                          isSelected
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-card hover:bg-accent/30"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <p
-                            className={`truncate text-sm font-semibold ${
-                              isSelected ? "text-primary" : "text-foreground"
-                            }`}
-                          >
-                            {postDraft.title || post.title}
-                          </p>
-                          <Badge
-                            variant="outline"
-                            className={
-                              isSelected
-                                ? "border-primary/30 bg-primary/10 text-primary"
-                                : statusBadgeClass(post.status)
-                            }
-                          >
-                            {post.status}
-                          </Badge>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {captionPreview}
-                        </p>
-                        <p className="mt-2 text-xs text-muted-foreground/60">
-                          {post.sale_event
-                            ? post.sale_event.title
-                            : "Manual social draft"}
-                          {dateLabel ? ` | ${dateLabel}` : ""}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <SelectableLane
+                title="Saved Drafts"
+                description="Click a draft to open it in the editor."
+                countLabel={`${draftPosts.length} draft${draftPosts.length > 1 ? "s" : ""}`}
+                posts={draftPosts}
+                drafts={drafts}
+                selectedPostId={selectedPost.id}
+                deletingPostId={deletingPostId}
+                onSelect={setSelectedPostId}
+                onRequestDelete={requestDelete}
+                isDeletable={isDeletable}
+              />
             )}
 
             {otherPosts.length > 0 && (
@@ -834,25 +831,25 @@ export function SocialPostsPageClient(props: {
               key={selectedPost.id}
               className="rounded-2xl border-border shadow-sm"
             >
-              <CardHeader className="space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <CardTitle className="text-lg font-semibold text-foreground">
+              <CardHeader className="space-y-2 px-4 sm:px-6 pt-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <CardTitle className="text-base sm:text-lg font-semibold text-foreground break-words">
                     {selectedPost.title}
                   </CardTitle>
                   <Badge
                     variant="outline"
-                    className={statusBadgeClass(selectedPost.status)}
+                    className={`${statusBadgeClass(selectedPost.status)} shrink-0`}
                   >
                     {selectedPost.status}
                   </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {selectedPost.sale_event
                     ? `From sale event: ${selectedPost.sale_event.title}`
                     : "Manual social draft"}
                 </p>
               </CardHeader>
-              <CardContent className="space-y-5">
+              <CardContent className="space-y-5 px-4 sm:px-6 pb-5 sm:pb-6">
                 {selectedPost.targets.length === 0 ? (
                   <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
                     No connected channels on this draft. Connect Facebook or
@@ -873,9 +870,9 @@ export function SocialPostsPageClient(props: {
                   </p>
                 ) : null}
 
-                <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="grid gap-5 lg:gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                   {/* ── Left column: editable content ─────────────────── */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 order-2 lg:order-1">
                     <div className="space-y-2">
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Post Title
@@ -940,11 +937,11 @@ export function SocialPostsPageClient(props: {
                   </div>
 
                   {/* ── Right column: image preview + controls ─────────── */}
-                  <div className="space-y-3">
+                  <div className="space-y-3 order-1 lg:order-2">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Post Image
                     </p>
-                    <div className="relative aspect-[2/3] overflow-hidden rounded-2xl border border-border bg-muted">
+                    <div className="relative aspect-[4/5] sm:aspect-[2/3] mx-auto w-full max-w-[320px] lg:max-w-none overflow-hidden rounded-2xl border border-border bg-muted">
                       {previewImageUrl && !hasImageLoadError ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -1111,10 +1108,10 @@ export function SocialPostsPageClient(props: {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap justify-end gap-2">
+                <div className="flex flex-col-reverse sm:flex-row sm:flex-wrap sm:justify-end gap-2 pt-1">
                   <Button
                     variant="outline"
-                    className="rounded-xl cursor-pointer"
+                    className="rounded-xl cursor-pointer w-full sm:w-auto"
                     disabled={savingPostId === selectedPost.id}
                     onClick={() => saveDraft(selectedPost.id)}
                   >
@@ -1124,14 +1121,17 @@ export function SocialPostsPageClient(props: {
                     Save Draft
                   </Button>
                   <Button
-                    className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                    className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer w-full sm:w-auto"
                     disabled={publishingPostId === selectedPost.id}
                     onClick={() => publishPost(selectedPost.id)}
                   >
                     {publishingPostId === selectedPost.id ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
-                    Publish to connected channels
+                    <span className="sm:hidden">Publish</span>
+                    <span className="hidden sm:inline">
+                      Publish to connected channels
+                    </span>
                   </Button>
                 </div>
 
@@ -1157,6 +1157,47 @@ export function SocialPostsPageClient(props: {
           setSelectedPostId(postId);
         }}
       />
+      <AlertDialog
+        open={!!postPendingDelete}
+        onOpenChange={(open) => {
+          if (!open && deletingPostId === null) {
+            setPostPendingDelete(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {postPendingDelete
+                ? `"${postPendingDelete.title}" will be removed from your drafts. This can't be undone.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!deletingPostId}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={!!deletingPostId}
+              onClick={(event) => {
+                event.preventDefault();
+                void confirmDelete();
+              }}
+            >
+              {deletingPostId ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete post"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

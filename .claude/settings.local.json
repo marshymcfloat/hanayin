@@ -17,14 +17,17 @@
       "Bash(python \"C:\\\\Users\\\\LENOVO\\\\.claude\\\\skills\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"SaaS dashboard notification history activity feed service booking\" --design-system -p \"ServiceFlow\")",
       "PowerShell(head -200)",
       "Bash(npx eslint *)",
+      "Bash(npx vitest *)",
       "Bash(gh pr *)",
       "PowerShell(gh --version)",
       "PowerShell(Get-Command gh -ErrorAction SilentlyContinue; \"Program Files check:\"; Test-Path \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\"; Test-Path \"$env:LOCALAPPDATA\\\\Programs\\\\GitHub CLI\\\\gh.exe\")",
       "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(git fetch *)",
       "Bash(git merge *)",
-      "Bash(git commit *)"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\); console.log\\('valid JSON'\\)\")"
     ]
   }
 }
