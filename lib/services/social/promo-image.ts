@@ -627,14 +627,70 @@ const ORGANIC_CATEGORY_SUBJECT: Record<OrganicPostCategory, string> = {
     "Lifestyle wellness moment inside a modern beauty salon or spa — serene, inviting atmosphere, warm ambient light, clean surfaces.",
 };
 
+/**
+ * Convert a category + topic into an additional subject hint that
+ * pushes the model toward visualizing the topic directly. Educational
+ * posts especially benefit from this — the abstract category subject
+ * ("flat-lay of skincare tools") is too generic on its own when the
+ * owner's topic is something specific like "skin tag" or "rosacea".
+ *
+ * Returns "" when the topic doesn't add useful visual signal (e.g.
+ * SEASONAL_GREETING with "Mother's Day" is already covered by the
+ * subject's "seasonal botanical props" guidance).
+ */
+function buildTopicSubjectSuffix(
+  category: OrganicPostCategory,
+  topic: string,
+): string {
+  switch (category) {
+    case "TIPS_EDUCATION":
+      // Make the topic the visual hook of the flat-lay.
+      return `The arrangement should specifically reference "${topic}" — items, props, or context that visually communicate this concept.`;
+    case "SERVICE_SHOWCASE":
+      return `The treatment or service depicted should be "${topic}".`;
+    case "BEHIND_THE_SCENES":
+      return `The behind-the-scenes moment should specifically relate to "${topic}".`;
+    case "TEAM_SPOTLIGHT":
+      return `The framing should evoke "${topic}".`;
+    case "SEASONAL_GREETING":
+    case "GENERAL":
+    default:
+      // Topic for these categories is usually atmospheric (a holiday
+      // name, a community moment) — the base subject already captures
+      // it via seasonLine and contextLine.
+      return "";
+  }
+}
+
 export function buildOrganicImagePrompt(input: OrganicImageInput): string {
   const profile = input.imageProfile || DEFAULT_SOCIAL_IMAGE_PROFILE;
-  // Warm Editorial profile gets the variation pool; everything else uses the
-  // category-specific direction.
-  const subjectOverride =
-    profile === "WARM_EDITORIAL"
-      ? pickRandom(PROFILE_BLUEPRINTS.WARM_EDITORIAL.subjects)
-      : ORGANIC_CATEGORY_SUBJECT[input.category];
+  // Category-specific subject wins for any non-GENERAL category — the
+  // owner explicitly picked a post type and the visual should reflect
+  // it. Only when the category is GENERAL (no specific subject anchor)
+  // do we fall back to the profile's variation pool. Pre-H4 this was
+  // reversed: WARM_EDITORIAL always swallowed the category subject,
+  // which is why a TIPS_EDUCATION post about "skin tag" was producing
+  // a generic spa portrait instead of the flat-lay the category demands.
+  const baseSubject =
+    input.category !== "GENERAL"
+      ? ORGANIC_CATEGORY_SUBJECT[input.category]
+      : profile === "WARM_EDITORIAL"
+        ? pickRandom(PROFILE_BLUEPRINTS.WARM_EDITORIAL.subjects)
+        : ORGANIC_CATEGORY_SUBJECT[input.category];
+
+  // H5: weave the topic directly into the subject string for categories
+  // where the topic is most likely a concrete visual subject (educational
+  // posts often cover a specific concern like "skin tags" — the flat-lay
+  // should show items related to that, not generic skincare). Without
+  // this, the topic only appears in contextLine and the image generator
+  // tends to pick a generic blueprint visual instead.
+  const trimmedTopic = input.topic.trim();
+  const topicSuffix = trimmedTopic
+    ? buildTopicSubjectSuffix(input.category, trimmedTopic)
+    : "";
+  const subjectOverride = topicSuffix
+    ? `${baseSubject} ${topicSuffix}`
+    : baseSubject;
 
   const seasonLine = inferSeasonContext(input.topic, "ongoing");
   const hookContext = extractCaptionHook(input.captionText);

@@ -40,6 +40,17 @@ export type CaptionGenerationInput = {
    * angle", "mention rainy season").
    */
   ownerCaptionDirection?: string;
+  /**
+   * Optional custom fallback used when Gemini is unconfigured / fails /
+   * returns low-quality output. Defaults to the sale-flavored rescue,
+   * which is the right shape for sale-event captions but produces
+   * inappropriate "Bookings open today" copy for organic content (tips,
+   * behind-the-scenes, seasonal greetings). Organic callers pass
+   * buildOrganicRescueCaption so the fallback respects category.
+   */
+  customRescueBuilder?: (
+    input: CaptionGenerationInput,
+  ) => CaptionGenerationOutput;
 };
 
 const TONE_GUIDE: Record<NonNullable<CaptionGenerationInput["captionTone"]>, string> = {
@@ -793,6 +804,171 @@ function buildRescueCaptionDraft(input: CaptionGenerationInput): CaptionGenerati
   };
 }
 
+// ─── Organic post rescue captions ──────────────────────────────────
+//
+// The default buildRescueCaptionDraft above is sale-flavored — every
+// category falls into it produces "Bookings open today" boilerplate. For
+// organic posts (tips, behind-the-scenes, seasonal, team, general) that's
+// the wrong shape. Each category gets its own rescue template here so
+// that even when Gemini is unconfigured or fails, the owner sees content
+// that actually matches the post type they picked.
+//
+// SERVICE_SHOWCASE intentionally falls through to the sale-style rescue
+// below — it's a service-promotion category, so booking-forward copy is
+// appropriate.
+
+type OrganicRescueInput = {
+  category: OrganicPostCategory;
+  topic: string;
+  businessName: string;
+  businessSlug: string;
+  ownerCaptionDirection?: string | null;
+};
+
+const TIPS_EDUCATION_OPENERS = [
+  "Quick self-care tip you can try today:",
+  "Sharing a small thing that makes a big difference:",
+  "Today's wellness reminder:",
+  "Real talk about everyday self-care:",
+];
+
+const BEHIND_THE_SCENES_OPENERS = [
+  "Peek behind the scenes today.",
+  "Here's what your appointment looks like before you even arrive:",
+  "Care starts before you walk in.",
+  "The little prep details no one talks about:",
+];
+
+const SEASONAL_OPENERS = [
+  "Seasons change — your self-care can too.",
+  "A small note on the season:",
+  "Soft reminder for this time of year:",
+];
+
+const TEAM_OPENERS = [
+  "The people behind your appointments.",
+  "Meet the team that makes it happen:",
+  "Today we're celebrating the people who do the work:",
+];
+
+const GENERAL_OPENERS = [
+  "Just dropping in to say hi.",
+  "A small note for the community:",
+  "Sharing a moment from today:",
+];
+
+/**
+ * Per-category rescue caption builder. Uses the topic and business
+ * name; never invents booking promo for educational / behind-the-
+ * scenes / seasonal content. Output is intentionally plain — when
+ * Gemini comes back online the AI version takes over. This is the
+ * "good enough so the owner can still publish" floor.
+ */
+export function buildOrganicRescueCaption(
+  input: OrganicRescueInput,
+): CaptionGenerationOutput {
+  const topic = input.topic.trim() || "self-care";
+  const direction = input.ownerCaptionDirection?.trim();
+  const directionLine = direction ? `Note from us: ${direction}` : "";
+
+  let lines: string[] = [];
+
+  switch (input.category) {
+    case "TIPS_EDUCATION": {
+      const opener = pickRandom(TIPS_EDUCATION_OPENERS);
+      lines = [
+        opener,
+        `Today's topic: ${topic}.`,
+        "",
+        "A few things worth knowing:",
+        `• Be consistent — small habits compound faster than dramatic resets.`,
+        `• Listen to what your skin / body is telling you, not the trend cycle.`,
+        `• Ask before you experiment — your stylist or therapist has seen it before.`,
+        "",
+        directionLine,
+        `If you want to talk through ${topic} with us, we're around.`,
+      ].filter(Boolean);
+      break;
+    }
+    case "BEHIND_THE_SCENES": {
+      const opener = pickRandom(BEHIND_THE_SCENES_OPENERS);
+      lines = [
+        opener,
+        `Today's behind-the-scenes: ${topic}.`,
+        "",
+        "Every appointment starts long before the chair.",
+        "Tools sterilized, station laid out, products at room temperature.",
+        "Small things, but they're why your visit feels effortless.",
+        "",
+        directionLine,
+        `Catch the team in action when you book your next visit at ${input.businessName}.`,
+      ].filter(Boolean);
+      break;
+    }
+    case "SEASONAL_GREETING": {
+      const opener = pickRandom(SEASONAL_OPENERS);
+      lines = [
+        opener,
+        `${topic}.`,
+        "",
+        "Whatever you're celebrating today, take a beat for yourself too.",
+        "A little rest, a slow morning, something that reminds you you're cared for.",
+        "",
+        directionLine,
+        `From all of us at ${input.businessName} — sending you a warm wave.`,
+      ].filter(Boolean);
+      break;
+    }
+    case "TEAM_SPOTLIGHT": {
+      const opener = pickRandom(TEAM_OPENERS);
+      lines = [
+        opener,
+        `Spotlight: ${topic}.`,
+        "",
+        "The work you feel in the chair starts with the people who show up.",
+        "Steady hands, real care, years of practice.",
+        "We're grateful you keep choosing us.",
+        "",
+        directionLine,
+        `Come meet the team at ${input.businessName}.`,
+      ].filter(Boolean);
+      break;
+    }
+    case "GENERAL": {
+      const opener = pickRandom(GENERAL_OPENERS);
+      lines = [
+        opener,
+        topic,
+        "",
+        "Pop into the page anytime — we share little notes, tips, and slow updates.",
+        "",
+        directionLine,
+      ].filter(Boolean);
+      break;
+    }
+    case "SERVICE_SHOWCASE":
+    default: {
+      // Service showcases are inherently promotional — fall through
+      // to the sale-flavored rescue. Caller will compose CaptionGenerationInput
+      // appropriately when this category is in play.
+      lines = [
+        `${topic} at ${input.businessName}.`,
+        "",
+        "Built for the kind of visit you remember.",
+        "Quietly precise — you'll feel it in the small details.",
+        directionLine,
+        `Book your slot at ${input.businessName} when you're ready.`,
+      ].filter(Boolean);
+      break;
+    }
+  }
+
+  return {
+    caption: formatCaptionForSocialFeed(lines.join("\n")),
+    hashtags: [],
+  };
+}
+
 function finalizeCaptionOutput(
   output: CaptionGenerationOutput,
   input: CaptionGenerationInput,
@@ -1136,6 +1312,19 @@ export type OrganicCaptionInput = {
   mood?: string;
   visualFocus?: string;
   ownerContext?: string;
+  /**
+   * Owner-selected caption tone. Same enum as the campaign-side input —
+   * lets ad-hoc organic posts have the same level of voice control as
+   * sale-driven ones. AUTO defers to the existing default voice.
+   */
+  captionTone?: CaptionGenerationInput["captionTone"];
+  /**
+   * Free-text owner direction for the caption specifically. Unlike
+   * ownerContext (which is shared between caption and image upstream), this
+   * goes only into the caption prompt. Lets owners say things like "lean
+   * into team appreciation" without affecting the image direction.
+   */
+  ownerCaptionDirection?: string;
 };
 
 const ORGANIC_CATEGORY_INSTRUCTIONS: Record<OrganicPostCategory, string> = {
@@ -1147,34 +1336,201 @@ const ORGANIC_CATEGORY_INSTRUCTIONS: Record<OrganicPostCategory, string> = {
   GENERAL: "Engage the audience with a warm, conversational post that builds community and encourages interaction.",
 };
 
-export async function generateOrganicCaptionDraft(
+/**
+ * Per-category instructions for the organic Gemini prompt. These are
+ * structural (where the tip goes, how the post is shaped) rather than
+ * the more general "what kind of voice" guidance which lives in the
+ * category description string above.
+ */
+function buildOrganicCategoryInstructions(
+  category: OrganicPostCategory,
+): string[] {
+  switch (category) {
+    case "TIPS_EDUCATION":
+      return [
+        "- Lead with the tip itself in the first 1–2 lines. The reader should learn something before reading anything else.",
+        "- Follow with 2–3 supporting bullet points (use • or -). Each bullet is one practical takeaway.",
+        "- End with ONE soft, non-pushy invitation to chat or book if the topic is relevant to a service.",
+        "- DO NOT pivot to a booking pitch. DO NOT say 'limited-time'. The post must teach first.",
+      ];
+    case "BEHIND_THE_SCENES":
+      return [
+        "- Open with a moment, not an offer. Describe what's happening behind the scenes.",
+        "- Use storytelling voice — sensory details, small touches, the human side of preparation.",
+        "- Mention the team naturally; do not turn it into a service ad.",
+        "- End with one warm sentence that ties back to the visit experience, no pressure.",
+      ];
+    case "SEASONAL_GREETING":
+      return [
+        "- Lead with the seasonal or holiday acknowledgment in the first line.",
+        "- Connect it briefly (1–2 lines) to self-care, rest, or a slow moment.",
+        "- Tone is warm and human. NEVER transactional. NEVER 'book now'.",
+        "- One soft sign-off line from the business is the only mention of the brand.",
+      ];
+    case "TEAM_SPOTLIGHT":
+      return [
+        "- Celebrate a specific aspect of the team or one person's craft.",
+        "- Concrete details: how long they've been doing this, what they specialize in, what clients say.",
+        "- Make readers feel the skill and care, not the price list.",
+      ];
+    case "SERVICE_SHOWCASE":
+      return [
+        "- Lead with what the experience FEELS like — sensations, outcomes, the room.",
+        "- 2–4 bullet-style lines on what's included or how it goes.",
+        "- One clear, friendly invitation to book at the end. Avoid hard urgency.",
+      ];
+    case "GENERAL":
+    default:
+      return [
+        "- Conversational and warm — like a quick check-in with the community.",
+        "- Invite a small interaction (a comment, a share) without making it a marketing ask.",
+      ];
+  }
+}
+
+function buildOrganicGeminiPrompt(input: OrganicCaptionInput): string {
+  const toneOverride =
+    input.captionTone && input.captionTone !== "AUTO"
+      ? TONE_GUIDE[input.captionTone]
+      : "";
+  const categoryInstruction = ORGANIC_CATEGORY_INSTRUCTIONS[input.category];
+  const ownerDirection = input.ownerCaptionDirection?.trim();
+  const moodLine = input.mood ? `Mood/vibe: ${input.mood}.` : "";
+  const focusLine = input.visualFocus ? `Visual focus: ${input.visualFocus}.` : "";
+  const ownerContextLine = input.ownerContext
+    ? `Additional context from the owner: ${input.ownerContext}`
+    : "";
+
+  return [
+    "Write a high-quality social media caption for a Filipino audience.",
+    toneOverride || "Voice: warm, natural, human — never salesy.",
+    "Language: Taglish (Filipino + English), conversational like talking to a friend.",
+    "",
+    "This is an ORGANIC post — NOT a sale or promotion.",
+    "Hard rules:",
+    "  - DO NOT write 'limited-time', 'book now', 'preferred times fill up first', 'slots fill fast', or any similar pressure language.",
+    "  - DO NOT mention discounts, percentages off, price reductions, or promo codes.",
+    "  - DO NOT pivot to a sale even if the topic touches on a service.",
+    "  - The goal is to inform, share, and connect — not to convert.",
+    "",
+    `Post type: ${input.category.replaceAll("_", " ").toLowerCase()}`,
+    `Category guidance: ${categoryInstruction}`,
+    `Topic (primary subject — base the post around this): ${input.topic}`,
+    `Business: ${input.businessName}`,
+    `Business description: ${input.businessDescription?.trim() || "N/A"}`,
+    moodLine,
+    focusLine,
+    ownerContextLine,
+    ownerDirection
+      ? `Owner's voice direction (treat as a soft requirement, not a literal quote): ${ownerDirection}`
+      : "",
+    "",
+    "Output format:",
+    "Prefer valid JSON with this exact shape:",
+    '{"caption":"string","hashtags":["#TagOne","#TagTwo"]}',
+    "No markdown code fences and no extra keys.",
+    "If JSON is not possible, return plain text caption only.",
+    "",
+    "Per-category requirements:",
+    ...buildOrganicCategoryInstructions(input.category),
+    "",
+    "Universal requirements:",
+    "- Write 8–14 lines and at least 70 words.",
+    "- Use clear line breaks. One main idea per line.",
+    "- The topic must appear naturally in the caption body — never as a hard heading or label.",
+    "- Tie back to the business at most ONCE, softly, and only when it fits the category.",
+    "- 0–2 emojis total. 0 is acceptable.",
+    "- NEVER imply the business is slow or struggling. NEVER use 'quiet hours', 'slow hours', 'fill the window', 'rescue'.",
+    "- NEVER output internal reasoning lines like 'Focused categories:' or 'based on your ... promo.'",
+    "- 5–8 hashtags. All start with # and have no spaces.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/**
+ * Synthesize a minimal CaptionGenerationInput so the existing
+ * finalizeCaptionOutput / buildFallbackHashtags helpers can be reused
+ * without leaking sale-event fields. Only the fields those helpers
+ * actually read are populated.
+ */
+function adaptOrganicInputForFinalize(
   input: OrganicCaptionInput,
-): Promise<CaptionGenerationOutput> {
+): CaptionGenerationInput {
   const today = new Date();
-
-  const contextParts = [ORGANIC_CATEGORY_INSTRUCTIONS[input.category]];
-  if (input.mood) contextParts.push(`Tone/mood for this post: ${input.mood}.`);
-  if (input.visualFocus) contextParts.push(`Visual focus: ${input.visualFocus}.`);
-  if (input.ownerContext) contextParts.push(`Additional owner context: ${input.ownerContext}`);
-
-  return generateSocialCaptionDraft({
+  return {
     businessSlug: input.businessSlug,
     businessName: input.businessName,
     businessDescription: input.businessDescription,
     saleTitle: input.topic,
-    serviceNames: input.serviceNames ?? [],
-    actionCategory: "SOCIAL_ONLY",
+    saleDescription: null,
     startDate: today,
     endDate: today,
-    allowRewritePass: true,
-    saleDescription: contextParts.join(" "),
-  });
+    serviceNames: input.serviceNames ?? [],
+    actionCategory: "SOCIAL_ONLY",
+    captionTone: input.captionTone,
+    ownerCaptionDirection: input.ownerCaptionDirection,
+  };
+}
+
+export async function generateOrganicCaptionDraft(
+  input: OrganicCaptionInput,
+): Promise<CaptionGenerationOutput> {
+  const adapted = adaptOrganicInputForFinalize(input);
+  const rescue = finalizeCaptionOutput(
+    buildOrganicRescueCaption({
+      category: input.category,
+      topic: input.topic,
+      businessName: input.businessName,
+      businessSlug: input.businessSlug,
+      ownerCaptionDirection: input.ownerCaptionDirection,
+    }),
+    adapted,
+  );
+
+  if (!isGeminiConfigured()) {
+    return rescue;
+  }
+
+  const model = process.env.GEMINI_CAPTION_MODEL || "gemini-3-flash-preview";
+
+  try {
+    const responseText = await generateGeminiText({
+      model,
+      prompt: buildOrganicGeminiPrompt(input),
+      responseMimeType: "application/json",
+      temperature: 1,
+      maxOutputTokens: 1200,
+    });
+
+    const candidate = parseCaptionCandidate(responseText, rescue.hashtags);
+    if (!candidate) {
+      return rescue;
+    }
+
+    if (!isLowQualityCaption(candidate.caption)) {
+      return finalizeCaptionOutput(candidate, adapted);
+    }
+
+    // Low-quality output — return rescue rather than rewriting via the
+    // sale-event rewrite prompt (which would push it back toward
+    // promo voice). We accept that organic posts get one shot at AI
+    // and fall back to the category rescue otherwise.
+    return rescue;
+  } catch {
+    return rescue;
+  }
 }
 
 export async function generateSocialCaptionDraft(
   input: CaptionGenerationInput,
 ): Promise<CaptionGenerationOutput> {
-  const rescue = finalizeCaptionOutput(buildRescueCaptionDraft(input), input);
+  const rescue = finalizeCaptionOutput(
+    input.customRescueBuilder
+      ? input.customRescueBuilder(input)
+      : buildRescueCaptionDraft(input),
+    input,
+  );
 
   if (!isGeminiConfigured()) {
     return rescue;
