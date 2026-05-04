@@ -62,10 +62,24 @@ export function RequestsInbox({ businessSlug }: RequestsInboxProps) {
     | { kind: "error"; message: string }
   >({ kind: "loading" });
 
-  // Fetch on mount and on tab change.
+  // Wave G5: react-hooks/set-state-in-effect rejects synchronous
+  // setState inside a useEffect. Split the "reset to loading on
+  // (businessSlug|tab|refreshKey) change" responsibility into a
+  // prev-value comparison during render — the React-docs canonical
+  // pattern — and keep only the async fetch resolution in the
+  // effect. The bumpable refreshKey lets the explicit Refresh button
+  // trigger a re-fetch.
+  const [refreshKey, setRefreshKey] = useState(0);
+  const triggerKey = `${businessSlug}|${tab}|${refreshKey}`;
+  const [lastTriggerKey, setLastTriggerKey] = useState<string | null>(null);
+  if (lastTriggerKey !== triggerKey) {
+    setLastTriggerKey(triggerKey);
+    setState({ kind: "loading" });
+  }
+
+  // Fetch on mount and on tab/refresh change.
   useEffect(() => {
     let cancelled = false;
-    setState({ kind: "loading" });
     listSocialPostRequestsAction({
       businessSlug,
       scope: "ALL",
@@ -88,11 +102,10 @@ export function RequestsInbox({ businessSlug }: RequestsInboxProps) {
     return () => {
       cancelled = true;
     };
-  }, [businessSlug, tab]);
+  }, [businessSlug, tab, refreshKey]);
 
   const refresh = () => {
-    // bump tab to itself to retrigger the effect.
-    setTab((t) => t);
+    setRefreshKey((k) => k + 1);
     router.refresh();
   };
 

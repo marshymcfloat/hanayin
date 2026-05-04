@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Booking,
@@ -137,13 +137,29 @@ export function BookingList({
   // (which only changes if the user navigates with a different ?open=).
   // We resolve the id against the current bookings array — if the
   // booking isn't on this page (e.g. paginated out), we silently skip.
-  useEffect(() => {
-    if (initialOpenBookingId == null) return;
-    const match = bookings.find((b) => b.id === initialOpenBookingId);
-    if (!match) return;
-    setSelectedBooking(match);
-    setIsDialogOpen(true);
-  }, [initialOpenBookingId, bookings]);
+  //
+  // Wave G5: this used to be a useEffect that called setState
+  // synchronously, tripping react-hooks/set-state-in-effect. Switched
+  // to the prev-value-during-render pattern, which is the React-docs
+  // canonical fix and also corrects a latent bug — the old effect
+  // re-fired whenever `bookings` changed (e.g. after a refetch),
+  // re-opening the dialog after the user had closed it. Now the
+  // auto-open fires exactly once per distinct ?open= value.
+  // Sentinel undefined so the first render triggers auto-open exactly
+  // once when initialOpenBookingId arrives.
+  const [lastDeepLinkId, setLastDeepLinkId] = useState<
+    number | null | undefined
+  >(undefined);
+  if (lastDeepLinkId !== initialOpenBookingId) {
+    setLastDeepLinkId(initialOpenBookingId ?? null);
+    if (initialOpenBookingId != null) {
+      const match = bookings.find((b) => b.id === initialOpenBookingId);
+      if (match) {
+        setSelectedBooking(match);
+        setIsDialogOpen(true);
+      }
+    }
+  }
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {

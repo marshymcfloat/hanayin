@@ -69,18 +69,30 @@ export function LazyBookingQuickPanel({
   const [payload, setPayload] = useState<BookingDetailPayload | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Wave G2 follow-up: react-hooks/set-state-in-effect rejects calling
+  // setState synchronously inside a useEffect body. We split the
+  // "reset on (open|bookingId) change" responsibility into a
+  // prev-value comparison during render (the React-docs canonical
+  // pattern), and keep only the async fetch and its post-resolution
+  // setStates inside the effect — those are inside .then callbacks,
+  // which the rule is happy with.
+  const triggerKey = `${open ? "1" : "0"}:${bookingId ?? "null"}`;
+  const [lastTriggerKey, setLastTriggerKey] = useState(triggerKey);
+  if (triggerKey !== lastTriggerKey) {
+    setLastTriggerKey(triggerKey);
+    setPayload(null);
+    setLoading(open && bookingId != null);
+  }
+
   // (Re)fetch each time the panel is opened with a fresh id. We
   // deliberately don't cache cross-renders — booking state changes
   // mid-session and stale data inside the panel could lead to stale
   // permission decisions on the actions.
   useEffect(() => {
     if (!open || bookingId == null) {
-      setPayload(null);
       return;
     }
     let cancelled = false;
-    setLoading(true);
-    setPayload(null);
     getBookingDetailAction(bookingId)
       .then((res) => {
         if (cancelled) return;
