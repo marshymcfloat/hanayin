@@ -429,6 +429,9 @@ export const ModelName = {
   CampaignEvent: 'CampaignEvent',
   SeasonalCalendar: 'SeasonalCalendar',
   OutboxMessage: 'OutboxMessage',
+  BookingNote: 'BookingNote',
+  BookingPriceAdjustment: 'BookingPriceAdjustment',
+  SocialPostRequest: 'SocialPostRequest',
   AuditLog: 'AuditLog',
   Expense: 'Expense'
 } as const
@@ -446,7 +449,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "auditLog" | "expense"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3780,6 +3783,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BookingNote: {
+      payload: Prisma.$BookingNotePayload<ExtArgs>
+      fields: Prisma.BookingNoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BookingNoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BookingNoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>
+        }
+        findFirst: {
+          args: Prisma.BookingNoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BookingNoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>
+        }
+        findMany: {
+          args: Prisma.BookingNoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>[]
+        }
+        create: {
+          args: Prisma.BookingNoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>
+        }
+        createMany: {
+          args: Prisma.BookingNoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BookingNoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>[]
+        }
+        delete: {
+          args: Prisma.BookingNoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>
+        }
+        update: {
+          args: Prisma.BookingNoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>
+        }
+        deleteMany: {
+          args: Prisma.BookingNoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BookingNoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BookingNoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>[]
+        }
+        upsert: {
+          args: Prisma.BookingNoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingNotePayload>
+        }
+        aggregate: {
+          args: Prisma.BookingNoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBookingNote>
+        }
+        groupBy: {
+          args: Prisma.BookingNoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingNoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BookingNoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingNoteCountAggregateOutputType> | number
+        }
+      }
+    }
+    BookingPriceAdjustment: {
+      payload: Prisma.$BookingPriceAdjustmentPayload<ExtArgs>
+      fields: Prisma.BookingPriceAdjustmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BookingPriceAdjustmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BookingPriceAdjustmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>
+        }
+        findFirst: {
+          args: Prisma.BookingPriceAdjustmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BookingPriceAdjustmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>
+        }
+        findMany: {
+          args: Prisma.BookingPriceAdjustmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>[]
+        }
+        create: {
+          args: Prisma.BookingPriceAdjustmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>
+        }
+        createMany: {
+          args: Prisma.BookingPriceAdjustmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BookingPriceAdjustmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>[]
+        }
+        delete: {
+          args: Prisma.BookingPriceAdjustmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>
+        }
+        update: {
+          args: Prisma.BookingPriceAdjustmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.BookingPriceAdjustmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BookingPriceAdjustmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BookingPriceAdjustmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.BookingPriceAdjustmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPriceAdjustmentPayload>
+        }
+        aggregate: {
+          args: Prisma.BookingPriceAdjustmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBookingPriceAdjustment>
+        }
+        groupBy: {
+          args: Prisma.BookingPriceAdjustmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingPriceAdjustmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BookingPriceAdjustmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingPriceAdjustmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    SocialPostRequest: {
+      payload: Prisma.$SocialPostRequestPayload<ExtArgs>
+      fields: Prisma.SocialPostRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SocialPostRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SocialPostRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.SocialPostRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SocialPostRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>
+        }
+        findMany: {
+          args: Prisma.SocialPostRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>[]
+        }
+        create: {
+          args: Prisma.SocialPostRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>
+        }
+        createMany: {
+          args: Prisma.SocialPostRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SocialPostRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.SocialPostRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>
+        }
+        update: {
+          args: Prisma.SocialPostRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.SocialPostRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SocialPostRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SocialPostRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.SocialPostRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.SocialPostRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSocialPostRequest>
+        }
+        groupBy: {
+          args: Prisma.SocialPostRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialPostRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SocialPostRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialPostRequestCountAggregateOutputType> | number
+        }
+      }
+    }
     AuditLog: {
       payload: Prisma.$AuditLogPayload<ExtArgs>
       fields: Prisma.AuditLogFieldRefs
@@ -4486,6 +4711,9 @@ export const BookingScalarFieldEnum = {
   capacity_override_reason: 'capacity_override_reason',
   capacity_override_note: 'capacity_override_note',
   sale_event_id: 'sale_event_id',
+  cancelled_at: 'cancelled_at',
+  cancelled_by_id: 'cancelled_by_id',
+  cancellation_reason: 'cancellation_reason',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -4743,6 +4971,53 @@ export const OutboxMessageScalarFieldEnum = {
 } as const
 
 export type OutboxMessageScalarFieldEnum = (typeof OutboxMessageScalarFieldEnum)[keyof typeof OutboxMessageScalarFieldEnum]
+
+
+export const BookingNoteScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  body: 'body',
+  visibility: 'visibility',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at'
+} as const
+
+export type BookingNoteScalarFieldEnum = (typeof BookingNoteScalarFieldEnum)[keyof typeof BookingNoteScalarFieldEnum]
+
+
+export const BookingPriceAdjustmentScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  availed_service_id: 'availed_service_id',
+  delta_amount: 'delta_amount',
+  reason: 'reason',
+  created_by_user_id: 'created_by_user_id',
+  created_at: 'created_at'
+} as const
+
+export type BookingPriceAdjustmentScalarFieldEnum = (typeof BookingPriceAdjustmentScalarFieldEnum)[keyof typeof BookingPriceAdjustmentScalarFieldEnum]
+
+
+export const SocialPostRequestScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  requested_by_user_id: 'requested_by_user_id',
+  topic: 'topic',
+  brief: 'brief',
+  category: 'category',
+  desired_tone: 'desired_tone',
+  attachment_url: 'attachment_url',
+  due_date: 'due_date',
+  status: 'status',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  rejection_reason: 'rejection_reason',
+  social_post_id: 'social_post_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SocialPostRequestScalarFieldEnum = (typeof SocialPostRequestScalarFieldEnum)[keyof typeof SocialPostRequestScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {
@@ -5481,6 +5756,34 @@ export type ListEnumCampaignEventTypeFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'BookingNoteVisibility'
+ */
+export type EnumBookingNoteVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingNoteVisibility'>
+    
+
+
+/**
+ * Reference to a field of type 'BookingNoteVisibility[]'
+ */
+export type ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingNoteVisibility[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SocialPostRequestStatus'
+ */
+export type EnumSocialPostRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SocialPostRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SocialPostRequestStatus[]'
+ */
+export type ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SocialPostRequestStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'ExpenseCategory'
  */
 export type EnumExpenseCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExpenseCategory'>
@@ -5633,6 +5936,9 @@ export type GlobalOmitConfig = {
   campaignEvent?: Prisma.CampaignEventOmit
   seasonalCalendar?: Prisma.SeasonalCalendarOmit
   outboxMessage?: Prisma.OutboxMessageOmit
+  bookingNote?: Prisma.BookingNoteOmit
+  bookingPriceAdjustment?: Prisma.BookingPriceAdjustmentOmit
+  socialPostRequest?: Prisma.SocialPostRequestOmit
   auditLog?: Prisma.AuditLogOmit
   expense?: Prisma.ExpenseOmit
 }

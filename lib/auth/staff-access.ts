@@ -7,12 +7,18 @@ import {
 import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 
+// Default permissions per StaffProfile. Source of truth for new employees
+// and the fallback used by sanitizeStaffPermissions when a row has an
+// empty permissions array. See docs/role-permissions-matrix.md for the
+// product-level rationale; if you're changing this, update the matrix
+// doc in the same PR.
 const DEFAULT_PERMISSIONS_BY_PROFILE: Record<StaffProfile, StaffPermission[]> = {
   STAFF: [
     StaffPermission.BOOKING_CREATE,
     StaffPermission.PAYMENT_COLLECT,
     StaffPermission.QUEUE_CLAIM_SELF,
     StaffPermission.QUEUE_SERVE_SELF,
+    StaffPermission.SOCIAL_POST_REQUEST_CREATE,
   ],
   MANAGER: [
     StaffPermission.BOOKING_CREATE,
@@ -21,10 +27,22 @@ const DEFAULT_PERMISSIONS_BY_PROFILE: Record<StaffProfile, StaffPermission[]> = 
     StaffPermission.QUEUE_SERVE_SELF,
     StaffPermission.QUEUE_OVERRIDE_ALL,
     StaffPermission.CATALOG_MANAGE,
+    // Booking-editor: managers run the floor and need full booking
+    // adjustment authority short of permanent deletion.
+    StaffPermission.BOOKING_MODIFY,
+    StaffPermission.BOOKING_MARK_NO_SHOW,
+    StaffPermission.BOOKING_ADJUST_PRICE,
+    StaffPermission.BOOKING_CANCEL,
+    // Social-post-request: managers can submit and review.
+    // SOCIAL_POST_PUBLISH stays off by default — owners delegate it
+    // explicitly via the per-employee admin UI.
+    StaffPermission.SOCIAL_POST_REQUEST_CREATE,
+    StaffPermission.SOCIAL_POST_REVIEW,
   ],
   CASHIER: [
     StaffPermission.BOOKING_CREATE,
     StaffPermission.PAYMENT_COLLECT,
+    StaffPermission.SOCIAL_POST_REQUEST_CREATE,
   ],
 };
 

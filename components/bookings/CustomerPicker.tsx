@@ -115,15 +115,26 @@ export default function CustomerPicker({
   );
 
   // Sync internal state when the parent resets the value (e.g. after submit).
-  useEffect(() => {
-    if (!value) {
+  //
+  // Wave G2: this used to live in a useEffect, which trips
+  // react-hooks/set-state-in-effect (the "reset state on prop change"
+  // anti-pattern). The supported alternative — comparing prev-value
+  // during render and calling setState if it changed — is documented in
+  // the React docs under "Adjusting state on prop change" and is the
+  // canonical fix. React schedules a re-render to converge, so this is
+  // safe and lint-clean.
+  const valueIsSet = value !== null && value !== undefined;
+  const [prevValueIsSet, setPrevValueIsSet] = useState(valueIsSet);
+  if (valueIsSet !== prevValueIsSet) {
+    setPrevValueIsSet(valueIsSet);
+    if (!valueIsSet) {
       setNewName("");
       setNewPhone("");
       setNewEmail("");
       setAnonLabel("");
       setQuery("");
     }
-  }, [value]);
+  }
 
   const { data, isFetching } = useQuery({
     queryKey: ["customerPicker", debouncedQuery, businessSlug],

@@ -41,6 +41,7 @@ import ManagerQueueBoard, {
   type ManagerQueueEmployee,
   type ManagerQueueService,
 } from "@/components/dashboard/manager/ManagerQueueBoard";
+import { ManagerBookingsDialog } from "@/components/dashboard/manager/ManagerBookingsDialog";
 import { EmployeeLeaveClient } from "@/components/dashboard/attendance/EmployeeLeaveClient";
 import type { PackageWithItems } from "@/components/bookings/BookingForm";
 import type { SaleEventForPricing } from "@/lib/utils/pricing";
@@ -49,7 +50,27 @@ import {
   hasAnyAllowedCategoryForEmployee,
   isCategoryAllowedForEmployee,
 } from "@/lib/utils/employee-specialties";
-import type { LeaveRequest, Service } from "@/prisma/generated/prisma/client";
+import type {
+  AvailedService,
+  Booking,
+  Customer,
+  Employee,
+  LeaveRequest,
+  Owner,
+  Service,
+  User,
+  Voucher,
+} from "@/prisma/generated/prisma/client";
+
+type BookingWithDetails = Booking & {
+  customer: Customer | null;
+  vouchers: Voucher[];
+  availed_services: (AvailedService & {
+    service: Service;
+    served_by: (Employee & { user: User }) | null;
+    served_by_owner: (Owner & { user: User }) | null;
+  })[];
+};
 
 export default function ManagerDashboard({
   businessName,
@@ -65,6 +86,7 @@ export default function ManagerDashboard({
   pendingServices,
   servedHistory,
   todayBookings,
+  managerBookings,
   services,
   packages,
   categories,
@@ -84,6 +106,13 @@ export default function ManagerDashboard({
   pendingServices: PendingService[];
   servedHistory: ServedService[];
   todayBookings: EmployeePaymentBooking[];
+  /**
+   * Today's bookings as full BookingWithDetails — used by the
+   * ManagerBookingsDialog so the manager can open BookingQuickPanel
+   * from their dashboard. Distinct from todayBookings, which is the
+   * narrow shape consumed by EmployeePaymentsQueue.
+   */
+  managerBookings: BookingWithDetails[];
   services: Service[];
   packages: PackageWithItems[];
   categories: string[];
@@ -195,6 +224,16 @@ export default function ManagerDashboard({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <ManagerBookingsDialog
+            bookings={managerBookings}
+            servicesCatalog={services.map((s) => ({
+              id: s.id,
+              name: s.name,
+              category: s.category,
+              price: s.price,
+              duration: s.duration,
+            }))}
+          />
           {capabilities.canCreateBooking ? (
             <BookingDialog
               services={services}

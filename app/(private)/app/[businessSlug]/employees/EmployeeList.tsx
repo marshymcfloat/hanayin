@@ -37,6 +37,7 @@ import {
   Wallet,
   Calendar,
   User,
+  ShieldCheck,
 } from "lucide-react";
 import { formatPH } from "@/lib/date-utils";
 import {
@@ -45,6 +46,7 @@ import {
   EmployeeAttendance,
   Payslip,
 } from "@/prisma/generated/prisma/client";
+import { EditPermissionsDialog } from "@/components/dashboard/owner/employees/EditPermissionsDialog";
 
 type EmployeeWithDetails = Employee & {
   user: PrismaUser;
@@ -57,6 +59,8 @@ type EmployeeWithDetails = Employee & {
 
 interface EmployeeListProps {
   employees: EmployeeWithDetails[];
+  /** Required so EditPermissionsDialog can scope its server-side update. */
+  businessSlug: string;
   onEdit: (employee: EmployeeWithDetails) => void;
   onDelete: (id: number) => void;
   onResetPassword: (employee: EmployeeWithDetails) => void;
@@ -64,6 +68,7 @@ interface EmployeeListProps {
 
 export function EmployeeList({
   employees,
+  businessSlug,
   onEdit,
   onDelete,
   onResetPassword,
@@ -149,6 +154,20 @@ export function EmployeeList({
                     <DropdownMenuItem onClick={() => onResetPassword(employee)} className="cursor-pointer">
                       <KeyRound className="h-4 w-4 mr-2" />Reset Password
                     </DropdownMenuItem>
+                    <EditPermissionsDialog
+                      businessSlug={businessSlug}
+                      employeeId={employee.id}
+                      employeeName={employee.user.name}
+                      currentPermissions={employee.permissions}
+                      trigger={
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          className="cursor-pointer"
+                        >
+                          <ShieldCheck className="h-4 w-4 mr-2" />Permissions
+                        </DropdownMenuItem>
+                      }
+                    />
                     <DropdownMenuSeparator />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -293,6 +312,20 @@ export function EmployeeList({
                         <DropdownMenuItem onClick={() => onResetPassword(employee)} className="cursor-pointer">
                           <KeyRound className="h-4 w-4 mr-2" />Reset Password
                         </DropdownMenuItem>
+                        <EditPermissionsDialog
+                          businessSlug={businessSlug}
+                          employeeId={employee.id}
+                          employeeName={employee.user.name}
+                          currentPermissions={employee.permissions}
+                          trigger={
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                              className="cursor-pointer"
+                            >
+                              <ShieldCheck className="h-4 w-4 mr-2" />Permissions
+                            </DropdownMenuItem>
+                          }
+                        />
                         <DropdownMenuSeparator />
                         <AlertDialog>
                           <AlertDialogTrigger asChild>

@@ -1055,6 +1055,40 @@ export type EnumCampaignEventTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumCampaignEventTypeFilter<$PrismaModel>
 }
 
+export type EnumBookingNoteVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.BookingNoteVisibility | Prisma.EnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBookingNoteVisibilityFilter<$PrismaModel> | $Enums.BookingNoteVisibility
+}
+
+export type EnumBookingNoteVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BookingNoteVisibility | Prisma.EnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBookingNoteVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.BookingNoteVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBookingNoteVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBookingNoteVisibilityFilter<$PrismaModel>
+}
+
+export type EnumSocialPostRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostRequestStatus | Prisma.EnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSocialPostRequestStatusFilter<$PrismaModel> | $Enums.SocialPostRequestStatus
+}
+
+export type EnumSocialPostRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostRequestStatus | Prisma.EnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSocialPostRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.SocialPostRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSocialPostRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSocialPostRequestStatusFilter<$PrismaModel>
+}
+
 export type EnumExpenseCategoryFilter<$PrismaModel = never> = {
   equals?: $Enums.ExpenseCategory | Prisma.EnumExpenseCategoryFieldRefInput<$PrismaModel>
   in?: $Enums.ExpenseCategory[] | Prisma.ListEnumExpenseCategoryFieldRefInput<$PrismaModel>
@@ -2048,6 +2082,40 @@ export type NestedEnumCampaignEventTypeWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCampaignEventTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCampaignEventTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumBookingNoteVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.BookingNoteVisibility | Prisma.EnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBookingNoteVisibilityFilter<$PrismaModel> | $Enums.BookingNoteVisibility
+}
+
+export type NestedEnumBookingNoteVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BookingNoteVisibility | Prisma.EnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BookingNoteVisibility[] | Prisma.ListEnumBookingNoteVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBookingNoteVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.BookingNoteVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBookingNoteVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBookingNoteVisibilityFilter<$PrismaModel>
+}
+
+export type NestedEnumSocialPostRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostRequestStatus | Prisma.EnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSocialPostRequestStatusFilter<$PrismaModel> | $Enums.SocialPostRequestStatus
+}
+
+export type NestedEnumSocialPostRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostRequestStatus | Prisma.EnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SocialPostRequestStatus[] | Prisma.ListEnumSocialPostRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSocialPostRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.SocialPostRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSocialPostRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSocialPostRequestStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumExpenseCategoryFilter<$PrismaModel = never> = {

@@ -8,6 +8,7 @@ import PendingServicesList from "./PendingServicesList";
 import EmployeePaymentsQueue, {
   type EmployeePaymentBooking,
 } from "./EmployeePaymentsQueue";
+import { MyBookingsList } from "./MyBookingsList";
 import AttendanceCard from "./AttendanceCard";
 import { signOut } from "next-auth/react";
 import {
@@ -28,9 +29,26 @@ import ManagerQueueBoard, {
 } from "../manager/ManagerQueueBoard";
 import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
 import {
-  type Service,
+  type AvailedService,
+  type Booking,
+  type Customer,
+  type Employee,
   type LeaveRequest,
+  type Owner,
+  type Service,
+  type User,
+  type Voucher,
 } from "@/prisma/generated/prisma/client";
+
+type BookingWithDetails = Booking & {
+  customer: Customer | null;
+  vouchers: Voucher[];
+  availed_services: (AvailedService & {
+    service: Service;
+    served_by: (Employee & { user: User }) | null;
+    served_by_owner: (Owner & { user: User }) | null;
+  })[];
+};
 import { StaffProfile } from "@/prisma/generated/prisma/enums";
 import { PackageWithItems } from "@/components/bookings/BookingForm";
 import type { ServedService } from "./EmployeeServedHistory";
@@ -72,6 +90,7 @@ export default function EmployeeDashboard({
   capabilities,
   todayAttendance,
   todayBookings,
+  myBookings,
   services,
   packages,
   categories,
@@ -93,6 +112,13 @@ export default function EmployeeDashboard({
   capabilities: EmployeeDashboardCapabilities;
   todayAttendance: TodayAttendance;
   todayBookings: EmployeePaymentBooking[];
+  /**
+   * Bookings where the current employee is served_by_id on at least one
+   * AvailedService — full BookingWithDetails so MyBookingsList can open
+   * the role-aware BookingQuickPanel directly. Empty for managers (they
+   * use the parallel ManagerDashboard surface instead).
+   */
+  myBookings: BookingWithDetails[];
   services: Service[];
   packages: PackageWithItems[];
   categories: string[];
@@ -274,6 +300,34 @@ export default function EmployeeDashboard({
 
           {/* ── RIGHT: Queue + Served + Payments ── */}
           <div className="lg:col-span-8 flex flex-col overflow-hidden">
+
+            {/* My Bookings — staff see bookings they're assigned to.
+                Empty for cashiers (who don't typically serve services)
+                and managers (handled by ManagerDashboard instead). */}
+            {myBookings.length > 0 ? (
+              <div className="shrink-0 border-b border-border">
+                <div className="flex items-center justify-between px-4 sm:px-5 pt-4 pb-2">
+                  <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                    My Bookings
+                  </p>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground tabular-nums">
+                    {myBookings.length}
+                  </span>
+                </div>
+                <div className="max-h-64 overflow-y-auto no-scrollbar">
+                  <MyBookingsList
+                    bookings={myBookings}
+                    servicesCatalog={services.map((s) => ({
+                      id: s.id,
+                      name: s.name,
+                      category: s.category,
+                      price: s.price,
+                      duration: s.duration,
+                    }))}
+                  />
+                </div>
+              </div>
+            ) : null}
 
             {/* Payments queue (cashier only) */}
             {capabilities.canCollectPayment ? (

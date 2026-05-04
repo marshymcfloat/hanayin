@@ -4,6 +4,7 @@ import { useState, useMemo, useOptimistic, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Customer } from "@/prisma/generated/prisma/client";
 import { Badge } from "@/components/ui/badge";
+import { LazyBookingQuickPanel } from "@/components/bookings/LazyBookingQuickPanel";
 import {
   Table,
   TableBody,
@@ -91,6 +92,9 @@ export function CustomersClient({ customers, businessSlug }: CustomersClientProp
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
+  // C3: open BookingQuickPanel from a customer's booking-history row.
+  const [openedBookingId, setOpenedBookingId] = useState<number | null>(null);
+  const [isBookingPanelOpen, setIsBookingPanelOpen] = useState(false);
   const [formData, setFormData] = useState<CustomerFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -652,7 +656,15 @@ export function CustomersClient({ customers, businessSlug }: CustomersClientProp
                           const serviceNames = booking.availed_services?.map((item) => item.service?.name).filter(Boolean) || [];
                           const displayDate = booking.scheduled_at || booking.created_at;
                           return (
-                            <div key={booking.id} className="border border-border rounded-xl p-3 bg-card">
+                            <button
+                              type="button"
+                              key={booking.id}
+                              onClick={() => {
+                                setOpenedBookingId(booking.id);
+                                setIsBookingPanelOpen(true);
+                              }}
+                              className="w-full text-left border border-border rounded-xl p-3 bg-card hover:bg-zinc-50 hover:border-primary/30 transition-colors cursor-pointer"
+                            >
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div className="text-sm font-semibold text-foreground">Booking #{booking.id}</div>
                                 <Badge variant="outline" className={getBookingStatusClass(booking.status)}>{booking.status}</Badge>
@@ -664,7 +676,7 @@ export function CustomersClient({ customers, businessSlug }: CustomersClientProp
                               <div className="text-xs text-muted-foreground mt-1">
                                 Payment: {booking.payment_method} • Total: PHP {booking.grand_total.toLocaleString()}
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
@@ -696,6 +708,17 @@ export function CustomersClient({ customers, businessSlug }: CustomersClientProp
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* C3: Lazy-loaded role-aware booking panel for the row clicked
+          inside the booking-history modal. */}
+      <LazyBookingQuickPanel
+        bookingId={openedBookingId}
+        open={isBookingPanelOpen}
+        onOpenChange={(next) => {
+          setIsBookingPanelOpen(next);
+          if (!next) setOpenedBookingId(null);
+        }}
+      />
     </div>
   );
 }

@@ -37,13 +37,60 @@ async function recomputePostStatus(postId: string) {
   const hasFailed = targets.some((target) => target.status === "FAILED");
 
   if (allPublished) {
-    await prisma.socialPost.update({
-      where: { id: postId },
-      data: {
-        status: "PUBLISHED",
-        published_at: new Date(),
-        last_error: null,
-      },
+    // Wave E E11: when the SocialPost crosses into PUBLISHED, fire the
+    // close-the-loop notification IF this post originated from a
+    // SocialPostRequest (the staff member who requested it deserves
+    // to know it went live, plus a permalink to share). The status
+    // update + outbox row go in one transaction so the notification is
+    // atomic with the publish.
+    const targetsWithLinks = await prisma.socialPostTarget.findMany({
+      where: { social_post_id: postId, status: "PUBLISHED" },
+      select: { remote_permalink: true },
+    });
+    const permalinks = targetsWithLinks
+      .map((t) => t.remote_permalink)
+      .filter((url): url is string => typeof url === "string" && url.length > 0);
+
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.socialPost.update({
+        where: { id: postId },
+        data: {
+          status: "PUBLISHED",
+          published_at: new Date(),
+          last_error: null,
+        },
+        select: {
+          id: true,
+          business_id: true,
+          title: true,
+          source_request: {
+            select: {
+              id: true,
+              requested_by_user_id: true,
+              topic: true,
+            },
+          },
+        },
+      });
+
+      if (updated.source_request) {
+        await tx.outboxMessage.create({
+          data: {
+            event_type: "SOCIAL_POST_REQUEST_PUBLISHED",
+            aggregate_type: "SocialPostRequest",
+            aggregate_id: updated.source_request.id,
+            business_id: updated.business_id,
+            payload: {
+              requestId: updated.source_request.id,
+              businessId: updated.business_id,
+              requestedByUserId: updated.source_request.requested_by_user_id,
+              socialPostId: updated.id,
+              topic: updated.source_request.topic,
+              permalinks,
+            },
+          },
+        });
+      }
     });
     return;
   }

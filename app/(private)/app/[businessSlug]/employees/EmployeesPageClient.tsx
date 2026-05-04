@@ -439,6 +439,7 @@ export function EmployeesPageClient({
           ) : (
             <EmployeeList
               employees={filteredEmployees}
+              businessSlug={businessSlug}
               onEdit={openEditDialog}
               onDelete={handleDeleteEmployee}
               onResetPassword={openResetPasswordDialog}

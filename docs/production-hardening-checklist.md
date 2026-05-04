@@ -104,3 +104,98 @@ This checklist is ordered for safe rollout. Each PR should be deployable on its 
 - [x] `npm run test:e2e` (requires `DIRECT_DATABASE_URL` for DB smoke)
 - [x] `npm run build` (runs `prisma migrate deploy` before build)
 - [x] `npm run verify:release`
+
+## PR-N: Booking Editor + Phase 1 Schema (Wave A–D rollout)
+
+Backing docs: `docs/role-permissions-matrix.md`, `docs/booking-editor-design.md`, `docs/phase1-migration-runbook.md`, `docs/help/booking-editor.md`.
+
+### Schema migration safety
+
+- [ ] `prisma migrate deploy` against production succeeds with zero data-loss steps.
+  - All Phase 1 changes are additive: new `StaffPermission` enum values; new `BookingNote`, `BookingPriceAdjustment`, `SocialPostRequest` models; new nullable columns on `Booking` (`cancelled_at`, `cancelled_by_id`, `cancellation_reason`); back-relations on `User`, `SocialPost`, `Business`, `AvailedService`.
+  - The QRPH→ONLINE rewrite of `20260425000000_remove_qrph_replace_online` is replay-safe inside a single transaction; no transaction-disable directive required.
+- [ ] Permission backfill SQL from `docs/phase1-migration-runbook.md` §3 has been run against production.
+  - `UPDATE "Employee" SET "permissions" = array_append("permissions", 'SOCIAL_POST_REQUEST_CREATE') WHERE NOT 'SOCIAL_POST_REQUEST_CREATE' = ANY ("permissions");`
+  - Manager-only batch for `BOOKING_MODIFY` / `BOOKING_MARK_NO_SHOW` / `BOOKING_ADJUST_PRICE` / `BOOKING_CANCEL` / `SOCIAL_POST_REVIEW`.
+  - Dedup pass to remove any duplicates introduced by re-runs.
+
+### Feature-flag rollout
+
+- [ ] `BOOKING_EDITOR_ENABLED=false` set in production env (default off).
+- [ ] `BOOKING_EDITOR_PILOT_SLUGS` populated with the chosen pilot tenant slugs (CSV).
+- [ ] First flip: turn `BOOKING_EDITOR_ENABLED=true` with a non-empty pilot list.
+- [ ] Pilot tenants confirm key flows (Reschedule, Cancel, Adjust Price, Reassign, Add Note) work as expected.
+- [ ] Wider rollout: clear `BOOKING_EDITOR_PILOT_SLUGS` so all tenants see it.
+
+### Verification
+
+- [ ] `lib/auth/permission-matrix.test.ts` — matrix table-driven test passes (new in Wave D).
+- [ ] `lib/services/booking-modify.test.ts` + `lib/server actions/booking-modify.test.ts` pass (helper + action tests).
+- [ ] Manual role walkthrough completed against staging following `docs/verification-plan.md` §3.
+  - Owner / Manager / Cashier / Staff sign-in.
+  - Each role sees the matrix-correct surface and triggers.
+  - Audit trail entries appear after every modifying action.
+- [ ] Customer notification spot-check after a Reschedule and a Cancel.
+
+### Telemetry & observability
+
+- [ ] Sentry breadcrumbs `booking.modified.*` appear after a sample test action.
+- [ ] On-call alerting: a fired-action error rate >5% in any 1-hour window pages the on-call.
+
+### Communication
+
+- [ ] In-app announcement (per `docs/help/booking-editor-announcement.md`) is queued for the first owner login post-flip.
+- [ ] `docs/help/booking-editor.md` is published to the help center.
+- [ ] Internal release notes include the new permission flags and where to grant them.
+
+### Rollback plan
+
+- [ ] One-line env flip restores legacy behavior: set `BOOKING_EDITOR_ENABLED=false`.
+- [ ] Schema rollback recipe documented (additive — `git revert` of schema + migration is sufficient; data tables are inert if unused).
+- [ ] Runbook entry: which logs to grep, which Sentry tag (`booking.modified`) to filter, who to page.
+
+## PR-N+1: Social Post Requests (Wave E + F rollout)
+
+Backing docs: `docs/social-post-request-design.md`, `docs/social-post-request-implementation-plan.md`, `docs/help/social-post-requests.md`.
+
+### Schema migration safety
+
+- [ ] `SocialPostRequest` table + `SocialPostRequestStatus` enum from Phase 1 migration are present in production. (No additional migration needed — Phase 1 already covered this.)
+- [ ] Verify the `social_post_id @unique` constraint on `SocialPostRequest` is enforced in production (one request → at most one SocialPost).
+
+### Feature-flag rollout
+
+- [ ] `SOCIAL_POST_REQUESTS_ENABLED=false` set in production env (default off).
+- [ ] Parent flag `SOCIAL_PUBLISHING_ENABLED=true` and the business is in `SOCIAL_PUBLISHING_PILOT_SLUGS` (or pilot is empty). The request workflow falls back to false when the parent is off — verify both layers are aligned for the chosen pilot tenants.
+- [ ] `SOCIAL_POST_REQUESTS_PILOT_SLUGS` populated with the chosen pilot tenant slugs (CSV).
+- [ ] First flip: turn `SOCIAL_POST_REQUESTS_ENABLED=true` with a non-empty pilot list.
+- [ ] Pilot tenants confirm submit / approve / reject / publish flows end-to-end including the close-the-loop notification.
+- [ ] Wider rollout: clear `SOCIAL_POST_REQUESTS_PILOT_SLUGS` so all tenants on `SOCIAL_PUBLISHING_ENABLED` see it.
+
+### Verification
+
+- [ ] `lib/server actions/social-post-requests.test.ts` — 24 backend cases pass (action permissions, rate limits, dedup, state machine).
+- [ ] `components/dashboard/social-posts/viewer-context.test.ts` — 6 cases for `deriveSocialViewerContext`.
+- [ ] `lib/features/social-post-requests.test.ts` — 4 cases for the feature flag with parent fallback.
+- [ ] Manual role walkthrough: staff submits, manager approves, owner publishes, staff sees close-the-loop notification with permalink.
+- [ ] Rate-limit smoke: rapid double-submit triggers `RATE_LIMITED_USER` toast.
+- [ ] Duplicate-detection smoke: submitting the same topic+category twice in 14 days surfaces the `duplicateWarning`.
+
+### Telemetry & observability
+
+- [ ] Sentry breadcrumbs `social.post_request.*` appear after a sample submission and approval.
+- [ ] Approve events with `aiInvoked: true` are visible in the cost-attribution dashboard (or queued for it — the field exists; the dashboard panel can come later).
+- [ ] On-call alert: error rate >5% for `social.post_request.approved` over a 1-hour window pages the on-call.
+
+### Communication
+
+- [ ] In-app announcement (per `docs/help/social-post-requests-announcement.md`) is queued for the first owner login post-flip.
+- [ ] Manager toast and staff toast also queued for their respective first sessions post-flip.
+- [ ] `docs/help/social-post-requests.md` is published to the help center.
+- [ ] Internal release notes mention the rate limits, duplicate detection, and the new permission flags (`SOCIAL_POST_REQUEST_CREATE`, `SOCIAL_POST_REVIEW`, `SOCIAL_POST_PUBLISH`).
+
+### Rollback plan
+
+- [ ] One-line env flip restores legacy behavior: set `SOCIAL_POST_REQUESTS_ENABLED=false`. Owners keep the direct-create flow; staff stop seeing the dialog. The `SocialPostRequest` table stays — existing rows are inert under a flag-off state.
+- [ ] Schema rollback: not applicable. The model is additive and the rest of the system doesn't reference it.
+- [ ] If the close-the-loop notification spams: the `SOCIAL_POST_REQUEST_PUBLISHED` outbox handler can be feature-flag-gated independently in a follow-up; it's currently always-on inside `recomputePostStatus` when `source_request` is set.

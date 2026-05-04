@@ -99,6 +99,15 @@ async function BookingsContent({
     Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1;
   const skip = (currentPage - 1) * PAGE_SIZE;
 
+  // Deep-link support: ?open=<id> auto-opens the BookingQuickPanel.
+  // Fed by notification deep-links and any future surface that wants
+  // to point a user directly at a booking.
+  const rawOpen = query.open;
+  const openIdParsed =
+    typeof rawOpen === "string" ? Number.parseInt(rawOpen, 10) : NaN;
+  const initialOpenBookingId =
+    Number.isInteger(openIdParsed) && openIdParsed > 0 ? openIdParsed : null;
+
   const parsedId = Number.parseInt(searchTerm, 10);
   const hasIdSearch = Number.isInteger(parsedId);
 
@@ -198,6 +207,7 @@ async function BookingsContent({
       servicesCatalog={services}
       businessSlug={businessSlug}
       staffingConflictBookingIds={staffingConflictBookingIds}
+      initialOpenBookingId={initialOpenBookingId}
       queryState={{
         page: currentPage,
         pageSize: PAGE_SIZE,
