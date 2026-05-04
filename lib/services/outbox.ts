@@ -6,6 +6,11 @@ export const OUTBOX_EVENT_TYPES = [
   "BOOKING_CANCELLED",
   "BOOKING_STAFFING_CONFLICT_DETECTED",
   "BOOKING_SERVICE_REMOVED",
+  "BOOKING_SERVICE_SWAPPED",
+  "BOOKING_RESCHEDULED",
+  "BOOKING_STAFF_REASSIGNED",
+  "BOOKING_PRICE_ADJUSTED",
+  "BOOKING_NOTE_ADDED",
   "PAYMENT_CONFIRMED",
   "REMINDER_DUE",
   "PAYSLIP_GENERATED",
@@ -13,6 +18,10 @@ export const OUTBOX_EVENT_TYPES = [
   "RE_ENGAGEMENT_REMINDER_SENT",
   "MANUAL_PAYMENT_SUBMITTED",
   "SOCIAL_TARGET_PUBLISH",
+  "SOCIAL_POST_REQUEST_SUBMITTED",
+  "SOCIAL_POST_REQUEST_APPROVED",
+  "SOCIAL_POST_REQUEST_REJECTED",
+  "SOCIAL_POST_REQUEST_PUBLISHED",
 ] as const;
 
 export type OutboxEventType = (typeof OUTBOX_EVENT_TYPES)[number];
@@ -48,6 +57,16 @@ export type OutboxPayloadMap = {
     status: string;
     email?: string | null;
     customerName?: string | null;
+    /**
+     * Set when a tenant user actively cancelled the booking (the new
+     * cancelBookingAction). Left unset for system-initiated
+     * cancellations (e.g. expired holds, payment failures), so
+     * downstream handlers can branch their messaging. Backward-
+     * compatible — older callers don't pass it.
+     */
+    actorUserId?: string | null;
+    /** Optional phone for SMS cancel notifications. */
+    phone?: string | null;
   };
   BOOKING_STAFFING_CONFLICT_DETECTED: {
     bookingId: number;
@@ -66,6 +85,77 @@ export type OutboxPayloadMap = {
     actorUserId: string;
     customerName?: string | null;
     email?: string | null;
+  };
+  BOOKING_SERVICE_SWAPPED: {
+    bookingId: number;
+    removedAvailedServiceId: number;
+    removedServiceName: string;
+    addedServiceId: number;
+    addedServiceName: string;
+    priceDelta: number;
+    newGrandTotal: number;
+    actorUserId: string;
+    customerName?: string | null;
+    email?: string | null;
+  };
+  BOOKING_RESCHEDULED: {
+    bookingId: number;
+    oldScheduledAt: string;
+    newScheduledAt: string;
+    oldEstimatedEnd?: string;
+    newEstimatedEnd?: string;
+    actorUserId: string;
+    customerName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+  /**
+   * Internal-only event (per docs/role-permissions-matrix.md §3 the staff
+   * reassign has no customer-visible side effect). Used for manager dashboard
+   * activity feeds and audit visibility, not for customer messaging.
+   */
+  BOOKING_STAFF_REASSIGNED: {
+    bookingId: number;
+    availedServiceId: number;
+    serviceName: string;
+    oldEmployeeId?: number | null;
+    oldOwnerId?: number | null;
+    oldStaffName?: string | null;
+    newEmployeeId: number;
+    newStaffName: string;
+    actorUserId: string;
+  };
+  /**
+   * Customer-visible event (per matrix: updated receipt is the side
+   * effect). The delivery handler can email/SMS a corrected pricing
+   * summary; payload carries enough info to render that without
+   * re-loading the booking.
+   */
+  BOOKING_PRICE_ADJUSTED: {
+    bookingId: number;
+    availedServiceId?: number | null;
+    deltaAmount: number;
+    oldGrandTotal: number;
+    newGrandTotal: number;
+    reason: string;
+    actorUserId: string;
+    customerName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+  /**
+   * Internal-only event (per matrix: notes have no customer-visible
+   * side effect, even when visibility=CUSTOMER_VISIBLE — the customer
+   * sees those when they open their booking page, no push). Used for
+   * staff activity feeds and audit visibility.
+   */
+  BOOKING_NOTE_ADDED: {
+    bookingId: number;
+    noteId: string;
+    visibility: "INTERNAL" | "CUSTOMER_VISIBLE";
+    /** First 140 chars of the note body. Useful for activity feed cards. */
+    bodyPreview: string;
+    actorUserId: string;
   };
   PAYMENT_CONFIRMED: {
     bookingId: number;
@@ -124,6 +214,54 @@ export type OutboxPayloadMap = {
   SOCIAL_TARGET_PUBLISH: {
     socialPostTargetId: string;
     businessId: string;
+  };
+  /**
+   * Fired when a staff member submits a SocialPostRequest. Drives the
+   * owner / reviewer in-app notification feed.
+   */
+  SOCIAL_POST_REQUEST_SUBMITTED: {
+    requestId: string;
+    businessId: string;
+    requestedByUserId: string;
+    requestedByName?: string | null;
+    topic: string;
+    category: string;
+  };
+  /**
+   * Fired when a reviewer approves a request and a SocialPost draft is
+   * created. Notifies the original requester so they can see the draft.
+   */
+  SOCIAL_POST_REQUEST_APPROVED: {
+    requestId: string;
+    businessId: string;
+    requestedByUserId: string;
+    reviewedByUserId: string;
+    socialPostId: string;
+    topic: string;
+  };
+  /**
+   * Fired when a reviewer rejects a request with a reason.
+   */
+  SOCIAL_POST_REQUEST_REJECTED: {
+    requestId: string;
+    businessId: string;
+    requestedByUserId: string;
+    reviewedByUserId: string;
+    topic: string;
+    rejectionReason: string;
+  };
+  /**
+   * Close-the-loop event: the SocialPost that was approved from a
+   * request reached PUBLISHED status. Notifies the original requester
+   * with the public Meta permalink so they can share / verify.
+   */
+  SOCIAL_POST_REQUEST_PUBLISHED: {
+    requestId: string;
+    businessId: string;
+    requestedByUserId: string;
+    socialPostId: string;
+    topic: string;
+    permalinks: string[];
   };
 };
 
@@ -227,6 +365,8 @@ function parseBookingCancellationPayload(
     status: requireString(payload, "status", "BOOKING_CANCELLED"),
     email: optionalString(payload, "email"),
     customerName: optionalString(payload, "customerName"),
+    actorUserId: optionalString(payload, "actorUserId") ?? null,
+    phone: optionalString(payload, "phone") ?? null,
   };
 }
 
@@ -274,6 +414,71 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         customerName: optionalString(payload, "customerName"),
         email: optionalString(payload, "email"),
       } as OutboxPayloadMap[TType];
+    case "BOOKING_SERVICE_SWAPPED":
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        removedAvailedServiceId: requireNumber(payload, "removedAvailedServiceId", eventType),
+        removedServiceName: requireString(payload, "removedServiceName", eventType),
+        addedServiceId: requireNumber(payload, "addedServiceId", eventType),
+        addedServiceName: requireString(payload, "addedServiceName", eventType),
+        priceDelta: requireNumber(payload, "priceDelta", eventType),
+        newGrandTotal: requireNumber(payload, "newGrandTotal", eventType),
+        actorUserId: requireString(payload, "actorUserId", eventType),
+        customerName: optionalString(payload, "customerName"),
+        email: optionalString(payload, "email"),
+      } as OutboxPayloadMap[TType];
+    case "BOOKING_RESCHEDULED":
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        oldScheduledAt: requireString(payload, "oldScheduledAt", eventType),
+        newScheduledAt: requireString(payload, "newScheduledAt", eventType),
+        oldEstimatedEnd: optionalString(payload, "oldEstimatedEnd"),
+        newEstimatedEnd: optionalString(payload, "newEstimatedEnd"),
+        actorUserId: requireString(payload, "actorUserId", eventType),
+        customerName: optionalString(payload, "customerName"),
+        email: optionalString(payload, "email"),
+        phone: optionalString(payload, "phone"),
+      } as OutboxPayloadMap[TType];
+    case "BOOKING_STAFF_REASSIGNED":
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        availedServiceId: requireNumber(payload, "availedServiceId", eventType),
+        serviceName: requireString(payload, "serviceName", eventType),
+        oldEmployeeId: optionalNumber(payload, "oldEmployeeId") ?? null,
+        oldOwnerId: optionalNumber(payload, "oldOwnerId") ?? null,
+        oldStaffName: optionalString(payload, "oldStaffName") ?? null,
+        newEmployeeId: requireNumber(payload, "newEmployeeId", eventType),
+        newStaffName: requireString(payload, "newStaffName", eventType),
+        actorUserId: requireString(payload, "actorUserId", eventType),
+      } as OutboxPayloadMap[TType];
+    case "BOOKING_PRICE_ADJUSTED":
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        availedServiceId: optionalNumber(payload, "availedServiceId") ?? null,
+        deltaAmount: requireNumber(payload, "deltaAmount", eventType),
+        oldGrandTotal: requireNumber(payload, "oldGrandTotal", eventType),
+        newGrandTotal: requireNumber(payload, "newGrandTotal", eventType),
+        reason: requireString(payload, "reason", eventType),
+        actorUserId: requireString(payload, "actorUserId", eventType),
+        customerName: optionalString(payload, "customerName"),
+        email: optionalString(payload, "email"),
+        phone: optionalString(payload, "phone"),
+      } as OutboxPayloadMap[TType];
+    case "BOOKING_NOTE_ADDED": {
+      const visibilityRaw = requireString(payload, "visibility", eventType);
+      if (visibilityRaw !== "INTERNAL" && visibilityRaw !== "CUSTOMER_VISIBLE") {
+        throw new Error(
+          `[Outbox:${eventType}] Invalid visibility "${visibilityRaw}"`,
+        );
+      }
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        noteId: requireString(payload, "noteId", eventType),
+        visibility: visibilityRaw,
+        bodyPreview: requireString(payload, "bodyPreview", eventType),
+        actorUserId: requireString(payload, "actorUserId", eventType),
+      } as OutboxPayloadMap[TType];
+    }
     case "PAYMENT_CONFIRMED":
       return {
         bookingId: requireNumber(payload, "bookingId", eventType),
@@ -338,6 +543,46 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
       return {
         socialPostTargetId: requireString(payload, "socialPostTargetId", eventType),
         businessId: requireString(payload, "businessId", eventType),
+      } as OutboxPayloadMap[TType];
+    case "SOCIAL_POST_REQUEST_SUBMITTED":
+      return {
+        requestId: requireString(payload, "requestId", eventType),
+        businessId: requireString(payload, "businessId", eventType),
+        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        requestedByName: optionalString(payload, "requestedByName") ?? null,
+        topic: requireString(payload, "topic", eventType),
+        category: requireString(payload, "category", eventType),
+      } as OutboxPayloadMap[TType];
+    case "SOCIAL_POST_REQUEST_APPROVED":
+      return {
+        requestId: requireString(payload, "requestId", eventType),
+        businessId: requireString(payload, "businessId", eventType),
+        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        reviewedByUserId: requireString(payload, "reviewedByUserId", eventType),
+        socialPostId: requireString(payload, "socialPostId", eventType),
+        topic: requireString(payload, "topic", eventType),
+      } as OutboxPayloadMap[TType];
+    case "SOCIAL_POST_REQUEST_REJECTED":
+      return {
+        requestId: requireString(payload, "requestId", eventType),
+        businessId: requireString(payload, "businessId", eventType),
+        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        reviewedByUserId: requireString(payload, "reviewedByUserId", eventType),
+        topic: requireString(payload, "topic", eventType),
+        rejectionReason: requireString(payload, "rejectionReason", eventType),
+      } as OutboxPayloadMap[TType];
+    case "SOCIAL_POST_REQUEST_PUBLISHED":
+      return {
+        requestId: requireString(payload, "requestId", eventType),
+        businessId: requireString(payload, "businessId", eventType),
+        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        socialPostId: requireString(payload, "socialPostId", eventType),
+        topic: requireString(payload, "topic", eventType),
+        permalinks: Array.isArray((payload as { permalinks?: unknown }).permalinks)
+          ? ((payload as { permalinks: unknown[] }).permalinks.filter(
+              (v): v is string => typeof v === "string",
+            ))
+          : [],
       } as OutboxPayloadMap[TType];
     default:
       throw new Error(`[Outbox:${eventType}] Unsupported event type`);

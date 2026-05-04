@@ -355,7 +355,11 @@ export function BookingDetailsDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden overflow-y-auto bg-white border-none shadow-2xl rounded-3xl">
+        {/* C6: mobile-first sizing. On `sm:` and below, the panel takes
+            the full viewport (zero gap, no rounded corners) so floor
+            staff on phones don't have to deal with a tiny modal. From
+            `md:` up, it returns to its centered card shape. */}
+        <DialogContent className="w-screen h-[100dvh] max-w-none rounded-none p-0 gap-0 flex flex-col overflow-hidden bg-white border-none shadow-2xl md:w-auto md:h-auto md:max-w-2xl md:max-h-[85vh] md:rounded-3xl">
           <DialogHeader className="p-6 pb-4 bg-zinc-50/50 border-b border-zinc-100 flex shrink-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">

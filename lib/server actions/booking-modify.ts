@@ -27,6 +27,7 @@ import {
 } from "@/lib/auth/staff-access";
 import { logAudit } from "@/lib/services/audit";
 import { appendServicesToUntouchedBookingInTx } from "@/lib/services/booking-addons";
+import { startBookingTimer } from "@/lib/telemetry/booking-events";
 import {
   applyRescheduleShift,
   cancelRejectionMessage,
@@ -105,8 +106,14 @@ export async function removeBookingServiceAction(
     return { success: false, error: "Forbidden", code: "Forbidden" };
   }
 
+  const finishTelemetry = startBookingTimer({
+    action: "REMOVE_SERVICE",
+    businessId: actorContext.businessId,
+    actorRole: actorContext.actorType,
+  });
+
   try {
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Load the booking + the target line, scoped to actor's business.
       // The {actorContext.businessSlug}/{bookingId} pair is the security
       // boundary; the availedServiceId is then validated against the
@@ -235,12 +242,19 @@ export async function removeBookingServiceAction(
         newTotalDiscount: updatedBooking.total_discount,
       };
     });
+    finishTelemetry({
+      success: result.success,
+      errorCode:
+        !result.success && result.code ? String(result.code) : undefined,
+    });
+    return result;
   } catch (error) {
     // Anything not caught by the typed guards above is treated as a
     // real failure. Sentry / logging will surface it; the user gets a
     // generic message rather than an internal stack trace.
     const message =
       error instanceof Error ? error.message : "Unknown error";
+    finishTelemetry({ success: false, errorCode: "UNKNOWN" });
     return { success: false, error: message };
   }
 }

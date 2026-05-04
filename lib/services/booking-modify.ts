@@ -157,6 +157,380 @@ export function rejectionMessage(reason: RemovableServiceRejection): string {
   }
 }
 
+// ─── Reschedule helpers ────────────────────────────────────────────
+
+export type RescheduleRejection =
+  | "BOOKING_NOT_FOUND"
+  | "BOOKING_NOT_ACCEPTED"
+  | "BOOKING_HAS_NO_SCHEDULED_TIME"
+  | "BOOKING_HAS_STARTED_SERVICE"
+  | "BOOKING_ALREADY_AT_TIME"
+  | "NEW_TIME_IN_PAST";
+
+export type RescheduleCheckInput = {
+  booking: {
+    id: number;
+    status: BookingStatus;
+    scheduled_at: Date | null;
+    availed_services: ReadonlyArray<{ status: AvailedServiceStatus }>;
+  } | null;
+  newScheduledAt: Date;
+  /** Defaults to "now" — pass a deterministic clock for tests. */
+  now?: Date;
+};
+
+export type RescheduleCheckResult =
+  | { ok: true }
+  | { ok: false; reason: RescheduleRejection };
+
+/**
+ * Decide whether a booking can safely be moved to a new scheduled
+ * time. Reschedule is only valid when:
+ *   - The booking is ACCEPTED.
+ *   - It already has a scheduled_at (we're moving an existing
+ *     appointment, not pinning a walk-in).
+ *   - No service has started or finished (no SERVING / COMPLETED).
+ *   - The new time is different from the current one.
+ *   - The new time is in the future (or now). We deliberately don't
+ *     guard against rescheduling to the very near past; an owner
+ *     correcting a back-dated booking is a legitimate use case.
+ */
+export function checkBookingReschedulable(
+  input: RescheduleCheckInput,
+): RescheduleCheckResult {
+  if (!input.booking) {
+    return { ok: false, reason: "BOOKING_NOT_FOUND" };
+  }
+  if (input.booking.status !== BookingStatus.ACCEPTED) {
+    return { ok: false, reason: "BOOKING_NOT_ACCEPTED" };
+  }
+  if (!input.booking.scheduled_at) {
+    return { ok: false, reason: "BOOKING_HAS_NO_SCHEDULED_TIME" };
+  }
+  const hasStarted = input.booking.availed_services.some(
+    (s) =>
+      s.status === AvailedServiceStatus.SERVING ||
+      s.status === AvailedServiceStatus.COMPLETED,
+  );
+  if (hasStarted) {
+    return { ok: false, reason: "BOOKING_HAS_STARTED_SERVICE" };
+  }
+  if (
+    input.booking.scheduled_at.getTime() === input.newScheduledAt.getTime()
+  ) {
+    return { ok: false, reason: "BOOKING_ALREADY_AT_TIME" };
+  }
+  const nowMs = (input.now ?? new Date()).getTime();
+  if (input.newScheduledAt.getTime() < nowMs) {
+    return { ok: false, reason: "NEW_TIME_IN_PAST" };
+  }
+  return { ok: true };
+}
+
+/**
+ * Compute the deltas needed to reschedule a booking. Pure function —
+ * given the current scheduled_at + estimated_end + service line
+ * timestamps + a new scheduled_at, returns the new estimated_end and
+ * the per-line shifted timestamps.
+ *
+ * Strategy: shift everything by the same delta so relative gaps
+ * between services are preserved. If the booking was at 2pm with
+ * services at 2:00 / 2:30 / 3:00 and we move it to 4pm, services
+ * become 4:00 / 4:30 / 5:00. No re-pricing, no duration lookup.
+ */
+export function applyRescheduleShift(input: {
+  oldScheduledAt: Date;
+  newScheduledAt: Date;
+  oldEstimatedEnd: Date | null;
+  lines: ReadonlyArray<{
+    id: number;
+    scheduled_at: Date | null;
+    estimated_end: Date | null;
+  }>;
+}) {
+  const deltaMs =
+    input.newScheduledAt.getTime() - input.oldScheduledAt.getTime();
+
+  const newEstimatedEnd = input.oldEstimatedEnd
+    ? new Date(input.oldEstimatedEnd.getTime() + deltaMs)
+    : null;
+
+  const shiftedLines = input.lines.map((line) => ({
+    id: line.id,
+    scheduled_at: line.scheduled_at
+      ? new Date(line.scheduled_at.getTime() + deltaMs)
+      : null,
+    estimated_end: line.estimated_end
+      ? new Date(line.estimated_end.getTime() + deltaMs)
+      : null,
+  }));
+
+  return {
+    deltaMs,
+    newEstimatedEnd,
+    shiftedLines,
+  };
+}
+
+/**
+ * User-facing copy for reschedule rejections.
+ */
+export function rescheduleRejectionMessage(reason: RescheduleRejection): string {
+  switch (reason) {
+    case "BOOKING_NOT_FOUND":
+      return "Booking not found.";
+    case "BOOKING_NOT_ACCEPTED":
+      return "This booking is no longer in an editable state.";
+    case "BOOKING_HAS_NO_SCHEDULED_TIME":
+      return "This booking doesn't have a scheduled time yet — reschedule isn't applicable.";
+    case "BOOKING_HAS_STARTED_SERVICE":
+      return "A service has already started on this booking — it can't be rescheduled.";
+    case "BOOKING_ALREADY_AT_TIME":
+      return "This booking is already at the requested time.";
+    case "NEW_TIME_IN_PAST":
+      return "Pick a time in the future.";
+  }
+}
+
+// ─── Staff reassignment helpers ───────────────────────────────────
+
+export type ReassignRejection =
+  | "AVAILED_SERVICE_NOT_FOUND"
+  | "AVAILED_SERVICE_ALREADY_STARTED"
+  | "AVAILED_SERVICE_CANCELLED"
+  | "EMPLOYEE_NOT_FOUND"
+  | "ALREADY_ASSIGNED_TO_EMPLOYEE";
+
+export type ReassignCheckInput = {
+  availedService: {
+    id: number;
+    status: AvailedServiceStatus;
+    served_by_id: number | null;
+  } | null;
+  /** The employee the caller wants to assign this line to. */
+  newEmployeeId: number;
+};
+
+export type ReassignCheckResult =
+  | { ok: true }
+  | { ok: false; reason: ReassignRejection };
+
+/**
+ * Decide whether a staff reassignment is safe. Allowed when the line
+ * is PENDING or CLAIMED — once SERVING or COMPLETED the staffing is
+ * settled. CANCELLED lines are explicitly rejected with their own
+ * reason since reassigning a cancelled service makes no sense.
+ *
+ * Employee membership in the actor's business is verified by the
+ * action layer (Prisma query); the helper just checks state semantics.
+ */
+export function checkAvailedServiceReassignable(
+  input: ReassignCheckInput,
+): ReassignCheckResult {
+  if (!input.availedService) {
+    return { ok: false, reason: "AVAILED_SERVICE_NOT_FOUND" };
+  }
+  if (input.availedService.status === AvailedServiceStatus.CANCELLED) {
+    return { ok: false, reason: "AVAILED_SERVICE_CANCELLED" };
+  }
+  if (
+    input.availedService.status === AvailedServiceStatus.SERVING ||
+    input.availedService.status === AvailedServiceStatus.COMPLETED
+  ) {
+    return { ok: false, reason: "AVAILED_SERVICE_ALREADY_STARTED" };
+  }
+  if (input.availedService.served_by_id === input.newEmployeeId) {
+    return { ok: false, reason: "ALREADY_ASSIGNED_TO_EMPLOYEE" };
+  }
+  return { ok: true };
+}
+
+/**
+ * User-facing copy for reassignment rejections.
+ */
+export function reassignRejectionMessage(reason: ReassignRejection): string {
+  switch (reason) {
+    case "AVAILED_SERVICE_NOT_FOUND":
+      return "That service line is no longer on this booking.";
+    case "AVAILED_SERVICE_ALREADY_STARTED":
+      return "This service has already started or finished — staffing can't be changed.";
+    case "AVAILED_SERVICE_CANCELLED":
+      return "This service was cancelled and can't be reassigned.";
+    case "EMPLOYEE_NOT_FOUND":
+      return "That employee is not part of this business.";
+    case "ALREADY_ASSIGNED_TO_EMPLOYEE":
+      return "This service is already assigned to that employee.";
+  }
+}
+
+// ─── Price-adjust helpers ───────────────────────────────────────
+
+export type PriceAdjustRejection =
+  | "BOOKING_NOT_FOUND"
+  | "BOOKING_NOT_ACCEPTED"
+  | "BOOKING_FULLY_PAID"
+  | "AVAILED_SERVICE_NOT_FOUND"
+  | "AVAILED_SERVICE_BELONGS_TO_OTHER_BOOKING"
+  | "DELTA_IS_ZERO"
+  | "REASON_REQUIRED"
+  | "RESULTING_TOTAL_NEGATIVE";
+
+export type PriceAdjustCheckInput = {
+  booking: {
+    id: number;
+    status: BookingStatus;
+    payment_status: PaymentStatus;
+    grand_total: number;
+    availed_services: ReadonlyArray<{ id: number; final_price: number }>;
+  } | null;
+  /** Optional. When provided, the adjustment targets a specific line. */
+  availedServiceId?: number;
+  deltaAmount: number;
+  reason: string;
+};
+
+export type PriceAdjustCheckResult =
+  | { ok: true; resultingGrandTotal: number }
+  | { ok: false; reason: PriceAdjustRejection };
+
+/**
+ * Decide whether a price adjustment is safe. Allowed when:
+ *   - booking is ACCEPTED
+ *   - booking is not fully PAID (PARTIALLY_PAID is fine — the customer
+ *     might still owe more, and rebalancing is the whole point)
+ *   - delta is non-zero
+ *   - reason is non-empty after trimming
+ *   - the resulting grand_total stays >= 0
+ *   - if availedServiceId is provided, that line is on this booking
+ *
+ * Adjusting a fully PAID booking is intentionally rejected — refund
+ * is the right tool for that, not adjust.
+ */
+export function checkBookingPriceAdjustable(
+  input: PriceAdjustCheckInput,
+): PriceAdjustCheckResult {
+  if (!input.booking) {
+    return { ok: false, reason: "BOOKING_NOT_FOUND" };
+  }
+  if (input.booking.status !== BookingStatus.ACCEPTED) {
+    return { ok: false, reason: "BOOKING_NOT_ACCEPTED" };
+  }
+  if (input.booking.payment_status === PaymentStatus.PAID) {
+    return { ok: false, reason: "BOOKING_FULLY_PAID" };
+  }
+  if (Math.round(input.deltaAmount * 100) === 0) {
+    return { ok: false, reason: "DELTA_IS_ZERO" };
+  }
+  if (!input.reason || input.reason.trim().length === 0) {
+    return { ok: false, reason: "REASON_REQUIRED" };
+  }
+  if (input.availedServiceId !== undefined) {
+    const line = input.booking.availed_services.find(
+      (s) => s.id === input.availedServiceId,
+    );
+    if (!line) {
+      return { ok: false, reason: "AVAILED_SERVICE_NOT_FOUND" };
+    }
+  }
+  const next =
+    Math.round((input.booking.grand_total + input.deltaAmount) * 100) / 100;
+  if (next < 0) {
+    return { ok: false, reason: "RESULTING_TOTAL_NEGATIVE" };
+  }
+  return { ok: true, resultingGrandTotal: next };
+}
+
+/**
+ * User-facing copy for price-adjust rejections.
+ */
+export function priceAdjustRejectionMessage(
+  reason: PriceAdjustRejection,
+): string {
+  switch (reason) {
+    case "BOOKING_NOT_FOUND":
+      return "Booking not found.";
+    case "BOOKING_NOT_ACCEPTED":
+      return "This booking is no longer in an editable state.";
+    case "BOOKING_FULLY_PAID":
+      return "This booking is fully paid — issue a refund instead of an adjustment.";
+    case "AVAILED_SERVICE_NOT_FOUND":
+      return "That service line is no longer on this booking.";
+    case "AVAILED_SERVICE_BELONGS_TO_OTHER_BOOKING":
+      return "That service line belongs to a different booking.";
+    case "DELTA_IS_ZERO":
+      return "The adjustment amount must be non-zero.";
+    case "REASON_REQUIRED":
+      return "Please provide a reason for the adjustment.";
+    case "RESULTING_TOTAL_NEGATIVE":
+      return "That adjustment would make the booking total negative.";
+  }
+}
+
+// ─── Cancel helpers ─────────────────────────────────────────────
+
+export type CancelRejection =
+  | "BOOKING_NOT_FOUND"
+  | "BOOKING_ALREADY_CANCELLED"
+  | "BOOKING_ALREADY_COMPLETED"
+  | "REASON_REQUIRED";
+
+export type CancelCheckInput = {
+  booking: {
+    id: number;
+    status: BookingStatus;
+  } | null;
+  reason: string;
+};
+
+export type CancelCheckResult =
+  | { ok: true }
+  | { ok: false; reason: CancelRejection };
+
+/**
+ * Decide whether a booking can be soft-cancelled. Allowed when:
+ *   - status is HOLD or ACCEPTED (not CANCELLED, not COMPLETED)
+ *   - reason is non-empty after trimming
+ *
+ * COMPLETED bookings cannot be cancelled — services already happened
+ * and the customer was already served. Those go through the refund
+ * flow, not cancel. Already-CANCELLED bookings reject idempotently
+ * with their own code so the UI can show "this is already cancelled"
+ * instead of a generic error.
+ */
+export function checkBookingCancellable(
+  input: CancelCheckInput,
+): CancelCheckResult {
+  if (!input.booking) {
+    return { ok: false, reason: "BOOKING_NOT_FOUND" };
+  }
+  if (input.booking.status === BookingStatus.CANCELLED) {
+    return { ok: false, reason: "BOOKING_ALREADY_CANCELLED" };
+  }
+  if (input.booking.status === BookingStatus.COMPLETED) {
+    return { ok: false, reason: "BOOKING_ALREADY_COMPLETED" };
+  }
+  if (!input.reason || input.reason.trim().length === 0) {
+    return { ok: false, reason: "REASON_REQUIRED" };
+  }
+  return { ok: true };
+}
+
+/**
+ * User-facing copy for cancel rejections.
+ */
+export function cancelRejectionMessage(reason: CancelRejection): string {
+  switch (reason) {
+    case "BOOKING_NOT_FOUND":
+      return "Booking not found.";
+    case "BOOKING_ALREADY_CANCELLED":
+      return "This booking is already cancelled.";
+    case "BOOKING_ALREADY_COMPLETED":
+      return "This booking is already completed — issue a refund instead of cancelling.";
+    case "REASON_REQUIRED":
+      return "Please provide a reason for the cancellation.";
+  }
+}
+
 function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
 }
