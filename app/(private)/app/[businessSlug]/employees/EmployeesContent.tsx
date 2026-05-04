@@ -8,6 +8,10 @@ interface EmployeesContentProps {
   businessSlug: string;
 }
 
+function getRecentAttendanceCutoff() {
+  return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+}
+
 export async function EmployeesContent({
   businessSlug,
 }: EmployeesContentProps) {
@@ -37,6 +41,7 @@ export async function EmployeesContent({
     include: {
       user: true,
       attendance: {
+        where: { date: { gte: getRecentAttendanceCutoff() } },
         orderBy: { date: "desc" },
         take: 7,
       },

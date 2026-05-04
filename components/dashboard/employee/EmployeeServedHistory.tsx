@@ -1,6 +1,7 @@
 "use client";
 
 import { formatPH } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
@@ -185,15 +186,15 @@ export default function EmployeeServedHistory({
       <div className="h-full flex flex-col">
         <div className="space-y-3 p-4 lg:p-0">
           {visibleServices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 opacity-60 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-100">
-              <div className="bg-white p-4 rounded-full shadow-sm">
-                <History className="w-6 h-6 text-slate-400" />
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                <History className="w-5 h-5 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold text-base text-slate-800">
+                <h3 className="font-semibold text-sm text-foreground">
                   No served history
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Completed services will appear here.
                 </p>
               </div>
@@ -213,55 +214,55 @@ export default function EmployeeServedHistory({
               return (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md hover:border-slate-200 transition-all cursor-pointer group active:scale-[0.98]"
+                  className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-primary/30 hover:bg-accent/30 transition-colors cursor-pointer group active:scale-[0.99]"
                   onClick={() => setSelectedService(item)}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                       {customerInitials}
                     </div>
 
-                    <div className="space-y-0.5">
-                      <div className="font-semibold text-sm text-slate-900 flex items-center gap-2">
-                        {item.service.name}
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="font-semibold text-sm text-foreground flex items-center gap-2 truncate">
+                        <span className="truncate">{item.service.name}</span>
                         {item.package && (
-                          <span className="bg-slate-100 text-slate-600 border border-slate-200 text-[9px] px-1.5 py-0.5 rounded-full font-medium">
+                          <span className="bg-muted text-muted-foreground border border-border text-[9px] px-1.5 py-0.5 rounded-full font-medium shrink-0">
                             {item.package.name}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">
+                      <div className="text-xs text-muted-foreground font-medium truncate">
                         {getBookingCustomerName(item.booking)}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-1.5">
+                  <div className="flex flex-col items-end gap-1.5 shrink-0 pl-2">
                     {hasDiscount ? (
                       <div className="flex flex-col items-end leading-none gap-0.5">
-                        <span className="text-xs text-red-500 line-through opacity-70">
+                        <span className="text-xs text-destructive line-through opacity-70 tabular-nums">
                           ₱{item.price.toLocaleString()}
                         </span>
-                        <span className="font-bold text-sm text-emerald-600">
+                        <span className="font-bold text-sm text-primary tabular-nums">
                           ₱{displayPrice.toLocaleString()}
                         </span>
                       </div>
                     ) : (
-                      <span className="font-bold text-sm text-slate-700">
+                      <span className="font-bold text-sm text-foreground tabular-nums">
                         ₱{item.price.toLocaleString()}
                       </span>
                     )}
                     {item.status === "CLAIMED" ? (
                       <Badge
                         variant="outline"
-                        className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] py-0 h-5"
+                        className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900/60 text-[10px] py-0 h-5"
                       >
                         Serving
                       </Badge>
                     ) : (
                       <Badge
                         variant="secondary"
-                        className="bg-green-50 text-green-700 border-green-200 text-[10px] py-0 h-5"
+                        className="bg-primary/10 text-primary border border-primary/30 text-[10px] py-0 h-5"
                       >
                         {item.status}
                       </Badge>
@@ -306,32 +307,34 @@ export default function EmployeeServedHistory({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-muted/40 rounded-lg space-y-1">
-                  <p className="text-xs text-muted-foreground font-medium uppercase">
+              <div className="grid grid-cols-2 divide-x divide-border border-y border-border">
+                <div className="px-1 py-3 space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
                     Price
                   </p>
-                  <div className="text-lg font-bold">
+                  <div className="text-lg font-bold tabular-nums">
                     {selectedService.final_price &&
                     selectedService.final_price !== selectedService.price ? (
-                      <div className="flex flex-col">
-                        <span className="text-xs text-red-500 line-through opacity-70">
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-xs text-destructive line-through opacity-70">
                           ₱{selectedService.price.toLocaleString()}
                         </span>
-                        <span className="text-emerald-600">
+                        <span className="text-primary">
                           ₱{selectedService.final_price.toLocaleString()}
                         </span>
                       </div>
                     ) : (
-                      `₱${selectedService.price.toLocaleString()}`
+                      <span className="text-foreground">
+                        ₱{selectedService.price.toLocaleString()}
+                      </span>
                     )}
                   </div>
                 </div>
-                <div className="p-3 bg-green-50/50 rounded-lg space-y-1 border border-green-100">
-                  <p className="text-xs text-green-700 font-medium uppercase">
+                <div className="px-3 py-3 space-y-1">
+                  <p className="text-[10px] text-primary font-semibold uppercase tracking-wider">
                     Commission ({currentEmployeeCommission}%)
                   </p>
-                  <p className="text-lg font-bold text-green-700">
+                  <p className="text-lg font-bold text-primary tabular-nums">
                     ₱
                     {(
                       ((selectedService.final_price ?? selectedService.price) *
@@ -363,14 +366,14 @@ export default function EmployeeServedHistory({
                 </div>
               </div>
 
-              <div className="border-t pt-4 space-y-2">
-                <h4 className="text-sm font-semibold text-slate-900">
+              <div className="border-t border-border pt-4 space-y-2">
+                <h4 className="text-sm font-semibold text-foreground">
                   Payment Status
                 </h4>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Amount:</span>
-                    <span className="font-medium">
+                    <span className="text-muted-foreground">Total Amount</span>
+                    <span className="font-medium text-foreground tabular-nums">
                       ₱{selectedService.booking.grand_total.toLocaleString()}
                     </span>
                   </div>
@@ -378,17 +381,15 @@ export default function EmployeeServedHistory({
                   selectedService.booking.downpayment > 0 ? (
                     <>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Downpayment:
-                        </span>
-                        <span className="font-medium text-green-600">
+                        <span className="text-muted-foreground">Downpayment</span>
+                        <span className="font-medium text-primary tabular-nums">
                           ₱
                           {selectedService.booking.downpayment.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Balance:</span>
-                        <span className="font-bold text-orange-600">
+                        <span className="text-muted-foreground">Balance</span>
+                        <span className="font-bold text-amber-600 dark:text-amber-400 tabular-nums">
                           ₱
                           {(
                             selectedService.booking.grand_total -
@@ -396,23 +397,19 @@ export default function EmployeeServedHistory({
                           ).toLocaleString()}
                         </span>
                       </div>
-                      <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
-                        <p className="text-xs text-orange-800 font-medium">
-                          ⚠️ Half-paid: Balance of ₱
-                          {(
-                            selectedService.booking.grand_total -
-                            selectedService.booking.downpayment
-                          ).toLocaleString()}{" "}
-                          still due
-                        </p>
-                      </div>
+                      <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-2 pl-2 border-l-2 border-amber-400">
+                        Half-paid · Balance of ₱
+                        {(
+                          selectedService.booking.grand_total -
+                          selectedService.booking.downpayment
+                        ).toLocaleString()}{" "}
+                        still due
+                      </p>
                     </>
                   ) : (
-                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                      <p className="text-xs text-green-800 font-medium">
-                        ✓ Fully paid
-                      </p>
-                    </div>
+                    <p className="text-xs text-primary font-medium mt-2 pl-2 border-l-2 border-primary">
+                      Fully paid
+                    </p>
                   )}
                 </div>
               </div>
@@ -421,7 +418,7 @@ export default function EmployeeServedHistory({
                 <div className="flex gap-2 pt-2">
                   <Button
                     variant="outline"
-                    className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 h-11"
+                    className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/10 h-11 rounded-xl cursor-pointer"
                     onClick={() => requestUnclaim(selectedService.id)}
                     disabled={loadingId === selectedService.id}
                   >
@@ -433,7 +430,7 @@ export default function EmployeeServedHistory({
                     Unclaim
                   </Button>
                   <Button
-                    className="flex-2 bg-green-600 hover:bg-green-700 text-white h-11"
+                    className="flex-[2] bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded-xl cursor-pointer"
                     onClick={() => {
                       handleMarkAsServed(selectedService.id);
                       setSelectedService(null);
@@ -450,7 +447,7 @@ export default function EmployeeServedHistory({
               {selectedService.status === "COMPLETED" && (
                 <Button
                   variant="outline"
-                  className="w-full text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-11"
+                  className="w-full text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-950/30 h-11 rounded-xl cursor-pointer"
                   onClick={() => requestUnserve(selectedService.id)}
                   disabled={loadingId === selectedService.id}
                 >
@@ -485,14 +482,15 @@ export default function EmployeeServedHistory({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmAction}
-              className={
+              className={cn(
+                "rounded-xl",
                 pendingAction?.type === "unclaim"
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-orange-600 hover:bg-orange-700"
-              }
+                  ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  : "bg-amber-600 hover:bg-amber-700 text-white",
+              )}
             >
               {pendingAction?.type === "unclaim" ? "Unclaim" : "Undo"}
             </AlertDialogAction>

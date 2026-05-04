@@ -132,14 +132,14 @@ export default function PendingServicesList({
   return (
     <>
       <div className="h-full flex flex-col">
-        <div className="space-y-4 p-4 lg:p-0">
+        <div className="space-y-3 p-4 lg:p-0">
           <div className="flex justify-end">
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="h-9 gap-2 rounded-xl border-zinc-200 bg-white hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+              className="h-9 gap-2 rounded-xl bg-card hover:bg-accent transition-colors cursor-pointer"
             >
               <RefreshCcw
                 className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
@@ -149,15 +149,15 @@ export default function PendingServicesList({
           </div>
 
           {visibleServices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 opacity-70 border-2 border-dashed border-slate-200 rounded-3xl">
-              <div className="bg-slate-50 p-6 rounded-full">
-                <Inbox className="w-10 h-10 text-slate-300" />
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+              <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center">
+                <Inbox className="w-6 h-6 text-muted-foreground" />
               </div>
               <div className="max-w-xs mx-auto">
-                <h3 className="font-bold text-lg text-slate-900">
-                  All caught up!
+                <h3 className="font-semibold text-base text-foreground">
+                  All caught up
                 </h3>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-0.5">
                   There are no pending services in the queue right now.
                 </p>
               </div>
@@ -172,7 +172,7 @@ export default function PendingServicesList({
                 .slice(0, 2);
 
               const discountInfo = getApplicableDiscount(
-                item.service.id, // Assuming service ID is available on item.service
+                item.service.id,
                 item.package_id ? Number(item.package_id) : undefined,
                 item.price,
                 saleEvents,
@@ -181,72 +181,72 @@ export default function PendingServicesList({
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-xl p-3 shadow-sm border border-slate-100 transition-all group active:scale-[0.99] relative overflow-hidden ${canClaimServices ? "hover:border-indigo-200 hover:shadow-md cursor-pointer" : "opacity-70"}`}
+                  className={`bg-card rounded-xl p-3 border border-border transition-colors group active:scale-[0.99] relative overflow-hidden ${canClaimServices ? "hover:border-primary/40 hover:bg-accent/30 cursor-pointer" : "opacity-70"}`}
                   onClick={() => {
                     if (canClaimServices) {
                       setSelectedService(item);
                     }
                   }}
                 >
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
 
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold border border-slate-200 shadow-inner shrink-0">
+                  <div className="flex items-start justify-between gap-2 pl-2">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
                         {customerInitials}
                       </div>
 
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-bold text-slate-900 text-sm leading-tight group-hover:text-indigo-600 transition-colors">
+                          <h4 className="font-bold text-foreground text-sm leading-tight group-hover:text-primary transition-colors truncate">
                             {item.service.name}
                           </h4>
                           {item.package && (
                             <Badge
                               variant="secondary"
-                              className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[9px] font-semibold h-4 px-1"
+                              className="bg-primary/10 text-primary border border-primary/30 text-[9px] font-semibold h-4 px-1"
                             >
                               {item.package.name}
                             </Badge>
                           )}
                         </div>
 
-                        <p className="text-xs font-medium text-slate-500">
+                        <p className="text-xs font-medium text-muted-foreground truncate">
                           {getBookingCustomerName(item.booking)}
                         </p>
 
-                        <div className="flex items-center gap-3 pt-1">
-                          <span className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md">
+                        <div className="flex items-center gap-2 pt-1">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
                             <ClockIcon className="w-3 h-3" />
                             {getDisplayScheduledAt(item)
                               ? formatPH(getDisplayScheduledAt(item), "h:mm a")
                               : "Walk-in"}
                           </span>
                           {item.service.duration && (
-                            <span className="text-[10px] text-slate-400 font-medium">
-                              {item.service.duration} mins
+                            <span className="text-[10px] text-muted-foreground font-medium">
+                              · {item.service.duration} mins
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end pl-2">
-                      <span className="text-sm font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
-                        {discountInfo &&
-                        discountInfo.finalPrice !== item.price ? (
-                          <div className="flex flex-col items-end leading-none gap-0.5">
-                            <span className="text-xs text-red-500 line-through opacity-70">
-                              ₱{item.price.toLocaleString()}
-                            </span>
-                            <span className="text-emerald-600">
-                              ₱{discountInfo.finalPrice.toLocaleString()}
-                            </span>
-                          </div>
-                        ) : (
-                          `₱${item.price.toLocaleString()}`
-                        )}
-                      </span>
+                    <div className="flex flex-col items-end shrink-0">
+                      {discountInfo &&
+                      discountInfo.finalPrice !== item.price ? (
+                        <div className="flex flex-col items-end leading-none gap-0.5">
+                          <span className="text-xs text-destructive line-through opacity-70 tabular-nums">
+                            ₱{item.price.toLocaleString()}
+                          </span>
+                          <span className="text-sm font-bold text-primary tabular-nums">
+                            ₱{discountInfo.finalPrice.toLocaleString()}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm font-bold text-foreground tabular-nums">
+                          ₱{item.price.toLocaleString()}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
