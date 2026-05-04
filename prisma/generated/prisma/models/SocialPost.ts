@@ -40,6 +40,7 @@ export type SocialPostMinAggregateOutputType = {
   sale_event_id: number | null
   source: $Enums.SocialPostSource | null
   status: $Enums.SocialPostStatus | null
+  category: string | null
   title: string | null
   caption_draft: string | null
   caption_final: string | null
@@ -58,6 +59,7 @@ export type SocialPostMaxAggregateOutputType = {
   sale_event_id: number | null
   source: $Enums.SocialPostSource | null
   status: $Enums.SocialPostStatus | null
+  category: string | null
   title: string | null
   caption_draft: string | null
   caption_final: string | null
@@ -76,6 +78,7 @@ export type SocialPostCountAggregateOutputType = {
   sale_event_id: number
   source: number
   status: number
+  category: number
   title: number
   caption_draft: number
   caption_final: number
@@ -105,6 +108,7 @@ export type SocialPostMinAggregateInputType = {
   sale_event_id?: true
   source?: true
   status?: true
+  category?: true
   title?: true
   caption_draft?: true
   caption_final?: true
@@ -123,6 +127,7 @@ export type SocialPostMaxAggregateInputType = {
   sale_event_id?: true
   source?: true
   status?: true
+  category?: true
   title?: true
   caption_draft?: true
   caption_final?: true
@@ -141,6 +146,7 @@ export type SocialPostCountAggregateInputType = {
   sale_event_id?: true
   source?: true
   status?: true
+  category?: true
   title?: true
   caption_draft?: true
   caption_final?: true
@@ -247,6 +253,7 @@ export type SocialPostGroupByOutputType = {
   sale_event_id: number | null
   source: $Enums.SocialPostSource
   status: $Enums.SocialPostStatus
+  category: string | null
   title: string
   caption_draft: string
   caption_final: string | null
@@ -289,6 +296,7 @@ export type SocialPostWhereInput = {
   sale_event_id?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   source?: Prisma.EnumSocialPostSourceFilter<"SocialPost"> | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFilter<"SocialPost"> | $Enums.SocialPostStatus
+  category?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   title?: Prisma.StringFilter<"SocialPost"> | string
   caption_draft?: Prisma.StringFilter<"SocialPost"> | string
   caption_final?: Prisma.StringNullableFilter<"SocialPost"> | string | null
@@ -314,6 +322,7 @@ export type SocialPostOrderByWithRelationInput = {
   sale_event_id?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   caption_draft?: Prisma.SortOrder
   caption_final?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,6 +351,7 @@ export type SocialPostWhereUniqueInput = Prisma.AtLeast<{
   sale_event_id?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   source?: Prisma.EnumSocialPostSourceFilter<"SocialPost"> | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFilter<"SocialPost"> | $Enums.SocialPostStatus
+  category?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   title?: Prisma.StringFilter<"SocialPost"> | string
   caption_draft?: Prisma.StringFilter<"SocialPost"> | string
   caption_final?: Prisma.StringNullableFilter<"SocialPost"> | string | null
@@ -367,6 +377,7 @@ export type SocialPostOrderByWithAggregationInput = {
   sale_event_id?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   caption_draft?: Prisma.SortOrder
   caption_final?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -394,6 +405,7 @@ export type SocialPostScalarWhereWithAggregatesInput = {
   sale_event_id?: Prisma.IntNullableWithAggregatesFilter<"SocialPost"> | number | null
   source?: Prisma.EnumSocialPostSourceWithAggregatesFilter<"SocialPost"> | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusWithAggregatesFilter<"SocialPost"> | $Enums.SocialPostStatus
+  category?: Prisma.StringNullableWithAggregatesFilter<"SocialPost"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"SocialPost"> | string
   caption_draft?: Prisma.StringWithAggregatesFilter<"SocialPost"> | string
   caption_final?: Prisma.StringNullableWithAggregatesFilter<"SocialPost"> | string | null
@@ -411,6 +423,7 @@ export type SocialPostCreateInput = {
   id?: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -435,6 +448,7 @@ export type SocialPostUncheckedCreateInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -455,6 +469,7 @@ export type SocialPostUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -479,6 +494,7 @@ export type SocialPostUncheckedUpdateInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -501,6 +517,7 @@ export type SocialPostCreateManyInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -518,6 +535,7 @@ export type SocialPostUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -536,6 +554,7 @@ export type SocialPostUncheckedUpdateManyInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -565,6 +584,7 @@ export type SocialPostCountOrderByAggregateInput = {
   sale_event_id?: Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   title?: Prisma.SortOrder
   caption_draft?: Prisma.SortOrder
   caption_final?: Prisma.SortOrder
@@ -588,6 +608,7 @@ export type SocialPostMaxOrderByAggregateInput = {
   sale_event_id?: Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   title?: Prisma.SortOrder
   caption_draft?: Prisma.SortOrder
   caption_final?: Prisma.SortOrder
@@ -606,6 +627,7 @@ export type SocialPostMinOrderByAggregateInput = {
   sale_event_id?: Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   title?: Prisma.SortOrder
   caption_draft?: Prisma.SortOrder
   caption_final?: Prisma.SortOrder
@@ -825,6 +847,7 @@ export type SocialPostCreateWithoutBusinessInput = {
   id?: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -847,6 +870,7 @@ export type SocialPostUncheckedCreateWithoutBusinessInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -898,6 +922,7 @@ export type SocialPostScalarWhereInput = {
   sale_event_id?: Prisma.IntNullableFilter<"SocialPost"> | number | null
   source?: Prisma.EnumSocialPostSourceFilter<"SocialPost"> | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFilter<"SocialPost"> | $Enums.SocialPostStatus
+  category?: Prisma.StringNullableFilter<"SocialPost"> | string | null
   title?: Prisma.StringFilter<"SocialPost"> | string
   caption_draft?: Prisma.StringFilter<"SocialPost"> | string
   caption_final?: Prisma.StringNullableFilter<"SocialPost"> | string | null
@@ -915,6 +940,7 @@ export type SocialPostCreateWithoutSale_eventInput = {
   id?: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -937,6 +963,7 @@ export type SocialPostUncheckedCreateWithoutSale_eventInput = {
   business_id: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -983,6 +1010,7 @@ export type SocialPostCreateWithoutTargetsInput = {
   id?: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1006,6 +1034,7 @@ export type SocialPostUncheckedCreateWithoutTargetsInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1041,6 +1070,7 @@ export type SocialPostUpdateWithoutTargetsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1064,6 +1094,7 @@ export type SocialPostUncheckedUpdateWithoutTargetsInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1083,6 +1114,7 @@ export type SocialPostCreateWithoutCreated_by_userInput = {
   id?: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1106,6 +1138,7 @@ export type SocialPostUncheckedCreateWithoutCreated_by_userInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1151,6 +1184,7 @@ export type SocialPostCreateWithoutGrowth_campaignsInput = {
   id?: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1174,6 +1208,7 @@ export type SocialPostUncheckedCreateWithoutGrowth_campaignsInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1209,6 +1244,7 @@ export type SocialPostUpdateWithoutGrowth_campaignsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1232,6 +1268,7 @@ export type SocialPostUncheckedUpdateWithoutGrowth_campaignsInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1251,6 +1288,7 @@ export type SocialPostCreateWithoutSource_requestInput = {
   id?: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1274,6 +1312,7 @@ export type SocialPostUncheckedCreateWithoutSource_requestInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1309,6 +1348,7 @@ export type SocialPostUpdateWithoutSource_requestInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1332,6 +1372,7 @@ export type SocialPostUncheckedUpdateWithoutSource_requestInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1352,6 +1393,7 @@ export type SocialPostCreateManyBusinessInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1369,6 +1411,7 @@ export type SocialPostUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1391,6 +1434,7 @@ export type SocialPostUncheckedUpdateWithoutBusinessInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1412,6 +1456,7 @@ export type SocialPostUncheckedUpdateManyWithoutBusinessInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1430,6 +1475,7 @@ export type SocialPostCreateManySale_eventInput = {
   business_id: string
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1447,6 +1493,7 @@ export type SocialPostUpdateWithoutSale_eventInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1469,6 +1516,7 @@ export type SocialPostUncheckedUpdateWithoutSale_eventInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1490,6 +1538,7 @@ export type SocialPostUncheckedUpdateManyWithoutSale_eventInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1509,6 +1558,7 @@ export type SocialPostCreateManyCreated_by_userInput = {
   sale_event_id?: number | null
   source: $Enums.SocialPostSource
   status?: $Enums.SocialPostStatus
+  category?: string | null
   title: string
   caption_draft: string
   caption_final?: string | null
@@ -1525,6 +1575,7 @@ export type SocialPostUpdateWithoutCreated_by_userInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1548,6 +1599,7 @@ export type SocialPostUncheckedUpdateWithoutCreated_by_userInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1569,6 +1621,7 @@ export type SocialPostUncheckedUpdateManyWithoutCreated_by_userInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   source?: Prisma.EnumSocialPostSourceFieldUpdateOperationsInput | $Enums.SocialPostSource
   status?: Prisma.EnumSocialPostStatusFieldUpdateOperationsInput | $Enums.SocialPostStatus
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   caption_draft?: Prisma.StringFieldUpdateOperationsInput | string
   caption_final?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1627,6 +1680,7 @@ export type SocialPostSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   sale_event_id?: boolean
   source?: boolean
   status?: boolean
+  category?: boolean
   title?: boolean
   caption_draft?: boolean
   caption_final?: boolean
@@ -1653,6 +1707,7 @@ export type SocialPostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   sale_event_id?: boolean
   source?: boolean
   status?: boolean
+  category?: boolean
   title?: boolean
   caption_draft?: boolean
   caption_final?: boolean
@@ -1675,6 +1730,7 @@ export type SocialPostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   sale_event_id?: boolean
   source?: boolean
   status?: boolean
+  category?: boolean
   title?: boolean
   caption_draft?: boolean
   caption_final?: boolean
@@ -1697,6 +1753,7 @@ export type SocialPostSelectScalar = {
   sale_event_id?: boolean
   source?: boolean
   status?: boolean
+  category?: boolean
   title?: boolean
   caption_draft?: boolean
   caption_final?: boolean
@@ -1710,7 +1767,7 @@ export type SocialPostSelectScalar = {
   updated_at?: boolean
 }
 
-export type SocialPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_id" | "sale_event_id" | "source" | "status" | "title" | "caption_draft" | "caption_final" | "hashtags" | "media_url" | "created_by_user_id" | "publish_requested_at" | "published_at" | "last_error" | "created_at" | "updated_at", ExtArgs["result"]["socialPost"]>
+export type SocialPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_id" | "sale_event_id" | "source" | "status" | "category" | "title" | "caption_draft" | "caption_final" | "hashtags" | "media_url" | "created_by_user_id" | "publish_requested_at" | "published_at" | "last_error" | "created_at" | "updated_at", ExtArgs["result"]["socialPost"]>
 export type SocialPostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   sale_event?: boolean | Prisma.SocialPost$sale_eventArgs<ExtArgs>
@@ -1747,6 +1804,7 @@ export type $SocialPostPayload<ExtArgs extends runtime.Types.Extensions.Internal
     sale_event_id: number | null
     source: $Enums.SocialPostSource
     status: $Enums.SocialPostStatus
+    category: string | null
     title: string
     caption_draft: string
     caption_final: string | null
@@ -2192,6 +2250,7 @@ export interface SocialPostFieldRefs {
   readonly sale_event_id: Prisma.FieldRef<"SocialPost", 'Int'>
   readonly source: Prisma.FieldRef<"SocialPost", 'SocialPostSource'>
   readonly status: Prisma.FieldRef<"SocialPost", 'SocialPostStatus'>
+  readonly category: Prisma.FieldRef<"SocialPost", 'String'>
   readonly title: Prisma.FieldRef<"SocialPost", 'String'>
   readonly caption_draft: Prisma.FieldRef<"SocialPost", 'String'>
   readonly caption_final: Prisma.FieldRef<"SocialPost", 'String'>

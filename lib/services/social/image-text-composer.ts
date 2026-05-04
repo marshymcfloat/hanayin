@@ -49,6 +49,33 @@ export type OrganicOverlayInput = {
 };
 
 /**
+ * H6 / K2: input for an educational tip-card overlay. The headline is the
+ * post's topic (e.g. "Top 3 winter skincare tips"), wrapped onto up to 3
+ * lines and placed in the upper third of the frame. The optional `tips`
+ * array — up to 3 short bullet strings — renders below the headline as
+ * a compact list, mirroring how successful Instagram tip cards present
+ * standalone-readable content. Falls back gracefully to title-only when
+ * `tips` is empty or undefined.
+ */
+export type EducationalOverlayInput = {
+  businessName: string;
+  headline: string;
+  tips?: string[];
+};
+
+// Wave K2: bullet rendering constants. Sans-serif (DM Sans) at smaller
+// size so several bullets fit in the upper-half whitespace without
+// crowding the photograph that anchors the lower portion of the frame.
+const TIP_FONT_SIZE = 38;
+const TIP_AVG_CHAR_WIDTH_FACTOR = 0.5; // sans-serif is narrower than the serif headline
+const TIP_LINE_HEIGHT = 56;
+const TIP_MAX_CHARS_PER_LINE = 38;
+const TIP_MAX_LINES_PER_TIP = 2;
+const TIP_MAX_COUNT = 3;
+const TIP_MAX_WIDTH = W - PAD * 2;
+const TIP_BULLET_GLYPH = "•";
+
+/**
  * Compose a sale-event promo overlay onto a background image. Returns the
  * composed PNG bytes. If sharp throws, we fall back to returning the original
  * background bytes — the caller already uploaded an image worth shipping.
@@ -95,6 +122,35 @@ export async function composeBusinessNameWatermark(
   } catch (error) {
     logger.warn(
       "[Social] Watermark composition failed; returning raw background.",
+      {
+        errorMessage: error instanceof Error ? error.message : String(error),
+      },
+    );
+    return { bytes: background, mimeType: "image/png" };
+  }
+}
+
+/**
+ * H6: compose an educational tip-card overlay. Renders a centered headline in
+ * the upper third of the frame plus a small bottom-left business-name
+ * watermark. Designed to pair with the EDUCATIONAL image profile, which
+ * generates a flat-lay with intentional whitespace at the top.
+ */
+export async function composeEducationalOverlay(
+  background: Buffer,
+  input: EducationalOverlayInput,
+): Promise<{ bytes: Buffer; mimeType: "image/png" }> {
+  try {
+    const overlay = await renderEducationalOverlaySvg(input);
+    const bytes = await sharp(background)
+      .resize(W, H, { fit: "cover", position: "centre" })
+      .composite([{ input: overlay, top: 0, left: 0 }])
+      .png({ quality: 92 })
+      .toBuffer();
+    return { bytes, mimeType: "image/png" };
+  } catch (error) {
+    logger.warn(
+      "[Social] Educational overlay composition failed; returning raw background.",
       {
         errorMessage: error instanceof Error ? error.message : String(error),
       },
@@ -308,6 +364,127 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
   ${discountSvg}
   ${dateSvg}
   ${ctaSvg}
+</svg>`;
+
+  return Buffer.from(svg);
+}
+
+async function renderEducationalOverlaySvg(input: EducationalOverlayInput) {
+  const fontStyles = await getEmbeddedFontStyles();
+  const businessName = clampWords(input.businessName, FIELD_LIMITS.businessName);
+  const headlineFull = clampWords(input.headline, FIELD_LIMITS.headline);
+  const headlineLines = wrapForOverlay(
+    headlineFull,
+    HEADLINE_MAX_CHARS_PER_LINE,
+    HEADLINE_MAX_LINES,
+  );
+
+  // Anchor headline in upper third of frame, lines stacked downward.
+  const headlineLineHeight = 92;
+  const headlineTopY = PAD + 120;
+  const headlineSvg = headlineLines
+    .map((line, index) => {
+      const y = headlineTopY + index * headlineLineHeight;
+      const estimatedWidth =
+        line.length * HEADLINE_FONT_SIZE * HEADLINE_AVG_CHAR_WIDTH_FACTOR;
+      const fitAttrs =
+        estimatedWidth > HEADLINE_MAX_WIDTH
+          ? ` textLength="${HEADLINE_MAX_WIDTH}" lengthAdjust="spacingAndGlyphs"`
+          : "";
+      return `<text x="${PAD}" y="${y}" class="headline"${fitAttrs}>${escapeXml(line)}</text>`;
+    })
+    .join("");
+
+  // Wave K2: bullet tips below the headline. Each tip wraps across up to
+  // TIP_MAX_LINES_PER_TIP lines (sans-serif, smaller font). We compute
+  // total height up front so the layout never spills past the upper-half
+  // negative-space band the EDUCATIONAL blueprint reserves.
+  const tipsRaw = (input.tips ?? []).slice(0, TIP_MAX_COUNT);
+  const tipBlocks = tipsRaw
+    .map((tipText) => {
+      const cleaned = tipText.trim();
+      if (!cleaned) return null;
+      const wrapped = wrapForOverlay(
+        cleaned,
+        TIP_MAX_CHARS_PER_LINE,
+        TIP_MAX_LINES_PER_TIP,
+      );
+      return wrapped.length > 0 ? wrapped : null;
+    })
+    .filter((value): value is string[] => value !== null);
+
+  const headlineBottomY =
+    headlineTopY + (headlineLines.length - 1) * headlineLineHeight;
+  const tipsTopY = headlineBottomY + 72; // breathing room beneath headline
+  let tipsCursor = tipsTopY;
+  const tipSvgPieces: string[] = [];
+  for (const lines of tipBlocks) {
+    lines.forEach((line, lineIdx) => {
+      const y = tipsCursor + lineIdx * TIP_LINE_HEIGHT;
+      const estimatedWidth =
+        line.length * TIP_FONT_SIZE * TIP_AVG_CHAR_WIDTH_FACTOR;
+      const fitAttrs =
+        estimatedWidth > TIP_MAX_WIDTH
+          ? ` textLength="${TIP_MAX_WIDTH}" lengthAdjust="spacingAndGlyphs"`
+          : "";
+      const prefix = lineIdx === 0 ? `${TIP_BULLET_GLYPH}  ` : "    ";
+      tipSvgPieces.push(
+        `<text x="${PAD}" y="${y}" class="tip"${fitAttrs}>${escapeXml(prefix + line)}</text>`,
+      );
+    });
+    tipsCursor += lines.length * TIP_LINE_HEIGHT + 14; // small inter-tip gap
+  }
+  const tipsSvg = tipSvgPieces.join("");
+
+  // Top scrim ensures headline+tips contrast against any background.
+  // Bottom remains mostly clean photograph; a single small watermark
+  // sits bottom-left, mirroring the sale promo's brand placement.
+  const watermarkY = H - PAD;
+  const brandSvg = `<text x="${PAD}" y="${watermarkY}" class="brand">${escapeXml(businessName.toUpperCase())}</text>`;
+
+  // Smaller brand size for educational watermark + dedicated `.tip` rule
+  // (DM Sans, slightly translucent so the bullets feel like supporting
+  // copy rather than competing with the serif headline).
+  const educationalFontStyles =
+    fontStyles.replace(
+      /\.brand\s*\{[^}]*font-size:\s*[\d.]+px/,
+      ".brand { font-family: 'DM Sans',Arial,sans-serif; font-weight: 500; font-size: 22px",
+    ) +
+    `
+.tip {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 500;
+  font-size: ${TIP_FONT_SIZE}px;
+  fill: #f8f8f4;
+  letter-spacing: 0.2px;
+}
+`;
+
+  // The scrim now extends a bit further down so the bullet area is
+  // legible. Stop at 0.6 × H so the lower 40% of the frame is still
+  // a clean unobstructed photograph for the flat-lay subject.
+  const scrimEndY = tipBlocks.length > 0 ? H * 0.6 : H * 0.45;
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <linearGradient id="topScrim" x1="0" y1="0" x2="0" y2="${scrimEndY}" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0.65"/>
+      <stop offset="0.7" stop-color="rgb(8,12,16)" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bottomScrim" x1="0" y1="${H - PAD * 1.6}" x2="0" y2="${H}" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0"/>
+      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0.4"/>
+    </linearGradient>
+    <style>
+      ${educationalFontStyles}
+    </style>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#topScrim)"/>
+  <rect width="${W}" height="${H}" fill="url(#bottomScrim)"/>
+  ${headlineSvg}
+  ${tipsSvg}
+  ${brandSvg}
 </svg>`;
 
   return Buffer.from(svg);

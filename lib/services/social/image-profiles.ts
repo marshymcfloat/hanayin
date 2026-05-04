@@ -4,6 +4,7 @@ export const SOCIAL_IMAGE_PROFILES = [
   "MODERN_GRAPHIC",
   "BOLD_MONOCHROME",
   "WARM_EDITORIAL",
+  "EDUCATIONAL",
 ] as const;
 
 export type SocialImageProfile = (typeof SOCIAL_IMAGE_PROFILES)[number];
@@ -45,6 +46,12 @@ export const SOCIAL_IMAGE_PROFILE_OPTIONS: Array<{
     label: "Bold Monochrome",
     description:
       "Cinematic black and white, dramatic light, single confident subject.",
+  },
+  {
+    value: "EDUCATIONAL",
+    label: "Educational Tip Card",
+    description:
+      "Calm flat-lay backdrop with generous negative space — designed to anchor a headline overlay. Best for tips & education posts.",
   },
 ];
 

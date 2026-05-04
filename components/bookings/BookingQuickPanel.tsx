@@ -139,16 +139,25 @@ export function deriveViewerContext(input: {
     };
   }
 
-  // Default: STAFF. Read-only by design — staff can see their bookings
-  // and (if PAYMENT_COLLECT granted) record payment, but not adjust scope.
+  // Default: STAFF. Read-only BY DEFAULT — DEFAULT_PERMISSIONS_BY_PROFILE
+  // doesn't grant the BOOKING_* flags to staff at the profile level. But
+  // when an owner explicitly grants permissions through the per-employee
+  // C7 admin UI (Edit permissions dialog), those granted flags MUST be
+  // honored here. N2 fix: previously this branch hardcoded everything to
+  // false, which made the C7 UI feel broken — owners would tick
+  // BOOKING_MODIFY for a staff member, save, refresh, and see no change
+  // because deriveViewerContext ignored the flag for STAFF profiles.
   return {
     role: "STAFF",
-    canAddService: false,
+    canAddService:
+      perms.has("BOOKING_MODIFY") || perms.has("BOOKING_CREATE"),
     canMarkPaid: perms.has("PAYMENT_COLLECT"),
-    canMarkNoShow: false,
+    canMarkNoShow: perms.has("BOOKING_MARK_NO_SHOW"),
+    // Owners only — staff shouldn't be able to permanently delete
+    // bookings even with full booking-edit permissions.
     canDelete: false,
-    canCancel: false,
-    canAdjustPrice: false,
-    canReassignStaff: false,
+    canCancel: perms.has("BOOKING_CANCEL"),
+    canAdjustPrice: perms.has("BOOKING_ADJUST_PRICE"),
+    canReassignStaff: hasOverride,
   };
 }

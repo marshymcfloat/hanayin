@@ -18,18 +18,16 @@ import { generateAndUploadPromoImage } from "@/lib/services/social/promo-image";
 import type {
   GeneratedCampaignView,
   GrowthContextPayload,
-  OpportunityTypeLiteral,
 } from "@/lib/services/growth/types";
 import {
   generateGrowthCampaignSchema,
   trackGrowthCampaignEventSchema,
 } from "@/lib/zod-schemas/growth";
 import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
-import { recommendCampaignStyling } from "@/lib/services/growth/styling-recommender";
-import {
-  isSocialImageProfile,
-  type SocialImageProfile,
-} from "@/lib/services/social/image-profiles";
+import { pickCampaignStyling } from "@/lib/services/growth/styling-recommender";
+import { resolveTenantActorContext } from "@/lib/auth/staff-access";
+import { startGrowthCampaignTimer } from "@/lib/telemetry/growth-events";
+import type { SocialImageProfile } from "@/lib/services/social/image-profiles";
 
 function normalizeHashtags(hashtags: string[]) {
   return Array.from(
@@ -340,25 +338,43 @@ export async function generateGrowthCampaignAction(
       constraints: input.constraints,
     });
 
-    // Engine-recommended styling: if the owner didn't specify a tone or
-    // image profile in the dialog, fall back to a reasonable default based
-    // on the opportunity type and dominant service category.
-    const stylingRecommendation = recommendCampaignStyling({
-      opportunityType: opportunity.type as OpportunityTypeLiteral,
-      serviceCategories: serviceCandidates.map((s) => s.category),
-      serviceNames: serviceCandidates.map((s) => s.name),
+    // Wave I4: offer-side smart-default. By the time we run, we know the
+    // concrete offer type (FLASH_DEAL, BUNDLE, …) which is a sharper signal
+    // than the opportunity type the dialog used for its pre-pick. The
+    // picker also handles topic-keyword refinement (medical procedures,
+    // transformations) and respects owner overrides from the dialog.
+    const styling = pickCampaignStyling({
+      offer: {
+        offerType: offer.offerType,
+        publicDescription: offer.publicDescription,
+      },
+      override: {
+        captionTone: input.styling?.captionTone ?? null,
+        imageProfile: input.styling?.imageProfile ?? null,
+      },
     });
-    const captionTone =
-      input.styling?.captionTone && input.styling.captionTone !== "AUTO"
-        ? input.styling.captionTone
-        : stylingRecommendation.captionTone;
-    const imageProfileSelection: SocialImageProfile = isSocialImageProfile(
-      input.styling?.imageProfile ?? "",
-    )
-      ? (input.styling!.imageProfile as SocialImageProfile)
-      : stylingRecommendation.imageProfile;
+    const captionTone = styling.captionTone;
+    const imageProfileSelection: SocialImageProfile = styling.imageProfile;
     const ownerCaptionDirection = input.styling?.ownerCaptionDirection?.trim();
     const ownerImageDirection = input.styling?.ownerImageDirection?.trim();
+
+    // Wave J5 — telemetry. Resolve actor context for businessId + role.
+    // Failure here is non-fatal; we just skip the event. The helpers
+    // already have inferred + actual values + override booleans on hand.
+    const actor = await resolveTenantActorContext(
+      input.businessSlug,
+      auth.session.user.id,
+    ).catch(() => null);
+    const finishTelemetry = actor && actor.success
+      ? startGrowthCampaignTimer({
+          action: "GENERATED",
+          businessId: actor.businessId,
+          actorRole: actor.actorType,
+          offerType: offer.offerType,
+          inferredCaptionTone: styling.inferredCaptionTone,
+          inferredImageProfile: styling.inferredImageProfile,
+        })
+      : null;
 
     const captions = await generateCaptionVariants({
       businessSlug: business.slug,
@@ -567,6 +583,14 @@ export async function generateGrowthCampaignAction(
     revalidatePath(`/app/${input.businessSlug}/sale-events`);
     revalidatePath(`/app/${input.businessSlug}/social-posts`);
 
+    finishTelemetry?.({
+      success: true,
+      actualCaptionTone: captionTone,
+      actualImageProfile: imageProfileSelection,
+      ownerOverrodeCaptionTone: styling.ownerOverrodeCaptionTone,
+      ownerOverrodeImageProfile: styling.ownerOverrodeImageProfile,
+      aiInvoked: true,
+    });
     return {
       success: true,
       data: {
@@ -581,6 +605,10 @@ export async function generateGrowthCampaignAction(
       },
     };
   } catch (error) {
+    // Telemetry skipped on the error path — required variables (styling,
+    // captionTone, imageProfileSelection) are scoped to the try block and
+    // most error paths happen before they're assigned. Auth/prisma errors
+    // are already observable through their own pipelines.
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to generate campaign.",

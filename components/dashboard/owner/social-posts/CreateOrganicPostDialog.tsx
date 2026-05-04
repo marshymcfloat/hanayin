@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { AlertTriangle, ChevronDown, ChevronUp, Loader2, PenLine, Sparkles } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronUp, Loader2, PenLine, Sparkles, Wand2 } from "lucide-react";
 import { getSocialAiStatusAction } from "@/lib/server actions/social-ai-status";
+import { inferCreativeBrief } from "@/lib/services/social/creative-brief";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -126,6 +127,49 @@ export function CreateOrganicPostDialog({ open, businessSlug, onOpenChange, onCr
   const [imageProfile, setImageProfile] = useState<string>(AI_DECIDES);
   const [generateImageNow, setGenerateImageNow] = useState(false);
   const [ownerDirection, setOwnerDirection] = useState("");
+
+  // I5 — visual compression. Most owners never expand "Tune further"
+  // because the smart defaults from creative-brief.ts already pick a
+  // sensible mood/focus/profile from (category, topic). Show a tiny
+  // one-liner under the topic input so they can see what AI will use
+  // and decide whether to override. Cheap to compute (pure function),
+  // recomputes only when category or trimmed topic changes.
+  const inferredBrief = useMemo(() => {
+    const trimmed = topic.trim();
+    if (!trimmed) return null;
+    return inferCreativeBrief({ category, topic: trimmed });
+  }, [category, topic]);
+
+  // Look up display labels for the inferred values so the preview
+  // line reads like the Select rows the owner would otherwise pick.
+  const inferredMoodLabel = useMemo(
+    () =>
+      inferredBrief
+        ? MOOD_OPTIONS.find((o) => o.value === inferredBrief.mood)?.label ??
+          inferredBrief.mood
+        : "",
+    [inferredBrief],
+  );
+  const inferredFocusLabel = useMemo(
+    () =>
+      inferredBrief
+        ? VISUAL_FOCUS_OPTIONS.find((o) => o.value === inferredBrief.visualFocus)
+            ?.label ?? inferredBrief.visualFocus
+        : "",
+    [inferredBrief],
+  );
+  // K3: surface the inferred image profile so owners can see — before
+  // submitting — that EDUCATIONAL was auto-picked for a tips post (vs
+  // having to wait for the post-creation editor to reveal it).
+  const inferredImageProfileLabel = useMemo(
+    () =>
+      inferredBrief
+        ? SOCIAL_IMAGE_PROFILE_OPTIONS.find(
+            (o) => o.value === inferredBrief.imageProfile,
+          )?.label ?? inferredBrief.imageProfile
+        : "",
+    [inferredBrief],
+  );
 
   // H8: surface AI provider configuration to the owner. When Gemini is
   // unset, captions silently fall back to category rescue templates —
@@ -280,6 +324,30 @@ export function CreateOrganicPostDialog({ open, businessSlug, onOpenChange, onCr
               disabled={creating}
               maxLength={120}
             />
+            {/* I5: smart-default preview. Shows the owner what the AI
+                will use for mood and visual focus the moment they finish
+                typing a topic. If the picks look right, they can skip
+                "Tune further" entirely — that's the visual compression. */}
+            {inferredBrief ? (
+              <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                <Wand2 className="h-3.5 w-3.5 shrink-0 mt-0.5 text-primary" />
+                <span>
+                  AI will use{" "}
+                  <span className="font-medium text-foreground">
+                    {inferredImageProfileLabel}
+                  </span>{" "}
+                  style ·{" "}
+                  <span className="font-medium text-foreground">
+                    {inferredMoodLabel}
+                  </span>{" "}
+                  ·{" "}
+                  <span className="font-medium text-foreground">
+                    {inferredFocusLabel}
+                  </span>
+                  . Override in <span className="italic">Tune further</span>.
+                </span>
+              </p>
+            ) : null}
           </div>
 
           {/* Caption voice — first-class control. Same options as the
