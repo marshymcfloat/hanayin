@@ -501,10 +501,13 @@ export async function deleteSocialPostDraftAction(input: {
       return { success: false as const, error: "Social post draft not found." };
     }
 
-    if (post.status !== "DRAFT") {
+    // Posts that have been (or are being) pushed to a social platform
+    // shouldn't be deleted from this UI — the live post would still be on
+    // Facebook/Instagram and the audit trail would mislead the owner.
+    if (post.status === "PUBLISHED" || post.status === "PUBLISHING") {
       return {
         success: false as const,
-        error: "Only saved draft posts can be deleted.",
+        error: "Published posts can't be deleted from here.",
       };
     }
 
