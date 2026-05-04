@@ -15,8 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cancelLeaveRequest } from "@/app/actions/leave-request";
 import { toast } from "sonner";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CalendarCheck, ChevronRight, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,17 @@ export function EmployeeLeaveClient({
 }: EmployeeLeaveClientProps) {
   const [cancellingId, setCancellingId] = useState<number | null>(null);
 
+  const counts = useMemo(() => {
+    const pending = requests.filter((r) => r.status === "PENDING").length;
+    return { total: requests.length, pending };
+  }, [requests]);
+
+  const summary = counts.pending > 0
+    ? `${counts.pending} pending request${counts.pending === 1 ? "" : "s"}`
+    : counts.total > 0
+      ? `${counts.total} request${counts.total === 1 ? "" : "s"} on file`
+      : "No requests yet";
+
   const getStatusClass = (status: string) => {
     switch (status) {
       case "APPROVED":
@@ -82,9 +93,28 @@ export function EmployeeLeaveClient({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full md:w-auto rounded-xl cursor-pointer">
-          Manage Leave Requests
-        </Button>
+        <button
+          type="button"
+          className="w-full flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left hover:border-primary/30 hover:bg-accent/30 transition-colors cursor-pointer"
+        >
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <CalendarCheck className="h-5 w-5 text-primary" />
+          </span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-sm font-semibold text-foreground">
+              Leave Requests
+            </span>
+            <span className="block text-xs text-muted-foreground truncate">
+              {summary}
+            </span>
+          </span>
+          {counts.pending > 0 && (
+            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-amber-500/15 px-2 text-[11px] font-bold text-amber-600 dark:text-amber-400 tabular-nums shrink-0">
+              {counts.pending}
+            </span>
+          )}
+          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+        </button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] md:max-w-5xl! h-[80vh] flex flex-col p-0 rounded-3xl gap-0 overflow-hidden">
         <DialogHeader className="px-6 pb-2 pt-6 shrink-0">

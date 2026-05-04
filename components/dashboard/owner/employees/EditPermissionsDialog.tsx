@@ -16,18 +16,17 @@ import { useRouter } from "next/navigation";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import { setEmployeePermissionsAction } from "@/lib/server actions/employee-permissions";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
@@ -230,79 +229,93 @@ export function EditPermissionsDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-2xl max-w-xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit permissions for {employeeName}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="rounded-t-3xl rounded-b-none sm:rounded-3xl max-w-xl max-h-[92vh] sm:max-h-[85vh] p-0 gap-0 overflow-hidden flex flex-col">
+        <DialogHeader className="px-5 sm:px-6 pt-5 sm:pt-6 pb-3 shrink-0">
+          <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
+            Edit permissions for {employeeName}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Toggle individual flags. If you uncheck everything, the
             employee&apos;s profile defaults are restored automatically.
           </DialogDescription>
         </DialogHeader>
+        <div className="h-px bg-border mx-5 sm:mx-6" />
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          id="edit-permissions-form"
+          onSubmit={handleSubmit}
+          className="px-5 sm:px-6 py-4 overflow-y-auto flex-1 space-y-5"
+        >
           {PERMISSION_GROUPS.map((group) => (
-            <fieldset key={group.label} className="space-y-2">
-              <legend className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+            <fieldset key={group.label} className="space-y-1">
+              <legend className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {group.label}
               </legend>
-              <div className="space-y-2">
+              <ul className="divide-y divide-border border-y border-border">
                 {group.permissions.map((perm) => {
                   const id = `perm-${perm.flag}`;
                   const checked = picked.has(perm.flag);
                   return (
-                    <div
-                      key={perm.flag}
-                      className="flex items-start gap-3 rounded-xl border border-zinc-100 bg-white p-3 hover:border-zinc-200 transition-colors"
-                    >
-                      <Checkbox
-                        id={id}
-                        checked={checked}
-                        onCheckedChange={(next) =>
-                          togglePermission(perm.flag, next === true)
-                        }
-                        disabled={submitting}
-                        className="mt-0.5"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <Label
-                          htmlFor={id}
-                          className="text-sm font-semibold text-zinc-900 cursor-pointer"
-                        >
-                          {perm.label}
-                        </Label>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {perm.description}
-                        </p>
-                      </div>
-                    </div>
+                    <li key={perm.flag}>
+                      <label
+                        htmlFor={id}
+                        className={cn(
+                          "flex items-start gap-3 px-1 py-3 cursor-pointer transition-colors",
+                          checked && "bg-primary/5",
+                        )}
+                      >
+                        <Checkbox
+                          id={id}
+                          checked={checked}
+                          onCheckedChange={(next) =>
+                            togglePermission(perm.flag, next === true)
+                          }
+                          disabled={submitting}
+                          className="mt-0.5"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className="block text-sm font-semibold text-foreground">
+                            {perm.label}
+                          </span>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {perm.description}
+                          </p>
+                        </div>
+                      </label>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </fieldset>
           ))}
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => setOpen(false)}
-              disabled={submitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="rounded-xl" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>Save permissions</>
-              )}
-            </Button>
-          </DialogFooter>
         </form>
+
+        <div className="px-5 sm:px-6 py-4 border-t border-border bg-muted/30 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-xl cursor-pointer"
+            onClick={() => setOpen(false)}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="edit-permissions-form"
+            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+            disabled={submitting}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>Save permissions</>
+            )}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

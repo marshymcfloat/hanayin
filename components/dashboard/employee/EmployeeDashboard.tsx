@@ -189,42 +189,45 @@ export default function EmployeeDashboard({
 
       {/* ── Top Bar ─────────────────────────── */}
       <header className="shrink-0 bg-card border-b border-border px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-foreground truncate leading-none">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <UserIcon className="h-4 w-4 text-primary" />
+          </span>
+          <div className="min-w-0 leading-tight">
+            <p className="text-sm font-bold text-foreground truncate">
               {businessName}
             </p>
-            <p className="text-[10px] text-primary font-semibold uppercase tracking-widest mt-0.5">
+            <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">
               {roleLabel}
             </p>
           </div>
         </div>
 
         {/* Stat pills – desktop only, inline in header */}
-        <div className="hidden xl:flex items-center gap-2 flex-1 justify-center max-w-xl">
-          <div className="flex items-center gap-1.5 bg-primary/8 rounded-xl px-3 py-1.5">
+        <div className="hidden xl:flex items-center gap-1.5 flex-1 justify-center max-w-xl">
+          <div className="flex items-center gap-1.5 bg-primary/10 rounded-lg px-3 py-1.5">
             <PhilippinePeso className="h-3.5 w-3.5 text-primary" />
             <span className="text-xs font-bold text-primary tabular-nums">{salaryFormatted}</span>
-            <span className="text-[10px] text-primary/60 font-medium">Salary</span>
+            <span className="text-[10px] text-primary/70 font-medium">Salary</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
-            <UserIcon className="h-3.5 w-3.5 text-foreground/50" />
+          <div className="flex items-center gap-1.5 bg-muted rounded-lg px-3 py-1.5">
+            <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-bold text-foreground tabular-nums">{servedTodayCount}</span>
             <span className="text-[10px] text-muted-foreground font-medium">Served</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
-            <ListTodo className="h-3.5 w-3.5 text-foreground/50" />
+          <div className="flex items-center gap-1.5 bg-muted rounded-lg px-3 py-1.5">
+            <ListTodo className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-bold text-foreground tabular-nums">{visiblePendingServices.length}</span>
             <span className="text-[10px] text-muted-foreground font-medium">Queue</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
-            <CalendarCheck className="h-3.5 w-3.5 text-foreground/50" />
+          <div className="flex items-center gap-1.5 bg-muted rounded-lg px-3 py-1.5">
+            <CalendarCheck className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-bold text-foreground tabular-nums">{leaveRequests.length}</span>
             <span className="text-[10px] text-muted-foreground font-medium">Leaves</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {capabilities.canCreateBooking ? (
             <BookingDialog
               services={services}
@@ -241,11 +244,12 @@ export default function EmployeeDashboard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full ring-1 ring-border hover:bg-muted transition-all"
+                className="h-9 w-9 rounded-full hover:bg-accent transition-colors cursor-pointer"
+                aria-label="Account menu"
               >
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-                    <UserIcon className="h-3.5 w-3.5" />
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                    <UserIcon className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -265,13 +269,15 @@ export default function EmployeeDashboard({
         </div>
       </header>
 
-      {/* ── Stat pills — mobile/tablet only ── */}
+      {/* ── Stat strip — mobile/tablet (flat, single bordered surface, hairline-divided) ── */}
       <div className="xl:hidden shrink-0 px-4 pt-3 pb-0">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <StatPill icon={PhilippinePeso} label="Salary" value={salaryFormatted} accent />
-          <StatPill icon={UserIcon} label="Served Today" value={servedTodayCount} />
-          <StatPill icon={ListTodo} label="Queue" value={visiblePendingServices.length} />
-          <StatPill icon={CalendarCheck} label="Leaves" value={leaveRequests.length} />
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-border">
+            <StatPill icon={PhilippinePeso} label="Salary" value={salaryFormatted} accent flat />
+            <StatPill icon={UserIcon} label="Served Today" value={servedTodayCount} flat />
+            <StatPill icon={ListTodo} label="Queue" value={visiblePendingServices.length} flat />
+            <StatPill icon={CalendarCheck} label="Leaves" value={leaveRequests.length} flat />
+          </div>
         </div>
       </div>
 

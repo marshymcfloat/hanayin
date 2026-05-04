@@ -18,6 +18,7 @@ import {
 import type { EmployeeAttendance } from "@/prisma/generated/prisma/client";
 import AttendanceCalendar from "./AttendanceCalendar";
 import { motion, AnimatePresence } from "motion/react";
+import { cn } from "@/lib/utils";
 
 interface AttendanceCardProps {
   employeeId: number;
@@ -94,10 +95,8 @@ export default function AttendanceCard({
       async (error) => {
         console.error("Geolocation error:", error);
 
-        // Developer Bypass: If in dev mode, try to clock in with mock location
         if (process.env.NODE_ENV === "development") {
           toast.info("Dev Mode: Geolocation failed, using mock location.");
-          // Use mock coordinates (0,0) - backend will skip check in dev
           const result = await clockInAction(employeeId, 0, 0, businessSlug);
 
           if (result.success) {
@@ -140,132 +139,129 @@ export default function AttendanceCard({
     setLoading(false);
   };
 
+  const today = new Date();
+  const dateLine = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
   return (
     <motion.div
       layout="position"
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`p-6 rounded-2xl flex flex-col justify-between bg-white text-slate-900 relative overflow-hidden transition-all duration-300 ${
-        showCalendar ? "row-span-2" : "min-h-[160px]"
-      } ${className}`}
+      className={cn(
+        "rounded-2xl bg-card border border-border p-5 sm:p-6 flex flex-col gap-5 relative overflow-hidden",
+        className,
+      )}
     >
-      <div className="flex justify-between items-start w-full relative z-10 mb-6">
-        <div>
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+      {/* Header row: date + status dot + calendar toggle */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             Today&apos;s Attendance
-          </h3>
-          <p className="text-2xl font-bold tracking-tight text-slate-900">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-            })}
           </p>
-          <p className="text-sm text-slate-500 font-medium">
-            {new Date().toLocaleDateString("en-US", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
+          <p className="mt-1 text-base sm:text-lg font-bold text-foreground tracking-tight">
+            {dateLine}
           </p>
-        </div>
-        <motion.button
-          layout="position"
-          onClick={() => setShowCalendar(!showCalendar)}
-          className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${
-            showCalendar
-              ? "bg-slate-900 text-white shadow-lg"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
-        >
-          {showCalendar ? <MapPin size={18} /> : <CalendarDays size={18} />}
-        </motion.button>
-      </div>
-
-      <div className="flex flex-col gap-6 relative z-10 h-full">
-        <div className="w-full space-y-5">
-          <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+          {/* Inline status — flat, no nested chip */}
+          <div className="mt-2 flex items-center gap-2">
             {isClockedOut ? (
               <>
-                <div className="h-2.5 w-2.5 rounded-full bg-slate-400"></div>
-                <span className="text-sm font-semibold text-slate-600">
-                  Shift Completed
+                <span className="h-2 w-2 rounded-full bg-muted-foreground/60" />
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Shift completed
                 </span>
               </>
             ) : isClockedIn ? (
               <>
-                <div className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-green-700">
-                    Clocked In
-                  </span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                </span>
+                <span className="text-xs font-semibold text-primary">
+                  Clocked in
                   {todayAttendance?.time_in && (
-                    <span className="text-xs text-green-600/80 font-medium">
-                      Since{" "}
+                    <span className="font-medium text-muted-foreground ml-1">
+                      ·{" "}
                       {new Date(todayAttendance.time_in).toLocaleTimeString(
                         "en-US",
                         { hour: "2-digit", minute: "2-digit" },
                       )}
                     </span>
                   )}
-                </div>
+                </span>
               </>
             ) : (
               <>
-                <div className="h-2.5 w-2.5 rounded-full bg-orange-400"></div>
-                <span className="text-sm font-semibold text-slate-600">
-                  Not Started
+                <span className="h-2 w-2 rounded-full bg-amber-500" />
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Not started
                 </span>
               </>
             )}
           </div>
-
-          {!isClockedOut && (
-            <div>
-              <Button
-                onClick={isClockedIn ? handleClockOut : handleClockIn}
-                disabled={loading}
-                className={`w-full py-6 h-[50px]  text-base font-bold transition-all rounded-xl shadow-lg active:scale-[0.98] ${
-                  isClockedIn
-                    ? "bg-white text-red-600 hover:bg-red-50 border-2 border-red-100 shadow-red-100/50"
-                    : "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/20"
-                }`}
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin mr-3" />
-                ) : isClockedIn ? (
-                  <StopCircle className="w-5 h-5 mr-3" />
-                ) : (
-                  <PlayCircle className="w-5 h-5 mr-3" />
-                )}
-                {loading
-                  ? "Processing..."
-                  : isClockedIn
-                    ? "End Shift"
-                    : "Start Shift"}
-              </Button>
-            </div>
-          )}
         </div>
-
-        <AnimatePresence>
-          {showCalendar && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full shrink-0 border-t border-slate-100 pt-6 overflow-hidden"
-            >
-              <AttendanceCalendar
-                attendanceRecords={monthlyAttendance}
-                currentDate={calendarDate}
-                onMonthChange={setCalendarDate}
-              />
-            </motion.div>
+        <motion.button
+          layout="position"
+          onClick={() => setShowCalendar(!showCalendar)}
+          aria-label={showCalendar ? "Hide calendar" : "Show calendar"}
+          className={cn(
+            "h-9 w-9 rounded-full inline-flex items-center justify-center transition-colors shrink-0 cursor-pointer",
+            showCalendar
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground",
           )}
-        </AnimatePresence>
+        >
+          {showCalendar ? <MapPin className="h-4 w-4" /> : <CalendarDays className="h-4 w-4" />}
+        </motion.button>
       </div>
+
+      {/* Action button */}
+      {!isClockedOut && (
+        <Button
+          onClick={isClockedIn ? handleClockOut : handleClockIn}
+          disabled={loading}
+          className={cn(
+            "w-full h-12 rounded-xl text-sm font-bold transition-colors active:scale-[0.99] cursor-pointer",
+            isClockedIn
+              ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              : "bg-primary text-primary-foreground hover:bg-primary/90",
+          )}
+        >
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+          ) : isClockedIn ? (
+            <StopCircle className="w-4 h-4 mr-2" />
+          ) : (
+            <PlayCircle className="w-4 h-4 mr-2" />
+          )}
+          {loading
+            ? "Processing..."
+            : isClockedIn
+              ? "End Shift"
+              : "Start Shift"}
+        </Button>
+      )}
+
+      <AnimatePresence>
+        {showCalendar && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="border-t border-border pt-4 overflow-hidden"
+          >
+            <AttendanceCalendar
+              attendanceRecords={monthlyAttendance}
+              currentDate={calendarDate}
+              onMonthChange={setCalendarDate}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

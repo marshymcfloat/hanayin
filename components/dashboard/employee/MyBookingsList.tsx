@@ -56,13 +56,13 @@ export type MyBookingsListProps = {
 const statusBadgeClass = (status: BookingStatus) => {
   switch (status) {
     case "ACCEPTED":
-      return "border-blue-200 bg-blue-50 text-blue-700";
+      return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300";
     case "COMPLETED":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+      return "border-primary/30 bg-primary/10 text-primary";
     case "CANCELLED":
-      return "border-red-200 bg-red-50 text-red-700";
+      return "border-destructive/30 bg-destructive/10 text-destructive";
     default:
-      return "border-amber-200 bg-amber-50 text-amber-700";
+      return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300";
   }
 };
 
@@ -88,7 +88,7 @@ export function MyBookingsList({
 
   return (
     <>
-      <ol className="divide-y divide-zinc-100">
+      <ol className="divide-y divide-border">
         {bookings.map((booking) => {
           const when = booking.scheduled_at ?? booking.created_at;
           return (
@@ -99,16 +99,16 @@ export function MyBookingsList({
                   setSelected(booking);
                   setOpen(true);
                 }}
-                className="w-full px-4 py-3 hover:bg-zinc-50 flex items-center justify-between gap-3 text-left transition-colors"
+                className="w-full px-4 py-3 hover:bg-accent/50 flex items-center justify-between gap-3 text-left transition-colors cursor-pointer"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-zinc-900 truncate">
+                  <p className="text-sm font-semibold text-foreground truncate">
                     {getBookingCustomerName(booking)}
                   </p>
-                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formatPH(when, "MMM d, h:mm a")}
-                    <span className="mx-1">·</span>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                    <Calendar className="h-3 w-3 shrink-0" />
+                    <span className="shrink-0">{formatPH(when, "MMM d, h:mm a")}</span>
+                    <span className="mx-1 shrink-0">·</span>
                     <span className="truncate">
                       {booking.availed_services
                         .map((as) => as.service.name)
