@@ -76,6 +76,25 @@ Goal: every staff role that has bookings to do can find them and act on them.
 | D6 | In-app announcement when flag flips on for a tenant + help-center article with the matrix table + per-role screenshots | S |
 | D7 | Production-readiness checklist additions in `production-hardening-checklist.md` | XS |
 
+## Wave H — Social-post creation quality fixes (prerequisite for Wave E)
+
+Reported by the owner during pilot use of the existing `CreateOrganicPostDialog`. The current organic-post creation pipeline produces low-quality output that ignores the user's customizations: a TIPS_EDUCATION post about "skin tag" generated a generic "Bookings open today" caption and a stock spa-towel image. Root causes are documented in this section's tasks; full diagnostic in conversation history.
+
+These should ship **before** Wave E. The social-post-request track in Wave E ultimately calls `createOrganicSocialPostAction` to convert an approved request into a draft, so anything we ship there inherits the same quality bugs unless H lands first.
+
+| # | Item | Effort | Notes |
+| - | ---- | ------ | ----- |
+| H1 | Fix `<SelectItem value="">` empty-string error on "Tune further" | XS | Blocker — Radix Select throws on render. Three offending rows in `CreateOrganicPostDialog.tsx`. Swap to a non-empty sentinel like `"AUTO"`, translate back to `undefined` before sending to the action. |
+| H2 | Category-aware rescue captions in `buildRescueCaptionDraft` | S | Current rescue is sale-promo boilerplate ("Bookings open today", "preferred times fill up first") regardless of category. Add per-category rescue templates so a TIPS_EDUCATION fallback leads with the tip, not a booking pitch. |
+| H3 | Split organic caption pipeline from `generateSocialCaptionDraft` | M | Today `generateOrganicCaptionDraft` adapts to the sale-event generator with `actionCategory: "SOCIAL_ONLY"`, `saleTitle = topic`, fake date window, and dumps category instructions into `saleDescription`. Build a dedicated `buildOrganicGeminiPrompt` that frames the model around `(category, topic, captionTone)` directly. Tip-specific template: "lead with the tip in 1-2 lines, then 2-3 supporting bullets, then ONE soft business tie-back." |
+| H4 | `WARM_EDITORIAL` profile bypasses category subject for organic posts | S | `buildOrganicImagePrompt` line 634-637 routes `WARM_EDITORIAL` to `pickRandom(PROFILE_BLUEPRINTS.WARM_EDITORIAL.subjects)` and skips `ORGANIC_CATEGORY_SUBJECT[category]`. For organic posts with a non-GENERAL category, category subject should win. |
+| H5 | Inject topic into image-prompt subject more strongly | S | Currently topic only appears in `contextLine`. For TIPS_EDUCATION, add the topic into the subject ("flat-lay of items related to {topic}") so the model has a concrete visual hook. |
+| H6 | Optional text-overlay rendering for educational posts | M | Owner-toggle in the dialog; default ON for TIPS_EDUCATION. Headline derived from topic + first sentence of caption. Reuse the existing image composer if one is in `lib/services/social/`; otherwise add a simple canvas pass. |
+| H7 | Vitest snapshot tests pinning rescue output per category | S | Lock the rescue copy in code so a future regression shows up in code review. One snapshot per `OrganicPostCategory`. |
+| H8 | Surface "Gemini key missing" warning to the owner | XS | Today the action silently falls back to the rescue when `GEMINI_KEY` is unset. Owner has no idea their AI isn't running. Add a one-time dialog warning when the server reports the key is missing. |
+
+Effort total: ~3-4 days for all of H. **H1 is a hard blocker** on anyone touching the Tune further section and should ship as its own quick fix even before the rest of H. H2-H8 ship together as one PR so the rescue rewrite, prompt rewrite, and image fixes test against each other.
+
 ## Wave E — social-post-request track (currently zero code)
 
 Owner-side custom-post creation already works via the existing `createOrganicSocialPostAction`. This wave adds the **request → review → approve** workflow that's currently missing.
