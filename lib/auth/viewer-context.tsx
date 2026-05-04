@@ -14,6 +14,12 @@
  * Important: this is **not** a security boundary. Server actions remain
  * the boundary. The provider exists so client UIs can render the right
  * affordances without re-deriving role state in every component.
+ *
+ * Server-side note: the pure predicate {@link hasViewerPermission} and
+ * the {@link ViewerContextValue} type live in
+ * `lib/auth/viewer-permissions.ts` so they can be imported by Server
+ * Components without crossing a `"use client"` boundary. They are
+ * re-exported here for client-side ergonomics.
  */
 
 import {
@@ -22,35 +28,17 @@ import {
   useMemo,
   type ReactNode,
 } from "react";
-import type {
-  Role,
-  StaffPermission,
-  StaffProfile,
-} from "@/prisma/generated/prisma/enums";
+import type { StaffPermission } from "@/prisma/generated/prisma/enums";
 
-/**
- * Serializable shape of the resolved actor for the current tenant.
- * Mirrors the success branch of {@link TenantActorContext} but drops
- * server-only types (Prisma client, etc.) so it can cross the
- * server-component → client-component boundary.
- */
-export type ViewerContextValue = {
-  actorType: "OWNER" | "EMPLOYEE";
-  role: Role;
-  /** null for OWNER actors. */
-  staffProfile: StaffProfile | null;
-  /** Effective permissions. Owners receive every flag implicitly via
-   *  hasViewerPermission()'s short-circuit, so this list reflects the
-   *  employee-side permissions only when actorType === "EMPLOYEE". */
-  permissions: ReadonlyArray<StaffPermission>;
-  businessId: string;
-  businessSlug: string;
-  userId: string;
-  /** Set when actorType === "OWNER". */
-  ownerId: number | null;
-  /** Set when actorType === "EMPLOYEE". */
-  employeeId: number | null;
-};
+import {
+  hasViewerPermission,
+  type ViewerContextValue,
+} from "@/lib/auth/viewer-permissions";
+
+// Re-export the server-safe type and predicate so existing client
+// imports (`from "@/lib/auth/viewer-context"`) keep working.
+export { hasViewerPermission };
+export type { ViewerContextValue };
 
 const ViewerContext = createContext<ViewerContextValue | null>(null);
 
@@ -118,31 +106,6 @@ export function useViewer(): ViewerContextValue {
  */
 export function useOptionalViewer(): ViewerContextValue | null {
   return useContext(ViewerContext);
-}
-
-/**
- * Check the viewer's permissions. Owners always pass. For employees,
- * a single permission is treated as required; an array can be passed
- * with `mode: "all"` (default) or `mode: "any"`.
- */
-export function hasViewerPermission(
-  viewer: ViewerContextValue,
-  required: StaffPermission | ReadonlyArray<StaffPermission>,
-  mode: "all" | "any" = "all",
-): boolean {
-  if (viewer.actorType === "OWNER") {
-    return true;
-  }
-  const list = Array.isArray(required) ? required : [required];
-  if (list.length === 0) {
-    // Empty list = trivially true; useful when callers compute the
-    // requirement dynamically and may end up with [].
-    return true;
-  }
-  const owned = new Set(viewer.permissions);
-  return mode === "any"
-    ? list.some((p) => owned.has(p))
-    : list.every((p) => owned.has(p));
 }
 
 /**

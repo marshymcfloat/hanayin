@@ -4,7 +4,7 @@ import { requireTenantAccess } from "@/lib/auth/guards";
 import { resolveTenantActorContext } from "@/lib/auth/staff-access";
 import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
 import { isSocialPostRequestsEnabledForBusiness } from "@/lib/features/social-post-requests";
-import { hasViewerPermission } from "@/lib/auth/viewer-context";
+import { hasViewerPermission } from "@/lib/auth/viewer-permissions";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
 import { prisma } from "@/prisma/prisma";
 import { SocialPostsPageClient } from "@/components/dashboard/owner/social-posts/SocialPostsPageClient";
