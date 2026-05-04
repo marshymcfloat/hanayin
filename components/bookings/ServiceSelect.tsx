@@ -123,6 +123,23 @@ const ServiceSelect = React.memo(function ServiceSelect({
       : services.filter((s) => s.category === selectedCategory);
   }, [selectedCategory, services]);
 
+  // N6 perf: pre-compute formatted price strings so the per-row render
+  // doesn't re-run `.toLocaleString({ minimumFractionDigits: 2 })` for
+  // every service on every parent re-render. With 50+ services and
+  // useWatch triggering a full re-render on every toggle, this saved
+  // hundreds of ms per click on slower devices. Map keyed by service id
+  // so lookups stay O(1).
+  const formattedServicePrices = React.useMemo(() => {
+    const map = new Map<number, string>();
+    for (const s of services) {
+      map.set(
+        s.id,
+        s.price.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+      );
+    }
+    return map;
+  }, [services]);
+
   const setSelectedServices = React.useCallback(
     (nextServices: SelectedServiceItem[]) => {
       form.setValue("services", nextServices, {
@@ -515,18 +532,12 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     )}
                                   </span>
                                   <span className="text-[10px] text-muted-foreground line-through tabular-nums">
-                                    ₱
-                                    {service.price.toLocaleString(undefined, {
-                                      minimumFractionDigits: 2,
-                                    })}
+                                    ₱{formattedServicePrices.get(service.id) ?? service.price.toFixed(2)}
                                   </span>
                                 </>
                               ) : (
                                 <span className="text-sm font-medium text-foreground/80 tabular-nums">
-                                  ₱
-                                  {service.price.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                  })}
+                                  ₱{formattedServicePrices.get(service.id) ?? service.price.toFixed(2)}
                                 </span>
                               )}
                             </div>

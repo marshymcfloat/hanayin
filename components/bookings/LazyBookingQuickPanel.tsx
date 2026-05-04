@@ -15,10 +15,17 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import {
   BookingQuickPanel,
   deriveBookingViewerContext,
 } from "@/components/bookings/BookingQuickPanel";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useViewer } from "@/lib/auth/viewer-context";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import {
@@ -117,17 +124,40 @@ export function LazyBookingQuickPanel({
     };
   }, [bookingId, open, onOpenChange]);
 
-  // While loading, render the panel "open" with a null booking — the
-  // dialog already returns null when booking is null so the user sees
-  // their previous trigger affordance instead of a flicker. Once data
-  // arrives, the panel populates.
+  // N5: open a lightweight placeholder dialog instantly while the
+  // booking-detail server fetch is in flight. Previously this component
+  // gated the dialog on `open && !loading`, so a tap on a booking row
+  // produced 500ms–1s of dead air before anything appeared — read by
+  // users as "the dialog lags". Now the user gets immediate visual
+  // feedback (a centered spinner inside the dialog shell) and the real
+  // panel mounts once the payload arrives.
+  const showPlaceholder = open && loading && !payload;
   return (
-    <BookingQuickPanel
-      booking={payload ? reviveBooking(payload) : null}
-      servicesCatalog={servicesCatalog}
-      open={open && !loading}
-      onOpenChange={onOpenChange}
-      viewerContext={viewerContext}
-    />
+    <>
+      {showPlaceholder ? (
+        <Dialog open onOpenChange={onOpenChange}>
+          <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-[90vh] rounded-3xl p-0 gap-0 flex flex-col overflow-hidden bg-white border border-zinc-200 shadow-2xl">
+            <div className="flex shrink-0 justify-center pt-2 pb-1 bg-zinc-50/50">
+              <div className="h-1 w-10 rounded-full bg-zinc-300" />
+            </div>
+            <DialogHeader className="p-6 pb-4 bg-zinc-50/50 border-b border-zinc-100 flex shrink-0">
+              <DialogTitle className="text-xl font-bold text-zinc-900 tracking-tight">
+                Loading booking…
+              </DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 flex items-center justify-center text-zinc-400">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          </DialogContent>
+        </Dialog>
+      ) : null}
+      <BookingQuickPanel
+        booking={payload ? reviveBooking(payload) : null}
+        servicesCatalog={servicesCatalog}
+        open={open && !showPlaceholder}
+        onOpenChange={onOpenChange}
+        viewerContext={viewerContext}
+      />
+    </>
   );
 }

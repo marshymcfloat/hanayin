@@ -169,10 +169,12 @@ export default function EmployeeDashboard({
     }).length;
   }, [visibleServedHistory]);
 
+  // Always format with 2 decimal places — raw numbers like
+  // 598.7951515… were leaking through into the salary pill.
   const salaryFormatted =
     currentEmployeeSalary >= 1000
       ? `₱${(currentEmployeeSalary / 1000).toFixed(1)}k`
-      : `₱${currentEmployeeSalary}`;
+      : `₱${currentEmployeeSalary.toFixed(2)}`;
 
   const roleLabel =
     employeeProfile === StaffProfile.MANAGER
