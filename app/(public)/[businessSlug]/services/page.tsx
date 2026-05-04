@@ -10,6 +10,7 @@ import { Suspense } from "react";
 import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
 import { constructMetadata } from "@/lib/metadata";
 import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { isValidBusinessSlug } from "@/lib/utils/business-slug";
 
 interface Props {
   params: Promise<{ businessSlug: string }>;
@@ -17,6 +18,12 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { businessSlug } = await params;
+  if (!isValidBusinessSlug(businessSlug)) {
+    return constructMetadata({
+      title: "Business Not Found",
+      noIndex: true,
+    });
+  }
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
     select: { name: true, slug: true, description: true, imageUrl: true },
@@ -57,6 +64,10 @@ export default function BusinessServicesPage({ params }: Props) {
 async function BusinessServicesContent({ params }: Props) {
   await connection();
   const { businessSlug } = await params;
+
+  if (!isValidBusinessSlug(businessSlug)) {
+    notFound();
+  }
 
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },

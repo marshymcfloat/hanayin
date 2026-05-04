@@ -11,9 +11,10 @@ import { Metadata } from "next";
 import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { connection } from "next/server";
+import { isValidBusinessSlug } from "@/lib/utils/business-slug";
 import { getTenantAccessState } from "@/features/billing/subscription-service";
 import {
   hasStaffPermission,
@@ -33,6 +34,17 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { businessSlug } = await params;
+
+  // Skip the DB hit entirely when the slug is missing/garbage (e.g. a
+  // client `<Link href={`/app/${maybeUndefined}`}>` produced
+  // `/app/undefined/`). Prisma would otherwise throw
+  // PrismaClientValidationError on `{ slug: undefined }`.
+  if (!isValidBusinessSlug(businessSlug)) {
+    return {
+      title: "Dashboard",
+      robots: { index: false, follow: false },
+    };
+  }
 
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
@@ -58,6 +70,14 @@ async function AppLayoutContent({
   businessSlug: string;
 }) {
   await connection();
+
+  // Bail early on obviously-bad slugs so downstream Prisma calls don't
+  // throw and page Sentry. A real business slug is a non-empty string
+  // that isn't the literal "undefined" / "null".
+  if (!isValidBusinessSlug(businessSlug)) {
+    notFound();
+  }
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/");
