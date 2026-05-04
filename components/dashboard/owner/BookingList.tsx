@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Booking,
@@ -57,7 +57,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { BookingDetailsDialog } from "./BookingDetailsDialog";
+import {
+  BookingQuickPanel,
+  deriveBookingViewerContext,
+} from "@/components/bookings/BookingQuickPanel";
+import { useViewer } from "@/lib/auth/viewer-context";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -82,6 +86,7 @@ export function BookingList({
   bookings,
   servicesCatalog = [],
   className,
+  initialOpenBookingId,
 }: {
   bookings: BookingWithDetails[];
   servicesCatalog?: {
@@ -95,6 +100,13 @@ export function BookingList({
   className?: string;
   businessSlug?: string;
   staffingConflictBookingIds?: number[];
+  /**
+   * When set, the panel auto-opens for the booking with this id on
+   * first render. Drives the ?open=<id> deep-link from notifications
+   * and other surfaces. Silently ignored if the id isn't in the
+   * current page's bookings.
+   */
+  initialOpenBookingId?: number | null;
   queryState?: {
     page: number;
     pageSize: number;
@@ -104,12 +116,34 @@ export function BookingList({
   };
 }) {
   const router = useRouter();
+  const viewer = useViewer();
+  // Derive the booking-panel's permission flags from the shared viewer
+  // context. Owners get every flag automatically; staff/manager/cashier
+  // get the matrix-defined subset. Computed once per viewer object —
+  // ViewerContextProvider already memoizes the object identity, so a
+  // bare useMemo here would only re-run on real role changes.
+  const viewerContext = useMemo(
+    () => deriveBookingViewerContext(viewer),
+    [viewer],
+  );
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedBooking, setSelectedBooking] = useState<BookingWithDetails | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Deep-link auto-open. Runs once per change of initialOpenBookingId
+  // (which only changes if the user navigates with a different ?open=).
+  // We resolve the id against the current bookings array — if the
+  // booking isn't on this page (e.g. paginated out), we silently skip.
+  useEffect(() => {
+    if (initialOpenBookingId == null) return;
+    const match = bookings.find((b) => b.id === initialOpenBookingId);
+    if (!match) return;
+    setSelectedBooking(match);
+    setIsDialogOpen(true);
+  }, [initialOpenBookingId, bookings]);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
@@ -197,36 +231,40 @@ export function BookingList({
             Cancel Booking
           </DropdownMenuItem>
         )}
-        <DropdownMenuSeparator />
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <div className="relative flex select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-destructive/10 text-destructive cursor-pointer w-full">
-              <Trash2 className="w-3.5 h-3.5 mr-2" />
-              Delete
-            </div>
-          </AlertDialogTrigger>
-          <AlertDialogContent onClick={(e) => e.stopPropagation()} className="rounded-2xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Booking?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete the booking for{" "}
-                <span className="font-semibold text-foreground">
-                  {getBookingCustomerName(booking)}
-                </span>
-                .
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                onClick={() => handleDelete(booking.id)}
-              >
-                Delete Booking
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        {viewerContext.canDelete && (
+          <>
+            <DropdownMenuSeparator />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <div className="relative flex select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-destructive/10 text-destructive cursor-pointer w-full">
+                  <Trash2 className="w-3.5 h-3.5 mr-2" />
+                  Delete
+                </div>
+              </AlertDialogTrigger>
+              <AlertDialogContent onClick={(e) => e.stopPropagation()} className="rounded-2xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Booking?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the booking for{" "}
+                    <span className="font-semibold text-foreground">
+                      {getBookingCustomerName(booking)}
+                    </span>
+                    .
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => handleDelete(booking.id)}
+                  >
+                    Delete Booking
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -473,11 +511,12 @@ export function BookingList({
         </div>
       </div>
 
-      <BookingDetailsDialog
+      <BookingQuickPanel
         booking={selectedBooking}
         servicesCatalog={servicesCatalog}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        viewerContext={viewerContext}
       />
     </>
   );
