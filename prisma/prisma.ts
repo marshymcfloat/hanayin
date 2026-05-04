@@ -139,6 +139,18 @@ export function isPrismaAccelerateResourceLimitError(error: unknown) {
   );
 }
 
+// Cap pool size per process so a swarm of warm Vercel functions can't
+// exhaust the database's max_connections. Each function instance keeps
+// its own pool, so total connections ≈ (concurrent functions × max).
+// On serverless we want a tiny pool; on a long-lived Node server we
+// can afford more parallelism.
+const POOL_MAX =
+  process.env.PRISMA_POOL_MAX !== undefined
+    ? Math.max(1, Number.parseInt(process.env.PRISMA_POOL_MAX, 10) || 1)
+    : process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+      ? 1
+      : 10;
+
 function createPrismaClient() {
   const connectionConfig = resolveConnectionConfig();
   const client =
@@ -148,6 +160,7 @@ function createPrismaClient() {
           adapter: new PrismaPg(
             new Pool({
               connectionString: connectionConfig.connectionString,
+              max: POOL_MAX,
               keepAlive: true,
               keepAliveInitialDelayMillis: 10_000,
             }),
