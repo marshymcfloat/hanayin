@@ -20,7 +20,11 @@
       "Bash(gh pr *)",
       "PowerShell(gh --version)",
       "PowerShell(Get-Command gh -ErrorAction SilentlyContinue; \"Program Files check:\"; Test-Path \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\"; Test-Path \"$env:LOCALAPPDATA\\\\Programs\\\\GitHub CLI\\\\gh.exe\")",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git push *)",
+      "Bash(git fetch *)",
+      "Bash(git merge *)",
+      "Bash(git commit *)"
     ]
   }
 }
