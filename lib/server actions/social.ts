@@ -209,8 +209,42 @@ export async function createOrganicSocialPostAction(input: {
   imageProfile?: string;
   generateImageNow?: boolean;
   ownerDirection?: string;
+  /**
+   * Caption-tone control. Same enum as the campaign side. Lets owners pick
+   * a voice register for ad-hoc organic posts (premium / playful / urgent
+   * etc.) instead of always taking the engine's default.
+   */
+  captionTone?:
+    | "AUTO"
+    | "FRIENDLY_TAGLISH"
+    | "PREMIUM_LUXURY"
+    | "WITTY_PLAYFUL"
+    | "WARM_NURTURING"
+    | "DIRECT_URGENT";
+  /**
+   * Caption-only owner direction. Distinct from ownerDirection (which is
+   * shared with the image prompt) so owners can shape the caption voice
+   * without affecting the visual direction.
+   */
+  ownerCaptionDirection?: string;
+  /**
+   * Wave E E2: when this action is called from
+   * approveSocialPostRequestAction, the resulting SocialPost is linked
+   * back to the originating SocialPostRequest via social_post_id (one-
+   * to-one). The request also flips to APPROVED in the same
+   * transaction. When unset, this is the legacy direct-owner flow and
+   * no link is created.
+   */
+  sourceRequestId?: string;
 }) {
-  const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
+  // When called from the request-approval flow, the SOCIAL_POST_REVIEW
+  // permission was already enforced upstream by
+  // approveSocialPostRequestAction. We relax the owner-only check to a
+  // tenant-write check so reviewers (managers with the flag) can drive
+  // approvals. Direct owner usage retains the strict owner gate.
+  const auth = input.sourceRequestId
+    ? await requireTenantAccess(input.businessSlug, { write: true })
+    : await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
 
   const featureError = await ensureSocialPublishingAccess(input.businessSlug);
@@ -243,6 +277,8 @@ export async function createOrganicSocialPostAction(input: {
           mood: input.visualMood,
           visualFocus: input.visualFocus,
           ownerContext: input.ownerDirection,
+          captionTone: input.captionTone,
+          ownerCaptionDirection: input.ownerCaptionDirection,
         });
         captionDraft = generated.caption;
         hashtags = generated.hashtags;
@@ -276,35 +312,59 @@ export async function createOrganicSocialPostAction(input: {
       }
     }
 
-    const post = await prisma.socialPost.create({
-      data: {
-        business_id: business.id,
-        source: "MANUAL",
-        title: input.topic.trim(),
-        caption_draft: captionDraft,
-        hashtags,
-        media_url: mediaUrl,
-        status: captionDraft ? "READY" : "DRAFT",
-        created_by_user_id: auth.session.user.id,
-      },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        entity_type: "SocialPost",
-        entity_id: post.id,
-        action: "ORGANIC_POST_CREATED",
-        actor_id: auth.session.user.id,
-        actor_type: "USER",
-        business_id: business.id,
-        changes: {
-          topic: input.topic,
-          category: input.category,
-          visualMood: input.visualMood ?? null,
-          visualFocus: input.visualFocus ?? null,
-          generatedImage: !!mediaUrl,
+    const post = await prisma.$transaction(async (tx) => {
+      const created = await tx.socialPost.create({
+        data: {
+          business_id: business.id,
+          source: "MANUAL",
+          title: input.topic.trim(),
+          caption_draft: captionDraft,
+          hashtags,
+          media_url: mediaUrl,
+          status: captionDraft ? "READY" : "DRAFT",
+          created_by_user_id: auth.session.user.id,
         },
-      },
+      });
+
+      // Wave E E2: when the action was invoked from the request-approval
+      // flow, link the new SocialPost back to its SocialPostRequest and
+      // flip the request status to APPROVED in the same transaction.
+      // The link is one-to-one (social_post_id is @unique on the
+      // request) so a second approve attempt for the same request would
+      // fail at the DB level — that's a race, not a bug.
+      if (input.sourceRequestId) {
+        await tx.socialPostRequest.update({
+          where: {
+            id: input.sourceRequestId,
+            business_id: business.id,
+          },
+          data: {
+            status: "APPROVED",
+            social_post_id: created.id,
+          },
+        });
+      }
+
+      await tx.auditLog.create({
+        data: {
+          entity_type: "SocialPost",
+          entity_id: created.id,
+          action: "ORGANIC_POST_CREATED",
+          actor_id: auth.session.user.id,
+          actor_type: "USER",
+          business_id: business.id,
+          changes: {
+            topic: input.topic,
+            category: input.category,
+            visualMood: input.visualMood ?? null,
+            visualFocus: input.visualFocus ?? null,
+            generatedImage: !!mediaUrl,
+            sourceRequestId: input.sourceRequestId ?? null,
+          },
+        },
+      });
+
+      return created;
     });
 
     revalidatePath(`/app/${input.businessSlug}/social-posts`);
