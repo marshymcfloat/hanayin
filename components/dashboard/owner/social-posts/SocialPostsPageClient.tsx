@@ -219,6 +219,21 @@ export function SocialPostsPageClient(props: {
     [posts],
   );
 
+  // Days since the most recent post — used to nudge owners who've gone quiet.
+  // Returns null when there are no posts yet (the empty state already covers
+  // that case with its own CTA).
+  const daysSinceLastPost = useMemo<number | null>(() => {
+    if (posts.length === 0) return null;
+    const newest = posts.reduce<Date | null>((acc, post) => {
+      const t = new Date(post.created_at).getTime();
+      if (Number.isNaN(t)) return acc;
+      if (!acc || t > acc.getTime()) return new Date(t);
+      return acc;
+    }, null);
+    if (!newest) return null;
+    return Math.floor((Date.now() - newest.getTime()) / (24 * 60 * 60 * 1000));
+  }, [posts]);
+
   useEffect(() => {
     setPosts(props.initialPosts);
   }, [props.initialPosts]);
@@ -486,13 +501,12 @@ export function SocialPostsPageClient(props: {
         </div>
         <Button
           size="sm"
-          variant="outline"
           className="shrink-0 gap-1.5"
           onClick={() => setCreateDialogOpen(true)}
         >
           <PenLine className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Create Post</span>
-          <span className="sm:hidden">Create</span>
+          <span className="hidden sm:inline">Post something</span>
+          <span className="sm:hidden">Post</span>
         </Button>
       </div>
     </div>
@@ -574,6 +588,37 @@ export function SocialPostsPageClient(props: {
               completedSteps={[1, ...(hasStep2Signal ? ([2] as const) : [])]}
               nextAction={nextActionText}
             />
+
+            {/* Quiet-page nudge — surfaces when the most recent post is older
+                than 14 days. Encourages owners to keep the page active without
+                being preachy about it. */}
+            {daysSinceLastPost !== null && daysSinceLastPost >= 14 && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 sm:px-5 sm:py-4 flex items-start gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100">
+                  <Megaphone className="h-4 w-4 text-amber-700" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-amber-900">
+                    Your page has been quiet for{" "}
+                    {daysSinceLastPost < 30
+                      ? `${daysSinceLastPost} days`
+                      : `${Math.floor(daysSinceLastPost / 7)} weeks`}
+                  </p>
+                  <p className="text-xs text-amber-900/80 mt-0.5 leading-relaxed">
+                    Steady posting keeps your page in feeds. Try a quick organic
+                    post — it doesn&apos;t have to be tied to a sale.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  className="shrink-0 gap-1.5"
+                  onClick={() => setCreateDialogOpen(true)}
+                >
+                  <PenLine className="h-3.5 w-3.5" />
+                  Post something
+                </Button>
+              </div>
+            )}
 
             {actionNeededPosts.length > 0 && (
               <div className="space-y-3">
