@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { formatCurrency } from "@/lib/utils";
 import { Check, Copy, Trash2, Ticket } from "lucide-react";
 import {
   DropdownMenu,
@@ -77,7 +78,7 @@ export function VoucherList({
   const formatDiscount = (voucher: Voucher) =>
     voucher.type === "PERCENTAGE"
       ? `${voucher.value}% OFF`
-      : `₱${voucher.value.toFixed(2)} OFF`;
+      : `${formatCurrency(voucher.value)} OFF`;
 
   return (
     <>
@@ -155,7 +156,7 @@ export function VoucherList({
                 </span>
                 <p className="text-sm font-semibold text-foreground">
                   {voucher.minimum_amount > 0
-                    ? `₱${voucher.minimum_amount.toFixed(2)}`
+                    ? formatCurrency(voucher.minimum_amount)
                     : "None"}
                 </p>
               </div>
@@ -230,7 +231,7 @@ export function VoucherList({
                     <span className="font-semibold text-foreground">
                       {voucher.type === "PERCENTAGE"
                         ? `${voucher.value}%`
-                        : `₱${voucher.value.toFixed(2)}`}
+                        : formatCurrency(voucher.value)}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {voucher.type === "PERCENTAGE"
@@ -241,7 +242,7 @@ export function VoucherList({
                 </TableCell>
                 <TableCell className="py-4 text-foreground/80 font-medium">
                   {voucher.minimum_amount > 0
-                    ? `₱${voucher.minimum_amount.toFixed(2)}`
+                    ? formatCurrency(voucher.minimum_amount)
                     : "—"}
                 </TableCell>
                 <TableCell className="py-4 text-muted-foreground">
