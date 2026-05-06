@@ -1,48 +1,47 @@
 "use client";
 
 import * as React from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 /**
- * GreetingStrip — top of the employee portal.
+ * GreetingStrip — sticky top of the employee portal.
  *
- * Two states:
- *   - **Expanded** (initial, scrollY ≈ 0): big avatar + role pill +
- *     greeting headline + business subline, generous padding.
- *   - **Compact** (after scrolling > ~64px): smaller avatar + a
- *     single-line headline showing just the first name and the role
- *     pill inline, tight padding, frosted-cream backdrop, hairline
- *     bottom border. The whole strip stays sticky to the top of the
- *     scrolling container the entire time.
+ * Two states, animated with motion/react so sizes, padding, and
+ * the subline collapse / expand smoothly:
  *
- * Sticky behavior depends on the EmployeePortalShell being its own
- * scroll container (it sets `h-full overflow-y-auto` on the wrapper).
- * The strip listens to `scroll` events on its own scrolling ancestor
- * via a ref-walked lookup so it works regardless of which shell
- * (frontdesk or sidebar) it lands inside.
+ *   - **Expanded** (initial, scrollY ≈ 0): big avatar + greeting
+ *     headline + business subline, generous padding.
+ *   - **Compact** (after scrolling > ~48px): smaller avatar +
+ *     same headline at a smaller font, subline collapsed away,
+ *     tight padding, frosted backdrop with hairline border.
  *
- * Reduced-motion users get the same content shifts but without
- * transitions or the entrance fade.
+ * The strip listens to the nearest scrolling ancestor (or window
+ * if none) so it works under any shell. Reduced-motion users get
+ * the layout shift without animation.
  */
 export interface GreetingStripProps {
   /** Display name of the signed-in employee. */
   name: string | null | undefined;
-  /** "Manager Portal" / "Cashier Portal" / "Employee Portal" */
-  roleLabel: string;
-  /** Optional secondary line (e.g. business name). Hidden in compact mode. */
+  /** Reserved for future use. Currently unused — the role pill was
+   *  removed to keep the greeting visually quiet. Kept in the prop
+   *  list so call sites don't have to change when we re-introduce
+   *  it (or another role badge) later. */
+  roleLabel?: string;
+  /** Optional secondary line (e.g. business name). Collapsed in compact mode. */
   subline?: React.ReactNode;
   /** Right-hand action slot (BookingDialog, GiftCardClaimDialog, AccountDropdown). */
   actions?: React.ReactNode;
 }
 
 const COMPACT_SCROLL_THRESHOLD = 48;
+const SPRING = { duration: 0.32, ease: [0.16, 1, 0.3, 1] } as const;
 
 export function GreetingStrip({
   name,
-  roleLabel,
+  roleLabel: _roleLabel,
   subline,
   actions,
 }: GreetingStripProps) {
@@ -54,10 +53,6 @@ export function GreetingStrip({
   const [compact, setCompact] = React.useState(false);
 
   React.useEffect(() => {
-    // Find the nearest scrolling ancestor — that's the element we
-    // need to listen to. The shell wraps with overflow-y-auto, so
-    // page-level window scroll is a no-op for us; we have to watch
-    // the actual scroll container.
     const el = wrapperRef.current;
     if (!el) return;
     const scroller = findScrollContainer(el) ?? window;
@@ -73,73 +68,108 @@ export function GreetingStrip({
     return () => scroller.removeEventListener("scroll", update);
   }, []);
 
+  // Single source of truth for animated values. Motion handles the
+  // tween between these two snapshots, so every property animates
+  // on the same curve at the same time — no popping.
+  const targets = compact
+    ? {
+        outerPaddingY: 10,
+        avatarSize: 36,
+        headlineSize: 18,
+      }
+    : {
+        outerPaddingY: 24,
+        avatarSize: 48,
+        headlineSize: 26,
+      };
+
   return (
     <div
       ref={wrapperRef}
       className={cn(
-        "sticky top-0 z-30 transition-[background-color,backdrop-filter,border-color,padding] duration-300",
+        "sticky top-0 z-30 transition-[background-color,backdrop-filter,border-color] duration-300",
         compact
           ? "border-b border-black/[0.06] bg-background/85 backdrop-blur-md"
           : "border-b border-transparent bg-transparent",
       )}
     >
-      <div
-        className={cn(
-          "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 transition-[padding] duration-300",
-          compact ? "py-2.5" : "pt-5 pb-1 sm:pt-7 sm:pb-2",
-        )}
+      <motion.div
+        animate={
+          reduced
+            ? undefined
+            : { paddingTop: targets.outerPaddingY, paddingBottom: targets.outerPaddingY }
+        }
+        transition={SPRING}
+        className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8"
+        style={
+          reduced
+            ? {
+                paddingTop: targets.outerPaddingY,
+                paddingBottom: targets.outerPaddingY,
+              }
+            : undefined
+        }
       >
-        <motion.header
-          initial={reduced ? false : { opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-wrap items-center justify-between gap-3 sm:gap-4"
-        >
+        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-            <Avatar
-              className={cn(
-                "shrink-0 ring-1 ring-inset ring-primary/15 transition-[width,height] duration-300",
-                compact ? "size-9" : "size-11 sm:size-12",
-              )}
+            <motion.div
+              animate={
+                reduced
+                  ? undefined
+                  : { width: targets.avatarSize, height: targets.avatarSize }
+              }
+              transition={SPRING}
+              className="shrink-0"
+              style={
+                reduced
+                  ? { width: targets.avatarSize, height: targets.avatarSize }
+                  : undefined
+              }
             >
-              <AvatarFallback className="bg-primary text-sm font-semibold text-primary-foreground">
-                {pickInitials(name)}
-              </AvatarFallback>
-            </Avatar>
+              <Avatar className="size-full ring-1 ring-inset ring-primary/15">
+                <AvatarFallback className="bg-primary text-sm font-semibold text-primary-foreground">
+                  {pickInitials(name)}
+                </AvatarFallback>
+              </Avatar>
+            </motion.div>
 
             <div className="min-w-0 leading-tight">
-              {/* Role pill — shown above headline when expanded, inline
-                  next to the first name when compact. */}
-              {!compact ? (
-                <span className="inline-flex items-center gap-2">
-                  <RolePill label={roleLabel} />
-                </span>
-              ) : null}
-
-              <div
-                className={cn(
-                  "flex items-center gap-2 transition-[margin] duration-300",
-                  compact ? "" : "mt-1.5",
-                )}
+              <motion.h1
+                animate={reduced ? undefined : { fontSize: targets.headlineSize }}
+                transition={SPRING}
+                className="truncate font-semibold tracking-[-0.01em] text-foreground"
+                style={
+                  reduced ? { fontSize: targets.headlineSize } : undefined
+                }
               >
-                <h1
-                  className={cn(
-                    "truncate font-semibold tracking-[-0.01em] text-foreground transition-[font-size] duration-300",
-                    compact
-                      ? "text-base sm:text-lg"
-                      : "text-xl sm:text-2xl",
-                  )}
-                >
-                  {compact ? firstName : `${greeting}, ${firstName}.`}
-                </h1>
-                {compact ? <RolePill label={roleLabel} /> : null}
-              </div>
+                {greeting}, {firstName}.
+              </motion.h1>
 
-              {!compact && subline ? (
-                <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-sm">
-                  {subline}
-                </p>
-              ) : null}
+              {/* Subline collapses smoothly in compact mode. AnimatePresence
+                  + motion.p with height:auto on entry / 0 on exit gives a
+                  proper height tween rather than a class-swap jump. */}
+              <AnimatePresence initial={false}>
+                {!compact && subline ? (
+                  <motion.p
+                    key="subline"
+                    initial={
+                      reduced ? undefined : { opacity: 0, height: 0, marginTop: 0 }
+                    }
+                    animate={
+                      reduced
+                        ? undefined
+                        : { opacity: 1, height: "auto", marginTop: 2 }
+                    }
+                    exit={
+                      reduced ? undefined : { opacity: 0, height: 0, marginTop: 0 }
+                    }
+                    transition={SPRING}
+                    className="overflow-hidden truncate text-xs text-muted-foreground sm:text-sm"
+                  >
+                    {subline}
+                  </motion.p>
+                ) : null}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -148,8 +178,8 @@ export function GreetingStrip({
               {actions}
             </div>
           ) : null}
-        </motion.header>
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -157,15 +187,6 @@ export function GreetingStrip({
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                    */
 /* -------------------------------------------------------------------------- */
-
-function RolePill({ label }: { label: string }) {
-  return (
-    <span className="inline-flex shrink-0 items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary ring-1 ring-inset ring-primary/15">
-      <span className="mr-1.5 inline-block size-1.5 -translate-y-px rounded-full bg-primary" />
-      {label}
-    </span>
-  );
-}
 
 function greetingForHour(hour: number): string {
   if (hour < 5) return "Working late";
@@ -194,9 +215,7 @@ function pickInitials(full: string | null | undefined): string {
 /**
  * Walk up the DOM from `el` until we find an ancestor that scrolls
  * (overflow-y is auto/scroll/overlay). Returns null if none — caller
- * should fall back to window. We have to compute this dynamically
- * because EmployeePortalShell sets overflow on its wrapper to keep
- * sticky working under the sidebar shell's overflow-hidden parent.
+ * should fall back to window.
  */
 function findScrollContainer(el: HTMLElement): HTMLElement | null {
   let cur: HTMLElement | null = el.parentElement;
