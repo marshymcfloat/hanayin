@@ -71,6 +71,14 @@ type SidebarProps = {
     isOwner: boolean;
     canManageCatalog: boolean;
     canQueueOverride: boolean;
+    /**
+     * True for owners (always) and for non-owners with either
+     * SOCIAL_POST_REVIEW or SOCIAL_POST_REQUEST_CREATE. Drives whether
+     * the "Social Posts" sidebar entry renders. Owners see the full
+     * draft list; reviewers see the team inbox; submitters get
+     * redirected to /my-requests by the page itself.
+     */
+    canAccessSocialPosts: boolean;
   };
   user: {
     name: string;
@@ -117,6 +125,13 @@ export function AppSidebarClient({
   const managerBusinessItems: NavItem[] = [
     { title: "Services", url: `/app/${slug}/services`, icon: Box },
     { title: "Packages", url: `/app/${slug}/packages`, icon: Package },
+    // Social Posts surfaces at this tier when the plan includes it AND
+    // the manager has at least one of SOCIAL_POST_REVIEW /
+    // SOCIAL_POST_REQUEST_CREATE. The destination page handles the
+    // routing per role (review inbox vs. submitter redirect).
+    ...(entitlements.social && capabilities.canAccessSocialPosts
+      ? ([{ title: "Social Posts", url: `/app/${slug}/social-posts`, icon: Megaphone }] satisfies NavItem[])
+      : []),
     ...(entitlements.reportsCore
       ? ([{ title: "Reports", url: `/app/${slug}/reports`, icon: BarChart3 }] satisfies NavItem[])
       : []),

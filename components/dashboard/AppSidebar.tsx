@@ -46,10 +46,22 @@ export async function AppSidebar() {
     isOwner: role === "OWNER",
     canManageCatalog: role === "OWNER",
     canQueueOverride: role === "OWNER",
+    // Owners always reach social posts when entitled; non-owners need
+    // an explicit grant. Non-actor fallback keeps the sidebar usable
+    // before the actor context resolves.
+    canAccessSocialPosts: role === "OWNER",
   };
 
   const actorContext = await resolveTenantActorContext(slug, session.user.id);
   if (actorContext.success) {
+    const canReviewSocialPost = hasStaffPermission(
+      actorContext,
+      StaffPermission.SOCIAL_POST_REVIEW,
+    );
+    const canSubmitSocialPost = hasStaffPermission(
+      actorContext,
+      StaffPermission.SOCIAL_POST_REQUEST_CREATE,
+    );
     capabilities = {
       isOwner: actorContext.actorType === "OWNER",
       canManageCatalog: hasStaffPermission(
@@ -60,6 +72,14 @@ export async function AppSidebar() {
         actorContext,
         StaffPermission.QUEUE_OVERRIDE_ALL,
       ),
+      // Owners always pass; non-owners need at least one of the two
+      // social-post flags. Either flag lands them on a usable page —
+      // reviewers see the team inbox, submitters get redirected to
+      // /my-requests with the SuggestPostDialog.
+      canAccessSocialPosts:
+        actorContext.actorType === "OWNER" ||
+        canReviewSocialPost ||
+        canSubmitSocialPost,
     };
   }
 
