@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { formatCurrency } from "@/lib/utils";
 import { Trash2, Percent, Calendar, Sparkles } from "lucide-react";
 import { DiscountType } from "@/prisma/generated/prisma/enums";
 import type { SocialPostStatus } from "@/prisma/generated/prisma/enums";
@@ -190,7 +191,7 @@ export function SaleEventList({
                     <span className="text-lg font-bold text-foreground">
                       {event.discount_type === "PERCENTAGE"
                         ? `${event.discount_value}% OFF`
-                        : `PHP ${event.discount_value.toFixed(2)} OFF`}
+                        : `${formatCurrency(event.discount_value)} OFF`}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {event.applicable_services.length} Services,{" "}
@@ -309,7 +310,7 @@ export function SaleEventList({
                       <span className="font-semibold text-foreground">
                         {event.discount_type === "PERCENTAGE"
                           ? `${event.discount_value}%`
-                          : `PHP ${event.discount_value.toFixed(2)}`}
+                          : formatCurrency(event.discount_value)}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {event.discount_type === "PERCENTAGE"

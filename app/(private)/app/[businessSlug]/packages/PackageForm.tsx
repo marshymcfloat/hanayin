@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -298,13 +299,13 @@ export function PackageForm({
               <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Original Value:</span>
                 <span className="font-medium">
-                  ₱{originalTotalValue.toLocaleString()}
+                  {formatCurrency(originalTotalValue)}
                 </span>
               </div>
               <div className="flex justify-between items-center text-lg font-bold pt-2 border-t">
                 <span>Total Package Price:</span>
                 <span className="text-primary">
-                  ₱{totalValue.toLocaleString()}
+                  {formatCurrency(totalValue)}
                 </span>
               </div>
               {originalTotalValue > totalValue && (
@@ -313,7 +314,7 @@ export function PackageForm({
                     variant="outline"
                     className="border-green-200 bg-green-50 text-green-700"
                   >
-                    Save ₱{(originalTotalValue - totalValue).toLocaleString()}
+                    Save {formatCurrency(originalTotalValue - totalValue)}
                   </Badge>
                 </div>
               )}

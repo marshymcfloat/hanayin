@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Employee, User, Payslip } from "@/prisma/generated/prisma/client";
 import { formatPH } from "@/lib/date-utils";
+import { formatCurrency } from "@/lib/utils";
 import { Plus, Wallet, Mail, Search, RefreshCcw } from "lucide-react";
 import { useState, useRef } from "react";
 import { PayslipGenerationDialog } from "@/components/dashboard/owner/PayslipGenerationDialog";
@@ -164,7 +165,7 @@ export function PayrollPageClient({
                           <div className="flex flex-col gap-1">
                             <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Daily Rate</span>
                             <span className="font-semibold text-foreground">
-                              ₱{emp.daily_rate.toLocaleString()}
+                              {formatCurrency(emp.daily_rate)}
                             </span>
                           </div>
                           <div className="flex flex-col gap-1">
@@ -183,7 +184,7 @@ export function PayrollPageClient({
                                 {formatPH(lastPayslip.ending_date, "MMM d, yyyy")}
                               </span>
                               <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-border text-muted-foreground">
-                                ₱{lastPayslip.total_salary.toLocaleString()}
+                                {formatCurrency(lastPayslip.total_salary)}
                               </Badge>
                             </div>
                           ) : (
@@ -255,7 +256,7 @@ export function PayrollPageClient({
                               </div>
                             </TableCell>
                             <TableCell className="py-4 font-medium text-foreground">
-                              ₱{emp.daily_rate.toLocaleString()}
+                              {formatCurrency(emp.daily_rate)}
                             </TableCell>
                             <TableCell className="py-4">
                               <Badge variant="secondary" className="border-primary/30 bg-primary/10 text-primary">
@@ -269,7 +270,7 @@ export function PayrollPageClient({
                                     {formatPH(lastPayslip.ending_date, "MMM d, yyyy")}
                                   </span>
                                   <Badge variant="outline" className="w-fit text-[10px] h-5 px-1.5 text-muted-foreground border-border">
-                                    ₱{lastPayslip.total_salary.toLocaleString()}
+                                    {formatCurrency(lastPayslip.total_salary)}
                                   </Badge>
                                 </div>
                               ) : (

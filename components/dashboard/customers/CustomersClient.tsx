@@ -67,6 +67,18 @@ import { CustomerForm, CustomerFormData } from "./CustomerForm";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { formatPH } from "@/lib/date-utils";
+import { formatCurrency } from "@/lib/utils";
+
+// Humanize the PaymentMethod enum for display. Source: prisma enum
+// (CASH, ONLINE) — keep this map in sync with new payment methods.
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  CASH: "Cash",
+  ONLINE: "Online (GCash / Maya)",
+};
+function humanizePaymentMethod(value: string | null | undefined): string {
+  if (!value) return "—";
+  return PAYMENT_METHOD_LABELS[value] ?? value;
+}
 
 interface CustomersClientProps {
   customers: Customer[];
@@ -674,7 +686,7 @@ export function CustomersClient({ customers, businessSlug }: CustomersClientProp
                                 {serviceNames.length > 0 ? `Services: ${serviceNames.join(", ")}` : "Services: Not listed"}
                               </div>
                               <div className="text-xs text-muted-foreground mt-1">
-                                Payment: {booking.payment_method} • Total: PHP {booking.grand_total.toLocaleString()}
+                                Payment: {humanizePaymentMethod(booking.payment_method)} • Total: {formatCurrency(booking.grand_total)}
                               </div>
                             </button>
                           );
