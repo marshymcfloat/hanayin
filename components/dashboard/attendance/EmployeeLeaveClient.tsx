@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { cancelLeaveRequest } from "@/app/actions/leave-request";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
-import { CalendarCheck, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -95,25 +95,22 @@ export function EmployeeLeaveClient({
       <DialogTrigger asChild>
         <button
           type="button"
-          className="w-full flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-left hover:border-primary/30 hover:bg-accent/30 transition-colors cursor-pointer"
+          className="group w-full flex items-center gap-3 rounded-xl px-2 py-2 -mx-2 text-left transition-colors hover:bg-primary/[0.04] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <CalendarCheck className="h-5 w-5 text-primary" />
-          </span>
           <span className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold text-foreground">
-              Leave Requests
-            </span>
-            <span className="block text-xs text-muted-foreground truncate">
+            <span className="block text-sm font-medium text-foreground">
               {summary}
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              Tap to manage requests
             </span>
           </span>
           {counts.pending > 0 && (
             <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-amber-500/15 px-2 text-[11px] font-bold text-amber-600 dark:text-amber-400 tabular-nums shrink-0">
-              {counts.pending}
+              {counts.pending} pending
             </span>
           )}
-          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] md:max-w-5xl! h-[80vh] flex flex-col p-0 rounded-3xl gap-0 overflow-hidden">

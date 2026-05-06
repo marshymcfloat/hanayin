@@ -212,12 +212,40 @@ export default function EmployeeDashboard({
   const showQueueSection = capabilities.canClaimQueue;
   const showServedSection = capabilities.canServeQueue;
   const showPaymentsSection = capabilities.canCollectPayment;
+  const hasMyBookings = myBookings.length > 0;
 
-  // Bento span rules. xl uses a 12-col bento; mobile/md fall back to
-  // single/two-col stacks via the tailwind defaults on each card. The
-  // queue + served pair share xl row 2 (8/4) when both are present;
-  // either alone takes the full 12.
-  const queueServedBothPresent = showQueueSection && showServedSection;
+  // Bento span rules — when a row's sibling is missing, the remaining
+  // card expands to fill the empty space rather than leaving a gap on
+  // the right. mobile/md cascade to the tailwind defaults on each card.
+  //
+  // Row 1 (xl, 12 cols): Attendance(4) + Leaves(4|8) + ?MyBookings(4)
+  //   - all 3 present → 4 / 4 / 4
+  //   - no MyBookings → 4 / 8  (Leaves takes the right space)
+  //
+  // Row 2 (xl, 12 cols): mix of Pending / Served / Payments per
+  //   capability flags. Spans flex so a single card always claims 12.
+  const leavesXlSpan = hasMyBookings ? "xl:col-span-4" : "xl:col-span-8";
+
+  // Row 2: queue + served + payments combinations.
+  const row2Items = [
+    showPaymentsSection ? "payments" : null,
+    showQueueSection ? "queue" : null,
+    showServedSection ? "served" : null,
+  ].filter(Boolean) as Array<"payments" | "queue" | "served">;
+
+  const row2Span = (kind: "payments" | "queue" | "served"): string => {
+    if (row2Items.length === 1) return "xl:col-span-12";
+    if (row2Items.length === 2) {
+      // Pair them 7/5 with the queue-style cards getting the wider slot
+      // and payments getting the narrower slot when both are present.
+      if (kind === "payments") return "xl:col-span-5";
+      return "xl:col-span-7";
+    }
+    // 3 items present — split 5 / 4 / 3
+    if (kind === "queue") return "xl:col-span-5";
+    if (kind === "served") return "xl:col-span-4";
+    return "xl:col-span-3"; // payments
+  };
 
   const greetingActions = (
     <>
@@ -274,7 +302,7 @@ export default function EmployeeDashboard({
       </PortalCard>
 
       {/* ── Leaves ── */}
-      <PortalCard className="md:col-span-1 xl:col-span-4">
+      <PortalCard className={`md:col-span-1 ${leavesXlSpan}`}>
         <PortalCardHeader
           eyebrow="Time off"
           title="Leave requests"
@@ -317,12 +345,7 @@ export default function EmployeeDashboard({
 
       {/* ── Payments queue (cashier) ── */}
       {showPaymentsSection ? (
-        <PortalCard
-          className={
-            "md:col-span-2 " +
-            (showQueueSection ? "xl:col-span-4" : "xl:col-span-12")
-          }
-        >
+        <PortalCard className={`md:col-span-2 ${row2Span("payments")}`}>
           <PortalCardHeader
             eyebrow="Cashier"
             title="Payments queue"
@@ -341,16 +364,7 @@ export default function EmployeeDashboard({
 
       {/* ── Pending queue ── */}
       {showQueueSection ? (
-        <PortalCard
-          className={
-            "md:col-span-2 " +
-            (queueServedBothPresent
-              ? "xl:col-span-7"
-              : showPaymentsSection
-                ? "xl:col-span-8"
-                : "xl:col-span-12")
-          }
-        >
+        <PortalCard className={`md:col-span-2 ${row2Span("queue")}`}>
           <PortalCardHeader
             eyebrow="Queue"
             title="Pending services"
@@ -372,12 +386,7 @@ export default function EmployeeDashboard({
 
       {/* ── Served history ── */}
       {showServedSection ? (
-        <PortalCard
-          className={
-            "md:col-span-2 " +
-            (queueServedBothPresent ? "xl:col-span-5" : "xl:col-span-12")
-          }
-        >
+        <PortalCard className={`md:col-span-2 ${row2Span("served")}`}>
           <PortalCardHeader
             eyebrow="Served"
             title="Recent history"

@@ -200,30 +200,8 @@ export default function EmployeePaymentsQueue({
 
   return (
     <>
-      <section
-        className={cn(
-          "rounded-2xl border border-border bg-card overflow-hidden",
-          className,
-        )}
-      >
-        <header className="flex items-center justify-between gap-3 px-4 sm:px-5 pt-4 pb-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10">
-              <Wallet className="h-4 w-4 text-primary" />
-            </span>
-            <h3 className="text-[15px] font-bold text-foreground truncate">
-              Today&apos;s Payments
-            </h3>
-          </div>
-          <Badge
-            variant="outline"
-            className="h-5 rounded-full bg-muted px-2 text-[10px] font-medium text-muted-foreground border-border tabular-nums shrink-0"
-          >
-            {visibleBookings.length} {visibleBookings.length === 1 ? "booking" : "bookings"}
-          </Badge>
-        </header>
-
-        <div className="px-4 sm:px-5 pb-4 sm:pb-5">
+      <section className={cn("flex flex-col", className)}>
+        <div className="flex flex-col gap-3">
           <Tabs
             value={activeTab}
             onValueChange={(value) => {

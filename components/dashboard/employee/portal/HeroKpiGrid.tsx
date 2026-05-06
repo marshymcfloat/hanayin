@@ -93,7 +93,10 @@ export function HeroKpiGrid({
         </div>
       </motion.div>
 
-      {/* Three neutral tiles */}
+      {/* Three neutral tiles. Mobile layout: salary spans 2 cols on row 1,
+          Served + Queue pair on row 2, Leaves spans 2 cols on row 3 so
+          it doesn't sit alone with empty space to its right. md+ flattens
+          everything into a single 4-tile row. */}
       <NeutralKpiTile
         index={1}
         label="Served today"
@@ -112,6 +115,7 @@ export function HeroKpiGrid({
       />
       <NeutralKpiTile
         index={3}
+        className="col-span-2 md:col-span-1"
         label="Leaves filed"
         shortLabel="Leaves"
         sub="This month"
@@ -133,6 +137,7 @@ function NeutralKpiTile({
   sub,
   value,
   icon: Icon,
+  className,
 }: {
   /** Used for staggered entrance — 0..3 */
   index: number;
@@ -141,6 +146,7 @@ function NeutralKpiTile({
   sub: string;
   value: number;
   icon: LucideIcon;
+  className?: string;
 }) {
   const reduced = useReducedMotion();
   return (
@@ -156,6 +162,7 @@ function NeutralKpiTile({
         "rounded-3xl border border-black/[0.06] bg-card p-5 sm:p-6",
         "shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
         "transition-shadow hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-16px_rgba(0,0,0,0.08)]",
+        className,
       )}
     >
       <div className="flex items-start justify-between gap-2">

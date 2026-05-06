@@ -152,17 +152,14 @@ export default function AttendanceCard({
       layout="position"
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
-        "rounded-2xl bg-card border border-border p-5 sm:p-6 flex flex-col gap-5 relative overflow-hidden",
+        "flex flex-col gap-5 relative",
         className,
       )}
     >
       {/* Header row: date + status dot + calendar toggle */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            Today&apos;s Attendance
-          </p>
-          <p className="mt-1 text-base sm:text-lg font-bold text-foreground tracking-tight">
+          <p className="text-base sm:text-lg font-semibold text-foreground tracking-tight">
             {dateLine}
           </p>
           {/* Inline status — flat, no nested chip */}
