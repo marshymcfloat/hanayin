@@ -56,3 +56,6 @@ node_modules/
 
 # Claude Code worktrees
 .claude/worktrees/
+
+# Claude Code local settings (per-machine; may contain secrets in cached commands)
+.claude/settings.local.json
