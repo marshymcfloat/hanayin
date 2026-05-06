@@ -139,11 +139,21 @@ export function deriveViewerContext(input: {
     };
   }
 
-  // Default: STAFF. Read-only by design — staff can see their bookings
-  // and (if PAYMENT_COLLECT granted) record payment, but not adjust scope.
+  // Default: STAFF. Mostly read-only — staff can see their bookings,
+  // record payment when PAYMENT_COLLECT is granted, and (when an owner
+  // explicitly opts them in via BOOKING_MODIFY) add services to an
+  // existing booking. BOOKING_MODIFY is intentionally NOT in the STAFF
+  // default permissions, so this stays opt-in: an admin has to flip
+  // the toggle on the employee record. BOOKING_CREATE is for creating
+  // new bookings, not modifying existing ones, so it does not unlock
+  // add-service at this tier.
+  //
+  // Other booking-scope changes (cancel, no-show, price adjust,
+  // reassign) remain owner/manager-only even when the underlying
+  // permission is toggled on the employee record.
   return {
     role: "STAFF",
-    canAddService: false,
+    canAddService: perms.has("BOOKING_MODIFY"),
     canMarkPaid: perms.has("PAYMENT_COLLECT"),
     canMarkNoShow: false,
     canDelete: false,

@@ -1,145 +1,166 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, Share2, Globe, BarChart3, Check } from "lucide-react";
+import { motion } from "motion/react";
+import {
+  LayoutDashboard,
+  Share2,
+  Globe,
+  BarChart3,
+  Check,
+} from "lucide-react";
 import Image from "next/image";
 
+const surfaces = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    description: "Today's bookings, revenue, and team — one screen.",
+    points: [
+      "Live booking feed",
+      "Real-time revenue",
+      "Staff overview",
+      "Quick actions",
+    ],
+    image: "/SF_Dashboard.png",
+    aspect: "aspect-[1919/948]",
+  },
+  {
+    id: "social",
+    label: "Social",
+    icon: Share2,
+    description: "Post to FB & IG without leaving ServiceFlow.",
+    points: [
+      "Schedule posts",
+      "AI captions",
+      "Cross-platform publish",
+      "Engagement tracking",
+    ],
+    image: "/SF_Post.png",
+    aspect: "aspect-[1919/948]",
+  },
+  {
+    id: "website",
+    label: "Public site",
+    icon: Globe,
+    description: "Your booking storefront, ready to share.",
+    points: [
+      "Customizable theme",
+      "Live booking widget",
+      "Mobile-optimized",
+      "SEO ready",
+    ],
+    image: "/SF_Facing.png",
+    aspect: "aspect-[1919/948]",
+  },
+  {
+    id: "reports",
+    label: "Reports",
+    icon: BarChart3,
+    description: "Find the slow days. Find the best sellers.",
+    points: [
+      "Custom report builder",
+      "Export anywhere",
+      "Trend analysis",
+      "Inventory insights",
+    ],
+    image: "/SF_Reports.png",
+    aspect: "aspect-[1919/948]",
+  },
+];
+
 export default function IndustryUseCasesSection() {
-  const systemFeatures = [
-    {
-      id: "dashboard",
-      label: "Owner Dashboard",
-      icon: LayoutDashboard,
-      features: [
-        "Real-time business metrics",
-        "Staff performance overview",
-        "Quick action shortcuts",
-        "Revenue tracking",
-      ],
-      description: "Get a bird's-eye view of your business operations.",
-      image: "/SF_Dashboard.png",
-    },
-    {
-      id: "social",
-      label: "Social Posts",
-      icon: Share2,
-      features: [
-        "Automated scheduling",
-        "AI-powered content generation",
-        "Cross-platform publishing",
-        "Engagement analytics",
-      ],
-      description: "Manage your social media presence seamlessly.",
-      image: "/SF_Post.png",
-    },
-    {
-      id: "website",
-      label: "Facing Website",
-      icon: Globe,
-      features: [
-        "Customizable themes",
-        "Integrated online booking",
-        "Mobile-optimized design",
-        "SEO ready",
-      ],
-      description: "Your beautiful, high-converting digital storefront.",
-      image: "/SF_Facing.png",
-    },
-    {
-      id: "reports",
-      label: "Reports",
-      icon: BarChart3,
-      features: [
-        "Customizable report builder",
-        "Export to accounting software",
-        "Trend analysis",
-        "Inventory insights",
-      ],
-      description: "Deep dive into your business data with powerful analytics.",
-      image: "/SF_Reports.png",
-    },
-  ];
-
   return (
-    <section className="py-24 bg-[#FAFAFA] relative overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-            Everything You Need{" "}
-            <span className="text-green-600">In One System</span>
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            Powerful tools designed to simplify your business operations.
-          </p>
-        </div>
+    <section className="relative overflow-hidden py-20 sm:py-28 lg:py-32 bg-zinc-50/60">
 
-        <Tabs defaultValue="dashboard" className="max-w-6xl mx-auto">
-          <TabsList className="flex flex-wrap justify-center gap-4 w-full h-auto bg-transparent p-0 mb-12">
-            {systemFeatures.map((feature) => (
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto max-w-3xl text-center"
+        >
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
+            Product tour
+          </p>
+          <h2 className="mt-4 text-balance text-3xl font-semibold leading-[1.1] tracking-[-0.02em] text-foreground sm:text-4xl lg:text-5xl">
+            Four surfaces. One shared truth.
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-balance text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Click through the actual product. Every screen below is the real
+            ServiceFlow — not a mockup.
+          </p>
+        </motion.div>
+
+        <Tabs defaultValue="dashboard" className="mt-12 sm:mt-16">
+          {/* Tabs as individual rounded-full pills that wrap naturally.
+              Each pill carries its own bg/border so wrapping looks
+              intentional (vs one big container that bulges into a second
+              row). The TabsList itself is just a flex-wrap row. */}
+          <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
+            {surfaces.map((s) => (
               <TabsTrigger
-                key={feature.id}
-                value={feature.id}
-                className="rounded-full px-6 py-3 border border-border/50 bg-background hover:bg-muted/50 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:border-green-600 data-[state=active]:shadow-lg data-[state=active]:shadow-green-200/50 transition-all text-base h-auto"
+                key={s.id}
+                value={s.id}
+                className="cursor-pointer whitespace-nowrap rounded-full border border-black/[0.06] bg-white/80 px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur-sm transition-all hover:text-foreground data-[state=active]:border-transparent data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-sm sm:px-4 sm:text-sm"
               >
-                <feature.icon className="size-4 mr-2" />
-                {feature.label}
+                <s.icon className="mr-1.5 size-3.5 sm:size-4" />
+                {s.label}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {systemFeatures.map((feature) => (
+          {surfaces.map((s) => (
             <TabsContent
-              key={feature.id}
-              value={feature.id}
-              className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+              key={s.id}
+              value={s.id}
+              className="mt-10 outline-none"
             >
-              <div className="bg-stone-50 dark:bg-stone-900/20 border border-border/50 rounded-3xl p-8 md:p-12 overflow-hidden">
-                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
-                  <div className="flex-1 space-y-6 text-center lg:text-left">
-                    <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-green-100 text-green-700 mb-2">
-                      <feature.icon className="size-8" />
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold">
-                      {feature.label}
-                    </h3>
-                    <p className="text-lg text-muted-foreground">
-                      {feature.description}
-                    </p>
-                    <ul className="grid sm:grid-cols-2 gap-3 pt-4 text-left">
-                      {feature.features.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <Check className="size-5 text-green-600 shrink-0 mt-0.5" />
-                          <span className="font-medium">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="flex-[1.5] w-full group perspective-[2000px]">
-                    <div className="relative w-full rounded-2xl overflow-hidden border border-border/40 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] bg-background transition-all duration-700 ease-out group-hover:shadow-[0_40px_80px_-20px_rgba(22,163,74,0.15)] group-hover:-translate-y-2">
-                      {/* macOS Header */}
-                      <div className="h-10 w-full bg-[#f8f9fa] dark:bg-[#1a1b1e] border-b border-border/40 flex items-center px-4">
-                        <div className="flex gap-1.5">
-                          <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                          <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                          <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-                        </div>
-                      </div>
+              <motion.div
+                key={s.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr] lg:items-center lg:gap-12"
+              >
+                <div>
+                  <h3 className="text-balance text-xl font-semibold tracking-[-0.01em] text-foreground sm:text-2xl">
+                    {s.description}
+                  </h3>
+                  <ul className="mt-5 space-y-2.5">
+                    {s.points.map((point) => (
+                      <li
+                        key={point}
+                        className="flex items-start gap-2 text-sm text-foreground/80 sm:text-base"
+                      >
+                        <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-                      {/* Image Content */}
-                      <div className="relative w-full aspect-[16/10] bg-muted/20 overflow-hidden">
-                        <Image
-                          src={feature.image}
-                          alt={`${feature.label} interface preview`}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
-                          className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                          priority={feature.id === "dashboard"}
-                        />
-                      </div>
-                    </div>
+                <div className="overflow-hidden rounded-xl border border-black/[0.08] bg-white shadow-[0_24px_48px_-16px_rgba(0,0,0,0.15)]">
+                  <div className="flex h-8 items-center gap-1.5 border-b border-black/[0.05] bg-zinc-50/80 px-3">
+                    <span className="size-2 rounded-full bg-[#ff5f57]" />
+                    <span className="size-2 rounded-full bg-[#febc2e]" />
+                    <span className="size-2 rounded-full bg-[#28c840]" />
+                  </div>
+                  <div
+                    className={`relative w-full bg-muted/30 ${s.aspect}`}
+                  >
+                    <Image
+                      src={s.image}
+                      alt={`${s.label} — ServiceFlow`}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 720px"
+                      className="object-cover object-top"
+                    />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </TabsContent>
           ))}
         </Tabs>

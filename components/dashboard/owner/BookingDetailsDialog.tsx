@@ -7,8 +7,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPH } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,10 +25,8 @@ import type {
 import {
   Calendar,
   Clock,
-  User as UserIcon,
   Phone,
   Mail,
-  Receipt,
   CheckCircle2,
   Loader2,
   PlusCircle,
@@ -145,7 +141,7 @@ interface BookingDetailsDialogProps {
 }
 
 const formatCurrency = (amount: number) =>
-  `PHP ${amount.toLocaleString(undefined, {
+  `₱${amount.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -355,327 +351,257 @@ export function BookingDetailsDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        {/* C6: mobile-first sizing. On `sm:` and below, the panel takes
-            the full viewport (zero gap, no rounded corners) so floor
-            staff on phones don't have to deal with a tiny modal. From
-            `md:` up, it returns to its centered card shape. */}
-        <DialogContent className="w-screen h-[100dvh] max-w-none rounded-none p-0 gap-0 flex flex-col overflow-hidden bg-white border-none shadow-2xl md:w-auto md:h-auto md:max-w-2xl md:max-h-[85vh] md:rounded-3xl">
-          <DialogHeader className="p-6 pb-4 bg-zinc-50/50 border-b border-zinc-100 flex shrink-0">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <DialogTitle className="text-xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+        <DialogContent className="w-[95vw] max-w-none max-h-[90dvh] rounded-2xl p-0 gap-0 flex flex-col overflow-hidden bg-white shadow-2xl sm:max-w-2xl sm:max-h-[85vh] sm:rounded-3xl">
+          <DialogHeader className="p-4 sm:px-6 sm:py-4 border-b border-border/60 flex shrink-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 space-y-1.5">
+                <DialogTitle className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-1.5">
                   Booking Details
-                  <span className="text-zinc-400 font-medium text-lg">
+                  <span className="text-muted-foreground/60 font-medium">
                     #{booking.id}
                   </span>
                 </DialogTitle>
-                <div className="text-sm text-zinc-500 font-medium flex items-center gap-2">
-                  <Calendar className="h-3.5 w-3.5 text-zinc-400" />
-                  {formatPH(bookingDateTime, "MMMM d, yyyy")}
-                  <span className="text-zinc-300 mx-1">|</span>
-                  <Clock className="h-3.5 w-3.5 text-zinc-400" />
-                  {formatPH(bookingDateTime, "h:mm a")}
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                  <Calendar className="h-3 w-3 shrink-0" />
+                  <span>{formatPH(bookingDateTime, "MMM d, yyyy")}</span>
+                  <span className="text-muted-foreground/40">·</span>
+                  <Clock className="h-3 w-3 shrink-0" />
+                  <span>{formatPH(bookingDateTime, "h:mm a")}</span>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg border",
-                    getStatusColor(booking.status),
-                  )}
-                >
-                  {booking.status}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg border",
-                    booking.payment_status === "PAID"
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : booking.payment_status === "PARTIALLY_PAID"
-                        ? "border-amber-200 bg-amber-50 text-amber-700"
-                        : "border-zinc-200 bg-zinc-100 text-zinc-700",
-                  )}
-                >
-                  {booking.payment_status.replace("_", " ")}
-                </Badge>
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] rounded-md leading-none h-5",
+                      getStatusColor(booking.status),
+                    )}
+                  >
+                    {booking.status}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] rounded-md leading-none h-5",
+                      booking.payment_status === "PAID"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        : booking.payment_status === "PARTIALLY_PAID"
+                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                          : "border-border bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {booking.payment_status.replace("_", " ")}
+                  </Badge>
+                </div>
               </div>
             </div>
           </DialogHeader>
 
-          <ScrollArea className="flex-1">
-            <div className="p-6 space-y-8">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+            <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
               <section className="space-y-3">
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                  <UserIcon className="h-3.5 w-3.5" /> Customer Information
+                <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  Customer
                 </h3>
-                <div className="bg-zinc-50/80 p-4 rounded-xl border border-zinc-100/80">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-                    <div>
-                      <span className="text-[10px] uppercase text-zinc-400 font-semibold tracking-wide block mb-1">
-                        Full Name
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-zinc-900">
-                          {getBookingCustomerName(booking)}
-                        </span>
-                        {booking.is_anonymous_walk_in && (
-                          <Badge
-                            variant="outline"
-                            className="text-[9px] px-1.5 py-0.5 rounded-md border-amber-200 text-amber-700 bg-amber-50"
-                          >
-                            Anonymous walk-in
-                          </Badge>
-                        )}
-                        {booking.customer?.trust_tier === "TRUSTED" && (
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50">
-                            Trusted
-                          </Badge>
-                        )}
-                        {booking.customer?.trust_tier === "RESTRICTED" && (
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-red-200 text-red-700 bg-red-50">
-                            Restricted
-                          </Badge>
-                        )}
-                        {booking.customer && booking.customer.no_show_count > 0 && (
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 rounded-md border-amber-200 text-amber-700 bg-amber-50">
-                            {booking.customer.no_show_count} no-show{booking.customer.no_show_count > 1 ? "s" : ""}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    {booking.customer?.phone && (
-                      <div>
-                        <span className="text-[10px] uppercase text-zinc-400 font-semibold tracking-wide block mb-1">
-                          Phone Number
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-3.5 w-3.5 text-zinc-400" />
-                          <span className="text-sm font-medium text-zinc-700">
-                            {booking.customer.phone}
-                          </span>
-                        </div>
-                      </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold text-foreground">
+                      {getBookingCustomerName(booking)}
+                    </span>
+                    {booking.is_anonymous_walk_in && (
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 leading-none font-medium">
+                        Anonymous walk-in
+                      </Badge>
                     )}
-                    {booking.customer?.email && (
-                      <div className="sm:col-span-2">
-                        <span className="text-[10px] uppercase text-zinc-400 font-semibold tracking-wide block mb-1">
-                          Email Address
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-3.5 w-3.5 text-zinc-400" />
-                          <span className="text-sm font-medium text-zinc-700">
-                            {booking.customer.email}
-                          </span>
-                        </div>
-                      </div>
+                    {booking.customer?.trust_tier === "TRUSTED" && (
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50 leading-none font-medium">
+                        Trusted
+                      </Badge>
+                    )}
+                    {booking.customer?.trust_tier === "RESTRICTED" && (
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-red-200 text-red-700 bg-red-50 leading-none font-medium">
+                        Restricted
+                      </Badge>
+                    )}
+                    {booking.customer && booking.customer.no_show_count > 0 && (
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 leading-none font-medium">
+                        {booking.customer.no_show_count} no-show{booking.customer.no_show_count > 1 ? "s" : ""}
+                      </Badge>
                     )}
                   </div>
+                  {(booking.customer?.phone || booking.customer?.email) && (
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-5 text-xs text-muted-foreground">
+                      {booking.customer?.phone && (
+                        <div className="flex items-center gap-1.5">
+                          <Phone className="h-3 w-3" />
+                          <span className="font-medium text-foreground/80">{booking.customer.phone}</span>
+                        </div>
+                      )}
+                      {booking.customer?.email && (
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Mail className="h-3 w-3 shrink-0" />
+                          <span className="font-medium text-foreground/80 truncate">{booking.customer.email}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </section>
 
-              <Separator className="bg-zinc-100" />
-
               <section className="space-y-3">
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                  <Receipt className="h-3.5 w-3.5" /> Services & Pricing
+                <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  Services
                 </h3>
-                <div className="border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
-                  <table className="w-full text-sm">
-                    <thead className="bg-zinc-50/80 text-zinc-500 border-b border-zinc-100">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
-                          Service
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider">
-                          Staff
-                        </th>
-                        <th className="px-4 py-3 text-right font-semibold text-xs uppercase tracking-wider">
-                          Price
-                        </th>
-                        {(viewerContext.canAddService ||
-                          viewerContext.canReassignStaff) && (
-                          <th
-                            className="px-2 py-3 text-right font-semibold text-xs uppercase tracking-wider w-28"
-                            aria-label="Row actions"
-                          />
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-50 bg-white">
-                      {booking.availed_services.map((as) => {
-                        const removable = isLineRemovable(as);
-                        const isRemovingThis = removingLineId === as.id;
-                        return (
-                        <tr
-                          key={as.id}
-                          className="hover:bg-zinc-50/50 transition-colors"
-                        >
-                          <td className="px-4 py-3.5">
-                            <div className="font-semibold text-zinc-900">
-                              {as.service.name}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3.5">
+                <div className="divide-y divide-border/60 border-t border-b border-border/60">
+                  {booking.availed_services.map((as) => {
+                    const removable = isLineRemovable(as);
+                    const isRemovingThis = removingLineId === as.id;
+                    const showRowActions =
+                      viewerContext.canAddService || viewerContext.canReassignStaff;
+                    return (
+                      <div
+                        key={as.id}
+                        className="flex items-center gap-3 py-2.5"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-semibold text-foreground truncate">
+                            {as.service.name}
+                          </div>
+                          <div className="mt-0.5 flex items-center gap-1.5 text-xs">
                             {as.served_by_owner ? (
-                              <div className="flex items-center gap-2">
-                                <div className="h-5 w-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold">
+                              <>
+                                <div className="h-4 w-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[9px] font-bold shrink-0">
                                   {as.served_by_owner.user.name.charAt(0)}
                                 </div>
-                                <span className="text-zinc-700 font-medium">
+                                <span className="text-muted-foreground truncate">
                                   {as.served_by_owner.user.name}
                                 </span>
-                                <Badge
-                                  variant="outline"
-                                  className="text-[9px] px-1.5 py-0.5 rounded-md border-amber-200 text-amber-700 bg-amber-50"
-                                >
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 rounded-sm border-amber-200 text-amber-700 bg-amber-50 leading-none font-medium shrink-0">
                                   Owner
                                 </Badge>
-                              </div>
+                              </>
                             ) : as.served_by ? (
-                              <div className="flex items-center gap-1.5">
-                                <div className="h-5 w-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">
+                              <>
+                                <div className="h-4 w-4 rounded-full bg-primary/15 text-primary flex items-center justify-center text-[9px] font-bold shrink-0">
                                   {as.served_by.user.name.charAt(0)}
                                 </div>
-                                <span className="text-zinc-700 font-medium">
+                                <span className="text-muted-foreground truncate">
                                   {as.served_by.user.name}
                                 </span>
-                              </div>
+                              </>
                             ) : (
-                              <span className="text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md text-xs font-medium border border-amber-100">
+                              <span className="text-amber-700 bg-amber-50 px-1.5 py-0 h-4 rounded-sm text-[10px] font-medium border border-amber-200 inline-flex items-center leading-none">
                                 Unassigned
                               </span>
                             )}
-                          </td>
-                          <td className="px-4 py-3.5 text-right font-medium text-zinc-700">
-                            {formatCurrency(as.price)}
-                          </td>
-                          {(viewerContext.canAddService ||
-                            viewerContext.canReassignStaff) && (
-                            <td className="px-2 py-3.5 text-right">
-                              <div className="flex items-center justify-end gap-1">
-                                {viewerContext.canReassignStaff &&
-                                  isLineReassignable(as) && (
-                                    <ReassignStaffDialog
-                                      availedServiceId={as.id}
-                                      serviceName={as.service.name}
-                                      currentEmployeeName={
-                                        as.served_by?.user.name ??
-                                        as.served_by_owner?.user.name ??
-                                        null
-                                      }
-                                      currentEmployeeId={
-                                        as.served_by_id ?? null
-                                      }
-                                    />
-                                  )}
-                                {viewerContext.canAddService && removable && (
-                                  <SwapServiceDialog
-                                    bookingId={booking.id}
-                                    availedServiceId={as.id}
-                                    currentServiceName={as.service.name}
-                                    currentServiceId={as.service.id}
-                                    servicesCatalog={servicesCatalog}
-                                  />
-                                )}
-                                {viewerContext.canAddService && removable && (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7 text-zinc-400 hover:text-destructive hover:bg-destructive/10"
-                                        aria-label={`Remove ${as.service.name}`}
-                                        disabled={isRemovingThis}
-                                      >
-                                        {isRemovingThis ? (
-                                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                        ) : (
-                                          <Trash2 className="h-3.5 w-3.5" />
-                                        )}
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent className="rounded-2xl">
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                          Remove {as.service.name}?
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          This adjusts the booking total by{" "}
-                                          <span className="font-semibold text-foreground">
-                                            {formatCurrency(as.final_price)}
-                                          </span>
-                                          . The customer is not notified
-                                          automatically.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel className="rounded-xl">
-                                          Cancel
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                          className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                          onClick={() => handleRemoveLine(as.id)}
-                                        >
-                                          Remove
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                )}
-                              </div>
-                            </td>
-                          )}
-                        </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                          </div>
+                        </div>
+                        <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap shrink-0">
+                          {formatCurrency(as.price)}
+                        </div>
+                        {showRowActions && (
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            {viewerContext.canReassignStaff &&
+                              isLineReassignable(as) && (
+                                <ReassignStaffDialog
+                                  availedServiceId={as.id}
+                                  serviceName={as.service.name}
+                                  currentEmployeeName={
+                                    as.served_by?.user.name ??
+                                    as.served_by_owner?.user.name ??
+                                    null
+                                  }
+                                  currentEmployeeId={as.served_by_id ?? null}
+                                />
+                              )}
+                            {viewerContext.canAddService && removable && (
+                              <SwapServiceDialog
+                                bookingId={booking.id}
+                                availedServiceId={as.id}
+                                currentServiceName={as.service.name}
+                                currentServiceId={as.service.id}
+                                servicesCatalog={servicesCatalog}
+                              />
+                            )}
+                            {viewerContext.canAddService && removable && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
+                                    aria-label={`Remove ${as.service.name}`}
+                                    disabled={isRemovingThis}
+                                  >
+                                    {isRemovingThis ? (
+                                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    )}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="rounded-2xl">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Remove {as.service.name}?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This adjusts the booking total by{" "}
+                                      <span className="font-semibold text-foreground">
+                                        {formatCurrency(as.final_price)}
+                                      </span>
+                                      . The customer is not notified automatically.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="rounded-xl">
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      onClick={() => handleRemoveLine(as.id)}
+                                    >
+                                      Remove
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
 
               {viewerContext.canAddService && (
-              <Separator className="bg-zinc-100" />
-              )}
-
-              {viewerContext.canAddService && (
-              <section className="space-y-3">
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                  <PlusCircle className="h-3.5 w-3.5" /> Add Service
-                </h3>
-                {availableServiceOptions.length === 0 ? (
-                  <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600">
-                    No services available in your catalog yet.
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="space-y-1 md:col-span-2">
-                        <label className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wide">
-                          Service
-                        </label>
+                <section className="space-y-3">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    Add Service
+                  </h3>
+                  {availableServiceOptions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No services available in your catalog yet.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_5rem] gap-2">
                         <select
-                          className="h-10 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-900"
+                          className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
                           value={selectedServiceId}
                           onChange={(event) =>
                             setSelectedServiceId(event.target.value)
                           }
                           disabled={!canAddService || isAddingService}
+                          aria-label="Service"
                         >
                           {availableServiceOptions.map((service) => (
                             <option key={service.id} value={service.id}>
-                              {service.name} ({service.category}) -{" "}
-                              {formatCurrency(service.price)}
+                              {service.name} ({service.category}) - {formatCurrency(service.price)}
                             </option>
                           ))}
                         </select>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] uppercase text-zinc-500 font-semibold tracking-wide">
-                          Quantity
-                        </label>
                         <Input
                           type="number"
                           min={1}
@@ -688,53 +614,55 @@ export function BookingDetailsDialog({
                             );
                           }}
                           disabled={!canAddService || isAddingService}
+                          className="h-9"
+                          aria-label="Quantity"
                         />
                       </div>
-                    </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <p className="text-xs text-zinc-500">
-                        {selectedServiceOption
-                          ? `${selectedServiceOption.duration || 30} min | ${formatCurrency(selectedServiceOption.price)} each`
-                          : "Select a service to continue."}
-                      </p>
-                      <Button
-                        type="button"
-                        onClick={handleAddService}
-                        disabled={
-                          !canAddService ||
-                          !selectedServiceId ||
-                          isAddingService
-                        }
-                        className="rounded-xl"
-                      >
-                        {isAddingService ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Adding...
-                          </>
-                        ) : (
-                          <>
-                            <PlusCircle className="h-4 w-4 mr-2" />
-                            Add To Booking
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs text-muted-foreground">
+                          {selectedServiceOption
+                            ? `${selectedServiceOption.duration || 30} min · ${formatCurrency(selectedServiceOption.price)} each`
+                            : "Select a service to continue."}
+                        </p>
+                        <Button
+                          type="button"
+                          onClick={handleAddService}
+                          disabled={
+                            !canAddService ||
+                            !selectedServiceId ||
+                            isAddingService
+                          }
+                          size="sm"
+                          className="h-9 shrink-0"
+                        >
+                          {isAddingService ? (
+                            <>
+                              <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                              Adding…
+                            </>
+                          ) : (
+                            <>
+                              <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
+                              Add
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      {!canAddService && (
+                        <p className="text-xs text-destructive">
+                          Cancelled bookings cannot receive new services.
+                        </p>
+                      )}
                     </div>
-                    {!canAddService && (
-                      <p className="text-xs text-red-600">
-                        Cancelled bookings cannot receive new services.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </section>
+                  )}
+                </section>
               )}
 
               {/* Notes — any tenant user can read; INTERNAL writable by all,
                   CUSTOMER_VISIBLE writes gated by canAddService (BOOKING_MODIFY). */}
-              <section className="space-y-2 pt-1">
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+              <section className="space-y-3">
+                <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Notes
                 </h3>
                 <BookingNotesPanel
@@ -748,14 +676,14 @@ export function BookingDetailsDialog({
                   rule server-side. */}
               {(viewerContext.role === "OWNER" ||
                 viewerContext.role === "MANAGER") && (
-                <section className="space-y-2 pt-1">
+                <section className="space-y-3">
                   <button
                     type="button"
                     onClick={() => setIsAuditOpen((v) => !v)}
-                    className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-wider hover:text-zinc-600 transition-colors"
+                    className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors"
                     aria-expanded={isAuditOpen}
                   >
-                    <History className="h-3.5 w-3.5" />
+                    <History className="h-3 w-3" />
                     {isAuditOpen ? "Hide history" : "View history"}
                   </button>
                   {isAuditOpen && (
@@ -768,7 +696,55 @@ export function BookingDetailsDialog({
                 </section>
               )}
 
-              <section className="flex flex-wrap justify-end gap-2 pt-2">
+              <section className="space-y-2 pt-3 border-t border-border/60">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium tabular-nums">
+                      {formatCurrency(booking.grand_total + booking.total_discount)}
+                    </span>
+                  </div>
+                  {booking.total_discount > 0 && (
+                    <div className="flex justify-between items-center text-sm text-emerald-600">
+                      <span>
+                        Discount
+                        {booking.vouchers.length > 0
+                          ? ` (${booking.vouchers[0].code})`
+                          : ""}
+                      </span>
+                      <span className="font-medium tabular-nums">
+                        -{formatCurrency(booking.total_discount)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-sm text-emerald-700">
+                    <span>Paid</span>
+                    <span className="font-medium tabular-nums">
+                      {formatCurrency(amountPaid)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-baseline pt-3 mt-1 border-t border-border/60">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                      Remaining Balance
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/70 mt-0.5">
+                      {booking.payment_status === "PAID"
+                        ? "Paid in full"
+                        : "Awaiting settlement"}
+                    </span>
+                  </div>
+                  <span className={cn(
+                    "text-2xl font-bold tabular-nums tracking-tight",
+                    remainingBalance === 0 ? "text-emerald-600" : "text-foreground",
+                  )}>
+                    {formatCurrency(remainingBalance)}
+                  </span>
+                </div>
+              </section>
+
+              <section className="flex flex-wrap justify-end gap-2 pt-2 border-t border-border/60">
                 {viewerContext.canAddService &&
                   booking.status === "ACCEPTED" &&
                   booking.scheduled_at && (
@@ -807,15 +783,16 @@ export function BookingDetailsDialog({
                       <Button
                         type="button"
                         variant="outline"
-                        className="rounded-xl border-amber-200 text-amber-700 hover:bg-amber-50"
+                        size="sm"
+                        className="h-9 border-amber-200 text-amber-700 hover:bg-amber-50"
                         disabled={isMarkingNoShow}
                       >
                         {isMarkingNoShow ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                         ) : (
-                          <AlertTriangle className="h-4 w-4 mr-2" />
+                          <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
                         )}
-                        Mark as No-Show
+                        No-Show
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="rounded-2xl">
@@ -843,70 +820,22 @@ export function BookingDetailsDialog({
                 {canMarkPaid && viewerContext.canMarkPaid && (
                   <Button
                     type="button"
-                    variant="outline"
-                    className="rounded-xl border-zinc-200 text-zinc-700 hover:bg-zinc-100"
+                    size="sm"
+                    className="h-9"
                     onClick={handleMarkPaid}
                     disabled={isMarkingPaid}
                   >
                     {isMarkingPaid ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                     ) : (
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                     )}
                     Mark as Paid
                   </Button>
                 )}
               </section>
-
-              <section className="flex justify-end pt-2">
-                <div className="w-full sm:w-2/3 md:w-1/2 bg-zinc-50/50 rounded-xl border border-zinc-100 p-5 space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-zinc-500 font-medium">Subtotal</span>
-                    <span className="font-semibold text-zinc-900">
-                      {formatCurrency(
-                        booking.grand_total + booking.total_discount,
-                      )}
-                    </span>
-                  </div>
-                  {booking.total_discount > 0 && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-emerald-600 font-medium flex items-center gap-1.5">
-                        Discount{" "}
-                        {booking.vouchers.length > 0
-                          ? `(${booking.vouchers[0].code})`
-                          : ""}
-                      </span>
-                      <span className="font-semibold text-emerald-700">
-                        -{formatCurrency(booking.total_discount)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-zinc-500 font-medium">Paid</span>
-                    <span className="font-semibold text-emerald-700">
-                      {formatCurrency(amountPaid)}
-                    </span>
-                  </div>
-                  <Separator className="bg-zinc-200 my-2" />
-                  <div className="flex justify-between items-end">
-                    <div className="flex flex-col">
-                      <span className="text-base font-bold text-zinc-900">
-                        Remaining Balance
-                      </span>
-                      <span className="text-xs text-zinc-400 font-medium">
-                        {booking.payment_status === "PAID"
-                          ? "Paid in full"
-                          : "Awaiting settlement"}
-                      </span>
-                    </div>
-                    <span className="text-xl font-bold text-zinc-900 tracking-tight">
-                      {formatCurrency(remainingBalance)}
-                    </span>
-                  </div>
-                </div>
-              </section>
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
 

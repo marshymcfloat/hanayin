@@ -54,24 +54,35 @@ type EmployeeWithDetails = Employee & {
   };
 };
 
+// Mirror of DEFAULT_PERMISSIONS_BY_PROFILE in lib/auth/staff-access.ts.
+// Keep these in lockstep with the backend defaults and
+// docs/role-permissions-matrix.md §2.
 const PROFILE_DEFAULT_PERMISSIONS: Record<StaffProfile, StaffPermission[]> = {
   STAFF: [
     StaffPermission.BOOKING_CREATE,
     StaffPermission.PAYMENT_COLLECT,
     StaffPermission.QUEUE_CLAIM_SELF,
     StaffPermission.QUEUE_SERVE_SELF,
+    StaffPermission.SOCIAL_POST_REQUEST_CREATE,
   ],
   MANAGER: [
     StaffPermission.BOOKING_CREATE,
+    StaffPermission.BOOKING_MODIFY,
+    StaffPermission.BOOKING_CANCEL,
+    StaffPermission.BOOKING_MARK_NO_SHOW,
+    StaffPermission.BOOKING_ADJUST_PRICE,
     StaffPermission.PAYMENT_COLLECT,
     StaffPermission.QUEUE_CLAIM_SELF,
     StaffPermission.QUEUE_SERVE_SELF,
     StaffPermission.QUEUE_OVERRIDE_ALL,
     StaffPermission.CATALOG_MANAGE,
+    StaffPermission.SOCIAL_POST_REQUEST_CREATE,
+    StaffPermission.SOCIAL_POST_REVIEW,
   ],
   CASHIER: [
     StaffPermission.BOOKING_CREATE,
     StaffPermission.PAYMENT_COLLECT,
+    StaffPermission.SOCIAL_POST_REQUEST_CREATE,
   ],
 };
 
@@ -112,6 +123,27 @@ const PERMISSION_OPTIONS: Array<{
     description: "Can create or submit bookings.",
   },
   {
+    value: StaffPermission.BOOKING_MODIFY,
+    label: "Modify bookings",
+    description:
+      "Add or remove services and change time/staff on an existing booking.",
+  },
+  {
+    value: StaffPermission.BOOKING_CANCEL,
+    label: "Cancel bookings",
+    description: "Soft-cancel a booking (recoverable).",
+  },
+  {
+    value: StaffPermission.BOOKING_MARK_NO_SHOW,
+    label: "Mark no-show",
+    description: "Flag a customer as a no-show.",
+  },
+  {
+    value: StaffPermission.BOOKING_ADJUST_PRICE,
+    label: "Adjust booking price",
+    description: "Apply manual discounts or override final price.",
+  },
+  {
     value: StaffPermission.PAYMENT_COLLECT,
     label: "Collect payments",
     description: "Can generate/review QR and mark bookings paid.",
@@ -135,6 +167,21 @@ const PERMISSION_OPTIONS: Array<{
     value: StaffPermission.CATALOG_MANAGE,
     label: "Manage services/packages",
     description: "Can create/update/delete services and packages.",
+  },
+  {
+    value: StaffPermission.SOCIAL_POST_REQUEST_CREATE,
+    label: "Request social posts",
+    description: "Submit a custom-post request to the owner.",
+  },
+  {
+    value: StaffPermission.SOCIAL_POST_REVIEW,
+    label: "Review social posts",
+    description: "Approve, reject, or edit post requests before draft.",
+  },
+  {
+    value: StaffPermission.SOCIAL_POST_PUBLISH,
+    label: "Publish social posts",
+    description: "Take an approved draft and publish it.",
   },
 ];
 

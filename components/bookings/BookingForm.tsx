@@ -57,7 +57,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import CustomerPicker, {
   type CustomerPickerValue,
@@ -108,7 +107,7 @@ import {
   type CustomerTrust,
 } from "@/lib/server actions/booking-otp";
 import { format } from "date-fns";
-import { Sparkles, Calendar, Ticket, X, ShieldCheck, Phone, Loader2 } from "lucide-react";
+import { Sparkles, Calendar, Ticket, X, ShieldCheck, Phone, Loader2, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BookingPolicy } from "@/lib/types/booking-policy";
 import { getMaxBookingDate, getSlotEmptyState } from "./booking-form-utils";
@@ -1344,13 +1343,13 @@ export default function BookingForm({
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
-          "relative flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8",
+          "relative flex flex-col gap-6 lg:flex-row lg:gap-10",
           usesFixedMobileActionBar
             ? "pb-[calc(10rem+env(safe-area-inset-bottom))] sm:pb-[calc(11rem+env(safe-area-inset-bottom))] lg:pb-0"
             : "pb-0",
         )}
       >
-        <div className={cn("flex flex-col gap-4 pb-4 sm:pb-4 lg:pb-4")}>
+        <div className={cn("min-w-0 flex-1 flex flex-col gap-7 sm:gap-9 pb-4")}>
           {/* Hidden Fields & Identification */}
           <FormField
             control={form.control}
@@ -1360,7 +1359,7 @@ export default function BookingForm({
             )}
           />
 
-          <div className="order-0 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+          <div className="order-0 sticky top-0 z-20 -mx-1 px-3 py-2.5 bg-primary/[0.04] backdrop-blur supports-[backdrop-filter]:bg-primary/[0.05] border-b border-primary/15">
             {/* Step progress bar */}
             {(() => {
               const steps = [
@@ -1374,35 +1373,35 @@ export default function BookingForm({
               const doneCount = steps.filter((s) => s.done).length;
               const pct = Math.round((doneCount / steps.length) * 100);
               return (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.08em]">
                       Booking Progress
                     </span>
-                    <span className="text-xs font-bold text-primary">{pct}%</span>
+                    <span className="text-[10px] font-bold text-primary tabular-nums">{pct}%</span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                  <div className="h-1 w-full rounded-full bg-primary/10 overflow-hidden">
                     <div
                       className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1">
                     {steps.map((item) => (
                       <span
                         key={item.step}
                         className={cn(
-                          "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-all duration-200",
+                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-all duration-200",
                           item.done
-                            ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                            ? "bg-primary/10 text-primary"
                             : currentStep === item.step
-                              ? "border-primary/40 bg-primary/10 text-primary shadow-sm"
-                              : "border-zinc-200 bg-white text-zinc-400",
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "bg-background/70 text-muted-foreground/60 ring-1 ring-inset ring-border/60",
                         )}
                       >
                         {item.done && (
                           <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 12 12">
-                            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         )}
                         {item.step === 0 ? item.label : `${item.step}. ${item.label}`}
@@ -1418,9 +1417,9 @@ export default function BookingForm({
           {!isEmployee && (
             <div
               className={cn(
-                "order-[5] rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5 transition-all duration-300",
+                "order-[5] py-1 sm:py-2 transition-all duration-300",
                 isOtpVerified
-                  ? "border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-card"
+                  ? "border-l-2 border-emerald-300 pl-3"
                   : "border-border",
               )}
             >
@@ -1450,7 +1449,7 @@ export default function BookingForm({
               </div>
 
               {isOtpVerified ? (
-                <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="space-y-3 animate-in fade-in duration-200">
                   {/* Verified identity card */}
                   <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-white/70 p-3">
                     <div className="flex items-center justify-center w-9 h-9 rounded-full bg-emerald-100 shrink-0">
@@ -1543,7 +1542,7 @@ export default function BookingForm({
                   )}
 
                   {otpTier === "NEW" && (
-                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="space-y-3 animate-in fade-in duration-200">
                       <div className="flex items-center gap-2 rounded-lg bg-muted/40 border px-3 py-2">
                         <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span className="text-sm text-muted-foreground">
@@ -1617,9 +1616,9 @@ export default function BookingForm({
           )}
 
           {canAccessStep5 && (
-            <div className="order-50 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5 animate-in fade-in slide-in-from-top-2 duration-300">
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+            <div className="order-50 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200">
+              <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                   <span className="text-xs font-bold text-primary">4</span>
                 </div>
                 <h3 className="font-semibold text-lg tracking-tight flex-1">
@@ -1772,7 +1771,7 @@ export default function BookingForm({
 
           {/* Pending Flows / Upsells */}
           {canAccessStep5 && pendingFlows.length > 0 && (
-            <div className="order-[55] space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="order-[55] space-y-3 animate-in fade-in duration-200">
               {pendingFlows.map((flow, idx) => (
                 <div
                   key={idx}
@@ -1879,13 +1878,13 @@ export default function BookingForm({
 
           <div
             className={cn(
-              "order-20 space-y-6 rounded-2xl border bg-card/90 p-4 shadow-sm transition-all duration-300 sm:p-5",
+              "order-20 space-y-6 py-1 sm:py-2 transition-all",
               !canAccessStep2 && "pointer-events-none opacity-50",
             )}
           >
             <div className="space-y-4">
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+              <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                   <span className="text-xs font-bold text-primary">2</span>
                 </div>
                 <h3 className="font-semibold text-lg tracking-tight">
@@ -1897,46 +1896,6 @@ export default function BookingForm({
                 <p className="rounded-xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                   Select at least one service first to unlock date selection.
                 </p>
-              )}
-
-              {isEmployee && (
-                <div className="flex items-center justify-between rounded-2xl border bg-secondary/20 p-4 shadow-sm">
-                  <div className="flex-1 mr-4">
-                    <p className="text-sm font-semibold text-foreground">
-                      Book for right now
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                      Time-shortcut for walk-ins — skips date/time picker.
-                      Customer info is still collected above.
-                    </p>
-                  </div>
-                  <div
-                    role="switch"
-                    aria-checked={effectiveIsWalkIn}
-                    aria-label="Book for right now"
-                    tabIndex={0}
-                    className={cn(
-                      "w-12 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
-                      effectiveIsWalkIn
-                        ? "bg-primary"
-                        : "bg-muted-foreground/30",
-                    )}
-                    onClick={handleWalkInToggle}
-                    onKeyDown={(e) => {
-                      if (e.key === " " || e.key === "Enter") {
-                        e.preventDefault();
-                        handleWalkInToggle();
-                      }
-                    }}
-                  >
-                    <div
-                      className={cn(
-                        "bg-white w-5 h-5 rounded-full shadow-sm transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
-                        effectiveIsWalkIn ? "translate-x-5" : "translate-x-0",
-                      )}
-                    />
-                  </div>
-                </div>
               )}
 
               {!effectiveIsWalkIn && canAccessStep2 ? (
@@ -2006,22 +1965,66 @@ export default function BookingForm({
                     )}
                   />
                 </>
-              ) : effectiveIsWalkIn ? (
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground">
-                  Booking will start immediately at the next available slot.
-                </div>
-              ) : (
+              ) : effectiveIsWalkIn ? null : (
                 <div className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground">
                   Date selection is locked until services are selected.
+                </div>
+              )}
+
+              {isEmployee && (
+                <div
+                  role="switch"
+                  aria-checked={effectiveIsWalkIn}
+                  aria-label="Walk-in"
+                  tabIndex={0}
+                  onClick={handleWalkInToggle}
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") {
+                      e.preventDefault();
+                      handleWalkInToggle();
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center justify-between gap-3 rounded-lg border px-3 py-2 cursor-pointer transition-colors select-none",
+                    effectiveIsWalkIn
+                      ? "border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.08]"
+                      : "border-border/70 bg-muted/30 hover:bg-muted/50",
+                  )}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Zap
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-colors",
+                        effectiveIsWalkIn ? "text-primary" : "text-muted-foreground",
+                      )}
+                    />
+                    <span className="text-sm font-medium text-foreground">
+                      Walk-in?
+                    </span>
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    className={cn(
+                      "w-9 h-5 flex items-center rounded-full p-0.5 shrink-0 transition-colors duration-300",
+                      effectiveIsWalkIn ? "bg-primary" : "bg-muted-foreground/30",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "bg-white w-4 h-4 rounded-full shadow-sm transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+                        effectiveIsWalkIn ? "translate-x-4" : "translate-x-0",
+                      )}
+                    />
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
           {/* Service Selection */}
-          <div className="order-10 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+          <div className="order-10 space-y-4 py-1 sm:py-2">
+            <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                 <span className="text-xs font-bold text-primary">1</span>
               </div>
               <h3 className="font-semibold text-lg tracking-tight">
@@ -2053,9 +2056,9 @@ export default function BookingForm({
 
           {canAccessStep3 && !effectiveIsWalkIn && selectedDate && (
             <>
-              <div className="order-30 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="flex items-center gap-2.5 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+              <div className="order-30 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200">
+                <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                     <span className="text-xs font-bold text-primary">3</span>
                   </div>
                   <h3 className="font-semibold text-lg tracking-tight">
@@ -2094,7 +2097,7 @@ export default function BookingForm({
           )}
 
           {canAccessStep3 && effectiveIsWalkIn && (
-            <div className="order-30 rounded-2xl border bg-card/90 p-4 text-sm text-muted-foreground shadow-sm sm:p-5">
+            <div className="order-30 py-1 text-sm text-muted-foreground sm:py-2">
               <p className="font-medium text-foreground">3. Time Slot</p>
               <p>Walk-in mode uses immediate start time automatically.</p>
             </div>
@@ -2103,9 +2106,9 @@ export default function BookingForm({
           {canAccessStep4 &&
             (effectiveIsWalkIn || selectedTime) &&
             !isEmployee && (
-              <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 sm:p-5">
-                <div className="flex items-center gap-2.5 mb-2">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+              <div className="order-40 space-y-4 py-1 animate-in fade-in duration-200 sm:py-2">
+                <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                     <span className="text-xs font-bold text-primary">4</span>
                   </div>
                   <h3 className="font-semibold text-lg tracking-tight">
@@ -2157,10 +2160,10 @@ export default function BookingForm({
             (effectiveIsWalkIn || selectedTime) &&
             claimStepEnabled &&
             selectedServices.length > 0 && (
-              <div className="order-40 space-y-3 rounded-2xl border bg-card/90 p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 sm:space-y-4 sm:p-5">
-                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="order-40 space-y-3 py-1 animate-in fade-in duration-200 sm:space-y-4 sm:py-2">
+                <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                    <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                       <span className="text-xs font-bold text-primary">4</span>
                     </div>
                     <h3 className="font-semibold text-lg tracking-tight">
@@ -2183,33 +2186,29 @@ export default function BookingForm({
                   services stay open for other staff.
                 </p>
 
-                <Card className="border bg-card/60 shadow-inner">
-                  <CardContent className="px-3 pb-3 pt-3 sm:px-5 sm:pb-5 sm:pt-5">
-                    <ServiceClaimSelector
-                      services={selectedServices.flatMap((s) =>
-                        Array.from({
-                          length: Math.floor(Number(s.quantity) || 1),
-                        }).map((_, i) => ({
-                          id: s.id,
-                          uniqueId: buildServiceClaimUniqueId(s, i),
-                          name: s.name,
-                          price: s.price,
-                          duration: s.duration ?? null,
-                          quantity: 1,
-                        })),
-                      )}
-                      claimedUniqueIds={claimedUniqueIds}
-                      onChange={setClaimedUniqueIds}
-                    />
-                  </CardContent>
-                </Card>
+                <ServiceClaimSelector
+                  services={selectedServices.flatMap((s) =>
+                    Array.from({
+                      length: Math.floor(Number(s.quantity) || 1),
+                    }).map((_, i) => ({
+                      id: s.id,
+                      uniqueId: buildServiceClaimUniqueId(s, i),
+                      name: s.name,
+                      price: s.price,
+                      duration: s.duration ?? null,
+                      quantity: 1,
+                    })),
+                  )}
+                  claimedUniqueIds={claimedUniqueIds}
+                  onChange={setClaimedUniqueIds}
+                />
               </div>
             )}
 
           {canReviewAndConfirm && (
-            <div className="order-[60] space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 sm:p-5">
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+            <div className="order-[60] space-y-4 py-1 animate-in fade-in duration-200 sm:py-2">
+              <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                   <span className="text-xs font-bold text-primary">5</span>
                 </div>
                 <h3 className="font-semibold text-lg tracking-tight">
@@ -2359,22 +2358,22 @@ export default function BookingForm({
           )}
         </div>
 
-        <div className="w-full lg:w-[360px] lg:shrink-0">
-          <div className="space-y-4 lg:sticky lg:top-4">
-            <Card className="overflow-hidden border shadow-lg shadow-black/5">
-              <CardHeader className="border-b bg-muted/20 pb-4">
-                <CardTitle className="flex items-center justify-between text-base">
+        <div className="w-full lg:w-[320px] xl:w-[360px] lg:shrink-0">
+          <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+            <div className="rounded-2xl border border-zinc-200 bg-card overflow-hidden lg:flex lg:flex-col lg:max-h-[calc(90vh-96px)]">
+              <div className="border-b border-zinc-100 px-4 py-3.5 lg:shrink-0">
+                <div className="flex items-center justify-between text-base">
                   <span className="font-bold">Booking Summary</span>
                   {selectedServices.length > 0 && (
                     <Badge variant="secondary" className="font-medium text-xs bg-primary/10 text-primary border-primary/20">
                       {selectedServices.length} {selectedServices.length === 1 ? "service" : "services"}
                     </Badge>
                   )}
-                </CardTitle>
-              </CardHeader>
+                </div>
+              </div>
 
-              <CardContent className="space-y-6 pt-5 sm:pt-6">
-                <div className="max-h-[220px] overflow-y-auto pr-1 -mr-2 sm:max-h-[300px]">
+              <div className="space-y-5 px-4 py-4 sm:py-5 lg:flex-1 lg:overflow-y-auto lg:min-h-0">
+                <div className="max-h-[220px] overflow-y-auto pr-1 -mr-2 sm:max-h-[300px] lg:max-h-none lg:overflow-visible lg:pr-0 lg:-mr-0">
                   <SelectedServiceList
                     form={form}
                     services={selectedServices}
@@ -2382,11 +2381,11 @@ export default function BookingForm({
                 </div>
 
                 {selectedServices.length > 0 && (
-                  <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                  <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
                     {selectedServices.some(
                       (s) => s.slotsRemaining !== null && s.slotsRemaining !== undefined && s.slotsRemaining > 0 && s.slotsRemaining <= 3,
                     ) && (
-                      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 flex items-start gap-2">
+                      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 flex items-start gap-2">
                         <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                         <span>
                           Limited promo slots remaining — complete your booking to
@@ -2395,22 +2394,19 @@ export default function BookingForm({
                       </div>
                     )}
 
-                    <Separator />
-
                     {canReviewAndConfirm && (
-                      <div className="space-y-4">
+                      <div className="space-y-4 pt-1 border-t border-border/60">
                         {!hasReviewedDetails && (
-                          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-                            Complete Step 6 (Review & Payment) to unlock
-                            payment.
+                          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 mt-4">
+                            Complete Step 6 (Review &amp; Payment) to unlock payment.
                           </div>
                         )}
                         <FormField
                           control={form.control}
                           name="paymentMethod"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                            <FormItem className="space-y-1.5 mt-4">
+                              <FormLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                                 Payment Method
                               </FormLabel>
                               <FormControl>
@@ -2427,120 +2423,121 @@ export default function BookingForm({
                         />
 
                         {isEmployee && (
-                        <FormField
-                          control={form.control}
-                          name="paymentType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                                Payment Type
-                              </FormLabel>
-                              <FormControl>
-                                <SegmentedToggle
-                                  options={paymentTypeOptions}
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  className="w-full"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                          <FormField
+                            control={form.control}
+                            name="paymentType"
+                            render={({ field }) => (
+                              <FormItem className="space-y-1.5">
+                                <FormLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                                  Payment Type
+                                </FormLabel>
+                                <FormControl>
+                                  <SegmentedToggle
+                                    options={paymentTypeOptions}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    className="w-full"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         )}
 
-                        <div className="flex flex-col gap-6">
-                          {/* Voucher Application */}
-                          {hasActivePromos && (
-                            <div className="space-y-2.5">
-                              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                                Voucher Code
-                              </label>
-                              <div className="flex flex-col bg-muted/20 p-3 rounded-lg border border-border/50">
-                                <div className="flex gap-2">
-                                  <Input
-                                    placeholder="Enter code"
-                                    value={voucherCode}
-                                    onChange={(e) =>
-                                      setVoucherCode(
-                                        e.target.value.toUpperCase(),
-                                      )
-                                    }
-                                    disabled={
-                                      !!appliedVoucher ||
-                                      isVerifyingVoucher ||
-                                      !hasReviewedDetails
-                                    }
-                                    className="uppercase bg-white h-10 font-medium tracking-wide"
-                                  />
-                                  {appliedVoucher ? (
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="icon"
-                                      onClick={clearVoucher}
-                                      disabled={!hasReviewedDetails}
-                                      className="shrink-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 transition-colors"
-                                    >
-                                      <X className="size-4" />
-                                    </Button>
-                                  ) : (
-                                    <Button
-                                      type="button"
-                                      variant="secondary"
-                                      onClick={handleVerifyVoucher}
-                                      disabled={
-                                        isVerifyingVoucher ||
-                                        !voucherCode.trim() ||
-                                        !hasReviewedDetails
-                                      }
-                                      className="shrink-0 font-medium"
-                                    >
-                                      {isVerifyingVoucher ? "..." : "Apply"}
-                                    </Button>
-                                  )}
-                                </div>
-
-                                {voucherError && (
-                                  <p className="text-xs text-red-500 font-medium mt-1.5 animate-in slide-in-from-left-1">
-                                    {voucherError}
-                                  </p>
-                                )}
-
-                                {appliedVoucher && (
-                                  <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 px-3 py-2 rounded-md border border-green-200 mt-2">
-                                    <Ticket className="size-3.5" />
-                                    <span className="font-semibold">
-                                      {appliedVoucher.code}
-                                    </span>
-                                    <span className="ml-auto font-bold tabular-nums">
-                                      -₱
-                                      {appliedVoucher.discountAmount.toLocaleString()}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
+                        {hasActivePromos && (
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                              Voucher Code
+                            </label>
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Enter code"
+                                value={voucherCode}
+                                onChange={(e) =>
+                                  setVoucherCode(e.target.value.toUpperCase())
+                                }
+                                disabled={
+                                  !!appliedVoucher ||
+                                  isVerifyingVoucher ||
+                                  !hasReviewedDetails
+                                }
+                                className="uppercase bg-background h-9 font-medium tracking-wide"
+                              />
+                              {appliedVoucher ? (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={clearVoucher}
+                                  disabled={!hasReviewedDetails}
+                                  className="shrink-0 h-9 w-9 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                >
+                                  <X className="size-4" />
+                                </Button>
+                              ) : (
+                                <Button
+                                  type="button"
+                                  onClick={handleVerifyVoucher}
+                                  disabled={
+                                    isVerifyingVoucher ||
+                                    !voucherCode.trim() ||
+                                    !hasReviewedDetails
+                                  }
+                                  className="shrink-0 h-9 px-4 font-medium"
+                                >
+                                  {isVerifyingVoucher ? "..." : "Apply"}
+                                </Button>
+                              )}
                             </div>
-                          )}
-                        </div>
+
+                            {voucherError && (
+                              <p className="text-xs text-red-500 font-medium animate-in slide-in-from-left-1">
+                                {voucherError}
+                              </p>
+                            )}
+
+                            {appliedVoucher && (
+                              <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-md border border-emerald-200">
+                                <Ticket className="size-3.5 shrink-0" />
+                                <span className="font-semibold tracking-wide">
+                                  {appliedVoucher.code}
+                                </span>
+                                <span className="ml-auto font-bold tabular-nums">
+                                  -₱
+                                  {appliedVoucher.discountAmount.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    <div className="bg-muted/40 -mx-6 -mb-6 px-6 py-4 border-t space-y-3 pb-4">
+                    <div className="space-y-2 pt-4 border-t border-border/60">
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span className="font-medium tabular-nums">
-                          ₱{total.toLocaleString()}
+                          ₱{total.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </span>
                       </div>
 
                       {appliedVoucher && (
-                        <div className="flex justify-between items-center text-sm text-green-600">
+                        <div className="flex justify-between items-center text-sm text-emerald-600">
                           <span className="flex items-center gap-1.5">
                             <Ticket className="w-3.5 h-3.5" /> Voucher Discount
                           </span>
                           <span className="font-medium tabular-nums">
-                            - ₱{appliedVoucher.discountAmount.toLocaleString()}
+                            -₱{appliedVoucher.discountAmount.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                           </span>
                         </div>
                       )}
@@ -2548,56 +2545,37 @@ export default function BookingForm({
                       {paymentType === "DOWNPAYMENT" &&
                         (effectiveIsWalkIn || selectedTime) && (
                           <>
-                            <div className="flex justify-between items-center text-sm text-emerald-600">
-                              <span className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                Downpayment ({bookingPolicy?.downpaymentPercentage ?? 50}%)
-                              </span>
-                              <span className="font-medium tabular-nums">
-                                - ₱
-                                {(
-                                  finalTotal - finalAmountToPay
-                                ).toLocaleString()}
-                              </span>
-                            </div>
-                            <Separator className="my-1 border-dashed" />
-                            <div className="flex justify-between items-center text-xs text-muted-foreground opacity-80">
-                              <span>Balance (Pay later)</span>
+                            <div className="flex justify-between items-center text-xs text-muted-foreground">
+                              <span>Balance (pay later)</span>
                               <span className="tabular-nums">
-                                ₱
-                                {(
-                                  finalTotal - finalAmountToPay
-                                ).toLocaleString()}
+                                ₱{(finalTotal - finalAmountToPay).toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}
                               </span>
                             </div>
                           </>
                         )}
 
-                      <Separator className="bg-border/60" />
-
-                      <div className="flex justify-between items-end">
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-0.5">
-                            {paymentType === "DOWNPAYMENT"
-                              ? "Due Now"
-                              : "Total Amount"}
-                          </p>
-                        </div>
-                        <div className="text-2xl font-bold text-primary tabular-nums tracking-tight">
-                          ₱
-                          {totalWithFee.toLocaleString(undefined, {
+                      <div className="flex justify-between items-baseline pt-3 mt-1 border-t border-border/60">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                          {paymentType === "DOWNPAYMENT"
+                            ? "Due Now"
+                            : "Total"}
+                        </span>
+                        <span className="text-2xl font-bold text-primary tabular-nums tracking-tight">
+                          ₱{totalWithFee.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
-                        </div>
+                        </span>
                       </div>
-
 
                       <Button
                         disabled={isSubmitDisabled || isCheckingDuplicate}
                         type="submit"
                         size="lg"
-                        className="hidden w-full font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98] lg:flex"
+                        className="hidden w-full font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98] lg:flex mt-3"
                       >
                         {isPending || isCheckingDuplicate
                           ? "Processing..."
@@ -2608,8 +2586,8 @@ export default function BookingForm({
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
 

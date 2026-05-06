@@ -37,6 +37,14 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // NextAuth's catch-all (`/api/auth/[...nextauth]`) handles its own request
+  // lifecycle and must not be touched by this proxy — getToken / signIn /
+  // signOut all bounce through here and any header/cookie tampering can
+  // surface as ERR_TOO_MANY_REDIRECTS in the client SessionProvider.
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/api")) {
     const forwardedFor = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
     const ip = forwardedFor.split(",")[0]?.trim() || "127.0.0.1";

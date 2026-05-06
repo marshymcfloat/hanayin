@@ -27,7 +27,18 @@
       "Bash(git push *)",
       "Bash(git fetch *)",
       "Bash(git merge *)",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\); console.log\\('valid JSON'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\); console.log\\('valid JSON'\\)\")",
+      "Bash(npx skillfish *)",
+      "Bash(python3 ~/.claude/skills/.claude/skills/ui-ux-pro-max/scripts/search.py \"premium SaaS business management vercel shadcn minimal modern dashboard\" --design-system -p \"ServiceFlow\")",
+      "Bash(python3 ~/.claude/skills/.claude/skills/ui-ux-pro-max/scripts/search.py \"minimal premium SaaS dashboard high-quality\" --domain style -n 3)",
+      "Bash(identify C:/Programming/sfclone/service-flow/public/SF_Dashboard.png)",
+      "Bash(python3 -c \"from PIL import Image; img = Image.open\\('C:/Programming/sfclone/service-flow/public/SF_Dashboard.png'\\); print\\(f'Size: {img.size}, Aspect: {img.size[0]/img.size[1]:.4f}'\\)\")",
+      "Bash(python3 ~/.claude/skills/.claude/skills/ui-ux-pro-max/scripts/search.py \"beauty spa salon premium feminine warm minimal editorial\" --design-system -p \"BeautyFeel Studio\")",
+      "Bash(curl -s -H 'Authorization: B2xgq80DrH1WMQH4eiRDyLPJOge3qSVbMqET2zAfNarVTs21p8a6k36D' 'https://api.pexels.com/v1/search?query=spa+treatment+room+luxe&per_page=4&orientation=landscape')",
+      "Bash(python3 -c \"import sys, json; d=json.load\\(sys.stdin\\); [print\\(p['id'], '-', p.get\\('alt',''\\)[:80], '-', p['src']['large2x']\\) for p in d.get\\('photos',[]\\)]\")",
+      "Bash(curl -s -H 'Authorization: B2xgq80DrH1WMQH4eiRDyLPJOge3qSVbMqET2zAfNarVTs21p8a6k36D' 'https://api.pexels.com/v1/search?query=spa+candles+wellness+ambient&per_page=4&orientation=landscape')",
+      "Bash(curl -s -H 'Authorization: B2xgq80DrH1WMQH4eiRDyLPJOge3qSVbMqET2zAfNarVTs21p8a6k36D' 'https://api.pexels.com/v1/search?query=beauty+salon+products+marble+flat+lay&per_page=4&orientation=landscape')",
+      "Bash(python3 ~/.claude/skills/.claude/skills/ui-ux-pro-max/scripts/search.py \"luxury beauty editorial menu spa pricing list\" --domain style -n 3)"
     ]
   }
 }

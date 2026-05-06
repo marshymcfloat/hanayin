@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { ReactNode, useRef } from "react";
 
 import { cn } from "@/lib/utils";
+import { useLockScroll } from "@/hooks/use-lock-scroll";
 
 export function Modal({
   children,
@@ -34,6 +35,11 @@ export function Modal({
 }) {
   const router = useRouter();
   const lastDismissAtRef = useRef(0);
+
+  // Lock the page (body overflow + Lenis stop) while this modal is mounted.
+  // Restored automatically on unmount. Pairs with `data-lenis-prevent` on
+  // DialogContent below so native scroll inside the modal still works.
+  useLockScroll(true);
 
   function onDismiss() {
     // Dismiss events can fire twice in quick succession (e.g. pointer + open state).
@@ -63,6 +69,9 @@ export function Modal({
         </DialogPortal>
       )}
       <DialogContent
+        // `data-lenis-prevent` lets the native scroll inside this dialog
+        // work even though Lenis is stopped on the page beneath.
+        data-lenis-prevent=""
         className={cn(
           "sm:max-w-[600px] overflow-y-auto max-h-[90vh]",
           className,

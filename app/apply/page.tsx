@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import { createOnboardingApplicationAction } from "@/app/actions/onboarding-applications";
 import ApplyStatusBanner from "@/components/forms/ApplyStatusBanner";
 import { constructMetadata } from "@/lib/metadata";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
-import { Button } from "@/components/ui/button";
+import SmoothScroll from "@/components/landing/SmoothScroll";
+import AuthDialog from "@/components/auth/AuthDialog";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   BUSINESS_STRUCTURE_TEMPLATES,
   normalizeBusinessStructure,
@@ -30,6 +30,37 @@ export const metadata = constructMetadata({
   ],
 });
 
+const benefits = [
+  "Your own booking site at serviceflow.ph/your-name",
+  "Bookings, payroll, reminders, CRM — one dashboard",
+  "Free data import from your old tools",
+  "Local PH support — chat + email, in Filipino or English",
+  "14-day free trial. No card. Cancel anytime.",
+];
+
+const steps = [
+  {
+    n: "01",
+    title: "Submit application",
+    desc: "Tell us about your business below. Takes under 2 minutes.",
+  },
+  {
+    n: "02",
+    title: "We review",
+    desc: "Within one business day. You'll get an email either way.",
+  },
+  {
+    n: "03",
+    title: "Free setup call",
+    desc: "We schedule a 30-min call to import your data and configure things.",
+  },
+  {
+    n: "04",
+    title: "Go live",
+    desc: "Same afternoon. Start taking online bookings immediately.",
+  },
+];
+
 export default async function ApplyPage() {
   async function submitApplicationFormAction(formData: FormData) {
     "use server";
@@ -44,8 +75,9 @@ export default async function ApplyPage() {
         formData.get("requestedStructure"),
       ),
       requestedAllowEmployeeSelfBooking:
-        String(formData.get("requestedAllowEmployeeSelfBooking") || "").toLowerCase() ===
-        "true",
+        String(
+          formData.get("requestedAllowEmployeeSelfBooking") || "",
+        ).toLowerCase() === "true",
       requestedManagerCanServe:
         String(formData.get("requestedManagerCanServe") || "").toLowerCase() ===
         "true",
@@ -64,275 +96,323 @@ export default async function ApplyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background font-sans flex flex-col">
+    <main className="min-h-screen bg-background font-sans flex flex-col overflow-x-clip">
+      <SmoothScroll />
       <LandingHeader />
 
-      <div className="flex-1 relative pt-32 pb-20">
-        {/* Background Gradients */}
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[24px_24px]" />
+      {/* Hero — minimal, mirrors the explore page treatment. */}
+      <section className="relative isolate pt-32 pb-10 sm:pt-40 sm:pb-14">
         <div
-          className="absolute inset-0 -z-10"
-          style={{
-            backgroundImage: `radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)`,
-          }}
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 [background-image:radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.06)_1px,transparent_0)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,black_40%,transparent_100%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-16 -z-10 h-[400px] w-[420px] -translate-x-1/2 rounded-full bg-primary/[0.12] blur-[100px] sm:h-[520px] sm:w-[680px] sm:blur-[120px] lg:h-[600px] lg:w-[900px] lg:blur-[140px]"
         />
 
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Value Proposition Column */}
-            <div className="hidden lg:flex flex-col space-y-8 sticky top-32 animate-in fade-in slide-in-from-left-8 duration-700">
-              <div className="space-y-4">
-                <Badge
-                  variant="outline"
-                  className="w-fit rounded-full px-4 py-1.5 border-green-200 bg-green-50/50 text-green-700 gap-2 hover:bg-green-100 transition-colors cursor-default backdrop-blur-sm"
-                >
-                  <Sparkles className="size-3.5" />
-                  Join 100+ Local Businesses
-                </Badge>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 leading-tight">
-                  Start your journey with{" "}
-                  <span className="text-transparent bg-clip-text bg-linear-to-r from-green-600 to-teal-500">
-                    ServiceFlow
-                  </span>
-                </h1>
-                <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
-                  Join the fastest-growing platform for beauty and wellness
-                  businesses in the Philippines. Streamline your operations and
-                  grow your revenue today.
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">
+            Apply
+          </p>
+          <h1 className="mt-4 text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-foreground sm:text-5xl lg:text-6xl">
+            Get your business{" "}
+            <span className="bg-gradient-to-br from-primary to-emerald-700 bg-clip-text text-transparent">
+              onboarded
+            </span>
+            .
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-balance text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Tell us about your business. We&apos;ll review within one business
+            day and have you live the same afternoon.
+          </p>
+        </div>
+      </section>
+
+      {/* Two-column body */}
+      <section className="relative pb-24 sm:pb-32">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.15fr] lg:gap-14">
+            {/* LEFT — value props + steps. Sticky on lg. */}
+            <aside className="lg:sticky lg:top-28 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-2">
+              {/* What you get */}
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+                  What you get
                 </p>
-              </div>
-
-              <div className="space-y-6">
-                {[
-                  "Get listed on our marketplace",
-                  "Manage appointments & walk-ins",
-                  "Automated SMS reminders",
-                  "Point of Sale (POS) system",
-                  "Employee commission tracking",
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-4 group">
-                    <div className="shrink-0 size-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
-                      <CheckCircle2 className="size-4" />
-                    </div>
-                    <span className="text-slate-700 font-medium group-hover:text-green-700 transition-colors">
-                      {feature}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden">
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1 text-amber-500 mb-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg
-                        key={star}
-                        className="size-4 fill-current"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="italic text-slate-700 mb-4">
-                    &quot;ServiceFlow has completely transformed how run my
-                    salon. The automated reminders alone have reduced no-shows
-                    by 80%.&quot;
-                  </p>
-                  <p className="font-semibold text-slate-900">
-                    - Sarah J., Salon Owner
-                  </p>
-                </div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-green-200/20 rounded-full blur-3xl -mr-16 -mt-16" />
-              </div>
-            </div>
-
-            {/* Form Column */}
-            <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
-              <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-6 md:p-8 relative overflow-hidden">
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-green-100/50 to-transparent rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-
-                <div className="relative z-10">
-                  <div className="mb-6 md:mb-8 text-center lg:text-left">
-                    <p className="text-sm uppercase tracking-wider text-green-600 font-semibold mb-2">
-                      Application Form
-                    </p>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
-                      Get Your Business Onboarded
-                    </h2>
-                    <p className="mt-2 text-slate-600">
-                      Fill out the details below. We typically review
-                      applications within 24 hours.
-                    </p>
-                  </div>
-
-                  <Suspense fallback={null}>
-                    <ApplyStatusBanner />
-                  </Suspense>
-
-                  <form
-                    action={submitApplicationFormAction}
-                    className="space-y-5 mt-6"
-                  >
-                    <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-slate-700 ml-1">
-                          Business Name
-                        </label>
-                        <Input
-                          name="businessName"
-                          placeholder="e.g. Glow Up Salon"
-                          required
-                          className="bg-white/50 backdrop-blur-sm h-11 text-base border-slate-200 focus:border-green-500 focus:ring-green-500/20"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-slate-700 ml-1">
-                            Owner Name
-                          </label>
-                          <Input
-                            name="ownerName"
-                            placeholder="Your full name"
-                            required
-                            className="bg-white/50 backdrop-blur-sm h-11 text-base border-slate-200 focus:border-green-500 focus:ring-green-500/20"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-slate-700 ml-1">
-                            Owner Email
-                          </label>
-                          <Input
-                            name="ownerEmail"
-                            type="email"
-                            placeholder="you@company.com"
-                            required
-                            className="bg-white/50 backdrop-blur-sm h-11 text-base border-slate-200 focus:border-green-500 focus:ring-green-500/20"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-slate-700 ml-1">
-                            Phone Number (Optional)
-                          </label>
-                          <Input
-                            name="ownerPhone"
-                            placeholder="+63 900 000 0000"
-                            className="bg-white/50 backdrop-blur-sm h-11 text-base border-slate-200 focus:border-green-500 focus:ring-green-500/20"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-slate-700 ml-1">
-                            Referral Code (Optional)
-                          </label>
-                          <Input
-                            name="referralCode"
-                            placeholder="Partner code"
-                            className="bg-white/50 backdrop-blur-sm h-11 text-base border-slate-200 focus:border-green-500 focus:ring-green-500/20"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-slate-700 ml-1">
-                          Business Details / Notes
-                        </label>
-                        <textarea
-                          name="notes"
-                          placeholder="Tell us about your business, how many branches you have, or any specific needs..."
-                          rows={4}
-                          className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors resize-none"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-slate-700 ml-1">
-                          Business Structure
-                        </label>
-                        <select
-                          name="requestedStructure"
-                          defaultValue="OWNER_EMPLOYEE_SELF_SERVICE"
-                          className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors"
-                        >
-                          {BUSINESS_STRUCTURE_TEMPLATES.map((template) => (
-                            <option key={template.value} value={template.value}>
-                              {template.label}
-                            </option>
-                          ))}
-                        </select>
-                        <p className="text-xs text-slate-500 ml-1">
-                          This helps us configure your initial workflow during onboarding.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-slate-700 ml-1">
-                            Allow Staff Self-booking
-                          </label>
-                          <select
-                            name="requestedAllowEmployeeSelfBooking"
-                            defaultValue="true"
-                            className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors"
-                          >
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                          </select>
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-sm font-medium text-slate-700 ml-1">
-                            Manager Can Serve
-                          </label>
-                          <select
-                            name="requestedManagerCanServe"
-                            defaultValue="true"
-                            className="w-full rounded-md border border-slate-200 bg-white/50 backdrop-blur-sm px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-500/20 focus-visible:border-green-500 transition-colors"
-                          >
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      className="w-full h-12 text-base font-semibold rounded-xl bg-linear-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-px"
+                <ul className="mt-5 space-y-3">
+                  {benefits.map((b) => (
+                    <li
+                      key={b}
+                      className="flex items-start gap-3 text-sm text-foreground/85 sm:text-base"
                     >
-                      Submit Application <ArrowRight className="ml-2 size-4" />
-                    </Button>
-
-                    <p className="text-center text-xs text-slate-500 mt-4">
-                      By submitting, you agree to our Terms of Service and
-                      Privacy Policy.
-                    </p>
-                  </form>
-                </div>
+                      <span
+                        aria-hidden
+                        className="mt-1 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"
+                      >
+                        <Check className="size-3" strokeWidth={3} />
+                      </span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              <div className="mt-8 text-center bg-white/40 backdrop-blur-md rounded-2xl p-4 border border-white/50 shadow-sm">
-                <p className="text-sm text-slate-600">
-                  Already have an account?{" "}
-                  <Link
-                    href="/"
-                    className="font-semibold text-green-700 hover:text-green-800 hover:underline"
+              {/* What happens next */}
+              <div className="mt-12">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  What happens next
+                </p>
+                <ol className="relative mt-5 space-y-5 border-l border-black/[0.06] pl-5">
+                  {steps.map((step, i) => (
+                    <li key={step.n} className="relative">
+                      <span
+                        aria-hidden
+                        className="absolute -left-[27px] top-0.5 inline-flex size-4 items-center justify-center rounded-full border border-black/[0.08] bg-white font-mono text-[8px] font-semibold tracking-[0.05em] text-primary"
+                      >
+                        {String(i + 1).padStart(2, "0").slice(-1)}
+                      </span>
+                      <div className="text-sm font-medium tracking-[-0.005em] text-foreground sm:text-base">
+                        {step.title}
+                      </div>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                        {step.desc}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              {/* Help nudge */}
+              <div className="mt-12 rounded-xl border border-black/[0.06] bg-zinc-50/50 p-4 text-sm">
+                <p className="font-medium text-foreground">
+                  Have questions?
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Reach us at{" "}
+                  <a
+                    href="mailto:hello@serviceflow.ph"
+                    className="font-medium text-foreground underline-offset-4 hover:underline"
                   >
-                    Sign in here
-                  </Link>
+                    hello@serviceflow.ph
+                  </a>
+                  .
                 </p>
               </div>
+            </aside>
+
+            {/* RIGHT — form card */}
+            <div>
+              <div className="rounded-2xl border border-black/[0.06] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)] sm:p-7">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary/80">
+                    Application form
+                  </p>
+                  <h2 className="mt-2 text-xl font-semibold tracking-[-0.01em] text-foreground sm:text-2xl">
+                    Tell us about your business
+                  </h2>
+                  <p className="mt-1.5 text-sm text-muted-foreground">
+                    All fields marked required. Takes about 2 minutes.
+                  </p>
+                </div>
+
+                <Suspense fallback={null}>
+                  <ApplyStatusBanner />
+                </Suspense>
+
+                <form
+                  action={submitApplicationFormAction}
+                  className="mt-6 space-y-5"
+                >
+                  {/* Business identity */}
+                  <FormField label="Business name" required>
+                    <Input
+                      name="businessName"
+                      placeholder="e.g. Glow Up Salon"
+                      required
+                      className="h-10 bg-white"
+                    />
+                  </FormField>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField label="Owner name" required>
+                      <Input
+                        name="ownerName"
+                        placeholder="Your full name"
+                        required
+                        className="h-10 bg-white"
+                      />
+                    </FormField>
+                    <FormField label="Owner email" required>
+                      <Input
+                        name="ownerEmail"
+                        type="email"
+                        placeholder="you@company.com"
+                        required
+                        className="h-10 bg-white"
+                      />
+                    </FormField>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField label="Phone number" hint="Optional">
+                      <Input
+                        name="ownerPhone"
+                        placeholder="+63 900 000 0000"
+                        className="h-10 bg-white"
+                      />
+                    </FormField>
+                    <FormField label="Referral code" hint="Optional">
+                      <Input
+                        name="referralCode"
+                        placeholder="Partner code"
+                        className="h-10 bg-white"
+                      />
+                    </FormField>
+                  </div>
+
+                  <FormField
+                    label="Business details"
+                    hint="What you do, branches, anything specific"
+                  >
+                    <textarea
+                      name="notes"
+                      placeholder="Tell us about your business, how many branches you have, or any specific needs…"
+                      rows={4}
+                      className="w-full rounded-md border border-black/[0.10] bg-white px-3 py-2 text-sm placeholder:text-muted-foreground/70 transition-colors focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15 resize-none"
+                    />
+                  </FormField>
+
+                  {/* Setup section divider */}
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="h-px flex-1 bg-black/[0.06]" />
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                      Setup preferences
+                    </p>
+                    <div className="h-px flex-1 bg-black/[0.06]" />
+                  </div>
+
+                  <FormField
+                    label="Business structure"
+                    hint="Helps us configure your initial workflow."
+                  >
+                    <select
+                      name="requestedStructure"
+                      defaultValue="OWNER_EMPLOYEE_SELF_SERVICE"
+                      className="h-10 w-full rounded-md border border-black/[0.10] bg-white px-3 text-sm transition-colors focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
+                    >
+                      {BUSINESS_STRUCTURE_TEMPLATES.map((template) => (
+                        <option key={template.value} value={template.value}>
+                          {template.label}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField label="Allow staff self-booking">
+                      <select
+                        name="requestedAllowEmployeeSelfBooking"
+                        defaultValue="true"
+                        className="h-10 w-full rounded-md border border-black/[0.10] bg-white px-3 text-sm transition-colors focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
+                      >
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                      </select>
+                    </FormField>
+                    <FormField label="Manager can serve">
+                      <select
+                        name="requestedManagerCanServe"
+                        defaultValue="true"
+                        className="h-10 w-full rounded-md border border-black/[0.10] bg-white px-3 text-sm transition-colors focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15"
+                      >
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                      </select>
+                    </FormField>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="group mt-2 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background shadow-[0_1px_0_rgba(255,255,255,0.1)_inset,0_1px_3px_rgba(0,0,0,0.2)] transition-all hover:bg-foreground/90 active:scale-[0.99]"
+                  >
+                    Submit application
+                    <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  </button>
+
+                  <p className="text-center text-xs text-muted-foreground">
+                    By submitting, you agree to our{" "}
+                    <Link
+                      href="/terms"
+                      className="text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
+                    >
+                      Terms
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/privacy"
+                      className="text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
+                    >
+                      Privacy Policy
+                    </Link>
+                    .
+                  </p>
+                </form>
+              </div>
+
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <AuthDialog>
+                  <button
+                    type="button"
+                    className="cursor-pointer font-medium text-foreground underline-offset-4 hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </AuthDialog>
+              </p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <Suspense fallback={null}>
         <LandingFooter />
       </Suspense>
     </main>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Reusable field wrapper                                                     */
+/* -------------------------------------------------------------------------- */
+
+function FormField({
+  label,
+  hint,
+  required,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <label className="text-xs font-semibold tracking-[-0.005em] text-foreground">
+          {label}
+          {required && <span className="ml-0.5 text-primary">*</span>}
+        </label>
+        {hint && !required && (
+          <span className="text-[11px] text-muted-foreground">{hint}</span>
+        )}
+      </div>
+      {children}
+      {hint && required && (
+        <p className="text-[11px] text-muted-foreground">{hint}</p>
+      )}
+    </div>
   );
 }

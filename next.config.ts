@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./lib/security/headers";
 
 const nextConfig: NextConfig = {
+  // Required by `"use cache"` directives in lib/data/cached.ts. NextAuth's
+  // catch-all route handler explicitly opts out via `dynamic = "force-dynamic"`
+  // so it doesn't get prerender-cached. Other routes that need uncached
+  // behavior should add the same opt-out.
   cacheComponents: true,
   images: {
     // Some local networks/ISPs use DNS64/NAT64 (64:ff9b::/96), which Next.js
@@ -21,9 +25,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.public.blob.vercel-storage.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+      },
     ],
   },
-  trailingSlash: true,
   async headers() {
     return [
       {

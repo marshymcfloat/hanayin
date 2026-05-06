@@ -8,14 +8,38 @@ function parseCspList(envValue: string | undefined) {
     .filter(Boolean);
 }
 
+// Vercel Analytics & Speed Insights load from these CDN/ingest endpoints.
+// Whitelisted unconditionally so analytics works in dev and prod.
+const VERCEL_ANALYTICS_SCRIPTS = ["https://va.vercel-scripts.com"];
+const VERCEL_ANALYTICS_CONNECT = [
+  "https://vitals.vercel-insights.com",
+  "https://vercel.live",
+];
+
 const connectSrc = [
   "'self'",
+  ...VERCEL_ANALYTICS_CONNECT,
   ...parseCspList(process.env.NEXT_PUBLIC_CSP_CONNECT_SRC),
+];
+
+// Google Maps embeds (used by customer-facing storefronts via the
+// "Share → Embed a map" iframe). Whitelisted in frame-src so the
+// browser doesn't block the iframe.
+const GOOGLE_MAPS_FRAMES = [
+  "https://www.google.com",
+  "https://maps.google.com",
 ];
 
 const frameSrc = [
   "'self'",
+  ...GOOGLE_MAPS_FRAMES,
   ...parseCspList(process.env.NEXT_PUBLIC_CSP_FRAME_SRC),
+];
+
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  ...VERCEL_ANALYTICS_SCRIPTS,
 ];
 
 const contentSecurityPolicyDirectives = [
@@ -26,7 +50,7 @@ const contentSecurityPolicyDirectives = [
   "object-src 'none'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src ${scriptSrc.join(" ")}`,
   "style-src 'self' 'unsafe-inline'",
   `connect-src ${connectSrc.join(" ")}`,
   `frame-src ${frameSrc.join(" ")}`,
@@ -50,8 +74,7 @@ export const SECURITY_HEADERS = {
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy":
-    "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
   "Cross-Origin-Opener-Policy": "same-origin",
   "Cross-Origin-Resource-Policy": "same-origin",
   "X-Permitted-Cross-Domain-Policies": "none",

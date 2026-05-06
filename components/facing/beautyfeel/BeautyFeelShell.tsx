@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import BeautyFeelHeader from "./BeautyFeelHeader";
+import SmoothScroll from "@/components/landing/SmoothScroll";
 
 export interface BeautyFeelNavItem {
   label: string;
@@ -21,59 +22,68 @@ export default function BeautyFeelShell({
 }: BeautyFeelShellProps) {
   return (
     <div className="min-h-screen bg-[color:var(--bf-cream)] text-[color:var(--bf-ink)] [--bf-cream:oklch(0.98_0.01_92)] [--bf-ink:oklch(0.2_0.02_62)] [--bf-muted:oklch(0.52_0.02_75)] [--bf-blush:oklch(0.92_0.03_35)] [--bf-accent:oklch(0.86_0.08_38)] [--bf-sage:oklch(0.76_0.05_148)]">
-      <header className="sticky top-0 z-40 border-b border-black/5 bg-[color:var(--bf-cream)]/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link
-            href={`/${businessSlug}`}
-            className="text-lg font-semibold tracking-tight"
-          >
-            {businessName}
-          </Link>
-          <nav className="hidden items-center gap-6 text-sm text-[color:var(--bf-muted)] md:flex">
-            {navItems.map((item) => {
-              const hasHash = item.href.includes("#");
-              const resolvedHref = item.href.startsWith("#")
-                ? `/${businessSlug}${item.href}`
-                : item.href;
+      {/* Lenis smooth-scroll mounted globally for this facing site.
+          Reused from the marketing pages — handles `prefers-reduced-motion`
+          internally and exposes the instance on `window.__lenis`. */}
+      <SmoothScroll />
 
-              if (hasHash) {
-                return (
-                  <a
-                    key={item.href}
-                    href={resolvedHref}
-                    className="transition-colors hover:text-[color:var(--bf-ink)]"
-                  >
-                    {item.label}
-                  </a>
-                );
-              }
+      {/* Morphing client header — transparent over the hero image,
+          frosted cream once scrolled. */}
+      <BeautyFeelHeader
+        businessName={businessName}
+        businessSlug={businessSlug}
+        navItems={navItems}
+      />
 
-              return (
-                <Link
-                  key={item.href}
-                  href={resolvedHref}
-                  className="transition-colors hover:text-[color:var(--bf-ink)]"
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-          <Button
-            asChild
-            className="bg-[color:var(--bf-accent)] text-[color:var(--bf-ink)] hover:bg-[color:var(--bf-accent)]/90"
-          >
-            <Link href={`/${businessSlug}/booking`}>Book now</Link>
-          </Button>
-        </div>
-      </header>
       {children}
-      <footer className="border-t border-black/5">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-10 text-sm text-[color:var(--bf-muted)] md:flex-row md:items-center md:justify-between">
-          <span>{businessName} on Service Flow</span>
-          <div className="flex items-center gap-4">
-            <Link href={`/${businessSlug}/services`}>Services</Link>
-            <Link href={`/${businessSlug}/booking`}>Booking</Link>
+
+      {/* Footer — quiet, hairline, small caps */}
+      <footer className="border-t border-black/[0.06] bg-[color:var(--bf-cream)]">
+        <div className="mx-auto max-w-7xl px-6 py-12 sm:py-16">
+          <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+            <div>
+              <p className="font-[var(--font-serif)] text-2xl font-normal italic tracking-[-0.005em] text-[color:var(--bf-ink)] sm:text-3xl">
+                {businessName}
+              </p>
+              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[color:var(--bf-muted)]">
+                Quiet care · Puerto Princesa, Palawan
+              </p>
+            </div>
+            <nav className="flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--bf-muted)]">
+              <Link
+                href={`/${businessSlug}`}
+                className="transition-colors hover:text-[color:var(--bf-ink)]"
+              >
+                Home
+              </Link>
+              <Link
+                href={`/${businessSlug}/services`}
+                className="transition-colors hover:text-[color:var(--bf-ink)]"
+              >
+                Services
+              </Link>
+              <Link
+                href={`/${businessSlug}/booking`} scroll={false}
+                className="transition-colors hover:text-[color:var(--bf-ink)]"
+              >
+                Book
+              </Link>
+              <Link
+                href={`/${businessSlug}/claim-gift-card`} scroll={false}
+                className="transition-colors hover:text-[color:var(--bf-ink)]"
+              >
+                Gift card
+              </Link>
+            </nav>
+          </div>
+
+          <div className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-black/[0.06] pt-6 text-xs text-[color:var(--bf-muted)] md:flex-row md:items-center">
+            {/* Hardcoded — `new Date()` in server components is incompatible
+                with cacheComponents. Bump this manually each new year. */}
+            <span>© 2026 {businessName}. All rights reserved.</span>
+            <span className="font-mono uppercase tracking-[0.18em]">
+              On Service Flow
+            </span>
           </div>
         </div>
       </footer>

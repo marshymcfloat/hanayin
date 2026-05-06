@@ -192,6 +192,92 @@
   }
 }
 
+/* ── Landing page background textures ─────────────
+   Pure CSS utilities. Defined here so the patterns are guaranteed to
+   render regardless of Tailwind's arbitrary-value parsing or inline-style
+   handling under cacheComponents/Turbopack. Apply alongside `absolute
+   inset-0 -z-10 pointer-events-none` for a section background overlay. */
+
+.tx-dots-md {
+  background-image: radial-gradient(
+    circle at 2px 2px,
+    rgba(0, 0, 0, 0.32) 2px,
+    transparent 0
+  );
+  background-size: 30px 30px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 85% 70% at 50% 50%,
+    black 45%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 85% 70% at 50% 50%,
+    black 45%,
+    transparent 100%
+  );
+}
+
+.tx-dots-edge-fade {
+  background-image: radial-gradient(
+    circle at 2px 2px,
+    rgba(0, 0, 0, 0.32) 2px,
+    transparent 0
+  );
+  background-size: 30px 30px;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+.tx-grid-md {
+  background-image: linear-gradient(
+      rgba(0, 0, 0, 0.18) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.18) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 90% 75% at 50% 50%,
+    black 45%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 90% 75% at 50% 50%,
+    black 45%,
+    transparent 100%
+  );
+}
+
+.tx-grid-lg {
+  background-image: linear-gradient(
+      rgba(0, 0, 0, 0.16) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.16) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 85% 70% at 50% 50%,
+    black 35%,
+    transparent 95%
+  );
+  mask-image: radial-gradient(
+    ellipse 85% 70% at 50% 50%,
+    black 35%,
+    transparent 95%
+  );
+}
+
 /* ── Scrollbar polish ─────────────────────────── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

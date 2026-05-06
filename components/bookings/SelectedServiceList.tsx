@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Button } from "../ui/button";
 import { Minus, Plus, X, Package, Sparkles } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { cn } from "@/lib/utils";
 
 type SelectedServiceItem = {
   id: number;
@@ -194,132 +195,117 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
         })}
 
         {/* Standalone Services */}
-        {groupedServices.standalone.map((service) => (
-          <div
-            key={`standalone-${service.id}`}
-            className="flex flex-col gap-2 p-3 rounded-lg border bg-card/50 hover:bg-card transition-colors relative group"
-          >
-            <div className="flex justify-between items-start gap-2">
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm text-foreground/90">
+        {groupedServices.standalone.map((service) => {
+          const qty = service.quantity || 1;
+          const lineTotal = service.price * qty;
+          const hasOriginal = service.discountReason && (service.originalPrice ?? service.price) > service.price;
+          return (
+            <div
+              key={`standalone-${service.id}`}
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-border/70 bg-card/50 hover:bg-card transition-colors group"
+            >
+              {/* Left: name + unit price + meta */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-medium text-sm text-foreground/90 truncate">
                     {service.name}
                   </span>
                   {service.flow_triggers && service.flow_triggers.length > 0 && (
                     <Badge
                       variant="secondary"
-                      className="text-[10px] h-4 px-1 bg-indigo-50/50 text-indigo-600 border-indigo-100"
+                      className="shrink-0 text-[9px] h-3.5 px-1 bg-indigo-50/50 text-indigo-600 border-indigo-100"
                     >
-                      <Sparkles className="w-2 h-2 mr-1" />
+                      <Sparkles className="w-2 h-2 mr-0.5" />
                       Flow
                     </Badge>
                   )}
                 </div>
-
-                {service.discountReason ? (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold text-destructive">
-                      ₱
-                      {service.price.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                    {(service.originalPrice ?? service.price) > service.price && (
-                      <span className="text-[10px] text-muted-foreground line-through decoration-muted-foreground/50">
-                        ₱
-                        {(service.originalPrice ?? service.price).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
+                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                  <span
+                    className={cn(
+                      "text-[11px] tabular-nums",
+                      service.discountReason ? "font-semibold text-destructive" : "text-muted-foreground",
                     )}
-                  </div>
-                ) : (
-                  <span className="text-xs text-muted-foreground font-medium">
-                    ₱
-                    {service.price.toLocaleString(undefined, {
+                  >
+                    ₱{service.price.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </span>
-                )}
+                  {hasOriginal && (
+                    <span className="text-[10px] text-muted-foreground/70 line-through tabular-nums">
+                      ₱{(service.originalPrice ?? service.price).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  )}
+                  {service.discountReason && (
+                    <Badge
+                      variant="destructive"
+                      className="h-3.5 px-1 text-[9px] font-medium leading-none"
+                    >
+                      {service.discountReason}
+                    </Badge>
+                  )}
+                  {service.slotsRemaining !== undefined && service.slotsRemaining !== null && (
+                    <Badge
+                      variant="outline"
+                      className="h-3.5 px-1 text-[9px] font-medium border-amber-300 text-amber-700 bg-amber-50 leading-none"
+                    >
+                      {service.slotsRemaining} left
+                    </Badge>
+                  )}
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm">
-                  ₱
-                  {(service.price * (service.quantity || 1)).toLocaleString(
-                    undefined,
-                    { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-                  )}
+              {/* Right: qty + total + remove */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex h-7 items-center rounded-md border border-border/70 bg-muted/40">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-full w-6 rounded-none rounded-l-md hover:bg-background"
+                    onClick={() => updateQuantity(service.id, -1)}
+                    type="button"
+                  >
+                    <Minus className="h-3 w-3" />
+                  </Button>
+                  <span className="min-w-[1.25rem] text-center text-[11px] font-medium tabular-nums">
+                    {qty}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-full w-6 rounded-none rounded-r-md hover:bg-background"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateQuantity(service.id, 1);
+                    }}
+                    type="button"
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
+                <span className="font-semibold text-xs tabular-nums whitespace-nowrap">
+                  ₱{lineTotal.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-11 w-11 touch-manipulation text-muted-foreground/50 hover:bg-destructive/10 hover:text-destructive sm:h-8 sm:w-8 -mr-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+                  className="h-6 w-6 -mr-1 text-muted-foreground/50 hover:bg-destructive/10 hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                   onClick={() => removeService(service.id)}
                   type="button"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-3 w-3" />
                 </Button>
               </div>
             </div>
-
-            <div className="flex items-center justify-between">
-              {/* Controls */}
-              <div className="flex h-11 items-center gap-1 self-start rounded-md border bg-muted/40 sm:h-9">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-full w-11 touch-manipulation rounded-none rounded-l-md hover:bg-background hover:text-foreground sm:w-9"
-                  onClick={() => updateQuantity(service.id, -1)}
-                  type="button"
-                >
-                  <Minus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-                </Button>
-                <span className="min-w-[2rem] text-center text-sm font-medium tabular-nums sm:min-w-[1.5rem] sm:text-xs">
-                  {service.quantity || 1}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-full w-11 touch-manipulation rounded-none rounded-r-md hover:bg-background hover:text-foreground sm:w-9"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateQuantity(service.id, 1);
-                  }}
-                  type="button"
-                >
-                  <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-                </Button>
-              </div>
-
-              {service.discountReason && (
-                <Badge
-                  variant="destructive"
-                  className="h-5 px-1.5 text-[10px] font-medium"
-                >
-                  {service.discountReason}
-                </Badge>
-              )}
-              {service.slotsRemaining !== undefined && service.slotsRemaining !== null && (
-                <Badge
-                  variant="outline"
-                  className="h-5 px-1.5 text-[10px] font-medium border-amber-300 text-amber-700 bg-amber-50"
-                >
-                  {service.slotsRemaining} {service.slotsRemaining === 1 ? "slot" : "slots"} left
-                </Badge>
-              )}
-            </div>
-
-            {service.flow_triggers && service.flow_triggers.length > 0 && (
-              <div className="absolute right-3 bottom-3 opacity-5 pointer-events-none">
-                <Sparkles className="w-8 h-8 text-indigo-500" />
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

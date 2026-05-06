@@ -1,69 +1,28 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-import "leaflet/dist/leaflet.css";
-
 export interface BeautyFeelMapProps {
-  latitude: number;
-  longitude: number;
+  /** Kept for type compatibility with the parent component, but unused —
+   *  the embed URL is hardcoded for the BeautyFeel storefront below. */
+  latitude?: number;
+  longitude?: number;
   label?: string;
 }
 
-export default function BeautyFeelMap({
-  latitude,
-  longitude,
-  label,
-}: BeautyFeelMapProps) {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<{ remove: () => void } | null>(null);
+// Hardcoded Google Maps embed for the BeautyFeel studio. Generated from
+// Google Maps' "Share → Embed a map" panel. Keep in sync with the studio's
+// actual address — if BeautyFeel relocates, regenerate the URL here.
+const BEAUTYFEEL_EMBED_SRC =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4869.2871262625295!2d118.7400023!3d9.741062799999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33b5632ad4f7dcf3%3A0x578b04c106eb885f!2zQmVhdXR5RmVlbCDigJQgU2tpbiDCtyBGYWNlIMK3IE5haWxzIMK3IE1hc3NhZ2U!5e1!3m2!1sen!2sph!4v1778028147971!5m2!1sen!2sph";
 
-  useEffect(() => {
-    let isDisposed = false;
-
-    async function initMap() {
-      const L = await import("leaflet");
-      if (isDisposed || !mapContainerRef.current || mapInstanceRef.current) {
-        return;
-      }
-
-      delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-        iconUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-        shadowUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-      });
-
-      const map = L.map(mapContainerRef.current).setView([latitude, longitude], 14);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
-      L.marker([latitude, longitude])
-        .addTo(map)
-        .bindPopup(label || "Business location");
-
-      mapInstanceRef.current = map;
-    }
-
-    void initMap();
-
-    return () => {
-      isDisposed = true;
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [latitude, longitude, label]);
-
+export default function BeautyFeelMap({ label }: BeautyFeelMapProps) {
   return (
-    <div className="relative isolate z-0 h-72 w-full overflow-hidden rounded-3xl border border-black/10 bg-(--bf-cream)">
-      <div ref={mapContainerRef} className="h-full w-full z-0" />
+    <div className="relative isolate z-0 h-72 w-full overflow-hidden rounded-2xl border border-black/[0.08] bg-[color:var(--bf-cream)] sm:h-96">
+      <iframe
+        src={BEAUTYFEEL_EMBED_SRC}
+        title={label ? `${label} — map` : "Studio location"}
+        className="h-full w-full border-0"
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
     </div>
   );
 }

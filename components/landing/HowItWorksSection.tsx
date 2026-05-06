@@ -1,117 +1,135 @@
 "use client";
 
-import { ArrowRight, UserPlus, Share2, CalendarCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion } from "motion/react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 const steps = [
   {
-    number: "1",
-    title: "Set Up Your Business",
-    description: "Add services, staff, prices, and schedules.",
-    icon: UserPlus,
+    number: "01",
+    title: "Set up your business",
+    description:
+      "Add services, prices, staff, and schedules. Our team helps with the import.",
   },
   {
-    number: "2",
-    title: "Share Your Booking Link",
-    description: "Put it on Facebook, Instagram, Google, and QR codes.",
-    icon: Share2,
+    number: "02",
+    title: "Share your booking link",
+    description:
+      "Drop it on Facebook, Instagram, Google, or behind a QR code at the counter.",
   },
   {
-    number: "3",
-    title: "Get Booked Automatically",
-    description: "Clients book 24/7. System reminds them. You earn.",
-    icon: CalendarCheck,
+    number: "03",
+    title: "Get booked, automatically",
+    description:
+      "Customers book 24/7. The system reminds them. You show up to a full day.",
   },
 ];
 
+// Same noise generator as FinalCTA — keeps texture identical across both
+// green moments on the page.
+const NOISE_SVG =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>`,
+  );
+
 export default function HowItWorksSection() {
   return (
-    <section className="relative w-full flex flex-col" id="how-it-works">
-      {/* Top curvy SVG */}
-      <div className="w-full h-[120px] sm:h-[180px] md:h-[280px] leading-none z-0 overflow-hidden relative -mb-px">
-        <svg
-          viewBox="0 0 960 540"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          className="block h-full w-[102%] -translate-x-[1%]"
-        >
-          <rect x="-4" y="0" width="968" height="540" fill="#FAFAFA" />
-          <path
-            d="M-4 215C95 370 235 475 380 390C520 305 635 465 790 325C875 248 928 322 964 370L964 560L-4 560Z"
-            fill="#00A63E"
-          />
-        </svg>
-      </div>
+    <section
+      id="how-it-works"
+      className="relative overflow-hidden scroll-mt-24 sm:scroll-mt-28"
+    >
+      <div className="relative bg-gradient-to-br from-primary via-emerald-700 to-emerald-900">
+        {/* Grain overlay */}
+        <div
+          aria-hidden
+          style={{ backgroundImage: `url("${NOISE_SVG}")` }}
+          className="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay"
+        />
+        {/* Soft white radial highlight at top-right for atmosphere */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 right-1/4 size-[600px] translate-x-1/2 rounded-full bg-white/10 blur-[120px]"
+        />
+        {/* Faint diagonal grid */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,black_30%,transparent_100%)]"
+        />
 
-      <div className="bg-[#00A63E] py-8 md:py-16 relative z-10 w-full">
-        <div className="container mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 text-white">
-              Get Started in{" "}
-              <span className="text-green-200">3 Simple Steps</span>
-            </h2>
-            <p className="text-xl text-green-50">
-              No technical skills required. We help you set up for free.
+        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:py-32">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto max-w-3xl text-center"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100/80">
+              How it works
             </p>
-          </div>
+            <h2 className="mt-4 text-balance text-3xl font-semibold leading-[1.1] tracking-[-0.02em] text-white sm:text-4xl lg:text-5xl">
+              Live in an afternoon.
+            </h2>
+            <p className="mx-auto mt-5 max-w-xl text-balance text-base leading-relaxed text-emerald-50/90 sm:text-lg">
+              No technical skills required. Most owners are taking bookings
+              within hours of signing up.
+            </p>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 relative max-w-5xl mx-auto">
-            {/* Connector Line (Desktop) */}
-            <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-transparent -z-10 border-t-2 border-dashed border-white/30" />
-
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center text-center group text-white"
-              >
-                <div className="size-24 rounded-full bg-white/10 backdrop-blur-sm border-4 border-white/20 shadow-lg flex items-center justify-center mb-6 relative z-10 group-hover:border-white/40 transition-colors duration-300 group-hover:shadow-white/20">
-                  <step.icon className="size-10 text-white" />
-                  <div className="absolute -top-2 -right-2 size-8 rounded-full bg-white text-green-600 flex items-center justify-center font-bold shadow-md transform group-hover:scale-110 transition-transform duration-300">
-                    {step.number}
+          {/* Steps. Mobile: vertical stack. Desktop: 3 columns connected by
+              a hairline white rule. */}
+          <div className="relative mt-14 sm:mt-16 lg:mt-20">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-0 right-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-white/20 to-transparent lg:block"
+            />
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-12">
+              {steps.map((step, i) => (
+                <motion.div
+                  key={step.number}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{
+                    duration: 0.5,
+                    ease: [0.16, 1, 0.3, 1],
+                    delay: i * 0.1,
+                  }}
+                  className="relative"
+                >
+                  <div className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                    <span className="font-mono text-xs font-semibold tracking-[0.05em] text-white">
+                      {step.number}
+                    </span>
                   </div>
-                </div>
-                <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                <p className="text-green-50 leading-relaxed max-w-xs mx-auto">
-                  {step.description}
-                </p>
-              </div>
-            ))}
+                  <h3 className="mt-5 text-lg font-semibold tracking-[-0.01em] text-white sm:text-xl">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-emerald-50/85 sm:text-base">
+                    {step.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           </div>
 
-          <div className="text-center mt-16">
-            <Button
-              asChild
-              size="lg"
-              className="rounded-full px-8 h-12 text-base font-semibold bg-white text-green-700 hover:bg-gray-100 shadow-lg shadow-black/10 hover:shadow-black/20 hover:scale-105 transition-all"
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-14 flex justify-center sm:mt-16"
+          >
+            <Link
+              href="/apply"
+              className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-medium text-emerald-900 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.3)] transition-all hover:bg-emerald-50 active:scale-[0.98]"
             >
-              <Link href="/apply">
-                Apply Now <ArrowRight className="ml-2 size-4" />
-              </Link>
-            </Button>
-          </div>
+              Apply now
+              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </Link>
+          </motion.div>
         </div>
-      </div>
-
-      {/* Bottom curvy SVG */}
-      <div className="w-full h-[60px] sm:h-[100px] md:h-[160px] lg:h-[220px] leading-none z-0 overflow-hidden relative -mt-px">
-        <svg
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          className="block h-full w-[102%] -translate-x-[1%]"
-        >
-          <path
-            fill="#FAFAFA"
-            fillOpacity="1"
-            d="M0,96L48,112C96,128,192,160,288,144C384,128,480,64,576,64C672,64,768,128,864,160C960,192,1056,192,1152,176C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          ></path>
-          <path
-            fill="#00A63E"
-            fillOpacity="1"
-            d="M0,96L48,112C96,128,192,160,288,144C384,128,480,64,576,64C672,64,768,128,864,160C960,192,1056,192,1152,176C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"
-          ></path>
-        </svg>
       </div>
     </section>
   );

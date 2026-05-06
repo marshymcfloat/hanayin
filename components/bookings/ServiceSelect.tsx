@@ -62,6 +62,179 @@ type FormLike = {
   ) => void;
 };
 
+// N6 round 2: memoized service row. Keeping this as a sibling component
+// (rather than inlining the JSX in the parent .map()) means React.memo's
+// shallow compare can short-circuit re-renders for rows whose props
+// didn't change. The big win is on toggle: previously useWatch would
+// trigger a re-render of the whole ServiceSelect, which re-ran the JSX
+// for all 50+ items including their badge logic and class merging. Now
+// only the toggled row (and its previously-selected sibling) re-renders.
+//
+// All props are primitives or stable references so the shallow compare
+// works without a custom comparator. `onToggle` must be stable in the
+// parent (useCallback).
+type ServiceRowProps = {
+  service: Service;
+  isSelected: boolean;
+  isDisabled: boolean;
+  isUnavailable: boolean;
+  dataLoaded: boolean;
+  noStaff: boolean;
+  outsideHours: boolean;
+  noBusinessHours: boolean;
+  qualifiedEmployeeCount: number;
+  hasSelectedDate: boolean;
+  formattedPrice: string;
+  discountFinalPrice: number | null;
+  discountSlotsRemaining: number | null;
+  onToggle: (service: Service) => void;
+};
+
+const ServiceRow = React.memo(function ServiceRow({
+  service,
+  isSelected,
+  isDisabled,
+  isUnavailable,
+  dataLoaded,
+  noStaff,
+  outsideHours,
+  noBusinessHours,
+  qualifiedEmployeeCount,
+  hasSelectedDate,
+  formattedPrice,
+  discountFinalPrice,
+  discountSlotsRemaining,
+  onToggle,
+}: ServiceRowProps) {
+  const handleSelect = React.useCallback(() => {
+    if (!isDisabled) onToggle(service);
+  }, [isDisabled, onToggle, service]);
+  const showDiscount = discountFinalPrice !== null && !isUnavailable;
+  return (
+    <CommandItem
+      value={service.name}
+      onSelect={handleSelect}
+      className={cn(
+        "cursor-pointer aria-selected:bg-primary/5",
+        isDisabled && "opacity-50 cursor-not-allowed",
+      )}
+      disabled={isDisabled}
+    >
+      <div className="flex items-start gap-3 w-full">
+        <div
+          className={cn(
+            "flex items-center justify-center w-5 h-5 mt-0.5 rounded-md border-2 shrink-0 transition-all duration-150",
+            isSelected
+              ? "bg-primary border-primary text-primary-foreground shadow-sm"
+              : "border-muted-foreground/30 bg-background",
+          )}
+        >
+          <Check
+            className={cn(
+              "h-3.5 w-3.5 stroke-[3] text-white",
+              isSelected ? "opacity-100" : "opacity-0",
+            )}
+          />
+        </div>
+        <div className="flex flex-col flex-1 gap-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className={cn(
+                "font-medium",
+                isUnavailable ? "text-muted-foreground" : "text-foreground",
+              )}
+            >
+              {service.name}
+            </span>
+            {showDiscount && (
+              <Badge
+                variant="secondary"
+                className={cn(
+                  "h-4 px-1 text-[10px] shadow-none",
+                  discountSlotsRemaining !== null && discountSlotsRemaining <= 3
+                    ? "bg-red-100 text-red-700 border-red-300 animate-pulse"
+                    : discountSlotsRemaining !== null && discountSlotsRemaining <= 5
+                      ? "bg-amber-100 text-amber-700 border-amber-300"
+                      : "bg-destructive/10 text-destructive border-destructive/20",
+                )}
+              >
+                {discountSlotsRemaining !== null
+                  ? `${discountSlotsRemaining} ${discountSlotsRemaining === 1 ? "slot" : "slots"} left`
+                  : "sale"}
+              </Badge>
+            )}
+            {noStaff && (
+              <Badge
+                variant="secondary"
+                className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
+              >
+                <Users className="h-2.5 w-2.5" />
+                No qualified staff
+              </Badge>
+            )}
+            {!hasSelectedDate && dataLoaded && (
+              <Badge
+                variant="secondary"
+                className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
+              >
+                Preview
+              </Badge>
+            )}
+            {outsideHours && (
+              <Badge
+                variant="secondary"
+                className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
+              >
+                <Clock className="h-2.5 w-2.5" />
+                Closed Now
+              </Badge>
+            )}
+            {noBusinessHours && (
+              <Badge
+                variant="secondary"
+                className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
+              >
+                <AlertCircle className="h-2.5 w-2.5" />
+                Closed
+              </Badge>
+            )}
+          </div>
+          <span className="text-xs text-muted-foreground capitalize">
+            {service.category}
+            {qualifiedEmployeeCount > 0 &&
+              !outsideHours &&
+              !noBusinessHours && (
+                <span className="ml-2 text-green-600">
+                  - {qualifiedEmployeeCount} qualified staff
+                </span>
+              )}
+          </span>
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          {showDiscount && discountFinalPrice !== null ? (
+            <>
+              <span className="text-sm font-semibold text-destructive tabular-nums">
+                ₱
+                {discountFinalPrice.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+              <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                ₱{formattedPrice}
+              </span>
+            </>
+          ) : (
+            <span className="text-sm font-medium text-foreground/80 tabular-nums">
+              ₱{formattedPrice}
+            </span>
+          )}
+        </div>
+      </div>
+    </CommandItem>
+  );
+});
+
+
 const ServiceSelect = React.memo(function ServiceSelect({
   services,
   packages = [],
@@ -192,14 +365,35 @@ const ServiceSelect = React.memo(function ServiceSelect({
     staleTime: 30000,
   });
 
+  // N6 round 3: keep refs to selectedServices and saleEvents so the
+  // toggleService callback can be defined with [] dependencies. Without
+  // this, useCallback's deps include selectedServices (which changes on
+  // every toggle), so toggleService gets a fresh identity on every
+  // click. That fresh identity flows down to <ServiceRow>'s `onToggle`
+  // prop, which makes React.memo's shallow compare return false for
+  // every row — and the memo we added in round 2 silently no-ops. With
+  // refs, the callback is stable for the lifetime of the component, the
+  // memo's shallow compare actually skips unchanged rows, and a single
+  // toggle re-renders only the toggled row + its previously-selected
+  // sibling instead of all 50+ services.
+  const selectedServicesRef = React.useRef(selectedServices);
+  selectedServicesRef.current = selectedServices;
+  const saleEventsRef = React.useRef(saleEvents);
+  saleEventsRef.current = saleEvents;
+
   const toggleService = React.useCallback(
     (service: Service) => {
-      const isSelected = selectedServiceKeys.has(
-        `${normalizeId(service.id)}|none`,
+      const current = selectedServicesRef.current;
+      const events = saleEventsRef.current;
+      const targetKey = `${normalizeId(service.id)}|none`;
+      const isSelected = current.some(
+        (s) =>
+          `${normalizeId(s.id)}|${normalizePackageId(s.packageId)}` ===
+          targetKey,
       );
-      let newServices;
+      let newServices: SelectedServiceItem[];
       if (isSelected) {
-        newServices = selectedServices.filter(
+        newServices = current.filter(
           (s) =>
             normalizeId(s.id) !== normalizeId(service.id) ||
             normalizePackageId(s.packageId) !== "none",
@@ -209,10 +403,10 @@ const ServiceSelect = React.memo(function ServiceSelect({
           service.id,
           undefined,
           service.price,
-          saleEvents,
+          events,
         );
         newServices = [
-          ...selectedServices,
+          ...current,
           {
             ...service,
             quantity: 1,
@@ -225,14 +419,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
       }
       setSelectedServices(newServices);
     },
-    [
-      normalizeId,
-      normalizePackageId,
-      saleEvents,
-      selectedServiceKeys,
-      selectedServices,
-      setSelectedServices,
-    ],
+    [normalizeId, normalizePackageId, setSelectedServices],
   );
 
   const togglePackage = React.useCallback(
@@ -391,7 +578,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         service.price,
                         saleEvents,
                       );
-
                       const availability =
                         categoryAvailability?.[service.category];
                       const dataLoaded = !!availability;
@@ -411,138 +597,29 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         !!selectedDate && isUnavailable && !isSelected;
                       const qualifiedEmployeeCount =
                         availability?.qualifiedEmployeeCount ?? 0;
-
                       return (
-                        <CommandItem
+                        <ServiceRow
                           key={service.id}
-                          value={service.name}
-                          onSelect={() => {
-                            if (!isDisabled) {
-                              toggleService(service);
-                            }
-                          }}
-                          className={cn(
-                            "cursor-pointer aria-selected:bg-primary/5",
-                            isDisabled && "opacity-50 cursor-not-allowed",
-                          )}
-                          disabled={isDisabled}
-                        >
-                          <div className="flex items-start gap-3 w-full">
-                            <div
-                              className={cn(
-                                "flex items-center justify-center w-5 h-5 mt-0.5 rounded-md border-2 shrink-0 transition-all duration-150",
-                                isSelected
-                                  ? "bg-primary border-primary text-primary-foreground shadow-sm"
-                                  : "border-muted-foreground/30 bg-background",
-                              )}
-                            >
-                              <Check
-                                className={cn(
-                                  "h-3.5 w-3.5 stroke-[3] text-white",
-                                  isSelected ? "opacity-100" : "opacity-0",
-                                )}
-                              />
-                            </div>
-
-                            <div className="flex flex-col flex-1 gap-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span
-                                  className={cn(
-                                    "font-medium",
-                                    isUnavailable
-                                      ? "text-muted-foreground"
-                                      : "text-foreground",
-                                  )}
-                                >
-                                  {service.name}
-                                </span>
-                                {discountInfo && !isUnavailable && (
-                                  <Badge
-                                    variant="secondary"
-                                    className={cn(
-                                      "h-4 px-1 text-[10px] shadow-none",
-                                      discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 3
-                                        ? "bg-red-100 text-red-700 border-red-300 animate-pulse"
-                                        : discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 5
-                                          ? "bg-amber-100 text-amber-700 border-amber-300"
-                                          : "bg-destructive/10 text-destructive border-destructive/20",
-                                    )}
-                                  >
-                                    {discountInfo.slotsRemaining !== null
-                                      ? `${discountInfo.slotsRemaining} ${discountInfo.slotsRemaining === 1 ? "slot" : "slots"} left`
-                                      : "sale"}
-                                  </Badge>
-                                )}
-                                {noStaff && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
-                                  >
-                                    <Users className="h-2.5 w-2.5" />
-                                    No qualified staff
-                                  </Badge>
-                                )}
-                                {!selectedDate && dataLoaded && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
-                                  >
-                                    Preview
-                                  </Badge>
-                                )}
-                                {outsideHours && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
-                                  >
-                                    <Clock className="h-2.5 w-2.5" />
-                                    Closed Now
-                                  </Badge>
-                                )}
-                                {noBusinessHours && (
-                                  <Badge
-                                    variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
-                                  >
-                                    <AlertCircle className="h-2.5 w-2.5" />
-                                    Closed
-                                  </Badge>
-                                )}
-                              </div>
-                              <span className="text-xs text-muted-foreground capitalize">
-                                {service.category}
-                                {qualifiedEmployeeCount > 0 &&
-                                  !outsideHours &&
-                                  !noBusinessHours && (
-                                    <span className="ml-2 text-green-600">
-                                      - {qualifiedEmployeeCount} qualified staff
-                                    </span>
-                                  )}
-                              </span>
-                            </div>
-
-                            <div className="flex flex-col items-end gap-0.5">
-                              {discountInfo ? (
-                                <>
-                                  <span className="text-sm font-semibold text-destructive tabular-nums">
-                                    ₱
-                                    {discountInfo.finalPrice.toLocaleString(
-                                      undefined,
-                                      { minimumFractionDigits: 2 },
-                                    )}
-                                  </span>
-                                  <span className="text-[10px] text-muted-foreground line-through tabular-nums">
-                                    ₱{formattedServicePrices.get(service.id) ?? service.price.toFixed(2)}
-                                  </span>
-                                </>
-                              ) : (
-                                <span className="text-sm font-medium text-foreground/80 tabular-nums">
-                                  ₱{formattedServicePrices.get(service.id) ?? service.price.toFixed(2)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </CommandItem>
+                          service={service}
+                          isSelected={isSelected}
+                          isDisabled={isDisabled}
+                          isUnavailable={isUnavailable}
+                          dataLoaded={dataLoaded}
+                          noStaff={noStaff}
+                          outsideHours={outsideHours}
+                          noBusinessHours={noBusinessHours}
+                          qualifiedEmployeeCount={qualifiedEmployeeCount}
+                          hasSelectedDate={!!selectedDate}
+                          formattedPrice={
+                            formattedServicePrices.get(service.id) ??
+                            service.price.toFixed(2)
+                          }
+                          discountFinalPrice={discountInfo?.finalPrice ?? null}
+                          discountSlotsRemaining={
+                            discountInfo?.slotsRemaining ?? null
+                          }
+                          onToggle={toggleService}
+                        />
                       );
                     })
                   : packages.map((pkg) => {
