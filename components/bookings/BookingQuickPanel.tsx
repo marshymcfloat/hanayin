@@ -139,26 +139,25 @@ export function deriveViewerContext(input: {
     };
   }
 
-  // Default: STAFF. Mostly read-only — staff can see their bookings,
-  // record payment when PAYMENT_COLLECT is granted, and (when an owner
-  // explicitly opts them in via BOOKING_MODIFY) add services to an
-  // existing booking. BOOKING_MODIFY is intentionally NOT in the STAFF
-  // default permissions, so this stays opt-in: an admin has to flip
-  // the toggle on the employee record. BOOKING_CREATE is for creating
-  // new bookings, not modifying existing ones, so it does not unlock
-  // add-service at this tier.
-  //
-  // Other booking-scope changes (cancel, no-show, price adjust,
-  // reassign) remain owner/manager-only even when the underlying
-  // permission is toggled on the employee record.
+  // Default: STAFF. Read-only BY DEFAULT — DEFAULT_PERMISSIONS_BY_PROFILE
+  // doesn't grant the BOOKING_* flags to staff at the profile level. But
+  // when an owner explicitly grants permissions through the per-employee
+  // C7 admin UI (Edit permissions dialog), those granted flags MUST be
+  // honored here. N2 fix: previously this branch hardcoded everything to
+  // false, which made the C7 UI feel broken — owners would tick
+  // BOOKING_MODIFY for a staff member, save, refresh, and see no change
+  // because deriveViewerContext ignored the flag for STAFF profiles.
   return {
     role: "STAFF",
-    canAddService: perms.has("BOOKING_MODIFY"),
+    canAddService:
+      perms.has("BOOKING_MODIFY") || perms.has("BOOKING_CREATE"),
     canMarkPaid: perms.has("PAYMENT_COLLECT"),
-    canMarkNoShow: false,
+    canMarkNoShow: perms.has("BOOKING_MARK_NO_SHOW"),
+    // Owners only — staff shouldn't be able to permanently delete
+    // bookings even with full booking-edit permissions.
     canDelete: false,
-    canCancel: false,
-    canAdjustPrice: false,
-    canReassignStaff: false,
+    canCancel: perms.has("BOOKING_CANCEL"),
+    canAdjustPrice: perms.has("BOOKING_ADJUST_PRICE"),
+    canReassignStaff: hasOverride,
   };
 }

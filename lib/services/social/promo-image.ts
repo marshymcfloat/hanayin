@@ -16,6 +16,7 @@ import {
 import type { OrganicPostCategory } from "@/lib/services/social/caption-generator";
 import {
   composeBusinessNameWatermark,
+  composeEducationalOverlay,
   composeSalePromoOverlay,
 } from "@/lib/services/social/image-text-composer";
 
@@ -309,6 +310,38 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
       "50mm f/1.8 — ambient warm context, golden hour or candlelit",
     ],
     preferredDimensions: "1024×1536 portrait, beauty-editorial intimate",
+  },
+  EDUCATIONAL: {
+    baseline:
+      "Calm tip-card photography — clean flat-lay or empty-space composition designed to anchor a small text headline. Generous negative space in the upper third of the frame.",
+    subjects: [
+      "minimal flat-lay of beauty products on a soft pastel paper background, lots of empty space at the top",
+      "single ceramic bowl with a sprig of botanicals on cream linen, generous breathing room above",
+      "two folded towels and a candle on a calm beige surface, top half of the frame intentionally empty",
+      "set of skincare bottles arranged in a quiet line on warm-white paper, soft top-down light",
+    ],
+    compositions: [
+      "top half of frame is calm negative space ready for a headline; subject anchored in the lower third",
+      "centered low-third still life with a clean blurred background above",
+      "diagonal flat-lay with items in the bottom-right; upper-left intentionally empty",
+      "single hero object centered low, calm vignette around the edges",
+    ],
+    palette: [
+      "off-white and pastel cream with one muted accent color",
+      "soft sage and ivory with warm taupe shadows",
+      "warm beige paper background with a single soft pink object",
+    ],
+    texture: [
+      "matte paper finish with gentle natural light",
+      "soft diffuse shadows, no harsh contrast",
+      "clean clarity with quiet film grain",
+    ],
+    camera: [
+      "top-down 50mm flat-lay with even soft light",
+      "slight angled overhead, 35mm with diffused window light",
+      "centered macro 100mm with tilt-shift calm",
+    ],
+    preferredDimensions: "1024×1536 portrait, tip-card friendly",
   },
 };
 
@@ -826,6 +859,31 @@ export async function generateAndUploadOrganicImage(
   const background = await generateBackgroundBytes(prompt);
   if (!background) return null;
 
+  // H6: educational tip-card overlay. When the EDUCATIONAL profile is
+  // selected (auto-picked or owner-chosen), compose a clean SVG overlay
+  // with the topic as the headline and a small business-name watermark.
+  // The blueprint gives the image generous top-third whitespace, so the
+  // headline lands on a calm area without fighting the photograph.
+  if (input.imageProfile === "EDUCATIONAL") {
+    const headline = pickEducationalHeadline(input.topic, input.captionText);
+    if (headline) {
+      // Wave K2: also try to extract up to 3 short bullet tips from the
+      // caption draft and render them on the image. Falls back silently
+      // to title-only when no usable bullets are present.
+      const tips = pickEducationalTips(input.captionText);
+      const composed = await composeEducationalOverlay(background.bytes, {
+        businessName: input.businessName,
+        headline,
+        tips,
+      });
+      return uploadImage({
+        bytes: composed.bytes,
+        mimeType: composed.mimeType,
+        fileBase: `social-organic-${input.businessSlug}`,
+      });
+    }
+  }
+
   // Organic posts are pure photography by default. If the owner wants their
   // brand stamped onto the image, compose a clean small watermark.
   if (input.imprintBusinessName) {
@@ -844,4 +902,64 @@ export async function generateAndUploadOrganicImage(
     mimeType: background.mimeType,
     fileBase: `social-organic-${input.businessSlug}`,
   });
+}
+
+/**
+ * H6: Choose the headline string for an educational overlay. Prefers the
+ * topic field (which is what the dialog asks the owner for and is the
+ * cleanest "tip title" we have), falls back to the first non-empty,
+ * non-hashtag line of the caption.
+ */
+export function pickEducationalHeadline(
+  topic: string | undefined | null,
+  captionText: string | undefined | null,
+): string | null {
+  const trimmedTopic = (topic ?? "").trim();
+  if (trimmedTopic) return trimmedTopic;
+
+  const caption = (captionText ?? "").trim();
+  if (!caption) return null;
+  for (const line of caption.split(/\r?\n/)) {
+    const cleaned = line.trim();
+    if (!cleaned) continue;
+    if (cleaned.startsWith("#")) continue;
+    return cleaned;
+  }
+  return null;
+}
+
+const TIP_BULLET_PREFIX = /^\s*(?:[-*•]|\d+[.)])\s+/;
+const TIP_MAX_CAPTURE = 3;
+const TIP_MAX_CHAR_LENGTH = 90;
+
+/**
+ * Wave K2: Extract up to 3 short bullet tips from the caption draft so
+ * the educational overlay can render them on the image. Looks for lines
+ * that start with a bullet marker (-, *, •, "1.", "1)") and clips each
+ * to a reasonable length. Returns an empty array when no usable bullets
+ * exist — the overlay then renders title-only.
+ */
+export function pickEducationalTips(
+  captionText: string | undefined | null,
+): string[] {
+  const caption = (captionText ?? "").trim();
+  if (!caption) return [];
+
+  const tips: string[] = [];
+  for (const line of caption.split(/\r?\n/)) {
+    if (tips.length >= TIP_MAX_CAPTURE) break;
+    const match = TIP_BULLET_PREFIX.exec(line);
+    if (!match) continue;
+    const body = line.slice(match[0].length).trim();
+    if (!body) continue;
+    // Discard absurdly long bullets — they wouldn't fit cleanly even
+    // wrapped, and overflowing into the photograph zone hurts more than
+    // the missing tip helps.
+    if (body.length > TIP_MAX_CHAR_LENGTH) {
+      tips.push(body.slice(0, TIP_MAX_CHAR_LENGTH).replace(/\s+\S*$/, "") + "…");
+    } else {
+      tips.push(body);
+    }
+  }
+  return tips;
 }

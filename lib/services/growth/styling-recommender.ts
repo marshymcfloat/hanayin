@@ -8,7 +8,14 @@
 import type { OpportunityTypeLiteral } from "@/lib/services/growth/types";
 import type { CaptionTone } from "@/lib/zod-schemas/growth";
 import type { SocialImageProfile } from "@/lib/services/social/image-profiles";
-import { DEFAULT_SOCIAL_IMAGE_PROFILE } from "@/lib/services/social/image-profiles";
+import {
+  DEFAULT_SOCIAL_IMAGE_PROFILE,
+  isSocialImageProfile,
+} from "@/lib/services/social/image-profiles";
+import {
+  inferCreativeBriefForOffer,
+  type OfferTypeLiteralForBrief,
+} from "@/lib/services/social/creative-brief";
 
 export type CampaignStylingRecommendation = {
   captionTone: CaptionTone;
@@ -170,4 +177,74 @@ export function recommendCampaignStyling(input: {
   const rationale = `${input.opportunityType.toLowerCase().replace(/_/g, " ")} opportunity targeting ${categoryLabel} services → ${captionTone.toLowerCase().replace(/_/g, " ")} voice + ${imageProfile.toLowerCase().replace(/_/g, " ")} visuals`;
 
   return { captionTone, imageProfile, rationale };
+}
+
+// ─── Wave I4: action-side picker that uses offer-brief inference ────────────
+
+/**
+ * Final styling pick used by the campaign-generation action. Applies the
+ * smart offer-side brief from `inferCreativeBriefForOffer` (which is more
+ * precise than the dialog's opportunity-side `recommendCampaignStyling`
+ * because the offer type is concretely known by the time the action runs)
+ * and respects owner overrides supplied via the dialog.
+ *
+ * The dialog continues to use `recommendCampaignStyling` to show a
+ * pre-pick before the offer is generated. The two signals can disagree;
+ * the action's pick is what actually gets applied to the SocialPost.
+ */
+export type PickCampaignStylingInput = {
+  offer: {
+    offerType: OfferTypeLiteralForBrief;
+    publicDescription: string;
+  };
+  override?: {
+    captionTone?: CaptionTone | "AUTO" | null;
+    imageProfile?: string | null;
+  };
+};
+
+export type PickedCampaignStyling = {
+  captionTone: CaptionTone;
+  imageProfile: SocialImageProfile;
+  rationale: string;
+  ownerOverrodeCaptionTone: boolean;
+  ownerOverrodeImageProfile: boolean;
+  /**
+   * The pre-override caption tone the offer-side brief recommended. Useful
+   * for telemetry that wants to compare inferred vs. actual without
+   * re-running the inference helper.
+   */
+  inferredCaptionTone: CaptionTone;
+  inferredImageProfile: SocialImageProfile;
+};
+
+export function pickCampaignStyling(
+  input: PickCampaignStylingInput,
+): PickedCampaignStyling {
+  const brief = inferCreativeBriefForOffer({
+    offerType: input.offer.offerType,
+    topic: input.offer.publicDescription,
+  });
+
+  const overrideTone = input.override?.captionTone;
+  const ownerOverrodeCaptionTone = !!overrideTone && overrideTone !== "AUTO";
+  const captionTone: CaptionTone = ownerOverrodeCaptionTone
+    ? (overrideTone as CaptionTone)
+    : brief.captionTone;
+
+  const overrideProfileRaw = input.override?.imageProfile ?? "";
+  const ownerOverrodeImageProfile = isSocialImageProfile(overrideProfileRaw);
+  const imageProfile: SocialImageProfile = ownerOverrodeImageProfile
+    ? (overrideProfileRaw as SocialImageProfile)
+    : brief.imageProfile;
+
+  return {
+    captionTone,
+    imageProfile,
+    rationale: brief.rationale,
+    ownerOverrodeCaptionTone,
+    ownerOverrodeImageProfile,
+    inferredCaptionTone: brief.captionTone,
+    inferredImageProfile: brief.imageProfile,
+  };
 }

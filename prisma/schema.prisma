@@ -416,6 +416,14 @@ model SocialPost {
   source SocialPostSource
   status SocialPostStatus @default(DRAFT)
 
+  // Wave L1: organic post category (TIPS_EDUCATION, BEHIND_THE_SCENES,
+  // SEASONAL_GREETING, TEAM_SPOTLIGHT, SERVICE_SHOWCASE, GENERAL).
+  // Stored as String, validated at the application boundary against
+  // OrganicPostCategory in lib/services/social/caption-generator.ts —
+  // same pattern as SocialPostRequest.category. Nullable for backward
+  // compatibility with rows created before this column existed and for
+  // sale-event posts (where category isn't applicable).
+  category      String?
   title         String
   caption_draft String
   caption_final String?
