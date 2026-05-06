@@ -128,13 +128,23 @@ export function deriveViewerContext(input: {
   if (profile === "CASHIER") {
     return {
       role: "CASHIER",
-      canAddService: perms.has("BOOKING_CREATE"),
+      // Same "honor admin grants" rule as STAFF: defaults are
+      // payment-focused (cashier's profile defaults don't include
+      // BOOKING_MODIFY / BOOKING_CANCEL / BOOKING_MARK_NO_SHOW), but
+      // when an owner explicitly grants any of those through the
+      // per-employee admin UI, the toggle must take effect — otherwise
+      // the UI silently lies to the operator.
+      canAddService:
+        perms.has("BOOKING_MODIFY") || perms.has("BOOKING_CREATE"),
       canMarkPaid: perms.has("PAYMENT_COLLECT"),
-      // No-show is a queue/scheduling decision, not a payment one.
-      canMarkNoShow: false,
+      canMarkNoShow: perms.has("BOOKING_MARK_NO_SHOW"),
+      // Owners only — cashiers shouldn't be able to permanently delete
+      // bookings even with full booking-edit permissions.
       canDelete: false,
-      canCancel: false,
+      canCancel: perms.has("BOOKING_CANCEL"),
       canAdjustPrice: perms.has("BOOKING_ADJUST_PRICE"),
+      // Reassignment is a queue/scheduling power; intentionally not
+      // exposed to cashiers even with override granted.
       canReassignStaff: false,
     };
   }
