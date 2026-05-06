@@ -6,25 +6,24 @@ import { cn } from "@/lib/utils";
 
 /**
  * EmployeePortalShell — outer layout wrapper for the redesigned
- * employee dashboard. Three vertical bands:
+ * employee dashboard.
  *
- *   1. greeting (slot)
- *   2. heroKpi (slot)
- *   3. bento body (children) — variable bento grid
+ * Three vertical bands rendered as siblings (no flex column at the
+ * outer level so the sticky greeting can dominate the top):
+ *
+ *   1. greeting — full-width sticky band (the GreetingStrip handles
+ *      its own sticky/compact behavior internally).
+ *   2. heroKpi — KPI grid inside the centered max-w-7xl container.
+ *   3. bento body (children) — variable bento grid.
  *
  * Optional `manager` slot below the bento for the floor-operations
  * band when staffProfile === MANAGER.
  *
- * Container width tracks the marketing site (max-w-7xl) so the portal
- * sits comfortably alongside the rest of the app. Page padding scales
- * by breakpoint; mobile uses 16px gutters, tablet 24px, desktop 32px.
- *
- * The shell scrolls the *page*, not an internal flex column. That's a
- * deliberate departure from the old portal which wrapped everything
- * in `flex h-full overflow-hidden` — that pattern fights mobile chrome
- * and made the bento grid a no-go. With page-level scroll we get
- * normal browser behavior, sticky sidebars, and `overscroll-contain`
- * cleanly inside individual cards.
+ * The shell is its own scrolling container (h-full overflow-y-auto)
+ * because the parent AppLayout wraps the page in overflow-hidden on
+ * the sidebar shell (manager/owner) which kills position: sticky in
+ * the document body. Internal scroll lets sticky work in both the
+ * frontdesk shell (no sidebar) and the sidebar shell consistently.
  */
 export interface EmployeePortalShellProps {
   greeting: React.ReactNode;
@@ -44,10 +43,19 @@ export function EmployeePortalShell({
   className,
 }: EmployeePortalShellProps) {
   return (
-    <div className={cn("min-h-full bg-background", className)}>
-      <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-9">
+    <div
+      className={cn(
+        "h-full overflow-y-auto overscroll-contain bg-background",
+        className,
+      )}
+    >
+      {/* Greeting — full-width sticky. The GreetingStrip itself owns
+          the sticky positioning, the compact-on-scroll behavior, and
+          the bg/border that appears once the user has scrolled. */}
+      {greeting}
+
+      <div className="mx-auto w-full max-w-7xl px-4 pb-7 pt-5 sm:px-6 sm:pb-9 sm:pt-6 lg:px-8 lg:pb-10">
         <div className="space-y-5 sm:space-y-6 lg:space-y-7">
-          {greeting}
           {heroKpi}
           <PortalBentoGrid>{children}</PortalBentoGrid>
           {manager ? (
@@ -74,9 +82,6 @@ export function EmployeePortalShell({
  *   < md   → single column, every card flows full-width
  *   md     → 2 columns, default 1x1 spans (cards opt into wider via class)
  *   xl     → 12-column auto-rows grid for true bento asymmetry
- *
- * Auto-rows on xl mean varied card heights stack predictably; cards
- * that need extra height set `xl:row-span-2`.
  */
 function PortalBentoGrid({ children }: { children: React.ReactNode }) {
   return (
@@ -86,10 +91,6 @@ function PortalBentoGrid({ children }: { children: React.ReactNode }) {
         "grid-cols-1",
         "md:grid-cols-2",
         "xl:grid-cols-12 xl:auto-rows-[minmax(140px,auto)]",
-        // Default stretch (items-stretch via CSS grid default) so
-        // cards in the same row match heights. Each card's body uses
-        // flex-1 internally so its content can fill the stretched
-        // height — empty states center vertically, full lists scroll.
       )}
     >
       {children}
