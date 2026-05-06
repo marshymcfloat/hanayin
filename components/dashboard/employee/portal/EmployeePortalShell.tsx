@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
  * EmployeePortalShell — outer layout wrapper for the redesigned
  * employee dashboard.
  *
- * Three vertical bands rendered as siblings (no flex column at the
- * outer level so the sticky greeting can dominate the top):
+ * Three vertical bands rendered as siblings:
  *
  *   1. greeting — full-width sticky band (the GreetingStrip handles
  *      its own sticky/compact behavior internally).
@@ -19,11 +18,10 @@ import { cn } from "@/lib/utils";
  * Optional `manager` slot below the bento for the floor-operations
  * band when staffProfile === MANAGER.
  *
- * The shell is its own scrolling container (h-full overflow-y-auto)
- * because the parent AppLayout wraps the page in overflow-hidden on
- * the sidebar shell (manager/owner) which kills position: sticky in
- * the document body. Internal scroll lets sticky work in both the
- * frontdesk shell (no sidebar) and the sidebar shell consistently.
+ * Page-level scroll. We do NOT set overflow on the shell — natural
+ * document scroll handles tall content, and the GreetingStrip
+ * resolves its own scrolling ancestor at runtime so sticky works
+ * regardless of which shell (frontdesk or sidebar) wraps the page.
  */
 export interface EmployeePortalShellProps {
   greeting: React.ReactNode;
@@ -43,12 +41,7 @@ export function EmployeePortalShell({
   className,
 }: EmployeePortalShellProps) {
   return (
-    <div
-      className={cn(
-        "h-full overflow-y-auto overscroll-contain bg-background",
-        className,
-      )}
-    >
+    <div className={cn("min-h-full bg-background", className)}>
       {/* Greeting — full-width sticky. The GreetingStrip itself owns
           the sticky positioning, the compact-on-scroll behavior, and
           the bg/border that appears once the user has scrolled. */}
