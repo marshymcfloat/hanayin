@@ -1,7 +1,7 @@
 "use client";
 
 import { formatPH } from "@/lib/date-utils";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Inbox, Clock as ClockIcon, RefreshCcw } from "lucide-react";
@@ -132,39 +132,39 @@ export default function PendingServicesList({
 
   return (
     <>
-      <div className="h-full flex flex-col">
-        <div className="space-y-3 p-4 lg:p-0">
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="h-9 gap-2 rounded-xl bg-card hover:bg-accent transition-colors cursor-pointer"
-            >
-              <RefreshCcw
-                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-              />
-              <span className="font-medium">Refresh</span>
-            </Button>
-          </div>
+      <div className="flex h-full flex-col">
+        <div className="mb-2 flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="h-8 gap-2 rounded-full border-black/[0.08] bg-transparent text-xs font-medium hover:bg-primary/[0.04] hover:text-primary cursor-pointer"
+          >
+            <RefreshCcw
+              className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+        </div>
 
-          {visibleServices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-              <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center">
-                <Inbox className="w-6 h-6 text-muted-foreground" />
-              </div>
-              <div className="max-w-xs mx-auto">
-                <h3 className="font-semibold text-base text-foreground">
-                  All caught up
-                </h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  There are no pending services in the queue right now.
-                </p>
-              </div>
+        {visibleServices.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center py-12 text-center space-y-3">
+            <div className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+              <Inbox className="size-5" />
             </div>
-          ) : (
-            visibleServices.map((item) => {
+            <div className="max-w-xs space-y-0.5">
+              <h3 className="text-sm font-semibold text-foreground">
+                All caught up
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                There are no pending services in the queue right now.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <ul className="-mx-2 divide-y divide-border">
+            {visibleServices.map((item) => {
               const customerInitials = getBookingCustomerName(item.booking)
                 .split(" ")
                 .map((n) => n[0])
@@ -178,53 +178,53 @@ export default function PendingServicesList({
                 item.price,
                 saleEvents,
               );
+              const interactive = canClaimServices;
 
               return (
-                <div
-                  key={item.id}
-                  className={`bg-card rounded-xl p-3 border border-border transition-colors group active:scale-[0.99] relative overflow-hidden ${canClaimServices ? "hover:border-primary/40 hover:bg-accent/30 cursor-pointer" : "opacity-70"}`}
-                  onClick={() => {
-                    if (canClaimServices) {
-                      setSelectedService(item);
-                    }
-                  }}
-                >
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-
-                  <div className="flex items-start justify-between gap-2 pl-2">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (interactive) setSelectedService(item);
+                    }}
+                    disabled={!interactive}
+                    className={cn(
+                      "group flex w-full items-start justify-between gap-3 rounded-xl px-2 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                      interactive
+                        ? "cursor-pointer hover:bg-primary/[0.04]"
+                        : "cursor-default opacity-70",
+                    )}
+                  >
+                    <div className="flex min-w-0 items-start gap-3">
+                      <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-inset ring-primary/15">
                         {customerInitials}
                       </div>
-
-                      <div className="space-y-0.5 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-bold text-foreground text-sm leading-tight group-hover:text-primary transition-colors truncate">
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="truncate text-sm font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">
                             {item.service.name}
                           </h4>
                           {item.package && (
                             <Badge
-                              variant="secondary"
-                              className="bg-primary/10 text-primary border border-primary/30 text-[9px] font-semibold h-4 px-1"
+                              variant="outline"
+                              className="h-4 border-primary/30 bg-primary/10 px-1.5 text-[9px] font-medium text-primary"
                             >
                               {item.package.name}
                             </Badge>
                           )}
                         </div>
-
-                        <p className="text-xs font-medium text-muted-foreground truncate">
+                        <p className="truncate text-xs font-medium text-muted-foreground">
                           {getBookingCustomerName(item.booking)}
                         </p>
-
-                        <div className="flex items-center gap-2 pt-1">
+                        <div className="flex items-center gap-2 pt-0.5">
                           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
-                            <ClockIcon className="w-3 h-3" />
+                            <ClockIcon className="size-3" />
                             {getDisplayScheduledAt(item)
                               ? formatPH(getDisplayScheduledAt(item), "h:mm a")
                               : "Walk-in"}
                           </span>
                           {item.service.duration && (
-                            <span className="text-[10px] text-muted-foreground font-medium">
+                            <span className="text-[10px] font-medium text-muted-foreground">
                               · {item.service.duration} mins
                             </span>
                           )}
@@ -232,29 +232,29 @@ export default function PendingServicesList({
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end shrink-0">
+                    <div className="flex shrink-0 flex-col items-end">
                       {discountInfo &&
                       discountInfo.finalPrice !== item.price ? (
-                        <div className="flex flex-col items-end leading-none gap-0.5">
+                        <div className="flex flex-col items-end gap-0.5 leading-none">
                           <span className="text-xs text-destructive line-through opacity-70 tabular-nums">
                             {formatCurrency(item.price)}
                           </span>
-                          <span className="text-sm font-bold text-primary tabular-nums">
+                          <span className="text-sm font-bold tabular-nums text-primary">
                             {formatCurrency(discountInfo.finalPrice)}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-sm font-bold text-foreground tabular-nums">
+                        <span className="text-sm font-bold tabular-nums text-foreground">
                           {formatCurrency(item.price)}
                         </span>
                       )}
                     </div>
-                  </div>
-                </div>
+                  </button>
+                </li>
               );
-            })
-          )}
-        </div>
+            })}
+          </ul>
+        )}
       </div>
 
       <Dialog

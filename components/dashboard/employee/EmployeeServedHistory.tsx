@@ -183,24 +183,24 @@ export default function EmployeeServedHistory({
 
   return (
     <>
-      <div className="h-full flex flex-col">
-        <div className="space-y-3 p-4 lg:p-0">
-          {visibleServices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                <History className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm text-foreground">
-                  No served history
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Completed services will appear here.
-                </p>
-              </div>
+      <div className="flex h-full flex-col">
+        {visibleServices.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center py-12 text-center space-y-3">
+            <div className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+              <History className="size-5" />
             </div>
-          ) : (
-            visibleServices.map((item) => {
+            <div className="space-y-0.5">
+              <h3 className="text-sm font-semibold text-foreground">
+                No served history
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Completed services will appear here.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <ul className="-mx-2 divide-y divide-border">
+            {visibleServices.map((item) => {
               const customerInitials = getBookingCustomerName(item.booking)
                 .split(" ")
                 .map((n) => n[0])
@@ -212,67 +212,68 @@ export default function EmployeeServedHistory({
               const hasDiscount = item.discount && item.discount > 0;
 
               return (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-primary/30 hover:bg-accent/30 transition-colors cursor-pointer group active:scale-[0.99]"
-                  onClick={() => setSelectedService(item)}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                      {customerInitials}
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedService(item)}
+                    className="group flex w-full items-center justify-between gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-inset ring-primary/15">
+                        {customerInitials}
+                      </div>
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-2 truncate text-sm font-semibold text-foreground">
+                          <span className="truncate">{item.service.name}</span>
+                          {item.package && (
+                            <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary">
+                              {item.package.name}
+                            </span>
+                          )}
+                        </div>
+                        <div className="truncate text-xs text-muted-foreground">
+                          {getBookingCustomerName(item.booking)}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="font-semibold text-sm text-foreground flex items-center gap-2 truncate">
-                        <span className="truncate">{item.service.name}</span>
-                        {item.package && (
-                          <span className="bg-muted text-muted-foreground border border-border text-[9px] px-1.5 py-0.5 rounded-full font-medium shrink-0">
-                            {item.package.name}
+                    <div className="flex shrink-0 flex-col items-end gap-1.5 pl-2">
+                      {hasDiscount ? (
+                        <div className="flex flex-col items-end gap-0.5 leading-none">
+                          <span className="text-xs text-destructive line-through opacity-70 tabular-nums">
+                            {formatCurrency(item.price)}
                           </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground font-medium truncate">
-                        {getBookingCustomerName(item.booking)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-1.5 shrink-0 pl-2">
-                    {hasDiscount ? (
-                      <div className="flex flex-col items-end leading-none gap-0.5">
-                        <span className="text-xs text-destructive line-through opacity-70 tabular-nums">
+                          <span className="text-sm font-bold tabular-nums text-primary">
+                            {formatCurrency(displayPrice)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm font-bold tabular-nums text-foreground">
                           {formatCurrency(item.price)}
                         </span>
-                        <span className="font-bold text-sm text-primary tabular-nums">
-                          {formatCurrency(displayPrice)}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="font-bold text-sm text-foreground tabular-nums">
-                        {formatCurrency(item.price)}
-                      </span>
-                    )}
-                    {item.status === "CLAIMED" ? (
-                      <Badge
-                        variant="outline"
-                        className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900/60 text-[10px] py-0 h-5"
-                      >
-                        Serving
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant="secondary"
-                        className="bg-primary/10 text-primary border border-primary/30 text-[10px] py-0 h-5"
-                      >
-                        {item.status}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
+                      )}
+                      {item.status === "CLAIMED" ? (
+                        <Badge
+                          variant="outline"
+                          className="h-5 border-primary/30 bg-primary/10 px-2 py-0 text-[10px] font-medium text-primary"
+                        >
+                          Serving
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="h-5 border-primary/30 bg-primary/10 px-2 py-0 text-[10px] font-medium text-primary"
+                        >
+                          {item.status}
+                        </Badge>
+                      )}
+                    </div>
+                  </button>
+                </li>
               );
-            })
-          )}
-        </div>
+            })}
+          </ul>
+        )}
       </div>
 
       <Dialog
