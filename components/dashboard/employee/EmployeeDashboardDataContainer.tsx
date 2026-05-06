@@ -478,6 +478,7 @@ export default async function EmployeeDashboardDataContainer({
         businessName={business.name}
         businessSlug={businessSlug}
         businessId={business.id}
+        currentEmployeeName={employee.user.name}
         servedHistory={servedHistory}
         pendingServices={pendingServices}
         managerQueueServices={managerQueueServices}
