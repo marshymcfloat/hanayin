@@ -1,7 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import { PhilippinePeso, User as UserIcon, ListTodo, CalendarCheck, LogOut } from "lucide-react";
+import {
+  PhilippinePeso,
+  User as UserIcon,
+  ListTodo,
+  CalendarCheck,
+  LogOut,
+  Calendar as CalendarIcon,
+  MessageSquarePlus,
+} from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
@@ -72,6 +81,14 @@ export type EmployeeDashboardCapabilities = {
   canServeQueue: boolean;
   canQueueOverride: boolean;
   canManageCatalog: boolean;
+  /**
+   * SOCIAL_POST_REQUEST_CREATE — when true the dashboard exposes
+   * navigation to /social-posts/my-requests in the account dropdown.
+   * Important for STAFF / CASHIER profiles since they're in the
+   * frontdesk shell (no sidebar) and otherwise have no way to reach
+   * the request workflow that an owner has granted them.
+   */
+  canSubmitSocialPost: boolean;
 };
 
 export default function EmployeeDashboard({
@@ -256,8 +273,25 @@ export default function EmployeeDashboard({
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-xl">
+            <DropdownMenuContent align="end" className="w-52 rounded-xl">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                <Link href={`/app/${businessSlug}/bookings`}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  All bookings
+                </Link>
+              </DropdownMenuItem>
+              {capabilities.canSubmitSocialPost ? (
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                  <Link
+                    href={`/app/${businessSlug}/social-posts/my-requests`}
+                  >
+                    <MessageSquarePlus className="mr-2 h-4 w-4" />
+                    My post requests
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => signOut({ callbackUrl: "/" })}

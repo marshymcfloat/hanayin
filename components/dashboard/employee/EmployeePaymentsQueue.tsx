@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import { formatPH } from "@/lib/date-utils";
+import { formatCurrency } from "@/lib/utils";
 import type {
   BookingStatus,
   PaymentMethod,
@@ -54,12 +55,6 @@ export type EmployeePaymentBooking = {
     };
   }>;
 };
-
-const formatCurrency = (amount: number) =>
-  `PHP ${amount.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
 

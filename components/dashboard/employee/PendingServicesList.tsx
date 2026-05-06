@@ -1,6 +1,7 @@
 "use client";
 
 import { formatPH } from "@/lib/date-utils";
+import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Inbox, Clock as ClockIcon, RefreshCcw } from "lucide-react";
@@ -236,15 +237,15 @@ export default function PendingServicesList({
                       discountInfo.finalPrice !== item.price ? (
                         <div className="flex flex-col items-end leading-none gap-0.5">
                           <span className="text-xs text-destructive line-through opacity-70 tabular-nums">
-                            ₱{item.price.toLocaleString()}
+                            {formatCurrency(item.price)}
                           </span>
                           <span className="text-sm font-bold text-primary tabular-nums">
-                            ₱{discountInfo.finalPrice.toLocaleString()}
+                            {formatCurrency(discountInfo.finalPrice)}
                           </span>
                         </div>
                       ) : (
                         <span className="text-sm font-bold text-foreground tabular-nums">
-                          ₱{item.price.toLocaleString()}
+                          {formatCurrency(item.price)}
                         </span>
                       )}
                     </div>
@@ -287,7 +288,7 @@ export default function PendingServicesList({
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total Amount:</span>
                     <span className="font-medium">
-                      ₱{selectedService.booking.grand_total.toLocaleString()}
+                      {formatCurrency(selectedService.booking.grand_total)}
                     </span>
                   </div>
                   {selectedService.booking.downpayment &&
@@ -298,27 +299,25 @@ export default function PendingServicesList({
                           Downpayment:
                         </span>
                         <span className="font-medium text-green-600">
-                          ₱
-                          {selectedService.booking.downpayment.toLocaleString()}
+                          {formatCurrency(selectedService.booking.downpayment)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Balance:</span>
                         <span className="font-bold text-orange-600">
-                          ₱
-                          {(
+                          {formatCurrency(
                             selectedService.booking.grand_total -
-                            selectedService.booking.downpayment
-                          ).toLocaleString()}
+                              selectedService.booking.downpayment,
+                          )}
                         </span>
                       </div>
                       <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
                         <p className="text-xs text-orange-800 font-medium">
-                          ⚠️ Half-paid: Balance of ₱
-                          {(
+                          ⚠️ Half-paid: Balance of{" "}
+                          {formatCurrency(
                             selectedService.booking.grand_total -
-                            selectedService.booking.downpayment
-                          ).toLocaleString()}{" "}
+                              selectedService.booking.downpayment,
+                          )}{" "}
                           still due
                         </p>
                       </div>

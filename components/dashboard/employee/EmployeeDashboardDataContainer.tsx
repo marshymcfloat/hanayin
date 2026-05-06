@@ -85,6 +85,10 @@ export default async function EmployeeDashboardDataContainer({
       actorContext,
       StaffPermission.CATALOG_MANAGE,
     ),
+    canSubmitSocialPost: hasStaffPermission(
+      actorContext,
+      StaffPermission.SOCIAL_POST_REQUEST_CREATE,
+    ),
   };
 
   const employeeProfile = actorContext.profile ?? StaffProfile.STAFF;

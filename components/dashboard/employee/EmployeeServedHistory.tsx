@@ -1,7 +1,7 @@
 "use client";
 
 import { formatPH } from "@/lib/date-utils";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
@@ -241,15 +241,15 @@ export default function EmployeeServedHistory({
                     {hasDiscount ? (
                       <div className="flex flex-col items-end leading-none gap-0.5">
                         <span className="text-xs text-destructive line-through opacity-70 tabular-nums">
-                          ₱{item.price.toLocaleString()}
+                          {formatCurrency(item.price)}
                         </span>
                         <span className="font-bold text-sm text-primary tabular-nums">
-                          ₱{displayPrice.toLocaleString()}
+                          {formatCurrency(displayPrice)}
                         </span>
                       </div>
                     ) : (
                       <span className="font-bold text-sm text-foreground tabular-nums">
-                        ₱{item.price.toLocaleString()}
+                        {formatCurrency(item.price)}
                       </span>
                     )}
                     {item.status === "CLAIMED" ? (
@@ -317,15 +317,15 @@ export default function EmployeeServedHistory({
                     selectedService.final_price !== selectedService.price ? (
                       <div className="flex flex-col leading-tight">
                         <span className="text-xs text-destructive line-through opacity-70">
-                          ₱{selectedService.price.toLocaleString()}
+                          {formatCurrency(selectedService.price)}
                         </span>
                         <span className="text-primary">
-                          ₱{selectedService.final_price.toLocaleString()}
+                          {formatCurrency(selectedService.final_price)}
                         </span>
                       </div>
                     ) : (
                       <span className="text-foreground">
-                        ₱{selectedService.price.toLocaleString()}
+                        {formatCurrency(selectedService.price)}
                       </span>
                     )}
                   </div>
@@ -335,12 +335,11 @@ export default function EmployeeServedHistory({
                     Commission ({currentEmployeeCommission}%)
                   </p>
                   <p className="text-lg font-bold text-primary tabular-nums">
-                    ₱
-                    {(
+                    {formatCurrency(
                       ((selectedService.final_price ?? selectedService.price) *
                         currentEmployeeCommission) /
-                      100
-                    ).toLocaleString()}
+                        100,
+                    )}
                   </p>
                 </div>
               </div>
@@ -374,7 +373,7 @@ export default function EmployeeServedHistory({
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total Amount</span>
                     <span className="font-medium text-foreground tabular-nums">
-                      ₱{selectedService.booking.grand_total.toLocaleString()}
+                      {formatCurrency(selectedService.booking.grand_total)}
                     </span>
                   </div>
                   {selectedService.booking.downpayment &&
@@ -383,26 +382,24 @@ export default function EmployeeServedHistory({
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Downpayment</span>
                         <span className="font-medium text-primary tabular-nums">
-                          ₱
-                          {selectedService.booking.downpayment.toLocaleString()}
+                          {formatCurrency(selectedService.booking.downpayment)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Balance</span>
                         <span className="font-bold text-amber-600 dark:text-amber-400 tabular-nums">
-                          ₱
-                          {(
+                          {formatCurrency(
                             selectedService.booking.grand_total -
-                            selectedService.booking.downpayment
-                          ).toLocaleString()}
+                              selectedService.booking.downpayment,
+                          )}
                         </span>
                       </div>
                       <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-2 pl-2 border-l-2 border-amber-400">
-                        Half-paid · Balance of ₱
-                        {(
+                        Half-paid · Balance of{" "}
+                        {formatCurrency(
                           selectedService.booking.grand_total -
-                          selectedService.booking.downpayment
-                        ).toLocaleString()}{" "}
+                            selectedService.booking.downpayment,
+                        )}{" "}
                         still due
                       </p>
                     </>
