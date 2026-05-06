@@ -39,6 +39,7 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canCancel: true,
       canAdjustPrice: true,
       canReassignStaff: true,
+      canSeeAuditTrail: true,
     });
   });
 
@@ -66,6 +67,7 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canCancel: true,
       canAdjustPrice: true,
       canReassignStaff: true,
+      canSeeAuditTrail: true,
     });
   });
 
@@ -115,6 +117,7 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canCancel: false,
       canAdjustPrice: false,
       canReassignStaff: false,
+      canSeeAuditTrail: false,
     });
   });
 
@@ -134,6 +137,7 @@ describe("deriveBookingViewerContext (preferred)", () => {
       canCancel: false,
       canAdjustPrice: false,
       canReassignStaff: false,
+      canSeeAuditTrail: false,
     });
   });
 });
@@ -165,6 +169,7 @@ describe("deriveViewerContext (legacy API still works)", () => {
       canCancel: false,
       canAdjustPrice: false,
       canReassignStaff: false,
+      canSeeAuditTrail: false,
     });
   });
 });

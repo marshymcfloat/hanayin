@@ -109,6 +109,14 @@ export type BookingViewerContext = {
    * and owners only.
    */
   canReassignStaff: boolean;
+  /**
+   * True when the viewer is allowed to expand the booking's audit
+   * trail history. Owners + managers only — cashiers and staff
+   * intentionally don't see business-level history. Backed by
+   * getEntityAuditHistoryAction, which enforces the same rule
+   * server-side.
+   */
+  canSeeAuditTrail: boolean;
 };
 
 const DEFAULT_OWNER_VIEWER: BookingViewerContext = {
@@ -120,6 +128,7 @@ const DEFAULT_OWNER_VIEWER: BookingViewerContext = {
   canCancel: true,
   canAdjustPrice: true,
   canReassignStaff: true,
+  canSeeAuditTrail: true,
 };
 
 interface BookingDetailsDialogProps {
@@ -674,8 +683,7 @@ export function BookingDetailsDialog({
               {/* Audit history — owners + managers per role-permissions matrix.
                   Backed by getEntityAuditHistoryAction which enforces the same
                   rule server-side. */}
-              {(viewerContext.role === "OWNER" ||
-                viewerContext.role === "MANAGER") && (
+              {viewerContext.canSeeAuditTrail && (
                 <section className="space-y-3">
                   <button
                     type="button"

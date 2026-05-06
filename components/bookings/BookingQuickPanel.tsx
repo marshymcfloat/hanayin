@@ -92,6 +92,7 @@ export function deriveViewerContext(input: {
       canCancel: true,
       canAdjustPrice: true,
       canReassignStaff: true,
+      canSeeAuditTrail: true,
     };
   }
 
@@ -122,6 +123,9 @@ export function deriveViewerContext(input: {
       canCancel: perms.has("BOOKING_CANCEL"),
       canAdjustPrice: perms.has("BOOKING_ADJUST_PRICE"),
       canReassignStaff: hasOverride,
+      // Managers see business-level history alongside owners. Same
+      // rule the server-side getEntityAuditHistoryAction enforces.
+      canSeeAuditTrail: true,
     };
   }
 
@@ -146,6 +150,9 @@ export function deriveViewerContext(input: {
       // Reassignment is a queue/scheduling power; intentionally not
       // exposed to cashiers even with override granted.
       canReassignStaff: false,
+      // Audit trail is business-level history. Cashiers don't see it
+      // even with full payment perms — matches the server-side rule.
+      canSeeAuditTrail: false,
     };
   }
 
@@ -169,5 +176,8 @@ export function deriveViewerContext(input: {
     canCancel: perms.has("BOOKING_CANCEL"),
     canAdjustPrice: perms.has("BOOKING_ADJUST_PRICE"),
     canReassignStaff: hasOverride,
+    // Audit trail stays owner+manager-level; staff don't see it even
+    // with explicit booking-edit grants.
+    canSeeAuditTrail: false,
   };
 }
