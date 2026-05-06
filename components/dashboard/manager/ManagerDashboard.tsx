@@ -8,7 +8,9 @@ import {
   ListTodo,
   CalendarCheck,
   Activity,
+  MessageSquarePlus,
 } from "lucide-react";
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -259,8 +261,25 @@ export default function ManagerDashboard({
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-xl">
+            <DropdownMenuContent align="end" className="w-52 rounded-xl">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {/* Manager has full sidebar nav so we don't duplicate
+                  Bookings / Services / etc. here. The one entry that
+                  is NOT in the sidebar is the manager's *own*
+                  submitted post requests — sidebar's "Social Posts"
+                  links to the team inbox, which is a different
+                  destination. */}
+              {capabilities.canSubmitSocialPost ? (
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                  <Link
+                    href={`/app/${businessSlug}/social-posts/my-requests`}
+                  >
+                    <MessageSquarePlus className="mr-2 h-4 w-4" />
+                    My post requests
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => signOut({ callbackUrl: "/" })}

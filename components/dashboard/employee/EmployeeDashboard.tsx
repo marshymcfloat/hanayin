@@ -89,6 +89,18 @@ export type EmployeeDashboardCapabilities = {
    * the request workflow that an owner has granted them.
    */
   canSubmitSocialPost: boolean;
+  /**
+   * The four booking-modification permissions. Currently the
+   * dashboard relies on BookingQuickPanel to resolve these from
+   * viewer-context and gate the in-panel actions itself, so these
+   * flags are NOT consumed today. They're plumbed through anyway so
+   * future dashboard-level gating (e.g. an "Adjust today's prices"
+   * shortcut) can read them without a duplicate permission lookup.
+   */
+  canModifyBooking: boolean;
+  canCancelBooking: boolean;
+  canMarkNoShow: boolean;
+  canAdjustBookingPrice: boolean;
 };
 
 export default function EmployeeDashboard({

@@ -89,6 +89,26 @@ export default async function EmployeeDashboardDataContainer({
       actorContext,
       StaffPermission.SOCIAL_POST_REQUEST_CREATE,
     ),
+    // The four booking-modification flags. Not currently consumed by
+    // the dashboard surface itself (BookingQuickPanel resolves them
+    // via viewer-context for in-panel gating), but plumbed so future
+    // dashboard-level gating can reuse the same source of truth.
+    canModifyBooking: hasStaffPermission(
+      actorContext,
+      StaffPermission.BOOKING_MODIFY,
+    ),
+    canCancelBooking: hasStaffPermission(
+      actorContext,
+      StaffPermission.BOOKING_CANCEL,
+    ),
+    canMarkNoShow: hasStaffPermission(
+      actorContext,
+      StaffPermission.BOOKING_MARK_NO_SHOW,
+    ),
+    canAdjustBookingPrice: hasStaffPermission(
+      actorContext,
+      StaffPermission.BOOKING_ADJUST_PRICE,
+    ),
   };
 
   const employeeProfile = actorContext.profile ?? StaffProfile.STAFF;
