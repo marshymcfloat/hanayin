@@ -25,20 +25,18 @@ export type CampaignStylingRecommendation = {
 
 // Same alias map shape as the offer-generator's title helper, but defined
 // locally so this module stays a small leaf with no surprise imports.
-const CATEGORY_KEYS = [
-  "EYELASH",
-  "BROW",
-  "NAILS",
-  "SKIN",
-  "FACIAL",
-  "MASSAGE",
-  "SPA",
-  "HAIR",
-  "MAKEUP",
-  "BODY",
-  "WAXING",
-] as const;
-type CategoryKey = (typeof CATEGORY_KEYS)[number];
+type CategoryKey =
+  | "EYELASH"
+  | "BROW"
+  | "NAILS"
+  | "SKIN"
+  | "FACIAL"
+  | "MASSAGE"
+  | "SPA"
+  | "HAIR"
+  | "MAKEUP"
+  | "BODY"
+  | "WAXING";
 
 const ALIAS_TO_CATEGORY: Record<string, CategoryKey> = {
   EYELASH: "EYELASH",

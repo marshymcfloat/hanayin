@@ -926,7 +926,6 @@ function buildRescueCaptionDraft(input: CaptionGenerationInput): CaptionGenerati
   const services = (input.serviceNames ?? []).slice(0, 4).map(titleCaseServiceName);
   const packages = (input.packageNames ?? []).slice(0, 2).map(titleCaseServiceName);
   const items = [...services, ...packages].slice(0, 5);
-  const season = inferSeasonSignal(input).seasonLabel.toLowerCase();
   const publicSaleDescription = sanitizeSaleDescriptionForPublic(input.saleDescription);
   const saleTitle = sanitizeSaleTitleForPublic(input.saleTitle);
 

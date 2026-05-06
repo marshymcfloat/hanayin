@@ -36,7 +36,6 @@ export type SocialTelemetryEvent = {
 export function recordSocialPostRequest(event: SocialTelemetryEvent): void {
   try {
     if (process.env.NODE_ENV !== "production") {
-      // eslint-disable-next-line no-console
       console.info(
         `[telemetry] social.post_request.${event.action.toLowerCase()}`,
         {

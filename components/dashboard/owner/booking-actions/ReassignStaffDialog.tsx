@@ -102,14 +102,15 @@ export function ReassignStaffDialog({
     if (open) setPickedEmployeeId("");
   }, [open]);
 
-  const employees =
-    loadState.kind === "ready" ? loadState.employees : [];
   const pickerOptions = useMemo(
-    () =>
-      employees.filter(
+    () => {
+      const employees =
+        loadState.kind === "ready" ? loadState.employees : [];
+      return employees.filter(
         (e) => currentEmployeeId == null || e.id !== currentEmployeeId,
-      ),
-    [employees, currentEmployeeId],
+      );
+    },
+    [loadState, currentEmployeeId],
   );
 
   const canSubmit = pickedEmployeeId !== "" && !submitting;

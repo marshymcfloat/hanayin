@@ -47,7 +47,6 @@ export function recordBookingModified(event: BookingTelemetryEvent): void {
   try {
     // Dev console output for quick local feedback.
     if (process.env.NODE_ENV !== "production") {
-      // eslint-disable-next-line no-console
       console.info(
         `[telemetry] booking.modified.${event.action.toLowerCase()}`,
         {

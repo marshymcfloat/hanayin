@@ -377,9 +377,11 @@ const ServiceSelect = React.memo(function ServiceSelect({
   // toggle re-renders only the toggled row + its previously-selected
   // sibling instead of all 50+ services.
   const selectedServicesRef = React.useRef(selectedServices);
-  selectedServicesRef.current = selectedServices;
   const saleEventsRef = React.useRef(saleEvents);
-  saleEventsRef.current = saleEvents;
+  React.useEffect(() => {
+    selectedServicesRef.current = selectedServices;
+    saleEventsRef.current = saleEvents;
+  });
 
   const toggleService = React.useCallback(
     (service: Service) => {

@@ -49,7 +49,6 @@ export type GrowthCampaignTelemetryEvent = {
 export function recordGrowthCampaign(event: GrowthCampaignTelemetryEvent): void {
   try {
     if (process.env.NODE_ENV !== "production") {
-      // eslint-disable-next-line no-console
       console.info(
         `[telemetry] growth.campaign.${event.action.toLowerCase()}`,
         {

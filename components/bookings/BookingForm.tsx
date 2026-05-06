@@ -56,7 +56,6 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import CustomerPicker, {
   type CustomerPickerValue,
@@ -114,7 +113,6 @@ import { getMaxBookingDate, getSlotEmptyState } from "./booking-form-utils";
 import {
   buildServiceClaimUniqueId,
   capitalizeWords,
-  maskEmail,
   toPHDateString,
 } from "./booking-form-helpers";
 
@@ -237,12 +235,8 @@ export default function BookingForm({
     name: "customerName",
   }) as string;
 
-  const [existingCustomerEmail, setExistingCustomerEmail] = useState<
-    string | null
-  >(null);
-  const [existingCustomerPhone, setExistingCustomerPhone] = useState<
-    string | null
-  >(null);
+  const [, setExistingCustomerEmail] = useState<string | null>(null);
+  const [, setExistingCustomerPhone] = useState<string | null>(null);
   const [pendingFlows, setPendingFlows] = useState<PendingFlow[]>([]);
   const [claimedUniqueIds, setClaimedUniqueIds] = useState<string[]>([]);
 
