@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { cancelLeaveRequest } from "@/app/actions/leave-request";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { CalendarPlus, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -90,29 +90,69 @@ export function EmployeeLeaveClient({
     }
   };
 
+  // Two states drive the body fill: when the employee has filed any
+  // requests we show a compact "manage requests" row at top + a
+  // request-leave button below; when nothing is filed yet we render a
+  // friendly centered empty state. Both use h-full + flex column so
+  // PortalCardBody (flex-1) can stretch to match the row height
+  // (e.g. matching AttendanceCard's taller layout on desktop).
+  const hasRequests = counts.total > 0;
+
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className="group w-full flex items-center gap-3 rounded-xl px-2 py-2 -mx-2 text-left transition-colors hover:bg-primary/[0.04] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-        >
-          <span className="flex-1 min-w-0">
-            <span className="block text-sm font-medium text-foreground">
-              {summary}
-            </span>
-            <span className="block text-xs text-muted-foreground">
-              Tap to manage requests
-            </span>
+      {hasRequests ? (
+        <div className="flex h-full flex-col gap-4">
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              className="group flex w-full items-center gap-3 rounded-xl -mx-2 px-2 py-2 text-left transition-colors hover:bg-primary/[0.04] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-foreground">
+                  {summary}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  Tap to manage requests
+                </span>
+              </span>
+              {counts.pending > 0 && (
+                <span className="inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/15 px-2 text-[11px] font-bold tabular-nums text-amber-600 dark:text-amber-400">
+                  {counts.pending} pending
+                </span>
+              )}
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </DialogTrigger>
+          <div className="mt-auto">
+            <DialogTrigger asChild>
+              <Button className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                <CalendarPlus className="mr-2 size-4" />
+                Request leave
+              </Button>
+            </DialogTrigger>
+          </div>
+        </div>
+      ) : (
+        <div className="flex h-full flex-col items-center justify-center gap-4 py-2 text-center">
+          <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+            <Sparkles className="size-5" />
           </span>
-          {counts.pending > 0 && (
-            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-amber-500/15 px-2 text-[11px] font-bold text-amber-600 dark:text-amber-400 tabular-nums shrink-0">
-              {counts.pending} pending
-            </span>
-          )}
-          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 transition-transform group-hover:translate-x-0.5" />
-        </button>
-      </DialogTrigger>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">
+              No requests yet
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Need a day? File a leave request and your owner will review it.
+            </p>
+          </div>
+          <DialogTrigger asChild>
+            <Button className="rounded-full bg-primary px-5 text-primary-foreground hover:bg-primary/90">
+              <CalendarPlus className="mr-2 size-4" />
+              Request leave
+            </Button>
+          </DialogTrigger>
+        </div>
+      )}
       <DialogContent className="max-w-[95vw] md:max-w-5xl! h-[80vh] flex flex-col p-0 rounded-3xl gap-0 overflow-hidden">
         <DialogHeader className="px-6 pb-2 pt-6 shrink-0">
           <DialogTitle className="text-xl font-bold text-foreground">Leave Requests</DialogTitle>

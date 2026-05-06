@@ -152,7 +152,7 @@ export default function AttendanceCard({
       layout="position"
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
-        "flex flex-col gap-5 relative",
+        "flex h-full flex-col gap-5 relative",
         className,
       )}
     >

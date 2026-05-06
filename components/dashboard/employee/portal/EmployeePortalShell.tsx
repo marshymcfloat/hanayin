@@ -86,13 +86,10 @@ function PortalBentoGrid({ children }: { children: React.ReactNode }) {
         "grid-cols-1",
         "md:grid-cols-2",
         "xl:grid-cols-12 xl:auto-rows-[minmax(140px,auto)]",
-        // items-start so cards size to their own content rather than
-        // stretching to match the tallest sibling in their row. Without
-        // this a short card next to a tall card shows empty space —
-        // the project preference is "no nested cards" + "no orphan
-        // padding inside cards", so we keep cards lean and let the
-        // grid breathe naturally.
-        "items-start",
+        // Default stretch (items-stretch via CSS grid default) so
+        // cards in the same row match heights. Each card's body uses
+        // flex-1 internally so its content can fill the stretched
+        // height — empty states center vertically, full lists scroll.
       )}
     >
       {children}
