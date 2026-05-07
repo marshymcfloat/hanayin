@@ -183,7 +183,7 @@ export default function GiftCardClaimForm({
 
   return (
     <div className="space-y-6">
-      <section className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+      <section className="space-y-4">
         <div className="flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
             1
@@ -219,7 +219,7 @@ export default function GiftCardClaimForm({
           type="button"
           onClick={() => previewMutation.mutate()}
           disabled={!canVerify || previewMutation.isPending}
-          className="w-full sm:w-auto"
+          className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto"
         >
           {previewMutation.isPending && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -234,29 +234,29 @@ export default function GiftCardClaimForm({
 
       {previewData && (
         <>
-          <section className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+          <section className="space-y-5 border-t border-border pt-5 sm:pt-6">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <ShieldCheck className="h-4 w-4 text-primary" />
               <p className="text-sm font-semibold text-foreground">
                 Gift card verified
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl border bg-background p-3">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Code
                 </p>
-                <p className="mt-1 text-sm font-semibold">{previewData.code}</p>
+                <p className="mt-1 text-sm font-semibold tabular-nums">{previewData.code}</p>
               </div>
-              <div className="rounded-xl border bg-background p-3">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Recipient
                 </p>
                 <p className="mt-1 text-sm font-semibold">{previewData.customerName}</p>
               </div>
-              <div className="rounded-xl border bg-background p-3">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Expires
                 </p>
                 <p className="mt-1 text-sm font-semibold">
@@ -270,40 +270,40 @@ export default function GiftCardClaimForm({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold">Included services</h4>
-                <Badge variant="secondary">
+                <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/[0.06] text-[10px] font-medium text-primary">
                   {previewData.totalDuration} mins total
                 </Badge>
               </div>
-              <div className="space-y-2">
+              <ul className="-mx-2 divide-y divide-border">
                 {previewData.lineItems.map((item, index) => (
-                  <div
+                  <li
                     key={`${item.serviceId}-${item.packageId || "single"}-${index}`}
-                    className="flex items-center justify-between rounded-xl border bg-background px-3 py-2"
+                    className="flex items-center justify-between gap-3 px-2 py-3"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{item.serviceName}</p>
-                      <div className="mt-1 flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] capitalize">
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/[0.06] px-2 text-[10px] capitalize text-primary">
                           {item.category}
                         </Badge>
                         {item.packageName && (
-                          <Badge variant="outline" className="text-[10px]">
+                          <Badge variant="outline" className="rounded-full border-black/[0.08] bg-foreground/[0.04] px-2 text-[10px] text-muted-foreground">
                             {item.packageName}
                           </Badge>
                         )}
                       </div>
                     </div>
-                    <span className="shrink-0 text-xs text-muted-foreground">
+                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                       {item.duration} mins
                     </span>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           </section>
 
           {isStaffMode && (
-            <section className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+            <section className="space-y-4 border-t border-border pt-5 sm:pt-6">
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   2
@@ -332,7 +332,7 @@ export default function GiftCardClaimForm({
             </section>
           )}
 
-          <section className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+          <section className="space-y-4 border-t border-border pt-5 sm:pt-6">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                 {isStaffMode ? "3" : "2"}
@@ -371,15 +371,15 @@ export default function GiftCardClaimForm({
             )}
 
             {isWalkIn && (
-              <div className="rounded-xl border bg-background p-3 text-xs text-muted-foreground">
+              <div className="rounded-xl bg-primary/[0.04] px-3 py-2.5 text-xs text-foreground/70">
                 This claim will be booked immediately as walk-in at the current
                 time.
               </div>
             )}
 
-            <div className="flex flex-col gap-2 rounded-xl border bg-background p-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 rounded-xl bg-foreground/[0.02] px-3 py-2.5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
               <span className="inline-flex items-center gap-1.5">
-                <Gift className="h-3.5 w-3.5" />
+                <Gift className="h-3.5 w-3.5 text-primary" />
                 Covered by gift card
               </span>
               <span className="inline-flex items-center gap-1.5">
@@ -394,7 +394,7 @@ export default function GiftCardClaimForm({
             onClick={() => claimMutation.mutate()}
             disabled={!canClaim}
             size="lg"
-            className="w-full font-semibold"
+            className="w-full rounded-full bg-primary font-semibold text-primary-foreground hover:bg-primary/90"
           >
             {claimMutation.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
