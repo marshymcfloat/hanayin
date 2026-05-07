@@ -101,14 +101,15 @@ export function RescheduleDialog({
           <Button
             type="button"
             variant="outline"
-            className="rounded-xl border-blue-200 text-blue-700 hover:bg-blue-50"
+            size="sm"
+            className="h-9 rounded-full border-black/[0.08] px-4 hover:bg-primary/[0.04] hover:text-primary hover:border-primary/30"
           >
             <Calendar className="h-4 w-4 mr-2" />
             Reschedule
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-2xl">
+      <DialogContent className="rounded-3xl">
         <DialogHeader>
           <DialogTitle>Reschedule booking</DialogTitle>
           <DialogDescription>
@@ -135,7 +136,7 @@ export function RescheduleDialog({
             <Button
               type="button"
               variant="outline"
-              className="rounded-xl"
+              className="rounded-full"
               onClick={() => setOpen(false)}
               disabled={submitting}
             >
@@ -143,7 +144,7 @@ export function RescheduleDialog({
             </Button>
             <Button
               type="submit"
-              className="rounded-xl"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={submitting || !value}
             >
               {submitting ? (

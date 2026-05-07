@@ -129,10 +129,10 @@ export function BookingNotesPanel({
           <p className="text-xs text-muted-foreground">No notes yet.</p>
         )}
         {state.kind === "ready" && state.notes.length > 0 && (
-          <ol className="divide-y divide-zinc-100 rounded-xl border border-zinc-100 bg-white">
+          <ol className="-mx-2 divide-y divide-border">
             {state.notes.map((note) => (
-              <li key={note.id} className="px-3 py-2 text-sm space-y-1">
-                <p className="text-zinc-900 whitespace-pre-wrap">{note.body}</p>
+              <li key={note.id} className="px-2 py-3 text-sm space-y-1">
+                <p className="text-foreground whitespace-pre-wrap">{note.body}</p>
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
                     {note.visibility === "CUSTOMER_VISIBLE" ? (
@@ -173,7 +173,7 @@ export function BookingNotesPanel({
           maxLength={MAX_BODY_LENGTH}
           rows={2}
           disabled={submitting}
-          className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-300 disabled:opacity-60"
+          className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
         />
         <div className="flex items-center justify-between gap-2">
           {canAddCustomerVisible ? (
@@ -187,7 +187,7 @@ export function BookingNotesPanel({
                   )
                 }
                 disabled={submitting}
-                className="h-3.5 w-3.5 rounded border-zinc-300"
+                className="h-3.5 w-3.5 rounded border-input accent-primary"
               />
               Visible to the customer
             </label>
@@ -199,7 +199,7 @@ export function BookingNotesPanel({
           <Button
             type="submit"
             size="sm"
-            className="rounded-xl"
+            className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={!canSubmit}
           >
             {submitting ? (

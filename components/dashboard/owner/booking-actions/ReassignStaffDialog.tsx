@@ -147,14 +147,14 @@ export function ReassignStaffDialog({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-zinc-400 hover:text-indigo-700 hover:bg-indigo-50"
+            className="h-7 w-7 rounded-full text-muted-foreground/70 hover:text-primary hover:bg-primary/[0.06]"
             aria-label={`Reassign ${serviceName}`}
           >
             <Users className="h-3.5 w-3.5" />
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-2xl">
+      <DialogContent className="rounded-3xl">
         <DialogHeader>
           <DialogTitle>Reassign &ldquo;{serviceName}&rdquo;</DialogTitle>
           <DialogDescription>
@@ -208,7 +208,7 @@ export function ReassignStaffDialog({
             <Button
               type="button"
               variant="outline"
-              className="rounded-xl"
+              className="rounded-full"
               onClick={() => setOpen(false)}
               disabled={submitting}
             >
@@ -216,7 +216,7 @@ export function ReassignStaffDialog({
             </Button>
             <Button
               type="submit"
-              className="rounded-xl"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={!canSubmit || pickerOptions.length === 0}
             >
               {submitting ? (

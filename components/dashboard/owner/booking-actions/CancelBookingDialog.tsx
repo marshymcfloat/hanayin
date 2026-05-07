@@ -85,14 +85,15 @@ export function CancelBookingDialog({
           <Button
             type="button"
             variant="outline"
-            className="rounded-xl border-red-200 text-red-700 hover:bg-red-50"
+            size="sm"
+            className="h-9 rounded-full border-destructive/30 px-4 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
           >
             <XCircle className="h-4 w-4 mr-2" />
             Cancel booking
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-2xl">
+      <DialogContent className="rounded-3xl">
         <DialogHeader>
           <DialogTitle>Cancel this booking?</DialogTitle>
           <DialogDescription>
@@ -114,7 +115,7 @@ export function CancelBookingDialog({
               rows={3}
               required
               disabled={submitting}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-200 disabled:opacity-60"
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-destructive/30 disabled:opacity-60"
             />
             <p className="text-xs text-muted-foreground">
               {trimmed.length}/{MAX_REASON_LENGTH}
@@ -125,7 +126,7 @@ export function CancelBookingDialog({
             <Button
               type="button"
               variant="outline"
-              className="rounded-xl"
+              className="rounded-full"
               onClick={() => setOpen(false)}
               disabled={submitting}
             >
@@ -133,7 +134,7 @@ export function CancelBookingDialog({
             </Button>
             <Button
               type="submit"
-              className="rounded-xl bg-red-600 text-white hover:bg-red-700"
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={submitting || !canSubmit}
             >
               {submitting ? (

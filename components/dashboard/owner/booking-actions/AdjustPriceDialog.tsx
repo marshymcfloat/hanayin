@@ -139,14 +139,15 @@ export function AdjustPriceDialog({
           <Button
             type="button"
             variant="outline"
-            className="rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+            size="sm"
+            className="h-9 rounded-full border-primary/30 px-4 text-primary hover:bg-primary/[0.06] hover:text-primary hover:border-primary/50"
           >
             <Percent className="h-4 w-4 mr-2" />
             Adjust price
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-2xl">
+      <DialogContent className="rounded-3xl">
         <DialogHeader>
           <DialogTitle>Adjust booking price</DialogTitle>
           <DialogDescription>
@@ -220,7 +221,7 @@ export function AdjustPriceDialog({
               rows={3}
               required
               disabled={submitting}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-60"
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
             />
             <p className="text-xs text-muted-foreground">
               {trimmedReason.length}/{MAX_REASON_LENGTH}
@@ -231,7 +232,7 @@ export function AdjustPriceDialog({
             <Button
               type="button"
               variant="outline"
-              className="rounded-xl"
+              className="rounded-full"
               onClick={() => setOpen(false)}
               disabled={submitting}
             >
@@ -239,7 +240,7 @@ export function AdjustPriceDialog({
             </Button>
             <Button
               type="submit"
-              className="rounded-xl"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={!canSubmit}
             >
               {submitting ? (
