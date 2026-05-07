@@ -383,7 +383,7 @@ export function BookingDetailsDialog({
                   <Badge
                     variant="outline"
                     className={cn(
-                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] rounded-md leading-none h-5",
+                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] rounded-full leading-none h-5",
                       getStatusColor(booking.status),
                     )}
                   >
@@ -392,7 +392,7 @@ export function BookingDetailsDialog({
                   <Badge
                     variant="outline"
                     className={cn(
-                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] rounded-md leading-none h-5",
+                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] rounded-full leading-none h-5",
                       booking.payment_status === "PAID"
                         ? "border-primary/30 bg-primary/10 text-primary"
                         : booking.payment_status === "PARTIALLY_PAID"
@@ -410,7 +410,7 @@ export function BookingDetailsDialog({
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
             <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
               <section className="space-y-3">
-                <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Customer
                 </h3>
                 <div className="space-y-3">
@@ -419,7 +419,7 @@ export function BookingDetailsDialog({
                       {getBookingCustomerName(booking)}
                     </span>
                     {booking.is_anonymous_walk_in && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 leading-none font-medium">
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-900/60 dark:text-amber-400 dark:bg-amber-950/30 leading-none font-medium">
                         Anonymous walk-in
                       </Badge>
                     )}
@@ -434,7 +434,7 @@ export function BookingDetailsDialog({
                       </Badge>
                     )}
                     {booking.customer && booking.customer.no_show_count > 0 && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 leading-none font-medium">
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-900/60 dark:text-amber-400 dark:bg-amber-950/30 leading-none font-medium">
                         {booking.customer.no_show_count} no-show{booking.customer.no_show_count > 1 ? "s" : ""}
                       </Badge>
                     )}
@@ -459,7 +459,7 @@ export function BookingDetailsDialog({
               </section>
 
               <section className="space-y-3">
-                <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Services
                 </h3>
                 <div className="divide-y divide-border/60 border-t border-b border-border/60">
@@ -480,13 +480,13 @@ export function BookingDetailsDialog({
                           <div className="mt-0.5 flex items-center gap-1.5 text-xs">
                             {as.served_by_owner ? (
                               <>
-                                <div className="h-4 w-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[9px] font-bold shrink-0">
+                                <div className="h-4 w-4 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 flex items-center justify-center text-[9px] font-bold shrink-0">
                                   {as.served_by_owner.user.name.charAt(0)}
                                 </div>
                                 <span className="text-muted-foreground truncate">
                                   {as.served_by_owner.user.name}
                                 </span>
-                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 rounded-sm border-amber-200 text-amber-700 bg-amber-50 leading-none font-medium shrink-0">
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 rounded-full border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-900/60 dark:text-amber-400 dark:bg-amber-950/30 leading-none font-medium shrink-0">
                                   Owner
                                 </Badge>
                               </>
@@ -551,7 +551,7 @@ export function BookingDetailsDialog({
                                     )}
                                   </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="rounded-2xl">
+                                <AlertDialogContent className="rounded-3xl">
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>
                                       Remove {as.service.name}?
@@ -565,11 +565,11 @@ export function BookingDetailsDialog({
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel className="rounded-xl">
+                                    <AlertDialogCancel className="rounded-full">
                                       Cancel
                                     </AlertDialogCancel>
                                     <AlertDialogAction
-                                      className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                       onClick={() => handleRemoveLine(as.id)}
                                     >
                                       Remove
@@ -588,7 +588,7 @@ export function BookingDetailsDialog({
 
               {viewerContext.canAddService && (
                 <section className="space-y-3">
-                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Add Service
                   </h3>
                   {availableServiceOptions.length === 0 ? (
@@ -645,7 +645,7 @@ export function BookingDetailsDialog({
                             isAddingService
                           }
                           size="sm"
-                          className="h-9 shrink-0"
+                          className="h-9 shrink-0 rounded-full bg-primary px-4 text-primary-foreground hover:bg-primary/90"
                         >
                           {isAddingService ? (
                             <>
@@ -673,7 +673,7 @@ export function BookingDetailsDialog({
               {/* Notes — any tenant user can read; INTERNAL writable by all,
                   CUSTOMER_VISIBLE writes gated by canAddService (BOOKING_MODIFY). */}
               <section className="space-y-3">
-                <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Notes
                 </h3>
                 <BookingNotesPanel
@@ -690,7 +690,7 @@ export function BookingDetailsDialog({
                   <button
                     type="button"
                     onClick={() => setIsAuditOpen((v) => !v)}
-                    className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
                     aria-expanded={isAuditOpen}
                   >
                     <History className="h-3 w-3" />
@@ -736,7 +736,7 @@ export function BookingDetailsDialog({
                 </div>
                 <div className="flex justify-between items-baseline pt-3 mt-1 border-t border-border/60">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                       Remaining Balance
                     </span>
                     <span className="text-[10px] text-muted-foreground/70 mt-0.5">
@@ -794,7 +794,7 @@ export function BookingDetailsDialog({
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-9 border-amber-200 text-amber-700 hover:bg-amber-50"
+                        className="h-9 rounded-full border-amber-200 px-4 text-amber-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 dark:border-amber-900/60 dark:text-amber-400 dark:hover:bg-amber-950/30 dark:hover:text-amber-400 dark:hover:border-amber-900"
                         disabled={isMarkingNoShow}
                       >
                         {isMarkingNoShow ? (
@@ -805,7 +805,7 @@ export function BookingDetailsDialog({
                         No-Show
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-2xl">
+                    <AlertDialogContent className="rounded-3xl">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Mark as No-Show?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -816,9 +816,9 @@ export function BookingDetailsDialog({
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          className="rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
+                          className="rounded-full bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-600 dark:hover:bg-amber-700"
                           onClick={handleMarkNoShow}
                         >
                           Confirm No-Show
@@ -831,7 +831,7 @@ export function BookingDetailsDialog({
                   <Button
                     type="button"
                     size="sm"
-                    className="h-9"
+                    className="h-9 rounded-full bg-primary px-4 text-primary-foreground hover:bg-primary/90"
                     onClick={handleMarkPaid}
                     disabled={isMarkingPaid}
                   >
