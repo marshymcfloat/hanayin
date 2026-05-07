@@ -61,17 +61,20 @@ export default function PricingSection() {
   return (
     <section
       id="pricing"
-      className="relative isolate overflow-hidden py-20 sm:py-28 lg:py-32 bg-zinc-50/60 scroll-mt-24 sm:scroll-mt-28"
+      className="relative isolate overflow-x-clip py-20 sm:py-28 lg:py-32 bg-zinc-50/60 scroll-mt-24 sm:scroll-mt-28"
     >
       {/* Primary-tinted spotlight behind the popular card. */}
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[700px] w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.10] blur-[140px]"
       />
-      {/* Soft ambient brand-green glow at the very bottom for depth. */}
+      {/* Soft ambient brand-green glow at the very bottom for depth.
+          Wide ellipse + larger blur so the edges fade inside the section
+          rather than reading as a clipped circle when overflow-hidden
+          crops the bottom. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-40 left-1/2 -z-10 size-[500px] -translate-x-1/2 rounded-full bg-primary/[0.08] blur-[120px]"
+        className="pointer-events-none absolute -bottom-48 left-1/2 -z-10 h-[460px] w-[1200px] max-w-[140vw] -translate-x-1/2 rounded-[50%] bg-primary/[0.08] blur-[160px]"
       />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">

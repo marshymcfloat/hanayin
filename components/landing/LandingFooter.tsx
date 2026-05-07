@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import { Facebook } from "lucide-react";
 
 export default function LandingFooter() {
   return (
@@ -37,20 +37,6 @@ export default function LandingFooter() {
               >
                 <Facebook className="size-3.5" />
               </a>
-              <Link
-                href="#"
-                aria-label="Instagram"
-                className="flex size-8 items-center justify-center rounded-full border border-black/[0.06] bg-white text-muted-foreground transition-colors hover:text-foreground hover:bg-zinc-50"
-              >
-                <Instagram className="size-3.5" />
-              </Link>
-              <Link
-                href="#"
-                aria-label="Twitter"
-                className="flex size-8 items-center justify-center rounded-full border border-black/[0.06] bg-white text-muted-foreground transition-colors hover:text-foreground hover:bg-zinc-50"
-              >
-                <Twitter className="size-3.5" />
-              </Link>
             </div>
           </div>
 
