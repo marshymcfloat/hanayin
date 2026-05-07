@@ -18,6 +18,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   deleteSocialPostDraftAction,
@@ -85,12 +92,26 @@ export type SocialPostView = {
   targets: SocialPostTargetView[];
 };
 
+// Caption tone options shown in the post-edit dialog. Mirrors the union the
+// server action accepts; "AUTO" lets the engine choose based on the offer.
+const CAPTION_TONE_OPTIONS = [
+  { value: "AUTO", label: "Auto (let the engine pick)" },
+  { value: "FRIENDLY_TAGLISH", label: "Friendly Taglish" },
+  { value: "WARM_NURTURING", label: "Warm & nurturing" },
+  { value: "PREMIUM_LUXURY", label: "Premium / boutique" },
+  { value: "WITTY_PLAYFUL", label: "Witty & playful" },
+  { value: "DIRECT_URGENT", label: "Direct & urgent" },
+] as const;
+
+type CaptionTone = (typeof CAPTION_TONE_OPTIONS)[number]["value"];
+
 type DraftState = {
   title: string;
   caption: string;
   hashtagsCsv: string;
   mediaUrl: string;
   imageProfile: SocialImageProfile;
+  captionTone: CaptionTone;
 };
 
 type SocialPostGroups = {
@@ -106,6 +127,7 @@ function toDraftState(post: SocialPostView): DraftState {
     hashtagsCsv: post.hashtags.join(", "),
     mediaUrl: post.media_url || "",
     imageProfile: DEFAULT_SOCIAL_IMAGE_PROFILE,
+    captionTone: "AUTO",
   };
 }
 
@@ -424,6 +446,7 @@ export function SocialPostsPageClient(props: {
           hashtagsCsv: "",
           mediaUrl: "",
           imageProfile: DEFAULT_SOCIAL_IMAGE_PROFILE,
+          captionTone: "AUTO" as CaptionTone,
         }),
         ...changes,
       },
@@ -600,6 +623,7 @@ export function SocialPostsPageClient(props: {
       const result = await regenerateSocialPostCaptionAction({
         businessSlug: props.businessSlug,
         postId,
+        captionTone: drafts[postId]?.captionTone ?? "AUTO",
       });
 
       if (!result.success) {
@@ -909,6 +933,40 @@ export function SocialPostsPageClient(props: {
                             </>
                           )}
                         </Button>
+                      </div>
+                      {/* Tone override: changing this alone does nothing — owner
+                          must click Regenerate to apply. Keeps token cost
+                          predictable and preserves any manual edits until the
+                          owner explicitly asks for new copy. */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground shrink-0">
+                          Tone
+                        </span>
+                        <Select
+                          value={draft.captionTone}
+                          onValueChange={(value) =>
+                            updateDraft(selectedPost.id, {
+                              captionTone: value as CaptionTone,
+                            })
+                          }
+                        >
+                          <SelectTrigger
+                            size="sm"
+                            className="w-full max-w-[260px]"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {CAPTION_TONE_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <Textarea
                         className="min-h-[160px]"

@@ -155,7 +155,17 @@ export async function generateGeminiText(input: {
   temperature?: number;
   maxOutputTokens?: number;
   responseMimeType?: string;
+  /**
+   * Gemini 2.5+ models (flash, pro) enable "thinking" by default and the
+   * thinking tokens count against maxOutputTokens. For captions we don't
+   * need internal reasoning — without setting `thinkingBudget: 0` the model
+   * burns most of the budget on thinking and the visible caption gets
+   * truncated mid-word. Pass `disableThinking: true` (default) for caption
+   * paths; set to false only for tasks where thinking actually helps.
+   */
+  disableThinking?: boolean;
 }) {
+  const disableThinking = input.disableThinking ?? true;
   const payload = await generateGeminiContent({
     model: input.model,
     prompt: input.prompt,
@@ -163,6 +173,9 @@ export async function generateGeminiText(input: {
       temperature: input.temperature,
       maxOutputTokens: input.maxOutputTokens,
       responseMimeType: input.responseMimeType,
+      ...(disableThinking
+        ? { thinkingConfig: { thinkingBudget: 0 } }
+        : {}),
     },
   });
 

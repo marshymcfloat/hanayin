@@ -604,7 +604,10 @@ function normalizeCaptionStructure(value: string) {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-  return limitEmojiDensity(normalized, 2);
+  // Owner preference (Wave N1): no emojis. Captions read more human and less
+  // AI-generated when emojis are stripped entirely. The prompt also instructs
+  // the model to avoid them, but we strip here as a hard guarantee.
+  return limitEmojiDensity(normalized, 0);
 }
 
 function formatCaptionForSocialFeed(value: string) {
@@ -875,8 +878,15 @@ function looksTruncated(value: string) {
 // Using one threshold for both meant great organic Gemini output got
 // rejected and we silently fell back to the rescue every time. Now each
 // path can pass its own floor.
-const ORGANIC_MIN_ACCEPTABLE_WORDS = 40;
-const ORGANIC_MIN_ACCEPTABLE_LINES = 5;
+//
+// Lowered from 40/5 → 18/2 after observing topic-specific Gemini output
+// (e.g. "Napapansin mo ba yung small, soft growths sa leeg... — 22 words,
+// real Taglish, on-topic) being thrown away for the generic rescue. We
+// strongly prefer a short on-topic caption over a long template that
+// mentions the topic name once. The floor still catches genuinely empty
+// or one-word stubs.
+const ORGANIC_MIN_ACCEPTABLE_WORDS = 18;
+const ORGANIC_MIN_ACCEPTABLE_LINES = 2;
 
 function isLowQualityCaption(
   value: string,
@@ -1231,7 +1241,9 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     "- If services/packages are present, include 3-6 short bullet-style lines.",
     "- Add a warm invitation line (bestie/partner/family angle is okay when relevant).",
     "- Add a clear CTA to book through ServiceFlow.",
-    "- Use at most 2 emojis in the whole caption (0 is acceptable).",
+    "- DO NOT use any emojis. Zero. They will be stripped from the output anyway.",
+    "- AVOID AI-feeling phrases: 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your'. Sound like a real person texting a friend.",
+    "- Limit em-dashes (—) to one per caption. NO exclamation marks unless one is genuinely earned.",
     "- Keep spacing clean: add blank lines between hook, body, bullet list, and CTA.",
     "- Avoid dense paragraph blocks. Keep one main idea per line.",
     "- Keep tone local, relatable, and not scripted.",
@@ -1278,7 +1290,9 @@ function buildGeminiRewritePrompt(input: CaptionGenerationInput, caption: string
     "- Explicitly mention the season/occasion suggested by the sale title.",
     "- Use selected service categories to make the message specific and not generic.",
     "- Include bullet lines when services/packages are relevant.",
-    "- Use at most 2 emojis in the whole caption (0 is acceptable).",
+    "- DO NOT use any emojis. Zero. They will be stripped from the output anyway.",
+    "- AVOID AI-feeling phrases: 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your'. Sound like a real person texting a friend.",
+    "- Limit em-dashes (—) to one per caption. NO exclamation marks unless one is genuinely earned.",
     "- Keep spacing clean: add blank lines between hook, body, bullet list, and CTA.",
     "- Avoid dense paragraph blocks. Keep one main idea per line.",
     "- Avoid repeating generic work-stress intros. Use a fresh hook.",
@@ -1418,6 +1432,21 @@ function parseGeminiCaptionJson(text: string) {
   return null;
 }
 
+// Decode the standard JSON string escape sequences (\n, \t, \r, \", \\, \/)
+// inside a fragment that we extracted via regex when JSON.parse couldn't
+// consume the whole document. Without this, "Skin Tag?\nHave you ever..."
+// stays as 30 characters of text including a literal backslash + 'n', so the
+// line counter sees one line and the quality gate rejects it.
+function decodeJsonStringEscapes(value: string) {
+  return value
+    .replace(/\\n/g, "\n")
+    .replace(/\\r/g, "\r")
+    .replace(/\\t/g, "\t")
+    .replace(/\\"/g, '"')
+    .replace(/\\\//g, "/")
+    .replace(/\\\\/g, "\\");
+}
+
 function extractCaptionFromJsonishText(text: string) {
   const normalized = text
     .trim()
@@ -1429,7 +1458,7 @@ function extractCaptionFromJsonishText(text: string) {
     /"caption"\s*:\s*"([\s\S]*?)(?:"\s*,\s*"hashtags"|"\s*}|$)/i,
   );
   if (quotedMatch?.[1]) {
-    return quotedMatch[1].replace(/\\"/g, '"').trim();
+    return decodeJsonStringEscapes(quotedMatch[1]).trim();
   }
 
   const plainMatch = normalized.match(/caption\s*:\s*([\s\S]+)/i);
@@ -1437,11 +1466,12 @@ function extractCaptionFromJsonishText(text: string) {
     return null;
   }
 
-  const cleaned = plainMatch[1]
-    .split(/\n\s*hashtags\s*:/i)[0]
-    .replace(/[{}]/g, "")
-    .replace(/^"+|"+$/g, "")
-    .trim();
+  const cleaned = decodeJsonStringEscapes(
+    plainMatch[1]
+      .split(/\n\s*hashtags\s*:/i)[0]
+      .replace(/[{}]/g, "")
+      .replace(/^"+|"+$/g, ""),
+  ).trim();
 
   return cleaned || null;
 }
@@ -1654,9 +1684,13 @@ function buildOrganicGeminiPrompt(input: OrganicCaptionInput): string {
     "- Use clear line breaks. One main idea per line.",
     "- The topic must appear naturally in the caption body — never as a hard heading or label.",
     "- Tie back to the business at most ONCE, softly, and only when it fits the category.",
-    "- 0–2 emojis total. 0 is acceptable.",
+    "- DO NOT use any emojis. Zero. The caption will be stripped of them anyway.",
+    "- AVOID AI-feeling phrases: no 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your', 'let's talk about'. Speak the way a real person texts a friend.",
+    "- AVOID em-dash sentence openers and overuse of em-dashes. One em-dash per caption max.",
+    "- NO exclamation marks unless absolutely warranted (max 1).",
     "- NEVER imply the business is slow or struggling. NEVER use 'quiet hours', 'slow hours', 'fill the window', 'rescue'.",
     "- NEVER output internal reasoning lines like 'Focused categories:' or 'based on your ... promo.'",
+    "- Use blank lines between paragraphs for breathing room. The bullet block stays tight; everything else gets a blank line above and below.",
     "- 5–8 hashtags. All start with # and have no spaces.",
   ]
     .filter(Boolean)
@@ -1724,7 +1758,11 @@ export async function generateOrganicCaptionDraft(
       prompt: buildOrganicGeminiPrompt(input),
       responseMimeType: "application/json",
       temperature: 1,
-      maxOutputTokens: 1200,
+      // Headroom for a long, fully-formed Taglish caption + JSON wrapper +
+      // hashtags array. Captions were getting truncated mid-word at 1200 on
+      // Gemini 2.5 Flash; bumping the ceiling and disabling thinking (in
+      // generateGeminiText) gives the model room to finish.
+      maxOutputTokens: 4096,
     });
 
     if (!responseText || !responseText.trim()) {
@@ -1824,7 +1862,7 @@ export async function generateSocialCaptionDraft(
       prompt: buildGeminiPrompt(input, dateWindow),
       responseMimeType: "application/json",
       temperature: 1,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 4096,
     });
 
     const candidate = parseCaptionCandidate(responseText, rescue.hashtags);
@@ -1850,7 +1888,7 @@ export async function generateSocialCaptionDraft(
       prompt: buildGeminiRewritePrompt(input, candidate.caption),
       responseMimeType: "application/json",
       temperature: 1,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 4096,
     });
 
     const rewritten = parseCaptionCandidate(rewrittenText, candidate.hashtags);

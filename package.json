@@ -42,6 +42,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-email/components": "^1.0.7",
     "@react-email/render": "^2.0.4",
+    "@resvg/resvg-js": "^2.6.2",
     "@sentry/nextjs": "^10.38.0",
     "@tanstack/react-query": "^5.90.20",
     "@tanstack/react-table": "^8.21.3",

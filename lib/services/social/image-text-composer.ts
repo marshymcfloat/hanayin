@@ -1,8 +1,56 @@
+import { Resvg } from "@resvg/resvg-js";
 import sharp from "sharp";
 
 import { logger } from "@/lib/logger";
 import { DiscountType } from "@/prisma/generated/prisma/enums";
 import { getEmbeddedFontStyles } from "@/lib/services/social/font-loader";
+import { getOverlayFontFiles } from "@/lib/services/social/font-files";
+
+/**
+ * Rasterize an SVG overlay to PNG using @resvg/resvg-js. We do this instead
+ * of letting Sharp consume the SVG directly: Sharp uses librsvg, which does
+ * not reliably load fonts from `@font-face` data URIs and renders text as
+ * missing-glyph tofu boxes. resvg-js loads fonts from real files and
+ * additionally honors `@font-face` data URIs in the SVG itself, so glyphs
+ * render deterministically across platforms.
+ */
+async function rasterizeOverlaySvg(svg: Buffer): Promise<Buffer> {
+  let fontFiles: string[] = [];
+  try {
+    fontFiles = await getOverlayFontFiles();
+  } catch (error) {
+    logger.warn("[Social] Overlay font materialization failed; using system fonts.", {
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  try {
+    const resvg = new Resvg(svg, {
+      background: "rgba(0,0,0,0)",
+      font: {
+        fontFiles,
+        // Always allow system-font fallback. If the Google Fonts fetch failed
+        // and we set loadSystemFonts:false, resvg has no fonts at all and
+        // text effectively disappears. Better to render in a system font than
+        // nothing.
+        loadSystemFonts: true,
+        defaultFontFamily: "DM Sans",
+        serifFamily: "Cormorant Garamond",
+        sansSerifFamily: "DM Sans",
+      },
+    });
+    return Buffer.from(resvg.render().asPng());
+  } catch (error) {
+    // Re-throw so the outer compose try/catch logs and falls back to the raw
+    // background. We log here too so the failing step is unambiguous.
+    logger.error("[Social] Resvg rasterization failed.", {
+      errorMessage: error instanceof Error ? error.message : String(error),
+      fontFileCount: fontFiles.length,
+      svgPreview: svg.toString("utf8").slice(0, 240),
+    });
+    throw error;
+  }
+}
 
 // ─── Layout constants (portrait 1024×1536 — Instagram & Facebook safe) ──────
 
@@ -63,17 +111,22 @@ export type EducationalOverlayInput = {
   tips?: string[];
 };
 
-// Wave K2: bullet rendering constants. Sans-serif (DM Sans) at smaller
-// size so several bullets fit in the upper-half whitespace without
-// crowding the photograph that anchors the lower portion of the frame.
-const TIP_FONT_SIZE = 38;
-const TIP_AVG_CHAR_WIDTH_FACTOR = 0.5; // sans-serif is narrower than the serif headline
-const TIP_LINE_HEIGHT = 56;
-const TIP_MAX_CHARS_PER_LINE = 38;
-const TIP_MAX_LINES_PER_TIP = 2;
-const TIP_MAX_COUNT = 3;
-const TIP_MAX_WIDTH = W - PAD * 2;
-const TIP_BULLET_GLYPH = "•";
+// Wave N2: editorial tip-list constants. The previous dark "card panel"
+// design read like a slide deck and clashed with premium spa photography.
+// Now type lives directly in the photograph, supported only by a subtle
+// scrim, a hairline indent rule, and a drop-shadow on the glyphs for
+// legibility. Two tips max — anything more starts to feel cluttered.
+const TIP_FONT_SIZE = 30;
+const TIP_AVG_CHAR_WIDTH_FACTOR = 0.5;
+const TIP_LINE_HEIGHT = 46;
+const TIP_MAX_CHARS_PER_LINE = 36;
+const TIP_MAX_LINES_PER_TIP = 3;
+const TIP_MAX_COUNT = 2;
+const TIP_INTER_GAP = 30;
+const TIP_NUMERAL_FONT_SIZE = 28;
+const TIP_TEXT_INDENT = 56; // space reserved on the left for the small numeral
+const ACCENT = "#E8D7B7"; // warm cream — feels editorial, not "logo gold"
+const TIP_MAX_WIDTH = W - PAD * 2 - TIP_TEXT_INDENT;
 
 /**
  * Compose a sale-event promo overlay onto a background image. Returns the
@@ -85,16 +138,17 @@ export async function composeSalePromoOverlay(
   input: SalePromoOverlayInput,
 ): Promise<{ bytes: Buffer; mimeType: "image/png" }> {
   try {
-    const overlay = await renderSaleOverlaySvg(input);
+    const overlaySvg = await renderSaleOverlaySvg(input);
+    const overlayPng = await rasterizeOverlaySvg(overlaySvg);
     const bytes = await sharp(background)
       .resize(W, H, { fit: "cover", position: "centre" })
-      .composite([{ input: overlay, top: 0, left: 0 }])
+      .composite([{ input: overlayPng, top: 0, left: 0 }])
       .png({ quality: 92 })
       .toBuffer();
     return { bytes, mimeType: "image/png" };
   } catch (error) {
-    logger.warn(
-      "[Social] Promo overlay composition failed; returning raw background.",
+    logger.error(
+      "[Social] Promo overlay composition failed; returning raw background (text will be missing).",
       {
         errorMessage: error instanceof Error ? error.message : String(error),
       },
@@ -112,16 +166,17 @@ export async function composeBusinessNameWatermark(
   input: OrganicOverlayInput,
 ): Promise<{ bytes: Buffer; mimeType: "image/png" }> {
   try {
-    const overlay = await renderWatermarkSvg(input);
+    const overlaySvg = await renderWatermarkSvg(input);
+    const overlayPng = await rasterizeOverlaySvg(overlaySvg);
     const bytes = await sharp(background)
       .resize(W, H, { fit: "cover", position: "centre" })
-      .composite([{ input: overlay, top: 0, left: 0 }])
+      .composite([{ input: overlayPng, top: 0, left: 0 }])
       .png({ quality: 92 })
       .toBuffer();
     return { bytes, mimeType: "image/png" };
   } catch (error) {
-    logger.warn(
-      "[Social] Watermark composition failed; returning raw background.",
+    logger.error(
+      "[Social] Watermark composition failed; returning raw background (text will be missing).",
       {
         errorMessage: error instanceof Error ? error.message : String(error),
       },
@@ -141,16 +196,17 @@ export async function composeEducationalOverlay(
   input: EducationalOverlayInput,
 ): Promise<{ bytes: Buffer; mimeType: "image/png" }> {
   try {
-    const overlay = await renderEducationalOverlaySvg(input);
+    const overlaySvg = await renderEducationalOverlaySvg(input);
+    const overlayPng = await rasterizeOverlaySvg(overlaySvg);
     const bytes = await sharp(background)
       .resize(W, H, { fit: "cover", position: "centre" })
-      .composite([{ input: overlay, top: 0, left: 0 }])
+      .composite([{ input: overlayPng, top: 0, left: 0 }])
       .png({ quality: 92 })
       .toBuffer();
     return { bytes, mimeType: "image/png" };
   } catch (error) {
-    logger.warn(
-      "[Social] Educational overlay composition failed; returning raw background.",
+    logger.error(
+      "[Social] Educational overlay composition failed; returning raw background (text will be missing).",
       {
         errorMessage: error instanceof Error ? error.message : String(error),
       },
@@ -316,10 +372,6 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
         (headlineLines.length - 1 - index) * headlineLineHeight;
       const estimatedWidth =
         line.length * HEADLINE_FONT_SIZE * HEADLINE_AVG_CHAR_WIDTH_FACTOR;
-      // Only force textLength when the line would overflow — preserves
-      // natural letter spacing for short titles, gracefully squishes long ones.
-      // lengthAdjust="spacingAndGlyphs" scales both inter-letter spacing and
-      // the glyphs themselves, which is more graceful than per-letter scaling.
       const fitAttrs =
         estimatedWidth > HEADLINE_MAX_WIDTH
           ? ` textLength="${HEADLINE_MAX_WIDTH}" lengthAdjust="spacingAndGlyphs"`
@@ -328,6 +380,18 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
     })
     .join("");
 
+  // Eyebrow above the headline — different label depending on the campaign.
+  // Adds editorial structure that the previous "all text dumped at the
+  // bottom" layout was missing.
+  const eyebrowLabel = input.isNonDiscount ? "FEATURED" : "SPECIAL OFFER";
+  const headlineTopY =
+    headlineBaseY - (headlineLines.length - 1) * headlineLineHeight;
+  const eyebrowSvg = `<text x="${PAD}" y="${headlineTopY - 56}" class="sale-eyebrow">${escapeXml(eyebrowLabel)}</text>`;
+
+  // Hairline accent rule — same gesture used in the educational overlay.
+  const ruleY = headlineTopY - 30;
+  const ruleSvg = `<line x1="${PAD}" y1="${ruleY}" x2="${PAD + 76}" y2="${ruleY}" stroke="${ACCENT}" stroke-width="1.5" stroke-linecap="square" />`;
+
   const discountSvg = discountLabel
     ? `<text x="${PAD}" y="${H - PAD - 130}" class="discount">${escapeXml(discountLabel)}</text>`
     : "";
@@ -335,31 +399,44 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
   const dateY = discountLabel ? H - PAD - 70 : H - PAD - 100;
   const dateSvg = `<text x="${PAD}" y="${dateY}" class="date">${escapeXml(dateLabel)}</text>`;
 
-  const ctaSvg = `<text x="${W - PAD}" y="${H - PAD}" class="cta" text-anchor="end">→  serviceflow.store</text>`;
+  // Replaced raw URL with a softer engagement nudge.  The previous
+  // "→ serviceflow.store" rendered like a banner ad.
+  const ctaSvg = `<text x="${W - PAD}" y="${H - PAD}" class="cta" text-anchor="end">Tap to learn more  →</text>`;
 
-  const brandSvg = `<text x="${PAD}" y="${PAD + 28}" class="brand">${escapeXml(businessName.toUpperCase())}</text>`;
+  // Brand at top-left with a small accent dot.
+  const brandSvg = `
+    <circle cx="${PAD + 2}" cy="${PAD + 22}" r="3" fill="${ACCENT}" />
+    <text x="${PAD + 18}" y="${PAD + 28}" class="brand">${escapeXml(businessName.toUpperCase())}</text>
+  `;
 
-  // Bottom gradient scrim — strengthened from the original 0.78 → 0.88 max
-  // opacity and pulled up from 0.4×H → 0.5×H so headline contrast holds even
-  // on light backgrounds (cream towels, beige spa scenes, sunlit photos).
+  // Layered scrims: top for brand contrast, bottom for headline/CTA contrast.
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
-    <linearGradient id="bottomScrim" x1="0" y1="${H * 0.5}" x2="0" y2="${H}" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bottomScrim" x1="0" y1="${H * 0.45}" x2="0" y2="${H}" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0"/>
-      <stop offset="0.5" stop-color="rgb(8,12,16)" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0.88"/>
+      <stop offset="0.5" stop-color="rgb(8,12,16)" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0.92"/>
     </linearGradient>
     <linearGradient id="topScrim" x1="0" y1="0" x2="0" y2="${PAD * 2.2}" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0.40"/>
+      <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0.45"/>
       <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0"/>
     </linearGradient>
     <style>
       ${fontStyles}
+      .sale-eyebrow {
+        font-family: 'DM Sans', Arial, sans-serif;
+        font-weight: 600;
+        font-size: 22px;
+        letter-spacing: 0.32em;
+        fill: ${ACCENT};
+      }
     </style>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#topScrim)"/>
   <rect width="${W}" height="${H}" fill="url(#bottomScrim)"/>
   ${brandSvg}
+  ${eyebrowSvg}
+  ${ruleSvg}
   ${headlineSvg}
   ${discountSvg}
   ${dateSvg}
@@ -369,6 +446,23 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
   return Buffer.from(svg);
 }
 
+// N2: Educational overlay — editorial poster, no card panel.
+//
+// Layout:
+//   1. Eyebrow ("TIPS & ADVICE") in warm-cream accent, all-caps, letter-spaced
+//   2. Serif headline (Cormorant Garamond) wrapped over up to 3 lines
+//   3. Hairline accent rule under the headline
+//   4. Tips column — type sits directly on the photograph with a subtle
+//      drop-shadow for legibility; a thin vertical hairline runs along the
+//      indent column so the eye reads it as an editorial sidebar, not a
+//      panel. Each tip uses a small italic-serif numeral and a sans-serif
+//      body line, lighter weight than the headline.
+//   5. Brand watermark anchored bottom-left with a small accent dot.
+//
+// Why no card panel: a dark rounded-rect over a soft spa photograph reads
+// like a lecture slide. Premium editorial covers (Kinfolk, Cereal, etc.)
+// place type on the image itself; legibility comes from a graded scrim and
+// a feathered text shadow, not from a contrasting box.
 async function renderEducationalOverlaySvg(input: EducationalOverlayInput) {
   const fontStyles = await getEmbeddedFontStyles();
   const businessName = clampWords(input.businessName, FIELD_LIMITS.businessName);
@@ -379,9 +473,11 @@ async function renderEducationalOverlaySvg(input: EducationalOverlayInput) {
     HEADLINE_MAX_LINES,
   );
 
-  // Anchor headline in upper third of frame, lines stacked downward.
+  // ── Vertical layout (1024×1536 portrait) ─────────────────────────────────
+  const eyebrowY = PAD + 56; // top of the editorial label
+  const headlineTopY = eyebrowY + 86;
   const headlineLineHeight = 92;
-  const headlineTopY = PAD + 120;
+
   const headlineSvg = headlineLines
     .map((line, index) => {
       const y = headlineTopY + index * headlineLineHeight;
@@ -395,10 +491,14 @@ async function renderEducationalOverlaySvg(input: EducationalOverlayInput) {
     })
     .join("");
 
-  // Wave K2: bullet tips below the headline. Each tip wraps across up to
-  // TIP_MAX_LINES_PER_TIP lines (sans-serif, smaller font). We compute
-  // total height up front so the layout never spills past the upper-half
-  // negative-space band the EDUCATIONAL blueprint reserves.
+  const headlineBottomY =
+    headlineTopY + (headlineLines.length - 1) * headlineLineHeight;
+
+  // Hairline accent rule under headline (signature editorial gesture).
+  const ruleY = headlineBottomY + 38;
+  const ruleSvg = `<line x1="${PAD}" y1="${ruleY}" x2="${PAD + 76}" y2="${ruleY}" stroke="${ACCENT}" stroke-width="1.5" stroke-linecap="square" />`;
+
+  // Tips: pre-wrap each tip block.
   const tipsRaw = (input.tips ?? []).slice(0, TIP_MAX_COUNT);
   const tipBlocks = tipsRaw
     .map((tipText) => {
@@ -413,68 +513,123 @@ async function renderEducationalOverlaySvg(input: EducationalOverlayInput) {
     })
     .filter((value): value is string[] => value !== null);
 
-  const headlineBottomY =
-    headlineTopY + (headlineLines.length - 1) * headlineLineHeight;
-  const tipsTopY = headlineBottomY + 72; // breathing room beneath headline
-  let tipsCursor = tipsTopY;
-  const tipSvgPieces: string[] = [];
-  for (const lines of tipBlocks) {
-    lines.forEach((line, lineIdx) => {
-      const y = tipsCursor + lineIdx * TIP_LINE_HEIGHT;
-      const estimatedWidth =
-        line.length * TIP_FONT_SIZE * TIP_AVG_CHAR_WIDTH_FACTOR;
-      const fitAttrs =
-        estimatedWidth > TIP_MAX_WIDTH
-          ? ` textLength="${TIP_MAX_WIDTH}" lengthAdjust="spacingAndGlyphs"`
-          : "";
-      const prefix = lineIdx === 0 ? `${TIP_BULLET_GLYPH}  ` : "    ";
-      tipSvgPieces.push(
-        `<text x="${PAD}" y="${y}" class="tip"${fitAttrs}>${escapeXml(prefix + line)}</text>`,
+  // No card panel — type sits on the photograph with a feathered scrim and
+  // a drop-shadow filter applied to the text classes for legibility.
+  let indentRuleSvg = "";
+  let tipsSvg = "";
+  if (tipBlocks.length > 0) {
+    const tipsTopY = ruleY + 56;
+    const tipsAreaHeight =
+      tipBlocks.reduce((sum, lines) => sum + lines.length * TIP_LINE_HEIGHT, 0) +
+      Math.max(0, tipBlocks.length - 1) * TIP_INTER_GAP;
+
+    // Hairline vertical rule along the indent column — quiet editorial cue.
+    const indentRuleX = PAD + 18;
+    indentRuleSvg = `<line x1="${indentRuleX}" y1="${tipsTopY - 8}" x2="${indentRuleX}" y2="${tipsTopY + tipsAreaHeight + 8}" stroke="${ACCENT}" stroke-opacity="0.55" stroke-width="1" />`;
+
+    let cursorY = tipsTopY + TIP_FONT_SIZE; // baseline of first tip line
+    const tipPieces: string[] = [];
+    tipBlocks.forEach((lines, tipIdx) => {
+      const numeral = String(tipIdx + 1).padStart(2, "0");
+      const numeralX = PAD + 30; // small offset right of the indent rule
+      const textX = PAD + TIP_TEXT_INDENT;
+      tipPieces.push(
+        `<text x="${numeralX}" y="${cursorY}" class="tip-numeral">${numeral}</text>`,
       );
+      lines.forEach((line, lineIdx) => {
+        const y = cursorY + lineIdx * TIP_LINE_HEIGHT;
+        const estimatedWidth =
+          line.length * TIP_FONT_SIZE * TIP_AVG_CHAR_WIDTH_FACTOR;
+        const fitAttrs =
+          estimatedWidth > TIP_MAX_WIDTH
+            ? ` textLength="${TIP_MAX_WIDTH}" lengthAdjust="spacingAndGlyphs"`
+            : "";
+        tipPieces.push(
+          `<text x="${textX}" y="${y}" class="tip"${fitAttrs}>${escapeXml(line)}</text>`,
+        );
+      });
+      cursorY += lines.length * TIP_LINE_HEIGHT + TIP_INTER_GAP;
     });
-    tipsCursor += lines.length * TIP_LINE_HEIGHT + 14; // small inter-tip gap
+    tipsSvg = tipPieces.join("");
   }
-  const tipsSvg = tipSvgPieces.join("");
 
-  // Top scrim ensures headline+tips contrast against any background.
-  // Bottom remains mostly clean photograph; a single small watermark
-  // sits bottom-left, mirroring the sale promo's brand placement.
-  const watermarkY = H - PAD;
-  const brandSvg = `<text x="${PAD}" y="${watermarkY}" class="brand">${escapeXml(businessName.toUpperCase())}</text>`;
+  // Brand watermark — bottom-left, smaller, with an accent dot for tone.
+  const watermarkY = H - PAD - 8;
+  const brandDotX = PAD;
+  const brandTextX = PAD + 18;
+  const brandSvg = `
+    <circle cx="${brandDotX + 2}" cy="${watermarkY - 8}" r="3" fill="${ACCENT}" />
+    <text x="${brandTextX}" y="${watermarkY}" class="brand">${escapeXml(businessName.toUpperCase())}</text>
+  `;
 
-  // Smaller brand size for educational watermark + dedicated `.tip` rule
-  // (DM Sans, slightly translucent so the bullets feel like supporting
-  // copy rather than competing with the serif headline).
+  // Eyebrow ("TIPS & ADVICE") sits above the headline.
+  const eyebrowSvg = `<text x="${PAD}" y="${eyebrowY}" class="eyebrow">TIPS &amp; ADVICE</text>`;
+
+  // Custom font + element rules layered on top of the base styles. All text
+  // classes get a feathered shadow filter so type stays legible without a
+  // dark panel — the trick that print covers use to set headlines directly
+  // on photography.
   const educationalFontStyles =
     fontStyles.replace(
       /\.brand\s*\{[^}]*font-size:\s*[\d.]+px/,
-      ".brand { font-family: 'DM Sans',Arial,sans-serif; font-weight: 500; font-size: 22px",
+      ".brand { font-family: 'DM Sans',Arial,sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.24em; fill: rgba(255,255,255,0.92)",
     ) +
     `
+.eyebrow {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.36em;
+  fill: ${ACCENT};
+  filter: url(#textShadow);
+}
+.headline { filter: url(#textShadow); }
 .tip {
   font-family: 'DM Sans', Arial, sans-serif;
-  font-weight: 500;
+  font-weight: 400;
   font-size: ${TIP_FONT_SIZE}px;
-  fill: #f8f8f4;
-  letter-spacing: 0.2px;
+  fill: #f5efe5;
+  letter-spacing: 0.15px;
+  filter: url(#textShadow);
 }
+.tip-numeral {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: ${TIP_NUMERAL_FONT_SIZE}px;
+  fill: ${ACCENT};
+  letter-spacing: 0.02em;
+  filter: url(#textShadow);
+}
+.brand { filter: url(#textShadow); }
 `;
 
-  // The scrim now extends a bit further down so the bullet area is
-  // legible. Stop at 0.6 × H so the lower 40% of the frame is still
-  // a clean unobstructed photograph for the flat-lay subject.
-  const scrimEndY = tipBlocks.length > 0 ? H * 0.6 : H * 0.45;
+  // Long, soft top scrim that fades naturally into the photo — replaces the
+  // hard "darkened upper third" look. Reaches past the headline area so tips
+  // get gentle support too.
+  const scrimEndY = H * 0.55;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
+    <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="0" dy="2" result="offset" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.65" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
     <linearGradient id="topScrim" x1="0" y1="0" x2="0" y2="${scrimEndY}" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0.65"/>
-      <stop offset="0.7" stop-color="rgb(8,12,16)" stop-opacity="0.35"/>
+      <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0.62"/>
+      <stop offset="0.55" stop-color="rgb(8,12,16)" stop-opacity="0.32"/>
       <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0"/>
     </linearGradient>
-    <linearGradient id="bottomScrim" x1="0" y1="${H - PAD * 1.6}" x2="0" y2="${H}" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bottomScrim" x1="0" y1="${H - PAD * 1.8}" x2="0" y2="${H}" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="rgb(8,12,16)" stop-opacity="0"/>
-      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="rgb(8,12,16)" stop-opacity="0.55"/>
     </linearGradient>
     <style>
       ${educationalFontStyles}
@@ -482,7 +637,10 @@ async function renderEducationalOverlaySvg(input: EducationalOverlayInput) {
   </defs>
   <rect width="${W}" height="${H}" fill="url(#topScrim)"/>
   <rect width="${W}" height="${H}" fill="url(#bottomScrim)"/>
+  ${eyebrowSvg}
   ${headlineSvg}
+  ${ruleSvg}
+  ${indentRuleSvg}
   ${tipsSvg}
   ${brandSvg}
 </svg>`;

@@ -180,9 +180,15 @@ function refineForTopic(
   // cleaner, more clinical composition. Educational posts about
   // procedures benefit from the diagrammatic energy; soft-editorial
   // spa visuals undersell the seriousness of the topic.
+  //
+  // Exception: TIPS_EDUCATION must keep the EDUCATIONAL profile, because
+  // the post-image pipeline only renders the headline + bullet-tip
+  // overlay when imageProfile === "EDUCATIONAL". Switching to
+  // MODERN_GRAPHIC here would silently drop all overlay text and ship a
+  // bare photograph — confusing for a "tip card" post.
   if (
     topicMentions(trimmed, MEDICAL_PROCEDURAL_TOKENS) &&
-    (category === "TIPS_EDUCATION" || category === "SERVICE_SHOWCASE")
+    category === "SERVICE_SHOWCASE"
   ) {
     return {
       ...brief,
@@ -232,14 +238,10 @@ export function inferCreativeBrief(input: {
             }
           : base;
       case "CLINIC":
-        return input.category === "TIPS_EDUCATION"
-          ? {
-              ...base,
-              imageProfile: "MODERN_GRAPHIC",
-              rationale:
-                "Modern-graphic profile for clinical educational tone.",
-            }
-          : base;
+        // TIPS_EDUCATION must keep the EDUCATIONAL profile so the overlay
+        // pipeline renders the tip-card headline + bullets. The clinical
+        // tilt was producing bare photographs for clinic tip posts.
+        return base;
       default:
         return base;
     }

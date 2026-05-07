@@ -770,6 +770,19 @@ export async function generateSocialPostImageAction(input: {
 export async function regenerateSocialPostCaptionAction(input: {
   businessSlug: string;
   postId: string;
+  /**
+   * Optional owner-selected tone override. When omitted (or "AUTO"), the
+   * generator picks the tone implied by the offer/category. Lets the owner
+   * regenerate the same post in a different voice without leaving the
+   * post-edit dialog.
+   */
+  captionTone?:
+    | "AUTO"
+    | "FRIENDLY_TAGLISH"
+    | "PREMIUM_LUXURY"
+    | "WITTY_PLAYFUL"
+    | "WARM_NURTURING"
+    | "DIRECT_URGENT";
 }) {
   const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
@@ -821,6 +834,11 @@ export async function regenerateSocialPostCaptionAction(input: {
       return { success: false as const, error: "Social post draft not found." };
     }
 
+    const toneOverride =
+      input.captionTone && input.captionTone !== "AUTO"
+        ? input.captionTone
+        : undefined;
+
     let generated;
     if (post.sale_event) {
       generated = await generateSocialCaptionDraft({
@@ -838,6 +856,7 @@ export async function regenerateSocialPostCaptionAction(input: {
           new Set(post.sale_event.applicable_services.map((service) => service.category)),
         ),
         packageNames: post.sale_event.applicable_packages.map((pkg) => pkg.name),
+        captionTone: toneOverride,
       });
     } else {
       // Wave L1: prefer the post's own category, fall back to the
@@ -854,6 +873,7 @@ export async function regenerateSocialPostCaptionAction(input: {
         businessDescription: post.business.description,
         topic: post.title,
         category: resolvedCategory,
+        captionTone: toneOverride,
       });
     }
 

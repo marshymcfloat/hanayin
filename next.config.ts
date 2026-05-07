@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   // so it doesn't get prerender-cached. Other routes that need uncached
   // behavior should add the same opt-out.
   cacheComponents: true,
+  // Native modules: Turbopack can't statically resolve their platform-specific
+  // binaries (e.g. @resvg/resvg-js-win32-x64-msvc). Listing them here keeps
+  // them as runtime requires resolved from node_modules.
+  serverExternalPackages: ["@resvg/resvg-js"],
   images: {
     // Some local networks/ISPs use DNS64/NAT64 (64:ff9b::/96), which Next.js
     // can classify as private even for public hosts. Keep this dev-only.
