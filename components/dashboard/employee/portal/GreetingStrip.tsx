@@ -120,18 +120,15 @@ export function GreetingStrip({
             : undefined
         }
       >
-        {/* Two flex items at the top level — greeting block and
-            actions block. flex-wrap pushes actions to a second row
-            when the row is too narrow, so the greeting never
-            truncates. Actions use ml-auto on whichever row they
-            land in to stay right-anchored (right-handed thumb).
-            The greeting block's `grow` makes it consume the row
-            on mobile so the salary pill (inside the block, with
-            its own ml-auto) gets pushed to the right edge,
-            filling the empty space alongside "Good morning, …".
-            sm+ collapses grow so everything sits inline. */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-4">
-          <div className="flex grow items-center gap-3 sm:grow-0 sm:gap-4">
+        {/* Two top-level flex items: the greeting block and the
+            action row (salary left + buttons right). flex-wrap pushes
+            the action row to a new line on narrow screens, so the
+            greeting never truncates. The action row stays a single
+            unit at every breakpoint so the salary pill is always
+            visible alongside the buttons — never gets clipped or
+            truncated. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-3 sm:gap-x-4">
+          <div className="flex grow items-center gap-3 sm:gap-4">
             <motion.div
               animate={
                 reduced
@@ -191,21 +188,28 @@ export function GreetingStrip({
                 ) : null}
               </AnimatePresence>
             </div>
-
-            {/* Salary pill — anchored to the right edge of the
-                greeting block via ml-auto. Stays bound to the
-                greeting (not the actions) so it always rides on
-                the same row as the avatar + headline. */}
-            {salaryEstimate != null ? (
-              <div className="ml-auto shrink-0 sm:ml-2">
-                <SalaryPill amount={salaryEstimate} compact={compact} />
-              </div>
-            ) : null}
           </div>
 
-          {actions ? (
-            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:ml-0 sm:gap-2">
-              {actions}
+          {/* Action row — salary pill (left) + buttons (right).
+              On mobile this row wraps below the greeting and uses
+              justify-between so the pill hugs the left edge and
+              buttons hug the right edge. On sm+ it sits inline on
+              the same row as the greeting; greeting's `grow` pushes
+              the row to the far right, where it stays a tight group. */}
+          {(salaryEstimate != null || actions) ? (
+            <div className="flex shrink-0 basis-full items-center justify-between gap-3 sm:basis-auto sm:gap-3">
+              {salaryEstimate != null ? (
+                <div className="shrink-0">
+                  <SalaryPill amount={salaryEstimate} compact={compact} />
+                </div>
+              ) : (
+                <span aria-hidden />
+              )}
+              {actions ? (
+                <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                  {actions}
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
