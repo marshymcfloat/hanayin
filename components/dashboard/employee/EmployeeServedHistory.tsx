@@ -362,7 +362,12 @@ export default function EmployeeServedHistory({
                 </div>
                 <div className="flex justify-between py-2 border-b border-dashed">
                   <span className="text-muted-foreground">Status</span>
-                  <Badge variant="outline">{selectedService.status}</Badge>
+                  <Badge
+                    variant="outline"
+                    className="border-primary/30 bg-primary/10 text-primary"
+                  >
+                    {selectedService.status}
+                  </Badge>
                 </div>
               </div>
 
