@@ -1353,7 +1353,7 @@ export default function BookingForm({
             )}
           />
 
-          <div className="order-0 sticky top-0 z-20 -mx-1 px-3 py-2.5 bg-primary/[0.04] backdrop-blur supports-[backdrop-filter]:bg-primary/[0.05] border-b border-primary/15">
+          <div className="order-0 sticky top-[calc(var(--bf-header-h,0px)+0.75rem)] z-20 -mx-1 px-3 py-2.5 bg-primary/[0.04] backdrop-blur supports-[backdrop-filter]:bg-primary/[0.05] border-b border-primary/15 rounded-md">
             {/* Step progress bar */}
             {(() => {
               const steps = [
@@ -1413,7 +1413,7 @@ export default function BookingForm({
               className={cn(
                 "order-[5] py-1 sm:py-2 transition-all duration-300",
                 isOtpVerified
-                  ? "border-l-2 border-emerald-300 pl-3"
+                  ? "border-l-2 border-primary/30 pl-3"
                   : "border-border",
               )}
             >
@@ -1421,9 +1421,9 @@ export default function BookingForm({
               <div className="flex items-center gap-2.5 mb-4">
                 <div className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition-all duration-300",
-                  isOtpVerified ? "bg-emerald-100" : "bg-primary/10",
+                  isOtpVerified ? "bg-primary/15" : "bg-primary/10",
                 )}>
-                  <ShieldCheck className={cn("h-4 w-4", isOtpVerified ? "text-emerald-600" : "text-primary")} />
+                  <ShieldCheck className={cn("h-4 w-4", isOtpVerified ? "text-primary" : "text-primary")} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-base tracking-tight leading-none">
@@ -1436,7 +1436,7 @@ export default function BookingForm({
                   </p>
                 </div>
                 {isOtpVerified && (
-                  <span className="shrink-0 text-[10px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-full uppercase tracking-wide">
+                  <span className="shrink-0 text-[10px] font-bold text-primary bg-primary/15 border border-primary/20 px-2 py-1 rounded-full uppercase tracking-wide">
                     {otpTier === "TRUSTED" ? "Trusted" : "Verified"}
                   </span>
                 )}
@@ -1445,14 +1445,14 @@ export default function BookingForm({
               {isOtpVerified ? (
                 <div className="space-y-3 animate-in fade-in duration-200">
                   {/* Verified identity card */}
-                  <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-white/70 p-3">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-emerald-100 shrink-0">
+                  <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-white/70 p-3">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/15 shrink-0">
                       {otpCustomerName ? (
-                        <span className="text-sm font-bold text-emerald-700">
+                        <span className="text-sm font-bold text-primary">
                           {otpCustomerName.charAt(0).toUpperCase()}
                         </span>
                       ) : (
-                        <Phone className="h-4 w-4 text-emerald-600" />
+                        <Phone className="h-4 w-4 text-primary" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1483,7 +1483,7 @@ export default function BookingForm({
                     </button>
                   </div>
                   {otpCustomerName && (
-                    <p className="text-xs text-emerald-700 font-medium pl-0.5">
+                    <p className="text-xs text-primary font-medium pl-0.5">
                       Welcome back, {otpCustomerName.split(" ")[0]}! Your details have been pre-filled below.
                     </p>
                   )}
@@ -1669,7 +1669,7 @@ export default function BookingForm({
                       <FormLabel className="flex items-center gap-1.5">
                         Full Name
                         {otpPrefilled && otpCustomerName && (
-                          <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                          <span className="text-[9px] font-semibold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
                             Pre-filled
                           </span>
                         )}
@@ -1679,7 +1679,7 @@ export default function BookingForm({
                           placeholder="Enter your full name"
                           className={cn(
                             otpPrefilled && otpCustomerName && field.value
-                              ? "border-emerald-300 bg-emerald-50/30 focus-visible:ring-emerald-400/50"
+                              ? "border-primary/30 bg-primary/[0.04] focus-visible:ring-primary/30"
                               : "",
                           )}
                           {...field}
@@ -1705,7 +1705,7 @@ export default function BookingForm({
                           <FormLabel className="flex items-center gap-1.5">
                             Email
                             {isPrefilled && (
-                              <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                              <span className="text-[9px] font-semibold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
                                 Pre-filled
                               </span>
                             )}
@@ -1715,7 +1715,7 @@ export default function BookingForm({
                               placeholder="email@example.com"
                               className={cn(
                                 isPrefilled && field.value
-                                  ? "border-emerald-300 bg-emerald-50/30 focus-visible:ring-emerald-400/50"
+                                  ? "border-primary/30 bg-primary/[0.04] focus-visible:ring-primary/30"
                                   : "",
                               )}
                               {...field}
@@ -1737,10 +1737,10 @@ export default function BookingForm({
                       <FormItem>
                         <FormLabel>Contact Number</FormLabel>
                         {isOtpVerified ? (
-                          <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2.5">
-                            <Phone className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                            <span className="text-sm font-medium text-emerald-800">{otpPhone}</span>
-                            <span className="ml-auto text-[10px] font-semibold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                          <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/[0.04] px-3 py-2.5">
+                            <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="text-sm font-medium text-primary">{otpPhone}</span>
+                            <span className="ml-auto text-[10px] font-semibold text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
                               Verified
                             </span>
                           </div>
@@ -1769,21 +1769,21 @@ export default function BookingForm({
               {pendingFlows.map((flow, idx) => (
                 <div
                   key={idx}
-                  className="bg-indigo-50/50 hover:bg-indigo-50/80 transition-colors border border-indigo-200/60 rounded-xl p-4 relative overflow-hidden group"
+                  className="bg-primary/[0.04] hover:bg-primary/[0.06] transition-colors border border-primary/20 rounded-xl p-4 relative overflow-hidden group"
                 >
                   <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Sparkles className="w-20 h-20 text-indigo-900" />
+                    <Sparkles className="w-20 h-20 text-primary" />
                   </div>
 
                   <div className="relative z-10">
                     <div className="flex items-center gap-2 mb-3">
                       <Badge
                         variant="outline"
-                        className="bg-white/80 text-indigo-700 border-indigo-200 shadow-sm backdrop-blur-sm"
+                        className="bg-white/80 text-primary border-primary/20 shadow-sm backdrop-blur-sm"
                       >
                         Recommendation
                       </Badge>
-                      <span className="text-xs text-indigo-600/80 font-medium">
+                      <span className="text-xs text-primary/80 font-medium">
                         Based on visit{" "}
                         {format(new Date(flow.lastServiceDate), "MMM d")}
                       </span>
@@ -1791,10 +1791,10 @@ export default function BookingForm({
 
                     <div className="flex items-center gap-4 text-sm mb-4">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase tracking-wider font-semibold text-indigo-700/70 mb-0.5">
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-primary/70 mb-0.5">
                           Suggested Service
                         </span>
-                        <span className="font-bold text-indigo-950 text-lg leading-tight">
+                        <span className="font-bold text-foreground text-lg leading-tight">
                           {flow.suggestedServiceName}
                         </span>
                       </div>
@@ -1815,13 +1815,13 @@ export default function BookingForm({
                           const isOverdue = diffDays > 0;
 
                           return isOverdue ? (
-                            <span className="text-orange-600 flex items-center gap-1.5 bg-orange-50 px-2.5 py-1.5 rounded-md border border-orange-100/50">
+                            <span className="text-amber-700 flex items-center gap-1.5 bg-amber-50 px-2.5 py-1.5 rounded-md border border-amber-200/60 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/40">
                               <Calendar className="w-3.5 h-3.5" />
                               Overdue by {diffDays}{" "}
                               {diffDays === 1 ? "day" : "days"}
                             </span>
                           ) : (
-                            <span className="text-indigo-600 flex items-center gap-1.5 bg-indigo-100/50 px-2.5 py-1.5 rounded-md">
+                            <span className="text-primary flex items-center gap-1.5 bg-primary/10 px-2.5 py-1.5 rounded-md">
                               <Calendar className="w-3.5 h-3.5" />
                               Due {format(dueDate, "MMMM d")}
                             </span>
@@ -1832,7 +1832,7 @@ export default function BookingForm({
                       <Button
                         type="button"
                         size="sm"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200/50 shadow-lg transition-all active:scale-95"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/20 shadow-lg transition-all active:scale-95"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -2353,8 +2353,8 @@ export default function BookingForm({
         </div>
 
         <div className="w-full lg:w-[320px] xl:w-[360px] lg:shrink-0">
-          <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-            <div className="rounded-2xl border border-zinc-200 bg-card overflow-hidden lg:flex lg:flex-col lg:max-h-[calc(90vh-96px)]">
+          <div className="space-y-4 lg:sticky lg:top-[calc(var(--bf-header-h,0px)+1rem)] lg:self-start">
+            <div className="rounded-2xl border border-zinc-200 bg-card overflow-hidden lg:flex lg:flex-col lg:max-h-[calc(100dvh-var(--bf-header-h,0px)-2rem)]">
               <div className="border-b border-zinc-100 px-4 py-3.5 lg:shrink-0">
                 <div className="flex items-center justify-between text-base">
                   <span className="font-bold">Booking Summary</span>
@@ -2492,7 +2492,7 @@ export default function BookingForm({
                             )}
 
                             {appliedVoucher && (
-                              <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-md border border-emerald-200">
+                              <div className="flex items-center gap-2 text-xs text-primary bg-primary/10 px-2.5 py-1.5 rounded-md border border-primary/20">
                                 <Ticket className="size-3.5 shrink-0" />
                                 <span className="font-semibold tracking-wide">
                                   {appliedVoucher.code}
@@ -2523,7 +2523,7 @@ export default function BookingForm({
                       </div>
 
                       {appliedVoucher && (
-                        <div className="flex justify-between items-center text-sm text-emerald-600">
+                        <div className="flex justify-between items-center text-sm text-primary">
                           <span className="flex items-center gap-1.5">
                             <Ticket className="w-3.5 h-3.5" /> Voucher Discount
                           </span>
