@@ -11,6 +11,13 @@ export interface BeautyFeelShellProps {
   businessName: string;
   businessSlug: string;
   navItems: BeautyFeelNavItem[];
+  /**
+   * Forwarded to `BeautyFeelHeader`. Pages with a dark, image-led hero
+   * (landing, services) keep the default `"adaptive"`; pages with a
+   * light hero (booking, claim-gift-card) should pass `"solid"` so the
+   * header text stays legible at the top of the page.
+   */
+  headerVariant?: "adaptive" | "solid";
   children: React.ReactNode;
 }
 
@@ -18,10 +25,11 @@ export default function BeautyFeelShell({
   businessName,
   businessSlug,
   navItems,
+  headerVariant = "adaptive",
   children,
 }: BeautyFeelShellProps) {
   return (
-    <div className="min-h-screen bg-[color:var(--bf-cream)] text-[color:var(--bf-ink)] [--bf-cream:oklch(0.98_0.01_92)] [--bf-ink:oklch(0.2_0.02_62)] [--bf-muted:oklch(0.52_0.02_75)] [--bf-blush:oklch(0.92_0.03_35)] [--bf-accent:oklch(0.86_0.08_38)] [--bf-sage:oklch(0.76_0.05_148)]">
+    <div className="min-h-screen bg-[color:var(--bf-cream)] text-[color:var(--bf-ink)] [--bf-cream:oklch(0.98_0.01_92)] [--bf-ink:oklch(0.2_0.02_62)] [--bf-muted:oklch(0.52_0.02_75)] [--bf-blush:oklch(0.92_0.03_35)] [--bf-accent:oklch(0.86_0.08_38)] [--bf-sage:oklch(0.76_0.05_148)] [--bf-header-h:4rem] sm:[--bf-header-h:5rem]">
       {/* Lenis smooth-scroll mounted globally for this facing site.
           Reused from the marketing pages — handles `prefers-reduced-motion`
           internally and exposes the instance on `window.__lenis`. */}
@@ -33,6 +41,7 @@ export default function BeautyFeelShell({
         businessName={businessName}
         businessSlug={businessSlug}
         navItems={navItems}
+        variant={headerVariant}
       />
 
       {children}

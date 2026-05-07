@@ -14,34 +14,50 @@ export interface BeautyFeelHeaderProps {
   businessName: string;
   businessSlug: string;
   navItems: BeautyFeelHeaderNavItem[];
+  /**
+   * Tone the bar adopts at the very top of the page.
+   *
+   *  - `"adaptive"` (default): transparent + cream text initially, then
+   *    morphs to a frosted-cream pane with dark text once the user
+   *    scrolls past the hero. Use on pages whose hero is a dark
+   *    full-bleed image.
+   *  - `"solid"`: always renders the frosted-cream / dark-text state
+   *    from scroll position 0. Use on pages whose hero is light (the
+   *    booking and gift-card forms, etc.) where cream-on-cream is
+   *    invisible.
+   */
+  variant?: "adaptive" | "solid";
 }
 
 /**
- * Morphing sticky header for the BeautyFeel facing page.
+ * Sticky header for the BeautyFeel facing site.
  *
- *  - At the top of the page (over the dark full-bleed hero image), the
- *    bar is fully transparent and all text/buttons render in cream so
- *    they read against the imagery.
- *  - Once the user scrolls past the hero (~24px is enough since the
- *    transition feels best when it kicks in early), the bar morphs to a
- *    frosted-cream pane with dark text — same look as the previous
- *    server-rendered version.
- *
- * Smooth `transition-all duration-300` between the two states.
+ * In `adaptive` mode the bar is transparent over a dark hero and
+ * morphs to a frosted-cream pane after ~24px of scroll. In `solid`
+ * mode it skips the transparent state entirely so contents stay
+ * legible over light hero strips.
  */
 export default function BeautyFeelHeader({
   businessName,
   businessSlug,
   navItems,
+  variant = "adaptive",
 }: BeautyFeelHeaderProps) {
-  const [scrolled, setScrolled] = useState(false);
+  // In `solid` mode the bar always renders the scrolled state, so the
+  // scroll listener is a no-op — derive `scrolled` directly from the
+  // variant in that case and skip the effect entirely. Avoids a
+  // setState-in-effect cascade and keeps the listener off the page
+  // when it can't change anything.
+  const [scrolledOnAdaptive, setScrolledOnAdaptive] = useState(false);
+  const scrolled = variant === "solid" ? true : scrolledOnAdaptive;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    if (variant === "solid") return;
+    const onScroll = () => setScrolledOnAdaptive(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [variant]);
 
   return (
     <header

@@ -38,6 +38,7 @@ export default async function BeautyFeelBooking({
       businessName={business.name}
       businessSlug={businessSlug}
       navItems={navItems}
+      headerVariant="solid"
     >
       {/* ────────────────────── HERO STRIP ────────────────────── */}
       {/* Short typography-only header. Pulled up under the sticky header
@@ -63,7 +64,7 @@ export default async function BeautyFeelBooking({
       </section>
 
       {/* ────────────────────── FORM ────────────────────── */}
-      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
+      <section className="mx-auto max-w-5xl px-4 pt-10 pb-6 sm:px-6 sm:pt-14 sm:pb-10 lg:pt-20 lg:pb-14">
         <div className="rounded-2xl border border-black/[0.08] bg-[color:var(--bf-cream)] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)]">
           <div className="p-4 sm:p-7">
             <BookingForm
