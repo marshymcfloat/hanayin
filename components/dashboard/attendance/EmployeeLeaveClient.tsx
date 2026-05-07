@@ -177,25 +177,35 @@ export function EmployeeLeaveClient({
               <p className="text-sm text-muted-foreground">History of your leave requests.</p>
             </div>
             {requests.length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground border border-dashed border-border rounded-2xl">
-                No leave requests found.
+              <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-primary/[0.02] py-12 text-center">
+                <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+                  <Sparkles className="size-5" />
+                </span>
+                <div className="space-y-0.5">
+                  <p className="text-sm font-semibold text-foreground">
+                    No leave requests yet
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Use the button above to file your first request.
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-border overflow-hidden bg-card">
+              <div className="overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="hover:bg-transparent border-border bg-muted/50">
-                      <TableHead className="h-11 font-semibold text-muted-foreground">Dates</TableHead>
-                      <TableHead className="h-11 font-semibold text-muted-foreground">Type</TableHead>
-                      <TableHead className="h-11 font-semibold text-muted-foreground">Reason</TableHead>
-                      <TableHead className="h-11 font-semibold text-muted-foreground">Status</TableHead>
-                      <TableHead className="h-11 font-semibold text-muted-foreground">Admin Comment</TableHead>
-                      <TableHead className="text-right h-11 font-semibold text-muted-foreground">Actions</TableHead>
+                    <TableRow className="hover:bg-transparent border-b border-border">
+                      <TableHead className="h-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Dates</TableHead>
+                      <TableHead className="h-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Type</TableHead>
+                      <TableHead className="h-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Reason</TableHead>
+                      <TableHead className="h-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Status</TableHead>
+                      <TableHead className="h-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Admin Comment</TableHead>
+                      <TableHead className="text-right h-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {requests.map((request) => (
-                      <TableRow key={request.id} className="border-border/50 hover:bg-accent/30 transition-colors">
+                      <TableRow key={request.id} className="border-border/50 hover:bg-primary/[0.04] transition-colors">
                         <TableCell className="py-3">
                           <div className="flex flex-col">
                             <span className="font-medium text-foreground">
