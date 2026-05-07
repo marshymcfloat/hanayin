@@ -56,12 +56,17 @@ export type MyBookingsListProps = {
 const statusBadgeClass = (status: BookingStatus) => {
   switch (status) {
     case "ACCEPTED":
-      return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300";
+      // Was blue (drift). Move to primary tints so the portal stays
+      // on the green-shades palette.
+      return "border-primary/30 bg-primary/10 text-primary";
     case "COMPLETED":
       return "border-primary/30 bg-primary/10 text-primary";
     case "CANCELLED":
       return "border-destructive/30 bg-destructive/10 text-destructive";
     default:
+      // HOLD / pending — amber stays. It's universally understood as
+      // "needs attention" and the green palette can't carry both
+      // "in progress" and "needs attention" without losing meaning.
       return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300";
   }
 };
@@ -80,17 +85,35 @@ export function MyBookingsList({
 
   if (bookings.length === 0) {
     return (
-      <div className="px-4 py-6 text-xs text-muted-foreground text-center">
-        No bookings assigned to you yet.
+      <div className="flex h-full flex-col items-center justify-center py-12 text-center space-y-3">
+        <div className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+          <Calendar className="size-5" />
+        </div>
+        <div className="space-y-0.5">
+          <h3 className="text-sm font-semibold text-foreground">
+            No bookings yet
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Bookings assigned to you will appear here.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <>
-      <ol className="divide-y divide-border">
+      <ul className="-mx-2 divide-y divide-border">
         {bookings.map((booking) => {
           const when = booking.scheduled_at ?? booking.created_at;
+          const customerName = getBookingCustomerName(booking);
+          const initials = customerName
+            .split(" ")
+            .map((n) => n[0])
+            .filter(Boolean)
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
           return (
             <li key={booking.id}>
               <button
@@ -99,27 +122,34 @@ export function MyBookingsList({
                   setSelected(booking);
                   setOpen(true);
                 }}
-                className="w-full px-4 py-3 hover:bg-accent/50 flex items-center justify-between gap-3 text-left transition-colors cursor-pointer"
+                className="group flex w-full items-center justify-between gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
               >
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground truncate">
-                    {getBookingCustomerName(booking)}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                    <Calendar className="h-3 w-3 shrink-0" />
-                    <span className="shrink-0">{formatPH(when, "MMM d, h:mm a")}</span>
-                    <span className="mx-1 shrink-0">·</span>
-                    <span className="truncate">
-                      {booking.availed_services
-                        .map((as) => as.service.name)
-                        .join(", ")}
-                    </span>
-                  </p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-inset ring-primary/15">
+                    {initials || "?"}
+                  </div>
+                  <div className="min-w-0 space-y-0.5">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {customerName}
+                    </p>
+                    <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <Calendar className="size-3 shrink-0" />
+                      <span className="shrink-0">
+                        {formatPH(when, "MMM d, h:mm a")}
+                      </span>
+                      <span className="mx-1 shrink-0">·</span>
+                      <span className="truncate">
+                        {booking.availed_services
+                          .map((as) => as.service.name)
+                          .join(", ")}
+                      </span>
+                    </p>
+                  </div>
                 </div>
                 <Badge
                   variant="outline"
                   className={cn(
-                    "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md shrink-0",
+                    "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                     statusBadgeClass(booking.status),
                   )}
                 >
@@ -129,7 +159,7 @@ export function MyBookingsList({
             </li>
           );
         })}
-      </ol>
+      </ul>
       <BookingQuickPanel
         booking={selected}
         servicesCatalog={servicesCatalog}
