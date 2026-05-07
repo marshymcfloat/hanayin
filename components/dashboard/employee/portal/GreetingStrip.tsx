@@ -110,13 +110,13 @@ export function GreetingStrip({
             : undefined
         }
       >
-        {/* No flex-wrap — actions stay anchored on the right at every
-            breakpoint so right-handed thumbs hit them naturally on
-            mobile. The greeting block uses min-w-0 so it truncates
-            into the available space rather than pushing actions to a
-            second row. */}
-        <div className="flex items-center justify-between gap-3 sm:gap-4">
-          <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+        {/* flex-wrap so the greeting never truncates: when there isn't
+            room for both, the actions wrap to a second row. Actions
+            use ml-auto so they're right-anchored on whichever row
+            they end up on — comfortable thumb position for
+            right-handed mobile users in either layout. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <motion.div
               animate={
                 reduced
@@ -179,7 +179,7 @@ export function GreetingStrip({
           </div>
 
           {actions ? (
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
               {actions}
             </div>
           ) : null}
