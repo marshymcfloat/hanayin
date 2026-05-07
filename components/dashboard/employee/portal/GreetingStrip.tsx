@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { PhilippinePeso } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -235,19 +234,16 @@ function SalaryPill({
   amount: number;
   compact: boolean;
 }) {
+  // formatCurrency renders the ₱ glyph itself (en-PH locale) so we
+  // intentionally don't prepend a PhilippinePeso icon — that was
+  // showing two peso symbols ("₱ ₱628.80").
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full bg-primary/10 ring-1 ring-inset ring-primary/15 transition-[padding] duration-300",
+        "inline-flex items-center rounded-full bg-primary/10 ring-1 ring-inset ring-primary/15 transition-[padding] duration-300",
         compact ? "px-2.5 py-1" : "px-3 py-1.5",
       )}
     >
-      <PhilippinePeso
-        className={cn(
-          "text-primary transition-[width,height] duration-300",
-          compact ? "size-3" : "size-3.5",
-        )}
-      />
       <span
         className={cn(
           "font-semibold tabular-nums leading-none text-primary transition-[font-size] duration-300",
