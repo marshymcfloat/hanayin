@@ -115,17 +115,17 @@ function AuditTrailLoader({
 
   return (
     <ol
-      className={cn("divide-y divide-zinc-100 rounded-lg border border-zinc-100 bg-white", className)}
+      className={cn("-mx-2 divide-y divide-border", className)}
     >
       {state.entries.map((entry) => {
         const verb = formatAction ? formatAction(entry) : defaultVerb(entry);
         return (
           <li
             key={entry.id}
-            className="flex items-start justify-between gap-4 px-3 py-2 text-sm"
+            className="flex items-start justify-between gap-4 px-2 py-3 text-sm"
           >
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-zinc-900">{verb}</p>
+              <p className="font-medium text-foreground">{verb}</p>
               <DiffSummary changes={entry.changes} />
             </div>
             <time
@@ -176,7 +176,7 @@ function DiffSummary({ changes }: { changes: AuditEntry["changes"] }) {
         const a = after?.[key];
         return (
           <li key={key}>
-            <span className="font-medium text-zinc-700">{key}</span>
+            <span className="font-medium text-foreground/80">{key}</span>
             :{" "}
             <span className="break-all">{formatValue(b)}</span>
             {" → "}

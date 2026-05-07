@@ -143,7 +143,7 @@ async function AppLayoutContent({
       <ViewerContextProvider value={viewerValue}>
         <div className="bg-background min-h-screen ">
           {showReadOnlyBanner ? (
-            <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+            <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
               {readOnlyMessage}
             </div>
           ) : null}
