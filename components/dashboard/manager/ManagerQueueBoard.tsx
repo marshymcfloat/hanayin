@@ -174,14 +174,14 @@ export default function ManagerQueueBoard({
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full items-start">
         {/* Pending Column */}
-        <div className="flex flex-col gap-3 p-1 rounded-xl bg-zinc-50/50 border border-zinc-100/50 h-full min-h-[300px]">
+        <div className="flex h-full min-h-[300px] flex-col gap-3 rounded-2xl border border-black/[0.06] bg-foreground/[0.02] p-2">
           <div className="flex items-center justify-between px-3 py-2">
-            <h3 className="font-display font-semibold text-zinc-900 text-sm">
+            <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Pending
             </h3>
             <Badge
-              variant="secondary"
-              className="bg-zinc-100 text-zinc-600 border-zinc-200"
+              variant="outline"
+              className="border-black/[0.06] bg-card text-foreground/70"
             >
               {columns.pending.length}
             </Badge>
@@ -189,8 +189,8 @@ export default function ManagerQueueBoard({
 
           <div className="flex flex-col gap-3 px-1">
             {columns.pending.length === 0 ? (
-              <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zinc-200 p-4 text-center">
-                <p className="text-xs text-zinc-400">No pending items</p>
+              <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-black/[0.08] p-4 text-center">
+                <p className="text-xs text-muted-foreground">No pending items</p>
               </div>
             ) : (
               columns.pending.map((service) => (
@@ -211,14 +211,14 @@ export default function ManagerQueueBoard({
         </div>
 
         {/* Active Column (Claimed + Serving) */}
-        <div className="flex flex-col gap-3 p-1 rounded-xl bg-zinc-50/50 border border-zinc-100/50 h-full min-h-[300px]">
+        <div className="flex h-full min-h-[300px] flex-col gap-3 rounded-2xl border border-black/[0.06] bg-foreground/[0.02] p-2">
           <div className="flex items-center justify-between px-3 py-2">
-            <h3 className="font-display font-semibold text-zinc-900 text-sm">
+            <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Active
             </h3>
             <Badge
-              variant="secondary"
-              className="bg-blue-50 text-blue-700 border-blue-100"
+              variant="outline"
+              className="border-primary/30 bg-primary/10 text-primary"
             >
               {columns.active.length}
             </Badge>
@@ -226,8 +226,8 @@ export default function ManagerQueueBoard({
 
           <div className="flex flex-col gap-3 px-1">
             {columns.active.length === 0 ? (
-              <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zinc-200 p-4 text-center">
-                <p className="text-xs text-zinc-400">No active items</p>
+              <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-black/[0.08] p-4 text-center">
+                <p className="text-xs text-muted-foreground">No active items</p>
               </div>
             ) : (
               columns.active.map((service) => (

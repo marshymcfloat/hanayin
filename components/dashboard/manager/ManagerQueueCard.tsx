@@ -107,26 +107,24 @@ export function ManagerQueueCard({
   const statusColor = useMemo(() => {
     switch (service.status) {
       case AvailedServiceStatus.PENDING:
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/60";
       case AvailedServiceStatus.SERVING:
-        return "bg-indigo-50 text-indigo-700 border-indigo-200";
       case AvailedServiceStatus.CLAIMED:
-        return "bg-blue-50 text-blue-700 border-blue-200";
       default:
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-primary/10 text-primary border-primary/20";
     }
   }, [service.status]);
 
   return (
     <Card
       className={cn(
-        "group relative overflow-hidden transition-all duration-200 hover:shadow-md border-zinc-200",
+        "group relative overflow-hidden transition-all duration-200 hover:shadow-md border-black/[0.06]",
         isBusy && "opacity-70 pointer-events-none",
       )}
     >
       {isBusy && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-900 border-t-transparent" />
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-card/60 backdrop-blur-[1px]">
+          <div className="size-4 animate-spin rounded-full border-2 border-foreground border-t-transparent" />
         </div>
       )}
 
@@ -142,11 +140,11 @@ export function ManagerQueueCard({
             >
               {service.status}
             </Badge>
-            <h3 className="font-semibold text-zinc-900 line-clamp-2 leading-tight">
+            <h3 className="font-semibold text-foreground line-clamp-2 leading-tight">
               {service.service.name}
             </h3>
             {service.package && (
-              <p className="text-xs text-zinc-500 font-medium">
+              <p className="text-xs text-muted-foreground font-medium">
                 {service.package.name}
               </p>
             )}
@@ -156,33 +154,33 @@ export function ManagerQueueCard({
 
       <CardContent className="p-4 pt-0 space-y-4">
         <div className="flex flex-col gap-2">
-          <div className="flex items-center text-xs text-zinc-500">
-            <User className="mr-2 h-3.5 w-3.5 text-zinc-400" />
-            <span className="font-medium text-zinc-700 truncate max-w-[150px]">
+          <div className="flex items-center text-xs text-muted-foreground">
+            <User className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+            <span className="font-medium text-foreground/80 truncate max-w-[150px]">
               {getBookingCustomerName(service.booking)}
             </span>
           </div>
-          <div className="flex items-center text-xs text-zinc-500">
+          <div className="flex items-center text-xs text-muted-foreground">
             {displayTime ? (
               <>
-                <Calendar className="mr-2 h-3.5 w-3.5 text-zinc-400" />
+                <Calendar className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
                 <span className="font-mono">
                   {formatPH(displayTime, "MMM d, h:mm a")}
                 </span>
               </>
             ) : (
               <>
-                <Clock className="mr-2 h-3.5 w-3.5 text-zinc-400" />
+                <Clock className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
                 <span>Walk-in</span>
               </>
             )}
           </div>
         </div>
 
-        <Separator className="bg-zinc-100" />
+        <Separator className="bg-border" />
 
         <div className="space-y-2">
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+          <label className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Assign To
           </label>
           <Select
@@ -190,7 +188,7 @@ export function ManagerQueueCard({
             onValueChange={(value) => onAssignChange(service.id, Number(value))}
             disabled={isBusy}
           >
-            <SelectTrigger className="h-9 w-full bg-zinc-50/50 border-zinc-200">
+            <SelectTrigger className="h-9 w-full bg-foreground/[0.02] border-black/[0.08]">
               <SelectValue placeholder="Select employee" />
             </SelectTrigger>
             <SelectContent>
@@ -204,11 +202,11 @@ export function ManagerQueueCard({
         </div>
       </CardContent>
 
-      <CardFooter className="p-3 bg-zinc-50/50 border-t border-zinc-100 flex gap-2">
+      <CardFooter className="p-3 bg-foreground/[0.02] border-t border-black/[0.06] flex gap-2">
         {isPending ? (
           <Button
             size="sm"
-            className="w-full bg-zinc-900 hover:bg-zinc-800 text-white shadow-none h-8 text-xs font-medium"
+            className="w-full h-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-medium shadow-none"
             onClick={() => onAssign(service)}
             disabled={!assigneeId || isBusy}
           >
@@ -220,7 +218,7 @@ export function ManagerQueueCard({
             <Button
               size="sm"
               variant="outline"
-              className="w-full border-zinc-200 bg-white hover:bg-zinc-50 h-8 text-xs text-zinc-700"
+              className="w-full h-8 rounded-full border-black/[0.08] bg-card hover:bg-primary/[0.04] hover:text-primary hover:border-primary/30 text-xs"
               onClick={() => onRevert(service)}
               disabled={isBusy}
             >
