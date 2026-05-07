@@ -110,8 +110,13 @@ export function GreetingStrip({
             : undefined
         }
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+        {/* No flex-wrap — actions stay anchored on the right at every
+            breakpoint so right-handed thumbs hit them naturally on
+            mobile. The greeting block uses min-w-0 so it truncates
+            into the available space rather than pushing actions to a
+            second row. */}
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
             <motion.div
               animate={
                 reduced
