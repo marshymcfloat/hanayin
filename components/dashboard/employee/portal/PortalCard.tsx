@@ -102,7 +102,12 @@ export const PortalCardBody = React.forwardRef<
       ref={ref}
       className={cn(
         "flex-1 min-h-0 px-5 pb-5 sm:px-6 sm:pb-6",
-        scrollable && "overflow-y-auto overscroll-contain no-scrollbar",
+        // overflow-y-auto with the default `overscroll-auto` (no
+        // `overscroll-contain`) so once the inner scroll reaches its
+        // top or bottom limit, scroll chaining hands the gesture
+        // back to the page. Without this the wheel/swipe stops dead
+        // at the inner edge — confusing on long lists.
+        scrollable && "overflow-y-auto no-scrollbar",
         className,
       )}
       {...props}
