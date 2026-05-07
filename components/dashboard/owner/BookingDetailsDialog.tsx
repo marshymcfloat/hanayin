@@ -173,13 +173,15 @@ export function BookingDetailsDialog({
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
       case "ACCEPTED":
-        return "bg-blue-50 text-blue-700 border-blue-200";
       case "COMPLETED":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        // Both states use primary tints; the text label
+        // ("ACCEPTED" / "COMPLETED") carries the differentiation.
+        // Keeps the dialog on the green-shades palette.
+        return "bg-primary/10 text-primary border-primary/30";
       case "CANCELLED":
-        return "bg-red-50 text-red-700 border-red-200";
+        return "bg-destructive/10 text-destructive border-destructive/30";
       default:
-        return "bg-zinc-100 text-zinc-700 border-zinc-200";
+        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/60";
     }
   };
 
@@ -392,9 +394,9 @@ export function BookingDetailsDialog({
                     className={cn(
                       "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] rounded-md leading-none h-5",
                       booking.payment_status === "PAID"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        ? "border-primary/30 bg-primary/10 text-primary"
                         : booking.payment_status === "PARTIALLY_PAID"
-                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                          ? "border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/60"
                           : "border-border bg-muted text-muted-foreground",
                     )}
                   >
@@ -422,12 +424,12 @@ export function BookingDetailsDialog({
                       </Badge>
                     )}
                     {booking.customer?.trust_tier === "TRUSTED" && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-emerald-200 text-emerald-700 bg-emerald-50 leading-none font-medium">
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-primary/30 text-primary bg-primary/10 leading-none font-medium">
                         Trusted
                       </Badge>
                     )}
                     {booking.customer?.trust_tier === "RESTRICTED" && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-red-200 text-red-700 bg-red-50 leading-none font-medium">
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-destructive/30 text-destructive bg-destructive/10 leading-none font-medium">
                         Restricted
                       </Badge>
                     )}
@@ -713,7 +715,7 @@ export function BookingDetailsDialog({
                     </span>
                   </div>
                   {booking.total_discount > 0 && (
-                    <div className="flex justify-between items-center text-sm text-emerald-600">
+                    <div className="flex justify-between items-center text-sm text-primary">
                       <span>
                         Discount
                         {booking.vouchers.length > 0
@@ -725,7 +727,7 @@ export function BookingDetailsDialog({
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center text-sm text-emerald-700">
+                  <div className="flex justify-between items-center text-sm text-primary">
                     <span>Paid</span>
                     <span className="font-medium tabular-nums">
                       {formatCurrency(amountPaid)}
@@ -745,7 +747,7 @@ export function BookingDetailsDialog({
                   </div>
                   <span className={cn(
                     "text-2xl font-bold tabular-nums tracking-tight",
-                    remainingBalance === 0 ? "text-emerald-600" : "text-foreground",
+                    remainingBalance === 0 ? "text-primary" : "text-foreground",
                   )}>
                     {formatCurrency(remainingBalance)}
                   </span>
