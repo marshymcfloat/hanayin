@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { PhilippinePeso } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 /**
  * GreetingStrip — sticky top of the employee portal.
@@ -32,6 +33,14 @@ export interface GreetingStripProps {
   roleLabel?: string;
   /** Optional secondary line (e.g. business name). Collapsed in compact mode. */
   subline?: React.ReactNode;
+  /**
+   * Salary estimate (PHP) to render as a compact green pill anchored
+   * to the right edge of the greeting block. Fills the empty
+   * horizontal space when the row has slack, and stays grouped with
+   * the avatar/headline (not the actions) so it never wraps to the
+   * actions row on its own.
+   */
+  salaryEstimate?: number;
   /** Right-hand action slot (BookingDialog, GiftCardClaimDialog, AccountDropdown). */
   actions?: React.ReactNode;
 }
@@ -43,6 +52,7 @@ export function GreetingStrip({
   name,
   roleLabel: _roleLabel,
   subline,
+  salaryEstimate,
   actions,
 }: GreetingStripProps) {
   const reduced = useReducedMotion();
@@ -110,13 +120,18 @@ export function GreetingStrip({
             : undefined
         }
       >
-        {/* flex-wrap so the greeting never truncates: when there isn't
-            room for both, the actions wrap to a second row. Actions
-            use ml-auto so they're right-anchored on whichever row
-            they end up on — comfortable thumb position for
-            right-handed mobile users in either layout. */}
+        {/* Two flex items at the top level — greeting block and
+            actions block. flex-wrap pushes actions to a second row
+            when the row is too narrow, so the greeting never
+            truncates. Actions use ml-auto on whichever row they
+            land in to stay right-anchored (right-handed thumb).
+            The greeting block's `grow` makes it consume the row
+            on mobile so the salary pill (inside the block, with
+            its own ml-auto) gets pushed to the right edge,
+            filling the empty space alongside "Good morning, …".
+            sm+ collapses grow so everything sits inline. */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-4">
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex grow items-center gap-3 sm:grow-0 sm:gap-4">
             <motion.div
               animate={
                 reduced
@@ -176,16 +191,68 @@ export function GreetingStrip({
                 ) : null}
               </AnimatePresence>
             </div>
+
+            {/* Salary pill — anchored to the right edge of the
+                greeting block via ml-auto. Stays bound to the
+                greeting (not the actions) so it always rides on
+                the same row as the avatar + headline. */}
+            {salaryEstimate != null ? (
+              <div className="ml-auto shrink-0 sm:ml-2">
+                <SalaryPill amount={salaryEstimate} compact={compact} />
+              </div>
+            ) : null}
           </div>
 
           {actions ? (
-            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:ml-0 sm:gap-2">
               {actions}
             </div>
           ) : null}
         </div>
       </motion.div>
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* SalaryPill                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Compact green pill that sits inline with the greeting and shows
+ * the running salary estimate. Mobile shrinks the pill (smaller
+ * icon, tighter padding) so it doesn't crowd the headline. Compact
+ * scroll mode trims it further.
+ */
+function SalaryPill({
+  amount,
+  compact,
+}: {
+  amount: number;
+  compact: boolean;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full bg-primary/10 ring-1 ring-inset ring-primary/15 transition-[padding] duration-300",
+        compact ? "px-2.5 py-1" : "px-3 py-1.5",
+      )}
+    >
+      <PhilippinePeso
+        className={cn(
+          "text-primary transition-[width,height] duration-300",
+          compact ? "size-3" : "size-3.5",
+        )}
+      />
+      <span
+        className={cn(
+          "font-semibold tabular-nums leading-none text-primary transition-[font-size] duration-300",
+          compact ? "text-xs" : "text-xs sm:text-sm",
+        )}
+      >
+        {formatCurrency(amount)}
+      </span>
+    </span>
   );
 }
 

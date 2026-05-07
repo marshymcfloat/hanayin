@@ -273,6 +273,7 @@ export default function EmployeeDashboard({
           name={currentEmployeeName}
           roleLabel={roleLabel}
           subline={businessName ?? undefined}
+          salaryEstimate={currentEmployeeSalary}
           actions={greetingActions}
         />
       }
