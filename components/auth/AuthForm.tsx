@@ -111,15 +111,15 @@ export default function AuthForm() {
                   className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-700 ease-out fill-mode-backwards"
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
-                  <FormLabel className="text-sm font-medium text-slate-600 ml-1">
+                  <FormLabel className="text-[13px] font-medium tracking-tight text-foreground/70 ml-1">
                     {input.charAt(0).toUpperCase() + input.slice(1)}
                   </FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <div
                         className={cn(
-                          "absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors duration-300 z-10",
-                          focusedField === input && "text-emerald-600",
+                          "absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 transition-colors duration-300 z-10",
+                          focusedField === input && "text-primary",
                         )}
                       >
                         {input === "email" ? (
@@ -142,10 +142,10 @@ export default function AuthForm() {
                           field.onBlur();
                         }}
                         className={cn(
-                          "pl-10 h-12 bg-slate-50 border-slate-200 text-base transition-all duration-300",
+                          "pl-10 h-12 bg-foreground/[0.03] border-black/[0.08] text-base transition-all duration-300",
                           input === "password" && "pr-10",
-                          "focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 focus-visible:bg-white",
-                          "hover:border-emerald-200",
+                          "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary focus-visible:bg-background",
+                          "hover:border-primary/30",
                         )}
                         placeholder={
                           input === "email" ? "name@example.com" : "••••••••"
@@ -155,7 +155,7 @@ export default function AuthForm() {
                         <button
                           type="button"
                           onClick={() => setShowPassword((prev) => !prev)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors duration-300 hover:text-slate-600"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 transition-colors duration-300 hover:text-foreground"
                           aria-label={
                             showPassword ? "Hide password" : "Show password"
                           }
@@ -180,7 +180,7 @@ export default function AuthForm() {
         {form.formState.errors.root?.message ? (
           <p
             role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+            className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
           >
             {form.formState.errors.root.message}
           </p>
@@ -189,13 +189,13 @@ export default function AuthForm() {
         <div className="flex flex-col gap-4 pt-2 animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300 ease-out fill-mode-backwards">
           <Button
             type="submit"
-            className="w-full h-12 text-base font-medium bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:bg-emerald-700 transition-all duration-300 hover:-translate-y-0.5"
+            className="w-full h-12 text-[15px] font-medium bg-primary text-primary-foreground shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_20px_-8px_color-mix(in_oklch,var(--primary)_55%,transparent)] hover:bg-primary/90 hover:-translate-y-0.5 transition-all duration-300"
             disabled={isPending}
           >
             {isPending ? (
               <LoaderCircle className="animate-spin mr-2" />
             ) : (
-              "Login to Dashboard"
+              "Sign in to dashboard"
             )}
           </Button>
         </div>
