@@ -166,7 +166,7 @@ const ServiceRow = React.memo(function ServiceRow({
             {noStaff && (
               <Badge
                 variant="secondary"
-                className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
+                className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/40 shadow-none flex items-center gap-1"
               >
                 <Users className="h-2.5 w-2.5" />
                 No qualified staff
@@ -175,7 +175,7 @@ const ServiceRow = React.memo(function ServiceRow({
             {!hasSelectedDate && dataLoaded && (
               <Badge
                 variant="secondary"
-                className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
+                className="h-4 px-1.5 text-[10px] bg-primary/10 text-primary border-primary/20 shadow-none"
               >
                 Preview
               </Badge>
@@ -528,26 +528,32 @@ const ServiceSelect = React.memo(function ServiceSelect({
             onTouchMove={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
           >
-            <Button
+            <button
               type="button"
-              variant={selectedCategory === "all" ? "default" : "ghost"}
-              size="sm"
-              className="text-xs shrink-0"
               onClick={() => setSelectedCategory("all")}
+              className={cn(
+                "h-8 shrink-0 rounded-full px-3.5 text-xs font-medium transition-colors cursor-pointer",
+                selectedCategory === "all"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-primary/[0.04] hover:text-foreground",
+              )}
             >
               All
-            </Button>
+            </button>
             {categories.map((category) => (
-              <Button
+              <button
                 key={category}
                 type="button"
-                variant={selectedCategory === category ? "default" : "ghost"}
-                size="sm"
-                className="text-xs shrink-0 capitalize"
                 onClick={() => setSelectedCategory(category)}
+                className={cn(
+                  "h-8 shrink-0 rounded-full px-3.5 text-xs font-medium capitalize transition-colors cursor-pointer",
+                  selectedCategory === category
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-primary/[0.04] hover:text-foreground",
+                )}
               >
                 {category}
-              </Button>
+              </button>
             ))}
           </div>
         )}
@@ -716,7 +722,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                 {noStaff && (
                                   <Badge
                                     variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
+                                    className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/40 shadow-none flex items-center gap-1"
                                   >
                                     <Users className="h-2.5 w-2.5" />
                                     No qualified staff
@@ -725,7 +731,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                 {!selectedDate && dataLoaded && (
                                   <Badge
                                     variant="secondary"
-                                    className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
+                                    className="h-4 px-1.5 text-[10px] bg-primary/10 text-primary border-primary/20 shadow-none"
                                   >
                                     Preview
                                   </Badge>
