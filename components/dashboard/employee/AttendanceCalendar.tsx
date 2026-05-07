@@ -46,7 +46,7 @@ export default function AttendanceCalendar({
 
   const getStatusColor = (day: Date) => {
     if (!isSameMonth(day, displayedMonth))
-      return "text-zinc-300 bg-transparent";
+      return "text-foreground/30 bg-transparent";
 
     const record = attendanceRecords.find((r) =>
       isSameDay(new Date(r.date), day),
@@ -55,23 +55,23 @@ export default function AttendanceCalendar({
     if (record) {
       switch (record.status) {
         case "PRESENT":
-          return "bg-green-100/50 text-green-700 border-green-200";
+          return "bg-primary/10 text-primary border-primary/20";
         case "ABSENT":
-          return "bg-red-100/50 text-red-700 border-red-200";
+          return "bg-destructive/10 text-destructive border-destructive/20";
         case "LATE":
-          return "bg-yellow-100/50 text-yellow-700 border-yellow-200";
+          return "bg-amber-100/60 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/40";
         case "OFF":
-          return "bg-gray-100 text-gray-500 border-gray-200";
+          return "bg-muted text-muted-foreground border-border";
         default:
-          return "bg-zinc-50 text-zinc-900 border-zinc-100";
+          return "bg-foreground/[0.02] text-foreground border-black/[0.05]";
       }
     }
 
     if (isToday(day)) {
-      return "bg-zinc-100 text-zinc-900 font-bold border-zinc-200";
+      return "bg-primary/15 text-primary font-bold border-primary/30 ring-1 ring-inset ring-primary/30";
     }
 
-    return "bg-zinc-50/50 text-zinc-500 border-transparent hover:bg-zinc-50";
+    return "bg-foreground/[0.02] text-foreground/60 border-transparent hover:bg-primary/[0.04]";
   };
 
   const nextMonth = () => {
@@ -97,26 +97,28 @@ export default function AttendanceCalendar({
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="font-semibold text-zinc-800">
+        <h4 className="text-sm font-semibold tracking-tight text-foreground">
           {format(displayedMonth, "MMMM yyyy")}
         </h4>
         <div className="flex gap-1">
           <button
             onClick={prevMonth}
-            className="p-1 hover:bg-zinc-100 rounded text-zinc-500 hover:text-zinc-900 transition-colors"
+            aria-label="Previous month"
+            className="grid size-7 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-primary/[0.06] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
           >
             <ChevronLeft size={16} />
           </button>
           <button
             onClick={nextMonth}
-            className="p-1 hover:bg-zinc-100 rounded text-zinc-500 hover:text-zinc-900 transition-colors"
+            aria-label="Next month"
+            className="grid size-7 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-primary/[0.06] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
           >
             <ChevronRight size={16} />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 text-center text-xs text-zinc-400 mb-2">
+      <div className="mb-2 grid grid-cols-7 gap-2 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         <div>Sun</div>
         <div>Mon</div>
         <div>Tue</div>
