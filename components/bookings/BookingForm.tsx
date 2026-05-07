@@ -2354,8 +2354,8 @@ export default function BookingForm({
 
         <div className="w-full lg:w-[320px] xl:w-[360px] lg:shrink-0">
           <div className="space-y-4 lg:sticky lg:top-[calc(var(--bf-header-h,0px)+1rem)] lg:self-start">
-            <div className="rounded-2xl border border-zinc-200 bg-card overflow-hidden lg:flex lg:flex-col lg:max-h-[calc(100dvh-var(--bf-header-h,0px)-2rem)]">
-              <div className="border-b border-zinc-100 px-4 py-3.5 lg:shrink-0">
+            <div className="rounded-3xl border border-black/[0.06] bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-16px_rgba(0,0,0,0.06)] overflow-hidden lg:flex lg:flex-col lg:max-h-[calc(100dvh-var(--bf-header-h,0px)-2rem)]">
+              <div className="border-b border-black/[0.06] px-5 py-4 lg:shrink-0">
                 <div className="flex items-center justify-between text-base">
                   <span className="font-bold">Booking Summary</span>
                   {selectedServices.length > 0 && (

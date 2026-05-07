@@ -213,7 +213,7 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                   {service.flow_triggers && service.flow_triggers.length > 0 && (
                     <Badge
                       variant="secondary"
-                      className="shrink-0 text-[9px] h-3.5 px-1 bg-indigo-50/50 text-indigo-600 border-indigo-100"
+                      className="shrink-0 text-[9px] h-3.5 px-1 bg-primary/10 text-primary border-primary/20"
                     >
                       <Sparkles className="w-2 h-2 mr-0.5" />
                       Flow

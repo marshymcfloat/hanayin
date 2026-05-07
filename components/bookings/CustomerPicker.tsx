@@ -80,9 +80,10 @@ function maskPhone(phone: string | null) {
 
 function trustBadgeClass(tier: string) {
   if (tier === "TRUSTED")
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (tier === "RESTRICTED") return "border-red-200 bg-red-50 text-red-700";
-  return "border-zinc-200 bg-zinc-100 text-zinc-600";
+    return "border-primary/30 bg-primary/10 text-primary";
+  if (tier === "RESTRICTED")
+    return "border-destructive/30 bg-destructive/10 text-destructive";
+  return "border-border bg-muted text-muted-foreground";
 }
 
 export default function CustomerPicker({
@@ -210,9 +211,9 @@ export default function CustomerPicker({
     const c = value.customer;
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50/60 to-card p-3.5 shadow-sm">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 shrink-0">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+        <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] to-card p-3.5 shadow-sm">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/15 shrink-0">
+            <CheckCircle2 className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
@@ -221,7 +222,7 @@ export default function CustomerPicker({
               </p>
               <Badge
                 variant="outline"
-                className="text-[9px] px-1.5 py-0 rounded-md border-emerald-200 bg-emerald-100 text-emerald-700 uppercase tracking-wide"
+                className="text-[9px] px-1.5 py-0 rounded-md border-primary/30 bg-primary/15 text-primary uppercase tracking-wide"
               >
                 Linked
               </Badge>

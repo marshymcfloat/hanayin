@@ -151,7 +151,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
                             <Badge
                               key={specialty}
                               variant="secondary"
-                              className="h-4 px-1.5 text-[9px] bg-emerald-50 text-emerald-700 border-emerald-200 capitalize"
+                              className="h-4 px-1.5 text-[9px] bg-primary/10 text-primary border-primary/20 capitalize"
                             >
                               {specialty}
                             </Badge>

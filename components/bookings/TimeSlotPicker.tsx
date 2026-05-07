@@ -98,7 +98,7 @@ function AvailabilityDot({ level, selected }: { level: AvailabilityLevel; select
           ? "bg-primary-foreground"
           : level === "limited"
             ? "bg-amber-500"
-            : "bg-emerald-500",
+            : "bg-primary",
       )}
     />
   );
@@ -120,7 +120,7 @@ function AvailabilityLabel({
     );
   }
   return (
-    <span className={cn(base, selected ? "text-primary-foreground/80" : "text-emerald-600")}>
+    <span className={cn(base, selected ? "text-primary-foreground/80" : "text-primary")}>
       Available
     </span>
   );
@@ -151,7 +151,7 @@ function SlotButton({
         isSelected
           ? "shadow-md ring-2 ring-primary/20 ring-offset-1"
           : "hover:border-primary/50 hover:bg-primary/5 bg-card",
-        !isSelected && level === "available" && "border-emerald-500/30 hover:border-emerald-500/60",
+        !isSelected && level === "available" && "border-primary/30 hover:border-primary/60",
         !isSelected && level === "limited" && "border-amber-400/40 hover:border-amber-400/70",
       )}
     >
@@ -201,7 +201,7 @@ function PeriodGroup({
               ? "bg-muted text-muted-foreground"
               : availableCount <= 2
                 ? "bg-amber-50 text-amber-700 border border-amber-200"
-                : "bg-emerald-50 text-emerald-700 border border-emerald-200",
+                : "bg-primary/10 text-primary border border-primary/20",
           )}
         >
           {availableCount === 0 ? "Full" : `${availableCount} open`}
