@@ -63,8 +63,8 @@ function getBookingStatusColor(status: BookingStatus) {
     case "HOLD":
       return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300";
     case "ACCEPTED":
-      return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300";
     case "COMPLETED":
+      // Both states use primary tints; the text label differentiates.
       return "border-primary/30 bg-primary/10 text-primary";
     case "CANCELLED":
       return "border-destructive/30 bg-destructive/10 text-destructive";
@@ -165,16 +165,16 @@ export default function EmployeePaymentsQueue({
     const includeDetails = Boolean(options?.includeDetails);
 
     return (
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {includeDetails && (
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="h-7 shrink-0 rounded-md px-2 text-[11px] font-medium cursor-pointer"
+            className="h-8 shrink-0 rounded-full border-black/[0.08] px-3 text-xs font-medium hover:bg-primary/[0.04] hover:text-primary hover:border-primary/30 cursor-pointer"
             onClick={() => setSelectedBooking(booking)}
           >
-            <ReceiptText className="h-3 w-3 mr-1" />
+            <ReceiptText className="mr-1.5 size-3.5" />
             Details
           </Button>
         )}
@@ -182,14 +182,14 @@ export default function EmployeePaymentsQueue({
           <Button
             type="button"
             size="sm"
-            className="h-7 shrink-0 rounded-md px-2 text-[11px] font-semibold bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+            className="h-8 shrink-0 rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
             disabled={isLoading}
             onClick={() => handleMarkPaid(booking)}
           >
             {isLoading ? (
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              <Loader2 className="mr-1.5 size-3.5 animate-spin" />
             ) : (
-              <CheckCircle2 className="h-3 w-3 mr-1" />
+              <CheckCircle2 className="mr-1.5 size-3.5" />
             )}
             Mark Paid
           </Button>
@@ -210,29 +210,39 @@ export default function EmployeePaymentsQueue({
               }
             }}
           >
-            <TabsList className="grid w-full grid-cols-2 h-9 rounded-lg bg-muted">
-              <TabsTrigger value="unsettled" className="rounded-md text-xs cursor-pointer">
+            <TabsList className="grid h-10 w-full grid-cols-2 rounded-full bg-foreground/[0.04] p-1">
+              <TabsTrigger
+                value="unsettled"
+                className="rounded-full text-xs font-medium data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.04)] cursor-pointer"
+              >
                 Unsettled
               </TabsTrigger>
-              <TabsTrigger value="all" className="rounded-md text-xs cursor-pointer">
+              <TabsTrigger
+                value="all"
+                className="rounded-full text-xs font-medium data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.04)] cursor-pointer"
+              >
                 All Today
               </TabsTrigger>
             </TabsList>
-            <TabsContent value={activeTab} className="mt-3">
+            <TabsContent value={activeTab} className="mt-4">
               {filteredBookings.length === 0 ? (
-                <div className="px-4 py-10 text-center">
-                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                    <Wallet className="h-5 w-5 text-muted-foreground" />
+                <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+                  <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+                    <Wallet className="size-5" />
+                  </span>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-semibold text-foreground">
+                      {activeTab === "unsettled"
+                        ? "All settled for today"
+                        : "Nothing booked yet today"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Payment entries will appear here as bookings come in.
+                    </p>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">
-                    No bookings in this view
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Payment entries will appear here for today.
-                  </p>
                 </div>
               ) : (
-                <ul className="divide-y divide-border border-y border-border">
+                <ul className="-mx-2 divide-y divide-border">
                   {filteredBookings.map((booking) => {
                     const amountPaid = roundMoney(Math.max(0, booking.amount_paid));
                     const remainingBalance = roundMoney(
@@ -242,23 +252,37 @@ export default function EmployeePaymentsQueue({
                       booking.payment_status === "PAID"
                         ? 0
                         : booking.availed_services.length;
+                    const customerName = getBookingCustomerName(booking);
+                    const initials =
+                      customerName
+                        .split(" ")
+                        .map((n) => n[0])
+                        .filter(Boolean)
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2) || "?";
 
                     return (
-                      <li key={booking.id} className="py-3 first:pt-3 last:pb-3 space-y-2.5">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="text-[13px] font-semibold text-foreground truncate">
-                              {getBookingCustomerName(booking)}
-                            </p>
-                            <p className="text-[11px] text-muted-foreground">
-                              Booking #{booking.id} · {getRelativeScheduledLabel(booking)}
-                            </p>
+                      <li key={booking.id} className="space-y-3 px-2 py-4 first:pt-3 last:pb-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-inset ring-primary/15">
+                              {initials}
+                            </div>
+                            <div className="min-w-0 space-y-0.5">
+                              <p className="truncate text-sm font-semibold text-foreground">
+                                {customerName}
+                              </p>
+                              <p className="text-[11px] text-muted-foreground">
+                                Booking #{booking.id} · {getRelativeScheduledLabel(booking)}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex flex-col items-end gap-1 shrink-0">
+                          <div className="flex shrink-0 flex-col items-end gap-1">
                             <Badge
                               variant="outline"
                               className={cn(
-                                "h-4 text-[9px] px-1.5 font-semibold uppercase tracking-wider",
+                                "h-5 rounded-full px-2 text-[9px] font-semibold uppercase tracking-wider",
                                 getBookingStatusColor(booking.status),
                               )}
                             >
@@ -267,7 +291,7 @@ export default function EmployeePaymentsQueue({
                             <Badge
                               variant="outline"
                               className={cn(
-                                "h-4 text-[9px] px-1.5 font-semibold uppercase tracking-wider",
+                                "h-5 rounded-full px-2 text-[9px] font-semibold uppercase tracking-wider",
                                 getPaymentStatusColor(booking.payment_status),
                               )}
                             >
@@ -276,52 +300,64 @@ export default function EmployeePaymentsQueue({
                           </div>
                         </div>
 
-                        {/* Payment summary — flat 3-column row, no nested card */}
-                        <div className="grid grid-cols-3 text-[11px] text-muted-foreground">
+                        {/* Payment totals — flat 3-column inline grid */}
+                        <div className="grid grid-cols-3 gap-2 rounded-xl bg-foreground/[0.02] p-3">
                           <div>
-                            <p className="text-[10px] uppercase tracking-wider font-semibold">Total</p>
-                            <p className="font-semibold text-foreground tabular-nums">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                              Total
+                            </p>
+                            <p className="mt-0.5 text-sm font-semibold text-foreground tabular-nums">
                               {formatCurrency(booking.grand_total)}
                             </p>
                           </div>
                           <div>
-                            <p className="text-[10px] uppercase tracking-wider font-semibold">Paid</p>
-                            <p className="font-semibold text-primary tabular-nums">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                              Paid
+                            </p>
+                            <p className="mt-0.5 text-sm font-semibold text-primary tabular-nums">
                               {formatCurrency(amountPaid)}
                             </p>
                           </div>
                           <div>
-                            <p className="text-[10px] uppercase tracking-wider font-semibold">Remaining</p>
-                            <p className={cn(
-                              "font-semibold tabular-nums",
-                              remainingBalance > 0 ? "text-amber-600 dark:text-amber-400" : "text-foreground",
-                            )}>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                              Remaining
+                            </p>
+                            <p
+                              className={cn(
+                                "mt-0.5 text-sm font-semibold tabular-nums",
+                                remainingBalance > 0
+                                  ? "text-amber-700 dark:text-amber-400"
+                                  : "text-foreground",
+                              )}
+                            >
                               {formatCurrency(remainingBalance)}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           {booking.availed_services.slice(0, 3).map((item) => (
                             <Badge
                               key={item.id}
-                              variant="secondary"
-                              className="h-5 bg-muted text-foreground border-border text-[10px] font-medium px-1.5"
+                              variant="outline"
+                              className="h-5 rounded-full border-primary/20 bg-primary/[0.06] px-2 text-[10px] font-medium text-primary"
                             >
                               {item.service.name}
                             </Badge>
                           ))}
                           {booking.availed_services.length > 3 && (
                             <Badge
-                              variant="secondary"
-                              className="h-5 bg-muted text-muted-foreground border-border text-[10px] font-medium px-1.5"
+                              variant="outline"
+                              className="h-5 rounded-full border-black/[0.06] bg-foreground/[0.04] px-2 text-[10px] font-medium text-muted-foreground"
                             >
                               +{booking.availed_services.length - 3} more
                             </Badge>
                           )}
                         </div>
 
-                        <div>{renderBookingActions(booking, { includeDetails: true })}</div>
+                        <div className="flex justify-end">
+                          {renderBookingActions(booking, { includeDetails: true })}
+                        </div>
 
                         {unpaidServiceCount > 0 && (
                           <p className="text-[10px] text-muted-foreground">
@@ -345,28 +381,53 @@ export default function EmployeePaymentsQueue({
         onOpenChange={(open) => !open && setSelectedBooking(null)}
       >
         <DialogContent className="sm:max-w-lg rounded-t-3xl rounded-b-none sm:rounded-3xl">
-          <DialogHeader>
-            <DialogTitle>
-              Booking #{selectedBooking?.id}
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-lg font-semibold tracking-[-0.01em]">
               {selectedBooking
-                ? ` · ${getBookingCustomerName(selectedBooking)}`
-                : ""}
+                ? getBookingCustomerName(selectedBooking)
+                : "Booking"}
             </DialogTitle>
+            {selectedBooking ? (
+              <p className="text-xs text-muted-foreground">
+                Booking #{selectedBooking.id} ·{" "}
+                {getRelativeScheduledLabel(selectedBooking)}
+              </p>
+            ) : null}
           </DialogHeader>
           {selectedBooking && (
-            <div className="space-y-4">
-              <div className="text-xs text-muted-foreground">
-                Scheduled: {getRelativeScheduledLabel(selectedBooking)}
+            <div className="space-y-5">
+              {/* Status badges row */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "h-6 rounded-full px-2 text-[10px] font-semibold uppercase tracking-wider",
+                    getBookingStatusColor(selectedBooking.status),
+                  )}
+                >
+                  {selectedBooking.status}
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "h-6 rounded-full px-2 text-[10px] font-semibold uppercase tracking-wider",
+                    getPaymentStatusColor(selectedBooking.payment_status),
+                  )}
+                >
+                  {selectedBooking.payment_status.replace("_", " ")}
+                </Badge>
               </div>
+
+              {/* Included services */}
               <div className="space-y-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Included Services
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Included services
                 </p>
-                <ul className="divide-y divide-border border-y border-border">
+                <ul className="-mx-1 divide-y divide-border">
                   {selectedBooking.availed_services.map((item) => (
                     <li
                       key={item.id}
-                      className="px-1 py-2 text-sm text-foreground font-medium"
+                      className="px-1 py-2.5 text-sm font-medium text-foreground"
                     >
                       {item.service.name}
                     </li>
@@ -374,24 +435,35 @@ export default function EmployeePaymentsQueue({
                 </ul>
               </div>
 
-              <Separator />
-
-              <div className="space-y-2 text-sm">
+              {/* Totals */}
+              <div className="space-y-2 rounded-2xl bg-foreground/[0.02] p-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Total</span>
-                  <span className="font-semibold text-foreground tabular-nums">
+                  <span className="font-semibold tabular-nums text-foreground">
                     {formatCurrency(selectedBooking.grand_total)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Paid</span>
-                  <span className="font-semibold text-primary tabular-nums">
+                  <span className="font-semibold tabular-nums text-primary">
                     {formatCurrency(Math.max(0, selectedBooking.amount_paid))}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Remaining</span>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400 tabular-nums">
+                <Separator className="my-1 bg-border" />
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Remaining
+                  </span>
+                  <span
+                    className={cn(
+                      "text-xl font-bold tabular-nums tracking-tight",
+                      selectedBooking.grand_total -
+                        Math.max(0, selectedBooking.amount_paid) >
+                        0
+                        ? "text-amber-700 dark:text-amber-400"
+                        : "text-primary",
+                    )}
+                  >
                     {formatCurrency(
                       Math.max(
                         0,
@@ -403,7 +475,7 @@ export default function EmployeePaymentsQueue({
                 </div>
               </div>
 
-              <div className="flex flex-wrap justify-end gap-1.5">
+              <div className="flex flex-wrap justify-end gap-2">
                 {renderBookingActions(selectedBooking)}
               </div>
             </div>
