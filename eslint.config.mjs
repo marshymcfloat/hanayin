@@ -28,6 +28,10 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    // Local-only — Claude Code worktree dirs hold their own .next
+    // builds + sometimes stale source. Lint should never see them.
+    // CI doesn't have these dirs anyway; ignoring locally matches CI.
+    ".claude/**",
   ]),
 ]);
 

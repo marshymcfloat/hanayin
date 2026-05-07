@@ -16,7 +16,8 @@
     "build:release": "node scripts/require-env.mjs DATABASE_URL && node scripts/prisma-migrate-deploy-safe.mjs && npm run build:app",
     "build": "npm run build:release",
     "build:prod": "npm run build:release",
-    "verify:release": "npm run lint && npm run typecheck && npm run test:ci && npm run test:e2e && npm run build"
+    "verify:release": "npm run lint && npm run typecheck && npm run test:ci && npm run test:e2e && npm run build",
+    "check:push": "npm run lint -- --max-warnings=0 && npm run typecheck && npm run build:app"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
