@@ -41,12 +41,10 @@ export function BookingDialog({
       <DialogTrigger asChild>
         <Button
           aria-label="Create new booking"
-          className="h-9 rounded-xl bg-primary px-3 text-primary-foreground font-semibold shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 active:scale-[0.97] cursor-pointer sm:h-10 sm:px-4"
+          size="icon"
+          className="size-10 shrink-0 rounded-full bg-primary p-0 text-primary-foreground shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_12px_-4px_color-mix(in_oklch,var(--primary)_45%,transparent)] transition-all hover:bg-primary/90 active:scale-[0.97] cursor-pointer"
         >
-          <Plus className="h-4 w-4 sm:mr-2" strokeWidth={3} />
-          <span className="sr-only font-semibold sm:not-sr-only sm:whitespace-nowrap">
-            New Booking
-          </span>
+          <Plus className="size-4" strokeWidth={2.5} />
         </Button>
       </DialogTrigger>
       <DialogContent className="h-[90dvh] w-[95vw] max-w-none gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[90vh] sm:max-w-6xl sm:rounded-2xl sm:border">
