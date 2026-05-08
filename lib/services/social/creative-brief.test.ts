@@ -46,9 +46,23 @@ describe("inferCreativeBrief — organic categories", () => {
     expect(brief.rationale.toLowerCase()).toContain("tip");
   });
 
-  it("biases medical/procedural topics toward MODERN_GRAPHIC", () => {
+  it("medical/procedural topics under TIPS_EDUCATION stay on EDUCATIONAL", () => {
+    // Wave-update: the medical/procedural → MODERN_GRAPHIC tilt only
+    // applies to SERVICE_SHOWCASE now. TIPS_EDUCATION must keep
+    // EDUCATIONAL because the post-image pipeline only renders the
+    // tip-card headline + bullet overlay when imageProfile is
+    // EDUCATIONAL. Switching to MODERN_GRAPHIC would silently drop
+    // all overlay text and ship a bare photograph.
     const brief = inferCreativeBrief({
       category: "TIPS_EDUCATION",
+      topic: "lipo suction",
+    });
+    expect(brief.imageProfile).toBe("EDUCATIONAL");
+  });
+
+  it("biases medical/procedural topics under SERVICE_SHOWCASE toward MODERN_GRAPHIC", () => {
+    const brief = inferCreativeBrief({
+      category: "SERVICE_SHOWCASE",
       topic: "lipo suction",
     });
     expect(brief.imageProfile).toBe("MODERN_GRAPHIC");
@@ -73,13 +87,18 @@ describe("inferCreativeBrief — organic categories", () => {
     expect(brief.captionTone).toBe("WITTY_PLAYFUL");
   });
 
-  it("clinic tips tilt toward MODERN_GRAPHIC even on non-procedural topics", () => {
+  it("clinic TIPS_EDUCATION posts stay on EDUCATIONAL so the overlay renders", () => {
+    // Wave-update: previously CLINIC business type tilted TIPS_EDUCATION
+    // toward MODERN_GRAPHIC. That broke the educational overlay (only
+    // renders when imageProfile === "EDUCATIONAL"), shipping bare
+    // photographs for clinic tip posts. The CLINIC tilt now leaves
+    // TIPS_EDUCATION untouched.
     const brief = inferCreativeBrief({
       category: "TIPS_EDUCATION",
       topic: "skincare habits",
       businessType: "CLINIC",
     });
-    expect(brief.imageProfile).toBe("MODERN_GRAPHIC");
+    expect(brief.imageProfile).toBe("EDUCATIONAL");
   });
 });
 
