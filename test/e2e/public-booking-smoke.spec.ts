@@ -85,12 +85,18 @@ test.describe("Public booking smoke", () => {
         page.getByRole("heading", { name: businessName }),
       ).toBeVisible({ timeout: 15_000 });
 
+      // Match by accessible role + name so the selector survives any
+      // wrapper changes (e.g. shadcn Button asChild + Slot, motion
+      // wrappers, intl-aware <Link>). Validate the href separately
+      // so we still assert the link targets /{slug}/booking.
       const bookNowLink = page
-        .locator(
-          `a[href='/${businessSlug}/booking'], a[href='/${businessSlug}/booking/']`,
-        )
+        .getByRole("link", { name: /book now/i })
         .first();
       await expect(bookNowLink).toBeVisible({ timeout: 10_000 });
+      const href = await bookNowLink.getAttribute("href");
+      expect(href ?? "").toMatch(
+        new RegExp(`/${businessSlug}/booking/?$`),
+      );
       await bookNowLink.click();
     }
 
