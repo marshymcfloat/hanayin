@@ -1,8 +1,26 @@
 "use server";
 
+import crypto from "crypto";
 import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
+
+// Crockford-style alphabet: excludes I/O/0/1 to avoid ambiguous codes
+// when read off SMS or handwritten. Matches the gift-card generator.
+const VOUCHER_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const VOUCHER_CODE_LENGTH = 6;
+const VOUCHER_CODE_MAX_ATTEMPTS = 10;
+
+function generateVoucherSuffix() {
+  let output = "";
+  for (let i = 0; i < VOUCHER_CODE_LENGTH; i += 1) {
+    output +=
+      VOUCHER_CODE_ALPHABET[
+        crypto.randomInt(VOUCHER_CODE_ALPHABET.length)
+      ];
+  }
+  return output;
+}
 
 export type CreateVoucherInput = {
   code: string;
@@ -129,25 +147,26 @@ export async function generateVoucherCodeAction() {
 
     const prefix = business.initials || "VO";
 
-    const randomChars = Math.random()
-      .toString(36)
-      .substring(2, 8)
-      .toUpperCase();
-    const code = `${prefix}-${randomChars}`;
-
-    const existing = await prisma.voucher.findUnique({
-      where: { code },
-    });
-
-    if (existing) {
-      const randomChars2 = Math.random()
-        .toString(36)
-        .substring(2, 8)
-        .toUpperCase();
-      return { success: true, code: `${prefix}-${randomChars2}` };
+    // Retry on collision instead of shipping a duplicate. Collision is
+    // astronomically unlikely with 6 chars from a 32-letter alphabet
+    // (32^6 ≈ 1B) but the previous single-retry fallback could return
+    // an already-taken code if both random draws collided. 10 attempts
+    // pushes the practical collision probability to effectively zero.
+    for (let attempt = 0; attempt < VOUCHER_CODE_MAX_ATTEMPTS; attempt += 1) {
+      const code = `${prefix}-${generateVoucherSuffix()}`;
+      const existing = await prisma.voucher.findUnique({
+        where: { code },
+        select: { id: true },
+      });
+      if (!existing) {
+        return { success: true, code };
+      }
     }
 
-    return { success: true, code };
+    return {
+      success: false,
+      error: "Couldn't generate a unique code. Try again.",
+    };
   } catch (error) {
     console.error("Error generating code:", error);
     return { success: false, error: "Failed to generate code" };

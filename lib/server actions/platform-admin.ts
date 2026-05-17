@@ -220,6 +220,22 @@ export async function createBusinessWithSubscriptionAction(
     };
   }
 
+  // Pre-check slug uniqueness so the operator gets a typed error
+  // instead of a P2002 surfacing as "Subscription seeding failed" after
+  // the inner transaction throws. The conversion path generates unique
+  // slugs server-side; the manual create path takes the operator's
+  // value verbatim and historically relied on the DB constraint.
+  const slugTaken = await prisma.business.findUnique({
+    where: { slug: input.businessSlug },
+    select: { id: true },
+  });
+  if (slugTaken) {
+    return {
+      success: false as const,
+      error: `Slug "${input.businessSlug}" is already in use. Pick another.`,
+    };
+  }
+
   const created = await prisma.$transaction(async (tx) => {
     const existingContact = await tx.user.findUnique({
       where: { contact_number: normalizedOwnerContact },
@@ -256,14 +272,44 @@ export async function createBusinessWithSubscriptionAction(
     return { ownerUser, business };
   });
 
-  const subscription = await ensureBusinessSubscription(created.business.id, {
-    planCode: input.planCode,
-    trialMonths,
-  });
-  await ensureReferralCode(created.business.id);
+  // Subscription seeding + referral attribution happen AFTER the
+  // business/owner transaction commits (they require the business id).
+  // If either throws, the business exists with no subscription -- which
+  // wedges the owner forever. Mirror the conversion-path compensating
+  // delete (further down in this file) so partial creates roll back.
+  let subscription;
+  try {
+    subscription = await ensureBusinessSubscription(created.business.id, {
+      planCode: input.planCode,
+      trialMonths,
+    });
+    await ensureReferralCode(created.business.id);
 
-  if (input.referralCode) {
-    await assignReferralAttributionOnOnboarding(created.business.id, input.referralCode);
+    if (input.referralCode) {
+      await assignReferralAttributionOnOnboarding(
+        created.business.id,
+        input.referralCode,
+      );
+    }
+  } catch (seedError) {
+    // Best-effort teardown so the operator can simply retry the form
+    // without ending up with an orphaned business row.
+    await prisma.$transaction(async (tx) => {
+      await tx.business.delete({ where: { id: created.business.id } });
+      await tx.user.delete({ where: { id: created.ownerUser.id } });
+    }).catch((rollbackError) => {
+      console.error(
+        "[createBusinessWithSubscriptionAction] compensating delete failed; manual cleanup required",
+        { businessId: created.business.id, rollbackError },
+      );
+    });
+    return {
+      success: false as const,
+      error:
+        seedError instanceof Error
+          ? `Subscription seeding failed: ${seedError.message}`
+          : "Subscription seeding failed.",
+    };
   }
 
   await logPlatformAction({

@@ -39,6 +39,7 @@ import {
   CalendarClock,
   Briefcase,
   ShieldCheck,
+  Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPH } from "@/lib/date-utils";
@@ -67,6 +68,7 @@ interface EmployeeListProps {
   onDelete: (id: number) => void;
   onResetPassword: (employee: EmployeeWithDetails) => void;
   onEditSchedule: (employee: EmployeeWithDetails) => void;
+  onResendInvite: (employee: EmployeeWithDetails) => void;
 }
 
 const AVATAR_GRADIENTS = [
@@ -122,6 +124,7 @@ export function EmployeeList({
   onDelete,
   onResetPassword,
   onEditSchedule,
+  onResendInvite,
 }: EmployeeListProps) {
   return (
     <>
@@ -384,6 +387,13 @@ export function EmployeeList({
                         >
                           <CalendarClock className="h-4 w-4 mr-2" />
                           Edit Schedule
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onResendInvite(employee)}
+                          className="cursor-pointer"
+                        >
+                          <Send className="h-4 w-4 mr-2" />
+                          Resend Invite SMS
                         </DropdownMenuItem>
                         <EditPermissionsDialog
                           businessSlug={businessSlug}

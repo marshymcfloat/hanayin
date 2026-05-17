@@ -410,6 +410,80 @@ export async function resetEmployeePasswordAction(
   }
 }
 
+// Resends the onboarding invite SMS. Rotates the temp password and
+// resets the 24h expiry so the new credential is always fresh. Returns
+// the new plaintext password to the owner as a fallback for when SMS
+// delivery fails -- mirrors the createEmployeeAction contract.
+export async function resendEmployeeInviteAction(employeeId: number) {
+  const auth = await requireOwnerWriteAccess();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
+  const businessId = await resolveTenantBusinessId(businessSlug);
+  if (!businessId) return { success: false, error: "Business not found" };
+
+  const employee = await prisma.employee.findFirst({
+    where: { id: employeeId, business_id: businessId },
+    include: {
+      user: true,
+      business: { select: { name: true } },
+    },
+  });
+  if (!employee) return { success: false, error: "Employee not found" };
+  if (!employee.user.contact_number) {
+    return { success: false, error: "Employee has no contact number." };
+  }
+
+  const tempPassword = crypto
+    .randomBytes(12)
+    .toString("base64")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(0, 12);
+  const hashedPassword = await hash(tempPassword, 12);
+  const tempPasswordExpiresAt = new Date(
+    getCurrentDateTimePH().getTime() + 24 * 60 * 60 * 1000,
+  );
+
+  try {
+    await prisma.user.update({
+      where: { id: employee.user_id },
+      data: {
+        hashed_password: hashedPassword,
+        must_change_password: true,
+        temp_password_expires_at: tempPasswordExpiresAt,
+      },
+    });
+
+    const smsResult = await sendEmployeeInviteSms({
+      to: employee.user.contact_number,
+      employeeName: employee.user.name,
+      businessName: employee.business.name,
+      tempPassword,
+      expiresAt: tempPasswordExpiresAt,
+    });
+
+    revalidatePath(`/app/${businessSlug}/employees`);
+
+    if (!smsResult.success) {
+      logger.warn(
+        `[ResendEmployeeInvite] SMS failed for employee ${employeeId}`,
+        { error: smsResult.error },
+      );
+      return {
+        success: true,
+        warning:
+          "Password rotated but SMS failed. Share manually: " + tempPassword,
+        tempPassword,
+      };
+    }
+
+    return { success: true, tempPassword };
+  } catch (error) {
+    logger.error("Failed to resend employee invite:", { error });
+    return { success: false, error: "Failed to resend invite." };
+  }
+}
+
 // ---- Employee weekly schedule ---------------------------------------
 
 export type EmployeeScheduleRow = {

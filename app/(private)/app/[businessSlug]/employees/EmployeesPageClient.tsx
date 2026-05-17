@@ -40,6 +40,7 @@ import { Label } from "@/components/ui/label";
 import {
   createEmployeeAction,
   deleteEmployeeAction,
+  resendEmployeeInviteAction,
   resetEmployeePasswordAction,
   updateEmployeeAction,
 } from "@/lib/server actions/employees";
@@ -463,6 +464,19 @@ export function EmployeesPageClient({
     setIsScheduleDialogOpen(true);
   };
 
+  const handleResendInvite = async (employee: EmployeeWithDetails) => {
+    const result = await resendEmployeeInviteAction(employee.id);
+    if (result.success) {
+      if ("warning" in result && result.warning) {
+        toast.warning(result.warning);
+      } else {
+        toast.success(`Invite SMS resent to ${employee.user.name}.`);
+      }
+    } else {
+      toast.error(result.error || "Failed to resend invite.");
+    }
+  };
+
   const hasActiveFilter = search.trim().length > 0 || profileFilter !== "ALL";
   const clearFilters = () => {
     setSearch("");
@@ -646,6 +660,7 @@ export function EmployeesPageClient({
               onDelete={handleDeleteEmployee}
               onResetPassword={openResetPasswordDialog}
               onEditSchedule={openScheduleDialog}
+              onResendInvite={handleResendInvite}
             />
           )}
         </div>

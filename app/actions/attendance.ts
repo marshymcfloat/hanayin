@@ -67,31 +67,42 @@ export async function updateAttendanceStatus(
     }
 
     const startOfDay = getStartOfDayPH(date);
-    const endOfDay = getEndOfDayPH(date);
 
-    const existing = await prisma.employeeAttendance.findFirst({
-      where: {
-        employee_id: employeeId,
-        date: {
-          gte: startOfDay,
-          lte: endOfDay,
+    // Atomic upsert keyed on (employee_id, date) -- the schema has a
+    // UNIQUE constraint on that pair, so two concurrent calls can't
+    // produce duplicate rows or hit a P2002 race. The previous
+    // findFirst + create/update pattern was non-atomic.
+    try {
+      await prisma.employeeAttendance.upsert({
+        where: {
+          employee_id_date: {
+            employee_id: employeeId,
+            date: startOfDay,
+          },
         },
-      },
-    });
-
-    if (existing) {
-      await prisma.employeeAttendance.update({
-        where: { id: existing.id },
-        data: { status },
-      });
-    } else {
-      await prisma.employeeAttendance.create({
-        data: {
+        update: { status },
+        create: {
           employee_id: employeeId,
           date: startOfDay,
           status,
         },
       });
+    } catch (error) {
+      // Should be unreachable thanks to upsert, but if Prisma changes
+      // semantics we surface a clean message instead of "Failed to
+      // update status" so operators know it was a concurrency event.
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "P2002"
+      ) {
+        return {
+          success: false,
+          error: "Another change landed at the same time. Refresh and try again.",
+        };
+      }
+      throw error;
     }
 
     try {

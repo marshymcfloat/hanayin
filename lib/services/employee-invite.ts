@@ -2,6 +2,7 @@
 
 import { formatPH } from "@/lib/date-utils";
 import { sendSemaphorePrioritySms, truncateSms } from "@/lib/services/sms";
+import { getSiteUrl } from "@/lib/site-url";
 
 export async function sendEmployeeInviteSms({
   to,
@@ -18,11 +19,15 @@ export async function sendEmployeeInviteSms({
 }) {
   const expiry = formatPH(expiresAt, "MMM d, h:mm a");
   const firstName = employeeName.trim().split(/\s+/)[0] || employeeName;
+  const loginUrl = `${getSiteUrl()}/login`;
 
+  // Login URL goes last so SMS truncation never eats the credentials.
+  // truncateSms caps at 160 chars to stay inside one segment; if the
+  // URL pushes us over the message still contains the password.
   const message = truncateSms(
     `Hi ${firstName}, you're added to ${businessName} on ServiceFlow. ` +
-      `Temporary password: ${tempPassword}. ` +
-      `Sign in with your phone number and change it before ${expiry}.`,
+      `Temp password: ${tempPassword}. ` +
+      `Sign in at ${loginUrl} before ${expiry}.`,
   );
 
   const result = await sendSemaphorePrioritySms(to, message);

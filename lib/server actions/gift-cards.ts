@@ -1,5 +1,6 @@
 "use server";
 
+import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { Prisma } from "@/prisma/generated/prisma/client";
@@ -50,10 +51,13 @@ function normalizeEmail(value: string) {
 }
 
 function generateSuffix(length: number) {
+  // crypto.randomInt is unbiased and cryptographically secure.
+  // Math.random would let attackers predict subsequent codes after
+  // observing one, and is biased toward lower indices in alphabets
+  // whose length doesn't divide 2^32 evenly.
   let output = "";
   for (let i = 0; i < length; i += 1) {
-    const idx = Math.floor(Math.random() * CODE_ALPHABET.length);
-    output += CODE_ALPHABET[idx];
+    output += CODE_ALPHABET[crypto.randomInt(CODE_ALPHABET.length)];
   }
   return output;
 }

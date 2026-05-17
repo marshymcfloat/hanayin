@@ -110,6 +110,14 @@ export function PayslipGenerationDialog({
 
   const handleGenerate = async () => {
     if (!data) return;
+    // Surface the silent cap: server clamps `deduction` to gross to
+    // prevent negative net pay (payslip.ts). Without this warning the
+    // owner thinks the extra carries over to next period -- it doesn't.
+    if (deduction > data.total_salary) {
+      toast.warning(
+        `Deduction (₱${deduction.toLocaleString()}) exceeds gross (₱${data.total_salary.toLocaleString()}). Will be capped at gross; the excess is NOT carried over.`,
+      );
+    }
     setGenerating(true);
     // Server recomputes totals; we only forward the deduction + note.
     const res = await createPayslipAction({

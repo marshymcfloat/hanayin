@@ -11,6 +11,9 @@ const addMonthsMock = vi.hoisted(() => vi.fn((date: Date) => date));
 
 const prismaMock = vi.hoisted(() => ({
   $transaction: vi.fn(),
+  business: {
+    findUnique: vi.fn(),
+  },
   subscriptionPlan: {
     findUnique: vi.fn(),
     update: vi.fn(),
@@ -134,6 +137,9 @@ describe("platform-admin plan code defaults", () => {
       price_amount: 149_900,
       is_active: true,
     });
+    // Default: slug is not taken. Individual tests override if they
+    // need to assert the conflict branch.
+    prismaMock.business.findUnique.mockResolvedValue(null);
     prismaMock.businessSubscription.update.mockResolvedValue({ id: "sub_1" });
     prismaMock.subscriptionCreditLedger.create.mockResolvedValue({
       id: "credit_1",
