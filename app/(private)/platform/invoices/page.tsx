@@ -210,6 +210,106 @@ export default async function PlatformInvoicesPage({
         <PlatformMetricCard label="Open 72h+" value={pending72hCount} />
       </div>
 
+      {(() => {
+        // Surface invoices where the owner submitted a payment reference
+        // but admin hasn't marked them paid yet -- previously these
+        // were buried in the unified queue and required scanning every
+        // row for the green Ref: badge.
+        const awaiting = invoices.filter((invoice) => {
+          if (!PENDING_INVOICE_STATUSES.has(invoice.status)) return false;
+          const metadata = asObject(invoice.metadata);
+          return Boolean(metadata.manual_payment_reference);
+        });
+        if (awaiting.length === 0) return null;
+        return (
+          <section className={`${platformPanelClass} border-emerald-200 bg-emerald-50/30 p-5 sm:p-6`}>
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-lg font-semibold tracking-tight text-[var(--pf-text)]">
+                Awaiting your review ({awaiting.length})
+              </h3>
+              <span className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+                Owner submitted
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-[var(--pf-muted)]">
+              Owners submitted a payment reference. Verify off-platform, then confirm here.
+            </p>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {awaiting.map((invoice) => {
+                const metadata = asObject(invoice.metadata);
+                const reference = asOptionalString(metadata.manual_payment_reference);
+                const submittedAt = asOptionalString(metadata.manual_payment_submitted_at);
+                const proofUrl = asOptionalString(metadata.manual_payment_proof_url);
+                return (
+                  <article
+                    key={invoice.id}
+                    className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-white p-4"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[var(--pf-text)]">
+                          {invoice.business.name}
+                        </p>
+                        <p className="text-xs text-[var(--pf-muted)]">
+                          {invoice.plan.code} &middot;{" "}
+                          {formatPhpFromCentavos(invoice.amount_due)}
+                        </p>
+                      </div>
+                      <PlatformStatusBadge status={invoice.status} />
+                    </div>
+                    <dl className="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-xs text-[var(--pf-muted)]">
+                      <dt>Reference</dt>
+                      <dd className="font-mono font-semibold text-emerald-700">
+                        {reference}
+                      </dd>
+                      {submittedAt ? (
+                        <>
+                          <dt>Submitted</dt>
+                          <dd>{formatPlatformDate(new Date(submittedAt))}</dd>
+                        </>
+                      ) : null}
+                      {proofUrl ? (
+                        <>
+                          <dt>Proof</dt>
+                          <dd>
+                            <a
+                              href={proofUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-emerald-700 underline hover:text-emerald-800"
+                            >
+                              View attachment
+                            </a>
+                          </dd>
+                        </>
+                      ) : null}
+                    </dl>
+                    <form
+                      action={markPaidManualFormAction.bind(null, invoice.id)}
+                      className="flex flex-wrap items-center gap-2"
+                    >
+                      <input
+                        name="paymentReference"
+                        defaultValue={reference ?? ""}
+                        placeholder="Payment reference"
+                        className={`${platformInputClass} h-9 flex-1 min-w-[10rem]`}
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className={`${platformSecondaryButtonClass} border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-200`}
+                      >
+                        Confirm Paid
+                      </button>
+                    </form>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })()}
+
       <section className={`${platformPanelClass} p-5 sm:p-6`}>
         <h3 className="text-lg font-semibold tracking-tight text-[var(--pf-text)]">Manual Invoice Creation</h3>
         <p className="mt-1 text-sm text-[var(--pf-muted)]">

@@ -307,6 +307,54 @@ async function sendManualPaymentSubmittedEmail(
   });
 }
 
+async function sendSubscriptionPaymentConfirmedNotification(
+  payload: OutboxPayloadMap["SUBSCRIPTION_PAYMENT_CONFIRMED"],
+) {
+  // Owners are identified by contact_number, not email (the User.email
+  // column was renamed to contact_number in the schema rename). SMS is
+  // the canonical notification channel for owners; PR adding email
+  // would need to ship the email column first.
+  const owners = await prisma.owner.findMany({
+    where: { business_id: payload.businessId },
+    include: {
+      user: { select: { contact_number: true, name: true } },
+      business: { select: { name: true } },
+    },
+  });
+  if (owners.length === 0) {
+    throw new NonRetryableOutboxError(
+      `[Outbox:SUBSCRIPTION_PAYMENT_CONFIRMED] No owners for business ${payload.businessId}`,
+    );
+  }
+
+  const businessName = owners[0]?.business.name ?? "your business";
+  const amountText = formatPhpFromCentavos(payload.amountPaidCentavos);
+  const periodEnds = new Date(payload.periodEndsAt).toLocaleDateString("en-PH", {
+    timeZone: "Asia/Manila",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  for (const owner of owners) {
+    if (!owner.user.contact_number) continue;
+    const firstName = owner.user.name?.split(" ")[0] ?? "there";
+    const smsText = truncateSms(
+      `Hi ${firstName}, your ServiceFlow subscription payment for ${businessName} (${amountText}) is confirmed. Next bill: ${periodEnds}.`,
+    );
+    const smsResult = await sendSemaphorePrioritySms(
+      owner.user.contact_number,
+      smsText,
+    );
+    if (!smsResult.success) {
+      logger.warn(
+        `[Outbox:SUBSCRIPTION_PAYMENT_CONFIRMED] SMS failed for owner ${owner.user.contact_number}`,
+        { error: smsResult.error },
+      );
+    }
+  }
+}
+
 export async function deliverOutboxEvent<TType extends OutboxEventType>(params: {
   eventType: TType;
   payload: OutboxPayloadMap[TType];
@@ -357,6 +405,11 @@ export async function deliverOutboxEvent<TType extends OutboxEventType>(params: 
     case "MANUAL_PAYMENT_SUBMITTED":
       await sendManualPaymentSubmittedEmail(
         params.payload as OutboxPayloadMap["MANUAL_PAYMENT_SUBMITTED"],
+      );
+      return;
+    case "SUBSCRIPTION_PAYMENT_CONFIRMED":
+      await sendSubscriptionPaymentConfirmedNotification(
+        params.payload as OutboxPayloadMap["SUBSCRIPTION_PAYMENT_CONFIRMED"],
       );
       return;
     case "FLOW_REMINDER_SENT":

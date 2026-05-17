@@ -19,6 +19,7 @@ export const OUTBOX_EVENT_TYPES = [
   "FLOW_REMINDER_SENT",
   "RE_ENGAGEMENT_REMINDER_SENT",
   "MANUAL_PAYMENT_SUBMITTED",
+  "SUBSCRIPTION_PAYMENT_CONFIRMED",
   "SOCIAL_TARGET_PUBLISH",
   "SOCIAL_POST_REQUEST_SUBMITTED",
   "SOCIAL_POST_REQUEST_APPROVED",
@@ -234,6 +235,21 @@ export type OutboxPayloadMap = {
     note?: string;
     proofUrl?: string;
     submittedAt: string;
+  };
+  /**
+   * Fired when a platform admin marks a subscription invoice paid
+   * (either manually or via collection flow). Notifies the owner so
+   * they know their subscription is in good standing again -- previously
+   * owners had to refresh the billing page to discover the confirmation.
+   */
+  SUBSCRIPTION_PAYMENT_CONFIRMED: {
+    invoiceId: string;
+    businessId: string;
+    businessSlug: string;
+    planCode: string;
+    amountPaidCentavos: number;
+    periodEndsAt: string;
+    confirmedAt: string;
   };
   SOCIAL_TARGET_PUBLISH: {
     socialPostTargetId: string;
@@ -575,6 +591,16 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         note: optionalString(payload, "note"),
         proofUrl: optionalString(payload, "proofUrl"),
         submittedAt: requireString(payload, "submittedAt", eventType),
+      } as OutboxPayloadMap[TType];
+    case "SUBSCRIPTION_PAYMENT_CONFIRMED":
+      return {
+        invoiceId: requireString(payload, "invoiceId", eventType),
+        businessId: requireString(payload, "businessId", eventType),
+        businessSlug: requireString(payload, "businessSlug", eventType),
+        planCode: requireString(payload, "planCode", eventType),
+        amountPaidCentavos: requireNumber(payload, "amountPaidCentavos", eventType),
+        periodEndsAt: requireString(payload, "periodEndsAt", eventType),
+        confirmedAt: requireString(payload, "confirmedAt", eventType),
       } as OutboxPayloadMap[TType];
     case "SOCIAL_TARGET_PUBLISH":
       return {

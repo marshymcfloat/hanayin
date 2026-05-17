@@ -1,9 +1,6 @@
 import { NextResponse, connection } from "next/server";
 
-import {
-  isManualCollectionOnly,
-  suspendExpiredGraceSubscriptions,
-} from "@/features/billing/subscription-service";
+import { suspendExpiredGraceSubscriptions } from "@/features/billing/subscription-service";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import {
   isCronAuthorized,
@@ -16,15 +13,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    if (isManualCollectionOnly()) {
-      return NextResponse.json({
-        success: true,
-        skipped: true,
-        reason: "MANUAL_COLLECTION_MODE",
-        processedAt: getCurrentDateTimePH().toISOString(),
-      });
-    }
-
+    // suspendExpiredGraceSubscriptions is mode-agnostic: it suspends
+    // subscriptions whose 7-day grace window has elapsed regardless of
+    // how invoices are being collected. Previously gated behind a
+    // manual-collection skip, which left past-due businesses sitting
+    // in GRACE forever in production.
     const now = getCurrentDateTimePH();
     const suspendedCount = await suspendExpiredGraceSubscriptions();
 

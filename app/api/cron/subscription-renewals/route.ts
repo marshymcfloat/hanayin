@@ -4,7 +4,6 @@ import {
   createInvoiceForSubscription,
   ensureBusinessSubscription,
   ensureDefaultPlans,
-  isManualCollectionOnly,
   moveDueSubscriptionsToGracePeriod,
 } from "@/features/billing/subscription-service";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
@@ -36,15 +35,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    if (isManualCollectionOnly()) {
-      return NextResponse.json({
-        success: true,
-        skipped: true,
-        reason: "MANUAL_COLLECTION_MODE",
-        processedAt: getCurrentDateTimePH().toISOString(),
-      });
-    }
-
+    // Renewal invoicing + grace transitions are mode-agnostic. In
+    // manual-collection mode the invoices are paid via owner-submitted
+    // payment references reviewed by platform admins. The
+    // isManualCollectionOnly() short-circuit that previously lived
+    // here meant past-due subscriptions never moved to GRACE_PERIOD,
+    // which left admin with no way to find them.
     await ensureDefaultPlans();
     const businesses = await prisma.business.findMany({
       select: { id: true },

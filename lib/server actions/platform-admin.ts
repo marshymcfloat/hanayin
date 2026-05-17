@@ -33,6 +33,7 @@ import {
   ONBOARDING_LOGIN_TOKEN_TTL_SECONDS_DEFAULT,
 } from "@/lib/security/onboarding-login-token";
 import { logger } from "@/lib/logger";
+import { publishEvent } from "@/lib/services/outbox";
 import {
   BusinessStructure,
   CreditSource,
@@ -1549,6 +1550,47 @@ export async function markInvoicePaidManuallyAction(
   });
 
   await qualifyAndRewardReferralForBusiness(invoice.business_id);
+
+  // Notify the owner that their subscription is in good standing again.
+  // Previously they had to refresh the billing page to discover the
+  // confirmation. publishEvent inside a small txn so the outbox row
+  // lands atomically with the planCode/slug lookup -- if anything
+  // throws here we still log it but don't fail the action (admin's
+  // mark-paid already committed earlier).
+  try {
+    const subscription = await prisma.businessSubscription.findFirst({
+      where: { business_id: invoice.business_id },
+      select: {
+        current_period_end: true,
+        plan: { select: { code: true } },
+        business: { select: { slug: true } },
+      },
+    });
+    if (subscription) {
+      await prisma.$transaction(async (tx) => {
+        await publishEvent(tx, {
+          type: "SUBSCRIPTION_PAYMENT_CONFIRMED",
+          aggregateType: "SubscriptionInvoice",
+          aggregateId: invoice.id,
+          businessId: invoice.business_id,
+          payload: {
+            invoiceId: invoice.id,
+            businessId: invoice.business_id,
+            businessSlug: subscription.business.slug,
+            planCode: subscription.plan.code,
+            amountPaidCentavos: settledAmount,
+            periodEndsAt: subscription.current_period_end.toISOString(),
+            confirmedAt: parsedPaidAt.toISOString(),
+          },
+        });
+      });
+    }
+  } catch (publishError) {
+    console.error(
+      "[markInvoicePaidManuallyAction] Failed to publish SUBSCRIPTION_PAYMENT_CONFIRMED",
+      { invoiceId: invoice.id, publishError },
+    );
+  }
 
   await logPlatformAction({
     action: "SUBSCRIPTION_INVOICE_MARKED_PAID_MANUALLY",
