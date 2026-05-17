@@ -81,21 +81,6 @@ export default async function PlatformPlansPage({
         <PlatformMetricCard label="Inactive Plans" value={inactivePlans} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <PlatformMetricCard
-          label="Legacy/Inactive Assignments"
-          value={legacyOrInactiveAssignments}
-        />
-        <PlatformMetricCard
-          label="Assignable Catalog Plans"
-          value={SUBSCRIPTION_PLAN_CODES.length}
-        />
-        <PlatformMetricCard
-          label="Canonical Plan Codes"
-          value={SUBSCRIPTION_PLAN_CODES.join(", ")}
-        />
-      </div>
-
       {legacyOrInactiveAssignments > 0 ? (
         <article className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           {legacyOrInactiveAssignments} businesses are still on legacy or inactive plans. Their

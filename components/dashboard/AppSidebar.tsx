@@ -18,7 +18,7 @@ export async function AppSidebar() {
     return <SidebarSkeleton />;
   }
 
-  const { name, email, role } = session.user;
+  const { name, contactNumber, role } = session.user;
   let slug = session.user.businessSlug;
 
   // Fallback: If slug is missing in session (e.g. old session), try to fetch it
@@ -90,7 +90,7 @@ export async function AppSidebar() {
       capabilities={capabilities}
       user={{
         name: name || "User",
-        email: email || "",
+        contactNumber: contactNumber || "",
         role: role || "EMPLOYEE",
       }}
     />

@@ -35,7 +35,7 @@ export function OwnersPageClient({
     return owners.filter((owner) => {
       return (
         owner.user.name.toLowerCase().includes(search.toLowerCase()) ||
-        owner.user.email.toLowerCase().includes(search.toLowerCase())
+        owner.user.contact_number.toLowerCase().includes(search.toLowerCase())
       );
     });
   }, [owners, search]);

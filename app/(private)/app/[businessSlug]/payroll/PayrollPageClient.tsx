@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Employee, User, Payslip } from "@/prisma/generated/prisma/client";
 import { formatPH } from "@/lib/date-utils";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, Wallet, Mail, Search, RefreshCcw } from "lucide-react";
+import { Plus, Wallet, Phone, Search, RefreshCcw } from "lucide-react";
 import { useState, useRef } from "react";
 import { PayslipGenerationDialog } from "@/components/dashboard/owner/PayslipGenerationDialog";
 import { useRouter } from "next/navigation";
@@ -51,7 +51,7 @@ export function PayrollPageClient({
   const filteredEmployees = employees.filter(
     (emp) =>
       emp.user.name.toLowerCase().includes(search.toLowerCase()) ||
-      emp.user.email.toLowerCase().includes(search.toLowerCase()),
+      emp.user.contact_number.toLowerCase().includes(search.toLowerCase()),
   );
 
   const getInitials = (name: string) => {
@@ -155,8 +155,8 @@ export function PayrollPageClient({
                               {emp.user.name}
                             </span>
                             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                              <Mail className="h-3.5 w-3.5" />
-                              {emp.user.email}
+                              <Phone className="h-3.5 w-3.5" />
+                              {emp.user.contact_number}
                             </span>
                           </div>
                         </div>
@@ -249,8 +249,8 @@ export function PayrollPageClient({
                                     {emp.user.name}
                                   </span>
                                   <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                    <Mail className="h-3 w-3" />
-                                    {emp.user.email}
+                                    <Phone className="h-3 w-3" />
+                                    {emp.user.contact_number}
                                   </span>
                                 </div>
                               </div>

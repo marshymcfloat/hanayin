@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { ArrowRight, Check } from "lucide-react";
 
@@ -87,12 +88,22 @@ export default async function ApplyPage() {
       redirect(`/apply/?error=${encodeURIComponent(result.error)}`);
     }
 
-    const tokenParam = result.statusToken
-      ? `&statusToken=${encodeURIComponent(result.statusToken)}`
-      : "";
+    // Stash the status token in an httpOnly cookie so it doesn't leak via
+    // browser history, the Referer header, or analytics. The email link
+    // continues to carry the token directly so the applicant can resume from
+    // any device.
+    if (result.statusToken) {
+      const cookieStore = await cookies();
+      cookieStore.set("sf_apply_status_token", result.statusToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/apply",
+        maxAge: 60 * 60 * 24 * 60,
+      });
+    }
     const emailAckParam = `&emailAck=${result.acknowledgementSent ? "1" : "0"}`;
-
-    redirect(`/apply/?submitted=1${tokenParam}${emailAckParam}`);
+    redirect(`/apply/?submitted=1${emailAckParam}`);
   }
 
   return (

@@ -33,7 +33,7 @@ import {
   Pencil,
   KeyRound,
   Trash2,
-  Mail,
+  Phone,
   Wallet,
   Calendar,
   Briefcase,
@@ -160,8 +160,8 @@ export function EmployeeList({
                     </Badge>
                   </div>
                   <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Mail className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{employee.user.email}</span>
+                    <Phone className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{employee.user.contact_number}</span>
                   </div>
                 </div>
                 <DeleteAction
@@ -293,7 +293,7 @@ export function EmployeeList({
                           {employee.user.name}
                         </span>
                         <span className="text-xs text-muted-foreground truncate">
-                          {employee.user.email}
+                          {employee.user.contact_number}
                         </span>
                       </div>
                     </div>

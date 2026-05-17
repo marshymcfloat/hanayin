@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getAvailableSlots } from "./availability";
+import { getAvailableSlots, getDayCapacityRange } from "./availability";
 
 const rateLimitMock = vi.hoisted(() => ({
   rateLimit: vi.fn(),
@@ -89,6 +89,75 @@ describe("availability server action", () => {
 
     expect(availabilityServiceMock.computeSlots).toHaveBeenCalled();
     expect(result).toEqual([slot]);
+  });
+
+  it("returns slot counts per day across the booking horizon", async () => {
+    // computeSlots is called once per day; we vary the return length
+    // so the test verifies aggregation, not just a constant.
+    let callIdx = 0;
+    availabilityServiceMock.computeSlots.mockImplementation(async () => {
+      callIdx += 1;
+      // alternate: 5 slots, 0 slots, 5 slots, 0 slots, ...
+      return Array.from({ length: callIdx % 2 === 0 ? 0 : 5 });
+    });
+
+    const fromDate = new Date("2026-02-13T00:00:00+08:00");
+    // 3-day window so the test stays small but exercises the loop.
+    const toDate = new Date("2026-02-16T00:00:00+08:00");
+
+    const result = await getDayCapacityRange({
+      businessSlug: "demo-business",
+      services: [{ id: 1, quantity: 1 }],
+      fromDate,
+      toDate,
+    });
+
+    expect(Object.keys(result)).toHaveLength(3);
+    // Each value is the number of slots returned for that day.
+    expect(Object.values(result).every((v) => typeof v === "number")).toBe(
+      true,
+    );
+    expect(availabilityServiceMock.computeSlots).toHaveBeenCalledTimes(3);
+  });
+
+  it("clamps day-capacity range to the booking horizon", async () => {
+    availabilityServiceMock.computeSlots.mockResolvedValue([]);
+
+    const fromDate = new Date("2026-02-13T00:00:00+08:00");
+    // Ask for 30 days; horizon is 14 — only 14 should be queried.
+    const toDate = new Date(fromDate.getTime() + 30 * 86400000);
+
+    await getDayCapacityRange({
+      businessSlug: "demo-business",
+      services: [{ id: 1, quantity: 1 }],
+      fromDate,
+      toDate,
+    });
+
+    expect(availabilityServiceMock.computeSlots).toHaveBeenCalledTimes(14);
+  });
+
+  it("returns 0 for days where computeSlots throws (does not fail the range)", async () => {
+    let callIdx = 0;
+    availabilityServiceMock.computeSlots.mockImplementation(async () => {
+      callIdx += 1;
+      if (callIdx === 2) throw new Error("transient");
+      return [{}, {}];
+    });
+
+    const fromDate = new Date("2026-02-13T00:00:00+08:00");
+    const toDate = new Date(fromDate.getTime() + 3 * 86400000);
+
+    const result = await getDayCapacityRange({
+      businessSlug: "demo-business",
+      services: [{ id: 1, quantity: 1 }],
+      fromDate,
+      toDate,
+    });
+
+    const values = Object.values(result);
+    expect(values).toContain(0);
+    expect(values.filter((v) => v === 2)).toHaveLength(2);
   });
 
   it("blocks when availability rate limit is exceeded", async () => {

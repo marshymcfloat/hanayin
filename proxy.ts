@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { clientIpFromForwardedFor } from "@/lib/client-ip";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
@@ -46,8 +47,9 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api")) {
-    const forwardedFor = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
-    const ip = forwardedFor.split(",")[0]?.trim() || "127.0.0.1";
+    const ip = clientIpFromForwardedFor(
+      request.headers.get("x-forwarded-for"),
+    );
     const result = await rateLimit(
       `${pathname}:${ip}`,
       getApiRateLimitConfig(pathname),

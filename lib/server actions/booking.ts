@@ -13,6 +13,14 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
 import { rateLimit } from "@/lib/rate-limit";
+import {
+  clientIpFromForwardedFor,
+  normalizeClientIp,
+} from "@/lib/client-ip";
+import {
+  BOOKING_SUCCESS_TOKEN_TTL_SECONDS,
+  createBookingSuccessToken,
+} from "@/lib/security/booking-success-token";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/billing/subscription-service";
@@ -105,9 +113,13 @@ export async function createBooking({
   const submitWarnings: string[] = [];
   try {
     const headersList = await headers();
+    // Prefer x-real-ip when set (Vercel / nginx style), else fall back
+    // to the first hop of x-forwarded-for. Both routes through the
+    // shared normalizer so IPv6 customers can't /64-rotate past the limit.
     const realIp = headersList.get("x-real-ip")?.trim();
-    const forwardedFor = headersList.get("x-forwarded-for") || "";
-    const clientIp = realIp || forwardedFor.split(",")[0]?.trim() || "unknown";
+    const clientIp = realIp
+      ? normalizeClientIp(realIp)
+      : clientIpFromForwardedFor(headersList.get("x-forwarded-for"));
     const session = await getServerSession(authOptions);
 
     if (
@@ -159,18 +171,34 @@ export async function createBooking({
     }
 
     if (!session) {
-      const limiter = await rateLimit(
+      // Per-IP bucket caps a single source. clientIp is /64-normalized
+      // for IPv6 above so an attacker can't bypass by rotating addresses
+      // within their ISP-assigned block.
+      const ipLimiter = await rateLimit(
         `public-booking:${businessSlug}:${clientIp}`,
-        {
-        windowMs: 10 * 60 * 1000,
-        maxRequests: 8,
-      },
+        { windowMs: 10 * 60 * 1000, maxRequests: 8 },
       );
-
-      if (!limiter.success) {
+      if (!ipLimiter.success) {
         throw new Error(
           "Too many booking attempts. Please wait a few minutes and try again.",
         );
+      }
+
+      // Per-phone bucket caps a single victim phone from being used
+      // across many IPs (e.g. an attacker rotating through residential
+      // proxies to spam-book under one number). Skipped when no phone
+      // was supplied — anonymous flows are gated by the OTP path
+      // upstream, which has its own per-phone limiter.
+      if (phone) {
+        const phoneLimiter = await rateLimit(
+          `public-booking:phone:${businessSlug}:${phone.trim()}`,
+          { windowMs: 10 * 60 * 1000, maxRequests: 5 },
+        );
+        if (!phoneLimiter.success) {
+          throw new Error(
+            "Too many booking attempts. Please wait a few minutes and try again.",
+          );
+        }
       }
     }
 
@@ -341,9 +369,24 @@ export async function createBooking({
     }
 
     revalidatePath(`/app/${businessSlug}`);
+    // Public customers don't have access to the staff dashboard URL —
+    // they need to land on the public success page (which carries the
+    // "Manage your booking" link). Staff submissions (BookingDialog
+    // inside the dashboard) go to the dashboard's booking detail page
+    // as before.
+    const successUrl = metricIsPublicBooking
+      ? `/${businessSlug}/booking/success?bookingId=${booking.id}&token=${encodeURIComponent(
+          createBookingSuccessToken({
+            bookingId: booking.id,
+            businessSlug,
+            purpose: "success",
+            ttlSeconds: BOOKING_SUCCESS_TOKEN_TTL_SECONDS,
+          }),
+        )}`
+      : `/app/${businessSlug}/bookings/${booking.id}?created=true`;
     return {
       type: "internal",
-      url: `/app/${businessSlug}/bookings/${booking.id}?created=true`,
+      url: successUrl,
       warnings: submitWarnings.length > 0 ? submitWarnings : undefined,
     };
   } catch (err) {

@@ -7,6 +7,7 @@ import {
 import { authOptions } from "@/lib/next auth/options";
 import { logger } from "@/lib/logger";
 import { rateLimit } from "@/lib/rate-limit";
+import { clientIpFromForwardedFor } from "@/lib/client-ip";
 import { getBookingPolicyByBusinessSlug } from "@/lib/services/booking-policy";
 import { recordBookingMetric } from "@/lib/services/booking-metrics";
 import {
@@ -107,8 +108,7 @@ async function applyAvailabilityRateLimit(businessSlug: string, kind: string) {
   if (session?.user?.id) return;
 
   const headersList = await headers();
-  const forwardedFor = headersList.get("x-forwarded-for") || "";
-  const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
+  const clientIp = clientIpFromForwardedFor(headersList.get("x-forwarded-for"));
   const limiter = await rateLimit(`public-availability:${kind}:${businessSlug}:${clientIp}`, {
     windowMs: 60 * 1000,
     maxRequests: 60,
@@ -185,6 +185,76 @@ export async function getAvailableSlots({
     });
     throw error;
   }
+}
+
+/**
+ * Returns slot counts per date for the booking horizon ahead, so the
+ * customer-facing DatePicker can pre-color days by capacity (gray
+ * dead-clicks, density dots for low/med/high availability).
+ *
+ * Implementation: 14× computeSlots() runs in parallel and returns just
+ * the count per date — no full slot lists, no rate-limit pressure beyond
+ * a single bucket entry. Client caches with `staleTime: 60_000`, so this
+ * runs at most ~once/minute per `(slug, services)` pair per user.
+ */
+export async function getDayCapacityRange({
+  businessSlug,
+  services,
+  fromDate,
+  toDate,
+}: {
+  businessSlug: string;
+  services: SelectedServiceInput[];
+  fromDate: Date;
+  toDate: Date;
+}): Promise<Record<string, number>> {
+  await applyAvailabilityRateLimit(businessSlug, "day-capacity");
+
+  // Clamp to the booking horizon so a malicious client can't ask for
+  // a 10-year range and DOS the worker.
+  const policy = await getBookingPolicyByBusinessSlug(prisma, businessSlug);
+  const horizonStart = getPHDayBounds(fromDate).dayStart;
+  const horizonEnd = new Date(
+    horizonStart.getTime() + policy.bookingHorizonDays * 86400000,
+  );
+  const effectiveEnd =
+    toDate.getTime() < horizonEnd.getTime() ? toDate : horizonEnd;
+
+  const dates: Date[] = [];
+  for (
+    let cursor = new Date(horizonStart);
+    cursor.getTime() < effectiveEnd.getTime();
+    cursor = new Date(cursor.getTime() + 86400000)
+  ) {
+    dates.push(new Date(cursor));
+  }
+
+  const startedAt = Date.now();
+  const counts = await Promise.all(
+    dates.map(async (date) => {
+      try {
+        const slots = await computeSlots({
+          businessSlug,
+          date,
+          services,
+          slotIntervalMinutes: policy.slotIntervalMinutes,
+        });
+        return [toPHDateString(date), slots.length] as const;
+      } catch {
+        // Don't fail the whole range if one day errors — return 0
+        // so that day renders as "no capacity" rather than throwing.
+        return [toPHDateString(date), 0] as const;
+      }
+    }),
+  );
+
+  logger.info("[BookingAvailability] Day-capacity range completed", {
+    businessSlug,
+    dayCount: counts.length,
+    latencyMs: Date.now() - startedAt,
+  });
+
+  return Object.fromEntries(counts);
 }
 
 export async function getAlternativeSlots({

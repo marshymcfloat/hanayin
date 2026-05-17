@@ -2,7 +2,11 @@ import crypto from "crypto";
 
 export const BOOKING_SUCCESS_TOKEN_TTL_SECONDS = 30 * 60;
 export const BOOKING_DETAILS_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60;
-export type BookingTokenPurpose = "success" | "details";
+// Manage tokens unlock customer self-serve cancel + reschedule. Same
+// 30-day window as details tokens — has to live long enough for the
+// booking horizon plus the appointment date itself.
+export const BOOKING_MANAGE_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60;
+export type BookingTokenPurpose = "success" | "details" | "manage";
 
 type BookingSuccessPayload = {
   bookingId: number;
@@ -92,8 +96,12 @@ export function verifyBookingSuccessToken(params: {
     const payload = JSON.parse(
       base64UrlDecode(payloadBase64),
     ) as Partial<BookingSuccessPayload>;
-    const tokenPurpose =
-      payload.purpose === "details" ? "details" : "success";
+    const tokenPurpose: BookingTokenPurpose =
+      payload.purpose === "details"
+        ? "details"
+        : payload.purpose === "manage"
+          ? "manage"
+          : "success";
 
     if (typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) {
       return false;

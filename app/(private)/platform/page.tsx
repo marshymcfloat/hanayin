@@ -217,133 +217,130 @@ export default async function PlatformOverviewPage() {
 
   const weekWindowStart = getWeekWindowStart();
 
-  const activeSubs = await getMetric("active subscriptions", () =>
-    prisma.businessSubscription.count({ where: { status: "ACTIVE" } }),
-  );
-  const trialingSubs = await getMetric("trialing subscriptions", () =>
-    prisma.businessSubscription.count({ where: { status: "TRIALING" } }),
-  );
-  const graceSubs = await getMetric("grace-period subscriptions", () =>
-    prisma.businessSubscription.count({ where: { status: "GRACE_PERIOD" } }),
-  );
-  const suspendedSubs = await getMetric("suspended subscriptions", () =>
-    prisma.businessSubscription.count({ where: { status: "SUSPENDED" } }),
-  );
-  const legacyOrInactivePlanSubs = await getMetric(
-    "legacy/inactive plan subscriptions",
-    () =>
+  // Run all KPI queries concurrently. They're independent reads; serial awaits
+  // were the dominant cost on this page.
+  const [
+    activeSubs,
+    trialingSubs,
+    graceSubs,
+    suspendedSubs,
+    legacyOrInactivePlanSubs,
+    pendingReferrals,
+    pendingApplications,
+    pendingUpgradeRequests,
+    revenueCollected,
+    oldestPendingApplication,
+    oldestOpenInvoice,
+    oldestPendingUpgradeRequest,
+  ] = await Promise.all([
+    getMetric("active subscriptions", () =>
+      prisma.businessSubscription.count({ where: { status: "ACTIVE" } }),
+    ),
+    getMetric("trialing subscriptions", () =>
+      prisma.businessSubscription.count({ where: { status: "TRIALING" } }),
+    ),
+    getMetric("grace-period subscriptions", () =>
+      prisma.businessSubscription.count({ where: { status: "GRACE_PERIOD" } }),
+    ),
+    getMetric("suspended subscriptions", () =>
+      prisma.businessSubscription.count({ where: { status: "SUSPENDED" } }),
+    ),
+    getMetric("legacy/inactive plan subscriptions", () =>
       prisma.businessSubscription.count({
         where: {
           OR: [
-            {
-              plan: {
-                code: { notIn: [...SUBSCRIPTION_PLAN_CODES] },
-              },
-            },
-            {
-              plan: {
-                is_active: false,
-              },
-            },
+            { plan: { code: { notIn: [...SUBSCRIPTION_PLAN_CODES] } } },
+            { plan: { is_active: false } },
           ],
         },
       }),
-  );
-  const pendingReferrals = await getMetric("pending referrals", () =>
-    prisma.referralAttribution.count({
-      where: { status: { in: ["PENDING", "QUALIFIED"] } },
-    }),
-  );
-  const pendingApplications = hasOnboardingModel
-    ? await getMetric("pending applications", () =>
-        prisma.onboardingApplication.count({
-          where: { status: { in: ["NEW", "CONTACTED", "APPROVED"] } },
-        }),
-      )
-    : 0;
-  const pendingUpgradeRequests = await getMetric(
-    "pending upgrade requests",
-    () =>
+    ),
+    getMetric("pending referrals", () =>
+      prisma.referralAttribution.count({
+        where: { status: { in: ["PENDING", "QUALIFIED"] } },
+      }),
+    ),
+    hasOnboardingModel
+      ? getMetric("pending applications", () =>
+          prisma.onboardingApplication.count({
+            where: { status: { in: ["NEW", "CONTACTED", "APPROVED"] } },
+          }),
+        )
+      : Promise.resolve(0),
+    getMetric("pending upgrade requests", () =>
       prisma.subscriptionPlanUpgradeRequest.count({
         where: { status: "PENDING" },
       }),
-  );
-  const revenueCollected = await getMetric("collected revenue", async () => {
-    const paidInvoices = await prisma.subscriptionInvoice.aggregate({
-      where: { status: "PAID" },
-      _sum: { amount_paid: true },
-    });
-    return paidInvoices._sum.amount_paid ?? 0;
-  });
-  const oldestPendingApplication = hasOnboardingModel
-    ? await getOptionalMetric("oldest pending application", () =>
-        prisma.onboardingApplication.findFirst({
-          where: {
-            status: { in: ["NEW", "CONTACTED", "APPROVED"] },
-          },
-          select: {
-            business_name: true,
-            owner_email: true,
-            created_at: true,
-          },
-          orderBy: { created_at: "asc" },
-        }),
-      )
-    : null;
-  const oldestOpenInvoice = await getOptionalMetric("oldest open invoice", () =>
-    prisma.subscriptionInvoice.findFirst({
-      where: {
-        status: "OPEN",
-      },
-      select: {
-        id: true,
-        created_at: true,
-        amount_due: true,
-        business: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-      },
-      orderBy: { created_at: "asc" },
+    ),
+    getMetric("collected revenue", async () => {
+      const paidInvoices = await prisma.subscriptionInvoice.aggregate({
+        where: { status: "PAID" },
+        _sum: { amount_paid: true },
+      });
+      return paidInvoices._sum.amount_paid ?? 0;
     }),
-  );
-  const oldestPendingUpgradeRequest = await getOptionalMetric(
-    "oldest pending upgrade request",
-    () =>
+    hasOnboardingModel
+      ? getOptionalMetric("oldest pending application", () =>
+          prisma.onboardingApplication.findFirst({
+            where: { status: { in: ["NEW", "CONTACTED", "APPROVED"] } },
+            select: {
+              business_name: true,
+              owner_email: true,
+              created_at: true,
+            },
+            orderBy: { created_at: "asc" },
+          }),
+        )
+      : Promise.resolve(null),
+    getOptionalMetric("oldest open invoice", () =>
+      prisma.subscriptionInvoice.findFirst({
+        where: { status: "OPEN" },
+        select: {
+          id: true,
+          created_at: true,
+          amount_due: true,
+          business: { select: { name: true, slug: true } },
+        },
+        orderBy: { created_at: "asc" },
+      }),
+    ),
+    getOptionalMetric("oldest pending upgrade request", () =>
       prisma.subscriptionPlanUpgradeRequest.findFirst({
         where: { status: "PENDING" },
         select: {
           created_at: true,
-          business: {
-            select: {
-              name: true,
-              slug: true,
-            },
-          },
-          target_plan: {
-            select: {
-              code: true,
-            },
-          },
+          business: { select: { name: true, slug: true } },
+          target_plan: { select: { code: true } },
         },
         orderBy: { created_at: "asc" },
       }),
-  );
+    ),
+  ]);
   const weeklyKpis = await getOptionalMetric("weekly kpis", async () => {
-    const onboardingApplications = hasOnboardingModel
-      ? await prisma.onboardingApplication.findMany({
-          where: {
-            created_at: { gte: weekWindowStart },
-          },
-          select: {
-            id: true,
-            created_at: true,
-          },
+    // Independent queries run in parallel. The onboardingStatusLogs query
+    // depends on onboardingApplications (it filters by their ids), so it's
+    // sequenced after.
+    const [onboardingApplications, paidInvoicesInWindow, outboxMessagesInWindow, ciKpi] =
+      await Promise.all([
+        hasOnboardingModel
+          ? prisma.onboardingApplication.findMany({
+              where: { created_at: { gte: weekWindowStart } },
+              select: { id: true, created_at: true },
+              take: 500,
+            })
+          : Promise.resolve([] as Array<{ id: string; created_at: Date }>),
+        prisma.subscriptionInvoice.findMany({
+          where: { paid_at: { not: null, gte: weekWindowStart } },
+          select: { created_at: true, paid_at: true },
           take: 500,
-        })
-      : [];
+        }),
+        prisma.outboxMessage.findMany({
+          where: { created_at: { gte: weekWindowStart } },
+          select: { attempts: true, processed: true, last_error: true },
+          take: 1000,
+        }),
+        fetchCiWeeklyKpi(weekWindowStart),
+      ]);
 
     const contactedAtByApplicationId = new Map<string, Date>();
     if (onboardingApplications.length > 0) {
@@ -387,17 +384,6 @@ export default async function PlatformOverviewPage() {
         : onboardingLeadHours.reduce((sum, hours) => sum + hours, 0) /
           onboardingLeadHours.length;
 
-    const paidInvoicesInWindow = await prisma.subscriptionInvoice.findMany({
-      where: {
-        paid_at: { not: null, gte: weekWindowStart },
-      },
-      select: {
-        created_at: true,
-        paid_at: true,
-      },
-      take: 500,
-    });
-
     const invoiceLeadHours = paidInvoicesInWindow
       .map((invoice) => {
         if (!invoice.paid_at) return null;
@@ -411,18 +397,6 @@ export default async function PlatformOverviewPage() {
         : invoiceLeadHours.reduce((sum, hours) => sum + hours, 0) /
           invoiceLeadHours.length;
 
-    const outboxMessagesInWindow = await prisma.outboxMessage.findMany({
-      where: {
-        created_at: { gte: weekWindowStart },
-      },
-      select: {
-        attempts: true,
-        processed: true,
-        last_error: true,
-      },
-      take: 1000,
-    });
-
     const failedOutboxMessages = outboxMessagesInWindow.filter(
       (message) => message.attempts > 0 || Boolean(message.last_error),
     );
@@ -433,8 +407,6 @@ export default async function PlatformOverviewPage() {
       outboxMessagesInWindow.length === 0
         ? 0
         : (failedOutboxMessages.length / outboxMessagesInWindow.length) * 100;
-
-    const ciKpi = await fetchCiWeeklyKpi(weekWindowStart);
 
     return {
       onboarding: {

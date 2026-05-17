@@ -31,6 +31,7 @@ export type EmployeeAttendanceAvgAggregateOutputType = {
   employee_id: number | null
   latitude: number | null
   longitude: number | null
+  paid_in_payslip_id: number | null
 }
 
 export type EmployeeAttendanceSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type EmployeeAttendanceSumAggregateOutputType = {
   employee_id: number | null
   latitude: number | null
   longitude: number | null
+  paid_in_payslip_id: number | null
 }
 
 export type EmployeeAttendanceMinAggregateOutputType = {
@@ -51,6 +53,7 @@ export type EmployeeAttendanceMinAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   is_paid_leave: boolean | null
+  paid_in_payslip_id: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -66,6 +69,7 @@ export type EmployeeAttendanceMaxAggregateOutputType = {
   latitude: number | null
   longitude: number | null
   is_paid_leave: boolean | null
+  paid_in_payslip_id: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -81,6 +85,7 @@ export type EmployeeAttendanceCountAggregateOutputType = {
   latitude: number
   longitude: number
   is_paid_leave: number
+  paid_in_payslip_id: number
   created_at: number
   updated_at: number
   _all: number
@@ -92,6 +97,7 @@ export type EmployeeAttendanceAvgAggregateInputType = {
   employee_id?: true
   latitude?: true
   longitude?: true
+  paid_in_payslip_id?: true
 }
 
 export type EmployeeAttendanceSumAggregateInputType = {
@@ -99,6 +105,7 @@ export type EmployeeAttendanceSumAggregateInputType = {
   employee_id?: true
   latitude?: true
   longitude?: true
+  paid_in_payslip_id?: true
 }
 
 export type EmployeeAttendanceMinAggregateInputType = {
@@ -112,6 +119,7 @@ export type EmployeeAttendanceMinAggregateInputType = {
   latitude?: true
   longitude?: true
   is_paid_leave?: true
+  paid_in_payslip_id?: true
   created_at?: true
   updated_at?: true
 }
@@ -127,6 +135,7 @@ export type EmployeeAttendanceMaxAggregateInputType = {
   latitude?: true
   longitude?: true
   is_paid_leave?: true
+  paid_in_payslip_id?: true
   created_at?: true
   updated_at?: true
 }
@@ -142,6 +151,7 @@ export type EmployeeAttendanceCountAggregateInputType = {
   latitude?: true
   longitude?: true
   is_paid_leave?: true
+  paid_in_payslip_id?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -244,6 +254,7 @@ export type EmployeeAttendanceGroupByOutputType = {
   latitude: number | null
   longitude: number | null
   is_paid_leave: boolean
+  paid_in_payslip_id: number | null
   created_at: Date
   updated_at: Date
   _count: EmployeeAttendanceCountAggregateOutputType | null
@@ -282,9 +293,11 @@ export type EmployeeAttendanceWhereInput = {
   latitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   longitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   is_paid_leave?: Prisma.BoolFilter<"EmployeeAttendance"> | boolean
+  paid_in_payslip_id?: Prisma.IntNullableFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  paid_in_payslip?: Prisma.XOR<Prisma.PayslipNullableScalarRelationFilter, Prisma.PayslipWhereInput> | null
 }
 
 export type EmployeeAttendanceOrderByWithRelationInput = {
@@ -298,13 +311,16 @@ export type EmployeeAttendanceOrderByWithRelationInput = {
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   is_paid_leave?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
+  paid_in_payslip?: Prisma.PayslipOrderByWithRelationInput
 }
 
 export type EmployeeAttendanceWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  employee_id_date?: Prisma.EmployeeAttendanceEmployee_idDateCompoundUniqueInput
   AND?: Prisma.EmployeeAttendanceWhereInput | Prisma.EmployeeAttendanceWhereInput[]
   OR?: Prisma.EmployeeAttendanceWhereInput[]
   NOT?: Prisma.EmployeeAttendanceWhereInput | Prisma.EmployeeAttendanceWhereInput[]
@@ -317,10 +333,12 @@ export type EmployeeAttendanceWhereUniqueInput = Prisma.AtLeast<{
   latitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   longitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   is_paid_leave?: Prisma.BoolFilter<"EmployeeAttendance"> | boolean
+  paid_in_payslip_id?: Prisma.IntNullableFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-}, "id">
+  paid_in_payslip?: Prisma.XOR<Prisma.PayslipNullableScalarRelationFilter, Prisma.PayslipWhereInput> | null
+}, "id" | "employee_id_date">
 
 export type EmployeeAttendanceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -333,6 +351,7 @@ export type EmployeeAttendanceOrderByWithAggregationInput = {
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   is_paid_leave?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.EmployeeAttendanceCountOrderByAggregateInput
@@ -356,6 +375,7 @@ export type EmployeeAttendanceScalarWhereWithAggregatesInput = {
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"EmployeeAttendance"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"EmployeeAttendance"> | number | null
   is_paid_leave?: Prisma.BoolWithAggregatesFilter<"EmployeeAttendance"> | boolean
+  paid_in_payslip_id?: Prisma.IntNullableWithAggregatesFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"EmployeeAttendance"> | Date | string
 }
@@ -372,6 +392,7 @@ export type EmployeeAttendanceCreateInput = {
   created_at?: Date | string
   updated_at?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutAttendanceInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAttendance_recordsInput
 }
 
 export type EmployeeAttendanceUncheckedCreateInput = {
@@ -385,6 +406,7 @@ export type EmployeeAttendanceUncheckedCreateInput = {
   latitude?: number | null
   longitude?: number | null
   is_paid_leave?: boolean
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -401,6 +423,7 @@ export type EmployeeAttendanceUpdateInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutAttendanceNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAttendance_recordsNestedInput
 }
 
 export type EmployeeAttendanceUncheckedUpdateInput = {
@@ -414,6 +437,7 @@ export type EmployeeAttendanceUncheckedUpdateInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   is_paid_leave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -429,6 +453,7 @@ export type EmployeeAttendanceCreateManyInput = {
   latitude?: number | null
   longitude?: number | null
   is_paid_leave?: boolean
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -457,6 +482,7 @@ export type EmployeeAttendanceUncheckedUpdateManyInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   is_paid_leave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -471,6 +497,11 @@ export type EmployeeAttendanceOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type EmployeeAttendanceEmployee_idDateCompoundUniqueInput = {
+  employee_id: number
+  date: Date | string
+}
+
 export type EmployeeAttendanceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   employee_id?: Prisma.SortOrder
@@ -482,6 +513,7 @@ export type EmployeeAttendanceCountOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   is_paid_leave?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -491,6 +523,7 @@ export type EmployeeAttendanceAvgOrderByAggregateInput = {
   employee_id?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
 }
 
 export type EmployeeAttendanceMaxOrderByAggregateInput = {
@@ -504,6 +537,7 @@ export type EmployeeAttendanceMaxOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   is_paid_leave?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -519,6 +553,7 @@ export type EmployeeAttendanceMinOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   is_paid_leave?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -528,6 +563,7 @@ export type EmployeeAttendanceSumOrderByAggregateInput = {
   employee_id?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
 }
 
 export type EmployeeAttendanceCreateNestedManyWithoutEmployeeInput = {
@@ -576,6 +612,48 @@ export type EnumAttendanceStatusFieldUpdateOperationsInput = {
   set?: $Enums.AttendanceStatus
 }
 
+export type EmployeeAttendanceCreateNestedManyWithoutPaid_in_payslipInput = {
+  create?: Prisma.XOR<Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput[] | Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.EmployeeAttendanceCreateManyPaid_in_payslipInputEnvelope
+  connect?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+}
+
+export type EmployeeAttendanceUncheckedCreateNestedManyWithoutPaid_in_payslipInput = {
+  create?: Prisma.XOR<Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput[] | Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.EmployeeAttendanceCreateManyPaid_in_payslipInputEnvelope
+  connect?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+}
+
+export type EmployeeAttendanceUpdateManyWithoutPaid_in_payslipNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput[] | Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput[]
+  upsert?: Prisma.EmployeeAttendanceUpsertWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceUpsertWithWhereUniqueWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.EmployeeAttendanceCreateManyPaid_in_payslipInputEnvelope
+  set?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  delete?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  connect?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  update?: Prisma.EmployeeAttendanceUpdateWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceUpdateWithWhereUniqueWithoutPaid_in_payslipInput[]
+  updateMany?: Prisma.EmployeeAttendanceUpdateManyWithWhereWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceUpdateManyWithWhereWithoutPaid_in_payslipInput[]
+  deleteMany?: Prisma.EmployeeAttendanceScalarWhereInput | Prisma.EmployeeAttendanceScalarWhereInput[]
+}
+
+export type EmployeeAttendanceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput[] | Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput[]
+  upsert?: Prisma.EmployeeAttendanceUpsertWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceUpsertWithWhereUniqueWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.EmployeeAttendanceCreateManyPaid_in_payslipInputEnvelope
+  set?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  delete?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  connect?: Prisma.EmployeeAttendanceWhereUniqueInput | Prisma.EmployeeAttendanceWhereUniqueInput[]
+  update?: Prisma.EmployeeAttendanceUpdateWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceUpdateWithWhereUniqueWithoutPaid_in_payslipInput[]
+  updateMany?: Prisma.EmployeeAttendanceUpdateManyWithWhereWithoutPaid_in_payslipInput | Prisma.EmployeeAttendanceUpdateManyWithWhereWithoutPaid_in_payslipInput[]
+  deleteMany?: Prisma.EmployeeAttendanceScalarWhereInput | Prisma.EmployeeAttendanceScalarWhereInput[]
+}
+
 export type EmployeeAttendanceCreateWithoutEmployeeInput = {
   date: Date | string
   status?: $Enums.AttendanceStatus
@@ -587,6 +665,7 @@ export type EmployeeAttendanceCreateWithoutEmployeeInput = {
   is_paid_leave?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAttendance_recordsInput
 }
 
 export type EmployeeAttendanceUncheckedCreateWithoutEmployeeInput = {
@@ -599,6 +678,7 @@ export type EmployeeAttendanceUncheckedCreateWithoutEmployeeInput = {
   latitude?: number | null
   longitude?: number | null
   is_paid_leave?: boolean
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -643,8 +723,64 @@ export type EmployeeAttendanceScalarWhereInput = {
   latitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   longitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   is_paid_leave?: Prisma.BoolFilter<"EmployeeAttendance"> | boolean
+  paid_in_payslip_id?: Prisma.IntNullableFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
+}
+
+export type EmployeeAttendanceCreateWithoutPaid_in_payslipInput = {
+  date: Date | string
+  status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
+  is_paid_leave?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  employee: Prisma.EmployeeCreateNestedOneWithoutAttendanceInput
+}
+
+export type EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput = {
+  id?: number
+  employee_id: number
+  date: Date | string
+  status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
+  is_paid_leave?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+}
+
+export type EmployeeAttendanceCreateOrConnectWithoutPaid_in_payslipInput = {
+  where: Prisma.EmployeeAttendanceWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput>
+}
+
+export type EmployeeAttendanceCreateManyPaid_in_payslipInputEnvelope = {
+  data: Prisma.EmployeeAttendanceCreateManyPaid_in_payslipInput | Prisma.EmployeeAttendanceCreateManyPaid_in_payslipInput[]
+  skipDuplicates?: boolean
+}
+
+export type EmployeeAttendanceUpsertWithWhereUniqueWithoutPaid_in_payslipInput = {
+  where: Prisma.EmployeeAttendanceWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmployeeAttendanceUpdateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedUpdateWithoutPaid_in_payslipInput>
+  create: Prisma.XOR<Prisma.EmployeeAttendanceCreateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedCreateWithoutPaid_in_payslipInput>
+}
+
+export type EmployeeAttendanceUpdateWithWhereUniqueWithoutPaid_in_payslipInput = {
+  where: Prisma.EmployeeAttendanceWhereUniqueInput
+  data: Prisma.XOR<Prisma.EmployeeAttendanceUpdateWithoutPaid_in_payslipInput, Prisma.EmployeeAttendanceUncheckedUpdateWithoutPaid_in_payslipInput>
+}
+
+export type EmployeeAttendanceUpdateManyWithWhereWithoutPaid_in_payslipInput = {
+  where: Prisma.EmployeeAttendanceScalarWhereInput
+  data: Prisma.XOR<Prisma.EmployeeAttendanceUpdateManyMutationInput, Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutPaid_in_payslipInput>
 }
 
 export type EmployeeAttendanceCreateManyEmployeeInput = {
@@ -657,6 +793,7 @@ export type EmployeeAttendanceCreateManyEmployeeInput = {
   latitude?: number | null
   longitude?: number | null
   is_paid_leave?: boolean
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -672,6 +809,7 @@ export type EmployeeAttendanceUpdateWithoutEmployeeInput = {
   is_paid_leave?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAttendance_recordsNestedInput
 }
 
 export type EmployeeAttendanceUncheckedUpdateWithoutEmployeeInput = {
@@ -684,12 +822,73 @@ export type EmployeeAttendanceUncheckedUpdateWithoutEmployeeInput = {
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   is_paid_leave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  is_paid_leave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeAttendanceCreateManyPaid_in_payslipInput = {
+  id?: number
+  employee_id: number
+  date: Date | string
+  status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
+  is_paid_leave?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+}
+
+export type EmployeeAttendanceUpdateWithoutPaid_in_payslipInput = {
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  is_paid_leave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAttendanceNestedInput
+}
+
+export type EmployeeAttendanceUncheckedUpdateWithoutPaid_in_payslipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  is_paid_leave?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeAttendanceUncheckedUpdateManyWithoutPaid_in_payslipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
   time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -715,9 +914,11 @@ export type EmployeeAttendanceSelect<ExtArgs extends runtime.Types.Extensions.In
   latitude?: boolean
   longitude?: boolean
   is_paid_leave?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs>
 }, ExtArgs["result"]["employeeAttendance"]>
 
 export type EmployeeAttendanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -731,9 +932,11 @@ export type EmployeeAttendanceSelectCreateManyAndReturn<ExtArgs extends runtime.
   latitude?: boolean
   longitude?: boolean
   is_paid_leave?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs>
 }, ExtArgs["result"]["employeeAttendance"]>
 
 export type EmployeeAttendanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -747,9 +950,11 @@ export type EmployeeAttendanceSelectUpdateManyAndReturn<ExtArgs extends runtime.
   latitude?: boolean
   longitude?: boolean
   is_paid_leave?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs>
 }, ExtArgs["result"]["employeeAttendance"]>
 
 export type EmployeeAttendanceSelectScalar = {
@@ -763,25 +968,30 @@ export type EmployeeAttendanceSelectScalar = {
   latitude?: boolean
   longitude?: boolean
   is_paid_leave?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type EmployeeAttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "date" | "status" | "time_in" | "time_out" | "location_verified" | "latitude" | "longitude" | "is_paid_leave" | "created_at" | "updated_at", ExtArgs["result"]["employeeAttendance"]>
+export type EmployeeAttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "date" | "status" | "time_in" | "time_out" | "location_verified" | "latitude" | "longitude" | "is_paid_leave" | "paid_in_payslip_id" | "created_at" | "updated_at", ExtArgs["result"]["employeeAttendance"]>
 export type EmployeeAttendanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs>
 }
 export type EmployeeAttendanceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs>
 }
 export type EmployeeAttendanceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs>
 }
 
 export type $EmployeeAttendancePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EmployeeAttendance"
   objects: {
     employee: Prisma.$EmployeePayload<ExtArgs>
+    paid_in_payslip: Prisma.$PayslipPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -794,6 +1004,7 @@ export type $EmployeeAttendancePayload<ExtArgs extends runtime.Types.Extensions.
     latitude: number | null
     longitude: number | null
     is_paid_leave: boolean
+    paid_in_payslip_id: number | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["employeeAttendance"]>
@@ -1191,6 +1402,7 @@ readonly fields: EmployeeAttendanceFieldRefs;
 export interface Prisma__EmployeeAttendanceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  paid_in_payslip<T extends Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeAttendance$paid_in_payslipArgs<ExtArgs>>): Prisma.Prisma__PayslipClient<runtime.Types.Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1230,6 +1442,7 @@ export interface EmployeeAttendanceFieldRefs {
   readonly latitude: Prisma.FieldRef<"EmployeeAttendance", 'Float'>
   readonly longitude: Prisma.FieldRef<"EmployeeAttendance", 'Float'>
   readonly is_paid_leave: Prisma.FieldRef<"EmployeeAttendance", 'Boolean'>
+  readonly paid_in_payslip_id: Prisma.FieldRef<"EmployeeAttendance", 'Int'>
   readonly created_at: Prisma.FieldRef<"EmployeeAttendance", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"EmployeeAttendance", 'DateTime'>
 }
@@ -1625,6 +1838,25 @@ export type EmployeeAttendanceDeleteManyArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many EmployeeAttendances to delete.
    */
   limit?: number
+}
+
+/**
+ * EmployeeAttendance.paid_in_payslip
+ */
+export type EmployeeAttendance$paid_in_payslipArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payslip
+   */
+  select?: Prisma.PayslipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payslip
+   */
+  omit?: Prisma.PayslipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PayslipInclude<ExtArgs> | null
+  where?: Prisma.PayslipWhereInput
 }
 
 /**

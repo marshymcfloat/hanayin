@@ -63,6 +63,24 @@ export type User = Prisma.UserModel
  */
 export type Employee = Prisma.EmployeeModel
 /**
+ * Model EmployeeSchedule
+ * *
+ *  * EmployeeSchedule — optional formal weekly shift rows. Only honored
+ *  * when the owning Business has `formal_schedule_enabled=true`. An
+ *  * employee with zero rows falls back to the default behavior
+ *  * (recurring_days_off + business hours) even when the flag is on, so
+ *  * tenants can opt employees in incrementally.
+ *  *
+ *  * `start_time` / `end_time` are "HH:MM" strings in the business's
+ *  * timezone — same shape as BusinessHours, intentionally consistent.
+ *  * Multiple rows per (employee, day_of_week) are allowed to model
+ *  * split shifts (e.g. morning + evening with a midday break).
+ *  *
+ *  * No admin UI ships in this iteration — managed via Prisma Studio or
+ *  * a future settings screen. Schema and slot integration only.
+ */
+export type EmployeeSchedule = Prisma.EmployeeScheduleModel
+/**
  * Model EmployeeAttendance
  * 
  */

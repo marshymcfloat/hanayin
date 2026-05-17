@@ -82,7 +82,7 @@ type SidebarProps = {
   };
   user: {
     name: string;
-    email: string;
+    contactNumber: string;
     role: string;
   };
 };

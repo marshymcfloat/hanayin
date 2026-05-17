@@ -15,16 +15,26 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { signIn, getSession } from "next-auth/react";
 import { useMutation } from "@tanstack/react-query";
-import { LoaderCircle, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { LoaderCircle, Phone, Lock, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const INVALID_CREDENTIALS_MESSAGE =
-  "Incorrect email or password. Please try again.";
+  "Incorrect contact number or password. Please try again.";
 const GENERIC_SIGN_IN_ERROR_MESSAGE =
   "Unable to sign in right now. Please try again.";
+
+const FIELD_LABELS: Record<keyof LoginSchemaType, string> = {
+  contact_number: "Contact number",
+  password: "Password",
+};
+
+const FIELD_PLACEHOLDERS: Record<keyof LoginSchemaType, string> = {
+  contact_number: "09XX XXX XXXX",
+  password: "••••••••",
+};
 
 function getSignInErrorMessage(error?: string | null) {
   if (error === "CredentialsSignin" || error === "Invalid credentials") {
@@ -42,7 +52,7 @@ export default function AuthForm() {
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      contact_number: "",
       password: "",
     },
   });
@@ -77,7 +87,7 @@ export default function AuthForm() {
 
   async function handleSigningIn() {
     const result = await signIn("credentials", {
-      email: form.getValues("email"),
+      contact_number: form.getValues("contact_number"),
       password: form.getValues("password"),
       redirect: false,
     });
@@ -112,7 +122,7 @@ export default function AuthForm() {
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
                   <FormLabel className="text-[13px] font-medium tracking-tight text-foreground/70 ml-1">
-                    {input.charAt(0).toUpperCase() + input.slice(1)}
+                    {FIELD_LABELS[input]}
                   </FormLabel>
                   <FormControl>
                     <div className="relative group">
@@ -122,8 +132,8 @@ export default function AuthForm() {
                           focusedField === input && "text-primary",
                         )}
                       >
-                        {input === "email" ? (
-                          <Mail className="h-4 w-4" />
+                        {input === "contact_number" ? (
+                          <Phone className="h-4 w-4" />
                         ) : (
                           <Lock className="h-4 w-4" />
                         )}
@@ -131,7 +141,19 @@ export default function AuthForm() {
                       <Input
                         {...field}
                         type={
-                          input === "password" && showPassword ? "text" : input
+                          input === "password"
+                            ? showPassword
+                              ? "text"
+                              : "password"
+                            : "tel"
+                        }
+                        inputMode={
+                          input === "contact_number" ? "tel" : undefined
+                        }
+                        autoComplete={
+                          input === "contact_number"
+                            ? "tel"
+                            : "current-password"
                         }
                         onFocus={() => {
                           setFocusedField(input);
@@ -147,9 +169,7 @@ export default function AuthForm() {
                           "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary focus-visible:bg-background",
                           "hover:border-primary/30",
                         )}
-                        placeholder={
-                          input === "email" ? "name@example.com" : "••••••••"
-                        }
+                        placeholder={FIELD_PLACEHOLDERS[input]}
                       />
                       {input === "password" ? (
                         <button

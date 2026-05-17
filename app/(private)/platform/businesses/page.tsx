@@ -1,9 +1,12 @@
 import {
   applyCreditAdjustmentAction,
   changeBusinessSubscriptionPlanAction,
+  clearDemoDataAction,
+  convertTrialToPaidAction,
   createBusinessWithSubscriptionAction,
   grantTrialMonthsAction,
   reactivateBusinessAction,
+  resendMagicLinkAction,
   reviewSubscriptionPlanUpgradeRequestAction,
   suspendBusinessAction,
 } from "@/lib/server actions/platform-admin";
@@ -25,6 +28,7 @@ import {
   toActionErrorMessage,
 } from "../_components/action-feedback";
 import { ConfirmSubmitButton } from "../_components/confirm-submit-button";
+import { ImpersonateOwnerButton } from "../_components/ImpersonateOwnerButton";
 import {
   PlatformMetricCard,
   PlatformPageHeader,
@@ -66,79 +70,50 @@ export default async function PlatformBusinessesPage({
   await connection();
   await ensureDefaultPlans();
   const flash = await getPlatformFlashMessage(searchParams);
-  const businesses = await prisma.business.findMany({
-    include: {
-      subscriptions: {
-        include: {
-          plan: true,
+  const [businesses, catalogPlans, upgradeRequests] = await Promise.all([
+    prisma.business.findMany({
+      include: {
+        subscriptions: {
+          include: { plan: true },
         },
-      },
-      owners: {
-        include: {
-          user: {
-            select: { email: true, name: true },
+        owners: {
+          include: {
+            user: { select: { contact_number: true, name: true } },
           },
+          take: 1,
         },
-        take: 1,
       },
-    },
-    orderBy: { created_at: "desc" },
-    take: 200,
-  });
-  const catalogPlans = await prisma.subscriptionPlan.findMany({
-    where: {
-      code: { in: [...SUBSCRIPTION_PLAN_CODES] },
-    },
-    select: {
-      code: true,
-      name: true,
-      price_amount: true,
-      is_active: true,
-    },
-    orderBy: [{ price_amount: "asc" }, { code: "asc" }],
-  });
+      orderBy: { created_at: "desc" },
+      take: 200,
+    }),
+    prisma.subscriptionPlan.findMany({
+      where: { code: { in: [...SUBSCRIPTION_PLAN_CODES] } },
+      select: {
+        code: true,
+        name: true,
+        price_amount: true,
+        is_active: true,
+      },
+      orderBy: [{ price_amount: "asc" }, { code: "asc" }],
+    }),
+    prisma.subscriptionPlanUpgradeRequest.findMany({
+      include: {
+        business: { select: { id: true, name: true, slug: true } },
+        current_plan: { select: { code: true } },
+        target_plan: { select: { code: true, name: true } },
+        requested_by_user: { select: { name: true, contact_number: true } },
+        reviewed_by_user: { select: { name: true, contact_number: true } },
+      },
+      orderBy: { created_at: "desc" },
+      take: 200,
+    }),
+  ]);
   const assignablePlans = catalogPlans.filter((plan) => plan.is_active);
   const defaultAssignablePlanCode =
     assignablePlans.find((plan) => plan.code === DEFAULT_SUBSCRIPTION_PLAN_CODE)
       ?.code ??
     assignablePlans[0]?.code ??
     DEFAULT_SUBSCRIPTION_PLAN_CODE;
-  const upgradeRequests = await prisma.subscriptionPlanUpgradeRequest.findMany({
-    include: {
-      business: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-      current_plan: {
-        select: {
-          code: true,
-        },
-      },
-      target_plan: {
-        select: {
-          code: true,
-          name: true,
-        },
-      },
-      requested_by_user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-      reviewed_by_user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-    },
-    orderBy: { created_at: "desc" },
-    take: 200,
-  });
 
   async function createBusinessFormAction(formData: FormData) {
     "use server";
@@ -147,7 +122,9 @@ export default async function PlatformBusinessesPage({
       const businessSlug = String(formData.get("businessSlug") || "");
       const initials = String(formData.get("initials") || "");
       const ownerName = String(formData.get("ownerName") || "");
-      const ownerEmail = String(formData.get("ownerEmail") || "");
+      const ownerContactNumber = String(
+        formData.get("ownerContactNumber") || "",
+      );
       const ownerPassword = String(formData.get("ownerPassword") || "");
       const referralCode = String(formData.get("referralCode") || "");
       const rawPlanCode = String(
@@ -178,7 +155,7 @@ export default async function PlatformBusinessesPage({
         businessSlug,
         initials,
         ownerName,
-        ownerEmail,
+        ownerContactNumber,
         ownerPassword: ownerPassword || undefined,
         referralCode: referralCode || undefined,
         planCode,
@@ -249,10 +226,15 @@ export default async function PlatformBusinessesPage({
     }
   }
 
-  async function grantTrialFormAction(businessId: string) {
+  async function grantTrialFormAction(businessId: string, formData: FormData) {
     "use server";
     try {
-      const result = await grantTrialMonthsAction(businessId, 1);
+      const rawMonths = Number.parseInt(
+        String(formData.get("trialMonths") || "1"),
+        10,
+      );
+      const months = Math.max(1, Math.min(12, Number.isFinite(rawMonths) ? rawMonths : 1));
+      const result = await grantTrialMonthsAction(businessId, months);
       if (!result.success) {
         redirect(buildPlatformErrorPath("/platform/businesses", result.error));
       }
@@ -260,7 +242,7 @@ export default async function PlatformBusinessesPage({
       redirect(
         buildPlatformSuccessPath(
           "/platform/businesses",
-          "Trial month granted.",
+          `Trial extended by ${months} month${months === 1 ? "" : "s"}.`,
         ),
       );
     } catch (error) {
@@ -348,6 +330,88 @@ export default async function PlatformBusinessesPage({
         buildPlatformErrorPath(
           "/platform/businesses",
           toActionErrorMessage(error, "Unable to reactivate business."),
+        ),
+      );
+    }
+  }
+
+  async function resendMagicLinkFormAction(businessId: string) {
+    "use server";
+    try {
+      const result = await resendMagicLinkAction(businessId);
+      if (!result.success) {
+        redirect(buildPlatformErrorPath("/platform/businesses", result.error));
+      }
+      const message =
+        result.data.smsDelivery === "sent"
+          ? "Magic link sent via SMS."
+          : result.data.smsDelivery === "failed"
+            ? "SMS failed; share the link manually from the audit log."
+            : "Magic link generated (no phone on file).";
+      redirect(buildPlatformSuccessPath("/platform/businesses", message));
+    } catch (error) {
+      rethrowIfRedirectError(error);
+      redirect(
+        buildPlatformErrorPath(
+          "/platform/businesses",
+          toActionErrorMessage(error, "Unable to resend magic link."),
+        ),
+      );
+    }
+  }
+
+  async function clearDemoDataFormAction(businessId: string) {
+    "use server";
+    try {
+      const result = await clearDemoDataAction(businessId);
+      if (!result.success) {
+        redirect(buildPlatformErrorPath("/platform/businesses", result.error));
+      }
+      redirect(
+        buildPlatformSuccessPath("/platform/businesses", "Demo data cleared."),
+      );
+    } catch (error) {
+      rethrowIfRedirectError(error);
+      redirect(
+        buildPlatformErrorPath(
+          "/platform/businesses",
+          toActionErrorMessage(error, "Unable to clear demo data."),
+        ),
+      );
+    }
+  }
+
+  async function convertTrialToPaidFormAction(
+    businessId: string,
+    formData: FormData,
+  ) {
+    "use server";
+    try {
+      const paymentReference = String(formData.get("paymentReference") || "").trim();
+      if (!paymentReference) {
+        redirect(
+          buildPlatformErrorPath(
+            "/platform/businesses",
+            "Payment reference is required to convert a trial.",
+          ),
+        );
+      }
+      const result = await convertTrialToPaidAction({ businessId, paymentReference });
+      if (!result.success) {
+        redirect(buildPlatformErrorPath("/platform/businesses", result.error));
+      }
+      redirect(
+        buildPlatformSuccessPath(
+          "/platform/businesses",
+          "Trial converted to paid.",
+        ),
+      );
+    } catch (error) {
+      rethrowIfRedirectError(error);
+      redirect(
+        buildPlatformErrorPath(
+          "/platform/businesses",
+          toActionErrorMessage(error, "Unable to convert trial."),
         ),
       );
     }
@@ -526,11 +590,14 @@ export default async function PlatformBusinessesPage({
           </label>
           <label className="space-y-1 text-sm">
             <span className="font-medium text-[var(--pf-text)]">
-              Owner Email
+              Owner Contact Number
             </span>
             <input
-              name="ownerEmail"
-              type="email"
+              name="ownerContactNumber"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="09XX XXX XXXX"
               className={platformInputClass}
               required
             />
@@ -705,7 +772,7 @@ export default async function PlatformBusinessesPage({
                     >
                       <p>{business.owners[0]?.user.name ?? "-"}</p>
                       <p className="text-xs text-[var(--pf-muted)]">
-                        {business.owners[0]?.user.email ?? "-"}
+                        {business.owners[0]?.user.contact_number ?? "-"}
                       </p>
                     </td>
                     <td className={platformTableCellClass}>
@@ -770,18 +837,31 @@ export default async function PlatformBusinessesPage({
                               null,
                               business.id,
                             )}
+                            className="flex items-center gap-1"
                           >
+                            <select
+                              name="trialMonths"
+                              defaultValue="1"
+                              disabled={!canExtendTrial}
+                              className={`${platformInputClass} h-9 w-20`}
+                            >
+                              {[1, 2, 3, 6, 9, 12].map((m) => (
+                                <option key={m} value={m}>
+                                  +{m}m
+                                </option>
+                              ))}
+                            </select>
                             <button
                               type="submit"
                               className={platformSecondaryButtonClass}
                               disabled={!canExtendTrial}
                               title={
                                 canExtendTrial
-                                  ? undefined
+                                  ? "Extend trial by selected months."
                                   : "Only trialing subscriptions can be extended."
                               }
                             >
-                              Extend Trial +1m
+                              Extend
                             </button>
                           </form>
                           <form
@@ -820,7 +900,61 @@ export default async function PlatformBusinessesPage({
                               Reactivate
                             </ConfirmSubmitButton>
                           </form>
+                          <form
+                            action={resendMagicLinkFormAction.bind(
+                              null,
+                              business.id,
+                            )}
+                          >
+                            <button
+                              type="submit"
+                              className={platformSecondaryButtonClass}
+                              title="Send a fresh single-use sign-in link via SMS to the owner."
+                            >
+                              Resend Sign-in Link
+                            </button>
+                          </form>
+                          <ImpersonateOwnerButton
+                            businessId={business.id}
+                            businessName={business.name}
+                            triggerClassName={platformSecondaryButtonClass}
+                          />
+                          <form
+                            action={clearDemoDataFormAction.bind(
+                              null,
+                              business.id,
+                            )}
+                          >
+                            <ConfirmSubmitButton
+                              className={platformSecondaryButtonClass}
+                              confirmMessage={`Clear demo data for ${business.name}? This removes only rows flagged as demo (sample services, customers, bookings). Real owner-created data is untouched.`}
+                            >
+                              Clear Demo Data
+                            </ConfirmSubmitButton>
+                          </form>
                         </div>
+                        {canExtendTrial ? (
+                          <form
+                            action={convertTrialToPaidFormAction.bind(
+                              null,
+                              business.id,
+                            )}
+                            className="mt-2 flex flex-wrap items-center gap-2"
+                          >
+                            <input
+                              name="paymentReference"
+                              required
+                              placeholder="Payment ref (transfer id, receipt #)"
+                              className={`${platformInputClass} h-9 w-64`}
+                            />
+                            <ConfirmSubmitButton
+                              className={`${platformSecondaryButtonClass} border-emerald-300 bg-emerald-100 text-emerald-800`}
+                              confirmMessage={`Convert ${business.name} from TRIALING to ACTIVE, mint an invoice, and mark it paid against the entered reference?`}
+                            >
+                              Convert Trial → Paid
+                            </ConfirmSubmitButton>
+                          </form>
+                        ) : null}
                         <p className="text-[11px] text-amber-700">
                           Reactivate resets period start to today.
                         </p>
@@ -888,7 +1022,7 @@ export default async function PlatformBusinessesPage({
                     >
                       <p>{request.requested_by_user.name}</p>
                       <p className="text-xs text-[var(--pf-muted)]">
-                        {request.requested_by_user.email}
+                        {request.requested_by_user.contact_number}
                       </p>
                     </td>
                     <td className={platformTableCellClass}>

@@ -30,7 +30,7 @@ export default async function EmployeeDashboardDataContainer({
   businessSlug: string;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     redirect("/");
   }
 
@@ -38,9 +38,7 @@ export default async function EmployeeDashboardDataContainer({
 
   const employee = await prisma.employee.findFirst({
     where: {
-      user: {
-        email: session.user.email,
-      },
+      user_id: session.user.id,
       business_id: business?.id,
     },
     include: {

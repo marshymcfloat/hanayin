@@ -60,6 +60,7 @@ export const ModelName = {
   SocialPostTarget: 'SocialPostTarget',
   User: 'User',
   Employee: 'Employee',
+  EmployeeSchedule: 'EmployeeSchedule',
   EmployeeAttendance: 'EmployeeAttendance',
   Payslip: 'Payslip',
   SpecialDate: 'SpecialDate',
@@ -128,6 +129,7 @@ export const BusinessScalarFieldEnum = {
   imageUrl: 'imageUrl',
   latitude: 'latitude',
   longitude: 'longitude',
+  timezone: 'timezone',
   booking_horizon_days: 'booking_horizon_days',
   booking_min_lead_minutes: 'booking_min_lead_minutes',
   booking_slot_interval_minutes: 'booking_slot_interval_minutes',
@@ -137,6 +139,7 @@ export const BusinessScalarFieldEnum = {
   downpayment_percentage: 'downpayment_percentage',
   booking_v2_enabled: 'booking_v2_enabled',
   same_day_attendance_strict_minutes: 'same_day_attendance_strict_minutes',
+  formal_schedule_enabled: 'formal_schedule_enabled',
   structure: 'structure',
   allow_employee_self_booking: 'allow_employee_self_booking',
   manager_can_serve: 'manager_can_serve',
@@ -257,7 +260,7 @@ export type SocialPostTargetScalarFieldEnum = (typeof SocialPostTargetScalarFiel
 
 export const UserScalarFieldEnum = {
   id: 'id',
-  email: 'email',
+  contact_number: 'contact_number',
   hashed_password: 'hashed_password',
   name: 'name',
   role: 'role',
@@ -279,10 +282,25 @@ export const EmployeeScalarFieldEnum = {
   profile: 'profile',
   permissions: 'permissions',
   specialties: 'specialties',
-  business_id: 'business_id'
+  recurring_days_off: 'recurring_days_off',
+  business_id: 'business_id',
+  is_demo: 'is_demo'
 } as const
 
 export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
+
+
+export const EmployeeScheduleScalarFieldEnum = {
+  id: 'id',
+  employee_id: 'employee_id',
+  day_of_week: 'day_of_week',
+  start_time: 'start_time',
+  end_time: 'end_time',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type EmployeeScheduleScalarFieldEnum = (typeof EmployeeScheduleScalarFieldEnum)[keyof typeof EmployeeScheduleScalarFieldEnum]
 
 
 export const EmployeeAttendanceScalarFieldEnum = {
@@ -296,6 +314,7 @@ export const EmployeeAttendanceScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   is_paid_leave: 'is_paid_leave',
+  paid_in_payslip_id: 'paid_in_payslip_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -308,6 +327,7 @@ export const PayslipScalarFieldEnum = {
   employee_id: 'employee_id',
   starting_date: 'starting_date',
   ending_date: 'ending_date',
+  released_at: 'released_at',
   comment: 'comment',
   deduction: 'deduction',
   status: 'status',
@@ -532,7 +552,7 @@ export type OnboardingApplicationScalarFieldEnum = (typeof OnboardingApplication
 export const PlatformActionLogScalarFieldEnum = {
   id: 'id',
   actor_user_id: 'actor_user_id',
-  actor_email: 'actor_email',
+  actor_identifier: 'actor_identifier',
   action: 'action',
   target_type: 'target_type',
   target_id: 'target_id',
@@ -553,6 +573,7 @@ export const ServiceScalarFieldEnum = {
   duration: 'duration',
   category: 'category',
   business_id: 'business_id',
+  is_demo: 'is_demo',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -594,6 +615,7 @@ export const CustomerScalarFieldEnum = {
   no_show_count: 'no_show_count',
   last_no_show_at: 'last_no_show_at',
   business_id: 'business_id',
+  is_demo: 'is_demo',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -642,6 +664,10 @@ export const BookingScalarFieldEnum = {
   cancelled_at: 'cancelled_at',
   cancelled_by_id: 'cancelled_by_id',
   cancellation_reason: 'cancellation_reason',
+  cancelled_by_customer: 'cancelled_by_customer',
+  rescheduled_at: 'rescheduled_at',
+  reschedule_count: 'reschedule_count',
+  is_demo: 'is_demo',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -740,6 +766,7 @@ export const AvailedServiceScalarFieldEnum = {
   served_by_type: 'served_by_type',
   scheduled_at: 'scheduled_at',
   estimated_end: 'estimated_end',
+  paid_in_payslip_id: 'paid_in_payslip_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

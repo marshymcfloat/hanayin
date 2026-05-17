@@ -43,6 +43,7 @@ export type CustomerMinAggregateOutputType = {
   no_show_count: number | null
   last_no_show_at: Date | null
   business_id: string | null
+  is_demo: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -56,6 +57,7 @@ export type CustomerMaxAggregateOutputType = {
   no_show_count: number | null
   last_no_show_at: Date | null
   business_id: string | null
+  is_demo: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -69,6 +71,7 @@ export type CustomerCountAggregateOutputType = {
   no_show_count: number
   last_no_show_at: number
   business_id: number
+  is_demo: number
   created_at: number
   updated_at: number
   _all: number
@@ -92,6 +95,7 @@ export type CustomerMinAggregateInputType = {
   no_show_count?: true
   last_no_show_at?: true
   business_id?: true
+  is_demo?: true
   created_at?: true
   updated_at?: true
 }
@@ -105,6 +109,7 @@ export type CustomerMaxAggregateInputType = {
   no_show_count?: true
   last_no_show_at?: true
   business_id?: true
+  is_demo?: true
   created_at?: true
   updated_at?: true
 }
@@ -118,6 +123,7 @@ export type CustomerCountAggregateInputType = {
   no_show_count?: true
   last_no_show_at?: true
   business_id?: true
+  is_demo?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -218,6 +224,7 @@ export type CustomerGroupByOutputType = {
   no_show_count: number
   last_no_show_at: Date | null
   business_id: string
+  is_demo: boolean
   created_at: Date
   updated_at: Date
   _count: CustomerCountAggregateOutputType | null
@@ -254,6 +261,7 @@ export type CustomerWhereInput = {
   no_show_count?: Prisma.IntFilter<"Customer"> | number
   last_no_show_at?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   business_id?: Prisma.StringFilter<"Customer"> | string
+  is_demo?: Prisma.BoolFilter<"Customer"> | boolean
   created_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
@@ -270,6 +278,7 @@ export type CustomerOrderByWithRelationInput = {
   no_show_count?: Prisma.SortOrder
   last_no_show_at?: Prisma.SortOrderInput | Prisma.SortOrder
   business_id?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   business?: Prisma.BusinessOrderByWithRelationInput
@@ -289,6 +298,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   no_show_count?: Prisma.IntFilter<"Customer"> | number
   last_no_show_at?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   business_id?: Prisma.StringFilter<"Customer"> | string
+  is_demo?: Prisma.BoolFilter<"Customer"> | boolean
   created_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
@@ -305,6 +315,7 @@ export type CustomerOrderByWithAggregationInput = {
   no_show_count?: Prisma.SortOrder
   last_no_show_at?: Prisma.SortOrderInput | Prisma.SortOrder
   business_id?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.CustomerCountOrderByAggregateInput
@@ -326,6 +337,7 @@ export type CustomerScalarWhereWithAggregatesInput = {
   no_show_count?: Prisma.IntWithAggregatesFilter<"Customer"> | number
   last_no_show_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
   business_id?: Prisma.StringWithAggregatesFilter<"Customer"> | string
+  is_demo?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
 }
@@ -338,6 +350,7 @@ export type CustomerCreateInput = {
   trust_tier?: string
   no_show_count?: number
   last_no_show_at?: Date | string | null
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutCustomersInput
@@ -354,6 +367,7 @@ export type CustomerUncheckedCreateInput = {
   no_show_count?: number
   last_no_show_at?: Date | string | null
   business_id: string
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
@@ -368,6 +382,7 @@ export type CustomerUpdateInput = {
   trust_tier?: Prisma.StringFieldUpdateOperationsInput | string
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutCustomersNestedInput
@@ -384,6 +399,7 @@ export type CustomerUncheckedUpdateInput = {
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
@@ -399,6 +415,7 @@ export type CustomerCreateManyInput = {
   no_show_count?: number
   last_no_show_at?: Date | string | null
   business_id: string
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -411,6 +428,7 @@ export type CustomerUpdateManyMutationInput = {
   trust_tier?: Prisma.StringFieldUpdateOperationsInput | string
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -424,6 +442,7 @@ export type CustomerUncheckedUpdateManyInput = {
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -447,6 +466,7 @@ export type CustomerCountOrderByAggregateInput = {
   no_show_count?: Prisma.SortOrder
   last_no_show_at?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -464,6 +484,7 @@ export type CustomerMaxOrderByAggregateInput = {
   no_show_count?: Prisma.SortOrder
   last_no_show_at?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -477,6 +498,7 @@ export type CustomerMinOrderByAggregateInput = {
   no_show_count?: Prisma.SortOrder
   last_no_show_at?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -572,6 +594,7 @@ export type CustomerCreateWithoutBusinessInput = {
   trust_tier?: string
   no_show_count?: number
   last_no_show_at?: Date | string | null
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
@@ -586,6 +609,7 @@ export type CustomerUncheckedCreateWithoutBusinessInput = {
   trust_tier?: string
   no_show_count?: number
   last_no_show_at?: Date | string | null
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
@@ -630,6 +654,7 @@ export type CustomerScalarWhereInput = {
   no_show_count?: Prisma.IntFilter<"Customer"> | number
   last_no_show_at?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   business_id?: Prisma.StringFilter<"Customer"> | string
+  is_demo?: Prisma.BoolFilter<"Customer"> | boolean
   created_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
 }
@@ -642,6 +667,7 @@ export type CustomerCreateWithoutBookingsInput = {
   trust_tier?: string
   no_show_count?: number
   last_no_show_at?: Date | string | null
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutCustomersInput
@@ -657,6 +683,7 @@ export type CustomerUncheckedCreateWithoutBookingsInput = {
   no_show_count?: number
   last_no_show_at?: Date | string | null
   business_id: string
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   claimed_gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutClaimed_by_customerInput
@@ -686,6 +713,7 @@ export type CustomerUpdateWithoutBookingsInput = {
   trust_tier?: Prisma.StringFieldUpdateOperationsInput | string
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutCustomersNestedInput
@@ -701,6 +729,7 @@ export type CustomerUncheckedUpdateWithoutBookingsInput = {
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   claimed_gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutClaimed_by_customerNestedInput
@@ -714,6 +743,7 @@ export type CustomerCreateWithoutClaimed_gift_cardsInput = {
   trust_tier?: string
   no_show_count?: number
   last_no_show_at?: Date | string | null
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutCustomersInput
@@ -729,6 +759,7 @@ export type CustomerUncheckedCreateWithoutClaimed_gift_cardsInput = {
   no_show_count?: number
   last_no_show_at?: Date | string | null
   business_id: string
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
@@ -758,6 +789,7 @@ export type CustomerUpdateWithoutClaimed_gift_cardsInput = {
   trust_tier?: Prisma.StringFieldUpdateOperationsInput | string
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutCustomersNestedInput
@@ -773,6 +805,7 @@ export type CustomerUncheckedUpdateWithoutClaimed_gift_cardsInput = {
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
@@ -786,6 +819,7 @@ export type CustomerCreateManyBusinessInput = {
   trust_tier?: string
   no_show_count?: number
   last_no_show_at?: Date | string | null
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -798,6 +832,7 @@ export type CustomerUpdateWithoutBusinessInput = {
   trust_tier?: Prisma.StringFieldUpdateOperationsInput | string
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
@@ -812,6 +847,7 @@ export type CustomerUncheckedUpdateWithoutBusinessInput = {
   trust_tier?: Prisma.StringFieldUpdateOperationsInput | string
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
@@ -826,6 +862,7 @@ export type CustomerUncheckedUpdateManyWithoutBusinessInput = {
   trust_tier?: Prisma.StringFieldUpdateOperationsInput | string
   no_show_count?: Prisma.IntFieldUpdateOperationsInput | number
   last_no_show_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -879,6 +916,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   no_show_count?: boolean
   last_no_show_at?: boolean
   business_id?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -896,6 +934,7 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   no_show_count?: boolean
   last_no_show_at?: boolean
   business_id?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -910,6 +949,7 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   no_show_count?: boolean
   last_no_show_at?: boolean
   business_id?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -924,11 +964,12 @@ export type CustomerSelectScalar = {
   no_show_count?: boolean
   last_no_show_at?: boolean
   business_id?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "trust_tier" | "no_show_count" | "last_no_show_at" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "trust_tier" | "no_show_count" | "last_no_show_at" | "business_id" | "is_demo" | "created_at" | "updated_at", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.Customer$bookingsArgs<ExtArgs>
@@ -958,6 +999,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     no_show_count: number
     last_no_show_at: Date | null
     business_id: string
+    is_demo: boolean
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["customer"]>
@@ -1394,6 +1436,7 @@ export interface CustomerFieldRefs {
   readonly no_show_count: Prisma.FieldRef<"Customer", 'Int'>
   readonly last_no_show_at: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly business_id: Prisma.FieldRef<"Customer", 'String'>
+  readonly is_demo: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly created_at: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Customer", 'DateTime'>
 }

@@ -11,6 +11,8 @@ export type BookingPolicy = {
   defaultPublicPaymentType: BookingPublicPaymentType;
   downpaymentPercentage: number;
   bookingV2Enabled: boolean;
+  /** IANA timezone identifier for display formatting. */
+  timezone: string;
 };
 
 export const DEFAULT_BOOKING_POLICY: BookingPolicy = {
@@ -23,6 +25,7 @@ export const DEFAULT_BOOKING_POLICY: BookingPolicy = {
   defaultPublicPaymentType: "FULL",
   downpaymentPercentage: 50,
   bookingV2Enabled: true,
+  timezone: "Asia/Manila",
 };
 
 export function normalizeBookingPublicPaymentType(
@@ -76,5 +79,9 @@ export function normalizeBookingPolicy(
       typeof policy.bookingV2Enabled === "boolean"
         ? policy.bookingV2Enabled
         : DEFAULT_BOOKING_POLICY.bookingV2Enabled,
+    timezone:
+      typeof policy.timezone === "string" && policy.timezone.length > 0
+        ? policy.timezone
+        : DEFAULT_BOOKING_POLICY.timezone,
   };
 }

@@ -3,9 +3,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/prisma/prisma";
 import { verifyOnboardingStatusToken } from "@/lib/security/onboarding-status-token";
+import { createOnboardingLoginToken } from "@/lib/security/onboarding-login-token";
 import { formatBusinessStructureLabel } from "@/lib/business-structure";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const metadata: Metadata = {
   title: "Application Status",
@@ -46,7 +49,11 @@ export default function ApplyStatusPage({ searchParams }: ApplyStatusPageProps) 
 async function ApplyStatusContent({ searchParams }: ApplyStatusPageProps) {
   await connection();
   const params = await searchParams;
-  const token = params?.token?.trim();
+  // Prefer the URL token (email-link flow, allows opening from a different
+  // device); fall back to the httpOnly cookie set on submission.
+  const cookieStore = await cookies();
+  const cookieToken = cookieStore.get("sf_apply_status_token")?.value?.trim();
+  const token = params?.token?.trim() || cookieToken;
 
   if (!token) {
     return (
@@ -96,7 +103,16 @@ async function ApplyStatusContent({ searchParams }: ApplyStatusPageProps) {
       created_at: true,
       reviewed_at: true,
       converted_business: {
-        select: { name: true, slug: true },
+        select: {
+          name: true,
+          slug: true,
+          // Owner user_id needed to mint a fresh magic-login token if
+          // the original SMS / email link expired (1-hour TTL).
+          owners: {
+            take: 1,
+            select: { user_id: true },
+          },
+        },
       },
     },
   });
@@ -185,6 +201,68 @@ async function ApplyStatusContent({ searchParams }: ApplyStatusPageProps) {
             </p>
           ) : null}
         </div>
+
+        {/* Magic-link login — appears once the application is CONVERTED.
+            Mints a fresh 1-hour token on every page render so the
+            applicant always has a working link, even if their original
+            SMS link expired. We rate-limit minting per applicationId so a
+            leaked status-token can't pump out unlimited login tokens. */}
+        {application.status === "CONVERTED" &&
+        application.converted_business &&
+        application.converted_business.owners[0]?.user_id ? (
+          await (async () => {
+            const mintLimit = await rateLimit(
+              `apply-status-mint:${application.id}`,
+              {
+                windowMs: 60 * 60 * 1000,
+                maxRequests: 10,
+                namespace: "service-flow:apply-status-mint",
+              },
+            );
+            if (!mintLimit.success) {
+              return (
+                <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                  <p className="text-sm text-amber-900">
+                    You&apos;ve refreshed this page too many times in the last
+                    hour. Please wait a few minutes and try again, or use the
+                    most recent SMS link sent to your phone.
+                  </p>
+                </div>
+              );
+            }
+            const ownerUserId =
+              application.converted_business?.owners[0]?.user_id;
+            const slug = application.converted_business?.slug;
+            if (!ownerUserId || !slug) return null;
+            const magicHref = `/login/magic?token=${encodeURIComponent(
+              createOnboardingLoginToken({
+                userId: ownerUserId,
+                applicationId: application.id,
+              }),
+            )}&slug=${encodeURIComponent(slug)}`;
+            return (
+              <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                  Your account is ready
+                </p>
+                <h2 className="mt-1 text-lg font-semibold tracking-[-0.01em] text-emerald-950">
+                  Sign in to {application.converted_business?.name}
+                </h2>
+                <p className="mt-1 text-sm text-emerald-900/80">
+                  Tap the button below to sign in. No password needed — this
+                  link is good for the next hour and is single-use. Refresh
+                  this page to get a new one if needed.
+                </p>
+                <Link
+                  href={magicHref}
+                  className="mt-4 inline-flex h-11 items-center rounded-full bg-emerald-700 px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_20px_-12px_rgba(4,120,87,0.5)] transition-shadow hover:bg-emerald-700/95"
+                >
+                  Sign in to your dashboard
+                </Link>
+              </div>
+            );
+          })()
+        ) : null}
 
         <div className="mt-6">
           <Link href="/apply" className="text-sm font-medium text-slate-900 underline">

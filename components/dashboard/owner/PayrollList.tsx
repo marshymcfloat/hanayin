@@ -79,7 +79,7 @@ export function PayrollList({
                         <div className="flex flex-col">
                           <span>{emp.user.name}</span>
                           <span className="text-xs text-muted-foreground">
-                            {emp.user.email}
+                            {emp.user.contact_number}
                           </span>
                         </div>
                       </TableCell>

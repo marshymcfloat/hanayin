@@ -55,6 +55,7 @@ export type BusinessMinAggregateOutputType = {
   imageUrl: string | null
   latitude: number | null
   longitude: number | null
+  timezone: string | null
   booking_horizon_days: number | null
   booking_min_lead_minutes: number | null
   booking_slot_interval_minutes: number | null
@@ -64,6 +65,7 @@ export type BusinessMinAggregateOutputType = {
   downpayment_percentage: number | null
   booking_v2_enabled: boolean | null
   same_day_attendance_strict_minutes: number | null
+  formal_schedule_enabled: boolean | null
   structure: $Enums.BusinessStructure | null
   allow_employee_self_booking: boolean | null
   manager_can_serve: boolean | null
@@ -81,6 +83,7 @@ export type BusinessMaxAggregateOutputType = {
   imageUrl: string | null
   latitude: number | null
   longitude: number | null
+  timezone: string | null
   booking_horizon_days: number | null
   booking_min_lead_minutes: number | null
   booking_slot_interval_minutes: number | null
@@ -90,6 +93,7 @@ export type BusinessMaxAggregateOutputType = {
   downpayment_percentage: number | null
   booking_v2_enabled: boolean | null
   same_day_attendance_strict_minutes: number | null
+  formal_schedule_enabled: boolean | null
   structure: $Enums.BusinessStructure | null
   allow_employee_self_booking: boolean | null
   manager_can_serve: boolean | null
@@ -107,6 +111,7 @@ export type BusinessCountAggregateOutputType = {
   imageUrl: number
   latitude: number
   longitude: number
+  timezone: number
   booking_horizon_days: number
   booking_min_lead_minutes: number
   booking_slot_interval_minutes: number
@@ -116,6 +121,7 @@ export type BusinessCountAggregateOutputType = {
   downpayment_percentage: number
   booking_v2_enabled: number
   same_day_attendance_strict_minutes: number
+  formal_schedule_enabled: number
   structure: number
   allow_employee_self_booking: number
   manager_can_serve: number
@@ -155,6 +161,7 @@ export type BusinessMinAggregateInputType = {
   imageUrl?: true
   latitude?: true
   longitude?: true
+  timezone?: true
   booking_horizon_days?: true
   booking_min_lead_minutes?: true
   booking_slot_interval_minutes?: true
@@ -164,6 +171,7 @@ export type BusinessMinAggregateInputType = {
   downpayment_percentage?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
+  formal_schedule_enabled?: true
   structure?: true
   allow_employee_self_booking?: true
   manager_can_serve?: true
@@ -181,6 +189,7 @@ export type BusinessMaxAggregateInputType = {
   imageUrl?: true
   latitude?: true
   longitude?: true
+  timezone?: true
   booking_horizon_days?: true
   booking_min_lead_minutes?: true
   booking_slot_interval_minutes?: true
@@ -190,6 +199,7 @@ export type BusinessMaxAggregateInputType = {
   downpayment_percentage?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
+  formal_schedule_enabled?: true
   structure?: true
   allow_employee_self_booking?: true
   manager_can_serve?: true
@@ -207,6 +217,7 @@ export type BusinessCountAggregateInputType = {
   imageUrl?: true
   latitude?: true
   longitude?: true
+  timezone?: true
   booking_horizon_days?: true
   booking_min_lead_minutes?: true
   booking_slot_interval_minutes?: true
@@ -216,6 +227,7 @@ export type BusinessCountAggregateInputType = {
   downpayment_percentage?: true
   booking_v2_enabled?: true
   same_day_attendance_strict_minutes?: true
+  formal_schedule_enabled?: true
   structure?: true
   allow_employee_self_booking?: true
   manager_can_serve?: true
@@ -320,6 +332,7 @@ export type BusinessGroupByOutputType = {
   imageUrl: string | null
   latitude: number | null
   longitude: number | null
+  timezone: string
   booking_horizon_days: number
   booking_min_lead_minutes: number
   booking_slot_interval_minutes: number
@@ -329,6 +342,7 @@ export type BusinessGroupByOutputType = {
   downpayment_percentage: number
   booking_v2_enabled: boolean
   same_day_attendance_strict_minutes: number
+  formal_schedule_enabled: boolean
   structure: $Enums.BusinessStructure
   allow_employee_self_booking: boolean
   manager_can_serve: boolean
@@ -369,6 +383,7 @@ export type BusinessWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
+  timezone?: Prisma.StringFilter<"Business"> | string
   booking_horizon_days?: Prisma.IntFilter<"Business"> | number
   booking_min_lead_minutes?: Prisma.IntFilter<"Business"> | number
   booking_slot_interval_minutes?: Prisma.IntFilter<"Business"> | number
@@ -378,6 +393,7 @@ export type BusinessWhereInput = {
   downpayment_percentage?: Prisma.IntFilter<"Business"> | number
   booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
+  formal_schedule_enabled?: Prisma.BoolFilter<"Business"> | boolean
   structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFilter<"Business"> | boolean
   manager_can_serve?: Prisma.BoolFilter<"Business"> | boolean
@@ -426,6 +442,7 @@ export type BusinessOrderByWithRelationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   booking_horizon_days?: Prisma.SortOrder
   booking_min_lead_minutes?: Prisma.SortOrder
   booking_slot_interval_minutes?: Prisma.SortOrder
@@ -435,6 +452,7 @@ export type BusinessOrderByWithRelationInput = {
   downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  formal_schedule_enabled?: Prisma.SortOrder
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
@@ -486,6 +504,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   imageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
+  timezone?: Prisma.StringFilter<"Business"> | string
   booking_horizon_days?: Prisma.IntFilter<"Business"> | number
   booking_min_lead_minutes?: Prisma.IntFilter<"Business"> | number
   booking_slot_interval_minutes?: Prisma.IntFilter<"Business"> | number
@@ -495,6 +514,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   downpayment_percentage?: Prisma.IntFilter<"Business"> | number
   booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
+  formal_schedule_enabled?: Prisma.BoolFilter<"Business"> | boolean
   structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFilter<"Business"> | boolean
   manager_can_serve?: Prisma.BoolFilter<"Business"> | boolean
@@ -543,6 +563,7 @@ export type BusinessOrderByWithAggregationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   booking_horizon_days?: Prisma.SortOrder
   booking_min_lead_minutes?: Prisma.SortOrder
   booking_slot_interval_minutes?: Prisma.SortOrder
@@ -552,6 +573,7 @@ export type BusinessOrderByWithAggregationInput = {
   downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  formal_schedule_enabled?: Prisma.SortOrder
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
@@ -577,6 +599,7 @@ export type BusinessScalarWhereWithAggregatesInput = {
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
+  timezone?: Prisma.StringWithAggregatesFilter<"Business"> | string
   booking_horizon_days?: Prisma.IntWithAggregatesFilter<"Business"> | number
   booking_min_lead_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
   booking_slot_interval_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
@@ -586,6 +609,7 @@ export type BusinessScalarWhereWithAggregatesInput = {
   downpayment_percentage?: Prisma.IntWithAggregatesFilter<"Business"> | number
   booking_v2_enabled?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   same_day_attendance_strict_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
+  formal_schedule_enabled?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   structure?: Prisma.EnumBusinessStructureWithAggregatesFilter<"Business"> | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   manager_can_serve?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
@@ -603,6 +627,7 @@ export type BusinessCreateInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -612,6 +637,7 @@ export type BusinessCreateInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -660,6 +686,7 @@ export type BusinessUncheckedCreateInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -669,6 +696,7 @@ export type BusinessUncheckedCreateInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -717,6 +745,7 @@ export type BusinessUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -726,6 +755,7 @@ export type BusinessUpdateInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -774,6 +804,7 @@ export type BusinessUncheckedUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -783,6 +814,7 @@ export type BusinessUncheckedUpdateInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -831,6 +863,7 @@ export type BusinessCreateManyInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -840,6 +873,7 @@ export type BusinessCreateManyInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -857,6 +891,7 @@ export type BusinessUpdateManyMutationInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -866,6 +901,7 @@ export type BusinessUpdateManyMutationInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -883,6 +919,7 @@ export type BusinessUncheckedUpdateManyInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -892,6 +929,7 @@ export type BusinessUncheckedUpdateManyInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -909,6 +947,7 @@ export type BusinessCountOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   booking_horizon_days?: Prisma.SortOrder
   booking_min_lead_minutes?: Prisma.SortOrder
   booking_slot_interval_minutes?: Prisma.SortOrder
@@ -918,6 +957,7 @@ export type BusinessCountOrderByAggregateInput = {
   downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  formal_schedule_enabled?: Prisma.SortOrder
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
@@ -945,6 +985,7 @@ export type BusinessMaxOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   booking_horizon_days?: Prisma.SortOrder
   booking_min_lead_minutes?: Prisma.SortOrder
   booking_slot_interval_minutes?: Prisma.SortOrder
@@ -954,6 +995,7 @@ export type BusinessMaxOrderByAggregateInput = {
   downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  formal_schedule_enabled?: Prisma.SortOrder
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
@@ -971,6 +1013,7 @@ export type BusinessMinOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   booking_horizon_days?: Prisma.SortOrder
   booking_min_lead_minutes?: Prisma.SortOrder
   booking_slot_interval_minutes?: Prisma.SortOrder
@@ -980,6 +1023,7 @@ export type BusinessMinOrderByAggregateInput = {
   downpayment_percentage?: Prisma.SortOrder
   booking_v2_enabled?: Prisma.SortOrder
   same_day_attendance_strict_minutes?: Prisma.SortOrder
+  formal_schedule_enabled?: Prisma.SortOrder
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
@@ -1497,6 +1541,7 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -1506,6 +1551,7 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -1553,6 +1599,7 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -1562,6 +1609,7 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -1625,6 +1673,7 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1634,6 +1683,7 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1681,6 +1731,7 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1690,6 +1741,7 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1737,6 +1789,7 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -1746,6 +1799,7 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -1793,6 +1847,7 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -1802,6 +1857,7 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -1865,6 +1921,7 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1874,6 +1931,7 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1921,6 +1979,7 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1930,6 +1989,7 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1977,6 +2037,7 @@ export type BusinessCreateWithoutSale_eventsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -1986,6 +2047,7 @@ export type BusinessCreateWithoutSale_eventsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2033,6 +2095,7 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2042,6 +2105,7 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2105,6 +2169,7 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2114,6 +2179,7 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2161,6 +2227,7 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2170,6 +2237,7 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2217,6 +2285,7 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2226,6 +2295,7 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2273,6 +2343,7 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2282,6 +2353,7 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2345,6 +2417,7 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2354,6 +2427,7 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2401,6 +2475,7 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2410,6 +2485,7 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2457,6 +2533,7 @@ export type BusinessCreateWithoutSocial_postsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2466,6 +2543,7 @@ export type BusinessCreateWithoutSocial_postsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2513,6 +2591,7 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2522,6 +2601,7 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2585,6 +2665,7 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2594,6 +2675,7 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2641,6 +2723,7 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2650,6 +2733,7 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2697,6 +2781,7 @@ export type BusinessCreateWithoutEmployeesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2706,6 +2791,7 @@ export type BusinessCreateWithoutEmployeesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2753,6 +2839,7 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2762,6 +2849,7 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2825,6 +2913,7 @@ export type BusinessUpdateWithoutEmployeesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2834,6 +2923,7 @@ export type BusinessUpdateWithoutEmployeesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2881,6 +2971,7 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2890,6 +2981,7 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2937,6 +3029,7 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -2946,6 +3039,7 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -2993,6 +3087,7 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3002,6 +3097,7 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3065,6 +3161,7 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3074,6 +3171,7 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3121,6 +3219,7 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3130,6 +3229,7 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3177,6 +3277,7 @@ export type BusinessCreateWithoutOwnersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3186,6 +3287,7 @@ export type BusinessCreateWithoutOwnersInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3233,6 +3335,7 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3242,6 +3345,7 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3305,6 +3409,7 @@ export type BusinessUpdateWithoutOwnersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3314,6 +3419,7 @@ export type BusinessUpdateWithoutOwnersInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3361,6 +3467,7 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3370,6 +3477,7 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3417,6 +3525,7 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3426,6 +3535,7 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3473,6 +3583,7 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3482,6 +3593,7 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3545,6 +3657,7 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3554,6 +3667,7 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3601,6 +3715,7 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3610,6 +3725,7 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3657,6 +3773,7 @@ export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3666,6 +3783,7 @@ export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3713,6 +3831,7 @@ export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3722,6 +3841,7 @@ export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3785,6 +3905,7 @@ export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3794,6 +3915,7 @@ export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3841,6 +3963,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3850,6 +3973,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3897,6 +4021,7 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3906,6 +4031,7 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -3953,6 +4079,7 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -3962,6 +4089,7 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4025,6 +4153,7 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4034,6 +4163,7 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4081,6 +4211,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4090,6 +4221,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4137,6 +4269,7 @@ export type BusinessCreateWithoutReferral_codeInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4146,6 +4279,7 @@ export type BusinessCreateWithoutReferral_codeInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4193,6 +4327,7 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4202,6 +4337,7 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4265,6 +4401,7 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4274,6 +4411,7 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4321,6 +4459,7 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4330,6 +4469,7 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4377,6 +4517,7 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4386,6 +4527,7 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4433,6 +4575,7 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4442,6 +4585,7 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4505,6 +4649,7 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4514,6 +4659,7 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4561,6 +4707,7 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4570,6 +4717,7 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4617,6 +4765,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4626,6 +4775,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4673,6 +4823,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4682,6 +4833,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4734,6 +4886,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4743,6 +4896,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4790,6 +4944,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -4799,6 +4954,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -4862,6 +5018,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4871,6 +5028,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4918,6 +5076,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4927,6 +5086,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4985,6 +5145,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -4994,6 +5155,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5041,6 +5203,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5050,6 +5213,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5097,6 +5261,7 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5106,6 +5271,7 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5153,6 +5319,7 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5162,6 +5329,7 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5225,6 +5393,7 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5234,6 +5403,7 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5281,6 +5451,7 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5290,6 +5461,7 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5337,6 +5509,7 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5346,6 +5519,7 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5393,6 +5567,7 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5402,6 +5577,7 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5465,6 +5641,7 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5474,6 +5651,7 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5521,6 +5699,7 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5530,6 +5709,7 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5577,6 +5757,7 @@ export type BusinessCreateWithoutServicesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5586,6 +5767,7 @@ export type BusinessCreateWithoutServicesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5633,6 +5815,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5642,6 +5825,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5705,6 +5889,7 @@ export type BusinessUpdateWithoutServicesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5714,6 +5899,7 @@ export type BusinessUpdateWithoutServicesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5761,6 +5947,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5770,6 +5957,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5817,6 +6005,7 @@ export type BusinessCreateWithoutPackagesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5826,6 +6015,7 @@ export type BusinessCreateWithoutPackagesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5873,6 +6063,7 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -5882,6 +6073,7 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -5945,6 +6137,7 @@ export type BusinessUpdateWithoutPackagesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -5954,6 +6147,7 @@ export type BusinessUpdateWithoutPackagesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6001,6 +6195,7 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6010,6 +6205,7 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6057,6 +6253,7 @@ export type BusinessCreateWithoutCustomersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6066,6 +6263,7 @@ export type BusinessCreateWithoutCustomersInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6113,6 +6311,7 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6122,6 +6321,7 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6185,6 +6385,7 @@ export type BusinessUpdateWithoutCustomersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6194,6 +6395,7 @@ export type BusinessUpdateWithoutCustomersInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6241,6 +6443,7 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6250,6 +6453,7 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6297,6 +6501,7 @@ export type BusinessCreateWithoutBooking_otp_codesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6306,6 +6511,7 @@ export type BusinessCreateWithoutBooking_otp_codesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6353,6 +6559,7 @@ export type BusinessUncheckedCreateWithoutBooking_otp_codesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6362,6 +6569,7 @@ export type BusinessUncheckedCreateWithoutBooking_otp_codesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6425,6 +6633,7 @@ export type BusinessUpdateWithoutBooking_otp_codesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6434,6 +6643,7 @@ export type BusinessUpdateWithoutBooking_otp_codesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6481,6 +6691,7 @@ export type BusinessUncheckedUpdateWithoutBooking_otp_codesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6490,6 +6701,7 @@ export type BusinessUncheckedUpdateWithoutBooking_otp_codesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6537,6 +6749,7 @@ export type BusinessCreateWithoutBookingsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6546,6 +6759,7 @@ export type BusinessCreateWithoutBookingsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6593,6 +6807,7 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6602,6 +6817,7 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6665,6 +6881,7 @@ export type BusinessUpdateWithoutBookingsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6674,6 +6891,7 @@ export type BusinessUpdateWithoutBookingsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6721,6 +6939,7 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6730,6 +6949,7 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6777,6 +6997,7 @@ export type BusinessCreateWithoutVouchersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6786,6 +7007,7 @@ export type BusinessCreateWithoutVouchersInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6833,6 +7055,7 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -6842,6 +7065,7 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -6905,6 +7129,7 @@ export type BusinessUpdateWithoutVouchersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6914,6 +7139,7 @@ export type BusinessUpdateWithoutVouchersInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6961,6 +7187,7 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -6970,6 +7197,7 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7017,6 +7245,7 @@ export type BusinessCreateWithoutGift_cardsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7026,6 +7255,7 @@ export type BusinessCreateWithoutGift_cardsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7073,6 +7303,7 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7082,6 +7313,7 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7145,6 +7377,7 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7154,6 +7387,7 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7201,6 +7435,7 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7210,6 +7445,7 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7257,6 +7493,7 @@ export type BusinessCreateWithoutService_flowsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7266,6 +7503,7 @@ export type BusinessCreateWithoutService_flowsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7313,6 +7551,7 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7322,6 +7561,7 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7385,6 +7625,7 @@ export type BusinessUpdateWithoutService_flowsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7394,6 +7635,7 @@ export type BusinessUpdateWithoutService_flowsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7441,6 +7683,7 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7450,6 +7693,7 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7497,6 +7741,7 @@ export type BusinessCreateWithoutGrowth_settingsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7506,6 +7751,7 @@ export type BusinessCreateWithoutGrowth_settingsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7553,6 +7799,7 @@ export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7562,6 +7809,7 @@ export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7625,6 +7873,7 @@ export type BusinessUpdateWithoutGrowth_settingsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7634,6 +7883,7 @@ export type BusinessUpdateWithoutGrowth_settingsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7681,6 +7931,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7690,6 +7941,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7737,6 +7989,7 @@ export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7746,6 +7999,7 @@ export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7793,6 +8047,7 @@ export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7802,6 +8057,7 @@ export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -7865,6 +8121,7 @@ export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7874,6 +8131,7 @@ export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7921,6 +8179,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -7930,6 +8189,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7977,6 +8237,7 @@ export type BusinessCreateWithoutOpportunitiesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -7986,6 +8247,7 @@ export type BusinessCreateWithoutOpportunitiesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8033,6 +8295,7 @@ export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -8042,6 +8305,7 @@ export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8105,6 +8369,7 @@ export type BusinessUpdateWithoutOpportunitiesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8114,6 +8379,7 @@ export type BusinessUpdateWithoutOpportunitiesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8161,6 +8427,7 @@ export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8170,6 +8437,7 @@ export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8217,6 +8485,7 @@ export type BusinessCreateWithoutCampaignsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -8226,6 +8495,7 @@ export type BusinessCreateWithoutCampaignsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8273,6 +8543,7 @@ export type BusinessUncheckedCreateWithoutCampaignsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -8282,6 +8553,7 @@ export type BusinessUncheckedCreateWithoutCampaignsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8345,6 +8617,7 @@ export type BusinessUpdateWithoutCampaignsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8354,6 +8627,7 @@ export type BusinessUpdateWithoutCampaignsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8401,6 +8675,7 @@ export type BusinessUncheckedUpdateWithoutCampaignsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8410,6 +8685,7 @@ export type BusinessUncheckedUpdateWithoutCampaignsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8457,6 +8733,7 @@ export type BusinessCreateWithoutSocial_post_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -8466,6 +8743,7 @@ export type BusinessCreateWithoutSocial_post_requestsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8513,6 +8791,7 @@ export type BusinessUncheckedCreateWithoutSocial_post_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -8522,6 +8801,7 @@ export type BusinessUncheckedCreateWithoutSocial_post_requestsInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8585,6 +8865,7 @@ export type BusinessUpdateWithoutSocial_post_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8594,6 +8875,7 @@ export type BusinessUpdateWithoutSocial_post_requestsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8641,6 +8923,7 @@ export type BusinessUncheckedUpdateWithoutSocial_post_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8650,6 +8933,7 @@ export type BusinessUncheckedUpdateWithoutSocial_post_requestsInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8697,6 +8981,7 @@ export type BusinessCreateWithoutExpensesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -8706,6 +8991,7 @@ export type BusinessCreateWithoutExpensesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8753,6 +9039,7 @@ export type BusinessUncheckedCreateWithoutExpensesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  timezone?: string
   booking_horizon_days?: number
   booking_min_lead_minutes?: number
   booking_slot_interval_minutes?: number
@@ -8762,6 +9049,7 @@ export type BusinessUncheckedCreateWithoutExpensesInput = {
   downpayment_percentage?: number
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -8825,6 +9113,7 @@ export type BusinessUpdateWithoutExpensesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8834,6 +9123,7 @@ export type BusinessUpdateWithoutExpensesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8881,6 +9171,7 @@ export type BusinessUncheckedUpdateWithoutExpensesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
   booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
   booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
@@ -8890,6 +9181,7 @@ export type BusinessUncheckedUpdateWithoutExpensesInput = {
   downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
   booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9220,6 +9512,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  timezone?: boolean
   booking_horizon_days?: boolean
   booking_min_lead_minutes?: boolean
   booking_slot_interval_minutes?: boolean
@@ -9229,6 +9522,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  formal_schedule_enabled?: boolean
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -9278,6 +9572,7 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  timezone?: boolean
   booking_horizon_days?: boolean
   booking_min_lead_minutes?: boolean
   booking_slot_interval_minutes?: boolean
@@ -9287,6 +9582,7 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  formal_schedule_enabled?: boolean
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -9304,6 +9600,7 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  timezone?: boolean
   booking_horizon_days?: boolean
   booking_min_lead_minutes?: boolean
   booking_slot_interval_minutes?: boolean
@@ -9313,6 +9610,7 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  formal_schedule_enabled?: boolean
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -9330,6 +9628,7 @@ export type BusinessSelectScalar = {
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  timezone?: boolean
   booking_horizon_days?: boolean
   booking_min_lead_minutes?: boolean
   booking_slot_interval_minutes?: boolean
@@ -9339,6 +9638,7 @@ export type BusinessSelectScalar = {
   downpayment_percentage?: boolean
   booking_v2_enabled?: boolean
   same_day_attendance_strict_minutes?: boolean
+  formal_schedule_enabled?: boolean
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
@@ -9347,7 +9647,7 @@ export type BusinessSelectScalar = {
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "downpayment_percentage" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "structure" | "allow_employee_self_booking" | "manager_can_serve" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "timezone" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "downpayment_percentage" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "formal_schedule_enabled" | "structure" | "allow_employee_self_booking" | "manager_can_serve" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -9429,6 +9729,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     imageUrl: string | null
     latitude: number | null
     longitude: number | null
+    timezone: string
     booking_horizon_days: number
     booking_min_lead_minutes: number
     booking_slot_interval_minutes: number
@@ -9438,6 +9739,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     downpayment_percentage: number
     booking_v2_enabled: boolean
     same_day_attendance_strict_minutes: number
+    formal_schedule_enabled: boolean
     structure: $Enums.BusinessStructure
     allow_employee_self_booking: boolean
     manager_can_serve: boolean
@@ -9906,6 +10208,7 @@ export interface BusinessFieldRefs {
   readonly imageUrl: Prisma.FieldRef<"Business", 'String'>
   readonly latitude: Prisma.FieldRef<"Business", 'Float'>
   readonly longitude: Prisma.FieldRef<"Business", 'Float'>
+  readonly timezone: Prisma.FieldRef<"Business", 'String'>
   readonly booking_horizon_days: Prisma.FieldRef<"Business", 'Int'>
   readonly booking_min_lead_minutes: Prisma.FieldRef<"Business", 'Int'>
   readonly booking_slot_interval_minutes: Prisma.FieldRef<"Business", 'Int'>
@@ -9915,6 +10218,7 @@ export interface BusinessFieldRefs {
   readonly downpayment_percentage: Prisma.FieldRef<"Business", 'Int'>
   readonly booking_v2_enabled: Prisma.FieldRef<"Business", 'Boolean'>
   readonly same_day_attendance_strict_minutes: Prisma.FieldRef<"Business", 'Int'>
+  readonly formal_schedule_enabled: Prisma.FieldRef<"Business", 'Boolean'>
   readonly structure: Prisma.FieldRef<"Business", 'BusinessStructure'>
   readonly allow_employee_self_booking: Prisma.FieldRef<"Business", 'Boolean'>
   readonly manager_can_serve: Prisma.FieldRef<"Business", 'Boolean'>

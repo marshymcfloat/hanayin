@@ -8,6 +8,7 @@ import { requireAuth } from "@/lib/auth/guards";
 import { prisma } from "@/prisma/prisma";
 import { sendGiftCardEmail } from "@/lib/services/gift-cards";
 import { rateLimit } from "@/lib/rate-limit";
+import { clientIpFromForwardedFor } from "@/lib/client-ip";
 import { getAvailableSlots } from "@/lib/server actions/availability";
 import { createBookingSuccessToken } from "@/lib/security/booking-success-token";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
@@ -262,8 +263,7 @@ async function getGiftCardForClaim(
 
 async function enforceGiftCardClaimRateLimit(scope: "preview" | "claim") {
   const headersList = await headers();
-  const forwardedFor = headersList.get("x-forwarded-for") || "";
-  const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
+  const clientIp = clientIpFromForwardedFor(headersList.get("x-forwarded-for"));
 
   const limiter = await rateLimit(`gift-card-${scope}:${clientIp}`, {
     windowMs: GIFT_CARD_CLAIM_RATE_LIMIT.windowMs,

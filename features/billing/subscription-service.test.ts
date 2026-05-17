@@ -26,11 +26,13 @@ import {
   DEFAULT_SUBSCRIPTION_PLAN_CODE,
   ensureBusinessSubscription,
   ensureDefaultPlans,
+  __resetEnsureDefaultPlansMemoForTests,
 } from "./subscription-service";
 
 describe("subscription plan catalog", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    __resetEnsureDefaultPlansMemoForTests();
     getCurrentDateTimePHMock.mockReturnValue(new Date("2026-02-15T00:00:00.000Z"));
   });
 

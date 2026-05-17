@@ -200,7 +200,7 @@ interface EmployeesPageClientProps {
 
 interface EmployeeFormData {
   name: string;
-  email: string;
+  contact_number: string;
   daily_rate: string;
   commission_percentage: string;
   profile: StaffProfile;
@@ -210,7 +210,7 @@ interface EmployeeFormData {
 
 const initialFormData: EmployeeFormData = {
   name: "",
-  email: "",
+  contact_number: "",
   daily_rate: "",
   commission_percentage: "",
   profile: StaffProfile.STAFF,
@@ -224,7 +224,7 @@ type OptimisticAction =
       employeeId: number;
       data: {
         name: string;
-        email: string;
+        contact_number: string;
         daily_rate: number;
         commission_percentage: number;
         profile: StaffProfile;
@@ -268,7 +268,11 @@ export function EmployeesPageClient({
                   profile: action.data.profile,
                   permissions: action.data.permissions,
                   specialties: action.data.specialties,
-                  user: { ...emp.user, name: action.data.name, email: action.data.email },
+                  user: {
+                    ...emp.user,
+                    name: action.data.name,
+                    contact_number: action.data.contact_number,
+                  },
                 }
               : emp,
           );
@@ -286,7 +290,7 @@ export function EmployeesPageClient({
       const matchesSearch =
         !q ||
         emp.user.name.toLowerCase().includes(q) ||
-        emp.user.email.toLowerCase().includes(q);
+        emp.user.contact_number.toLowerCase().includes(q);
       const matchesProfile =
         profileFilter === "ALL" || emp.profile === profileFilter;
       return matchesSearch && matchesProfile;
@@ -326,14 +330,14 @@ export function EmployeesPageClient({
   };
 
   const handleAddEmployee = async () => {
-    if (!formData.name || !formData.email) {
+    if (!formData.name || !formData.contact_number) {
       toast.error("Please fill in required fields");
       return;
     }
     setIsLoading(true);
     const result = await createEmployeeAction({
       name: formData.name,
-      email: formData.email,
+      contact_number: formData.contact_number,
       daily_rate: parseFloat(formData.daily_rate) || 0,
       commission_percentage: parseFloat(formData.commission_percentage) || 0,
       profile: formData.profile,
@@ -345,7 +349,7 @@ export function EmployeesPageClient({
       if ("warning" in result && result.warning) {
         toast.warning(result.warning);
       } else {
-        toast.success("Employee created. Temporary password sent via email.");
+        toast.success("Employee created. Temporary password sent via SMS.");
       }
       setIsAddDialogOpen(false);
       setFormData(initialFormData);
@@ -356,13 +360,13 @@ export function EmployeesPageClient({
   };
 
   const handleEditEmployee = async () => {
-    if (!selectedEmployee || !formData.name || !formData.email) {
+    if (!selectedEmployee || !formData.name || !formData.contact_number) {
       toast.error("Please fill in required fields");
       return;
     }
     const updateData = {
       name: formData.name,
-      email: formData.email,
+      contact_number: formData.contact_number,
       daily_rate: parseFloat(formData.daily_rate) || 0,
       commission_percentage: parseFloat(formData.commission_percentage) || 0,
       profile: formData.profile,
@@ -425,7 +429,7 @@ export function EmployeesPageClient({
     setSelectedEmployee(employee);
     setFormData({
       name: employee.user.name,
-      email: employee.user.email,
+      contact_number: employee.user.contact_number,
       daily_rate: employee.daily_rate.toString(),
       commission_percentage: employee.commission_percentage.toString(),
       profile: employee.profile ?? StaffProfile.STAFF,
@@ -475,7 +479,7 @@ export function EmployeesPageClient({
                 </DialogTrigger>
                 <EmployeeFormDialog
                   title="Add New Employee"
-                  description="Create an account. The employee will get a temporary password via email."
+                  description="Create an account. The employee will get a temporary password via SMS."
                   formData={formData}
                   setFormData={setFormData}
                   categories={categories}
@@ -526,7 +530,7 @@ export function EmployeesPageClient({
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
-                  placeholder="Search by name or email..."
+                  placeholder="Search by name or contact number..."
                   className="pl-9 pr-9 h-11 rounded-xl border-border bg-card text-sm"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -834,17 +838,25 @@ function EmployeeForm({
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="email">
-            Email Address <span className="text-destructive">*</span>
+          <Label htmlFor="contact_number">
+            Contact Number <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="john@example.com"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            id="contact_number"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="09XX XXX XXXX"
+            value={formData.contact_number}
+            onChange={(e) =>
+              setFormData({ ...formData, contact_number: e.target.value })
+            }
             className="h-11 rounded-xl"
           />
+          <p className="text-xs text-muted-foreground">
+            Used for sign-in. We&apos;ll send the temporary password here via
+            SMS.
+          </p>
         </div>
       </div>
 

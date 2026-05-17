@@ -393,6 +393,7 @@ export const ModelName = {
   SocialPostTarget: 'SocialPostTarget',
   User: 'User',
   Employee: 'Employee',
+  EmployeeSchedule: 'EmployeeSchedule',
   EmployeeAttendance: 'EmployeeAttendance',
   Payslip: 'Payslip',
   SpecialDate: 'SpecialDate',
@@ -449,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeSchedule" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1116,6 +1117,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.EmployeeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.EmployeeCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmployeeSchedule: {
+      payload: Prisma.$EmployeeSchedulePayload<ExtArgs>
+      fields: Prisma.EmployeeScheduleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeeScheduleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeeScheduleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeeScheduleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeeScheduleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>
+        }
+        findMany: {
+          args: Prisma.EmployeeScheduleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>[]
+        }
+        create: {
+          args: Prisma.EmployeeScheduleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>
+        }
+        createMany: {
+          args: Prisma.EmployeeScheduleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeeScheduleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeeScheduleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>
+        }
+        update: {
+          args: Prisma.EmployeeScheduleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeeScheduleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeeScheduleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeeScheduleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeeScheduleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeSchedulePayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeeScheduleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeeSchedule>
+        }
+        groupBy: {
+          args: Prisma.EmployeeScheduleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeScheduleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeeScheduleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeScheduleCountAggregateOutputType> | number
         }
       }
     }
@@ -4201,6 +4276,7 @@ export const BusinessScalarFieldEnum = {
   imageUrl: 'imageUrl',
   latitude: 'latitude',
   longitude: 'longitude',
+  timezone: 'timezone',
   booking_horizon_days: 'booking_horizon_days',
   booking_min_lead_minutes: 'booking_min_lead_minutes',
   booking_slot_interval_minutes: 'booking_slot_interval_minutes',
@@ -4210,6 +4286,7 @@ export const BusinessScalarFieldEnum = {
   downpayment_percentage: 'downpayment_percentage',
   booking_v2_enabled: 'booking_v2_enabled',
   same_day_attendance_strict_minutes: 'same_day_attendance_strict_minutes',
+  formal_schedule_enabled: 'formal_schedule_enabled',
   structure: 'structure',
   allow_employee_self_booking: 'allow_employee_self_booking',
   manager_can_serve: 'manager_can_serve',
@@ -4330,7 +4407,7 @@ export type SocialPostTargetScalarFieldEnum = (typeof SocialPostTargetScalarFiel
 
 export const UserScalarFieldEnum = {
   id: 'id',
-  email: 'email',
+  contact_number: 'contact_number',
   hashed_password: 'hashed_password',
   name: 'name',
   role: 'role',
@@ -4352,10 +4429,25 @@ export const EmployeeScalarFieldEnum = {
   profile: 'profile',
   permissions: 'permissions',
   specialties: 'specialties',
-  business_id: 'business_id'
+  recurring_days_off: 'recurring_days_off',
+  business_id: 'business_id',
+  is_demo: 'is_demo'
 } as const
 
 export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
+
+
+export const EmployeeScheduleScalarFieldEnum = {
+  id: 'id',
+  employee_id: 'employee_id',
+  day_of_week: 'day_of_week',
+  start_time: 'start_time',
+  end_time: 'end_time',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type EmployeeScheduleScalarFieldEnum = (typeof EmployeeScheduleScalarFieldEnum)[keyof typeof EmployeeScheduleScalarFieldEnum]
 
 
 export const EmployeeAttendanceScalarFieldEnum = {
@@ -4369,6 +4461,7 @@ export const EmployeeAttendanceScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   is_paid_leave: 'is_paid_leave',
+  paid_in_payslip_id: 'paid_in_payslip_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -4381,6 +4474,7 @@ export const PayslipScalarFieldEnum = {
   employee_id: 'employee_id',
   starting_date: 'starting_date',
   ending_date: 'ending_date',
+  released_at: 'released_at',
   comment: 'comment',
   deduction: 'deduction',
   status: 'status',
@@ -4605,7 +4699,7 @@ export type OnboardingApplicationScalarFieldEnum = (typeof OnboardingApplication
 export const PlatformActionLogScalarFieldEnum = {
   id: 'id',
   actor_user_id: 'actor_user_id',
-  actor_email: 'actor_email',
+  actor_identifier: 'actor_identifier',
   action: 'action',
   target_type: 'target_type',
   target_id: 'target_id',
@@ -4626,6 +4720,7 @@ export const ServiceScalarFieldEnum = {
   duration: 'duration',
   category: 'category',
   business_id: 'business_id',
+  is_demo: 'is_demo',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -4667,6 +4762,7 @@ export const CustomerScalarFieldEnum = {
   no_show_count: 'no_show_count',
   last_no_show_at: 'last_no_show_at',
   business_id: 'business_id',
+  is_demo: 'is_demo',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -4715,6 +4811,10 @@ export const BookingScalarFieldEnum = {
   cancelled_at: 'cancelled_at',
   cancelled_by_id: 'cancelled_by_id',
   cancellation_reason: 'cancellation_reason',
+  cancelled_by_customer: 'cancelled_by_customer',
+  rescheduled_at: 'rescheduled_at',
+  reschedule_count: 'reschedule_count',
+  is_demo: 'is_demo',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -4813,6 +4913,7 @@ export const AvailedServiceScalarFieldEnum = {
   served_by_type: 'served_by_type',
   scheduled_at: 'scheduled_at',
   estimated_end: 'estimated_end',
+  paid_in_payslip_id: 'paid_in_payslip_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -5901,6 +6002,7 @@ export type GlobalOmitConfig = {
   socialPostTarget?: Prisma.SocialPostTargetOmit
   user?: Prisma.UserOmit
   employee?: Prisma.EmployeeOmit
+  employeeSchedule?: Prisma.EmployeeScheduleOmit
   employeeAttendance?: Prisma.EmployeeAttendanceOmit
   payslip?: Prisma.PayslipOmit
   specialDate?: Prisma.SpecialDateOmit

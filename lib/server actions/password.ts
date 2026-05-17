@@ -20,8 +20,8 @@ export async function changePasswordAction({
     return { success: false, error: "Password fields are required." };
   }
 
-  if (newPassword.length < 6) {
-    return { success: false, error: "Password must be at least 6 characters." };
+  if (newPassword.length < 8) {
+    return { success: false, error: "Password must be at least 8 characters." };
   }
 
   try {

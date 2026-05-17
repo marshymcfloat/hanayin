@@ -97,3 +97,72 @@ export async function sendSemaphoreOtp(
 
   return { code, messageId };
 }
+
+export interface SemaphoreSendResult {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}
+
+/**
+ * Sends a generic SMS via Semaphore's standard /messages endpoint.
+ *
+ * Used by the onboarding magic-link flow to text a fresh login link to
+ * the new business owner after a platform admin converts their
+ * application — replaces the password-handoff support burden.
+ *
+ * Unlike `sendSemaphoreOtp`, this does NOT throw on failure: SMS is the
+ * preferred channel but the email fallback (when configured) and the
+ * applicant's existing tokenized status page both still work, so a
+ * failed text shouldn't roll back the conversion. The caller logs the
+ * error and continues.
+ */
+export async function sendSemaphoreMagicLink(
+  phone: string,
+  link: string,
+): Promise<SemaphoreSendResult> {
+  const apiKey = process.env.SEMAPHORE_API;
+  if (!apiKey) {
+    return { success: false, error: "SEMAPHORE_API is not configured" };
+  }
+
+  const normalizedPhone = normalizePhilippinePhone(phone);
+  const params = new URLSearchParams({
+    apikey: apiKey,
+    number: normalizedPhone,
+    // Plain SMS — short and direct. Link is the credential; we keep
+    // the body terse so it isn't truncated by aggregator middleboxes.
+    message: `Your ServiceFlow account is ready. Log in: ${link}`,
+  });
+  const senderName = process.env.SEMAPHORE_SENDER_NAME;
+  if (senderName) params.append("sendername", senderName);
+
+  try {
+    const response = await fetch(`${SEMAPHORE_API_URL}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    });
+    const responseText = await response.text();
+    if (!response.ok) {
+      return {
+        success: false,
+        error: `Semaphore API ${response.status}: ${responseText.slice(0, 200)}`,
+      };
+    }
+    let messageId: string | undefined;
+    try {
+      const data = JSON.parse(responseText);
+      const message = Array.isArray(data) ? data[0] : data;
+      messageId = String(message?.message_id ?? message?.id ?? "") || undefined;
+    } catch {
+      // Non-JSON response — not fatal.
+    }
+    return { success: true, messageId };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}

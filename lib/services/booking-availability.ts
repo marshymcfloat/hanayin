@@ -147,6 +147,89 @@ function isBookingServiceEmployee(
 }
 
 /**
+ * Returns true when the employee has marked the given day-of-week as
+ * a recurring day off. Honored for both same-day and advance bookings
+ * so shops without formal shift schedules can still express "Anna
+ * never works Sundays" without manually marking attendance every week.
+ *
+ * `recurring_days_off` uses the same 0=Sunday … 6=Saturday convention
+ * as `BusinessHours.day_of_week` and `getPHDayOfWeek()`. Empty array =
+ * no recurring days off (default for backwards compatibility).
+ */
+function isEmployeeOffOnDayOfWeek(
+  employee: BusinessContext["employees"][number],
+  dayOfWeek: number,
+): boolean {
+  return employee.recurring_days_off.includes(dayOfWeek);
+}
+
+/**
+ * Builds the per-day shift windows for one employee, in the business
+ * timezone. Returns an empty array when the employee has no schedule
+ * rows for the day — caller decides whether that means "fall back" or
+ * "exclude" based on the business's formal_schedule_enabled flag.
+ *
+ * Mirrors the BusinessHours window pattern (HH:MM strings parsed at
+ * +08:00) so an employee's start_time of "09:00" lines up with a
+ * BusinessHours open_time of "09:00".
+ */
+function buildScheduleWindowsForDay(
+  employee: BusinessContext["employees"][number],
+  dayOfWeek: number,
+  dateStr: string,
+): { start: Date; end: Date }[] {
+  const schedule = employee.schedule ?? [];
+  const rowsForDay = schedule.filter((row) => row.day_of_week === dayOfWeek);
+  if (rowsForDay.length === 0) return [];
+
+  return rowsForDay.flatMap((row) => {
+    const start = new Date(`${dateStr}T${row.start_time}:00+08:00`);
+    const end = new Date(`${dateStr}T${row.end_time}:00+08:00`);
+    if (row.start_time === row.end_time) return [];
+    if (start < end) return [{ start, end }];
+    // Overnight shift (e.g. 22:00 → 06:00). Split into two ranges so
+    // the segment-fits check stays simple.
+    const dayStart = new Date(`${dateStr}T00:00:00+08:00`);
+    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+    return [
+      { start, end: dayEnd },
+      { start: dayStart, end },
+    ];
+  });
+}
+
+/**
+ * Returns true when the employee is scheduled to work the entire
+ * [segmentStart, segmentEnd] window. An employee with no schedule rows
+ * for the day_of_week is considered NOT formally scheduled — caller
+ * decides whether that's a hard exclusion or a fallback to the default
+ * recurring_days_off behavior.
+ */
+function isEmployeeScheduledForSegment(
+  employee: BusinessContext["employees"][number],
+  dayOfWeek: number,
+  dateStr: string,
+  segmentStart: Date,
+  segmentEnd: Date,
+): "scheduled" | "unscheduled" | "not_working_today" {
+  const schedule = employee.schedule ?? [];
+  const rowsForDay = schedule.filter((row) => row.day_of_week === dayOfWeek);
+  // Employee has zero schedule rows for this day. Could mean "no formal
+  // schedule yet" (caller should fall back) OR "explicitly off this
+  // day" — we can't tell from the data alone, so we return a tri-state
+  // and let the caller decide based on whether they have ANY rows in
+  // the whole week. Empty schedule → caller falls back; some-other-day
+  // schedule → today is "not working".
+  if (rowsForDay.length === 0) {
+    return schedule.length === 0 ? "unscheduled" : "not_working_today";
+  }
+  const windows = buildScheduleWindowsForDay(employee, dayOfWeek, dateStr);
+  return isWithinWindows(segmentStart, segmentEnd, windows)
+    ? "scheduled"
+    : "not_working_today";
+}
+
+/**
  * Returns employee IDs that are marked ABSENT, OFF, or LEAVE for the given date.
  * Also includes employees with approved leave requests covering the date.
  * Employees with no attendance record are assumed present (not penalized).
@@ -387,6 +470,13 @@ async function evaluateSelectedEmployeeAvailability({
     return {
       available: false,
       reason: "Selected staff is not eligible for service bookings.",
+    };
+  }
+
+  if (isEmployeeOffOnDayOfWeek(selectedEmployee, getPHDayOfWeek(scheduledAt))) {
+    return {
+      available: false,
+      reason: "Selected staff does not work on this day of the week.",
     };
   }
 
@@ -759,6 +849,7 @@ export async function computeSlots({
         (emp) =>
           isBookingServiceEmployee(emp) &&
           !absentEmployeeIds.has(emp.id) &&
+          !isEmployeeOffOnDayOfWeek(emp, dayOfWeek) &&
           (emp.specialties.length === 0 ||
             emp.specialties.some((specialty) => specialty.toLowerCase() === key)),
       )
@@ -805,7 +896,31 @@ export async function computeSlots({
         break;
       }
 
-      const qualifiedEmployeeIds = getQualifiedProviderIds(service.category);
+      const dayQualifiedEmployeeIds = getQualifiedProviderIds(service.category);
+      // When the business has a formal schedule, narrow the day-level
+      // qualified list down to employees whose schedule covers this
+      // exact segment. Employees with NO schedule rows at all fall back
+      // to the default behavior (already filtered above for
+      // recurring_days_off / attendance), so flipping the flag without
+      // setting schedules doesn't accidentally hide everyone.
+      const qualifiedEmployeeIds = business.formal_schedule_enabled
+        ? dayQualifiedEmployeeIds.filter((empId) => {
+            const employee = business.employees.find((e) => e.id === empId);
+            if (!employee) return false;
+            const status = isEmployeeScheduledForSegment(
+              employee,
+              dayOfWeek,
+              dateStr,
+              cursor,
+              serviceEnd,
+            );
+            // "unscheduled" = no schedule rows anywhere → fall back
+            // (preserve default behavior). "scheduled" = covered by a
+            // shift. "not_working_today" = has schedule but not this
+            // segment → exclude.
+            return status !== "not_working_today";
+          })
+        : dayQualifiedEmployeeIds;
       const workloadCapacity = computeSegmentAvailability({
         category: service.category,
         start: cursor,

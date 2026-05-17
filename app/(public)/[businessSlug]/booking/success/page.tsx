@@ -1,13 +1,26 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, CalendarPlus, Home, ArrowRight } from "lucide-react";
+import {
+  CalendarPlus,
+  CheckCircle2,
+  Home,
+  ArrowRight,
+  Settings2,
+  Sparkles,
+} from "lucide-react";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/prisma/prisma";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { verifyBookingSuccessToken } from "@/lib/security/booking-success-token";
+import {
+  PortalCard,
+  PortalCardBody,
+  PortalCardHeader,
+} from "@/components/dashboard/employee/portal/PortalCard";
+import {
+  BOOKING_MANAGE_TOKEN_TTL_SECONDS,
+  createBookingSuccessToken,
+  verifyBookingSuccessToken,
+} from "@/lib/security/booking-success-token";
 import { getBookingPaymentDisplay } from "@/lib/utils/booking-payment-display";
 
 type BookingSuccessSearchParams = {
@@ -70,27 +83,26 @@ async function BookingSuccessContent({
       }),
   );
 
-  const booking =
-    canShowBookingDetails
-      ? await prisma.booking.findFirst({
-          where: {
-            id: validBookingId!,
-            business: { slug: businessSlug },
+  const booking = canShowBookingDetails
+    ? await prisma.booking.findFirst({
+        where: {
+          id: validBookingId!,
+          business: { slug: businessSlug },
+        },
+        select: {
+          id: true,
+          scheduled_at: true,
+          estimated_end: true,
+          payment_method: true,
+          grand_total: true,
+          amount_paid: true,
+          business: { select: { name: true } },
+          availed_services: {
+            select: { service: { select: { name: true } } },
           },
-          select: {
-            id: true,
-            scheduled_at: true,
-            estimated_end: true,
-            payment_method: true,
-            grand_total: true,
-            amount_paid: true,
-            business: { select: { name: true } },
-            availed_services: {
-              select: { service: { select: { name: true } } },
-            },
-          },
-        })
-      : null;
+        },
+      })
+    : null;
 
   const scheduledAt = booking?.scheduled_at
     ? new Date(booking.scheduled_at)
@@ -145,139 +157,229 @@ async function BookingSuccessContent({
       : null;
 
   return (
-    <div className="flex w-full max-w-md flex-col items-center gap-8 animate-in fade-in zoom-in-95 duration-500">
-      <Card className="w-full overflow-hidden border-green-100 shadow-xl shadow-green-900/5">
-        <div className="flex flex-col items-center justify-center border-b border-green-100 bg-green-50/50 p-8">
-          <div className="relative mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-sm ring-8 ring-green-50">
-            <CheckCircle2 className="h-12 w-12 animate-in zoom-in text-green-600 duration-300 delay-150" />
-            <div className="absolute inset-0 animate-ping rounded-full bg-green-400/20 duration-1000" />
+    <div className="flex w-full max-w-xl flex-col gap-5 animate-in fade-in zoom-in-95 duration-500 sm:gap-6">
+      {/* Hero — green gradient confirmation card. Mirrors the salary
+          tile recipe from the employee dashboard (grain mask + soft
+          white orb + soft layered shadow). */}
+      <div
+        className={[
+          "relative isolate overflow-hidden rounded-3xl text-white",
+          "bg-gradient-to-br from-primary via-emerald-700 to-emerald-900",
+          "shadow-[0_1px_2px_rgba(0,0,0,0.04),0_24px_48px_-20px_color-mix(in_oklch,var(--primary)_60%,transparent)]",
+        ].join(" ")}
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-12 -right-10 -z-10 size-48 rounded-full bg-white/15 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_70%_60%_at_30%_30%,black_30%,transparent_100%)]"
+        />
+
+        <div className="flex flex-col gap-4 p-6 sm:p-8">
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-50/85">
+              Booking confirmed
+            </p>
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/15 ring-1 ring-inset ring-white/20 backdrop-blur-sm">
+              <CheckCircle2 className="size-4" />
+            </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-green-950">
-            Booking Confirmed!
-          </h1>
-          <p className="mt-2 text-center text-sm font-medium text-green-800/80">
-            Your appointment has been successfully scheduled.
-          </p>
-        </div>
 
-        <CardContent className="space-y-6 pt-6">
+          <div>
+            <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-3xl">
+              You&rsquo;re all set, see you soon.
+            </h1>
+            <p className="mt-2 text-sm text-emerald-100/85">
+              {scheduledAt ? (
+                <>
+                  <span className="font-medium text-white">
+                    {scheduledAt.toLocaleDateString(undefined, {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
+                  {" · "}
+                  <span className="font-medium text-white">
+                    {scheduledAt.toLocaleTimeString(undefined, {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </span>{" "}
+                  at {businessName}
+                </>
+              ) : (
+                <>Your appointment has been scheduled at {businessName}.</>
+              )}
+            </p>
+          </div>
+
+          {/* Booking ID chip — quiet but copy-pastable for support. */}
           {booking ? (
-            <div className="space-y-4">
-              <div className="flex items-start justify-between text-sm">
-                <span className="text-muted-foreground">Business via</span>
-                <span className="text-right font-semibold">{businessName}</span>
-              </div>
+            <p className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium text-emerald-50/90 ring-1 ring-inset ring-white/15">
+              <Sparkles className="size-3" />
+              <span className="tabular-nums">Reference #{booking.id}</span>
+            </p>
+          ) : null}
+        </div>
+      </div>
 
-              <Separator />
-
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Date & Time
-                </p>
-                <p className="text-lg font-medium">
-                  {scheduledAt?.toLocaleDateString(undefined, {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {scheduledAt?.toLocaleTimeString(undefined, {
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                  {" - "}
-                  {estimatedEnd?.toLocaleTimeString(undefined, {
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
+      {/* Details — neutral PortalCard with eyebrow header. */}
+      <PortalCard>
+        <PortalCardHeader
+          eyebrow="What you booked"
+          title="Booking details"
+        />
+        <PortalCardBody className="space-y-5">
+          {booking ? (
+            <>
+              {estimatedEnd ? (
+                <div className="space-y-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Window
+                  </p>
+                  <p className="text-base font-medium tracking-[-0.01em] tabular-nums text-foreground">
+                    {scheduledAt?.toLocaleTimeString(undefined, {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                    {" – "}
+                    {estimatedEnd.toLocaleTimeString(undefined, {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              ) : null}
 
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Services
                 </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {serviceNames.map((name: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="font-normal">
-                      {name}
-                    </Badge>
-                  ))}
-                  {serviceNames.length === 0 && (
-                    <span className="text-sm text-muted-foreground">
-                      No services listed
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-2 rounded-lg bg-muted/40 p-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-muted-foreground">
-                    {paymentDisplay?.grandTotalLabel}
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    PHP {paymentDisplay?.grandTotal.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-muted-foreground">
-                    {paymentDisplay?.amountPaidLabel}
-                  </span>
-                  <span className="font-semibold text-primary">
-                    PHP {paymentDisplay?.amountPaid.toFixed(2)}
-                  </span>
-                </div>
-                {(paymentDisplay?.remainingBalance ?? 0) > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-muted-foreground">
-                      {paymentDisplay?.remainingBalanceLabel}
-                    </span>
-                    <span className="font-semibold text-amber-700">
-                      PHP {paymentDisplay?.remainingBalance.toFixed(2)}
-                    </span>
+                {serviceNames.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {serviceNames.map((name: string, index: number) => (
+                      <span
+                        key={index}
+                        className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/15"
+                      >
+                        {name}
+                      </span>
+                    ))}
                   </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No services listed
+                  </p>
                 )}
               </div>
-            </div>
-          ) : (
-            <div className="py-8 text-center text-muted-foreground">
-              <p>Could not retrieve booking details.</p>
-            </div>
-          )}
-        </CardContent>
 
-        <CardFooter className="flex flex-col gap-3 px-6 pb-6 pt-2">
+              {paymentDisplay ? (
+                <div className="rounded-2xl border border-black/[0.06] bg-muted/30 p-4 space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {paymentDisplay.grandTotalLabel}
+                    </span>
+                    <span className="font-semibold tabular-nums text-foreground">
+                      PHP {paymentDisplay.grandTotal.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {paymentDisplay.amountPaidLabel}
+                    </span>
+                    <span className="font-semibold tabular-nums text-primary">
+                      PHP {paymentDisplay.amountPaid.toFixed(2)}
+                    </span>
+                  </div>
+                  {paymentDisplay.remainingBalance > 0 ? (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        {paymentDisplay.remainingBalanceLabel}
+                      </span>
+                      <span className="font-semibold tabular-nums text-amber-700">
+                        PHP {paymentDisplay.remainingBalance.toFixed(2)}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              Could not retrieve booking details.
+            </p>
+          )}
+        </PortalCardBody>
+      </PortalCard>
+
+      {/* Actions — primary CTA full-width, secondaries paired. */}
+      <div className="flex flex-col gap-3">
+        {/* "Manage" link uses a long-lived purpose:"manage" token so the
+            customer can come back and cancel / reschedule from this URL
+            up until the 6-hour cutoff. Issued only when the success-page
+            token already verified, so we're not leaking it to randoms. */}
+        {booking ? (
           <Button
             asChild
-            className="h-11 w-full text-base shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]"
+            variant="outline"
+            className="h-11 w-full rounded-2xl border-black/[0.06]"
           >
-            <Link href={`/${businessSlug}/booking`}>
-              Book Another Service <ArrowRight className="ml-2 h-4 w-4" />
+            <Link
+              href={`/${businessSlug}/booking/manage?bookingId=${booking.id}&token=${createBookingSuccessToken(
+                {
+                  bookingId: booking.id,
+                  businessSlug,
+                  purpose: "manage",
+                  ttlSeconds: BOOKING_MANAGE_TOKEN_TTL_SECONDS,
+                },
+              )}`}
+            >
+              <Settings2 className="mr-2 size-4" />
+              Manage your booking
             </Link>
           </Button>
+        ) : null}
 
-          <div className="grid w-full grid-cols-2 gap-3">
-            {calendarHref && (
-              <Button asChild variant="outline" className="w-full">
-                <a href={calendarHref} download="booking.ics">
-                  <CalendarPlus className="mr-2 h-4 w-4" /> Add to Calendar
-                </a>
-              </Button>
-            )}
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/">
-                <Home className="mr-2 h-4 w-4" /> Go Home
-              </Link>
+        <Button
+          asChild
+          className="h-12 w-full rounded-2xl text-base shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-16px_color-mix(in_oklch,var(--primary)_60%,transparent)] transition-shadow hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_32px_-16px_color-mix(in_oklch,var(--primary)_70%,transparent)]"
+        >
+          <Link href={`/${businessSlug}/booking`}>
+            Book another service
+            <ArrowRight className="ml-2 size-4" />
+          </Link>
+        </Button>
+
+        <div className="grid grid-cols-2 gap-3">
+          {calendarHref ? (
+            <Button
+              asChild
+              variant="outline"
+              className="h-11 rounded-2xl border-black/[0.06]"
+            >
+              <a href={calendarHref} download="booking.ics">
+                <CalendarPlus className="mr-2 size-4" />
+                Add to calendar
+              </a>
             </Button>
-          </div>
-        </CardFooter>
-      </Card>
+          ) : null}
+          <Button
+            asChild
+            variant="outline"
+            className="h-11 rounded-2xl border-black/[0.06]"
+          >
+            <Link href="/">
+              <Home className="mr-2 size-4" />
+              Go home
+            </Link>
+          </Button>
+        </div>
+      </div>
 
-      <p className="max-w-xs text-center text-xs text-muted-foreground">
+      <p className="text-center text-xs text-muted-foreground">
         A confirmation email has been sent to your inbox.
       </p>
     </div>
@@ -292,12 +394,12 @@ export default function BookingSuccessPage({
   searchParams: Promise<BookingSuccessSearchParams>;
 }) {
   return (
-    <div className="flex min-h-dvh w-full flex-col items-center justify-center bg-gray-50/50 p-4 md:p-8 dark:bg-zinc-950">
+    <div className="flex min-h-dvh w-full flex-col items-center justify-center bg-background p-4 md:p-8">
       <Suspense
         fallback={
-          <div className="flex animate-pulse flex-col items-center gap-4">
-            <div className="h-20 w-20 rounded-full bg-muted"></div>
-            <div className="h-8 w-48 rounded bg-muted"></div>
+          <div className="flex w-full max-w-xl flex-col gap-5 animate-pulse sm:gap-6">
+            <div className="h-44 w-full rounded-3xl bg-muted" />
+            <div className="h-72 w-full rounded-3xl bg-muted" />
           </div>
         }
       >

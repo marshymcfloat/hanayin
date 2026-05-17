@@ -54,7 +54,7 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                   <div>
                     <p className="font-medium text-sm text-foreground">{owner.user.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {owner.user.email}
+                      {owner.user.contact_number}
                     </p>
                   </div>
                 </div>
@@ -101,7 +101,7 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border bg-muted/50">
               <TableHead className="pl-6 h-11 w-[300px] font-semibold text-muted-foreground">Owner</TableHead>
-              <TableHead className="h-11 font-semibold text-muted-foreground">Email</TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">Contact Number</TableHead>
               <TableHead className="h-11 font-semibold text-muted-foreground">Service Specialties</TableHead>
               <TableHead className="text-right pr-6 h-11 w-[100px] font-semibold text-muted-foreground">
                 Actions
@@ -137,7 +137,7 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                 </TableCell>
                 <TableCell className="py-4">
                   <span className="text-sm text-muted-foreground">
-                    {owner.user.email}
+                    {owner.user.contact_number}
                   </span>
                 </TableCell>
                 <TableCell className="py-4">

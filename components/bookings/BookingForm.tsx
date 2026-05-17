@@ -8,6 +8,7 @@ import {
   getAvailableSlots,
   getAlternativeSlots,
   getAvailableProviders,
+  getDayCapacityRange,
 } from "@/lib/server actions/availability";
 import { getBookingPolicy } from "@/lib/server actions/booking-policy";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -26,7 +27,8 @@ import {
   StaffSelectionMode,
 } from "@/lib/zod schemas/bookings";
 import { toast } from "sonner";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { verifyVoucherAction } from "@/lib/server actions/vouchers";
 import { findDuplicateCustomerForBooking } from "@/lib/server actions/customer";
@@ -106,7 +108,7 @@ import {
   type CustomerTrust,
 } from "@/lib/server actions/booking-otp";
 import { format } from "date-fns";
-import { Sparkles, Calendar, Ticket, X, ShieldCheck, Phone, Loader2, Zap } from "lucide-react";
+import { Sparkles, Calendar, CalendarCheck, Clock, Ticket, X, ShieldCheck, Phone, Loader2, Zap, User2, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BookingPolicy } from "@/lib/types/booking-policy";
 import { getMaxBookingDate, getSlotEmptyState } from "./booking-form-utils";
@@ -145,6 +147,58 @@ function roundUpToInterval(date: Date, intervalMinutes: number) {
     next.setMinutes(next.getMinutes() + safeInterval);
   }
   return next;
+}
+
+/**
+ * StepHeader — portal-language section header used at the top of each
+ * booking step (Services / Date / Time / Details / Payment).
+ *
+ * Mirrors `PortalCardHeader` (icon chip + eyebrow + title + optional
+ * count pill) but renders flat — no card chrome — so the steps don't
+ * nest cards inside the form's outer PortalCard. A hairline above the
+ * header replaces what would otherwise be nested borders.
+ */
+function StepHeader({
+  step,
+  eyebrow,
+  title,
+  icon: Icon,
+  count,
+  showDivider = true,
+}: {
+  step: number;
+  eyebrow: string;
+  title: string;
+  icon: LucideIcon;
+  count?: number;
+  /** Hide for the first step where the divider would sit at the top of the card. */
+  showDivider?: boolean;
+}) {
+  return (
+    <div className="space-y-3">
+      {showDivider ? <div className="h-px bg-black/[0.06]" /> : null}
+      <div className="flex items-start gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+          <Icon className="size-4" />
+        </span>
+        <div className="min-w-0 leading-tight">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Step {step} · {eyebrow}
+          </p>
+          <div className="mt-0.5 flex items-center gap-2">
+            <h3 className="text-base font-semibold tracking-[-0.01em] text-foreground sm:text-[17px]">
+              {title}
+            </h3>
+            {count != null ? (
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold tabular-nums text-primary ring-1 ring-inset ring-primary/15">
+                {count}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function BookingForm({
@@ -206,6 +260,7 @@ export default function BookingForm({
     name: "services",
     defaultValue: [],
   }) as SelectedService[];
+
   const selectedDate = useWatch({
     control: form.control,
     name: "scheduledAt",
@@ -498,6 +553,14 @@ export default function BookingForm({
   );
 
   const [isWalkIn, setIsWalkIn] = useState(false);
+
+  // Slot-taken recovery: bumping this counter triggers a one-shot
+  // shake on the time-slot section to draw the eye back to the
+  // refreshed list. Reduced-motion users get a no-op (see below).
+  const [slotTakenShakeKey, setSlotTakenShakeKey] = useState(0);
+  const reducedMotion = useReducedMotion();
+  const slotSectionRef = useRef<HTMLDivElement | null>(null);
+
   const claimStepEnabled = isEmployee && allowServiceClaim;
   const effectiveIsWalkIn = isEmployee && isWalkIn;
   const [requireSelectedStaff, setRequireSelectedStaff] = useState(false);
@@ -726,6 +789,48 @@ export default function BookingForm({
       !!businessSlug &&
       selectedServices.length > 0 &&
       !effectiveIsWalkIn,
+    // Stale-slot prevention while the user is filling out the form:
+    // - Refetch on tab focus so coming back from another tab gets fresh capacity.
+    // - 30s background poll while the tab is visible (pauses when hidden so
+    //   we don't burn quota on backgrounded tabs). 30s is a tradeoff —
+    //   shorter ⇒ better staleness guarantees but more load; longer ⇒
+    //   more SLOT_JUST_TAKEN errors at submit time.
+    refetchOnWindowFocus: true,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+  });
+
+  // Per-day slot counts for the booking horizon, so the DatePicker can
+  // pre-color days by capacity. One server call covers the whole window;
+  // 60s stale time keeps it cheap. Disabled on walk-in flows since they
+  // bypass the calendar entirely.
+  const { data: dayCapacity } = useQuery({
+    queryKey: [
+      "dayCapacity",
+      businessSlug,
+      slotServiceKey,
+      bookingHorizonDays,
+    ],
+    queryFn: async () => {
+      if (!businessSlug || selectedServices.length === 0 || effectiveIsWalkIn) {
+        return {};
+      }
+      const fromDate = new Date();
+      fromDate.setHours(0, 0, 0, 0);
+      const toDate = new Date(
+        fromDate.getTime() + bookingHorizonDays * 86400000,
+      );
+      return getDayCapacityRange({
+        businessSlug,
+        services: slotServiceInputs,
+        fromDate,
+        toDate,
+      });
+    },
+    enabled:
+      !!businessSlug && selectedServices.length > 0 && !effectiveIsWalkIn,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: alternativeSlots = [] } = useQuery({
@@ -868,7 +973,14 @@ export default function BookingForm({
         toast.success("Booking successfully created");
 
         if (onSuccess) {
+          // Modal-embedded flow (BookingDialog) — close the modal and
+          // let the staff dashboard re-fetch.
           onSuccess();
+        } else if (!isEmployee && result.url) {
+          // Public booking — navigate to the customer-facing success
+          // page. The server returns the URL with a signed token so
+          // we don't generate one client-side.
+          router.push(result.url);
         } else {
           router.back();
         }
@@ -950,8 +1062,19 @@ export default function BookingForm({
         queryClient.invalidateQueries({
           queryKey: ["timeSlots", businessSlug],
         });
+        // Inline recovery: bump the shake key so the slot section
+        // animates, then scroll it into view. The picker itself has
+        // already re-fetched a fresh list — the user just needs to
+        // pick again. Reduced-motion users get the scroll without
+        // the shake (handled by useReducedMotion in the framer
+        // animate target below).
+        setSlotTakenShakeKey((n) => n + 1);
+        slotSectionRef.current?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "center",
+        });
         toast.error(
-          "That slot was just taken. We refreshed the latest available times.",
+          "That slot was just taken — pick from the refreshed times below.",
         );
         return;
       }
@@ -1877,14 +2000,12 @@ export default function BookingForm({
             )}
           >
             <div className="space-y-4">
-              <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                  <span className="text-xs font-bold text-primary">2</span>
-                </div>
-                <h3 className="font-semibold text-lg tracking-tight">
-                  Date
-                </h3>
-              </div>
+              <StepHeader
+                step={2}
+                eyebrow="When"
+                title="Pick a date"
+                icon={CalendarCheck}
+              />
 
               {!canAccessStep2 && (
                 <p className="rounded-xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -1912,6 +2033,7 @@ export default function BookingForm({
                             minDate={new Date()}
                             maxDate={maxBookingDate}
                             placeholder="Pick a date"
+                            dayCapacity={dayCapacity}
                           />
                         </FormControl>
                         <div className="mt-2 flex flex-wrap gap-2">
@@ -2017,14 +2139,14 @@ export default function BookingForm({
 
           {/* Service Selection */}
           <div className="order-10 space-y-4 py-1 sm:py-2">
-            <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
-              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                <span className="text-xs font-bold text-primary">1</span>
-              </div>
-              <h3 className="font-semibold text-lg tracking-tight">
-                Services
-              </h3>
-            </div>
+            <StepHeader
+              step={1}
+              eyebrow="What"
+              title="Choose services"
+              icon={Sparkles}
+              count={selectedServices.length || undefined}
+              showDivider={false}
+            />
 
             <FormField
               control={form.control}
@@ -2050,15 +2172,27 @@ export default function BookingForm({
 
           {canAccessStep3 && !effectiveIsWalkIn && selectedDate && (
             <>
-              <div className="order-30 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200">
-                <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                    <span className="text-xs font-bold text-primary">3</span>
-                  </div>
-                  <h3 className="font-semibold text-lg tracking-tight">
-                    Time Slot
-                  </h3>
-                </div>
+              <motion.div
+                ref={slotSectionRef}
+                // Key drives a one-shot horizontal shake when SLOT_JUST_TAKEN
+                // fires. Reduced-motion users see no movement (animate target
+                // collapses to a static x:0). The animate object is recreated
+                // on every shake bump so framer replays it.
+                animate={
+                  slotTakenShakeKey === 0 || reducedMotion
+                    ? { x: 0 }
+                    : { x: [0, -6, 6, -4, 4, -2, 2, 0] }
+                }
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="order-30 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200"
+              >
+                <StepHeader
+                  step={3}
+                  eyebrow="What time"
+                  title="Pick a slot"
+                  icon={Clock}
+                  count={timeSlots.filter((s) => s.available).length || undefined}
+                />
 
                 <FormField
                   control={form.control}
@@ -2080,13 +2214,15 @@ export default function BookingForm({
                           disabled={selectedServices.length === 0}
                           emptyTitle={slotEmptyState.title}
                           emptyDescription={slotEmptyState.description}
+                          timezone={bookingPolicy?.timezone}
+                          isPublic={!isEmployee}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
+              </motion.div>
             </>
           )}
 
@@ -2101,14 +2237,12 @@ export default function BookingForm({
             (effectiveIsWalkIn || selectedTime) &&
             !isEmployee && (
               <div className="order-40 space-y-4 py-1 animate-in fade-in duration-200 sm:py-2">
-                <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                    <span className="text-xs font-bold text-primary">4</span>
-                  </div>
-                  <h3 className="font-semibold text-lg tracking-tight">
-                    Preferred Staff
-                  </h3>
-                </div>
+                <StepHeader
+                  step={4}
+                  eyebrow="Who"
+                  title="Preferred staff"
+                  icon={User2}
+                />
 
                 <FormField
                   control={form.control}
@@ -2201,14 +2335,12 @@ export default function BookingForm({
 
           {canReviewAndConfirm && (
             <div className="order-[60] space-y-4 py-1 animate-in fade-in duration-200 sm:py-2">
-              <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                  <span className="text-xs font-bold text-primary">5</span>
-                </div>
-                <h3 className="font-semibold text-lg tracking-tight">
-                  Review &amp; Confirm
-                </h3>
-              </div>
+              <StepHeader
+                step={5}
+                eyebrow="Confirm"
+                title="Review & confirm"
+                icon={ShieldCheck}
+              />
 
               <div className="rounded-xl border bg-muted/30 p-3 text-sm space-y-2">
                 <p>

@@ -7,6 +7,7 @@ declare module "next-auth" {
     user: {
       id: string;
       role: Role;
+      contactNumber?: string | null;
       businessSlug?: string | null;
       isPlatformAdmin?: boolean;
       mustChangePassword?: boolean;
@@ -17,6 +18,7 @@ declare module "next-auth" {
   interface User {
     id: string;
     role: Role;
+    contact_number?: string;
     employee?: (Employee & { business: Business }) | null;
     owner?: (Owner & { business: Business }) | null;
     must_change_password?: boolean;
@@ -28,6 +30,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role?: Role;
+    contactNumber?: string | null;
     businessSlug?: string | null;
     isPlatformAdmin?: boolean;
     mustChangePassword?: boolean;

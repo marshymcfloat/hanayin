@@ -171,17 +171,19 @@ export function BookingDetailsDialog({
   const [removingLineId, setRemovingLineId] = useState<number | null>(null);
   const [isAuditOpen, setIsAuditOpen] = useState(false);
   const getStatusColor = (status: BookingStatus) => {
+    // Portal pill recipe — `ring-1 ring-inset` instead of border so
+    // the chip doesn't add a layout border in cards. Same recipe used
+    // by PortalCardHeader's count chip and the public booking surface.
     switch (status) {
       case "ACCEPTED":
       case "COMPLETED":
         // Both states use primary tints; the text label
         // ("ACCEPTED" / "COMPLETED") carries the differentiation.
-        // Keeps the dialog on the green-shades palette.
-        return "bg-primary/10 text-primary border-primary/30";
+        return "bg-primary/10 text-primary ring-1 ring-inset ring-primary/15 border-transparent";
       case "CANCELLED":
-        return "bg-destructive/10 text-destructive border-destructive/30";
+        return "bg-rose-500/10 text-rose-700 ring-1 ring-inset ring-rose-500/20 border-transparent dark:text-rose-300";
       default:
-        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/60";
+        return "bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 border-transparent dark:text-amber-300";
     }
   };
 
@@ -392,12 +394,12 @@ export function BookingDetailsDialog({
                   <Badge
                     variant="outline"
                     className={cn(
-                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] rounded-full leading-none h-5",
+                      "px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] rounded-full leading-none h-5 border-transparent",
                       booking.payment_status === "PAID"
-                        ? "border-primary/30 bg-primary/10 text-primary"
+                        ? "bg-primary/10 text-primary ring-1 ring-inset ring-primary/15"
                         : booking.payment_status === "PARTIALLY_PAID"
-                          ? "border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/60"
-                          : "border-border bg-muted text-muted-foreground",
+                          ? "bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300"
+                          : "bg-muted text-muted-foreground ring-1 ring-inset ring-black/[0.06]",
                     )}
                   >
                     {booking.payment_status.replace("_", " ")}
@@ -419,7 +421,7 @@ export function BookingDetailsDialog({
                       {getBookingCustomerName(booking)}
                     </span>
                     {booking.is_anonymous_walk_in && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-900/60 dark:text-amber-400 dark:bg-amber-950/30 leading-none font-medium">
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium">
                         Anonymous walk-in
                       </Badge>
                     )}
@@ -434,7 +436,7 @@ export function BookingDetailsDialog({
                       </Badge>
                     )}
                     {booking.customer && booking.customer.no_show_count > 0 && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-900/60 dark:text-amber-400 dark:bg-amber-950/30 leading-none font-medium">
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium">
                         {booking.customer.no_show_count} no-show{booking.customer.no_show_count > 1 ? "s" : ""}
                       </Badge>
                     )}
@@ -480,13 +482,13 @@ export function BookingDetailsDialog({
                           <div className="mt-0.5 flex items-center gap-1.5 text-xs">
                             {as.served_by_owner ? (
                               <>
-                                <div className="h-4 w-4 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 flex items-center justify-center text-[9px] font-bold shrink-0">
+                                <div className="h-4 w-4 rounded-full bg-amber-500/15 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 flex items-center justify-center text-[9px] font-bold shrink-0">
                                   {as.served_by_owner.user.name.charAt(0)}
                                 </div>
                                 <span className="text-muted-foreground truncate">
                                   {as.served_by_owner.user.name}
                                 </span>
-                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 rounded-full border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-900/60 dark:text-amber-400 dark:bg-amber-950/30 leading-none font-medium shrink-0">
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 rounded-full border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium shrink-0">
                                   Owner
                                 </Badge>
                               </>
@@ -500,7 +502,7 @@ export function BookingDetailsDialog({
                                 </span>
                               </>
                             ) : (
-                              <span className="text-amber-700 bg-amber-50 px-1.5 py-0 h-4 rounded-sm text-[10px] font-medium border border-amber-200 inline-flex items-center leading-none">
+                              <span className="text-amber-700 bg-amber-500/10 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 px-1.5 py-0 h-4 rounded-md text-[10px] font-medium inline-flex items-center leading-none">
                                 Unassigned
                               </span>
                             )}
@@ -794,7 +796,7 @@ export function BookingDetailsDialog({
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-9 rounded-full border-amber-200 px-4 text-amber-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 dark:border-amber-900/60 dark:text-amber-400 dark:hover:bg-amber-950/30 dark:hover:text-amber-400 dark:hover:border-amber-900"
+                        className="h-9 rounded-full border-transparent px-4 text-amber-700 bg-amber-500/10 ring-1 ring-inset ring-amber-500/20 hover:bg-amber-500/15 hover:text-amber-700 dark:text-amber-300"
                         disabled={isMarkingNoShow}
                       >
                         {isMarkingNoShow ? (

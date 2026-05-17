@@ -417,6 +417,17 @@ export async function createBookingInDb({
         attempt += 1;
         continue;
       }
+      // Postgres EXCLUDE constraint (added in 20260508000000_add_availed_service_overlap_exclusion)
+      // fires when two concurrent INSERTs would assign the same employee/owner to
+      // overlapping time ranges. Prisma surfaces sqlstate 23P01 as either a known
+      // P2010 error or an unknown-request error; match on the constraint name to
+      // be robust across versions and convert to SLOT_JUST_TAKEN.
+      if (isAvailedServiceOverlapViolation(error)) {
+        throw new BookingAvailabilityError(
+          "SLOT_JUST_TAKEN",
+          "That slot was just taken. Please pick another slot.",
+        );
+      }
       throw error;
     }
   }
@@ -424,5 +435,28 @@ export async function createBookingInDb({
   throw new BookingAvailabilityError(
     "SLOT_JUST_TAKEN",
     "That slot was just taken. Please pick another slot.",
+  );
+}
+
+/**
+ * Recognizes Postgres EXCLUDE constraint violations from the
+ * AvailedService overlap-prevention guards (added in
+ * 20260508000000_add_availed_service_overlap_exclusion). Exported so
+ * the unit suite can verify the matching without spinning up a real
+ * transaction; matches by constraint name to stay robust across
+ * Prisma versions, since 23P01 surfaces as either P2010 or
+ * PrismaClientUnknownRequestError depending on the version.
+ */
+export function isAvailedServiceOverlapViolation(error: unknown): boolean {
+  if (
+    !(error instanceof Prisma.PrismaClientKnownRequestError) &&
+    !(error instanceof Prisma.PrismaClientUnknownRequestError)
+  ) {
+    return false;
+  }
+  const message = error.message ?? "";
+  return (
+    message.includes("AvailedService_employee_no_overlap_excl") ||
+    message.includes("AvailedService_owner_no_overlap_excl")
   );
 }

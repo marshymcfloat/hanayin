@@ -111,12 +111,9 @@ export function PayslipGenerationDialog({
   const handleGenerate = async () => {
     if (!data) return;
     setGenerating(true);
+    // Server recomputes totals; we only forward the deduction + note.
     const res = await createPayslipAction({
       employeeId: data.employee.id,
-      startingDate: data.period.start,
-      endingDate: data.period.end,
-      daysPresent: data.breakdown.days_present,
-      totalSalary: data.total_salary - deduction,
       deduction: deduction,
       comment: comment,
     });

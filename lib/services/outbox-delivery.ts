@@ -250,22 +250,13 @@ function splitEmails(raw: string | undefined) {
 }
 
 async function getPlatformAdminRecipients() {
-  const envRecipients = new Set<string>([
-    ...splitEmails(process.env.PLATFORM_BILLING_EMAILS),
-    ...splitEmails(process.env.SEED_PLATFORM_ADMIN_EMAIL),
-  ]);
-
-  const admins = await prisma.user.findMany({
-    where: { role: "PLATFORM_ADMIN" },
-    select: { email: true },
-    take: 25,
-  });
-
-  for (const admin of admins) {
-    if (admin.email?.trim()) {
-      envRecipients.add(admin.email.trim());
-    }
-  }
+  // Platform admin notification recipients are now driven exclusively by
+  // PLATFORM_BILLING_EMAILS (User accounts no longer carry an email field —
+  // they authenticate via contact_number). Configure that env var with a
+  // comma-separated list of addresses that should receive billing alerts.
+  const envRecipients = new Set<string>(
+    splitEmails(process.env.PLATFORM_BILLING_EMAILS),
+  );
 
   return Array.from(envRecipients);
 }

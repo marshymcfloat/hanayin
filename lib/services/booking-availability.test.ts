@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   computeSlots,
+  resolveStaffSelectionOrThrow,
   validateBookingOrThrow,
 } from "./booking-availability";
 import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
@@ -30,6 +31,7 @@ vi.mock("@/lib/date-utils", () => ({
 const baseBusiness = {
   id: "biz_1",
   manager_can_serve: true,
+  formal_schedule_enabled: false,
   business_hours: [
     {
       day_of_week: 4,
@@ -52,6 +54,8 @@ const baseBusiness = {
       profile: StaffProfile.STAFF,
       permissions: [StaffPermission.QUEUE_SERVE_SELF],
       specialties: [],
+      recurring_days_off: [],
+      schedule: [],
       user: { name: "Alex" },
     },
   ],
@@ -139,6 +143,8 @@ describe("booking-availability workload model", () => {
           profile: StaffProfile.STAFF,
           permissions: [StaffPermission.QUEUE_SERVE_SELF],
           specialties: ["NAILS"],
+          recurring_days_off: [],
+          schedule: [],
           user: { name: "Alex" },
         },
       ],
@@ -204,5 +210,173 @@ describe("booking-availability workload model", () => {
     ).rejects.toMatchObject({
       code: "REQUIRED_STAFF_UNAVAILABLE",
     });
+  });
+
+  it("excludes employees whose recurring_days_off covers the booking date", async () => {
+    // Feb 12 2026 is a Thursday (day_of_week=4). With Anna marked off
+    // every Thursday and no other staff, the day yields zero slots.
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      employees: [
+        {
+          id: 1,
+          profile: StaffProfile.STAFF,
+          permissions: [StaffPermission.QUEUE_SERVE_SELF],
+          specialties: [],
+          recurring_days_off: [4],
+          schedule: [],
+          user: { name: "Alex" },
+        },
+      ],
+    });
+
+    const slots = await computeSlots({
+      businessSlug: "demo-business",
+      date: new Date("2026-02-12T00:00:00+08:00"),
+      services: [{ id: 1, quantity: 1 }],
+      now: new Date("2026-02-12T08:00:00+08:00"),
+    });
+
+    expect(slots).toEqual([]);
+  });
+
+  it("rejects required selected staff when only that employee is off on this day-of-week", async () => {
+    // Two employees: Alex is generalist & always available, Bob is off
+    // every Thursday. Booking on Thursday with REQUIRE_SELECTED=Bob
+    // should surface REQUIRED_STAFF_UNAVAILABLE because slots still
+    // exist for Alex but Bob specifically cannot serve.
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      employees: [
+        {
+          id: 1,
+          profile: StaffProfile.STAFF,
+          permissions: [StaffPermission.QUEUE_SERVE_SELF],
+          specialties: [],
+          recurring_days_off: [],
+          schedule: [],
+          user: { name: "Alex" },
+        },
+        {
+          id: 2,
+          profile: StaffProfile.STAFF,
+          permissions: [StaffPermission.QUEUE_SERVE_SELF],
+          specialties: [],
+          recurring_days_off: [4],
+          schedule: [],
+          user: { name: "Bob" },
+        },
+      ],
+    });
+
+    await expect(
+      resolveStaffSelectionOrThrow({
+        businessSlug: "demo-business",
+        scheduledAt: new Date("2026-02-12T10:00:00+08:00"),
+        services: [{ id: 1, quantity: 1 }],
+        selectedEmployeeId: 2,
+        staffSelectionMode: "REQUIRE_SELECTED",
+      }),
+    ).rejects.toMatchObject({
+      code: "REQUIRED_STAFF_UNAVAILABLE",
+    });
+  });
+
+  it("ignores formal schedule when formal_schedule_enabled is false", async () => {
+    // Even with a schedule row that says "only 9-10 AM", the flag is
+    // off so the existing 9-6 PM behavior wins. Schedule rows are dormant.
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      formal_schedule_enabled: false,
+      employees: [
+        {
+          id: 1,
+          profile: StaffProfile.STAFF,
+          permissions: [StaffPermission.QUEUE_SERVE_SELF],
+          specialties: [],
+          recurring_days_off: [],
+          schedule: [
+            { day_of_week: 4, start_time: "09:00", end_time: "10:00" },
+          ],
+          user: { name: "Alex" },
+        },
+      ],
+    });
+
+    const slots = await computeSlots({
+      businessSlug: "demo-business",
+      date: new Date("2026-02-12T00:00:00+08:00"),
+      services: [{ id: 1, quantity: 1 }],
+      now: new Date("2026-02-12T08:00:00+08:00"),
+    });
+
+    // 9-10 schedule but flag off → should still see slots after 10am.
+    expect(slots.find((s) =>
+      s.startTime.toISOString() === new Date("2026-02-12T11:00:00+08:00").toISOString(),
+    )).toBeDefined();
+  });
+
+  it("constrains slots to the schedule window when formal_schedule_enabled is true", async () => {
+    // Same data, flag on → only 9-10 slots count for Alex. Past 10am
+    // there's no qualified employee, so no slots.
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      formal_schedule_enabled: true,
+      employees: [
+        {
+          id: 1,
+          profile: StaffProfile.STAFF,
+          permissions: [StaffPermission.QUEUE_SERVE_SELF],
+          specialties: [],
+          recurring_days_off: [],
+          schedule: [
+            { day_of_week: 4, start_time: "09:00", end_time: "10:00" },
+          ],
+          user: { name: "Alex" },
+        },
+      ],
+    });
+
+    const slots = await computeSlots({
+      businessSlug: "demo-business",
+      date: new Date("2026-02-12T00:00:00+08:00"),
+      services: [{ id: 1, quantity: 1 }],
+      now: new Date("2026-02-12T08:00:00+08:00"),
+    });
+
+    // Slots after 10am should be empty (Alex isn't scheduled).
+    const nineAm = new Date("2026-02-12T09:00:00+08:00").toISOString();
+    const elevenAm = new Date("2026-02-12T11:00:00+08:00").toISOString();
+    expect(slots.find((s) => s.startTime.toISOString() === nineAm)).toBeDefined();
+    expect(slots.find((s) => s.startTime.toISOString() === elevenAm)).toBeUndefined();
+  });
+
+  it("falls back to default behavior when formal flag is on but employee has no schedule rows", async () => {
+    // Critical safety case: flipping the flag without setting schedules
+    // shouldn't hide every employee. Empty schedule[] = "use default".
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      formal_schedule_enabled: true,
+      employees: [
+        {
+          id: 1,
+          profile: StaffProfile.STAFF,
+          permissions: [StaffPermission.QUEUE_SERVE_SELF],
+          specialties: [],
+          recurring_days_off: [],
+          schedule: [],
+          user: { name: "Alex" },
+        },
+      ],
+    });
+
+    const slots = await computeSlots({
+      businessSlug: "demo-business",
+      date: new Date("2026-02-12T00:00:00+08:00"),
+      services: [{ id: 1, quantity: 1 }],
+      now: new Date("2026-02-12T08:00:00+08:00"),
+    });
+
+    expect(slots.length).toBeGreaterThan(0);
   });
 });

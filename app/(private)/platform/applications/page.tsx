@@ -1,7 +1,4 @@
-import {
-  convertOnboardingApplicationToBusinessAction,
-  updateOnboardingApplicationStatusAction,
-} from "@/lib/server actions/platform-admin";
+import { updateOnboardingApplicationStatusAction } from "@/lib/server actions/platform-admin";
 import {
   DEFAULT_SUBSCRIPTION_PLAN_CODE,
   SUBSCRIPTION_PLAN_CODES,
@@ -41,22 +38,14 @@ import {
 import {
   BUSINESS_STRUCTURE_TEMPLATES,
   formatBusinessStructureLabel,
-  normalizeBusinessStructure,
 } from "@/lib/business-structure";
+import { ConvertApplicationDialog } from "./_components/ConvertApplicationDialog";
 
 type PlatformApplicationsPageProps = {
   searchParams?: PlatformSearchParams;
 };
 
 const PENDING_APPLICATION_STATUSES = new Set(["NEW", "CONTACTED", "APPROVED"]);
-
-function isSupportedPlanCode(
-  value: string,
-): value is (typeof SUBSCRIPTION_PLAN_CODES)[number] {
-  return SUBSCRIPTION_PLAN_CODES.includes(
-    value as (typeof SUBSCRIPTION_PLAN_CODES)[number],
-  );
-}
 
 function getPendingAgeInfo(createdAt: Date) {
   const hours = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60));
@@ -101,44 +90,42 @@ export default async function PlatformApplicationsPage({
     );
   }
 
-  const applicationQueryResult = await (async () => {
-    try {
-      const applications = await prisma.onboardingApplication.findMany({
-        include: {
-          referral_code: {
-            select: { code: true },
-          },
-          converted_business: {
-            select: { name: true, slug: true },
-          },
-          reviewed_by_user: {
-            select: { name: true, email: true },
-          },
-        },
-        orderBy: { created_at: "desc" },
-        take: 250,
-      });
-      return { applications, limitedByAccelerate: false as const };
-    } catch (error) {
-      if (isPrismaAccelerateResourceLimitError(error)) {
-        return { applications: [], limitedByAccelerate: true as const };
-      }
-      throw error;
-    }
-  })();
-  const applications = applicationQueryResult.applications;
-  const catalogPlans = await prisma.subscriptionPlan.findMany({
-    where: {
-      code: { in: [...SUBSCRIPTION_PLAN_CODES] },
-      is_active: true,
+  const applicationsQuery = prisma.onboardingApplication.findMany({
+    include: {
+      referral_code: { select: { code: true } },
+      converted_business: { select: { name: true, slug: true } },
+      reviewed_by_user: { select: { name: true, contact_number: true } },
     },
-    select: {
-      code: true,
-      name: true,
-      price_amount: true,
-    },
-    orderBy: [{ price_amount: "asc" }, { code: "asc" }],
+    orderBy: { created_at: "desc" },
+    take: 250,
   });
+  type ApplicationRow = Awaited<typeof applicationsQuery>[number];
+
+  const [applicationQueryResult, catalogPlans] = await Promise.all([
+    applicationsQuery
+      .then((applications) => ({
+        applications,
+        limitedByAccelerate: false as const,
+      }))
+      .catch((error) => {
+        if (isPrismaAccelerateResourceLimitError(error)) {
+          return {
+            applications: [] as ApplicationRow[],
+            limitedByAccelerate: true as const,
+          };
+        }
+        throw error;
+      }),
+    prisma.subscriptionPlan.findMany({
+      where: {
+        code: { in: [...SUBSCRIPTION_PLAN_CODES] },
+        is_active: true,
+      },
+      select: { code: true, name: true, price_amount: true },
+      orderBy: [{ price_amount: "asc" }, { code: "asc" }],
+    }),
+  ]);
+  const applications = applicationQueryResult.applications;
   const defaultAssignablePlanCode =
     catalogPlans.find((plan) => plan.code === DEFAULT_SUBSCRIPTION_PLAN_CODE)?.code ??
     catalogPlans[0]?.code ??
@@ -214,58 +201,10 @@ export default async function PlatformApplicationsPage({
     }
   }
 
-  async function convertToBusinessFormAction(formData: FormData) {
-    "use server";
-    try {
-      const applicationId = String(formData.get("applicationId") || "");
-      const ownerPassword = String(formData.get("ownerPassword") || "");
-      const rawPlanCode = String(
-        formData.get("planCode") || defaultAssignablePlanCode,
-      );
-      const parsedTrialMonths = Number.parseInt(
-        String(formData.get("trialMonths") || "1"),
-        10,
-      );
-      const structure = normalizeBusinessStructure(
-        formData.get("structure"),
-      );
-      const allowEmployeeSelfBooking =
-        String(formData.get("allowEmployeeSelfBooking") || "").toLowerCase() ===
-        "true";
-      const managerCanServe =
-        String(formData.get("managerCanServe") || "").toLowerCase() === "true";
-      const trialMonths =
-        Number.isFinite(parsedTrialMonths) && parsedTrialMonths > 0
-          ? Math.min(12, parsedTrialMonths)
-          : 1;
-      const planCode = isSupportedPlanCode(rawPlanCode)
-        ? rawPlanCode
-        : DEFAULT_SUBSCRIPTION_PLAN_CODE;
-
-      const result = await convertOnboardingApplicationToBusinessAction({
-        applicationId,
-        ownerPassword,
-        planCode,
-        trialMonths,
-        structure,
-        allowEmployeeSelfBooking,
-        managerCanServe,
-      });
-      if (!result.success) {
-        redirect(buildPlatformErrorPath("/platform/applications", result.error));
-      }
-
-      redirect(buildPlatformSuccessPath("/platform/applications", "Application converted to a business."));
-    } catch (error) {
-      rethrowIfRedirectError(error);
-      redirect(
-        buildPlatformErrorPath(
-          "/platform/applications",
-          toActionErrorMessage(error, "Unable to convert application."),
-        ),
-      );
-    }
-  }
+  // The old convertToBusinessFormAction was replaced by the
+  // ConvertApplicationDialog client component, which calls
+  // convertOnboardingApplicationToBusinessAction directly so the
+  // success modal can stay open and show the magic link.
 
   const newCount = applications.filter((application) => application.status === "NEW").length;
   const contactedCount = applications.filter((application) => application.status === "CONTACTED").length;
@@ -376,7 +315,7 @@ export default async function PlatformApplicationsPage({
                       </div>
                     </td>
                     <td className={`${platformTableCellClass} min-w-[160px] max-w-[220px] ${platformTableWrapCellClass}`}>
-                      {application.reviewed_by_user?.name ?? application.reviewed_by_user?.email ?? "-"}
+                      {application.reviewed_by_user?.name ?? application.reviewed_by_user?.contact_number ?? "-"}
                     </td>
                     <td className={`${platformTableCellClass} min-w-[260px]`}>
                       <div className="flex flex-wrap gap-2">
@@ -398,84 +337,38 @@ export default async function PlatformApplicationsPage({
                             Reject
                           </button>
                         </form>
-                        <form action={convertToBusinessFormAction} className="flex flex-wrap gap-2">
-                          <input type="hidden" name="applicationId" value={application.id} />
-                          <input
-                            name="ownerPassword"
-                            type="password"
-                            minLength={8}
-                            required
-                            placeholder="Owner password"
-                            className="h-9 min-w-[170px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
-                            disabled={catalogPlans.length === 0}
+                        {catalogPlans.length > 0 &&
+                        !application.converted_business &&
+                        application.status !== "REJECTED" ? (
+                          <ConvertApplicationDialog
+                            application={{
+                              applicationId: application.id,
+                              businessName: application.business_name,
+                              ownerName: application.owner_name,
+                              ownerPhone: application.owner_phone,
+                              requestedStructure: application.requested_structure,
+                              requestedAllowEmployeeSelfBooking:
+                                application.requested_allow_employee_self_booking,
+                              requestedManagerCanServe:
+                                application.requested_manager_can_serve,
+                            }}
+                            defaultPlanCode={defaultAssignablePlanCode}
+                            planOptions={catalogPlans.map((plan) => ({
+                              code: plan.code,
+                              label: `${plan.name} (${formatPhpFromCentavos(plan.price_amount)})`,
+                              trialDays: 0,
+                            }))}
+                            structureOptions={BUSINESS_STRUCTURE_TEMPLATES.map(
+                              (template) => ({
+                                value: template.value,
+                                label: template.label,
+                                defaultAllowEmployeeSelfBooking:
+                                  template.allowEmployeeSelfBooking,
+                                defaultManagerCanServe: template.managerCanServe,
+                              }),
+                            )}
                           />
-                          <select
-                            name="planCode"
-                            defaultValue={defaultAssignablePlanCode}
-                            className="h-9 min-w-[160px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
-                            disabled={catalogPlans.length === 0}
-                          >
-                            {catalogPlans.map((plan) => (
-                              <option key={plan.code} value={plan.code}>
-                                {plan.name} ({formatPhpFromCentavos(plan.price_amount)})
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            name="trialMonths"
-                            type="number"
-                            min={1}
-                            max={12}
-                            defaultValue={1}
-                            className="h-9 w-20 rounded-xl border border-[var(--pf-border)] bg-white px-2 text-xs text-[var(--pf-text)]"
-                            disabled={catalogPlans.length === 0}
-                          />
-                          <select
-                            name="structure"
-                            defaultValue={application.requested_structure}
-                            className="h-9 min-w-[220px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
-                            disabled={catalogPlans.length === 0}
-                          >
-                            {BUSINESS_STRUCTURE_TEMPLATES.map((template) => (
-                              <option key={template.value} value={template.value}>
-                                {template.label}
-                              </option>
-                            ))}
-                          </select>
-                          <select
-                            name="allowEmployeeSelfBooking"
-                            defaultValue={
-                              application.requested_allow_employee_self_booking
-                                ? "true"
-                                : "false"
-                            }
-                            className="h-9 min-w-[130px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
-                            disabled={catalogPlans.length === 0}
-                          >
-                            <option value="true">Self-booking: Yes</option>
-                            <option value="false">Self-booking: No</option>
-                          </select>
-                          <select
-                            name="managerCanServe"
-                            defaultValue={
-                              application.requested_manager_can_serve
-                                ? "true"
-                                : "false"
-                            }
-                            className="h-9 min-w-[130px] rounded-xl border border-[var(--pf-border)] bg-white px-3 text-xs text-[var(--pf-text)]"
-                            disabled={catalogPlans.length === 0}
-                          >
-                            <option value="true">Mgr serve: Yes</option>
-                            <option value="false">Mgr serve: No</option>
-                          </select>
-                          <button
-                            type="submit"
-                            className={`${platformSecondaryButtonClass} border-[var(--pf-primary)]/35 bg-[var(--pf-primary)]/10 text-[var(--pf-primary)] hover:bg-[var(--pf-primary)]/15`}
-                            disabled={catalogPlans.length === 0}
-                          >
-                            Convert
-                          </button>
-                        </form>
+                        ) : null}
                       </div>
                     </td>
                   </tr>

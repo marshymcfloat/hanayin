@@ -2,6 +2,7 @@
 
 import { prisma } from "@/prisma/prisma";
 import { rateLimit } from "@/lib/rate-limit";
+import { clientIpFromForwardedFor } from "@/lib/client-ip";
 import { headers } from "next/headers";
 import {
   sendSemaphoreOtp,
@@ -108,15 +109,35 @@ export async function requestBookingOtp(
   businessSlug: string,
 ): Promise<RequestOtpResult> {
   const headersList = await headers();
-  const forwardedFor = headersList.get("x-forwarded-for") ?? "";
-  const clientIp = forwardedFor.split(",")[0]?.trim() ?? "unknown";
+  const clientIp = clientIpFromForwardedFor(headersList.get("x-forwarded-for"));
+  const normalizedPhoneForKey = normalizePhilippinePhone(phone);
 
-  const limiter = await rateLimit(
-    `otp-request:${normalizePhilippinePhone(phone)}:${businessSlug}:${clientIp}`,
+  // Two buckets layered so neither vector wins:
+  //   1. Per-phone bucket protects a single victim from OTP spam regardless
+  //      of how many IPs the attacker rotates through. Previously the IP
+  //      was part of the key, which let an IPv6 /64 rotation reset the
+  //      counter — that's the hole this closes.
+  //   2. Per-IP bucket caps a single (normalized) source from blasting
+  //      OTPs across many different phones.
+  // If either trips, deny. The DB-level per-number cooldown below adds a
+  // third layer of defense.
+  const phoneLimiter = await rateLimit(
+    `otp-request:phone:${normalizedPhoneForKey}:${businessSlug}`,
     { windowMs: 5 * 60 * 1000, maxRequests: 3 },
   );
+  if (!phoneLimiter.success) {
+    return {
+      success: false,
+      error: "Too many verification attempts. Please wait a few minutes.",
+      cooldownSeconds: 300,
+    };
+  }
 
-  if (!limiter.success) {
+  const ipLimiter = await rateLimit(
+    `otp-request:ip:${businessSlug}:${clientIp}`,
+    { windowMs: 5 * 60 * 1000, maxRequests: 10 },
+  );
+  if (!ipLimiter.success) {
     return {
       success: false,
       error: "Too many verification attempts. Please wait a few minutes.",

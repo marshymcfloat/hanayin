@@ -18,7 +18,7 @@ export default async function PlatformAuditPage() {
   const logs = await prisma.platformActionLog.findMany({
     include: {
       business: { select: { name: true } },
-      actor_user: { select: { email: true, name: true } },
+      actor_user: { select: { contact_number: true, name: true } },
     },
     orderBy: { created_at: "desc" },
     take: 300,
@@ -26,7 +26,7 @@ export default async function PlatformAuditPage() {
 
   const uniqueActionTypes = new Set(logs.map((log) => log.action)).size;
   const systemActions = logs.filter(
-    (log) => !log.actor_user && !log.actor_email,
+    (log) => !log.actor_user && !log.actor_identifier,
   ).length;
   const userActions = logs.length - systemActions;
 
@@ -89,8 +89,8 @@ export default async function PlatformAuditPage() {
                     className={`${platformTableCellClass} min-w-[200px] max-w-[280px] ${platformTableWrapCellClass}`}
                   >
                     {log.actor_user?.name ??
-                      log.actor_user?.email ??
-                      log.actor_email ??
+                      log.actor_user?.contact_number ??
+                      log.actor_identifier ??
                       "SYSTEM"}
                   </td>
                 </tr>

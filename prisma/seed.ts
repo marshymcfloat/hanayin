@@ -1,6 +1,8 @@
 import { hash } from "bcryptjs";
 import { Role } from "./generated/prisma/client";
 import { prisma } from "./prisma";
+import { normalizePhilippinePhone } from "../lib/services/sms-otp";
+import { seedDemoBusiness } from "../features/demo-trial/seed-demo-business";
 
 async function main() {
   console.log("Start seeding ...");
@@ -48,7 +50,7 @@ async function main() {
 
   const bfOwnerUser = await prisma.user.create({
     data: {
-      email: "rjpern@gmail.com",
+      contact_number: "639170000001",
       name: "Ellaine Pe",
       hashed_password: password,
       role: Role.OWNER,
@@ -185,14 +187,15 @@ async function main() {
     ],
   });
 
-  const adminEmail = process.env.SEED_PLATFORM_ADMIN_EMAIL;
+  const adminContactRaw = process.env.SEED_PLATFORM_ADMIN_CONTACT_NUMBER;
   const adminPassword = process.env.SEED_PLATFORM_ADMIN_PASSWORD;
-  if (adminEmail && adminPassword) {
+  if (adminContactRaw && adminPassword) {
+    const adminContact = normalizePhilippinePhone(adminContactRaw);
     const adminHash = await hash(adminPassword, 12);
     await prisma.user.upsert({
-      where: { email: adminEmail },
+      where: { contact_number: adminContact },
       create: {
-        email: adminEmail,
+        contact_number: adminContact,
         name: "Platform Admin",
         hashed_password: adminHash,
         role: Role.PLATFORM_ADMIN,
@@ -619,12 +622,12 @@ async function main() {
   const bfEmployees = [
     {
       name: "Jan David Almirante",
-      email: "jan@beautyfeel.com",
+      contact_number: "639170000010",
       specialties: ["Nails", "Spa", "Skin", "Eyelash"],
     },
     {
       name: "Daniel Canoy",
-      email: "daniel@beautyfeel.com",
+      contact_number: "639170000011",
       specialties: ["Nails", "Spa", "Skin", "Eyelash"],
     },
   ];
@@ -632,7 +635,7 @@ async function main() {
   for (const emp of bfEmployees) {
     const u = await prisma.user.create({
       data: {
-        email: emp.email,
+        contact_number: emp.contact_number,
         name: emp.name,
         hashed_password: employeePassword,
         role: Role.EMPLOYEE,
@@ -651,7 +654,138 @@ async function main() {
   }
 
   // ============================================
-  // 2. SAMPLE CUSTOMERS + BOOKINGS
+  // 2. BUSINESS: SERENITY SPA (portal-redesign QA fixture)
+  // ============================================
+  // Lightweight second tenant so the new public-booking surface
+  // (PublicBookingShell + portal hero KPI + bento layout) is exercised
+  // at /serenity-spa/booking. BeautyFeel keeps its own custom layout
+  // because its slug is in BEAUTY_FEEL_SLUGS; everything else routes
+  // to the redesigned shell. One employee is pre-seeded with
+  // recurring_days_off=[0] (Sunday) so QA can verify that behavior
+  // without manually editing the DB.
+  console.log(" Creating Serenity Spa (portal QA fixture)...");
+
+  const serenityOwnerUser = await prisma.user.create({
+    data: {
+      contact_number: "639170000100",
+      name: "Serenity Owner",
+      hashed_password: password,
+      role: Role.OWNER,
+    },
+  });
+
+  const serenitySpa = await prisma.business.create({
+    data: {
+      name: "Serenity Spa",
+      slug: "serenity-spa",
+      initials: "SS",
+      description:
+        "Wellness, hair, and nails in one studio. Quick online booking with same-day availability when slots open up.",
+      owners: {
+        create: {
+          user_id: serenityOwnerUser.id,
+          specialties: [],
+        },
+      },
+      latitude: 14.5995,
+      longitude: 120.9842,
+    },
+  });
+
+  // Hours: Mon–Sat 9 AM – 6 PM, closed Sunday. GENERAL category only —
+  // simpler than BeautyFeel so the booking flow surfaces the new
+  // portal language without four-category noise.
+  for (const d of Array.from({ length: 7 }, (_, i) => i)) {
+    await prisma.businessHours.create({
+      data: {
+        business_id: serenitySpa.id,
+        day_of_week: d,
+        open_time: "09:00",
+        close_time: "18:00",
+        is_closed: d === 0,
+        category: "GENERAL",
+      },
+    });
+  }
+
+  // Three services covering the duration sweet spots (short / medium /
+  // long) so the average-duration KPI tile shows a meaningful mean.
+  await prisma.service.createMany({
+    data: [
+      {
+        business_id: serenitySpa.id,
+        name: "Express Facial",
+        price: 450,
+        duration: 30,
+        category: "GENERAL",
+        description: "Quick refresh — cleanse, exfoliate, hydrate.",
+      },
+      {
+        business_id: serenitySpa.id,
+        name: "Signature Massage",
+        price: 850,
+        duration: 60,
+        category: "GENERAL",
+        description: "Full-body relaxation massage with aromatherapy.",
+      },
+      {
+        business_id: serenitySpa.id,
+        name: "Hot Stone Therapy",
+        price: 1200,
+        duration: 90,
+        category: "GENERAL",
+        description: "Deep-tissue therapy with heated stones.",
+      },
+    ],
+  });
+
+  // Two employees:
+  //   - Alex: works every business-open day (no recurring days off).
+  //   - Sam: never works Sundays AND Mondays — exercises the
+  //     recurring_days_off filter for both same-day and advance bookings.
+  //     Sunday is already closed in BusinessHours so Mondays are the
+  //     observable signal.
+  const serenityEmployees = [
+    {
+      name: "Alex Reyes",
+      contact_number: "639170000110",
+      specialties: [],
+      recurring_days_off: [] as number[],
+    },
+    {
+      name: "Sam Cruz",
+      contact_number: "639170000111",
+      specialties: [],
+      recurring_days_off: [0, 1],
+    },
+  ];
+
+  for (const emp of serenityEmployees) {
+    const u = await prisma.user.create({
+      data: {
+        contact_number: emp.contact_number,
+        name: emp.name,
+        hashed_password: employeePassword,
+        role: Role.EMPLOYEE,
+      },
+    });
+    await prisma.employee.create({
+      data: {
+        user_id: u.id,
+        business_id: serenitySpa.id,
+        salary: 0,
+        daily_rate: 600,
+        commission_percentage: 10,
+        specialties: emp.specialties,
+        recurring_days_off: emp.recurring_days_off,
+      },
+    });
+  }
+
+  console.log("   ✓ Serenity Spa created (slug: serenity-spa)");
+
+  // ============================================
+  // 3. SAMPLE CUSTOMERS + BOOKINGS
   // ============================================
   // Gives the staff CustomerPicker something to search against on first load,
   // exercises the duplicate-detection flow, populates customer rankings on
@@ -761,9 +895,310 @@ async function main() {
     console.log(`   ✓ Created ${sampleCustomers.length} customers and 9 bookings`);
   }
 
+  // ============================================
+  // QA FIXTURES — every scenario the manual test plan needs.
+  // ============================================
+  console.log("\n🧪 Seeding QA fixtures for platform-admin test plan...");
+
+  const day = 24 * 60 * 60 * 1000;
+  const ownerPasswordHash = await hash("Demo12345", 12);
+  const planRows = await prisma.subscriptionPlan.findMany({
+    where: { code: { in: ["STARTER_MONTHLY", "PLUS_MONTHLY", "PRO_MONTHLY"] } },
+    select: { id: true, code: true, billing_interval: true },
+  });
+  const planByCode = Object.fromEntries(planRows.map((p) => [p.code, p]));
+  // Catalog might be missing if ensureDefaultPlans hasn't run yet (seed runs
+  // before any HTTP request). Create the canonical trio if absent.
+  for (const code of ["STARTER_MONTHLY", "PLUS_MONTHLY", "PRO_MONTHLY"] as const) {
+    if (!planByCode[code]) {
+      const created = await prisma.subscriptionPlan.create({
+        data: {
+          code,
+          name: code.replace("_MONTHLY", " Monthly").replace("_", " "),
+          billing_interval: "MONTHLY",
+          price_amount:
+            code === "STARTER_MONTHLY"
+              ? 149_900
+              : code === "PLUS_MONTHLY"
+                ? 249_900
+                : 399_900,
+          currency: "PHP",
+          is_active: true,
+        },
+      });
+      planByCode[code] = {
+        id: created.id,
+        code: created.code,
+        billing_interval: created.billing_interval,
+      };
+    }
+  }
+  const qaPlan = planByCode.PLUS_MONTHLY;
+
+  type QaScenario = {
+    slug: string;
+    name: string;
+    initials: string;
+    ownerName: string;
+    ownerPhoneTail: string;
+    status:
+      | "TRIALING"
+      | "ACTIVE"
+      | "GRACE_PERIOD"
+      | "SUSPENDED"
+      | "CANCELED";
+    /** Days from now. Negative = past. */
+    trialEndsInDays?: number;
+    /** Negative = period already ended. */
+    periodEndsInDays: number;
+    suspendedDaysAgo?: number;
+    /** Create one OPEN invoice for this subscription (drives reactivate guard). */
+    seedUnpaidInvoice?: boolean;
+    /** Run seedDemoBusiness so admin can test "Clear Demo Data". */
+    seedDemoData?: boolean;
+    note: string;
+  };
+
+  const scenarios: QaScenario[] = [
+    {
+      slug: "qa-trial-healthy",
+      name: "QA Trial — Healthy",
+      initials: "QH",
+      ownerName: "Trial Owner Healthy",
+      ownerPhoneTail: "1001",
+      status: "TRIALING",
+      trialEndsInDays: 14,
+      periodEndsInDays: 14,
+      note: "TRIALING with 14d remaining. Use for: Convert Trial → Paid, Extend Trial picker.",
+    },
+    {
+      slug: "qa-trial-expired",
+      name: "QA Trial — Expired",
+      initials: "QE",
+      ownerName: "Trial Owner Expired",
+      ownerPhoneTail: "1002",
+      status: "TRIALING",
+      trialEndsInDays: -10,
+      periodEndsInDays: -10,
+      note: "TRIALING but trial_ends_at was 10 days ago. Granting +1mo should produce a future trial end (not past).",
+    },
+    {
+      slug: "qa-trial-with-demo",
+      name: "QA Trial — With Demo Data",
+      initials: "QD",
+      ownerName: "Trial Owner Demo",
+      ownerPhoneTail: "1003",
+      status: "TRIALING",
+      trialEndsInDays: 21,
+      periodEndsInDays: 21,
+      seedDemoData: true,
+      note: "TRIALING with seeded sample services/customers/bookings. Use for: Clear Demo Data button.",
+    },
+    {
+      slug: "qa-active",
+      name: "QA Active Paying",
+      initials: "QA",
+      ownerName: "Active Owner",
+      ownerPhoneTail: "1004",
+      status: "ACTIVE",
+      periodEndsInDays: 25,
+      note: "ACTIVE. Use for: Reactivate refusal, Set Plan creating an invoice.",
+    },
+    {
+      slug: "qa-grace",
+      name: "QA Grace Period",
+      initials: "QG",
+      ownerName: "Grace Owner",
+      ownerPhoneTail: "1005",
+      status: "GRACE_PERIOD",
+      periodEndsInDays: -3,
+      note: "GRACE_PERIOD. Use for: Reactivate succeeds.",
+    },
+    {
+      slug: "qa-suspended-clean",
+      name: "QA Suspended (No Unpaid)",
+      initials: "QS",
+      ownerName: "Suspended Owner Clean",
+      ownerPhoneTail: "1006",
+      status: "SUSPENDED",
+      periodEndsInDays: -15,
+      suspendedDaysAgo: 5,
+      note: "SUSPENDED with no unpaid invoices. Use for: Reactivate succeeds.",
+    },
+    {
+      slug: "qa-suspended-unpaid",
+      name: "QA Suspended (Unpaid Invoice)",
+      initials: "QU",
+      ownerName: "Suspended Owner Unpaid",
+      ownerPhoneTail: "1007",
+      status: "SUSPENDED",
+      periodEndsInDays: -20,
+      suspendedDaysAgo: 8,
+      seedUnpaidInvoice: true,
+      note: "SUSPENDED with one OPEN invoice. Reactivate should refuse until the invoice is settled or voided.",
+    },
+  ];
+
+  // Wipe any prior QA fixtures so re-seed is idempotent. We key on slug
+  // prefix so we don't touch real businesses or existing seed content.
+  await prisma.business.deleteMany({
+    where: { slug: { startsWith: "qa-" } },
+  });
+  await prisma.user.deleteMany({
+    where: { contact_number: { startsWith: "639170001" } },
+  });
+
+  const baseDate = new Date();
+  for (const s of scenarios) {
+    const ownerPhone = `63917000${s.ownerPhoneTail}`;
+    const ownerUser = await prisma.user.create({
+      data: {
+        contact_number: ownerPhone,
+        name: s.ownerName,
+        hashed_password: ownerPasswordHash,
+        role: Role.OWNER,
+      },
+    });
+    const business = await prisma.business.create({
+      data: {
+        name: s.name,
+        slug: s.slug,
+        initials: s.initials,
+        description: s.note,
+        owners: { create: { user_id: ownerUser.id, specialties: [] } },
+      },
+    });
+
+    const periodStart = new Date(baseDate.getTime() - 30 * day);
+    const periodEnd = new Date(baseDate.getTime() + s.periodEndsInDays * day);
+    const trialEndsAt =
+      s.trialEndsInDays !== undefined
+        ? new Date(baseDate.getTime() + s.trialEndsInDays * day)
+        : null;
+    const suspendedAt =
+      s.suspendedDaysAgo !== undefined
+        ? new Date(baseDate.getTime() - s.suspendedDaysAgo * day)
+        : null;
+    const graceEndsAt =
+      s.status === "GRACE_PERIOD"
+        ? new Date(baseDate.getTime() + 3 * day)
+        : null;
+
+    const subscription = await prisma.businessSubscription.create({
+      data: {
+        business_id: business.id,
+        plan_id: qaPlan.id,
+        status: s.status,
+        collection_method: "MANUAL_CHECKOUT",
+        current_period_start: periodStart,
+        current_period_end: periodEnd,
+        trial_ends_at: trialEndsAt,
+        grace_ends_at: graceEndsAt,
+        suspended_at: suspendedAt,
+        recurring_enabled: false,
+      },
+    });
+
+    await prisma.referralCode.create({
+      data: {
+        business_id: business.id,
+        // Truncating to 8 chars collided across qa-trial-healthy /
+        // qa-trial-expired. Use a hash of the full slug instead.
+        code: `SF-${s.slug.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12)}`,
+        is_active: true,
+      },
+    });
+
+    if (s.seedUnpaidInvoice) {
+      await prisma.subscriptionInvoice.create({
+        data: {
+          business_subscription_id: subscription.id,
+          business_id: business.id,
+          plan_id: qaPlan.id,
+          status: "OPEN",
+          reason: "QA_FIXTURE_UNPAID",
+          period_start: periodStart,
+          period_end: periodEnd,
+          due_at: new Date(baseDate.getTime() - 2 * day),
+          amount_subtotal: 249_900,
+          amount_due: 249_900,
+        },
+      });
+    }
+
+    if (s.seedDemoData) {
+      await seedDemoBusiness(business.id);
+    }
+
+    console.log(`   ✓ ${s.slug} (${s.status}) — ${s.note}`);
+  }
+
+  // Onboarding applications — one per status so the platform-admin pipeline
+  // page has something to act on across every code path.
+  await prisma.onboardingApplication.deleteMany({
+    where: { owner_email: { endsWith: "@qa.serviceflow.test" } },
+  });
+
+  const applicationFixtures: Array<{
+    business_name: string;
+    owner_name: string;
+    owner_email: string;
+    owner_phone: string;
+    status: "NEW" | "CONTACTED" | "APPROVED" | "REJECTED";
+    notes: string;
+  }> = [
+    {
+      business_name: "QA Apply — New",
+      owner_name: "Pia Reyes",
+      owner_email: "qa-new@qa.serviceflow.test",
+      owner_phone: "639170002001",
+      status: "NEW",
+      notes: "Use for: testing the Convert dialog with default Seed-Demo-Data toggle.",
+    },
+    {
+      business_name: "QA Apply — Contacted",
+      owner_name: "Sara Lim",
+      owner_email: "qa-contacted@qa.serviceflow.test",
+      owner_phone: "639170002002",
+      status: "CONTACTED",
+      notes: "Use for: testing reviewer-attribution (re-mark CONTACTED with a different admin).",
+    },
+    {
+      business_name: "QA Apply — Approved",
+      owner_name: "Mika Tan",
+      owner_email: "qa-approved@qa.serviceflow.test",
+      owner_phone: "639170002003",
+      status: "APPROVED",
+      notes: "Use for: convert path; reviewed_by should be stamped.",
+    },
+    {
+      business_name: "QA Apply — Rejected",
+      owner_name: "Jen Cruz",
+      owner_email: "qa-rejected@qa.serviceflow.test",
+      owner_phone: "639170002004",
+      status: "REJECTED",
+      notes: "Use for: confirming reviewer is stamped on terminal transitions.",
+    },
+  ];
+
+  for (const a of applicationFixtures) {
+    await prisma.onboardingApplication.create({
+      data: {
+        business_name: a.business_name,
+        owner_name: a.owner_name,
+        owner_email: a.owner_email,
+        owner_phone: a.owner_phone,
+        notes: a.notes,
+        status: a.status,
+      },
+    });
+    console.log(`   ✓ application ${a.status.padEnd(9)} — ${a.business_name}`);
+  }
+
   console.log("\n✅ Seeding finished successfully!");
-  console.log("\n📋 Accounts created with default credentials.");
-  console.log("   See README or seed script for details.");
+  console.log("\n📋 QA owners all use password: Demo12345");
+  console.log("   QA businesses listed under /platform/businesses (slugs start with 'qa-').");
+  console.log("   QA applications listed under /platform/applications (emails end @qa.serviceflow.test).");
 }
 
 main()

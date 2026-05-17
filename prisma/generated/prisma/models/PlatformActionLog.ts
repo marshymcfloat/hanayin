@@ -27,7 +27,7 @@ export type AggregatePlatformActionLog = {
 export type PlatformActionLogMinAggregateOutputType = {
   id: string | null
   actor_user_id: string | null
-  actor_email: string | null
+  actor_identifier: string | null
   action: string | null
   target_type: string | null
   target_id: string | null
@@ -38,7 +38,7 @@ export type PlatformActionLogMinAggregateOutputType = {
 export type PlatformActionLogMaxAggregateOutputType = {
   id: string | null
   actor_user_id: string | null
-  actor_email: string | null
+  actor_identifier: string | null
   action: string | null
   target_type: string | null
   target_id: string | null
@@ -49,7 +49,7 @@ export type PlatformActionLogMaxAggregateOutputType = {
 export type PlatformActionLogCountAggregateOutputType = {
   id: number
   actor_user_id: number
-  actor_email: number
+  actor_identifier: number
   action: number
   target_type: number
   target_id: number
@@ -63,7 +63,7 @@ export type PlatformActionLogCountAggregateOutputType = {
 export type PlatformActionLogMinAggregateInputType = {
   id?: true
   actor_user_id?: true
-  actor_email?: true
+  actor_identifier?: true
   action?: true
   target_type?: true
   target_id?: true
@@ -74,7 +74,7 @@ export type PlatformActionLogMinAggregateInputType = {
 export type PlatformActionLogMaxAggregateInputType = {
   id?: true
   actor_user_id?: true
-  actor_email?: true
+  actor_identifier?: true
   action?: true
   target_type?: true
   target_id?: true
@@ -85,7 +85,7 @@ export type PlatformActionLogMaxAggregateInputType = {
 export type PlatformActionLogCountAggregateInputType = {
   id?: true
   actor_user_id?: true
-  actor_email?: true
+  actor_identifier?: true
   action?: true
   target_type?: true
   target_id?: true
@@ -170,7 +170,7 @@ export type PlatformActionLogGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type PlatformActionLogGroupByOutputType = {
   id: string
   actor_user_id: string | null
-  actor_email: string | null
+  actor_identifier: string | null
   action: string
   target_type: string
   target_id: string
@@ -203,7 +203,7 @@ export type PlatformActionLogWhereInput = {
   NOT?: Prisma.PlatformActionLogWhereInput | Prisma.PlatformActionLogWhereInput[]
   id?: Prisma.StringFilter<"PlatformActionLog"> | string
   actor_user_id?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
-  actor_email?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
+  actor_identifier?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
   action?: Prisma.StringFilter<"PlatformActionLog"> | string
   target_type?: Prisma.StringFilter<"PlatformActionLog"> | string
   target_id?: Prisma.StringFilter<"PlatformActionLog"> | string
@@ -217,7 +217,7 @@ export type PlatformActionLogWhereInput = {
 export type PlatformActionLogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   actor_user_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  actor_email?: Prisma.SortOrderInput | Prisma.SortOrder
+  actor_identifier?: Prisma.SortOrderInput | Prisma.SortOrder
   action?: Prisma.SortOrder
   target_type?: Prisma.SortOrder
   target_id?: Prisma.SortOrder
@@ -234,7 +234,7 @@ export type PlatformActionLogWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PlatformActionLogWhereInput[]
   NOT?: Prisma.PlatformActionLogWhereInput | Prisma.PlatformActionLogWhereInput[]
   actor_user_id?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
-  actor_email?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
+  actor_identifier?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
   action?: Prisma.StringFilter<"PlatformActionLog"> | string
   target_type?: Prisma.StringFilter<"PlatformActionLog"> | string
   target_id?: Prisma.StringFilter<"PlatformActionLog"> | string
@@ -248,7 +248,7 @@ export type PlatformActionLogWhereUniqueInput = Prisma.AtLeast<{
 export type PlatformActionLogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   actor_user_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  actor_email?: Prisma.SortOrderInput | Prisma.SortOrder
+  actor_identifier?: Prisma.SortOrderInput | Prisma.SortOrder
   action?: Prisma.SortOrder
   target_type?: Prisma.SortOrder
   target_id?: Prisma.SortOrder
@@ -266,7 +266,7 @@ export type PlatformActionLogScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PlatformActionLogScalarWhereWithAggregatesInput | Prisma.PlatformActionLogScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PlatformActionLog"> | string
   actor_user_id?: Prisma.StringNullableWithAggregatesFilter<"PlatformActionLog"> | string | null
-  actor_email?: Prisma.StringNullableWithAggregatesFilter<"PlatformActionLog"> | string | null
+  actor_identifier?: Prisma.StringNullableWithAggregatesFilter<"PlatformActionLog"> | string | null
   action?: Prisma.StringWithAggregatesFilter<"PlatformActionLog"> | string
   target_type?: Prisma.StringWithAggregatesFilter<"PlatformActionLog"> | string
   target_id?: Prisma.StringWithAggregatesFilter<"PlatformActionLog"> | string
@@ -277,7 +277,7 @@ export type PlatformActionLogScalarWhereWithAggregatesInput = {
 
 export type PlatformActionLogCreateInput = {
   id?: string
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -290,7 +290,7 @@ export type PlatformActionLogCreateInput = {
 export type PlatformActionLogUncheckedCreateInput = {
   id?: string
   actor_user_id?: string | null
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -301,7 +301,7 @@ export type PlatformActionLogUncheckedCreateInput = {
 
 export type PlatformActionLogUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -314,7 +314,7 @@ export type PlatformActionLogUpdateInput = {
 export type PlatformActionLogUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   actor_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -326,7 +326,7 @@ export type PlatformActionLogUncheckedUpdateInput = {
 export type PlatformActionLogCreateManyInput = {
   id?: string
   actor_user_id?: string | null
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -337,7 +337,7 @@ export type PlatformActionLogCreateManyInput = {
 
 export type PlatformActionLogUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -348,7 +348,7 @@ export type PlatformActionLogUpdateManyMutationInput = {
 export type PlatformActionLogUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   actor_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -370,7 +370,7 @@ export type PlatformActionLogOrderByRelationAggregateInput = {
 export type PlatformActionLogCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   actor_user_id?: Prisma.SortOrder
-  actor_email?: Prisma.SortOrder
+  actor_identifier?: Prisma.SortOrder
   action?: Prisma.SortOrder
   target_type?: Prisma.SortOrder
   target_id?: Prisma.SortOrder
@@ -382,7 +382,7 @@ export type PlatformActionLogCountOrderByAggregateInput = {
 export type PlatformActionLogMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   actor_user_id?: Prisma.SortOrder
-  actor_email?: Prisma.SortOrder
+  actor_identifier?: Prisma.SortOrder
   action?: Prisma.SortOrder
   target_type?: Prisma.SortOrder
   target_id?: Prisma.SortOrder
@@ -393,7 +393,7 @@ export type PlatformActionLogMaxOrderByAggregateInput = {
 export type PlatformActionLogMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   actor_user_id?: Prisma.SortOrder
-  actor_email?: Prisma.SortOrder
+  actor_identifier?: Prisma.SortOrder
   action?: Prisma.SortOrder
   target_type?: Prisma.SortOrder
   target_id?: Prisma.SortOrder
@@ -487,7 +487,7 @@ export type PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput = {
 
 export type PlatformActionLogCreateWithoutBusinessInput = {
   id?: string
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -499,7 +499,7 @@ export type PlatformActionLogCreateWithoutBusinessInput = {
 export type PlatformActionLogUncheckedCreateWithoutBusinessInput = {
   id?: string
   actor_user_id?: string | null
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -539,7 +539,7 @@ export type PlatformActionLogScalarWhereInput = {
   NOT?: Prisma.PlatformActionLogScalarWhereInput | Prisma.PlatformActionLogScalarWhereInput[]
   id?: Prisma.StringFilter<"PlatformActionLog"> | string
   actor_user_id?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
-  actor_email?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
+  actor_identifier?: Prisma.StringNullableFilter<"PlatformActionLog"> | string | null
   action?: Prisma.StringFilter<"PlatformActionLog"> | string
   target_type?: Prisma.StringFilter<"PlatformActionLog"> | string
   target_id?: Prisma.StringFilter<"PlatformActionLog"> | string
@@ -550,7 +550,7 @@ export type PlatformActionLogScalarWhereInput = {
 
 export type PlatformActionLogCreateWithoutActor_userInput = {
   id?: string
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -561,7 +561,7 @@ export type PlatformActionLogCreateWithoutActor_userInput = {
 
 export type PlatformActionLogUncheckedCreateWithoutActor_userInput = {
   id?: string
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -599,7 +599,7 @@ export type PlatformActionLogUpdateManyWithWhereWithoutActor_userInput = {
 export type PlatformActionLogCreateManyBusinessInput = {
   id?: string
   actor_user_id?: string | null
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -609,7 +609,7 @@ export type PlatformActionLogCreateManyBusinessInput = {
 
 export type PlatformActionLogUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -621,7 +621,7 @@ export type PlatformActionLogUpdateWithoutBusinessInput = {
 export type PlatformActionLogUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   actor_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -632,7 +632,7 @@ export type PlatformActionLogUncheckedUpdateWithoutBusinessInput = {
 export type PlatformActionLogUncheckedUpdateManyWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   actor_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -642,7 +642,7 @@ export type PlatformActionLogUncheckedUpdateManyWithoutBusinessInput = {
 
 export type PlatformActionLogCreateManyActor_userInput = {
   id?: string
-  actor_email?: string | null
+  actor_identifier?: string | null
   action: string
   target_type: string
   target_id: string
@@ -653,7 +653,7 @@ export type PlatformActionLogCreateManyActor_userInput = {
 
 export type PlatformActionLogUpdateWithoutActor_userInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -664,7 +664,7 @@ export type PlatformActionLogUpdateWithoutActor_userInput = {
 
 export type PlatformActionLogUncheckedUpdateWithoutActor_userInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -675,7 +675,7 @@ export type PlatformActionLogUncheckedUpdateWithoutActor_userInput = {
 
 export type PlatformActionLogUncheckedUpdateManyWithoutActor_userInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  actor_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actor_identifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   target_type?: Prisma.StringFieldUpdateOperationsInput | string
   target_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -689,7 +689,7 @@ export type PlatformActionLogUncheckedUpdateManyWithoutActor_userInput = {
 export type PlatformActionLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   actor_user_id?: boolean
-  actor_email?: boolean
+  actor_identifier?: boolean
   action?: boolean
   target_type?: boolean
   target_id?: boolean
@@ -703,7 +703,7 @@ export type PlatformActionLogSelect<ExtArgs extends runtime.Types.Extensions.Int
 export type PlatformActionLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   actor_user_id?: boolean
-  actor_email?: boolean
+  actor_identifier?: boolean
   action?: boolean
   target_type?: boolean
   target_id?: boolean
@@ -717,7 +717,7 @@ export type PlatformActionLogSelectCreateManyAndReturn<ExtArgs extends runtime.T
 export type PlatformActionLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   actor_user_id?: boolean
-  actor_email?: boolean
+  actor_identifier?: boolean
   action?: boolean
   target_type?: boolean
   target_id?: boolean
@@ -731,7 +731,7 @@ export type PlatformActionLogSelectUpdateManyAndReturn<ExtArgs extends runtime.T
 export type PlatformActionLogSelectScalar = {
   id?: boolean
   actor_user_id?: boolean
-  actor_email?: boolean
+  actor_identifier?: boolean
   action?: boolean
   target_type?: boolean
   target_id?: boolean
@@ -740,7 +740,7 @@ export type PlatformActionLogSelectScalar = {
   created_at?: boolean
 }
 
-export type PlatformActionLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "actor_user_id" | "actor_email" | "action" | "target_type" | "target_id" | "business_id" | "metadata" | "created_at", ExtArgs["result"]["platformActionLog"]>
+export type PlatformActionLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "actor_user_id" | "actor_identifier" | "action" | "target_type" | "target_id" | "business_id" | "metadata" | "created_at", ExtArgs["result"]["platformActionLog"]>
 export type PlatformActionLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   actor_user?: boolean | Prisma.PlatformActionLog$actor_userArgs<ExtArgs>
   business?: boolean | Prisma.PlatformActionLog$businessArgs<ExtArgs>
@@ -763,7 +763,7 @@ export type $PlatformActionLogPayload<ExtArgs extends runtime.Types.Extensions.I
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     actor_user_id: string | null
-    actor_email: string | null
+    actor_identifier: string | null
     action: string
     target_type: string
     target_id: string
@@ -1197,7 +1197,7 @@ export interface Prisma__PlatformActionLogClient<T, Null = never, ExtArgs extend
 export interface PlatformActionLogFieldRefs {
   readonly id: Prisma.FieldRef<"PlatformActionLog", 'String'>
   readonly actor_user_id: Prisma.FieldRef<"PlatformActionLog", 'String'>
-  readonly actor_email: Prisma.FieldRef<"PlatformActionLog", 'String'>
+  readonly actor_identifier: Prisma.FieldRef<"PlatformActionLog", 'String'>
   readonly action: Prisma.FieldRef<"PlatformActionLog", 'String'>
   readonly target_type: Prisma.FieldRef<"PlatformActionLog", 'String'>
   readonly target_id: Prisma.FieldRef<"PlatformActionLog", 'String'>

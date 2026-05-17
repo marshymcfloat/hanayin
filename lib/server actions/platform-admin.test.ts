@@ -148,7 +148,7 @@ describe("platform-admin plan code defaults", () => {
       businessSlug: "new-biz",
       initials: "NB",
       ownerName: "Owner One",
-      ownerEmail: "owner@newbiz.test",
+      ownerContactNumber: "639170000099",
       ownerPassword: "password123",
       trialMonths: 1,
     });
@@ -172,7 +172,7 @@ describe("platform-admin plan code defaults", () => {
         businessSlug: "new-biz",
         initials: "NB",
         ownerName: "Owner One",
-        ownerEmail: "owner@newbiz.test",
+        ownerContactNumber: "639170000099",
         ownerPassword: "password123",
         planCode: "PRO_ANNUAL",
       } as never),
@@ -187,7 +187,7 @@ describe("platform-admin plan code defaults", () => {
       businessSlug: "new-biz",
       initials: "NB",
       ownerName: "Owner One",
-      ownerEmail: "owner@newbiz.test",
+      ownerContactNumber: "639170000099",
       ownerPassword: "password123",
       planCode: "PLUS_MONTHLY",
     });

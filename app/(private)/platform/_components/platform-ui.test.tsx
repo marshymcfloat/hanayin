@@ -11,7 +11,7 @@ import {
 describe("platform-ui", () => {
   it("renders status badges with expected tone classes", () => {
     const { rerender } = render(<PlatformStatusBadge status="ACTIVE" />);
-    expect(screen.getByText("ACTIVE")).toHaveClass("text-emerald-700");
+    expect(screen.getByText("ACTIVE")).toHaveClass("text-primary");
 
     rerender(<PlatformStatusBadge status="PENDING" />);
     expect(screen.getByText("PENDING")).toHaveClass("text-amber-700");

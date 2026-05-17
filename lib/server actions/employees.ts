@@ -2,7 +2,6 @@
 
 import { hash } from "bcryptjs";
 import crypto from "crypto";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
 import { logger } from "@/lib/logger";
@@ -10,7 +9,8 @@ import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { requireAuth } from "@/lib/auth/guards";
 import { sanitizeStaffPermissions } from "@/lib/auth/staff-access";
 import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
-import { sendEmployeeInviteEmail } from "@/lib/services/employee-invite";
+import { sendEmployeeInviteSms } from "@/lib/services/employee-invite";
+import { normalizePhilippinePhone } from "@/lib/services/sms-otp";
 import { prisma } from "@/prisma/prisma";
 import { Prisma, Role } from "@/prisma/generated/prisma/client";
 import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
@@ -54,7 +54,7 @@ export async function getEmployeesAction() {
           select: {
             id: true,
             name: true,
-            email: true,
+            contact_number: true,
             role: true,
             created_at: true,
             updated_at: true,
@@ -91,7 +91,7 @@ export async function getEmployeesAction() {
 // Create a new employee (also creates a user account)
 export async function createEmployeeAction(data: {
   name: string;
-  email: string;
+  contact_number: string;
   daily_rate: number;
   commission_percentage: number;
   profile?: StaffProfile;
@@ -104,15 +104,23 @@ export async function createEmployeeAction(data: {
 
   const profile = data.profile ?? StaffProfile.STAFF;
   const permissions = sanitizeStaffPermissions(profile, data.permissions);
+  const normalizedContact = normalizePhilippinePhone(data.contact_number);
+
+  if (!/^63\d{10}$/.test(normalizedContact)) {
+    return {
+      success: false,
+      error: "Enter a valid Philippine mobile number (e.g., 09XX XXX XXXX).",
+    };
+  }
 
   try {
     const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { contact_number: normalizedContact },
       select: { id: true },
     });
 
     if (existingUser) {
-      return { success: false, error: "Email already in use" };
+      return { success: false, error: "Contact number already in use" };
     }
 
     const business = await prisma.business.findUnique({
@@ -139,7 +147,7 @@ export async function createEmployeeAction(data: {
         const user = await tx.user.create({
           data: {
             name: data.name,
-            email: data.email,
+            contact_number: normalizedContact,
             hashed_password: hashedPassword,
             role: Role.EMPLOYEE,
             must_change_password: true,
@@ -167,29 +175,22 @@ export async function createEmployeeAction(data: {
       },
     );
 
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = headersList.get("x-forwarded-proto") || "http";
-    const baseUrl = `${protocol}://${host}`;
-    const changePasswordUrl = `${baseUrl}/app/${businessSlug}/change-password`;
-
-    const emailResult = await sendEmployeeInviteEmail({
-      to: data.email,
+    const smsResult = await sendEmployeeInviteSms({
+      to: normalizedContact,
       employeeName: data.name,
       businessName: business.name,
       tempPassword,
       expiresAt: tempPasswordExpiresAt,
-      changePasswordUrl,
     });
 
     revalidatePath(`/app/${businessSlug}/employees`);
 
-    if (!emailResult.success) {
-      console.error("Failed to send employee invite email:", emailResult.error);
+    if (!smsResult.success) {
+      console.error("Failed to send employee invite SMS:", smsResult.error);
       return {
         success: true,
         data: result,
-        warning: "Employee created but email failed to send.",
+        warning: "Employee created but SMS failed to send.",
       };
     }
 
@@ -205,7 +206,7 @@ export async function updateEmployeeAction(
   employeeId: number,
   data: {
     name?: string;
-    email?: string;
+    contact_number?: string;
     daily_rate?: number;
     commission_percentage?: number;
     profile?: StaffProfile;
@@ -235,13 +236,25 @@ export async function updateEmployeeAction(
       return { success: false, error: "Employee not found" };
     }
 
-    if (data.email && data.email !== employee.user.email) {
-      const existingUser = await prisma.user.findUnique({
-        where: { email: data.email },
-        select: { id: true },
-      });
-      if (existingUser && existingUser.id !== employee.user_id) {
-        return { success: false, error: "Email already in use" };
+    let normalizedContact: string | undefined;
+    if (data.contact_number) {
+      normalizedContact = normalizePhilippinePhone(data.contact_number);
+
+      if (!/^63\d{10}$/.test(normalizedContact)) {
+        return {
+          success: false,
+          error: "Enter a valid Philippine mobile number (e.g., 09XX XXX XXXX).",
+        };
+      }
+
+      if (normalizedContact !== employee.user.contact_number) {
+        const existingUser = await prisma.user.findUnique({
+          where: { contact_number: normalizedContact },
+          select: { id: true },
+        });
+        if (existingUser && existingUser.id !== employee.user_id) {
+          return { success: false, error: "Contact number already in use" };
+        }
       }
     }
 
@@ -254,12 +267,12 @@ export async function updateEmployeeAction(
           : undefined;
 
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      if (data.name || data.email) {
+      if (data.name || normalizedContact) {
         await tx.user.update({
           where: { id: employee.user_id },
           data: {
             ...(data.name && { name: data.name }),
-            ...(data.email && { email: data.email }),
+            ...(normalizedContact && { contact_number: normalizedContact }),
           },
         });
       }

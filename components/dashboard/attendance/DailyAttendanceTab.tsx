@@ -45,14 +45,35 @@ import {
 } from "@/components/ui/table";
 import {
   updateAttendanceStatus,
+  previewAttendanceImpactAction,
+  type AttendanceImpactBooking,
 } from "@/app/actions/attendance";
 
 import { EmployeeAttendanceHistoryDialog } from "./EmployeeAttendanceHistoryDialog";
+import { AttendanceImpactDialog } from "./AttendanceImpactDialog";
 
 type AttendanceData = {
   employee: Employee & { user: { name: string } };
   attendance: EmployeeAttendance | null;
 };
+
+/**
+ * Verb fragment used in the impact-confirmation dialog headline.
+ * "Mark Anna as absent anyway" reads better than "Mark Anna as ABSENT
+ * anyway"; this folds the enum to a friendly verb.
+ */
+function statusVerb(status: AttendanceStatus | undefined): string {
+  switch (status) {
+    case "ABSENT":
+      return "absent";
+    case "OFF":
+      return "off";
+    case "LEAVE":
+      return "on leave";
+    default:
+      return "unavailable";
+  }
+}
 
 interface DailyAttendanceTabProps {
   businessId: string;
@@ -118,13 +139,28 @@ export function DailyAttendanceTab({
     });
   };
 
-  const handleStatusChange = async (
+  // Statuses that block this employee from serving bookings on the
+  // target date. Transitioning into one of these orphans every booking
+  // assigned to them — that's the moment we want to show the preview.
+  const BLOCKING_STATUSES: ReadonlySet<AttendanceStatus> = new Set([
+    "ABSENT",
+    "OFF",
+    "LEAVE",
+  ]);
+
+  const [pendingImpact, setPendingImpact] = useState<{
+    employeeId: number;
+    employeeName: string;
+    newStatus: AttendanceStatus;
+    bookings: AttendanceImpactBooking[];
+  } | null>(null);
+  const [impactApplying, setImpactApplying] = useState(false);
+
+  const applyStatusChange = async (
     employeeId: number,
     newStatus: AttendanceStatus,
   ) => {
-    // Optimistic update
     addOptimisticUpdate({ employeeId, status: newStatus });
-
     const result = await updateAttendanceStatus(
       employeeId,
       currentDate,
@@ -132,7 +168,53 @@ export function DailyAttendanceTab({
     );
     if (!result.success) {
       toast.error("Failed to update status");
-      router.refresh(); // Revert on failure by refreshing
+      router.refresh();
+    }
+  };
+
+  const handleStatusChange = async (
+    employeeId: number,
+    newStatus: AttendanceStatus,
+  ) => {
+    // Non-blocking transitions (PRESENT, LATE) skip the preview — there
+    // are no bookings to orphan.
+    if (!BLOCKING_STATUSES.has(newStatus)) {
+      await applyStatusChange(employeeId, newStatus);
+      return;
+    }
+
+    // Run the preview before mutating. If zero bookings would be
+    // affected, apply silently — no point in a confirmation dialog
+    // that says "0 bookings will be affected".
+    const preview = await previewAttendanceImpactAction(employeeId, currentDate);
+    if (!preview.success) {
+      // Fall through to normal apply path — failing the preview should
+      // not block the manager from doing their job.
+      await applyStatusChange(employeeId, newStatus);
+      return;
+    }
+    if (preview.bookings.length === 0) {
+      await applyStatusChange(employeeId, newStatus);
+      return;
+    }
+
+    const employee = optimisticData.find((d) => d.employee.id === employeeId);
+    setPendingImpact({
+      employeeId,
+      employeeName: employee?.employee.user.name ?? `Employee #${employeeId}`,
+      newStatus,
+      bookings: preview.bookings,
+    });
+  };
+
+  const confirmPendingImpact = async () => {
+    if (!pendingImpact) return;
+    setImpactApplying(true);
+    try {
+      await applyStatusChange(pendingImpact.employeeId, pendingImpact.newStatus);
+    } finally {
+      setImpactApplying(false);
+      setPendingImpact(null);
     }
   };
 
@@ -178,6 +260,16 @@ export function DailyAttendanceTab({
         employee={selectedEmployee}
         open={!!selectedEmployee}
         onOpenChange={(open) => !open && setSelectedEmployee(null)}
+      />
+
+      <AttendanceImpactDialog
+        open={!!pendingImpact}
+        onOpenChange={(open) => !open && !impactApplying && setPendingImpact(null)}
+        employeeName={pendingImpact?.employeeName ?? ""}
+        newStatusLabel={statusVerb(pendingImpact?.newStatus)}
+        bookings={pendingImpact?.bookings ?? []}
+        loading={impactApplying}
+        onConfirm={confirmPendingImpact}
       />
 
       {/* Date Navigator */}

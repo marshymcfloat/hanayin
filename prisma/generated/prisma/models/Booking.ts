@@ -33,6 +33,7 @@ export type BookingAvgAggregateOutputType = {
   total_discount: number | null
   downpayment: number | null
   sale_event_id: number | null
+  reschedule_count: number | null
 }
 
 export type BookingSumAggregateOutputType = {
@@ -42,6 +43,7 @@ export type BookingSumAggregateOutputType = {
   total_discount: number | null
   downpayment: number | null
   sale_event_id: number | null
+  reschedule_count: number | null
 }
 
 export type BookingMinAggregateOutputType = {
@@ -70,6 +72,10 @@ export type BookingMinAggregateOutputType = {
   cancelled_at: Date | null
   cancelled_by_id: string | null
   cancellation_reason: string | null
+  cancelled_by_customer: boolean | null
+  rescheduled_at: Date | null
+  reschedule_count: number | null
+  is_demo: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -100,6 +106,10 @@ export type BookingMaxAggregateOutputType = {
   cancelled_at: Date | null
   cancelled_by_id: string | null
   cancellation_reason: string | null
+  cancelled_by_customer: boolean | null
+  rescheduled_at: Date | null
+  reschedule_count: number | null
+  is_demo: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -130,6 +140,10 @@ export type BookingCountAggregateOutputType = {
   cancelled_at: number
   cancelled_by_id: number
   cancellation_reason: number
+  cancelled_by_customer: number
+  rescheduled_at: number
+  reschedule_count: number
+  is_demo: number
   created_at: number
   updated_at: number
   _all: number
@@ -143,6 +157,7 @@ export type BookingAvgAggregateInputType = {
   total_discount?: true
   downpayment?: true
   sale_event_id?: true
+  reschedule_count?: true
 }
 
 export type BookingSumAggregateInputType = {
@@ -152,6 +167,7 @@ export type BookingSumAggregateInputType = {
   total_discount?: true
   downpayment?: true
   sale_event_id?: true
+  reschedule_count?: true
 }
 
 export type BookingMinAggregateInputType = {
@@ -180,6 +196,10 @@ export type BookingMinAggregateInputType = {
   cancelled_at?: true
   cancelled_by_id?: true
   cancellation_reason?: true
+  cancelled_by_customer?: true
+  rescheduled_at?: true
+  reschedule_count?: true
+  is_demo?: true
   created_at?: true
   updated_at?: true
 }
@@ -210,6 +230,10 @@ export type BookingMaxAggregateInputType = {
   cancelled_at?: true
   cancelled_by_id?: true
   cancellation_reason?: true
+  cancelled_by_customer?: true
+  rescheduled_at?: true
+  reschedule_count?: true
+  is_demo?: true
   created_at?: true
   updated_at?: true
 }
@@ -240,6 +264,10 @@ export type BookingCountAggregateInputType = {
   cancelled_at?: true
   cancelled_by_id?: true
   cancellation_reason?: true
+  cancelled_by_customer?: true
+  rescheduled_at?: true
+  reschedule_count?: true
+  is_demo?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -357,6 +385,10 @@ export type BookingGroupByOutputType = {
   cancelled_at: Date | null
   cancelled_by_id: string | null
   cancellation_reason: string | null
+  cancelled_by_customer: boolean
+  rescheduled_at: Date | null
+  reschedule_count: number
+  is_demo: boolean
   created_at: Date
   updated_at: Date
   _count: BookingCountAggregateOutputType | null
@@ -410,6 +442,10 @@ export type BookingWhereInput = {
   cancelled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   cancelled_by_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   cancellation_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
+  cancelled_by_customer?: Prisma.BoolFilter<"Booking"> | boolean
+  rescheduled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  reschedule_count?: Prisma.IntFilter<"Booking"> | number
+  is_demo?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
@@ -449,6 +485,10 @@ export type BookingOrderByWithRelationInput = {
   cancelled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelled_by_id?: Prisma.SortOrderInput | Prisma.SortOrder
   cancellation_reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelled_by_customer?: Prisma.SortOrder
+  rescheduled_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  reschedule_count?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
@@ -491,6 +531,10 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   cancelled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   cancelled_by_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   cancellation_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
+  cancelled_by_customer?: Prisma.BoolFilter<"Booking"> | boolean
+  rescheduled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  reschedule_count?: Prisma.IntFilter<"Booking"> | number
+  is_demo?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
@@ -530,6 +574,10 @@ export type BookingOrderByWithAggregationInput = {
   cancelled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelled_by_id?: Prisma.SortOrderInput | Prisma.SortOrder
   cancellation_reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelled_by_customer?: Prisma.SortOrder
+  rescheduled_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  reschedule_count?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.BookingCountOrderByAggregateInput
@@ -568,6 +616,10 @@ export type BookingScalarWhereWithAggregatesInput = {
   cancelled_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
   cancelled_by_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   cancellation_reason?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  cancelled_by_customer?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
+  rescheduled_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
+  reschedule_count?: Prisma.IntWithAggregatesFilter<"Booking"> | number
+  is_demo?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
 }
@@ -593,6 +645,10 @@ export type BookingCreateInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -632,6 +688,10 @@ export type BookingUncheckedCreateInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -662,6 +722,10 @@ export type BookingUpdateInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -701,6 +765,10 @@ export type BookingUncheckedUpdateInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -736,6 +804,10 @@ export type BookingCreateManyInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -761,6 +833,10 @@ export type BookingUpdateManyMutationInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -791,6 +867,10 @@ export type BookingUncheckedUpdateManyInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -831,6 +911,10 @@ export type BookingCountOrderByAggregateInput = {
   cancelled_at?: Prisma.SortOrder
   cancelled_by_id?: Prisma.SortOrder
   cancellation_reason?: Prisma.SortOrder
+  cancelled_by_customer?: Prisma.SortOrder
+  rescheduled_at?: Prisma.SortOrder
+  reschedule_count?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -842,6 +926,7 @@ export type BookingAvgOrderByAggregateInput = {
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrder
   sale_event_id?: Prisma.SortOrder
+  reschedule_count?: Prisma.SortOrder
 }
 
 export type BookingMaxOrderByAggregateInput = {
@@ -870,6 +955,10 @@ export type BookingMaxOrderByAggregateInput = {
   cancelled_at?: Prisma.SortOrder
   cancelled_by_id?: Prisma.SortOrder
   cancellation_reason?: Prisma.SortOrder
+  cancelled_by_customer?: Prisma.SortOrder
+  rescheduled_at?: Prisma.SortOrder
+  reschedule_count?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -900,6 +989,10 @@ export type BookingMinOrderByAggregateInput = {
   cancelled_at?: Prisma.SortOrder
   cancelled_by_id?: Prisma.SortOrder
   cancellation_reason?: Prisma.SortOrder
+  cancelled_by_customer?: Prisma.SortOrder
+  rescheduled_at?: Prisma.SortOrder
+  reschedule_count?: Prisma.SortOrder
+  is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -911,6 +1004,7 @@ export type BookingSumOrderByAggregateInput = {
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrder
   sale_event_id?: Prisma.SortOrder
+  reschedule_count?: Prisma.SortOrder
 }
 
 export type BookingScalarRelationFilter = {
@@ -1200,6 +1294,10 @@ export type BookingCreateWithoutBusinessInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1237,6 +1335,10 @@ export type BookingUncheckedCreateWithoutBusinessInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1301,6 +1403,10 @@ export type BookingScalarWhereInput = {
   cancelled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   cancelled_by_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   cancellation_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
+  cancelled_by_customer?: Prisma.BoolFilter<"Booking"> | boolean
+  rescheduled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  reschedule_count?: Prisma.IntFilter<"Booking"> | number
+  is_demo?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
 }
@@ -1326,6 +1432,10 @@ export type BookingCreateWithoutSale_eventInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1363,6 +1473,10 @@ export type BookingUncheckedCreateWithoutSale_eventInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1419,6 +1533,10 @@ export type BookingCreateWithoutCancelled_byInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1456,6 +1574,10 @@ export type BookingUncheckedCreateWithoutCancelled_byInput = {
   sale_event_id?: number | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1512,6 +1634,10 @@ export type BookingCreateWithoutCustomerInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
@@ -1549,6 +1675,10 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1605,6 +1735,10 @@ export type BookingCreateWithoutPaymentsInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1643,6 +1777,10 @@ export type BookingUncheckedCreateWithoutPaymentsInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1688,6 +1826,10 @@ export type BookingUpdateWithoutPaymentsInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -1726,6 +1868,10 @@ export type BookingUncheckedUpdateWithoutPaymentsInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -1755,6 +1901,10 @@ export type BookingCreateWithoutVouchersInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1793,6 +1943,10 @@ export type BookingUncheckedCreateWithoutVouchersInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
@@ -1838,6 +1992,10 @@ export type BookingUpdateWithoutVouchersInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -1876,6 +2034,10 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
@@ -1905,6 +2067,10 @@ export type BookingCreateWithoutAvailed_servicesInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -1943,6 +2109,10 @@ export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1988,6 +2158,10 @@ export type BookingUpdateWithoutAvailed_servicesInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -2026,6 +2200,10 @@ export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -2055,6 +2233,10 @@ export type BookingCreateWithoutNotesInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -2093,6 +2275,10 @@ export type BookingUncheckedCreateWithoutNotesInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -2138,6 +2324,10 @@ export type BookingUpdateWithoutNotesInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -2176,6 +2366,10 @@ export type BookingUncheckedUpdateWithoutNotesInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -2205,6 +2399,10 @@ export type BookingCreateWithoutPrice_adjustmentsInput = {
   capacity_override_note?: string | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -2243,6 +2441,10 @@ export type BookingUncheckedCreateWithoutPrice_adjustmentsInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -2288,6 +2490,10 @@ export type BookingUpdateWithoutPrice_adjustmentsInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -2326,6 +2532,10 @@ export type BookingUncheckedUpdateWithoutPrice_adjustmentsInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -2359,6 +2569,10 @@ export type BookingCreateManyBusinessInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -2384,6 +2598,10 @@ export type BookingUpdateWithoutBusinessInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -2421,6 +2639,10 @@ export type BookingUncheckedUpdateWithoutBusinessInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -2455,6 +2677,10 @@ export type BookingUncheckedUpdateManyWithoutBusinessInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2484,6 +2710,10 @@ export type BookingCreateManySale_eventInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -2509,6 +2739,10 @@ export type BookingUpdateWithoutSale_eventInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -2546,6 +2780,10 @@ export type BookingUncheckedUpdateWithoutSale_eventInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -2580,6 +2818,10 @@ export type BookingUncheckedUpdateManyWithoutSale_eventInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2609,6 +2851,10 @@ export type BookingCreateManyCancelled_byInput = {
   sale_event_id?: number | null
   cancelled_at?: Date | string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -2634,6 +2880,10 @@ export type BookingUpdateWithoutCancelled_byInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
@@ -2671,6 +2921,10 @@ export type BookingUncheckedUpdateWithoutCancelled_byInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -2705,6 +2959,10 @@ export type BookingUncheckedUpdateManyWithoutCancelled_byInput = {
   sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2734,6 +2992,10 @@ export type BookingCreateManyCustomerInput = {
   cancelled_at?: Date | string | null
   cancelled_by_id?: string | null
   cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -2759,6 +3021,10 @@ export type BookingUpdateWithoutCustomerInput = {
   capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
@@ -2796,6 +3062,10 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -2830,6 +3100,10 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2927,6 +3201,10 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   cancelled_at?: boolean
   cancelled_by_id?: boolean
   cancellation_reason?: boolean
+  cancelled_by_customer?: boolean
+  rescheduled_at?: boolean
+  reschedule_count?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.Booking$customerArgs<ExtArgs>
@@ -2967,6 +3245,10 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   cancelled_at?: boolean
   cancelled_by_id?: boolean
   cancellation_reason?: boolean
+  cancelled_by_customer?: boolean
+  rescheduled_at?: boolean
+  reschedule_count?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.Booking$customerArgs<ExtArgs>
@@ -3001,6 +3283,10 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   cancelled_at?: boolean
   cancelled_by_id?: boolean
   cancellation_reason?: boolean
+  cancelled_by_customer?: boolean
+  rescheduled_at?: boolean
+  reschedule_count?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.Booking$customerArgs<ExtArgs>
@@ -3035,11 +3321,15 @@ export type BookingSelectScalar = {
   cancelled_at?: boolean
   cancelled_by_id?: boolean
   cancellation_reason?: boolean
+  cancelled_by_customer?: boolean
+  rescheduled_at?: boolean
+  reschedule_count?: boolean
+  is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "is_anonymous_walk_in" | "customer_label" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "sale_event_id" | "cancelled_at" | "cancelled_by_id" | "cancellation_reason" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "is_anonymous_walk_in" | "customer_label" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "sale_event_id" | "cancelled_at" | "cancelled_by_id" | "cancellation_reason" | "cancelled_by_customer" | "rescheduled_at" | "reschedule_count" | "is_demo" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.Booking$customerArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -3104,6 +3394,10 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     cancelled_at: Date | null
     cancelled_by_id: string | null
     cancellation_reason: string | null
+    cancelled_by_customer: boolean
+    rescheduled_at: Date | null
+    reschedule_count: number
+    is_demo: boolean
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["booking"]>
@@ -3563,6 +3857,10 @@ export interface BookingFieldRefs {
   readonly cancelled_at: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly cancelled_by_id: Prisma.FieldRef<"Booking", 'String'>
   readonly cancellation_reason: Prisma.FieldRef<"Booking", 'String'>
+  readonly cancelled_by_customer: Prisma.FieldRef<"Booking", 'Boolean'>
+  readonly rescheduled_at: Prisma.FieldRef<"Booking", 'DateTime'>
+  readonly reschedule_count: Prisma.FieldRef<"Booking", 'Int'>
+  readonly is_demo: Prisma.FieldRef<"Booking", 'Boolean'>
   readonly created_at: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Booking", 'DateTime'>
 }

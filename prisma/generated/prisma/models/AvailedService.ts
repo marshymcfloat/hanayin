@@ -38,6 +38,7 @@ export type AvailedServiceAvgAggregateOutputType = {
   package_id: number | null
   served_by_id: number | null
   served_by_owner_id: number | null
+  paid_in_payslip_id: number | null
 }
 
 export type AvailedServiceSumAggregateOutputType = {
@@ -52,6 +53,7 @@ export type AvailedServiceSumAggregateOutputType = {
   package_id: number | null
   served_by_id: number | null
   served_by_owner_id: number | null
+  paid_in_payslip_id: number | null
 }
 
 export type AvailedServiceMinAggregateOutputType = {
@@ -75,6 +77,7 @@ export type AvailedServiceMinAggregateOutputType = {
   served_by_type: $Enums.ServiceProviderType | null
   scheduled_at: Date | null
   estimated_end: Date | null
+  paid_in_payslip_id: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -100,6 +103,7 @@ export type AvailedServiceMaxAggregateOutputType = {
   served_by_type: $Enums.ServiceProviderType | null
   scheduled_at: Date | null
   estimated_end: Date | null
+  paid_in_payslip_id: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -125,6 +129,7 @@ export type AvailedServiceCountAggregateOutputType = {
   served_by_type: number
   scheduled_at: number
   estimated_end: number
+  paid_in_payslip_id: number
   created_at: number
   updated_at: number
   _all: number
@@ -143,6 +148,7 @@ export type AvailedServiceAvgAggregateInputType = {
   package_id?: true
   served_by_id?: true
   served_by_owner_id?: true
+  paid_in_payslip_id?: true
 }
 
 export type AvailedServiceSumAggregateInputType = {
@@ -157,6 +163,7 @@ export type AvailedServiceSumAggregateInputType = {
   package_id?: true
   served_by_id?: true
   served_by_owner_id?: true
+  paid_in_payslip_id?: true
 }
 
 export type AvailedServiceMinAggregateInputType = {
@@ -180,6 +187,7 @@ export type AvailedServiceMinAggregateInputType = {
   served_by_type?: true
   scheduled_at?: true
   estimated_end?: true
+  paid_in_payslip_id?: true
   created_at?: true
   updated_at?: true
 }
@@ -205,6 +213,7 @@ export type AvailedServiceMaxAggregateInputType = {
   served_by_type?: true
   scheduled_at?: true
   estimated_end?: true
+  paid_in_payslip_id?: true
   created_at?: true
   updated_at?: true
 }
@@ -230,6 +239,7 @@ export type AvailedServiceCountAggregateInputType = {
   served_by_type?: true
   scheduled_at?: true
   estimated_end?: true
+  paid_in_payslip_id?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -342,6 +352,7 @@ export type AvailedServiceGroupByOutputType = {
   served_by_type: $Enums.ServiceProviderType | null
   scheduled_at: Date | null
   estimated_end: Date | null
+  paid_in_payslip_id: number | null
   created_at: Date
   updated_at: Date
   _count: AvailedServiceCountAggregateOutputType | null
@@ -390,6 +401,7 @@ export type AvailedServiceWhereInput = {
   served_by_type?: Prisma.EnumServiceProviderTypeNullableFilter<"AvailedService"> | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  paid_in_payslip_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
   created_at?: Prisma.DateTimeFilter<"AvailedService"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"AvailedService"> | Date | string
   booking?: Prisma.XOR<Prisma.BookingScalarRelationFilter, Prisma.BookingWhereInput>
@@ -398,6 +410,7 @@ export type AvailedServiceWhereInput = {
   served_by?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   served_by_owner?: Prisma.XOR<Prisma.OwnerNullableScalarRelationFilter, Prisma.OwnerWhereInput> | null
   price_adjustments?: Prisma.BookingPriceAdjustmentListRelationFilter
+  paid_in_payslip?: Prisma.XOR<Prisma.PayslipNullableScalarRelationFilter, Prisma.PayslipWhereInput> | null
 }
 
 export type AvailedServiceOrderByWithRelationInput = {
@@ -421,6 +434,7 @@ export type AvailedServiceOrderByWithRelationInput = {
   served_by_type?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   estimated_end?: Prisma.SortOrderInput | Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   booking?: Prisma.BookingOrderByWithRelationInput
@@ -429,6 +443,7 @@ export type AvailedServiceOrderByWithRelationInput = {
   served_by?: Prisma.EmployeeOrderByWithRelationInput
   served_by_owner?: Prisma.OwnerOrderByWithRelationInput
   price_adjustments?: Prisma.BookingPriceAdjustmentOrderByRelationAggregateInput
+  paid_in_payslip?: Prisma.PayslipOrderByWithRelationInput
 }
 
 export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
@@ -455,6 +470,7 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
   served_by_type?: Prisma.EnumServiceProviderTypeNullableFilter<"AvailedService"> | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  paid_in_payslip_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
   created_at?: Prisma.DateTimeFilter<"AvailedService"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"AvailedService"> | Date | string
   booking?: Prisma.XOR<Prisma.BookingScalarRelationFilter, Prisma.BookingWhereInput>
@@ -463,6 +479,7 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
   served_by?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   served_by_owner?: Prisma.XOR<Prisma.OwnerNullableScalarRelationFilter, Prisma.OwnerWhereInput> | null
   price_adjustments?: Prisma.BookingPriceAdjustmentListRelationFilter
+  paid_in_payslip?: Prisma.XOR<Prisma.PayslipNullableScalarRelationFilter, Prisma.PayslipWhereInput> | null
 }, "id">
 
 export type AvailedServiceOrderByWithAggregationInput = {
@@ -486,6 +503,7 @@ export type AvailedServiceOrderByWithAggregationInput = {
   served_by_type?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   estimated_end?: Prisma.SortOrderInput | Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.AvailedServiceCountOrderByAggregateInput
@@ -519,6 +537,7 @@ export type AvailedServiceScalarWhereWithAggregatesInput = {
   served_by_type?: Prisma.EnumServiceProviderTypeNullableWithAggregatesFilter<"AvailedService"> | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
+  paid_in_payslip_id?: Prisma.IntNullableWithAggregatesFilter<"AvailedService"> | number | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"AvailedService"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"AvailedService"> | Date | string
 }
@@ -546,6 +565,7 @@ export type AvailedServiceCreateInput = {
   served_by?: Prisma.EmployeeCreateNestedOneWithoutServed_servicesInput
   served_by_owner?: Prisma.OwnerCreateNestedOneWithoutServed_servicesInput
   price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutAvailed_serviceInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAvailed_servicesInput
 }
 
 export type AvailedServiceUncheckedCreateInput = {
@@ -569,6 +589,7 @@ export type AvailedServiceUncheckedCreateInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutAvailed_serviceInput
@@ -597,6 +618,7 @@ export type AvailedServiceUpdateInput = {
   served_by?: Prisma.EmployeeUpdateOneWithoutServed_servicesNestedInput
   served_by_owner?: Prisma.OwnerUpdateOneWithoutServed_servicesNestedInput
   price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutAvailed_serviceNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAvailed_servicesNestedInput
 }
 
 export type AvailedServiceUncheckedUpdateInput = {
@@ -620,6 +642,7 @@ export type AvailedServiceUncheckedUpdateInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutAvailed_serviceNestedInput
@@ -646,6 +669,7 @@ export type AvailedServiceCreateManyInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -690,6 +714,7 @@ export type AvailedServiceUncheckedUpdateManyInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -725,6 +750,7 @@ export type AvailedServiceCountOrderByAggregateInput = {
   served_by_type?: Prisma.SortOrder
   scheduled_at?: Prisma.SortOrder
   estimated_end?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -741,6 +767,7 @@ export type AvailedServiceAvgOrderByAggregateInput = {
   package_id?: Prisma.SortOrder
   served_by_id?: Prisma.SortOrder
   served_by_owner_id?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
 }
 
 export type AvailedServiceMaxOrderByAggregateInput = {
@@ -764,6 +791,7 @@ export type AvailedServiceMaxOrderByAggregateInput = {
   served_by_type?: Prisma.SortOrder
   scheduled_at?: Prisma.SortOrder
   estimated_end?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -789,6 +817,7 @@ export type AvailedServiceMinOrderByAggregateInput = {
   served_by_type?: Prisma.SortOrder
   scheduled_at?: Prisma.SortOrder
   estimated_end?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -805,6 +834,7 @@ export type AvailedServiceSumOrderByAggregateInput = {
   package_id?: Prisma.SortOrder
   served_by_id?: Prisma.SortOrder
   served_by_owner_id?: Prisma.SortOrder
+  paid_in_payslip_id?: Prisma.SortOrder
 }
 
 export type AvailedServiceNullableScalarRelationFilter = {
@@ -851,6 +881,48 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput = {
   connect?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
   update?: Prisma.AvailedServiceUpdateWithWhereUniqueWithoutServed_byInput | Prisma.AvailedServiceUpdateWithWhereUniqueWithoutServed_byInput[]
   updateMany?: Prisma.AvailedServiceUpdateManyWithWhereWithoutServed_byInput | Prisma.AvailedServiceUpdateManyWithWhereWithoutServed_byInput[]
+  deleteMany?: Prisma.AvailedServiceScalarWhereInput | Prisma.AvailedServiceScalarWhereInput[]
+}
+
+export type AvailedServiceCreateNestedManyWithoutPaid_in_payslipInput = {
+  create?: Prisma.XOR<Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput[] | Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.AvailedServiceCreateManyPaid_in_payslipInputEnvelope
+  connect?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+}
+
+export type AvailedServiceUncheckedCreateNestedManyWithoutPaid_in_payslipInput = {
+  create?: Prisma.XOR<Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput[] | Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.AvailedServiceCreateManyPaid_in_payslipInputEnvelope
+  connect?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+}
+
+export type AvailedServiceUpdateManyWithoutPaid_in_payslipNestedInput = {
+  create?: Prisma.XOR<Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput[] | Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput[]
+  upsert?: Prisma.AvailedServiceUpsertWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.AvailedServiceUpsertWithWhereUniqueWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.AvailedServiceCreateManyPaid_in_payslipInputEnvelope
+  set?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  disconnect?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  delete?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  connect?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  update?: Prisma.AvailedServiceUpdateWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.AvailedServiceUpdateWithWhereUniqueWithoutPaid_in_payslipInput[]
+  updateMany?: Prisma.AvailedServiceUpdateManyWithWhereWithoutPaid_in_payslipInput | Prisma.AvailedServiceUpdateManyWithWhereWithoutPaid_in_payslipInput[]
+  deleteMany?: Prisma.AvailedServiceScalarWhereInput | Prisma.AvailedServiceScalarWhereInput[]
+}
+
+export type AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput = {
+  create?: Prisma.XOR<Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput> | Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput[] | Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput[]
+  connectOrCreate?: Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput | Prisma.AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput[]
+  upsert?: Prisma.AvailedServiceUpsertWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.AvailedServiceUpsertWithWhereUniqueWithoutPaid_in_payslipInput[]
+  createMany?: Prisma.AvailedServiceCreateManyPaid_in_payslipInputEnvelope
+  set?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  disconnect?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  delete?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  connect?: Prisma.AvailedServiceWhereUniqueInput | Prisma.AvailedServiceWhereUniqueInput[]
+  update?: Prisma.AvailedServiceUpdateWithWhereUniqueWithoutPaid_in_payslipInput | Prisma.AvailedServiceUpdateWithWhereUniqueWithoutPaid_in_payslipInput[]
+  updateMany?: Prisma.AvailedServiceUpdateManyWithWhereWithoutPaid_in_payslipInput | Prisma.AvailedServiceUpdateManyWithWhereWithoutPaid_in_payslipInput[]
   deleteMany?: Prisma.AvailedServiceScalarWhereInput | Prisma.AvailedServiceScalarWhereInput[]
 }
 
@@ -1068,6 +1140,7 @@ export type AvailedServiceCreateWithoutServed_byInput = {
   package?: Prisma.ServicePackageCreateNestedOneWithoutAvailed_servicesInput
   served_by_owner?: Prisma.OwnerCreateNestedOneWithoutServed_servicesInput
   price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutAvailed_serviceInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAvailed_servicesInput
 }
 
 export type AvailedServiceUncheckedCreateWithoutServed_byInput = {
@@ -1090,6 +1163,7 @@ export type AvailedServiceUncheckedCreateWithoutServed_byInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutAvailed_serviceInput
@@ -1145,8 +1219,86 @@ export type AvailedServiceScalarWhereInput = {
   served_by_type?: Prisma.EnumServiceProviderTypeNullableFilter<"AvailedService"> | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  paid_in_payslip_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
   created_at?: Prisma.DateTimeFilter<"AvailedService"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"AvailedService"> | Date | string
+}
+
+export type AvailedServiceCreateWithoutPaid_in_payslipInput = {
+  price: number
+  estimated_cost?: number
+  discount?: number
+  discount_reason?: string | null
+  final_price: number
+  commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
+  served_by_type?: $Enums.ServiceProviderType | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  booking: Prisma.BookingCreateNestedOneWithoutAvailed_servicesInput
+  service: Prisma.ServiceCreateNestedOneWithoutAvailed_servicesInput
+  package?: Prisma.ServicePackageCreateNestedOneWithoutAvailed_servicesInput
+  served_by?: Prisma.EmployeeCreateNestedOneWithoutServed_servicesInput
+  served_by_owner?: Prisma.OwnerCreateNestedOneWithoutServed_servicesInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutAvailed_serviceInput
+}
+
+export type AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput = {
+  id?: number
+  price: number
+  estimated_cost?: number
+  discount?: number
+  discount_reason?: string | null
+  final_price: number
+  commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
+  booking_id: number
+  service_id: number
+  package_id?: number | null
+  served_by_id?: number | null
+  served_by_owner_id?: number | null
+  served_by_type?: $Enums.ServiceProviderType | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutAvailed_serviceInput
+}
+
+export type AvailedServiceCreateOrConnectWithoutPaid_in_payslipInput = {
+  where: Prisma.AvailedServiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput>
+}
+
+export type AvailedServiceCreateManyPaid_in_payslipInputEnvelope = {
+  data: Prisma.AvailedServiceCreateManyPaid_in_payslipInput | Prisma.AvailedServiceCreateManyPaid_in_payslipInput[]
+  skipDuplicates?: boolean
+}
+
+export type AvailedServiceUpsertWithWhereUniqueWithoutPaid_in_payslipInput = {
+  where: Prisma.AvailedServiceWhereUniqueInput
+  update: Prisma.XOR<Prisma.AvailedServiceUpdateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedUpdateWithoutPaid_in_payslipInput>
+  create: Prisma.XOR<Prisma.AvailedServiceCreateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput>
+}
+
+export type AvailedServiceUpdateWithWhereUniqueWithoutPaid_in_payslipInput = {
+  where: Prisma.AvailedServiceWhereUniqueInput
+  data: Prisma.XOR<Prisma.AvailedServiceUpdateWithoutPaid_in_payslipInput, Prisma.AvailedServiceUncheckedUpdateWithoutPaid_in_payslipInput>
+}
+
+export type AvailedServiceUpdateManyWithWhereWithoutPaid_in_payslipInput = {
+  where: Prisma.AvailedServiceScalarWhereInput
+  data: Prisma.XOR<Prisma.AvailedServiceUpdateManyMutationInput, Prisma.AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipInput>
 }
 
 export type AvailedServiceCreateWithoutServed_by_ownerInput = {
@@ -1171,6 +1323,7 @@ export type AvailedServiceCreateWithoutServed_by_ownerInput = {
   package?: Prisma.ServicePackageCreateNestedOneWithoutAvailed_servicesInput
   served_by?: Prisma.EmployeeCreateNestedOneWithoutServed_servicesInput
   price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutAvailed_serviceInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAvailed_servicesInput
 }
 
 export type AvailedServiceUncheckedCreateWithoutServed_by_ownerInput = {
@@ -1193,6 +1346,7 @@ export type AvailedServiceUncheckedCreateWithoutServed_by_ownerInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutAvailed_serviceInput
@@ -1246,6 +1400,7 @@ export type AvailedServiceCreateWithoutServiceInput = {
   served_by?: Prisma.EmployeeCreateNestedOneWithoutServed_servicesInput
   served_by_owner?: Prisma.OwnerCreateNestedOneWithoutServed_servicesInput
   price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutAvailed_serviceInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAvailed_servicesInput
 }
 
 export type AvailedServiceUncheckedCreateWithoutServiceInput = {
@@ -1268,6 +1423,7 @@ export type AvailedServiceUncheckedCreateWithoutServiceInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutAvailed_serviceInput
@@ -1321,6 +1477,7 @@ export type AvailedServiceCreateWithoutPackageInput = {
   served_by?: Prisma.EmployeeCreateNestedOneWithoutServed_servicesInput
   served_by_owner?: Prisma.OwnerCreateNestedOneWithoutServed_servicesInput
   price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutAvailed_serviceInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAvailed_servicesInput
 }
 
 export type AvailedServiceUncheckedCreateWithoutPackageInput = {
@@ -1343,6 +1500,7 @@ export type AvailedServiceUncheckedCreateWithoutPackageInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutAvailed_serviceInput
@@ -1396,6 +1554,7 @@ export type AvailedServiceCreateWithoutBookingInput = {
   served_by?: Prisma.EmployeeCreateNestedOneWithoutServed_servicesInput
   served_by_owner?: Prisma.OwnerCreateNestedOneWithoutServed_servicesInput
   price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutAvailed_serviceInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAvailed_servicesInput
 }
 
 export type AvailedServiceUncheckedCreateWithoutBookingInput = {
@@ -1418,6 +1577,7 @@ export type AvailedServiceUncheckedCreateWithoutBookingInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutAvailed_serviceInput
@@ -1471,6 +1631,7 @@ export type AvailedServiceCreateWithoutPrice_adjustmentsInput = {
   package?: Prisma.ServicePackageCreateNestedOneWithoutAvailed_servicesInput
   served_by?: Prisma.EmployeeCreateNestedOneWithoutServed_servicesInput
   served_by_owner?: Prisma.OwnerCreateNestedOneWithoutServed_servicesInput
+  paid_in_payslip?: Prisma.PayslipCreateNestedOneWithoutAvailed_servicesInput
 }
 
 export type AvailedServiceUncheckedCreateWithoutPrice_adjustmentsInput = {
@@ -1494,6 +1655,7 @@ export type AvailedServiceUncheckedCreateWithoutPrice_adjustmentsInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1536,6 +1698,7 @@ export type AvailedServiceUpdateWithoutPrice_adjustmentsInput = {
   package?: Prisma.ServicePackageUpdateOneWithoutAvailed_servicesNestedInput
   served_by?: Prisma.EmployeeUpdateOneWithoutServed_servicesNestedInput
   served_by_owner?: Prisma.OwnerUpdateOneWithoutServed_servicesNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAvailed_servicesNestedInput
 }
 
 export type AvailedServiceUncheckedUpdateWithoutPrice_adjustmentsInput = {
@@ -1559,6 +1722,7 @@ export type AvailedServiceUncheckedUpdateWithoutPrice_adjustmentsInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1583,6 +1747,7 @@ export type AvailedServiceCreateManyServed_byInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1609,6 +1774,7 @@ export type AvailedServiceUpdateWithoutServed_byInput = {
   package?: Prisma.ServicePackageUpdateOneWithoutAvailed_servicesNestedInput
   served_by_owner?: Prisma.OwnerUpdateOneWithoutServed_servicesNestedInput
   price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutAvailed_serviceNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAvailed_servicesNestedInput
 }
 
 export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
@@ -1631,6 +1797,7 @@ export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutAvailed_serviceNestedInput
@@ -1652,6 +1819,108 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_byInput = {
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  served_by_owner_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AvailedServiceCreateManyPaid_in_payslipInput = {
+  id?: number
+  price: number
+  estimated_cost?: number
+  discount?: number
+  discount_reason?: string | null
+  final_price: number
+  commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
+  booking_id: number
+  service_id: number
+  package_id?: number | null
+  served_by_id?: number | null
+  served_by_owner_id?: number | null
+  served_by_type?: $Enums.ServiceProviderType | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+}
+
+export type AvailedServiceUpdateWithoutPaid_in_payslipInput = {
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  final_price?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  booking?: Prisma.BookingUpdateOneRequiredWithoutAvailed_servicesNestedInput
+  service?: Prisma.ServiceUpdateOneRequiredWithoutAvailed_servicesNestedInput
+  package?: Prisma.ServicePackageUpdateOneWithoutAvailed_servicesNestedInput
+  served_by?: Prisma.EmployeeUpdateOneWithoutServed_servicesNestedInput
+  served_by_owner?: Prisma.OwnerUpdateOneWithoutServed_servicesNestedInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutAvailed_serviceNestedInput
+}
+
+export type AvailedServiceUncheckedUpdateWithoutPaid_in_payslipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  final_price?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  booking_id?: Prisma.IntFieldUpdateOperationsInput | number
+  service_id?: Prisma.IntFieldUpdateOperationsInput | number
+  package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  served_by_owner_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutAvailed_serviceNestedInput
+}
+
+export type AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  final_price?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  booking_id?: Prisma.IntFieldUpdateOperationsInput | number
+  service_id?: Prisma.IntFieldUpdateOperationsInput | number
+  package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_owner_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1680,6 +1949,7 @@ export type AvailedServiceCreateManyServed_by_ownerInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1706,6 +1976,7 @@ export type AvailedServiceUpdateWithoutServed_by_ownerInput = {
   package?: Prisma.ServicePackageUpdateOneWithoutAvailed_servicesNestedInput
   served_by?: Prisma.EmployeeUpdateOneWithoutServed_servicesNestedInput
   price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutAvailed_serviceNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAvailed_servicesNestedInput
 }
 
 export type AvailedServiceUncheckedUpdateWithoutServed_by_ownerInput = {
@@ -1728,6 +1999,7 @@ export type AvailedServiceUncheckedUpdateWithoutServed_by_ownerInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutAvailed_serviceNestedInput
@@ -1753,6 +2025,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1777,6 +2050,7 @@ export type AvailedServiceCreateManyServiceInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1803,6 +2077,7 @@ export type AvailedServiceUpdateWithoutServiceInput = {
   served_by?: Prisma.EmployeeUpdateOneWithoutServed_servicesNestedInput
   served_by_owner?: Prisma.OwnerUpdateOneWithoutServed_servicesNestedInput
   price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutAvailed_serviceNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAvailed_servicesNestedInput
 }
 
 export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
@@ -1825,6 +2100,7 @@ export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutAvailed_serviceNestedInput
@@ -1850,6 +2126,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutServiceInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1874,6 +2151,7 @@ export type AvailedServiceCreateManyPackageInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1900,6 +2178,7 @@ export type AvailedServiceUpdateWithoutPackageInput = {
   served_by?: Prisma.EmployeeUpdateOneWithoutServed_servicesNestedInput
   served_by_owner?: Prisma.OwnerUpdateOneWithoutServed_servicesNestedInput
   price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutAvailed_serviceNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAvailed_servicesNestedInput
 }
 
 export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
@@ -1922,6 +2201,7 @@ export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutAvailed_serviceNestedInput
@@ -1947,6 +2227,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutPackageInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1971,6 +2252,7 @@ export type AvailedServiceCreateManyBookingInput = {
   served_by_type?: $Enums.ServiceProviderType | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  paid_in_payslip_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1997,6 +2279,7 @@ export type AvailedServiceUpdateWithoutBookingInput = {
   served_by?: Prisma.EmployeeUpdateOneWithoutServed_servicesNestedInput
   served_by_owner?: Prisma.OwnerUpdateOneWithoutServed_servicesNestedInput
   price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutAvailed_serviceNestedInput
+  paid_in_payslip?: Prisma.PayslipUpdateOneWithoutAvailed_servicesNestedInput
 }
 
 export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
@@ -2019,6 +2302,7 @@ export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutAvailed_serviceNestedInput
@@ -2044,6 +2328,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutBookingInput = {
   served_by_type?: Prisma.NullableEnumServiceProviderTypeFieldUpdateOperationsInput | $Enums.ServiceProviderType | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_in_payslip_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2100,6 +2385,7 @@ export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.Intern
   served_by_type?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
@@ -2108,6 +2394,7 @@ export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.Intern
   served_by?: boolean | Prisma.AvailedService$served_byArgs<ExtArgs>
   served_by_owner?: boolean | Prisma.AvailedService$served_by_ownerArgs<ExtArgs>
   price_adjustments?: boolean | Prisma.AvailedService$price_adjustmentsArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.AvailedService$paid_in_payslipArgs<ExtArgs>
   _count?: boolean | Prisma.AvailedServiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availedService"]>
 
@@ -2132,6 +2419,7 @@ export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   served_by_type?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
@@ -2139,6 +2427,7 @@ export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   package?: boolean | Prisma.AvailedService$packageArgs<ExtArgs>
   served_by?: boolean | Prisma.AvailedService$served_byArgs<ExtArgs>
   served_by_owner?: boolean | Prisma.AvailedService$served_by_ownerArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.AvailedService$paid_in_payslipArgs<ExtArgs>
 }, ExtArgs["result"]["availedService"]>
 
 export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2162,6 +2451,7 @@ export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   served_by_type?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
@@ -2169,6 +2459,7 @@ export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   package?: boolean | Prisma.AvailedService$packageArgs<ExtArgs>
   served_by?: boolean | Prisma.AvailedService$served_byArgs<ExtArgs>
   served_by_owner?: boolean | Prisma.AvailedService$served_by_ownerArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.AvailedService$paid_in_payslipArgs<ExtArgs>
 }, ExtArgs["result"]["availedService"]>
 
 export type AvailedServiceSelectScalar = {
@@ -2192,11 +2483,12 @@ export type AvailedServiceSelectScalar = {
   served_by_type?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  paid_in_payslip_id?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "estimated_cost" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "cancelled_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "served_by_owner_id" | "served_by_type" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
+export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "estimated_cost" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "cancelled_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "served_by_owner_id" | "served_by_type" | "scheduled_at" | "estimated_end" | "paid_in_payslip_id" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
 export type AvailedServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
@@ -2204,6 +2496,7 @@ export type AvailedServiceInclude<ExtArgs extends runtime.Types.Extensions.Inter
   served_by?: boolean | Prisma.AvailedService$served_byArgs<ExtArgs>
   served_by_owner?: boolean | Prisma.AvailedService$served_by_ownerArgs<ExtArgs>
   price_adjustments?: boolean | Prisma.AvailedService$price_adjustmentsArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.AvailedService$paid_in_payslipArgs<ExtArgs>
   _count?: boolean | Prisma.AvailedServiceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AvailedServiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2212,6 +2505,7 @@ export type AvailedServiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Typ
   package?: boolean | Prisma.AvailedService$packageArgs<ExtArgs>
   served_by?: boolean | Prisma.AvailedService$served_byArgs<ExtArgs>
   served_by_owner?: boolean | Prisma.AvailedService$served_by_ownerArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.AvailedService$paid_in_payslipArgs<ExtArgs>
 }
 export type AvailedServiceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
@@ -2219,6 +2513,7 @@ export type AvailedServiceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Typ
   package?: boolean | Prisma.AvailedService$packageArgs<ExtArgs>
   served_by?: boolean | Prisma.AvailedService$served_byArgs<ExtArgs>
   served_by_owner?: boolean | Prisma.AvailedService$served_by_ownerArgs<ExtArgs>
+  paid_in_payslip?: boolean | Prisma.AvailedService$paid_in_payslipArgs<ExtArgs>
 }
 
 export type $AvailedServicePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2230,6 +2525,7 @@ export type $AvailedServicePayload<ExtArgs extends runtime.Types.Extensions.Inte
     served_by: Prisma.$EmployeePayload<ExtArgs> | null
     served_by_owner: Prisma.$OwnerPayload<ExtArgs> | null
     price_adjustments: Prisma.$BookingPriceAdjustmentPayload<ExtArgs>[]
+    paid_in_payslip: Prisma.$PayslipPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2252,6 +2548,7 @@ export type $AvailedServicePayload<ExtArgs extends runtime.Types.Extensions.Inte
     served_by_type: $Enums.ServiceProviderType | null
     scheduled_at: Date | null
     estimated_end: Date | null
+    paid_in_payslip_id: number | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["availedService"]>
@@ -2654,6 +2951,7 @@ export interface Prisma__AvailedServiceClient<T, Null = never, ExtArgs extends r
   served_by<T extends Prisma.AvailedService$served_byArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AvailedService$served_byArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   served_by_owner<T extends Prisma.AvailedService$served_by_ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AvailedService$served_by_ownerArgs<ExtArgs>>): Prisma.Prisma__OwnerClient<runtime.Types.Result.GetResult<Prisma.$OwnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   price_adjustments<T extends Prisma.AvailedService$price_adjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AvailedService$price_adjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPriceAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  paid_in_payslip<T extends Prisma.AvailedService$paid_in_payslipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AvailedService$paid_in_payslipArgs<ExtArgs>>): Prisma.Prisma__PayslipClient<runtime.Types.Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2703,6 +3001,7 @@ export interface AvailedServiceFieldRefs {
   readonly served_by_type: Prisma.FieldRef<"AvailedService", 'ServiceProviderType'>
   readonly scheduled_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
   readonly estimated_end: Prisma.FieldRef<"AvailedService", 'DateTime'>
+  readonly paid_in_payslip_id: Prisma.FieldRef<"AvailedService", 'Int'>
   readonly created_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
 }
@@ -3179,6 +3478,25 @@ export type AvailedService$price_adjustmentsArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.BookingPriceAdjustmentScalarFieldEnum | Prisma.BookingPriceAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * AvailedService.paid_in_payslip
+ */
+export type AvailedService$paid_in_payslipArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payslip
+   */
+  select?: Prisma.PayslipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payslip
+   */
+  omit?: Prisma.PayslipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PayslipInclude<ExtArgs> | null
+  where?: Prisma.PayslipWhereInput
 }
 
 /**

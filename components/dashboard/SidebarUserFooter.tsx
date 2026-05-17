@@ -32,7 +32,7 @@ interface SidebarUserFooterProps {
   businessSlug: string;
   user: {
     name?: string | null;
-    email?: string | null;
+    contactNumber?: string | null;
     image?: string | null;
     role?: string;
   };
@@ -65,7 +65,7 @@ export function SidebarUserFooter({ user, businessSlug }: SidebarUserFooterProps
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate text-xs">{user.contactNumber}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -88,7 +88,7 @@ export function SidebarUserFooter({ user, businessSlug }: SidebarUserFooterProps
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate text-xs">{user.contactNumber}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

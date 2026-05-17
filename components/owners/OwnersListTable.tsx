@@ -14,7 +14,7 @@ interface Owner {
   id: number;
   user: {
     name: string;
-    email: string;
+    contact_number: string;
   };
   specialties: string[];
 }
@@ -31,7 +31,7 @@ export function OwnersListTable({
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
+            <TableHead>Contact Number</TableHead>
             <TableHead>Service Specialties</TableHead>
           </TableRow>
         </TableHeader>
@@ -49,7 +49,7 @@ export function OwnersListTable({
             owners.map((owner) => (
               <TableRow key={owner.id}>
                 <TableCell className="font-medium">{owner.user.name}</TableCell>
-                <TableCell>{owner.user.email}</TableCell>
+                <TableCell>{owner.user.contact_number}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {owner.specialties.length > 0 ? (

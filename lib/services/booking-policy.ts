@@ -17,6 +17,7 @@ const BOOKING_POLICY_SELECT = {
   public_default_payment_type: true,
   downpayment_percentage: true,
   booking_v2_enabled: true,
+  timezone: true,
 } as const;
 
 function mapPolicyRecord(record: {
@@ -29,6 +30,7 @@ function mapPolicyRecord(record: {
   public_default_payment_type: string;
   downpayment_percentage: number;
   booking_v2_enabled: boolean;
+  timezone: string;
 }): BookingPolicy {
   return normalizeBookingPolicy({
     bookingHorizonDays: record.booking_horizon_days,
@@ -44,6 +46,7 @@ function mapPolicyRecord(record: {
     ),
     downpaymentPercentage: record.downpayment_percentage,
     bookingV2Enabled: record.booking_v2_enabled,
+    timezone: record.timezone,
   });
 }
 

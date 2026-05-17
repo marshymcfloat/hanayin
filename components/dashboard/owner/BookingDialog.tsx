@@ -47,12 +47,21 @@ export function BookingDialog({
           <Plus className="size-4" strokeWidth={2.5} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-[90dvh] w-[95vw] max-w-none gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[90vh] sm:max-w-6xl sm:rounded-2xl sm:border">
-        <DialogHeader className="sticky top-0 z-20  border-b bg-background/95 px-4 py-3 backdrop-blur-sm sm:px-6 sm:py-4">
-          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <CalendarPlus className="h-4 w-4 text-primary" />
-            Create New Booking
-          </DialogTitle>
+      <DialogContent className="h-[90dvh] w-[95vw] max-w-none gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[90vh] sm:max-w-6xl sm:rounded-3xl sm:border sm:border-black/[0.06]">
+        <DialogHeader className="sticky top-0 z-20 border-b border-black/[0.06] bg-background/85 px-4 py-3.5 backdrop-blur-sm sm:px-6 sm:py-4">
+          <div className="flex items-start gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+              <CalendarPlus className="size-4" />
+            </span>
+            <div className="min-w-0 leading-tight">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                New entry
+              </p>
+              <DialogTitle className="text-base font-semibold tracking-[-0.01em] sm:text-[17px]">
+                Create new booking
+              </DialogTitle>
+            </div>
+          </div>
         </DialogHeader>
         <div
           className="max-h-[calc(100dvh-57px)] overflow-y-auto px-4 py-4 sm:max-h-[calc(90vh-64px)] sm:px-8 sm:py-6"

@@ -12,9 +12,28 @@ export const tenantCacheTags = {
 export async function getCachedBusinessBySlug(slug: string) {
   "use cache";
   cacheTag(tenantCacheTags.businessBySlug(slug));
+  cacheTag(tenantCacheTags.businessHoursAndEmployees(slug));
   return prisma.business.findUnique({
     where: { slug },
-    select: { id: true, name: true },
+    select: {
+      id: true,
+      name: true,
+      initials: true,
+      imageUrl: true,
+      timezone: true,
+      // Hours used by the public booking greeting to render a
+      // humanized "Mon–Sat · 9 AM – 6 PM" subline. Small payload
+      // (≤ 7 rows × few fields × per category).
+      business_hours: {
+        select: {
+          day_of_week: true,
+          open_time: true,
+          close_time: true,
+          is_closed: true,
+          category: true,
+        },
+      },
+    },
   });
 }
 
@@ -38,6 +57,17 @@ export async function getCachedBusinessWithHoursAndEmployees(slug: string) {
         include: {
           user: {
             select: { name: true },
+          },
+          // Loaded eagerly because computeSlots() filters every
+          // candidate slot against schedule rows when the business has
+          // formal_schedule_enabled=true. Empty array (default) means
+          // no formal shift constraint for that employee.
+          schedule: {
+            select: {
+              day_of_week: true,
+              start_time: true,
+              end_time: true,
+            },
           },
         },
       },

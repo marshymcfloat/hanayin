@@ -15,9 +15,25 @@ interface TimeSlotPickerProps {
   emptyTitle?: string;
   emptyDescription?: string;
   alternativeSlots?: TimeSlot[];
-  /** When true, hides availability indicators (employee counts). Always hide for public-facing forms. */
+  /**
+   * When true, hides the per-period "X open" aggregate pill — that
+   * number leaks how booked-up the business is to anyone scraping
+   * the public page. Per-slot capacity ("2 free" / "1 left") is
+   * always shown because (a) the dot color already leaks the same
+   * staffing tier and (b) honest numbers help customers pick
+   * non-peak times.
+   */
   isPublic?: boolean;
+  /**
+   * IANA timezone for display formatting (e.g. "Asia/Manila",
+   * "America/Los_Angeles"). Comes from `BookingPolicy.timezone` which
+   * mirrors `Business.timezone`. Defaults to the existing PH-locked
+   * value so callers that haven't been migrated keep working.
+   */
+  timezone?: string;
 }
+
+const DEFAULT_TIMEZONE = "Asia/Manila";
 
 type SlotPeriod = "morning" | "afternoon" | "evening";
 
@@ -48,9 +64,9 @@ const PERIOD_CONFIG: Record<
   },
 };
 
-function getPeriod(date: Date): SlotPeriod {
+function getPeriod(date: Date, timezone: string): SlotPeriod {
   const hour = new Date(date).toLocaleString("en-US", {
-    timeZone: "Asia/Manila",
+    timeZone: timezone,
     hour: "numeric",
     hour12: false,
   });
@@ -60,18 +76,18 @@ function getPeriod(date: Date): SlotPeriod {
   return "evening";
 }
 
-function formatSlotTime(date: Date) {
+function formatSlotTime(date: Date, timezone: string) {
   return new Date(date).toLocaleTimeString("en-US", {
-    timeZone: "Asia/Manila",
+    timeZone: timezone,
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
 }
 
-function formatAlternativeSlot(date: Date) {
+function formatAlternativeSlot(date: Date, timezone: string) {
   return new Date(date).toLocaleString("en-US", {
-    timeZone: "Asia/Manila",
+    timeZone: timezone,
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -104,24 +120,45 @@ function AvailabilityDot({ level, selected }: { level: AvailabilityLevel; select
   );
 }
 
+/**
+ * Replaces the old binary "Available" / "Limited" label with a
+ * concrete numeric anchor — the customer can tell the difference
+ * between "3 free" (relaxed) and "1 left" (act now). Numeric capacity
+ * is shown on every surface, public or staff: the dot color already
+ * leaks the same staffing tier, and an honest number sets better
+ * expectations than a vague label.
+ */
 function AvailabilityLabel({
+  count,
   level,
   selected,
 }: {
+  count: number;
   level: AvailabilityLevel;
   selected: boolean;
 }) {
-  const base = "text-[10px] uppercase tracking-wider font-medium";
-  if (level === "limited") {
+  // Portal eyebrow type scale — matches PortalCardHeader (10px / 0.18em).
+  const base = "text-[10px] font-semibold uppercase tracking-[0.18em] tabular-nums";
+  if (count <= 1) {
     return (
-      <span className={cn(base, selected ? "text-primary-foreground/80" : "text-amber-600")}>
-        Limited
+      <span className={cn(base, selected ? "text-primary-foreground/85" : "text-amber-600")}>
+        {/* "1 left" reads more urgently than "1 free" without being scammy. */}
+        {count === 0 ? "Last spot" : "1 left"}
       </span>
     );
   }
   return (
-    <span className={cn(base, selected ? "text-primary-foreground/80" : "text-primary")}>
-      Available
+    <span
+      className={cn(
+        base,
+        selected
+          ? "text-primary-foreground/85"
+          : level === "limited"
+            ? "text-amber-600"
+            : "text-primary",
+      )}
+    >
+      {`${count} free`}
     </span>
   );
 }
@@ -130,10 +167,12 @@ function SlotButton({
   slot,
   isSelected,
   onChange,
+  timezone,
 }: {
   slot: TimeSlot;
   isSelected: boolean;
   onChange: (time: Date) => void;
+  timezone: string;
 }) {
   const level = getAvailabilityLevel(slot);
 
@@ -145,28 +184,32 @@ function SlotButton({
       disabled={!slot.available}
       onClick={() => onChange(slot.startTime)}
       className={cn(
-        // min-h-[52px] satisfies 44px touch target requirement with padding
-        "h-auto min-h-[52px] px-2 py-2.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer",
-        !slot.available && "opacity-40 cursor-not-allowed bg-muted/50",
+        // Portal language: rounded-2xl + hairline border + soft layered shadow on select.
+        // min-h-[52px] satisfies 44px touch target requirement with padding.
+        "h-auto min-h-[52px] rounded-2xl px-2 py-2.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer",
+        !slot.available && "opacity-40 cursor-not-allowed bg-muted/50 border-black/[0.04]",
         isSelected
-          ? "shadow-md ring-2 ring-primary/20 ring-offset-1"
-          : "hover:border-primary/50 hover:bg-primary/5 bg-card",
-        !isSelected && level === "available" && "border-primary/30 hover:border-primary/60",
+          ? "bg-primary text-primary-foreground border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-16px_color-mix(in_oklch,var(--primary)_60%,transparent)]"
+          : "bg-card border-black/[0.06] hover:border-primary/40 hover:bg-primary/[0.03]",
         !isSelected && level === "limited" && "border-amber-400/40 hover:border-amber-400/70",
       )}
     >
       <span
         className={cn(
-          "font-bold text-sm tracking-tight",
+          "font-semibold text-sm tracking-[-0.01em] tabular-nums",
           isSelected ? "text-primary-foreground" : "text-foreground",
         )}
       >
-        {formatSlotTime(slot.startTime)}
+        {formatSlotTime(slot.startTime, timezone)}
       </span>
       {slot.available && (
         <span className="flex items-center gap-1">
           <AvailabilityDot level={level} selected={isSelected} />
-          <AvailabilityLabel level={level} selected={isSelected} />
+          <AvailabilityLabel
+            count={slot.availableEmployeeCount}
+            level={level}
+            selected={isSelected}
+          />
         </span>
       )}
     </Button>
@@ -178,34 +221,51 @@ function PeriodGroup({
   slots,
   value,
   onChange,
+  timezone,
+  showPeriodCount,
 }: {
   period: SlotPeriod;
   slots: TimeSlot[];
   value?: Date;
   onChange: (time: Date) => void;
+  timezone: string;
+  showPeriodCount: boolean;
 }) {
   const { label, hours, Icon } = PERIOD_CONFIG[period];
   const availableCount = slots.filter((s) => s.available).length;
 
   return (
-    <div className="space-y-2">
-      {/* Period header */}
-      <div className="flex items-center gap-2 px-0.5">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <span className="text-xs font-semibold text-foreground">{label}</span>
-        <span className="text-xs text-muted-foreground">{hours}</span>
-        <span
-          className={cn(
-            "ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-full",
-            availableCount === 0
-              ? "bg-muted text-muted-foreground"
-              : availableCount <= 2
-                ? "bg-amber-50 text-amber-700 border border-amber-200"
-                : "bg-primary/10 text-primary border border-primary/20",
-          )}
-        >
-          {availableCount === 0 ? "Full" : `${availableCount} open`}
+    <div className="space-y-3">
+      {/* Period header — mirrors PortalCardHeader recipe (icon chip + eyebrow + count pill).
+          Kept flat (no extra card chrome) since this lives inside a PortalCard already. */}
+      <div className="flex items-center gap-3">
+        <span className="grid size-7 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+          <Icon className="size-3.5" />
         </span>
+        <div className="min-w-0 leading-tight">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {hours}
+          </p>
+          <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">{label}</p>
+        </div>
+        {/* Per-period count pill is staff-only by default — leaks scheduling
+            pressure to anyone scraping the public page. The "Full" state is
+            kept on both surfaces because hiding it just causes a wasted click
+            on a period with zero slots. */}
+        {(showPeriodCount || availableCount === 0) ? (
+          <span
+            className={cn(
+              "ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums",
+              availableCount === 0
+                ? "bg-muted text-muted-foreground"
+                : availableCount <= 2
+                  ? "bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20"
+                  : "bg-primary/10 text-primary ring-1 ring-inset ring-primary/15",
+            )}
+          >
+            {availableCount === 0 ? "Full" : `${availableCount} open`}
+          </span>
+        ) : null}
       </div>
 
       {/* Slot grid */}
@@ -216,6 +276,7 @@ function PeriodGroup({
             slot={slot}
             isSelected={!!value && slot.startTime.getTime() === value.getTime()}
             onChange={onChange}
+            timezone={timezone}
           />
         ))}
       </div>
@@ -232,6 +293,8 @@ export default React.memo(function TimeSlotPicker({
   emptyTitle = "No available slots for the selected services",
   emptyDescription = "No available providers for this day. Try a different date.",
   alternativeSlots = [],
+  isPublic = false,
+  timezone = DEFAULT_TIMEZONE,
 }: TimeSlotPickerProps) {
   // Group slots by period
   const grouped = useMemo(() => {
@@ -241,10 +304,10 @@ export default React.memo(function TimeSlotPicker({
       evening: [],
     };
     for (const slot of slots) {
-      groups[getPeriod(slot.startTime)].push(slot);
+      groups[getPeriod(slot.startTime, timezone)].push(slot);
     }
     return groups;
-  }, [slots]);
+  }, [slots, timezone]);
 
   const activePeriods = useMemo(
     () =>
@@ -256,14 +319,20 @@ export default React.memo(function TimeSlotPicker({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        {/* Loading skeleton mimics period groups */}
+      <div className="space-y-5">
+        {/* Loading skeleton mimics period groups in portal chrome */}
         {[5, 4, 3].map((count, gi) => (
-          <div key={gi} className="space-y-2">
-            <div className="h-4 w-32 rounded bg-muted animate-pulse" />
+          <div key={gi} className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="size-7 rounded-xl bg-muted animate-pulse" />
+              <div className="space-y-1.5">
+                <div className="h-2.5 w-20 rounded bg-muted animate-pulse" />
+                <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="h-[52px] rounded-lg bg-muted animate-pulse" />
+                <div key={i} className="h-[52px] rounded-2xl bg-muted animate-pulse" />
               ))}
             </div>
           </div>
@@ -274,23 +343,31 @@ export default React.memo(function TimeSlotPicker({
 
   if (disabled) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>Select your services to see available times</p>
+      <div className="flex flex-col items-center text-center py-10">
+        <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+          <Clock className="size-5" />
+        </span>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Select your services to see available times
+        </p>
       </div>
     );
   }
 
   if (slots.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p className="font-medium">{emptyTitle}</p>
-        <p className="text-sm mt-0.5">{emptyDescription}</p>
+      <div className="flex flex-col items-center text-center py-10">
+        <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+          <Clock className="size-5" />
+        </span>
+        <p className="mt-3 text-sm font-semibold tracking-[-0.01em] text-foreground">
+          {emptyTitle}
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{emptyDescription}</p>
 
         {alternativeSlots.length > 0 && (
-          <div className="mt-5 space-y-2">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+          <div className="mt-6 space-y-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Next available slots
             </p>
             <div className="flex flex-wrap justify-center gap-2">
@@ -301,10 +378,11 @@ export default React.memo(function TimeSlotPicker({
                   type="button"
                   variant="outline"
                   onClick={() => onChange(slot.startTime)}
-                  // min-h-[44px] meets touch target requirement (was h-8 = 32px before)
-                  className="min-h-[44px] px-3 text-xs cursor-pointer"
+                  // min-h-[44px] meets touch target requirement; rounded-full + primary tint
+                  // matches the count-pill recipe used elsewhere in the portal.
+                  className="min-h-[44px] rounded-full border-transparent bg-primary/5 px-3.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/15 hover:bg-primary/10 hover:text-primary cursor-pointer"
                 >
-                  {formatAlternativeSlot(slot.startTime)}
+                  {formatAlternativeSlot(slot.startTime, timezone)}
                 </Button>
               ))}
             </div>
@@ -315,7 +393,7 @@ export default React.memo(function TimeSlotPicker({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {activePeriods.map((period) => (
         <PeriodGroup
           key={period}
@@ -323,6 +401,8 @@ export default React.memo(function TimeSlotPicker({
           slots={grouped[period]}
           value={value}
           onChange={onChange}
+          timezone={timezone}
+          showPeriodCount={!isPublic}
         />
       ))}
     </div>

@@ -4,10 +4,12 @@ export const OUTBOX_EVENT_TYPES = [
   "BOOKING_CREATED",
   "BOOKING_CONFIRMED",
   "BOOKING_CANCELLED",
+  "BOOKING_CANCELLED_BY_CUSTOMER",
   "BOOKING_STAFFING_CONFLICT_DETECTED",
   "BOOKING_SERVICE_REMOVED",
   "BOOKING_SERVICE_SWAPPED",
   "BOOKING_RESCHEDULED",
+  "BOOKING_RESCHEDULED_BY_CUSTOMER",
   "BOOKING_STAFF_REASSIGNED",
   "BOOKING_PRICE_ADJUSTED",
   "BOOKING_NOTE_ADDED",
@@ -68,6 +70,17 @@ export type OutboxPayloadMap = {
     /** Optional phone for SMS cancel notifications. */
     phone?: string | null;
   };
+  /**
+   * Customer self-serve cancellation via the tokenized manage page.
+   * Distinct from BOOKING_CANCELLED so downstream handlers can branch
+   * messaging — staff usually want a quieter "FYI" notification when
+   * the customer cancelled themselves vs. when staff initiated it.
+   */
+  BOOKING_CANCELLED_BY_CUSTOMER: {
+    bookingId: number;
+    scheduledAt: string | null;
+    reason: string | null;
+  };
   BOOKING_STAFFING_CONFLICT_DETECTED: {
     bookingId: number;
     scheduledAt: string;
@@ -108,6 +121,17 @@ export type OutboxPayloadMap = {
     customerName?: string | null;
     email?: string | null;
     phone?: string | null;
+  };
+  /**
+   * Customer self-serve reschedule via the tokenized manage page.
+   * Distinct from BOOKING_RESCHEDULED so downstream handlers can branch
+   * messaging — staff want different copy for "your customer changed
+   * their time" vs. "you moved a booking".
+   */
+  BOOKING_RESCHEDULED_BY_CUSTOMER: {
+    bookingId: number;
+    previousScheduledAt: string | null;
+    newScheduledAt: string;
   };
   /**
    * Internal-only event (per docs/role-permissions-matrix.md §3 the staff
@@ -394,6 +418,12 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
       } as OutboxPayloadMap[TType];
     case "BOOKING_CANCELLED":
       return parseBookingCancellationPayload(payload) as OutboxPayloadMap[TType];
+    case "BOOKING_CANCELLED_BY_CUSTOMER":
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        scheduledAt: optionalString(payload, "scheduledAt") ?? null,
+        reason: optionalString(payload, "reason") ?? null,
+      } as OutboxPayloadMap[TType];
     case "BOOKING_STAFFING_CONFLICT_DETECTED":
       return {
         bookingId: requireNumber(payload, "bookingId", eventType),
@@ -438,6 +468,13 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         customerName: optionalString(payload, "customerName"),
         email: optionalString(payload, "email"),
         phone: optionalString(payload, "phone"),
+      } as OutboxPayloadMap[TType];
+    case "BOOKING_RESCHEDULED_BY_CUSTOMER":
+      return {
+        bookingId: requireNumber(payload, "bookingId", eventType),
+        previousScheduledAt:
+          optionalString(payload, "previousScheduledAt") ?? null,
+        newScheduledAt: requireString(payload, "newScheduledAt", eventType),
       } as OutboxPayloadMap[TType];
     case "BOOKING_STAFF_REASSIGNED":
       return {

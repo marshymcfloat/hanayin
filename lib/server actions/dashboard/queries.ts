@@ -205,7 +205,7 @@ export async function getOwners(businessSlug: string) {
       user: {
         select: {
           name: true,
-          email: true,
+          contact_number: true,
         },
       },
     },

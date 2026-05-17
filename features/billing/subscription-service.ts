@@ -137,7 +137,28 @@ export async function getTenantAccessState(businessSlug: string): Promise<Tenant
   };
 }
 
+// Memoize across the lifetime of the process: subscription-plan rows are seed
+// data, not user data, so once we've reconciled the catalog in this Node
+// process there's no reason to hit the DB on subsequent renders. Page renders
+// were doing this on every request, producing write traffic on Accelerate even
+// though the upsert.update branch is now empty.
+let ensureDefaultPlansPromise: Promise<void> | null = null;
+
 export async function ensureDefaultPlans() {
+  if (ensureDefaultPlansPromise) return ensureDefaultPlansPromise;
+  ensureDefaultPlansPromise = ensureDefaultPlansImpl().catch((err) => {
+    ensureDefaultPlansPromise = null;
+    throw err;
+  });
+  return ensureDefaultPlansPromise;
+}
+
+/** @internal — test-only: reset the once-per-process memo. */
+export function __resetEnsureDefaultPlansMemoForTests() {
+  ensureDefaultPlansPromise = null;
+}
+
+async function ensureDefaultPlansImpl() {
   const catalog: Array<{
     code: SubscriptionPlanCode;
     name: string;
@@ -178,12 +199,8 @@ export async function ensureDefaultPlans() {
           is_active: true,
         },
         update: {
-          name: plan.name,
-          description: plan.description,
-          billing_interval: BillingInterval.MONTHLY,
-          price_amount: plan.priceAmount,
-          currency: PHP_CURRENCY,
-          // Keep platform-admin availability toggles for existing plans.
+          // Don't overwrite platform-admin edits (price, name, description, is_active)
+          // on existing plans. ensureDefaultPlans only seeds missing rows.
         },
       }),
     ),

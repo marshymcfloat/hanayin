@@ -26,7 +26,7 @@ export type AggregateUser = {
 
 export type UserMinAggregateOutputType = {
   id: string | null
-  email: string | null
+  contact_number: string | null
   hashed_password: string | null
   name: string | null
   role: $Enums.Role | null
@@ -38,7 +38,7 @@ export type UserMinAggregateOutputType = {
 
 export type UserMaxAggregateOutputType = {
   id: string | null
-  email: string | null
+  contact_number: string | null
   hashed_password: string | null
   name: string | null
   role: $Enums.Role | null
@@ -50,7 +50,7 @@ export type UserMaxAggregateOutputType = {
 
 export type UserCountAggregateOutputType = {
   id: number
-  email: number
+  contact_number: number
   hashed_password: number
   name: number
   role: number
@@ -64,7 +64,7 @@ export type UserCountAggregateOutputType = {
 
 export type UserMinAggregateInputType = {
   id?: true
-  email?: true
+  contact_number?: true
   hashed_password?: true
   name?: true
   role?: true
@@ -76,7 +76,7 @@ export type UserMinAggregateInputType = {
 
 export type UserMaxAggregateInputType = {
   id?: true
-  email?: true
+  contact_number?: true
   hashed_password?: true
   name?: true
   role?: true
@@ -88,7 +88,7 @@ export type UserMaxAggregateInputType = {
 
 export type UserCountAggregateInputType = {
   id?: true
-  email?: true
+  contact_number?: true
   hashed_password?: true
   name?: true
   role?: true
@@ -173,7 +173,7 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type UserGroupByOutputType = {
   id: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role: $Enums.Role
@@ -206,7 +206,7 @@ export type UserWhereInput = {
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
-  email?: Prisma.StringFilter<"User"> | string
+  contact_number?: Prisma.StringFilter<"User"> | string
   hashed_password?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
@@ -233,7 +233,7 @@ export type UserWhereInput = {
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
+  contact_number?: Prisma.SortOrder
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -260,7 +260,7 @@ export type UserOrderByWithRelationInput = {
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  email?: string
+  contact_number?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
@@ -286,11 +286,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentListRelationFilter
   submitted_social_post_requests?: Prisma.SocialPostRequestListRelationFilter
   reviewed_social_post_requests?: Prisma.SocialPostRequestListRelationFilter
-}, "id" | "email">
+}, "id" | "contact_number">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
+  contact_number?: Prisma.SortOrder
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -308,7 +308,7 @@ export type UserScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
-  email?: Prisma.StringWithAggregatesFilter<"User"> | string
+  contact_number?: Prisma.StringWithAggregatesFilter<"User"> | string
   hashed_password?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
@@ -320,7 +320,7 @@ export type UserScalarWhereWithAggregatesInput = {
 
 export type UserCreateInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -347,7 +347,7 @@ export type UserCreateInput = {
 
 export type UserUncheckedCreateInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -374,7 +374,7 @@ export type UserUncheckedCreateInput = {
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -401,7 +401,7 @@ export type UserUpdateInput = {
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -428,7 +428,7 @@ export type UserUncheckedUpdateInput = {
 
 export type UserCreateManyInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -440,7 +440,7 @@ export type UserCreateManyInput = {
 
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -452,7 +452,7 @@ export type UserUpdateManyMutationInput = {
 
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -469,7 +469,7 @@ export type UserNullableScalarRelationFilter = {
 
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
+  contact_number?: Prisma.SortOrder
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -481,7 +481,7 @@ export type UserCountOrderByAggregateInput = {
 
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
+  contact_number?: Prisma.SortOrder
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -493,7 +493,7 @@ export type UserMaxOrderByAggregateInput = {
 
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrder
+  contact_number?: Prisma.SortOrder
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
@@ -746,7 +746,7 @@ export type UserUpdateOneWithoutExpenses_createdNestedInput = {
 
 export type UserCreateWithoutSocial_posts_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -772,7 +772,7 @@ export type UserCreateWithoutSocial_posts_createdInput = {
 
 export type UserUncheckedCreateWithoutSocial_posts_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -814,7 +814,7 @@ export type UserUpdateToOneWithWhereWithoutSocial_posts_createdInput = {
 
 export type UserUpdateWithoutSocial_posts_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -840,7 +840,7 @@ export type UserUpdateWithoutSocial_posts_createdInput = {
 
 export type UserUncheckedUpdateWithoutSocial_posts_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -866,7 +866,7 @@ export type UserUncheckedUpdateWithoutSocial_posts_createdInput = {
 
 export type UserCreateWithoutEmployeeInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -892,7 +892,7 @@ export type UserCreateWithoutEmployeeInput = {
 
 export type UserUncheckedCreateWithoutEmployeeInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -934,7 +934,7 @@ export type UserUpdateToOneWithWhereWithoutEmployeeInput = {
 
 export type UserUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -960,7 +960,7 @@ export type UserUpdateWithoutEmployeeInput = {
 
 export type UserUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -986,7 +986,7 @@ export type UserUncheckedUpdateWithoutEmployeeInput = {
 
 export type UserCreateWithoutOwnerInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1012,7 +1012,7 @@ export type UserCreateWithoutOwnerInput = {
 
 export type UserUncheckedCreateWithoutOwnerInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1054,7 +1054,7 @@ export type UserUpdateToOneWithWhereWithoutOwnerInput = {
 
 export type UserUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1080,7 +1080,7 @@ export type UserUpdateWithoutOwnerInput = {
 
 export type UserUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1106,7 +1106,7 @@ export type UserUncheckedUpdateWithoutOwnerInput = {
 
 export type UserCreateWithoutSubmitted_subscription_upgrade_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1132,7 +1132,7 @@ export type UserCreateWithoutSubmitted_subscription_upgrade_requestsInput = {
 
 export type UserUncheckedCreateWithoutSubmitted_subscription_upgrade_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1163,7 +1163,7 @@ export type UserCreateOrConnectWithoutSubmitted_subscription_upgrade_requestsInp
 
 export type UserCreateWithoutReviewed_subscription_upgrade_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1189,7 +1189,7 @@ export type UserCreateWithoutReviewed_subscription_upgrade_requestsInput = {
 
 export type UserUncheckedCreateWithoutReviewed_subscription_upgrade_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1231,7 +1231,7 @@ export type UserUpdateToOneWithWhereWithoutSubmitted_subscription_upgrade_reques
 
 export type UserUpdateWithoutSubmitted_subscription_upgrade_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1257,7 +1257,7 @@ export type UserUpdateWithoutSubmitted_subscription_upgrade_requestsInput = {
 
 export type UserUncheckedUpdateWithoutSubmitted_subscription_upgrade_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1294,7 +1294,7 @@ export type UserUpdateToOneWithWhereWithoutReviewed_subscription_upgrade_request
 
 export type UserUpdateWithoutReviewed_subscription_upgrade_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1320,7 +1320,7 @@ export type UserUpdateWithoutReviewed_subscription_upgrade_requestsInput = {
 
 export type UserUncheckedUpdateWithoutReviewed_subscription_upgrade_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1346,7 +1346,7 @@ export type UserUncheckedUpdateWithoutReviewed_subscription_upgrade_requestsInpu
 
 export type UserCreateWithoutAwarded_subscription_creditsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1372,7 +1372,7 @@ export type UserCreateWithoutAwarded_subscription_creditsInput = {
 
 export type UserUncheckedCreateWithoutAwarded_subscription_creditsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1414,7 +1414,7 @@ export type UserUpdateToOneWithWhereWithoutAwarded_subscription_creditsInput = {
 
 export type UserUpdateWithoutAwarded_subscription_creditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1440,7 +1440,7 @@ export type UserUpdateWithoutAwarded_subscription_creditsInput = {
 
 export type UserUncheckedUpdateWithoutAwarded_subscription_creditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1466,7 +1466,7 @@ export type UserUncheckedUpdateWithoutAwarded_subscription_creditsInput = {
 
 export type UserCreateWithoutReviewed_onboarding_applicationsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1492,7 +1492,7 @@ export type UserCreateWithoutReviewed_onboarding_applicationsInput = {
 
 export type UserUncheckedCreateWithoutReviewed_onboarding_applicationsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1534,7 +1534,7 @@ export type UserUpdateToOneWithWhereWithoutReviewed_onboarding_applicationsInput
 
 export type UserUpdateWithoutReviewed_onboarding_applicationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1560,7 +1560,7 @@ export type UserUpdateWithoutReviewed_onboarding_applicationsInput = {
 
 export type UserUncheckedUpdateWithoutReviewed_onboarding_applicationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1586,7 +1586,7 @@ export type UserUncheckedUpdateWithoutReviewed_onboarding_applicationsInput = {
 
 export type UserCreateWithoutPlatform_action_logsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1612,7 +1612,7 @@ export type UserCreateWithoutPlatform_action_logsInput = {
 
 export type UserUncheckedCreateWithoutPlatform_action_logsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1654,7 +1654,7 @@ export type UserUpdateToOneWithWhereWithoutPlatform_action_logsInput = {
 
 export type UserUpdateWithoutPlatform_action_logsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1680,7 +1680,7 @@ export type UserUpdateWithoutPlatform_action_logsInput = {
 
 export type UserUncheckedUpdateWithoutPlatform_action_logsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1706,7 +1706,7 @@ export type UserUncheckedUpdateWithoutPlatform_action_logsInput = {
 
 export type UserCreateWithoutCancelled_bookingsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1732,7 +1732,7 @@ export type UserCreateWithoutCancelled_bookingsInput = {
 
 export type UserUncheckedCreateWithoutCancelled_bookingsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1774,7 +1774,7 @@ export type UserUpdateToOneWithWhereWithoutCancelled_bookingsInput = {
 
 export type UserUpdateWithoutCancelled_bookingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1800,7 +1800,7 @@ export type UserUpdateWithoutCancelled_bookingsInput = {
 
 export type UserUncheckedUpdateWithoutCancelled_bookingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1826,7 +1826,7 @@ export type UserUncheckedUpdateWithoutCancelled_bookingsInput = {
 
 export type UserCreateWithoutGrowth_campaigns_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1852,7 +1852,7 @@ export type UserCreateWithoutGrowth_campaigns_createdInput = {
 
 export type UserUncheckedCreateWithoutGrowth_campaigns_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1894,7 +1894,7 @@ export type UserUpdateToOneWithWhereWithoutGrowth_campaigns_createdInput = {
 
 export type UserUpdateWithoutGrowth_campaigns_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1920,7 +1920,7 @@ export type UserUpdateWithoutGrowth_campaigns_createdInput = {
 
 export type UserUncheckedUpdateWithoutGrowth_campaigns_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1946,7 +1946,7 @@ export type UserUncheckedUpdateWithoutGrowth_campaigns_createdInput = {
 
 export type UserCreateWithoutBooking_notes_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -1972,7 +1972,7 @@ export type UserCreateWithoutBooking_notes_createdInput = {
 
 export type UserUncheckedCreateWithoutBooking_notes_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2014,7 +2014,7 @@ export type UserUpdateToOneWithWhereWithoutBooking_notes_createdInput = {
 
 export type UserUpdateWithoutBooking_notes_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2040,7 +2040,7 @@ export type UserUpdateWithoutBooking_notes_createdInput = {
 
 export type UserUncheckedUpdateWithoutBooking_notes_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2066,7 +2066,7 @@ export type UserUncheckedUpdateWithoutBooking_notes_createdInput = {
 
 export type UserCreateWithoutBooking_price_adjustments_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2092,7 +2092,7 @@ export type UserCreateWithoutBooking_price_adjustments_createdInput = {
 
 export type UserUncheckedCreateWithoutBooking_price_adjustments_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2134,7 +2134,7 @@ export type UserUpdateToOneWithWhereWithoutBooking_price_adjustments_createdInpu
 
 export type UserUpdateWithoutBooking_price_adjustments_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2160,7 +2160,7 @@ export type UserUpdateWithoutBooking_price_adjustments_createdInput = {
 
 export type UserUncheckedUpdateWithoutBooking_price_adjustments_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2186,7 +2186,7 @@ export type UserUncheckedUpdateWithoutBooking_price_adjustments_createdInput = {
 
 export type UserCreateWithoutSubmitted_social_post_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2212,7 +2212,7 @@ export type UserCreateWithoutSubmitted_social_post_requestsInput = {
 
 export type UserUncheckedCreateWithoutSubmitted_social_post_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2243,7 +2243,7 @@ export type UserCreateOrConnectWithoutSubmitted_social_post_requestsInput = {
 
 export type UserCreateWithoutReviewed_social_post_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2269,7 +2269,7 @@ export type UserCreateWithoutReviewed_social_post_requestsInput = {
 
 export type UserUncheckedCreateWithoutReviewed_social_post_requestsInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2311,7 +2311,7 @@ export type UserUpdateToOneWithWhereWithoutSubmitted_social_post_requestsInput =
 
 export type UserUpdateWithoutSubmitted_social_post_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2337,7 +2337,7 @@ export type UserUpdateWithoutSubmitted_social_post_requestsInput = {
 
 export type UserUncheckedUpdateWithoutSubmitted_social_post_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2374,7 +2374,7 @@ export type UserUpdateToOneWithWhereWithoutReviewed_social_post_requestsInput = 
 
 export type UserUpdateWithoutReviewed_social_post_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2400,7 +2400,7 @@ export type UserUpdateWithoutReviewed_social_post_requestsInput = {
 
 export type UserUncheckedUpdateWithoutReviewed_social_post_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2426,7 +2426,7 @@ export type UserUncheckedUpdateWithoutReviewed_social_post_requestsInput = {
 
 export type UserCreateWithoutExpenses_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2452,7 +2452,7 @@ export type UserCreateWithoutExpenses_createdInput = {
 
 export type UserUncheckedCreateWithoutExpenses_createdInput = {
   id?: string
-  email: string
+  contact_number: string
   hashed_password: string
   name: string
   role?: $Enums.Role
@@ -2494,7 +2494,7 @@ export type UserUpdateToOneWithWhereWithoutExpenses_createdInput = {
 
 export type UserUpdateWithoutExpenses_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2520,7 +2520,7 @@ export type UserUpdateWithoutExpenses_createdInput = {
 
 export type UserUncheckedUpdateWithoutExpenses_createdInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2685,7 +2685,7 @@ export type UserCountOutputTypeCountReviewed_social_post_requestsArgs<ExtArgs ex
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  email?: boolean
+  contact_number?: boolean
   hashed_password?: boolean
   name?: boolean
   role?: boolean
@@ -2713,7 +2713,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  email?: boolean
+  contact_number?: boolean
   hashed_password?: boolean
   name?: boolean
   role?: boolean
@@ -2725,7 +2725,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  email?: boolean
+  contact_number?: boolean
   hashed_password?: boolean
   name?: boolean
   role?: boolean
@@ -2737,7 +2737,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 
 export type UserSelectScalar = {
   id?: boolean
-  email?: boolean
+  contact_number?: boolean
   hashed_password?: boolean
   name?: boolean
   role?: boolean
@@ -2747,7 +2747,7 @@ export type UserSelectScalar = {
   updated_at?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "hashed_password" | "name" | "role" | "must_change_password" | "temp_password_expires_at" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "contact_number" | "hashed_password" | "name" | "role" | "must_change_password" | "temp_password_expires_at" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
@@ -2790,7 +2790,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    email: string
+    contact_number: string
     hashed_password: string
     name: string
     role: $Enums.Role
@@ -3237,7 +3237,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
  */
 export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
-  readonly email: Prisma.FieldRef<"User", 'String'>
+  readonly contact_number: Prisma.FieldRef<"User", 'String'>
   readonly hashed_password: Prisma.FieldRef<"User", 'String'>
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'Role'>

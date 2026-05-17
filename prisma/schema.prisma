@@ -25,6 +25,12 @@ model Business {
   latitude  Float?
   longitude Float?
 
+  // IANA timezone identifier (e.g. "Asia/Manila", "America/Los_Angeles").
+  // Drives display-time formatting on the customer booking surface.
+  // NOTE: server-side date math throughout the app is currently
+  // PH-locked via lib/date-utils.ts — broader timezone awareness is a
+  // separate refactor. This field is the storage shape that unblocks it.
+  timezone                           String            @default("Asia/Manila")
   booking_horizon_days               Int               @default(14)
   booking_min_lead_minutes           Int               @default(30)
   booking_slot_interval_minutes      Int               @default(30)
@@ -34,6 +40,13 @@ model Business {
   downpayment_percentage             Int               @default(50)
   booking_v2_enabled                 Boolean           @default(true)
   same_day_attendance_strict_minutes Int               @default(120)
+  // Optional formal weekly shift model. When false (default) the
+  // existing recurring_days_off + business hours behavior applies —
+  // this matches the small-shop case. When true, employees with
+  // EmployeeSchedule rows are constrained by them; employees with no
+  // schedule rows fall back to the default behavior so flipping the
+  // flag doesn't accidentally hide every employee at once.
+  formal_schedule_enabled            Boolean           @default(false)
   structure                          BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
   allow_employee_self_booking        Boolean           @default(true)
   manager_can_serve                  Boolean           @default(true)
@@ -476,7 +489,7 @@ model SocialPostTarget {
 
 model User {
   id              String @id @default(cuid())
-  email           String @unique
+  contact_number  String @unique
   hashed_password String
   name            String
 
@@ -515,7 +528,18 @@ model Employee {
   profile               StaffProfile         @default(STAFF)
   permissions           StaffPermission[]    @default([BOOKING_CREATE, PAYMENT_COLLECT, QUEUE_CLAIM_SELF, QUEUE_SERVE_SELF, SOCIAL_POST_REQUEST_CREATE])
   specialties           String[]             @default([]) // Array of service categories this employee can perform
+  // Day-of-week values (0=Sunday … 6=Saturday) the employee never
+  // works. Captures "Anna doesn't work Sundays" for shops that
+  // don't keep a formal shift schedule. Empty array (default) =
+  // available every business-open day. Honored by computeSlots()
+  // for both same-day and advance bookings.
+  recurring_days_off    Int[]                @default([])
   attendance            EmployeeAttendance[]
+  // Optional formal weekly shift schedule. Only honored when the
+  // owning Business has formal_schedule_enabled=true. Each row covers
+  // one (employee, day_of_week) pair; multiple rows can model split
+  // shifts on the same day if needed.
+  schedule              EmployeeSchedule[]
 
   served_services AvailedService[]
   payslips        Payslip[]
@@ -524,8 +548,42 @@ model Employee {
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
+  // Demo-data flag — see Service.is_demo.
+  is_demo Boolean @default(false)
+
   @@unique([business_id, user_id])
   @@index([business_id])
+  @@index([business_id, is_demo])
+}
+
+/**
+ * EmployeeSchedule — optional formal weekly shift rows. Only honored
+ * when the owning Business has `formal_schedule_enabled=true`. An
+ * employee with zero rows falls back to the default behavior
+ * (recurring_days_off + business hours) even when the flag is on, so
+ * tenants can opt employees in incrementally.
+ *
+ * `start_time` / `end_time` are "HH:MM" strings in the business's
+ * timezone — same shape as BusinessHours, intentionally consistent.
+ * Multiple rows per (employee, day_of_week) are allowed to model
+ * split shifts (e.g. morning + evening with a midday break).
+ *
+ * No admin UI ships in this iteration — managed via Prisma Studio or
+ * a future settings screen. Schema and slot integration only.
+ */
+model EmployeeSchedule {
+  id          Int      @id @default(autoincrement())
+  employee_id Int
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  day_of_week Int    // 0 = Sunday, 6 = Saturday
+  start_time  String // "09:00"
+  end_time    String // "17:00"
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([employee_id, day_of_week])
 }
 
 model EmployeeAttendance {
@@ -544,12 +602,17 @@ model EmployeeAttendance {
 
   is_paid_leave Boolean @default(false)
 
+  // Once stamped, this row is locked into a payslip and will not be paid again.
+  paid_in_payslip_id Int?
+  paid_in_payslip    Payslip? @relation("PayslipAttendance", fields: [paid_in_payslip_id], references: [id], onDelete: SetNull)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@index([employee_id, date])
+  @@unique([employee_id, date])
   @@index([employee_id, status, date])
   @@index([date])
+  @@index([paid_in_payslip_id])
 }
 
 model Payslip {
@@ -560,14 +623,21 @@ model Payslip {
 
   starting_date DateTime
   ending_date   DateTime
+  // Exact moment status flipped to PAID. Used as the lower-bound of the next period.
+  released_at   DateTime?
   comment       String?
   deduction     Float         @default(0)
   status        PayslipStatus @default(PENDING)
 
   total_salary Float
 
+  attendance_records EmployeeAttendance[] @relation("PayslipAttendance")
+  availed_services   AvailedService[]     @relation("PayslipAvailedServices")
+
+  @@unique([employee_id, starting_date, ending_date])
   @@index([employee_id, ending_date])
   @@index([employee_id, status, ending_date])
+  @@index([employee_id, released_at])
 }
 
 model SpecialDate {
@@ -880,9 +950,12 @@ model OnboardingApplication {
 model PlatformActionLog {
   id String @id @default(cuid())
 
-  actor_user_id String?
-  actor_user    User?   @relation("PlatformActorUser", fields: [actor_user_id], references: [id], onDelete: SetNull)
-  actor_email   String?
+  actor_user_id    String?
+  actor_user       User?    @relation("PlatformActorUser", fields: [actor_user_id], references: [id], onDelete: SetNull)
+  // Identifier of the actor as recorded at log time (phone or email). Was
+  // previously named `actor_email` but actually stored phone numbers, which
+  // broke filter/redaction tooling that assumed the column was email-shaped.
+  actor_identifier String?
 
   action      String
   target_type String
@@ -919,11 +992,16 @@ model Service {
   flow_triggers    ServiceFlow[] @relation("FlowTrigger")
   flow_suggestions ServiceFlow[] @relation("FlowSuggestion")
 
+  // Marks rows seeded by the platform demo-data seeder so the trial owner can
+  // wipe sample content with one click before going live.
+  is_demo Boolean @default(false)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@index([business_id, category, name])
   @@index([business_id, name])
+  @@index([business_id, is_demo])
 }
 
 model ServicePackage {
@@ -979,6 +1057,9 @@ model Customer {
   bookings           Booking[]
   claimed_gift_cards GiftCard[] @relation("GiftCardClaimedBy")
 
+  // Demo-data flag — see Service.is_demo.
+  is_demo Boolean @default(false)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -986,6 +1067,7 @@ model Customer {
   @@index([business_id, email])
   @@index([business_id, phone])
   @@index([business_id, trust_tier])
+  @@index([business_id, is_demo])
 }
 
 model BookingOtpCode {
@@ -1066,8 +1148,20 @@ model Booking {
   cancelled_by        User?     @relation("BookingCancelledBy", fields: [cancelled_by_id], references: [id], onDelete: SetNull)
   cancellation_reason String?
 
+  // Customer self-serve audit (tokenized cancel/reschedule pages).
+  // `cancelled_by_customer` flags self-serve cancellations so staff
+  // dashboards can render a different pill ("Cancelled by customer")
+  // without joining BookingCustomer. `rescheduled_at` + count let
+  // staff see at a glance which bookings have been moved post-creation.
+  cancelled_by_customer Boolean   @default(false)
+  rescheduled_at        DateTime?
+  reschedule_count      Int       @default(0)
+
   notes             BookingNote[]
   price_adjustments BookingPriceAdjustment[]
+
+  // Demo-data flag — see Service.is_demo.
+  is_demo Boolean @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1077,6 +1171,7 @@ model Booking {
   @@index([business_id, created_at])
   @@index([customer_id, business_id, scheduled_at])
   @@index([status, hold_expires_at])
+  @@index([business_id, is_demo])
   @@index([status, reminder_sent, scheduled_at])
   @@index([sale_event_id, status])
   @@index([customer_id])
@@ -1229,8 +1324,20 @@ model AvailedService {
 
   price_adjustments BookingPriceAdjustment[]
 
+  // Once stamped, this service is locked into a payslip and won't be paid again.
+  paid_in_payslip_id Int?
+  paid_in_payslip    Payslip? @relation("PayslipAvailedServices", fields: [paid_in_payslip_id], references: [id], onDelete: SetNull)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  // Postgres EXCLUDE constraints (added in migration
+  // 20260508000000_add_availed_service_overlap_exclusion) prevent
+  // overlapping rows per served_by_id / served_by_owner_id when
+  // status <> 'CANCELLED' and cancelled_at IS NULL. Prisma cannot
+  // model EXCLUDE constraints — see the migration for definition.
+  // Application code in lib/services/booking.ts catches the
+  // resulting 23P01 error and surfaces SLOT_JUST_TAKEN.
 
   @@index([served_by_owner_id, status])
   @@index([served_by_id, status, completed_at])
@@ -1241,6 +1348,7 @@ model AvailedService {
   @@index([package_id])
   @@index([served_by_id])
   @@index([served_by_owner_id])
+  @@index([paid_in_payslip_id])
 }
 
 model ServiceFlow {
