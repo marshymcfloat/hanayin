@@ -81,7 +81,7 @@ describe("platform-admin plan code defaults", () => {
       session: {
         user: {
           id: "platform_admin_1",
-          email: "admin@serviceflow.test",
+          contactNumber: "+639170000001",
         },
       },
     });

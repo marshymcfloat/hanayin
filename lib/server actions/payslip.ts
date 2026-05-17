@@ -13,6 +13,7 @@ import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
 import { Role } from "@/prisma/generated/prisma/enums";
 import type { Prisma } from "@/prisma/generated/prisma/client";
+import { logAudit } from "@/lib/services/audit";
 
 // Eligibility filters that decide which rows count toward a payslip.
 // Keeping these in one place so preview (getPayslipDataAction) and
@@ -274,6 +275,34 @@ export async function createPayslipAction(data: {
           deduction: roundCurrency(deduction),
           comment: data.comment,
           status: PayslipStatus.PAID,
+        },
+      });
+
+      // Audit the creation inside the same txn so either both land or neither does.
+      // changes.after captures the exact released amounts for forensic replay.
+      await logAudit(tx, {
+        entityType: "Payslip",
+        entityId: String(payslip.id),
+        action: "CREATED",
+        actorId: session.user.id,
+        businessId: employee.business_id,
+        changes: {
+          after: {
+            employee_id: data.employeeId,
+            starting_date: startingDate.toISOString(),
+            ending_date: releasedAt.toISOString(),
+            released_at: releasedAt.toISOString(),
+            days_present: daysPresent,
+            paid_leave_days: paidLeaveDays,
+            basic_salary: roundCurrency(basicSalary),
+            commission_total: roundCurrency(commissionTotal),
+            gross_salary: roundCurrency(grossSalary),
+            deduction: roundCurrency(deduction),
+            net_salary: roundCurrency(netSalary),
+            comment: data.comment ?? null,
+            attendance_count: uniqueAttendance.length,
+            services_count: services.length,
+          },
         },
       });
 

@@ -24,7 +24,7 @@ interface BookingConfirmationEmailProps {
   amountPaid: string;
   remainingBalance: string;
   paymentStatusLabel?: string;
-  bookingUrl?: string;
+  manageUrl?: string;
   services: { name: string; price: number; quantity: number }[];
 }
 
@@ -39,7 +39,7 @@ export const BookingConfirmationEmail = ({
   amountPaid,
   remainingBalance,
   paymentStatusLabel,
-  bookingUrl,
+  manageUrl,
   services,
 }: BookingConfirmationEmailProps) => {
   const remainingBalanceValue = Number(remainingBalance);
@@ -155,11 +155,14 @@ export const BookingConfirmationEmail = ({
                 ) : null}
               </Section>
 
-              {bookingUrl && (
+              {manageUrl && (
                 <Section style={{ textAlign: "center", marginTop: "32px" }}>
-                  <Link href={bookingUrl} style={button}>
-                    View Booking Details
+                  <Link href={manageUrl} style={button}>
+                    Manage Your Booking
                   </Link>
+                  <Text style={{ ...metaText, marginTop: "12px", marginBottom: "0" }}>
+                    Cancel or reschedule up to 6 hours before your appointment.
+                  </Text>
                 </Section>
               )}
             </Section>

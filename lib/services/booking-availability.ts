@@ -1,5 +1,6 @@
 import { getCachedBusinessWithHoursAndEmployees } from "@/lib/data/cached";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
+import { logger } from "@/lib/logger";
 import { StaffProfile } from "@/prisma/generated/prisma/enums";
 import { prisma } from "@/prisma/prisma";
 import type { Prisma, PrismaClient } from "@/prisma/generated/prisma/client";
@@ -7,6 +8,19 @@ import { getBookingPolicyByBusinessSlug } from "./booking-policy";
 import type { BookingPolicy } from "@/lib/types/booking-policy";
 
 const MANILA_TIME_ZONE = "Asia/Manila";
+
+// Process-lifetime de-dupe so a non-PH business doesn't spam logs every
+// slot lookup. We still want the warning to be loud enough that anyone
+// onboarding a non-PH pilot business sees it immediately.
+const warnedTimezoneSlugs = new Set<string>();
+function warnIfNonManilaTimezone(slug: string, timezone: string | null | undefined) {
+  if (!timezone || timezone === MANILA_TIME_ZONE) return;
+  if (warnedTimezoneSlugs.has(slug)) return;
+  warnedTimezoneSlugs.add(slug);
+  logger.warn(
+    `[BookingAvailability] Business "${slug}" has timezone=${timezone}, but slot computation is still hard-locked to Asia/Manila. Slots will be wrong for non-PH businesses until the broader date-math refactor lands.`,
+  );
+}
 
 type AvailabilityDbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -756,6 +770,8 @@ export async function computeSlots({
           getBusinessContext(db, businessSlug),
           getBookingPolicyByBusinessSlug(db, businessSlug),
         ]);
+
+  warnIfNonManilaTimezone(businessSlug, business.timezone);
 
   const dayDiff = getHorizonDayDiff(date, now);
   if (dayDiff < 0 || dayDiff >= policy.bookingHorizonDays) {
