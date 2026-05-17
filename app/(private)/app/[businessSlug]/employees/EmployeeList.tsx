@@ -36,6 +36,7 @@ import {
   Phone,
   Wallet,
   Calendar,
+  CalendarClock,
   Briefcase,
   ShieldCheck,
 } from "lucide-react";
@@ -65,6 +66,7 @@ interface EmployeeListProps {
   onEdit: (employee: EmployeeWithDetails) => void;
   onDelete: (id: number) => void;
   onResetPassword: (employee: EmployeeWithDetails) => void;
+  onEditSchedule: (employee: EmployeeWithDetails) => void;
 }
 
 const AVATAR_GRADIENTS = [
@@ -119,6 +121,7 @@ export function EmployeeList({
   onEdit,
   onDelete,
   onResetPassword,
+  onEditSchedule,
 }: EmployeeListProps) {
   return (
     <>
@@ -374,6 +377,13 @@ export function EmployeeList({
                         >
                           <KeyRound className="h-4 w-4 mr-2" />
                           Reset Password
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onEditSchedule(employee)}
+                          className="cursor-pointer"
+                        >
+                          <CalendarClock className="h-4 w-4 mr-2" />
+                          Edit Schedule
                         </DropdownMenuItem>
                         <EditPermissionsDialog
                           businessSlug={businessSlug}

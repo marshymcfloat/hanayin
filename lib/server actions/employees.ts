@@ -89,6 +89,17 @@ export async function getEmployeesAction() {
 }
 
 // Create a new employee (also creates a user account)
+// Sanitizes incoming day-of-week ints. Anything outside 0–6 is dropped;
+// duplicates are collapsed. Keeps the DB array small and predictable.
+function sanitizeRecurringDaysOff(input?: number[]): number[] {
+  if (!Array.isArray(input)) return [];
+  const cleaned = new Set<number>();
+  for (const day of input) {
+    if (Number.isInteger(day) && day >= 0 && day <= 6) cleaned.add(day);
+  }
+  return Array.from(cleaned).sort((a, b) => a - b);
+}
+
 export async function createEmployeeAction(data: {
   name: string;
   contact_number: string;
@@ -97,6 +108,7 @@ export async function createEmployeeAction(data: {
   profile?: StaffProfile;
   permissions?: StaffPermission[];
   specialties?: string[];
+  recurring_days_off?: number[];
 }) {
   const auth = await requireOwnerWriteAccess();
   if (!auth.success) return auth;
@@ -165,6 +177,7 @@ export async function createEmployeeAction(data: {
             profile,
             permissions,
             specialties: (data.specialties ?? []).map((s) => s.toLowerCase()),
+            recurring_days_off: sanitizeRecurringDaysOff(data.recurring_days_off),
           },
           include: {
             user: true,
@@ -212,6 +225,7 @@ export async function updateEmployeeAction(
     profile?: StaffProfile;
     permissions?: StaffPermission[];
     specialties?: string[];
+    recurring_days_off?: number[];
   },
 ) {
   const auth = await requireOwnerWriteAccess();
@@ -286,6 +300,9 @@ export async function updateEmployeeAction(
           }),
           ...(data.specialties !== undefined && {
             specialties: data.specialties.map((s) => s.toLowerCase()),
+          }),
+          ...(data.recurring_days_off !== undefined && {
+            recurring_days_off: sanitizeRecurringDaysOff(data.recurring_days_off),
           }),
           ...(data.profile !== undefined && { profile: nextProfile }),
           ...(nextPermissions !== undefined && { permissions: nextPermissions }),
@@ -390,5 +407,141 @@ export async function resetEmployeePasswordAction(
   } catch (error) {
     console.error("Failed to reset password:", error);
     return { success: false, error: "Failed to reset password" };
+  }
+}
+
+// ---- Employee weekly schedule ---------------------------------------
+
+export type EmployeeScheduleRow = {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+};
+
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+// Filters/normalizes incoming schedule rows. Anything we can't parse is
+// dropped so a bad submission can never make the DB go inconsistent.
+// Overlapping ranges on the same day are rejected -- not silently merged
+// -- so the user gets a clear error instead of mysteriously losing data.
+function validateScheduleRows(
+  rows: EmployeeScheduleRow[],
+): { ok: true; rows: EmployeeScheduleRow[] } | { ok: false; error: string } {
+  const cleaned: EmployeeScheduleRow[] = [];
+  for (const raw of rows) {
+    if (
+      !Number.isInteger(raw.day_of_week) ||
+      raw.day_of_week < 0 ||
+      raw.day_of_week > 6
+    ) {
+      return { ok: false, error: "Invalid day of week." };
+    }
+    if (!TIME_RE.test(raw.start_time) || !TIME_RE.test(raw.end_time)) {
+      return { ok: false, error: "Times must be in HH:MM 24h format." };
+    }
+    if (raw.start_time === raw.end_time) {
+      return { ok: false, error: "Start and end can't be the same time." };
+    }
+    cleaned.push({
+      day_of_week: raw.day_of_week,
+      start_time: raw.start_time,
+      end_time: raw.end_time,
+    });
+  }
+  // Check overlap per day (overnight shifts excluded from this check —
+  // they're rare and the booking engine handles them correctly).
+  const byDay = new Map<number, EmployeeScheduleRow[]>();
+  for (const row of cleaned) {
+    const list = byDay.get(row.day_of_week) ?? [];
+    list.push(row);
+    byDay.set(row.day_of_week, list);
+  }
+  for (const [, list] of byDay) {
+    const sorted = [...list]
+      .filter((r) => r.start_time < r.end_time)
+      .sort((a, b) => a.start_time.localeCompare(b.start_time));
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i].start_time < sorted[i - 1].end_time) {
+        return {
+          ok: false,
+          error: "Time ranges overlap on the same day.",
+        };
+      }
+    }
+  }
+  return { ok: true, rows: cleaned };
+}
+
+export async function getEmployeeScheduleAction(employeeId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
+  const businessId = await resolveTenantBusinessId(businessSlug);
+  if (!businessId) return { success: false, error: "Business not found" };
+
+  const employee = await prisma.employee.findFirst({
+    where: { id: employeeId, business_id: businessId },
+    select: { id: true },
+  });
+  if (!employee) return { success: false, error: "Employee not found" };
+
+  const rows = await prisma.employeeSchedule.findMany({
+    where: { employee_id: employeeId },
+    orderBy: [{ day_of_week: "asc" }, { start_time: "asc" }],
+    select: {
+      day_of_week: true,
+      start_time: true,
+      end_time: true,
+    },
+  });
+  return { success: true, data: rows };
+}
+
+export async function upsertEmployeeScheduleAction(
+  employeeId: number,
+  rows: EmployeeScheduleRow[],
+) {
+  const auth = await requireOwnerWriteAccess();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
+  const businessId = await resolveTenantBusinessId(businessSlug);
+  if (!businessId) return { success: false, error: "Business not found" };
+
+  const employee = await prisma.employee.findFirst({
+    where: { id: employeeId, business_id: businessId },
+    select: { id: true },
+  });
+  if (!employee) return { success: false, error: "Employee not found" };
+
+  const validated = validateScheduleRows(rows);
+  if (!validated.ok) return { success: false, error: validated.error };
+
+  try {
+    // Transactional replace-all keeps the schedule atomic — partial
+    // saves on validation failure would leave operators guessing what
+    // actually persisted.
+    await prisma.$transaction(async (tx) => {
+      await tx.employeeSchedule.deleteMany({
+        where: { employee_id: employeeId },
+      });
+      if (validated.rows.length > 0) {
+        await tx.employeeSchedule.createMany({
+          data: validated.rows.map((row) => ({
+            employee_id: employeeId,
+            day_of_week: row.day_of_week,
+            start_time: row.start_time,
+            end_time: row.end_time,
+          })),
+        });
+      }
+    });
+
+    revalidatePath(`/app/${businessSlug}/employees`);
+    return { success: true };
+  } catch (error) {
+    logger.error("Failed to upsert employee schedule:", { error });
+    return { success: false, error: "Failed to save schedule." };
   }
 }

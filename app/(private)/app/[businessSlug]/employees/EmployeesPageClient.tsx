@@ -44,6 +44,7 @@ import {
   updateEmployeeAction,
 } from "@/lib/server actions/employees";
 import { EmployeeList } from "./EmployeeList";
+import { ScheduleEditor } from "@/components/dashboard/owner/ScheduleEditor";
 
 type EmployeeWithDetails = Employee & {
   user: User;
@@ -206,6 +207,8 @@ interface EmployeeFormData {
   profile: StaffProfile;
   permissions: StaffPermission[];
   specialties: string[];
+  // 0=Sunday … 6=Saturday. Matches Prisma Employee.recurring_days_off.
+  recurring_days_off: number[];
 }
 
 const initialFormData: EmployeeFormData = {
@@ -216,6 +219,7 @@ const initialFormData: EmployeeFormData = {
   profile: StaffProfile.STAFF,
   permissions: [...PROFILE_DEFAULT_PERMISSIONS[StaffProfile.STAFF]],
   specialties: [],
+  recurring_days_off: [],
 };
 
 type OptimisticAction =
@@ -230,6 +234,7 @@ type OptimisticAction =
         profile: StaffProfile;
         permissions: StaffPermission[];
         specialties: string[];
+        recurring_days_off: number[];
       };
     }
   | { type: "delete"; employeeId: number }
@@ -248,6 +253,7 @@ export function EmployeesPageClient({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithDetails | null>(null);
   const [formData, setFormData] = useState<EmployeeFormData>(initialFormData);
   const [newPassword, setNewPassword] = useState("");
@@ -268,6 +274,7 @@ export function EmployeesPageClient({
                   profile: action.data.profile,
                   permissions: action.data.permissions,
                   specialties: action.data.specialties,
+                  recurring_days_off: action.data.recurring_days_off,
                   user: {
                     ...emp.user,
                     name: action.data.name,
@@ -343,6 +350,7 @@ export function EmployeesPageClient({
       profile: formData.profile,
       permissions: formData.permissions,
       specialties: formData.specialties,
+      recurring_days_off: formData.recurring_days_off,
     });
     setIsLoading(false);
     if (result.success) {
@@ -372,6 +380,7 @@ export function EmployeesPageClient({
       profile: formData.profile,
       permissions: formData.permissions,
       specialties: formData.specialties,
+      recurring_days_off: formData.recurring_days_off,
     };
     setIsEditDialogOpen(false);
     startTransition(async () => {
@@ -438,6 +447,7 @@ export function EmployeesPageClient({
           ? employee.permissions
           : PROFILE_DEFAULT_PERMISSIONS[employee.profile ?? StaffProfile.STAFF],
       specialties: employee.specialties ?? [],
+      recurring_days_off: employee.recurring_days_off ?? [],
     });
     setIsEditDialogOpen(true);
   };
@@ -446,6 +456,11 @@ export function EmployeesPageClient({
     setSelectedEmployee(employee);
     setNewPassword("");
     setIsResetPasswordDialogOpen(true);
+  };
+
+  const openScheduleDialog = (employee: EmployeeWithDetails) => {
+    setSelectedEmployee(employee);
+    setIsScheduleDialogOpen(true);
   };
 
   const hasActiveFilter = search.trim().length > 0 || profileFilter !== "ALL";
@@ -630,6 +645,7 @@ export function EmployeesPageClient({
               onEdit={openEditDialog}
               onDelete={handleDeleteEmployee}
               onResetPassword={openResetPasswordDialog}
+              onEditSchedule={openScheduleDialog}
             />
           )}
         </div>
@@ -676,6 +692,19 @@ export function EmployeesPageClient({
           loading={isLoading}
         />
       </Dialog>
+
+      {/* Weekly schedule */}
+      {selectedEmployee ? (
+        <ScheduleEditor
+          employeeId={selectedEmployee.id}
+          employeeName={selectedEmployee.user.name}
+          open={isScheduleDialogOpen}
+          onOpenChange={(open) => {
+            setIsScheduleDialogOpen(open);
+            if (!open) setSelectedEmployee(null);
+          }}
+        />
+      ) : null}
 
       {/* Reset password */}
       <Dialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
@@ -1022,6 +1051,52 @@ function EmployeeForm({
         </div>
         <p className="text-xs text-muted-foreground">
           Pick specialties or choose Generalist to allow all services.
+        </p>
+      </div>
+
+      {/* Recurring days off — 0=Sun … 6=Sat to match BusinessHours
+          and getPHDayOfWeek(). Honored by booking availability so
+          customers can't book a day the employee never works. */}
+      <div className="grid gap-2">
+        <Label>Recurring days off</Label>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { day: 0, label: "Sun" },
+            { day: 1, label: "Mon" },
+            { day: 2, label: "Tue" },
+            { day: 3, label: "Wed" },
+            { day: 4, label: "Thu" },
+            { day: 5, label: "Fri" },
+            { day: 6, label: "Sat" },
+          ].map(({ day, label }) => {
+            const isSelected = formData.recurring_days_off.includes(day);
+            return (
+              <button
+                key={day}
+                type="button"
+                onClick={() => {
+                  const next = isSelected
+                    ? formData.recurring_days_off.filter((d) => d !== day)
+                    : [...formData.recurring_days_off, day].sort((a, b) => a - b);
+                  setFormData({ ...formData, recurring_days_off: next });
+                }}
+                className={cn(
+                  "inline-flex items-center gap-1.5 h-8 min-w-[3rem] justify-center px-3 rounded-full text-xs font-semibold border transition-colors cursor-pointer",
+                  isSelected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground hover:border-primary/30",
+                )}
+                aria-pressed={isSelected}
+              >
+                {isSelected && <Check className="h-3.5 w-3.5" />}
+                {label}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Days the employee never works. Customers won&apos;t see slots
+          on these days even if business hours are open.
         </p>
       </div>
     </div>

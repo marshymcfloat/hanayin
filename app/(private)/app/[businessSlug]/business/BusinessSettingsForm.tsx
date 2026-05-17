@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import * as React from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/ui/image-upload";
 import LocationInputGroup from "@/components/business/LocationInputGroup";
@@ -24,6 +40,9 @@ import {
   RefreshCw,
   Unplug,
   AlertCircle,
+  Check,
+  ChevronsUpDown,
+  Globe,
 } from "lucide-react";
 import {
   BusinessType,
@@ -51,6 +70,8 @@ interface BusinessSettingsFormProps {
     structure: BusinessStructure;
     allow_employee_self_booking: boolean;
     manager_can_serve: boolean;
+    timezone: string;
+    formal_schedule_enabled: boolean;
     growth_settings: {
       business_type: BusinessType;
       max_discount_percent: number;
@@ -80,6 +101,40 @@ export function BusinessSettingsForm({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [disconnectingId, setDisconnectingId] = useTransition();
+  const [timezone, setTimezone] = useState(business.timezone);
+  const [formalSchedule, setFormalSchedule] = useState(
+    business.formal_schedule_enabled,
+  );
+  const [tzPickerOpen, setTzPickerOpen] = useState(false);
+
+  // Full IANA list. `Intl.supportedValuesOf` is in Node 18+ and all modern
+  // browsers; we defensively fall back to a curated short list so the
+  // combobox still renders on environments missing the API.
+  const timezoneOptions = useMemo(() => {
+    try {
+      const supported = (
+        Intl as unknown as { supportedValuesOf?: (k: string) => string[] }
+      ).supportedValuesOf?.("timeZone");
+      if (supported && supported.length > 0) return supported;
+    } catch {
+      // fall through
+    }
+    return [
+      "Asia/Manila",
+      "Asia/Singapore",
+      "Asia/Tokyo",
+      "Asia/Hong_Kong",
+      "Asia/Jakarta",
+      "Australia/Sydney",
+      "America/Los_Angeles",
+      "America/Denver",
+      "America/Chicago",
+      "America/New_York",
+      "Europe/London",
+      "Europe/Berlin",
+      "UTC",
+    ];
+  }, []);
 
   const connectionMap = useMemo(
     () =>
@@ -294,6 +349,107 @@ export function BusinessSettingsForm({
                 <option value="false">No</option>
               </select>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
+        <CardHeader className="bg-white border-b border-zinc-100 p-6">
+          <CardTitle className="text-xl font-bold text-foreground">
+            Scheduling &amp; Timezone
+          </CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Controls how booking slots and employee shifts are interpreted.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 bg-white space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="timezoneTrigger" className="text-zinc-700">
+              Business Timezone
+            </Label>
+            <input type="hidden" name="timezone" value={timezone} />
+            <Popover open={tzPickerOpen} onOpenChange={setTzPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  id="timezoneTrigger"
+                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={tzPickerOpen}
+                  className="w-full justify-between rounded-xl border-zinc-200 hover:bg-zinc-50 font-normal cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-zinc-400" />
+                    {timezone}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[var(--radix-popover-trigger-width)] p-0"
+                align="start"
+              >
+                <Command>
+                  <CommandInput placeholder="Search timezone..." />
+                  <CommandList className="max-h-72">
+                    <CommandEmpty>No timezone found.</CommandEmpty>
+                    <CommandGroup>
+                      {timezoneOptions.map((tz) => (
+                        <CommandItem
+                          key={tz}
+                          value={tz}
+                          onSelect={(v) => {
+                            setTimezone(v);
+                            setTzPickerOpen(false);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              timezone === tz ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                          {tz}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <p className="text-[0.8rem] text-muted-foreground">
+              IANA timezone identifier. Slot math is currently locked to
+              Asia/Manila; this field is stored for an upcoming refactor.
+            </p>
+          </div>
+
+          <div className="flex items-start justify-between gap-4 rounded-2xl border border-zinc-200/70 bg-zinc-50/40 p-4">
+            <div className="space-y-1">
+              <Label
+                htmlFor="formalScheduleEnabled"
+                className="text-sm font-semibold text-zinc-800 cursor-pointer"
+              >
+                Formal weekly schedules
+              </Label>
+              <p className="text-[0.8rem] text-muted-foreground max-w-md">
+                When on, employees with an EmployeeSchedule are constrained
+                to their shift windows. Employees with no schedule rows
+                fall back to business hours, so flipping this won&apos;t
+                accidentally hide everyone at once.
+              </p>
+            </div>
+            <input
+              type="hidden"
+              name="formalScheduleEnabled"
+              value={formalSchedule ? "true" : "false"}
+            />
+            <Switch
+              id="formalScheduleEnabled"
+              checked={formalSchedule}
+              onCheckedChange={setFormalSchedule}
+              className="cursor-pointer"
+            />
           </div>
         </CardContent>
       </Card>

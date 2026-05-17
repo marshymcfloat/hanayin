@@ -7,6 +7,20 @@ import { tenantCacheTags } from "@/lib/data/cached";
 import { getBusinessStructureTemplate, normalizeBusinessStructure } from "@/lib/business-structure";
 import { normalizeGrowthToneProfile } from "@/lib/services/growth/tone-profiles";
 
+const DEFAULT_TIMEZONE = "Asia/Manila";
+
+// Rejects garbage like "PST" / "GMT+8" / empty string. Intl will throw on
+// an unknown IANA name — caller falls back to the previous value.
+function isValidIanaTimeZone(tz: string): boolean {
+  if (!tz || typeof tz !== "string") return false;
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz }).format(new Date());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function updateBusinessAction(
   businessSlug: string,
   formData: FormData,
@@ -78,6 +92,15 @@ export async function updateBusinessAction(
         ? managerCanServeValue.toLowerCase() === "true"
         : structureTemplate.managerCanServe;
 
+    const timezoneRaw = (formData.get("timezone") as string | null) ?? "";
+    const timezone = isValidIanaTimeZone(timezoneRaw)
+      ? timezoneRaw
+      : DEFAULT_TIMEZONE;
+
+    const formalScheduleEnabled =
+      (formData.get("formalScheduleEnabled") as string | null)?.toLowerCase() ===
+      "true";
+
     const updatedBusiness = await prisma.business.update({
       where: { slug: businessSlug },
       data: {
@@ -90,6 +113,8 @@ export async function updateBusinessAction(
         structure,
         allow_employee_self_booking: allowEmployeeSelfBooking,
         manager_can_serve: managerCanServe,
+        timezone,
+        formal_schedule_enabled: formalScheduleEnabled,
       },
     });
 
