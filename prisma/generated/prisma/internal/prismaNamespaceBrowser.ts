@@ -354,6 +354,8 @@ export const OwnerScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
   specialties: 'specialties',
+  permissions: 'permissions',
+  is_primary: 'is_primary',
   business_id: 'business_id'
 } as const
 

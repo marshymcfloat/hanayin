@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, RefreshCcw, Crown } from "lucide-react";
 import { EditOwnerSpecialtiesDialog } from "@/components/owners/EditOwnerSpecialtiesDialog";
+import { EditOwnerPermissionsDialog } from "@/components/owners/EditOwnerPermissionsDialog";
 import { OwnersTable } from "@/components/owners/OwnersTable";
 
 type OwnerWithUser = Owner & {
@@ -30,6 +31,7 @@ export function OwnersPageClient({
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [selectedOwner, setSelectedOwner] = useState<OwnerWithUser | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isPermissionsDialogOpen, setIsPermissionsDialogOpen] = useState(false);
 
   const filteredOwners = useMemo(() => {
     return owners.filter((owner) => {
@@ -52,8 +54,18 @@ export function OwnersPageClient({
     setIsEditDialogOpen(true);
   };
 
+  const handleEditPermissions = (owner: OwnerWithUser) => {
+    setSelectedOwner(owner);
+    setIsPermissionsDialogOpen(true);
+  };
+
   const handleDialogClose = () => {
     setIsEditDialogOpen(false);
+    setSelectedOwner(null);
+  };
+
+  const handlePermissionsDialogClose = () => {
+    setIsPermissionsDialogOpen(false);
     setSelectedOwner(null);
   };
 
@@ -112,7 +124,11 @@ export function OwnersPageClient({
               </p>
             </div>
           ) : (
-            <OwnersTable owners={filteredOwners} onEditSpecialties={handleEditSpecialties} />
+            <OwnersTable
+              owners={filteredOwners}
+              onEditSpecialties={handleEditSpecialties}
+              onEditPermissions={handleEditPermissions}
+            />
           )}
         </div>
       </div>
@@ -127,6 +143,19 @@ export function OwnersPageClient({
           router.refresh();
         }}
       />
+
+      {selectedOwner ? (
+        <EditOwnerPermissionsDialog
+          ownerId={selectedOwner.id}
+          ownerName={selectedOwner.user.name}
+          isPrimary={selectedOwner.is_primary}
+          currentPermissions={selectedOwner.permissions}
+          open={isPermissionsDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) handlePermissionsDialogClose();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

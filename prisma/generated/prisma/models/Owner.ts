@@ -37,12 +37,14 @@ export type OwnerSumAggregateOutputType = {
 export type OwnerMinAggregateOutputType = {
   id: number | null
   user_id: string | null
+  is_primary: boolean | null
   business_id: string | null
 }
 
 export type OwnerMaxAggregateOutputType = {
   id: number | null
   user_id: string | null
+  is_primary: boolean | null
   business_id: string | null
 }
 
@@ -50,6 +52,8 @@ export type OwnerCountAggregateOutputType = {
   id: number
   user_id: number
   specialties: number
+  permissions: number
+  is_primary: number
   business_id: number
   _all: number
 }
@@ -66,12 +70,14 @@ export type OwnerSumAggregateInputType = {
 export type OwnerMinAggregateInputType = {
   id?: true
   user_id?: true
+  is_primary?: true
   business_id?: true
 }
 
 export type OwnerMaxAggregateInputType = {
   id?: true
   user_id?: true
+  is_primary?: true
   business_id?: true
 }
 
@@ -79,6 +85,8 @@ export type OwnerCountAggregateInputType = {
   id?: true
   user_id?: true
   specialties?: true
+  permissions?: true
+  is_primary?: true
   business_id?: true
   _all?: true
 }
@@ -173,6 +181,8 @@ export type OwnerGroupByOutputType = {
   id: number
   user_id: string
   specialties: string[]
+  permissions: $Enums.OwnerPermission[]
+  is_primary: boolean
   business_id: string
   _count: OwnerCountAggregateOutputType | null
   _avg: OwnerAvgAggregateOutputType | null
@@ -203,6 +213,8 @@ export type OwnerWhereInput = {
   id?: Prisma.IntFilter<"Owner"> | number
   user_id?: Prisma.StringFilter<"Owner"> | string
   specialties?: Prisma.StringNullableListFilter<"Owner">
+  permissions?: Prisma.EnumOwnerPermissionNullableListFilter<"Owner">
+  is_primary?: Prisma.BoolFilter<"Owner"> | boolean
   business_id?: Prisma.StringFilter<"Owner"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
@@ -213,6 +225,8 @@ export type OwnerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
+  permissions?: Prisma.SortOrder
+  is_primary?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   business?: Prisma.BusinessOrderByWithRelationInput
@@ -227,6 +241,8 @@ export type OwnerWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.OwnerWhereInput[]
   NOT?: Prisma.OwnerWhereInput | Prisma.OwnerWhereInput[]
   specialties?: Prisma.StringNullableListFilter<"Owner">
+  permissions?: Prisma.EnumOwnerPermissionNullableListFilter<"Owner">
+  is_primary?: Prisma.BoolFilter<"Owner"> | boolean
   business_id?: Prisma.StringFilter<"Owner"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
@@ -237,6 +253,8 @@ export type OwnerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
+  permissions?: Prisma.SortOrder
+  is_primary?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   _count?: Prisma.OwnerCountOrderByAggregateInput
   _avg?: Prisma.OwnerAvgOrderByAggregateInput
@@ -252,11 +270,15 @@ export type OwnerScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Owner"> | number
   user_id?: Prisma.StringWithAggregatesFilter<"Owner"> | string
   specialties?: Prisma.StringNullableListFilter<"Owner">
+  permissions?: Prisma.EnumOwnerPermissionNullableListFilter<"Owner">
+  is_primary?: Prisma.BoolWithAggregatesFilter<"Owner"> | boolean
   business_id?: Prisma.StringWithAggregatesFilter<"Owner"> | string
 }
 
 export type OwnerCreateInput = {
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   user: Prisma.UserCreateNestedOneWithoutOwnerInput
   business: Prisma.BusinessCreateNestedOneWithoutOwnersInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_by_ownerInput
@@ -266,12 +288,16 @@ export type OwnerUncheckedCreateInput = {
   id?: number
   user_id: string
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   business_id: string
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_by_ownerInput
 }
 
 export type OwnerUpdateInput = {
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutOwnersNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_by_ownerNestedInput
@@ -281,6 +307,8 @@ export type OwnerUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerNestedInput
 }
@@ -289,17 +317,23 @@ export type OwnerCreateManyInput = {
   id?: number
   user_id: string
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   business_id: string
 }
 
 export type OwnerUpdateManyMutationInput = {
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type OwnerUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -318,6 +352,14 @@ export type OwnerNullableScalarRelationFilter = {
   isNot?: Prisma.OwnerWhereInput | null
 }
 
+export type EnumOwnerPermissionNullableListFilter<$PrismaModel = never> = {
+  equals?: $Enums.OwnerPermission[] | Prisma.ListEnumOwnerPermissionFieldRefInput<$PrismaModel> | null
+  has?: $Enums.OwnerPermission | Prisma.EnumOwnerPermissionFieldRefInput<$PrismaModel> | null
+  hasEvery?: $Enums.OwnerPermission[] | Prisma.ListEnumOwnerPermissionFieldRefInput<$PrismaModel>
+  hasSome?: $Enums.OwnerPermission[] | Prisma.ListEnumOwnerPermissionFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
+}
+
 export type OwnerBusiness_idUser_idCompoundUniqueInput = {
   business_id: string
   user_id: string
@@ -327,6 +369,8 @@ export type OwnerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
+  permissions?: Prisma.SortOrder
+  is_primary?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -337,12 +381,14 @@ export type OwnerAvgOrderByAggregateInput = {
 export type OwnerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
+  is_primary?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
 export type OwnerMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
+  is_primary?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -428,9 +474,18 @@ export type OwnerCreatespecialtiesInput = {
   set: string[]
 }
 
+export type OwnerCreatepermissionsInput = {
+  set: $Enums.OwnerPermission[]
+}
+
 export type OwnerUpdatespecialtiesInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type OwnerUpdatepermissionsInput = {
+  set?: $Enums.OwnerPermission[]
+  push?: $Enums.OwnerPermission | $Enums.OwnerPermission[]
 }
 
 export type OwnerCreateNestedOneWithoutServed_servicesInput = {
@@ -451,6 +506,8 @@ export type OwnerUpdateOneWithoutServed_servicesNestedInput = {
 
 export type OwnerCreateWithoutBusinessInput = {
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   user: Prisma.UserCreateNestedOneWithoutOwnerInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_by_ownerInput
 }
@@ -459,6 +516,8 @@ export type OwnerUncheckedCreateWithoutBusinessInput = {
   id?: number
   user_id: string
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_by_ownerInput
 }
 
@@ -495,11 +554,15 @@ export type OwnerScalarWhereInput = {
   id?: Prisma.IntFilter<"Owner"> | number
   user_id?: Prisma.StringFilter<"Owner"> | string
   specialties?: Prisma.StringNullableListFilter<"Owner">
+  permissions?: Prisma.EnumOwnerPermissionNullableListFilter<"Owner">
+  is_primary?: Prisma.BoolFilter<"Owner"> | boolean
   business_id?: Prisma.StringFilter<"Owner"> | string
 }
 
 export type OwnerCreateWithoutUserInput = {
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   business: Prisma.BusinessCreateNestedOneWithoutOwnersInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_by_ownerInput
 }
@@ -507,6 +570,8 @@ export type OwnerCreateWithoutUserInput = {
 export type OwnerUncheckedCreateWithoutUserInput = {
   id?: number
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   business_id: string
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_by_ownerInput
 }
@@ -529,6 +594,8 @@ export type OwnerUpdateToOneWithWhereWithoutUserInput = {
 
 export type OwnerUpdateWithoutUserInput = {
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   business?: Prisma.BusinessUpdateOneRequiredWithoutOwnersNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_by_ownerNestedInput
 }
@@ -536,12 +603,16 @@ export type OwnerUpdateWithoutUserInput = {
 export type OwnerUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerNestedInput
 }
 
 export type OwnerCreateWithoutServed_servicesInput = {
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   user: Prisma.UserCreateNestedOneWithoutOwnerInput
   business: Prisma.BusinessCreateNestedOneWithoutOwnersInput
 }
@@ -550,6 +621,8 @@ export type OwnerUncheckedCreateWithoutServed_servicesInput = {
   id?: number
   user_id: string
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
   business_id: string
 }
 
@@ -571,6 +644,8 @@ export type OwnerUpdateToOneWithWhereWithoutServed_servicesInput = {
 
 export type OwnerUpdateWithoutServed_servicesInput = {
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutOwnersNestedInput
 }
@@ -579,6 +654,8 @@ export type OwnerUncheckedUpdateWithoutServed_servicesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -586,10 +663,14 @@ export type OwnerCreateManyBusinessInput = {
   id?: number
   user_id: string
   specialties?: Prisma.OwnerCreatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerCreatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: boolean
 }
 
 export type OwnerUpdateWithoutBusinessInput = {
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_by_ownerNestedInput
 }
@@ -598,6 +679,8 @@ export type OwnerUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerNestedInput
 }
 
@@ -605,6 +688,8 @@ export type OwnerUncheckedUpdateManyWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   specialties?: Prisma.OwnerUpdatespecialtiesInput | string[]
+  permissions?: Prisma.OwnerUpdatepermissionsInput | $Enums.OwnerPermission[]
+  is_primary?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -642,6 +727,8 @@ export type OwnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   user_id?: boolean
   specialties?: boolean
+  permissions?: boolean
+  is_primary?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -653,6 +740,8 @@ export type OwnerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   user_id?: boolean
   specialties?: boolean
+  permissions?: boolean
+  is_primary?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -662,6 +751,8 @@ export type OwnerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   user_id?: boolean
   specialties?: boolean
+  permissions?: boolean
+  is_primary?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -671,10 +762,12 @@ export type OwnerSelectScalar = {
   id?: boolean
   user_id?: boolean
   specialties?: boolean
+  permissions?: boolean
+  is_primary?: boolean
   business_id?: boolean
 }
 
-export type OwnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "specialties" | "business_id", ExtArgs["result"]["owner"]>
+export type OwnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "specialties" | "permissions" | "is_primary" | "business_id", ExtArgs["result"]["owner"]>
 export type OwnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -701,6 +794,8 @@ export type $OwnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: number
     user_id: string
     specialties: string[]
+    permissions: $Enums.OwnerPermission[]
+    is_primary: boolean
     business_id: string
   }, ExtArgs["result"]["owner"]>
   composites: {}
@@ -1131,6 +1226,8 @@ export interface OwnerFieldRefs {
   readonly id: Prisma.FieldRef<"Owner", 'Int'>
   readonly user_id: Prisma.FieldRef<"Owner", 'String'>
   readonly specialties: Prisma.FieldRef<"Owner", 'String[]'>
+  readonly permissions: Prisma.FieldRef<"Owner", 'OwnerPermission[]'>
+  readonly is_primary: Prisma.FieldRef<"Owner", 'Boolean'>
   readonly business_id: Prisma.FieldRef<"Owner", 'String'>
 }
     

@@ -1065,7 +1065,9 @@ async function main() {
         slug: s.slug,
         initials: s.initials,
         description: s.note,
-        owners: { create: { user_id: ownerUser.id, specialties: [] } },
+        owners: {
+          create: { user_id: ownerUser.id, specialties: [], is_primary: true },
+        },
       },
     });
 

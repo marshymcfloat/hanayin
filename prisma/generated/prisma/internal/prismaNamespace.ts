@@ -4501,6 +4501,8 @@ export const OwnerScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
   specialties: 'specialties',
+  permissions: 'permissions',
+  is_primary: 'is_primary',
   business_id: 'business_id'
 } as const
 
@@ -5476,6 +5478,20 @@ export type EnumPayslipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'PayslipStatus[]'
  */
 export type ListEnumPayslipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PayslipStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OwnerPermission[]'
+ */
+export type ListEnumOwnerPermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OwnerPermission[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OwnerPermission'
+ */
+export type EnumOwnerPermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OwnerPermission'>
     
 
 

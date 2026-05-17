@@ -265,6 +265,11 @@ export async function createBusinessWithSubscriptionAction(
           create: {
             user_id: ownerUser.id,
             specialties: [],
+            // First (and only) owner of a brand-new business is the
+            // primary; permissions default to the full set via the
+            // enum default. Impersonation + future co-owner invites
+            // rely on this being set on the founding owner.
+            is_primary: true,
           },
         },
       },
@@ -1337,7 +1342,16 @@ export async function impersonateBusinessOwnerAction(businessId: string) {
       id: true,
       slug: true,
       name: true,
+      // Ordering primary-first means owners[0] in a multi-owner
+      // business is the canonical "owner of record" rather than
+      // whichever row happened to land first. Backfill in the
+      // 20260517000000 migration ensures every business has exactly
+      // one primary.
       owners: {
+        orderBy: [
+          { is_primary: "desc" },
+          { id: "asc" },
+        ],
         take: 1,
         select: { user_id: true },
       },

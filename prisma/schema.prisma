@@ -144,6 +144,22 @@ enum StaffPermission {
   SOCIAL_POST_PUBLISH
 }
 
+// Per-owner capabilities. Single-owner businesses default to the full
+// set so existing behavior is preserved. Co-owners can be granted a
+// restricted subset (e.g. sales-only) by clearing chips on the owner
+// permissions editor.
+enum OwnerPermission {
+  BILLING_VIEW
+  BILLING_MANAGE
+  REPORTS_VIEW_FULL
+  REPORTS_VIEW_SALES_ONLY
+  EMPLOYEES_MANAGE
+  STAFF_MANAGE
+  SETTINGS_MANAGE
+  CATALOG_MANAGE
+  PAYROLL_MANAGE
+}
+
 enum BillingInterval {
   MONTHLY
   YEARLY
@@ -661,12 +677,26 @@ model Owner {
 
   specialties String[] @default([]) // Array of service categories this owner can perform
 
+  // Capability set for this owner. Defaults to full power so the
+  // single-owner case continues to work without any UI changes. The
+  // platform-admin impersonation flow + screens that read this field
+  // can gate sub-features (e.g. "Reports — full" vs "Reports — sales
+  // only") for co-owners with a restricted set.
+  permissions OwnerPermission[] @default([BILLING_VIEW, BILLING_MANAGE, REPORTS_VIEW_FULL, EMPLOYEES_MANAGE, STAFF_MANAGE, SETTINGS_MANAGE, CATALOG_MANAGE, PAYROLL_MANAGE])
+
+  // Exactly one primary per business (enforced by app-level
+  // transaction in setPrimaryOwnerAction). The platform-admin
+  // impersonation action targets the primary so multi-owner doesn't
+  // silently pick "owners[0]".
+  is_primary Boolean @default(false)
+
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   served_services AvailedService[] @relation("OwnerServedServices")
 
   @@unique([business_id, user_id])
+  @@index([business_id, is_primary])
 }
 
 model SubscriptionPlan {

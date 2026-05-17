@@ -12,8 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Crown } from "lucide-react";
+import { Edit, Crown, ShieldCheck, Star } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { setPrimaryOwnerAction } from "@/lib/server actions/owners";
 
 type OwnerWithUser = Owner & {
   user: User;
@@ -22,9 +25,25 @@ type OwnerWithUser = Owner & {
 interface OwnersTableProps {
   owners: OwnerWithUser[];
   onEditSpecialties: (owner: OwnerWithUser) => void;
+  onEditPermissions: (owner: OwnerWithUser) => void;
 }
 
-export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
+export function OwnersTable({
+  owners,
+  onEditSpecialties,
+  onEditPermissions,
+}: OwnersTableProps) {
+  const router = useRouter();
+
+  async function handleSetPrimary(owner: OwnerWithUser) {
+    const result = await setPrimaryOwnerAction(owner.id);
+    if (result.success) {
+      toast.success(`${owner.user.name} set as primary owner`);
+      router.refresh();
+    } else {
+      toast.error(result.error || "Failed to set primary owner");
+    }
+  }
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -125,13 +144,25 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                       <span className="font-medium text-sm text-foreground">
                         {owner.user.name}
                       </span>
-                      <Badge
-                        variant="outline"
-                        className="w-fit text-[10px] h-5 px-1.5 border-primary/30 text-primary bg-primary/10"
-                      >
-                        <Crown className="h-3 w-3 mr-0.5" />
-                        Owner
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        <Badge
+                          variant="outline"
+                          className="w-fit text-[10px] h-5 px-1.5 border-primary/30 text-primary bg-primary/10"
+                        >
+                          <Crown className="h-3 w-3 mr-0.5" />
+                          Owner
+                        </Badge>
+                        {owner.is_primary ? (
+                          <Badge
+                            variant="outline"
+                            className="w-fit text-[10px] h-5 px-1.5 border-amber-300 text-amber-700 bg-amber-50"
+                            title="Primary owner of record"
+                          >
+                            <Star className="h-3 w-3 mr-0.5 fill-amber-400 text-amber-500" />
+                            Primary
+                          </Badge>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </TableCell>
@@ -160,14 +191,40 @@ export function OwnersTable({ owners, onEditSpecialties }: OwnersTableProps) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right pr-6 py-4">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 hover:bg-accent/30 hover:text-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all cursor-pointer"
-                    onClick={() => onEditSpecialties(owner)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
+                  <div className="inline-flex items-center gap-1">
+                    {!owner.is_primary ? (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        title="Set as primary owner"
+                        aria-label="Set as primary owner"
+                        className="h-8 w-8 hover:bg-amber-50 hover:text-amber-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all cursor-pointer"
+                        onClick={() => handleSetPrimary(owner)}
+                      >
+                        <Star className="h-4 w-4" />
+                      </Button>
+                    ) : null}
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      title="Edit permissions"
+                      aria-label="Edit permissions"
+                      className="h-8 w-8 hover:bg-accent/30 hover:text-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all cursor-pointer"
+                      onClick={() => onEditPermissions(owner)}
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      title="Edit specialties"
+                      aria-label="Edit specialties"
+                      className="h-8 w-8 hover:bg-accent/30 hover:text-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all cursor-pointer"
+                      onClick={() => onEditSpecialties(owner)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

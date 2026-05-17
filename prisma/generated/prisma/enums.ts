@@ -56,6 +56,21 @@ export const StaffPermission = {
 export type StaffPermission = (typeof StaffPermission)[keyof typeof StaffPermission]
 
 
+export const OwnerPermission = {
+  BILLING_VIEW: 'BILLING_VIEW',
+  BILLING_MANAGE: 'BILLING_MANAGE',
+  REPORTS_VIEW_FULL: 'REPORTS_VIEW_FULL',
+  REPORTS_VIEW_SALES_ONLY: 'REPORTS_VIEW_SALES_ONLY',
+  EMPLOYEES_MANAGE: 'EMPLOYEES_MANAGE',
+  STAFF_MANAGE: 'STAFF_MANAGE',
+  SETTINGS_MANAGE: 'SETTINGS_MANAGE',
+  CATALOG_MANAGE: 'CATALOG_MANAGE',
+  PAYROLL_MANAGE: 'PAYROLL_MANAGE'
+} as const
+
+export type OwnerPermission = (typeof OwnerPermission)[keyof typeof OwnerPermission]
+
+
 export const BillingInterval = {
   MONTHLY: 'MONTHLY',
   YEARLY: 'YEARLY'
