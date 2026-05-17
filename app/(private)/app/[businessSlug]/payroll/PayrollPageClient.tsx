@@ -14,9 +14,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Employee, User, Payslip } from "@/prisma/generated/prisma/client";
 import { formatPH } from "@/lib/date-utils";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, Wallet, Phone, Search, RefreshCcw } from "lucide-react";
+import { Plus, Wallet, Phone, Search, RefreshCcw, History } from "lucide-react";
 import { useState, useRef } from "react";
 import { PayslipGenerationDialog } from "@/components/dashboard/owner/PayslipGenerationDialog";
+import { PayslipAuditDialog } from "@/components/dashboard/owner/PayslipAuditDialog";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 
@@ -32,6 +33,10 @@ export function PayrollPageClient({
 }) {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [auditEmployee, setAuditEmployee] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
   const [search, setSearch] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -192,16 +197,33 @@ export function PayrollPageClient({
                           )}
                         </div>
 
-                        <Button
-                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl cursor-pointer"
-                          onClick={() => {
-                            setSelectedEmployeeId(emp.id);
-                            setIsDialogOpen(true);
-                          }}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Generate Payslip
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl cursor-pointer"
+                            onClick={() => {
+                              setSelectedEmployeeId(emp.id);
+                              setIsDialogOpen(true);
+                            }}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Generate Payslip
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="rounded-xl cursor-pointer border-border"
+                            onClick={() =>
+                              setAuditEmployee({
+                                id: emp.id,
+                                name: emp.user.name,
+                              })
+                            }
+                            aria-label={`View payslip audit for ${emp.user.name}`}
+                            title="Payslip audit history"
+                          >
+                            <History className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     );
                   })}
@@ -280,18 +302,36 @@ export function PayrollPageClient({
                               )}
                             </TableCell>
                             <TableCell className="text-right pr-6 py-4">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="gap-2 rounded-xl border-border hover:bg-accent/30 cursor-pointer"
-                                onClick={() => {
-                                  setSelectedEmployeeId(emp.id);
-                                  setIsDialogOpen(true);
-                                }}
-                              >
-                                <Plus className="h-4 w-4" />
-                                Generate
-                              </Button>
+                              <div className="inline-flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="gap-2 rounded-xl cursor-pointer text-muted-foreground hover:text-foreground"
+                                  onClick={() =>
+                                    setAuditEmployee({
+                                      id: emp.id,
+                                      name: emp.user.name,
+                                    })
+                                  }
+                                  aria-label={`View payslip audit for ${emp.user.name}`}
+                                  title="Audit history"
+                                >
+                                  <History className="h-4 w-4" />
+                                  History
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="gap-2 rounded-xl border-border hover:bg-accent/30 cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedEmployeeId(emp.id);
+                                    setIsDialogOpen(true);
+                                  }}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                  Generate
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -311,6 +351,17 @@ export function PayrollPageClient({
         onOpenChange={setIsDialogOpen}
         onSuccess={handleSuccess}
       />
+
+      {auditEmployee ? (
+        <PayslipAuditDialog
+          employeeId={auditEmployee.id}
+          employeeName={auditEmployee.name}
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setAuditEmployee(null);
+          }}
+        />
+      ) : null}
     </>
   );
 }

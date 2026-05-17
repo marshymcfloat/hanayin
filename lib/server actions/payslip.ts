@@ -362,6 +362,70 @@ export async function createPayslipAction(data: {
   }
 }
 
+// Returns all AuditLog entries for every payslip owned by the given
+// employee. Owner-only by default; managers within the same business
+// can also view (auditing for the team they manage). Tenant-scoped:
+// always filters on the caller's business_id so cross-tenant id
+// collisions can't leak data.
+export async function getEmployeePayslipAuditAction(employeeId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  // Permission gate. Owner is always allowed. Managers are allowed
+  // because the audit feature is in the "team I manage" surface.
+  let isAllowed = session.user.role === Role.OWNER;
+  if (!isAllowed) {
+    const callerEmp = await prisma.employee.findUnique({
+      where: { user_id: session.user.id },
+      select: { profile: true, business: { select: { slug: true } } },
+    });
+    isAllowed =
+      callerEmp?.profile === "MANAGER" &&
+      callerEmp.business.slug === businessSlug;
+  }
+  if (!isAllowed) {
+    return { success: false, error: "Forbidden" };
+  }
+
+  const target = await prisma.employee.findFirst({
+    where: { id: employeeId, business: { slug: businessSlug } },
+    select: {
+      id: true,
+      business_id: true,
+      payslips: { select: { id: true }, orderBy: { id: "desc" } },
+    },
+  });
+  if (!target) return { success: false, error: "Employee not found" };
+
+  const payslipIds = target.payslips.map((p) => String(p.id));
+  if (payslipIds.length === 0) {
+    return { success: true, data: [] as Array<never> };
+  }
+
+  const rows = await prisma.auditLog.findMany({
+    where: {
+      entity_type: "Payslip",
+      entity_id: { in: payslipIds },
+      business_id: target.business_id,
+    },
+    orderBy: { created_at: "desc" },
+    take: 100,
+  });
+
+  return {
+    success: true,
+    data: rows.map((row) => ({
+      id: row.id,
+      payslipId: row.entity_id,
+      action: row.action,
+      actorId: row.actor_id,
+      changes: (row.changes as Record<string, unknown> | null) ?? null,
+      createdAt: row.created_at.toISOString(),
+    })),
+  };
+}
+
 export async function getPayslipHistoryAction(employeeId: number) {
   const auth = await requireAuth();
   if (!auth.success) return auth;
