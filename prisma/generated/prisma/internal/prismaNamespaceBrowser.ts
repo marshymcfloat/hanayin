@@ -64,6 +64,7 @@ export const ModelName = {
   EmployeeAttendance: 'EmployeeAttendance',
   Payslip: 'Payslip',
   SpecialDate: 'SpecialDate',
+  BrandAsset: 'BrandAsset',
   Owner: 'Owner',
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
@@ -348,6 +349,23 @@ export const SpecialDateScalarFieldEnum = {
 } as const
 
 export type SpecialDateScalarFieldEnum = (typeof SpecialDateScalarFieldEnum)[keyof typeof SpecialDateScalarFieldEnum]
+
+
+export const BrandAssetScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  kind: 'kind',
+  url: 'url',
+  alt: 'alt',
+  storage_key: 'storage_key',
+  service_id: 'service_id',
+  employee_id: 'employee_id',
+  uploaded_by_user_id: 'uploaded_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BrandAssetScalarFieldEnum = (typeof BrandAssetScalarFieldEnum)[keyof typeof BrandAssetScalarFieldEnum]
 
 
 export const OwnerScalarFieldEnum = {

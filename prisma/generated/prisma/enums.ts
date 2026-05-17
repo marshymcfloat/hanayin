@@ -56,6 +56,17 @@ export const StaffPermission = {
 export type StaffPermission = (typeof StaffPermission)[keyof typeof StaffPermission]
 
 
+export const BrandAssetKind = {
+  LOGO: 'LOGO',
+  HERO: 'HERO',
+  SERVICE: 'SERVICE',
+  EMPLOYEE: 'EMPLOYEE',
+  REFERENCE: 'REFERENCE'
+} as const
+
+export type BrandAssetKind = (typeof BrandAssetKind)[keyof typeof BrandAssetKind]
+
+
 export const OwnerPermission = {
   BILLING_VIEW: 'BILLING_VIEW',
   BILLING_MANAGE: 'BILLING_MANAGE',

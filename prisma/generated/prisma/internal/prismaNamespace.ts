@@ -397,6 +397,7 @@ export const ModelName = {
   EmployeeAttendance: 'EmployeeAttendance',
   Payslip: 'Payslip',
   SpecialDate: 'SpecialDate',
+  BrandAsset: 'BrandAsset',
   Owner: 'Owner',
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
@@ -450,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeSchedule" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeSchedule" | "employeeAttendance" | "payslip" | "specialDate" | "brandAsset" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1413,6 +1414,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SpecialDateCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SpecialDateCountAggregateOutputType> | number
+        }
+      }
+    }
+    BrandAsset: {
+      payload: Prisma.$BrandAssetPayload<ExtArgs>
+      fields: Prisma.BrandAssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrandAssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrandAssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>
+        }
+        findFirst: {
+          args: Prisma.BrandAssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrandAssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>
+        }
+        findMany: {
+          args: Prisma.BrandAssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>[]
+        }
+        create: {
+          args: Prisma.BrandAssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>
+        }
+        createMany: {
+          args: Prisma.BrandAssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BrandAssetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>[]
+        }
+        delete: {
+          args: Prisma.BrandAssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>
+        }
+        update: {
+          args: Prisma.BrandAssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.BrandAssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrandAssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BrandAssetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>[]
+        }
+        upsert: {
+          args: Prisma.BrandAssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrandAssetPayload>
+        }
+        aggregate: {
+          args: Prisma.BrandAssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrandAsset>
+        }
+        groupBy: {
+          args: Prisma.BrandAssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandAssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrandAssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrandAssetCountAggregateOutputType> | number
         }
       }
     }
@@ -4497,6 +4572,23 @@ export const SpecialDateScalarFieldEnum = {
 export type SpecialDateScalarFieldEnum = (typeof SpecialDateScalarFieldEnum)[keyof typeof SpecialDateScalarFieldEnum]
 
 
+export const BrandAssetScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  kind: 'kind',
+  url: 'url',
+  alt: 'alt',
+  storage_key: 'storage_key',
+  service_id: 'service_id',
+  employee_id: 'employee_id',
+  uploaded_by_user_id: 'uploaded_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BrandAssetScalarFieldEnum = (typeof BrandAssetScalarFieldEnum)[keyof typeof BrandAssetScalarFieldEnum]
+
+
 export const OwnerScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
@@ -5482,6 +5574,20 @@ export type ListEnumPayslipStatusFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'BrandAssetKind'
+ */
+export type EnumBrandAssetKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BrandAssetKind'>
+    
+
+
+/**
+ * Reference to a field of type 'BrandAssetKind[]'
+ */
+export type ListEnumBrandAssetKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BrandAssetKind[]'>
+    
+
+
+/**
  * Reference to a field of type 'OwnerPermission[]'
  */
 export type ListEnumOwnerPermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OwnerPermission[]'>
@@ -6022,6 +6128,7 @@ export type GlobalOmitConfig = {
   employeeAttendance?: Prisma.EmployeeAttendanceOmit
   payslip?: Prisma.PayslipOmit
   specialDate?: Prisma.SpecialDateOmit
+  brandAsset?: Prisma.BrandAssetOmit
   owner?: Prisma.OwnerOmit
   subscriptionPlan?: Prisma.SubscriptionPlanOmit
   businessSubscription?: Prisma.BusinessSubscriptionOmit

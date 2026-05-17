@@ -274,6 +274,7 @@ export type EmployeeWhereInput = {
   served_services?: Prisma.AvailedServiceListRelationFilter
   payslips?: Prisma.PayslipListRelationFilter
   leave_requests?: Prisma.LeaveRequestListRelationFilter
+  brand_assets?: Prisma.BrandAssetListRelationFilter
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
 }
 
@@ -295,6 +296,7 @@ export type EmployeeOrderByWithRelationInput = {
   served_services?: Prisma.AvailedServiceOrderByRelationAggregateInput
   payslips?: Prisma.PayslipOrderByRelationAggregateInput
   leave_requests?: Prisma.LeaveRequestOrderByRelationAggregateInput
+  brand_assets?: Prisma.BrandAssetOrderByRelationAggregateInput
   business?: Prisma.BusinessOrderByWithRelationInput
 }
 
@@ -320,6 +322,7 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   served_services?: Prisma.AvailedServiceListRelationFilter
   payslips?: Prisma.PayslipListRelationFilter
   leave_requests?: Prisma.LeaveRequestListRelationFilter
+  brand_assets?: Prisma.BrandAssetListRelationFilter
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
 }, "id" | "user_id" | "business_id_user_id">
 
@@ -374,6 +377,7 @@ export type EmployeeCreateInput = {
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
   business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
 }
 
@@ -394,6 +398,7 @@ export type EmployeeUncheckedCreateInput = {
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeUpdateInput = {
@@ -411,6 +416,7 @@ export type EmployeeUpdateInput = {
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
 }
 
@@ -431,6 +437,7 @@ export type EmployeeUncheckedUpdateInput = {
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeCreateManyInput = {
@@ -726,6 +733,22 @@ export type EmployeeUpdateOneRequiredWithoutPayslipsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPayslipsInput, Prisma.EmployeeUpdateWithoutPayslipsInput>, Prisma.EmployeeUncheckedUpdateWithoutPayslipsInput>
 }
 
+export type EmployeeCreateNestedOneWithoutBrand_assetsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutBrand_assetsInput, Prisma.EmployeeUncheckedCreateWithoutBrand_assetsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutBrand_assetsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneWithoutBrand_assetsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutBrand_assetsInput, Prisma.EmployeeUncheckedCreateWithoutBrand_assetsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutBrand_assetsInput
+  upsert?: Prisma.EmployeeUpsertWithoutBrand_assetsInput
+  disconnect?: Prisma.EmployeeWhereInput | boolean
+  delete?: Prisma.EmployeeWhereInput | boolean
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutBrand_assetsInput, Prisma.EmployeeUpdateWithoutBrand_assetsInput>, Prisma.EmployeeUncheckedUpdateWithoutBrand_assetsInput>
+}
+
 export type EmployeeCreateNestedOneWithoutServed_servicesInput = {
   create?: Prisma.XOR<Prisma.EmployeeCreateWithoutServed_servicesInput, Prisma.EmployeeUncheckedCreateWithoutServed_servicesInput>
   connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutServed_servicesInput
@@ -757,6 +780,7 @@ export type EmployeeCreateWithoutBusinessInput = {
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeUncheckedCreateWithoutBusinessInput = {
@@ -775,6 +799,7 @@ export type EmployeeUncheckedCreateWithoutBusinessInput = {
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutBusinessInput = {
@@ -834,6 +859,7 @@ export type EmployeeCreateWithoutLeave_requestsInput = {
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
   business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
 }
 
@@ -853,6 +879,7 @@ export type EmployeeUncheckedCreateWithoutLeave_requestsInput = {
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutLeave_requestsInput = {
@@ -885,6 +912,7 @@ export type EmployeeUpdateWithoutLeave_requestsInput = {
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
 }
 
@@ -904,6 +932,7 @@ export type EmployeeUncheckedUpdateWithoutLeave_requestsInput = {
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeCreateWithoutUserInput = {
@@ -920,6 +949,7 @@ export type EmployeeCreateWithoutUserInput = {
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
   business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
 }
 
@@ -939,6 +969,7 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutUserInput = {
@@ -971,6 +1002,7 @@ export type EmployeeUpdateWithoutUserInput = {
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
 }
 
@@ -990,6 +1022,7 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeCreateWithoutScheduleInput = {
@@ -1006,6 +1039,7 @@ export type EmployeeCreateWithoutScheduleInput = {
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
   business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
 }
 
@@ -1025,6 +1059,7 @@ export type EmployeeUncheckedCreateWithoutScheduleInput = {
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutScheduleInput = {
@@ -1057,6 +1092,7 @@ export type EmployeeUpdateWithoutScheduleInput = {
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
 }
 
@@ -1076,6 +1112,7 @@ export type EmployeeUncheckedUpdateWithoutScheduleInput = {
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeCreateWithoutAttendanceInput = {
@@ -1092,6 +1129,7 @@ export type EmployeeCreateWithoutAttendanceInput = {
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
   business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
 }
 
@@ -1111,6 +1149,7 @@ export type EmployeeUncheckedCreateWithoutAttendanceInput = {
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutAttendanceInput = {
@@ -1143,6 +1182,7 @@ export type EmployeeUpdateWithoutAttendanceInput = {
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
 }
 
@@ -1162,6 +1202,7 @@ export type EmployeeUncheckedUpdateWithoutAttendanceInput = {
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeCreateWithoutPayslipsInput = {
@@ -1178,6 +1219,7 @@ export type EmployeeCreateWithoutPayslipsInput = {
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
   business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
 }
 
@@ -1197,6 +1239,7 @@ export type EmployeeUncheckedCreateWithoutPayslipsInput = {
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutPayslipsInput = {
@@ -1229,6 +1272,7 @@ export type EmployeeUpdateWithoutPayslipsInput = {
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
 }
 
@@ -1248,6 +1292,97 @@ export type EmployeeUncheckedUpdateWithoutPayslipsInput = {
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutBrand_assetsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutBrand_assetsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutBrand_assetsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutBrand_assetsInput, Prisma.EmployeeUncheckedCreateWithoutBrand_assetsInput>
+}
+
+export type EmployeeUpsertWithoutBrand_assetsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutBrand_assetsInput, Prisma.EmployeeUncheckedUpdateWithoutBrand_assetsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutBrand_assetsInput, Prisma.EmployeeUncheckedCreateWithoutBrand_assetsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutBrand_assetsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutBrand_assetsInput, Prisma.EmployeeUncheckedUpdateWithoutBrand_assetsInput>
+}
+
+export type EmployeeUpdateWithoutBrand_assetsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutBrand_assetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeCreateWithoutServed_servicesInput = {
@@ -1264,6 +1399,7 @@ export type EmployeeCreateWithoutServed_servicesInput = {
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
   business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
 }
 
@@ -1283,6 +1419,7 @@ export type EmployeeUncheckedCreateWithoutServed_servicesInput = {
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutServed_servicesInput = {
@@ -1315,6 +1452,7 @@ export type EmployeeUpdateWithoutServed_servicesInput = {
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
 }
 
@@ -1334,6 +1472,7 @@ export type EmployeeUncheckedUpdateWithoutServed_servicesInput = {
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeCreateManyBusinessInput = {
@@ -1364,6 +1503,7 @@ export type EmployeeUpdateWithoutBusinessInput = {
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeUncheckedUpdateWithoutBusinessInput = {
@@ -1382,6 +1522,7 @@ export type EmployeeUncheckedUpdateWithoutBusinessInput = {
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeUncheckedUpdateManyWithoutBusinessInput = {
@@ -1408,6 +1549,7 @@ export type EmployeeCountOutputType = {
   served_services: number
   payslips: number
   leave_requests: number
+  brand_assets: number
 }
 
 export type EmployeeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1416,6 +1558,7 @@ export type EmployeeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   served_services?: boolean | EmployeeCountOutputTypeCountServed_servicesArgs
   payslips?: boolean | EmployeeCountOutputTypeCountPayslipsArgs
   leave_requests?: boolean | EmployeeCountOutputTypeCountLeave_requestsArgs
+  brand_assets?: boolean | EmployeeCountOutputTypeCountBrand_assetsArgs
 }
 
 /**
@@ -1463,6 +1606,13 @@ export type EmployeeCountOutputTypeCountLeave_requestsArgs<ExtArgs extends runti
   where?: Prisma.LeaveRequestWhereInput
 }
 
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountBrand_assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BrandAssetWhereInput
+}
+
 
 export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1482,6 +1632,7 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   served_services?: boolean | Prisma.Employee$served_servicesArgs<ExtArgs>
   payslips?: boolean | Prisma.Employee$payslipsArgs<ExtArgs>
   leave_requests?: boolean | Prisma.Employee$leave_requestsArgs<ExtArgs>
+  brand_assets?: boolean | Prisma.Employee$brand_assetsArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.EmployeeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employee"]>
@@ -1540,6 +1691,7 @@ export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   served_services?: boolean | Prisma.Employee$served_servicesArgs<ExtArgs>
   payslips?: boolean | Prisma.Employee$payslipsArgs<ExtArgs>
   leave_requests?: boolean | Prisma.Employee$leave_requestsArgs<ExtArgs>
+  brand_assets?: boolean | Prisma.Employee$brand_assetsArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.EmployeeCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1561,6 +1713,7 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     served_services: Prisma.$AvailedServicePayload<ExtArgs>[]
     payslips: Prisma.$PayslipPayload<ExtArgs>[]
     leave_requests: Prisma.$LeaveRequestPayload<ExtArgs>[]
+    brand_assets: Prisma.$BrandAssetPayload<ExtArgs>[]
     business: Prisma.$BusinessPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1975,6 +2128,7 @@ export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends runtime
   served_services<T extends Prisma.Employee$served_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$served_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailedServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payslips<T extends Prisma.Employee$payslipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$payslipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayslipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leave_requests<T extends Prisma.Employee$leave_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$leave_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  brand_assets<T extends Prisma.Employee$brand_assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$brand_assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2529,6 +2683,30 @@ export type Employee$leave_requestsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.LeaveRequestScalarFieldEnum | Prisma.LeaveRequestScalarFieldEnum[]
+}
+
+/**
+ * Employee.brand_assets
+ */
+export type Employee$brand_assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BrandAsset
+   */
+  select?: Prisma.BrandAssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BrandAsset
+   */
+  omit?: Prisma.BrandAssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BrandAssetInclude<ExtArgs> | null
+  where?: Prisma.BrandAssetWhereInput
+  orderBy?: Prisma.BrandAssetOrderByWithRelationInput | Prisma.BrandAssetOrderByWithRelationInput[]
+  cursor?: Prisma.BrandAssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BrandAssetScalarFieldEnum | Prisma.BrandAssetScalarFieldEnum[]
 }
 
 /**

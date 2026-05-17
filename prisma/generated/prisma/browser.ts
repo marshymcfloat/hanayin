@@ -96,6 +96,11 @@ export type Payslip = Prisma.PayslipModel
  */
 export type SpecialDate = Prisma.SpecialDateModel
 /**
+ * Model BrandAsset
+ * 
+ */
+export type BrandAsset = Prisma.BrandAssetModel
+/**
  * Model Owner
  * 
  */

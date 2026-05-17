@@ -67,6 +67,7 @@ model Business {
   leave_requests                    LeaveRequest[]
   business_hours                    BusinessHours[]
   service_flows                     ServiceFlow[]
+  brand_assets                      BrandAsset[]
   growth_settings                   BusinessGrowthSettings?
   growth_context_snapshots          GrowthContextSnapshot[]
   opportunities                     Opportunity[]
@@ -142,6 +143,18 @@ enum StaffPermission {
   SOCIAL_POST_REQUEST_CREATE
   SOCIAL_POST_REVIEW
   SOCIAL_POST_PUBLISH
+}
+
+// Categorizes uploaded brand imagery so the same library can power
+// logo watermarking, hero photos, AI reference images, and per-entity
+// thumbnails without a separate column on every owning model. The
+// kind drives which screens render the asset.
+enum BrandAssetKind {
+  LOGO
+  HERO
+  SERVICE
+  EMPLOYEE
+  REFERENCE
 }
 
 // Per-owner capabilities. Single-owner businesses default to the full
@@ -526,6 +539,7 @@ model User {
   booking_price_adjustments_created       BookingPriceAdjustment[]         @relation("BookingPriceAdjustmentCreatedBy")
   submitted_social_post_requests          SocialPostRequest[]              @relation("SocialPostRequestRequestedBy")
   reviewed_social_post_requests           SocialPostRequest[]              @relation("SocialPostRequestReviewedBy")
+  uploaded_brand_assets                   BrandAsset[]                     @relation("BrandAssetsUploadedBy")
 
   must_change_password     Boolean   @default(false)
   temp_password_expires_at DateTime?
@@ -560,6 +574,7 @@ model Employee {
   served_services AvailedService[]
   payslips        Payslip[]
   leave_requests  LeaveRequest[]
+  brand_assets    BrandAsset[]   @relation("EmployeeBrandAssets")
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
@@ -668,6 +683,49 @@ model SpecialDate {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+// Reusable brand-asset library per business. One row per uploaded
+// image, classified by `kind`. Designed so the same library can feed:
+//   - Watermarks (LOGO -> resvg overlay on social posts)
+//   - Hero / cover (HERO -> social previews, public booking page)
+//   - Service thumbnails (SERVICE -> service_id set)
+//   - Employee avatars (EMPLOYEE -> employee_id set)
+//   - AI image-gen reference photos (REFERENCE -> Gemini / OpenAI
+//     image-to-image)
+// kind=SERVICE / EMPLOYEE rows require the corresponding FK; other
+// kinds leave them null. Enforced by app-layer validation since
+// Postgres conditional NOT NULL needs CHECK constraints we'd rather
+// keep loose for migration ergonomics.
+model BrandAsset {
+  id          String         @id @default(cuid())
+  business_id String
+  business    Business       @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  kind BrandAssetKind
+
+  url         String
+  alt         String?
+  // Storage-backend hint (blob path) for future delete-on-remove cron.
+  // Stored separately from url so the public URL can be rewritten
+  // (e.g. CDN swap) without losing the original key.
+  storage_key String?
+
+  service_id  Int?
+  service     Service?       @relation("ServiceBrandAssets", fields: [service_id], references: [id], onDelete: Cascade)
+
+  employee_id Int?
+  employee    Employee?      @relation("EmployeeBrandAssets", fields: [employee_id], references: [id], onDelete: Cascade)
+
+  uploaded_by_user_id String?
+  uploaded_by         User?  @relation("BrandAssetsUploadedBy", fields: [uploaded_by_user_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, kind])
+  @@index([service_id])
+  @@index([employee_id])
 }
 
 model Owner {
@@ -1018,6 +1076,7 @@ model Service {
   sale_events      SaleEvent[]
   package_items    PackageItem[]
   gift_card_items  GiftCardService[]
+  brand_assets     BrandAsset[]    @relation("ServiceBrandAssets")
 
   flow_triggers    ServiceFlow[] @relation("FlowTrigger")
   flow_suggestions ServiceFlow[] @relation("FlowSuggestion")

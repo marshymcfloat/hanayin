@@ -494,6 +494,23 @@ export type EnumPayslipStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPayslipStatusFilter<$PrismaModel>
 }
 
+export type EnumBrandAssetKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.BrandAssetKind | Prisma.EnumBrandAssetKindFieldRefInput<$PrismaModel>
+  in?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel> | $Enums.BrandAssetKind
+}
+
+export type EnumBrandAssetKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BrandAssetKind | Prisma.EnumBrandAssetKindFieldRefInput<$PrismaModel>
+  in?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBrandAssetKindWithAggregatesFilter<$PrismaModel> | $Enums.BrandAssetKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
+}
+
 export type EnumBillingIntervalFilter<$PrismaModel = never> = {
   equals?: $Enums.BillingInterval | Prisma.EnumBillingIntervalFieldRefInput<$PrismaModel>
   in?: $Enums.BillingInterval[] | Prisma.ListEnumBillingIntervalFieldRefInput<$PrismaModel>
@@ -1575,6 +1592,23 @@ export type NestedEnumPayslipStatusWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPayslipStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPayslipStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumBrandAssetKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.BrandAssetKind | Prisma.EnumBrandAssetKindFieldRefInput<$PrismaModel>
+  in?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel> | $Enums.BrandAssetKind
+}
+
+export type NestedEnumBrandAssetKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BrandAssetKind | Prisma.EnumBrandAssetKindFieldRefInput<$PrismaModel>
+  in?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBrandAssetKindWithAggregatesFilter<$PrismaModel> | $Enums.BrandAssetKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
 }
 
 export type NestedEnumBillingIntervalFilter<$PrismaModel = never> = {

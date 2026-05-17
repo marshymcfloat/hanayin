@@ -281,6 +281,7 @@ export type ServiceWhereInput = {
   sale_events?: Prisma.SaleEventListRelationFilter
   package_items?: Prisma.PackageItemListRelationFilter
   gift_card_items?: Prisma.GiftCardServiceListRelationFilter
+  brand_assets?: Prisma.BrandAssetListRelationFilter
   flow_triggers?: Prisma.ServiceFlowListRelationFilter
   flow_suggestions?: Prisma.ServiceFlowListRelationFilter
 }
@@ -302,6 +303,7 @@ export type ServiceOrderByWithRelationInput = {
   sale_events?: Prisma.SaleEventOrderByRelationAggregateInput
   package_items?: Prisma.PackageItemOrderByRelationAggregateInput
   gift_card_items?: Prisma.GiftCardServiceOrderByRelationAggregateInput
+  brand_assets?: Prisma.BrandAssetOrderByRelationAggregateInput
   flow_triggers?: Prisma.ServiceFlowOrderByRelationAggregateInput
   flow_suggestions?: Prisma.ServiceFlowOrderByRelationAggregateInput
 }
@@ -326,6 +328,7 @@ export type ServiceWhereUniqueInput = Prisma.AtLeast<{
   sale_events?: Prisma.SaleEventListRelationFilter
   package_items?: Prisma.PackageItemListRelationFilter
   gift_card_items?: Prisma.GiftCardServiceListRelationFilter
+  brand_assets?: Prisma.BrandAssetListRelationFilter
   flow_triggers?: Prisma.ServiceFlowListRelationFilter
   flow_suggestions?: Prisma.ServiceFlowListRelationFilter
 }, "id">
@@ -381,6 +384,7 @@ export type ServiceCreateInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -401,6 +405,7 @@ export type ServiceUncheckedCreateInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -420,6 +425,7 @@ export type ServiceUpdateInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -440,6 +446,7 @@ export type ServiceUncheckedUpdateInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -492,6 +499,11 @@ export type ServiceListRelationFilter = {
 
 export type ServiceOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ServiceNullableScalarRelationFilter = {
+  is?: Prisma.ServiceWhereInput | null
+  isNot?: Prisma.ServiceWhereInput | null
 }
 
 export type ServiceCountOrderByAggregateInput = {
@@ -635,6 +647,22 @@ export type ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput = {
   deleteMany?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
 }
 
+export type ServiceCreateNestedOneWithoutBrand_assetsInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutBrand_assetsInput, Prisma.ServiceUncheckedCreateWithoutBrand_assetsInput>
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutBrand_assetsInput
+  connect?: Prisma.ServiceWhereUniqueInput
+}
+
+export type ServiceUpdateOneWithoutBrand_assetsNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutBrand_assetsInput, Prisma.ServiceUncheckedCreateWithoutBrand_assetsInput>
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutBrand_assetsInput
+  upsert?: Prisma.ServiceUpsertWithoutBrand_assetsInput
+  disconnect?: Prisma.ServiceWhereInput | boolean
+  delete?: Prisma.ServiceWhereInput | boolean
+  connect?: Prisma.ServiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceUpdateToOneWithWhereWithoutBrand_assetsInput, Prisma.ServiceUpdateWithoutBrand_assetsInput>, Prisma.ServiceUncheckedUpdateWithoutBrand_assetsInput>
+}
+
 export type ServiceCreateNestedOneWithoutPackage_itemsInput = {
   create?: Prisma.XOR<Prisma.ServiceCreateWithoutPackage_itemsInput, Prisma.ServiceUncheckedCreateWithoutPackage_itemsInput>
   connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutPackage_itemsInput
@@ -719,6 +747,7 @@ export type ServiceCreateWithoutBusinessInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -738,6 +767,7 @@ export type ServiceUncheckedCreateWithoutBusinessInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -799,6 +829,7 @@ export type ServiceCreateWithoutSale_eventsInput = {
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutServiceInput
   package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -818,6 +849,7 @@ export type ServiceUncheckedCreateWithoutSale_eventsInput = {
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServiceInput
   package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -843,6 +875,100 @@ export type ServiceUpdateManyWithWhereWithoutSale_eventsInput = {
   data: Prisma.XOR<Prisma.ServiceUpdateManyMutationInput, Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsInput>
 }
 
+export type ServiceCreateWithoutBrand_assetsInput = {
+  name: string
+  description?: string | null
+  price: number
+  estimated_cost?: number
+  duration?: number | null
+  category: string
+  is_demo?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  business: Prisma.BusinessCreateNestedOneWithoutServicesInput
+  availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutServiceInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
+  package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
+  gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
+  flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
+}
+
+export type ServiceUncheckedCreateWithoutBrand_assetsInput = {
+  id?: number
+  name: string
+  description?: string | null
+  price: number
+  estimated_cost?: number
+  duration?: number | null
+  category: string
+  business_id: string
+  is_demo?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServiceInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
+  package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
+  gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
+  flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
+}
+
+export type ServiceCreateOrConnectWithoutBrand_assetsInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutBrand_assetsInput, Prisma.ServiceUncheckedCreateWithoutBrand_assetsInput>
+}
+
+export type ServiceUpsertWithoutBrand_assetsInput = {
+  update: Prisma.XOR<Prisma.ServiceUpdateWithoutBrand_assetsInput, Prisma.ServiceUncheckedUpdateWithoutBrand_assetsInput>
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutBrand_assetsInput, Prisma.ServiceUncheckedCreateWithoutBrand_assetsInput>
+  where?: Prisma.ServiceWhereInput
+}
+
+export type ServiceUpdateToOneWithWhereWithoutBrand_assetsInput = {
+  where?: Prisma.ServiceWhereInput
+  data: Prisma.XOR<Prisma.ServiceUpdateWithoutBrand_assetsInput, Prisma.ServiceUncheckedUpdateWithoutBrand_assetsInput>
+}
+
+export type ServiceUpdateWithoutBrand_assetsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  business?: Prisma.BusinessUpdateOneRequiredWithoutServicesNestedInput
+  availed_services?: Prisma.AvailedServiceUpdateManyWithoutServiceNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
+  package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
+  gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
+  flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
+}
+
+export type ServiceUncheckedUpdateWithoutBrand_assetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServiceNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
+  package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
+  gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
+  flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
+}
+
 export type ServiceCreateWithoutPackage_itemsInput = {
   name: string
   description?: string | null
@@ -857,6 +983,7 @@ export type ServiceCreateWithoutPackage_itemsInput = {
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutServiceInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
   gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -876,6 +1003,7 @@ export type ServiceUncheckedCreateWithoutPackage_itemsInput = {
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServiceInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -910,6 +1038,7 @@ export type ServiceUpdateWithoutPackage_itemsInput = {
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutServiceNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
   gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -929,6 +1058,7 @@ export type ServiceUncheckedUpdateWithoutPackage_itemsInput = {
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServiceNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -947,6 +1077,7 @@ export type ServiceCreateWithoutGift_card_itemsInput = {
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutServiceInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -966,6 +1097,7 @@ export type ServiceUncheckedCreateWithoutGift_card_itemsInput = {
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServiceInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -1000,6 +1132,7 @@ export type ServiceUpdateWithoutGift_card_itemsInput = {
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutServiceNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1019,6 +1152,7 @@ export type ServiceUncheckedUpdateWithoutGift_card_itemsInput = {
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServiceNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1037,6 +1171,7 @@ export type ServiceCreateWithoutAvailed_servicesInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -1056,6 +1191,7 @@ export type ServiceUncheckedCreateWithoutAvailed_servicesInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
 }
@@ -1090,6 +1226,7 @@ export type ServiceUpdateWithoutAvailed_servicesInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1109,6 +1246,7 @@ export type ServiceUncheckedUpdateWithoutAvailed_servicesInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1128,6 +1266,7 @@ export type ServiceCreateWithoutFlow_triggersInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_suggestions?: Prisma.ServiceFlowCreateNestedManyWithoutSuggested_serviceInput
 }
 
@@ -1147,6 +1286,7 @@ export type ServiceUncheckedCreateWithoutFlow_triggersInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutSuggested_serviceInput
 }
 
@@ -1170,6 +1310,7 @@ export type ServiceCreateWithoutFlow_suggestionsInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowCreateNestedManyWithoutTrigger_serviceInput
 }
 
@@ -1189,6 +1330,7 @@ export type ServiceUncheckedCreateWithoutFlow_suggestionsInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_servicesInput
   package_items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutServiceInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedCreateNestedManyWithoutServiceInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutServiceInput
   flow_triggers?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutTrigger_serviceInput
 }
 
@@ -1223,6 +1365,7 @@ export type ServiceUpdateWithoutFlow_triggersInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
 }
 
@@ -1242,6 +1385,7 @@ export type ServiceUncheckedUpdateWithoutFlow_triggersInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
 }
 
@@ -1271,6 +1415,7 @@ export type ServiceUpdateWithoutFlow_suggestionsInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
 }
 
@@ -1290,6 +1435,7 @@ export type ServiceUncheckedUpdateWithoutFlow_suggestionsInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
 }
 
@@ -1320,6 +1466,7 @@ export type ServiceUpdateWithoutBusinessInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1339,6 +1486,7 @@ export type ServiceUncheckedUpdateWithoutBusinessInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_servicesNestedInput
   package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1370,6 +1518,7 @@ export type ServiceUpdateWithoutSale_eventsInput = {
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutServiceNestedInput
   package_items?: Prisma.PackageItemUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1389,6 +1538,7 @@ export type ServiceUncheckedUpdateWithoutSale_eventsInput = {
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServiceNestedInput
   package_items?: Prisma.PackageItemUncheckedUpdateManyWithoutServiceNestedInput
   gift_card_items?: Prisma.GiftCardServiceUncheckedUpdateManyWithoutServiceNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutServiceNestedInput
   flow_triggers?: Prisma.ServiceFlowUncheckedUpdateManyWithoutTrigger_serviceNestedInput
   flow_suggestions?: Prisma.ServiceFlowUncheckedUpdateManyWithoutSuggested_serviceNestedInput
 }
@@ -1417,6 +1567,7 @@ export type ServiceCountOutputType = {
   sale_events: number
   package_items: number
   gift_card_items: number
+  brand_assets: number
   flow_triggers: number
   flow_suggestions: number
 }
@@ -1426,6 +1577,7 @@ export type ServiceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   sale_events?: boolean | ServiceCountOutputTypeCountSale_eventsArgs
   package_items?: boolean | ServiceCountOutputTypeCountPackage_itemsArgs
   gift_card_items?: boolean | ServiceCountOutputTypeCountGift_card_itemsArgs
+  brand_assets?: boolean | ServiceCountOutputTypeCountBrand_assetsArgs
   flow_triggers?: boolean | ServiceCountOutputTypeCountFlow_triggersArgs
   flow_suggestions?: boolean | ServiceCountOutputTypeCountFlow_suggestionsArgs
 }
@@ -1471,6 +1623,13 @@ export type ServiceCountOutputTypeCountGift_card_itemsArgs<ExtArgs extends runti
 /**
  * ServiceCountOutputType without action
  */
+export type ServiceCountOutputTypeCountBrand_assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BrandAssetWhereInput
+}
+
+/**
+ * ServiceCountOutputType without action
+ */
 export type ServiceCountOutputTypeCountFlow_triggersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ServiceFlowWhereInput
 }
@@ -1500,6 +1659,7 @@ export type ServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   sale_events?: boolean | Prisma.Service$sale_eventsArgs<ExtArgs>
   package_items?: boolean | Prisma.Service$package_itemsArgs<ExtArgs>
   gift_card_items?: boolean | Prisma.Service$gift_card_itemsArgs<ExtArgs>
+  brand_assets?: boolean | Prisma.Service$brand_assetsArgs<ExtArgs>
   flow_triggers?: boolean | Prisma.Service$flow_triggersArgs<ExtArgs>
   flow_suggestions?: boolean | Prisma.Service$flow_suggestionsArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1556,6 +1716,7 @@ export type ServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   sale_events?: boolean | Prisma.Service$sale_eventsArgs<ExtArgs>
   package_items?: boolean | Prisma.Service$package_itemsArgs<ExtArgs>
   gift_card_items?: boolean | Prisma.Service$gift_card_itemsArgs<ExtArgs>
+  brand_assets?: boolean | Prisma.Service$brand_assetsArgs<ExtArgs>
   flow_triggers?: boolean | Prisma.Service$flow_triggersArgs<ExtArgs>
   flow_suggestions?: boolean | Prisma.Service$flow_suggestionsArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1575,6 +1736,7 @@ export type $ServicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     sale_events: Prisma.$SaleEventPayload<ExtArgs>[]
     package_items: Prisma.$PackageItemPayload<ExtArgs>[]
     gift_card_items: Prisma.$GiftCardServicePayload<ExtArgs>[]
+    brand_assets: Prisma.$BrandAssetPayload<ExtArgs>[]
     flow_triggers: Prisma.$ServiceFlowPayload<ExtArgs>[]
     flow_suggestions: Prisma.$ServiceFlowPayload<ExtArgs>[]
   }
@@ -1989,6 +2151,7 @@ export interface Prisma__ServiceClient<T, Null = never, ExtArgs extends runtime.
   sale_events<T extends Prisma.Service$sale_eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$sale_eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SaleEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   package_items<T extends Prisma.Service$package_itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$package_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PackageItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   gift_card_items<T extends Prisma.Service$gift_card_itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$gift_card_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GiftCardServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  brand_assets<T extends Prisma.Service$brand_assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$brand_assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   flow_triggers<T extends Prisma.Service$flow_triggersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$flow_triggersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceFlowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   flow_suggestions<T extends Prisma.Service$flow_suggestionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$flow_suggestionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceFlowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2520,6 +2683,30 @@ export type Service$gift_card_itemsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.GiftCardServiceScalarFieldEnum | Prisma.GiftCardServiceScalarFieldEnum[]
+}
+
+/**
+ * Service.brand_assets
+ */
+export type Service$brand_assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BrandAsset
+   */
+  select?: Prisma.BrandAssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BrandAsset
+   */
+  omit?: Prisma.BrandAssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BrandAssetInclude<ExtArgs> | null
+  where?: Prisma.BrandAssetWhereInput
+  orderBy?: Prisma.BrandAssetOrderByWithRelationInput | Prisma.BrandAssetOrderByWithRelationInput[]
+  cursor?: Prisma.BrandAssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BrandAssetScalarFieldEnum | Prisma.BrandAssetScalarFieldEnum[]
 }
 
 /**
