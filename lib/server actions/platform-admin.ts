@@ -16,7 +16,6 @@ import {
   ensureReferralCode,
   getDefaultTrialMonths,
   getPeriodEnd,
-  MANUAL_COLLECTION_MODE_ERROR,
   SUBSCRIPTION_PLAN_CODES,
   getSubscriptionEnforcementMode,
   markInvoicePaid,
@@ -438,14 +437,6 @@ export async function createSubscriptionInvoiceAction(
 
   revalidatePath("/platform/invoices");
   return { success: true as const, data: invoice };
-}
-
-export async function createSubscriptionCheckoutAction(_invoiceId: string) {
-  return { success: false as const, error: MANUAL_COLLECTION_MODE_ERROR };
-}
-
-export async function retryInvoiceCollectionAction(_invoiceId: string) {
-  return { success: false as const, error: MANUAL_COLLECTION_MODE_ERROR };
 }
 
 export async function applyCreditAdjustmentAction(

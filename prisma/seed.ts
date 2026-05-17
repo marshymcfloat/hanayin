@@ -22,7 +22,6 @@ async function main() {
   await prisma.referralCode.deleteMany();
   await prisma.subscriptionInvoice.deleteMany();
   await prisma.subscriptionCreditLedger.deleteMany();
-  await prisma.subscriptionPaymentMethod.deleteMany();
   await prisma.businessSubscription.deleteMany();
   await prisma.subscriptionPlan.deleteMany();
   await prisma.availedService.deleteMany();

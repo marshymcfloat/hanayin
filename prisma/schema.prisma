@@ -800,7 +800,6 @@ model BusinessSubscription {
   canceled_at          DateTime?
   started_at           DateTime  @default(now())
 
-  payment_method   SubscriptionPaymentMethod?
   invoices         SubscriptionInvoice[]
   credits          SubscriptionCreditLedger[]
   upgrade_requests SubscriptionPlanUpgradeRequest[]
@@ -847,26 +846,6 @@ model SubscriptionPlanUpgradeRequest {
   @@index([requested_by_user_id, created_at])
 }
 
-model SubscriptionPaymentMethod {
-  id String @id @default(cuid())
-
-  business_subscription_id String               @unique
-  business_subscription    BusinessSubscription @relation(fields: [business_subscription_id], references: [id], onDelete: Cascade)
-
-  provider                   String  @default("PAYMONGO")
-  provider_customer_id       String?
-  provider_payment_method_id String?
-  provider_payment_intent_id String?
-  brand                      String?
-  last4                      String?
-  is_default                 Boolean @default(true)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([provider, provider_customer_id])
-}
-
 model SubscriptionInvoice {
   id String @id @default(cuid())
 
@@ -892,12 +871,8 @@ model SubscriptionInvoice {
   amount_due            Int
   amount_paid           Int @default(0)
 
-  paymongo_checkout_session_id String?   @unique
-  paymongo_payment_intent_id   String?   @unique
-  paymongo_payment_method_id   String?
-  paymongo_payment_id          String?
-  paid_at                      DateTime?
-  metadata                     Json?
+  paid_at  DateTime?
+  metadata Json?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

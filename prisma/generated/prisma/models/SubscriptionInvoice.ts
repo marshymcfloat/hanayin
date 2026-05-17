@@ -55,10 +55,6 @@ export type SubscriptionInvoiceMinAggregateOutputType = {
   amount_credit_applied: number | null
   amount_due: number | null
   amount_paid: number | null
-  paymongo_checkout_session_id: string | null
-  paymongo_payment_intent_id: string | null
-  paymongo_payment_method_id: string | null
-  paymongo_payment_id: string | null
   paid_at: Date | null
   created_at: Date | null
   updated_at: Date | null
@@ -79,10 +75,6 @@ export type SubscriptionInvoiceMaxAggregateOutputType = {
   amount_credit_applied: number | null
   amount_due: number | null
   amount_paid: number | null
-  paymongo_checkout_session_id: string | null
-  paymongo_payment_intent_id: string | null
-  paymongo_payment_method_id: string | null
-  paymongo_payment_id: string | null
   paid_at: Date | null
   created_at: Date | null
   updated_at: Date | null
@@ -103,10 +95,6 @@ export type SubscriptionInvoiceCountAggregateOutputType = {
   amount_credit_applied: number
   amount_due: number
   amount_paid: number
-  paymongo_checkout_session_id: number
-  paymongo_payment_intent_id: number
-  paymongo_payment_method_id: number
-  paymongo_payment_id: number
   paid_at: number
   metadata: number
   created_at: number
@@ -144,10 +132,6 @@ export type SubscriptionInvoiceMinAggregateInputType = {
   amount_credit_applied?: true
   amount_due?: true
   amount_paid?: true
-  paymongo_checkout_session_id?: true
-  paymongo_payment_intent_id?: true
-  paymongo_payment_method_id?: true
-  paymongo_payment_id?: true
   paid_at?: true
   created_at?: true
   updated_at?: true
@@ -168,10 +152,6 @@ export type SubscriptionInvoiceMaxAggregateInputType = {
   amount_credit_applied?: true
   amount_due?: true
   amount_paid?: true
-  paymongo_checkout_session_id?: true
-  paymongo_payment_intent_id?: true
-  paymongo_payment_method_id?: true
-  paymongo_payment_id?: true
   paid_at?: true
   created_at?: true
   updated_at?: true
@@ -192,10 +172,6 @@ export type SubscriptionInvoiceCountAggregateInputType = {
   amount_credit_applied?: true
   amount_due?: true
   amount_paid?: true
-  paymongo_checkout_session_id?: true
-  paymongo_payment_intent_id?: true
-  paymongo_payment_method_id?: true
-  paymongo_payment_id?: true
   paid_at?: true
   metadata?: true
   created_at?: true
@@ -304,10 +280,6 @@ export type SubscriptionInvoiceGroupByOutputType = {
   amount_credit_applied: number
   amount_due: number
   amount_paid: number
-  paymongo_checkout_session_id: string | null
-  paymongo_payment_intent_id: string | null
-  paymongo_payment_method_id: string | null
-  paymongo_payment_id: string | null
   paid_at: Date | null
   metadata: runtime.JsonValue | null
   created_at: Date
@@ -352,10 +324,6 @@ export type SubscriptionInvoiceWhereInput = {
   amount_credit_applied?: Prisma.IntFilter<"SubscriptionInvoice"> | number
   amount_due?: Prisma.IntFilter<"SubscriptionInvoice"> | number
   amount_paid?: Prisma.IntFilter<"SubscriptionInvoice"> | number
-  paymongo_checkout_session_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_intent_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_method_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
   paid_at?: Prisma.DateTimeNullableFilter<"SubscriptionInvoice"> | Date | string | null
   metadata?: Prisma.JsonNullableFilter<"SubscriptionInvoice">
   created_at?: Prisma.DateTimeFilter<"SubscriptionInvoice"> | Date | string
@@ -380,10 +348,6 @@ export type SubscriptionInvoiceOrderByWithRelationInput = {
   amount_credit_applied?: Prisma.SortOrder
   amount_due?: Prisma.SortOrder
   amount_paid?: Prisma.SortOrder
-  paymongo_checkout_session_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   paid_at?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -395,8 +359,6 @@ export type SubscriptionInvoiceOrderByWithRelationInput = {
 
 export type SubscriptionInvoiceWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  paymongo_checkout_session_id?: string
-  paymongo_payment_intent_id?: string
   AND?: Prisma.SubscriptionInvoiceWhereInput | Prisma.SubscriptionInvoiceWhereInput[]
   OR?: Prisma.SubscriptionInvoiceWhereInput[]
   NOT?: Prisma.SubscriptionInvoiceWhereInput | Prisma.SubscriptionInvoiceWhereInput[]
@@ -413,8 +375,6 @@ export type SubscriptionInvoiceWhereUniqueInput = Prisma.AtLeast<{
   amount_credit_applied?: Prisma.IntFilter<"SubscriptionInvoice"> | number
   amount_due?: Prisma.IntFilter<"SubscriptionInvoice"> | number
   amount_paid?: Prisma.IntFilter<"SubscriptionInvoice"> | number
-  paymongo_payment_method_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
   paid_at?: Prisma.DateTimeNullableFilter<"SubscriptionInvoice"> | Date | string | null
   metadata?: Prisma.JsonNullableFilter<"SubscriptionInvoice">
   created_at?: Prisma.DateTimeFilter<"SubscriptionInvoice"> | Date | string
@@ -422,7 +382,7 @@ export type SubscriptionInvoiceWhereUniqueInput = Prisma.AtLeast<{
   business_subscription?: Prisma.XOR<Prisma.BusinessSubscriptionScalarRelationFilter, Prisma.BusinessSubscriptionWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   plan?: Prisma.XOR<Prisma.SubscriptionPlanScalarRelationFilter, Prisma.SubscriptionPlanWhereInput>
-}, "id" | "paymongo_checkout_session_id" | "paymongo_payment_intent_id">
+}, "id">
 
 export type SubscriptionInvoiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -439,10 +399,6 @@ export type SubscriptionInvoiceOrderByWithAggregationInput = {
   amount_credit_applied?: Prisma.SortOrder
   amount_due?: Prisma.SortOrder
   amount_paid?: Prisma.SortOrder
-  paymongo_checkout_session_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   paid_at?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -472,10 +428,6 @@ export type SubscriptionInvoiceScalarWhereWithAggregatesInput = {
   amount_credit_applied?: Prisma.IntWithAggregatesFilter<"SubscriptionInvoice"> | number
   amount_due?: Prisma.IntWithAggregatesFilter<"SubscriptionInvoice"> | number
   amount_paid?: Prisma.IntWithAggregatesFilter<"SubscriptionInvoice"> | number
-  paymongo_checkout_session_id?: Prisma.StringNullableWithAggregatesFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_intent_id?: Prisma.StringNullableWithAggregatesFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_method_id?: Prisma.StringNullableWithAggregatesFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_id?: Prisma.StringNullableWithAggregatesFilter<"SubscriptionInvoice"> | string | null
   paid_at?: Prisma.DateTimeNullableWithAggregatesFilter<"SubscriptionInvoice"> | Date | string | null
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"SubscriptionInvoice">
   created_at?: Prisma.DateTimeWithAggregatesFilter<"SubscriptionInvoice"> | Date | string
@@ -494,10 +446,6 @@ export type SubscriptionInvoiceCreateInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -522,10 +470,6 @@ export type SubscriptionInvoiceUncheckedCreateInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -544,10 +488,6 @@ export type SubscriptionInvoiceUpdateInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -572,10 +512,6 @@ export type SubscriptionInvoiceUncheckedUpdateInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -597,10 +533,6 @@ export type SubscriptionInvoiceCreateManyInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -619,10 +551,6 @@ export type SubscriptionInvoiceUpdateManyMutationInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -644,10 +572,6 @@ export type SubscriptionInvoiceUncheckedUpdateManyInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -679,10 +603,6 @@ export type SubscriptionInvoiceCountOrderByAggregateInput = {
   amount_credit_applied?: Prisma.SortOrder
   amount_due?: Prisma.SortOrder
   amount_paid?: Prisma.SortOrder
-  paymongo_checkout_session_id?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrder
   paid_at?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -711,10 +631,6 @@ export type SubscriptionInvoiceMaxOrderByAggregateInput = {
   amount_credit_applied?: Prisma.SortOrder
   amount_due?: Prisma.SortOrder
   amount_paid?: Prisma.SortOrder
-  paymongo_checkout_session_id?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrder
   paid_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -735,10 +651,6 @@ export type SubscriptionInvoiceMinOrderByAggregateInput = {
   amount_credit_applied?: Prisma.SortOrder
   amount_due?: Prisma.SortOrder
   amount_paid?: Prisma.SortOrder
-  paymongo_checkout_session_id?: Prisma.SortOrder
-  paymongo_payment_intent_id?: Prisma.SortOrder
-  paymongo_payment_method_id?: Prisma.SortOrder
-  paymongo_payment_id?: Prisma.SortOrder
   paid_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -893,10 +805,6 @@ export type SubscriptionInvoiceCreateWithoutBusinessInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -919,10 +827,6 @@ export type SubscriptionInvoiceUncheckedCreateWithoutBusinessInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -973,10 +877,6 @@ export type SubscriptionInvoiceScalarWhereInput = {
   amount_credit_applied?: Prisma.IntFilter<"SubscriptionInvoice"> | number
   amount_due?: Prisma.IntFilter<"SubscriptionInvoice"> | number
   amount_paid?: Prisma.IntFilter<"SubscriptionInvoice"> | number
-  paymongo_checkout_session_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_intent_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_method_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
-  paymongo_payment_id?: Prisma.StringNullableFilter<"SubscriptionInvoice"> | string | null
   paid_at?: Prisma.DateTimeNullableFilter<"SubscriptionInvoice"> | Date | string | null
   metadata?: Prisma.JsonNullableFilter<"SubscriptionInvoice">
   created_at?: Prisma.DateTimeFilter<"SubscriptionInvoice"> | Date | string
@@ -995,10 +895,6 @@ export type SubscriptionInvoiceCreateWithoutPlanInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -1021,10 +917,6 @@ export type SubscriptionInvoiceUncheckedCreateWithoutPlanInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -1069,10 +961,6 @@ export type SubscriptionInvoiceCreateWithoutBusiness_subscriptionInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -1095,10 +983,6 @@ export type SubscriptionInvoiceUncheckedCreateWithoutBusiness_subscriptionInput 
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -1145,10 +1029,6 @@ export type SubscriptionInvoiceCreateManyBusinessInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -1167,10 +1047,6 @@ export type SubscriptionInvoiceUpdateWithoutBusinessInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1193,10 +1069,6 @@ export type SubscriptionInvoiceUncheckedUpdateWithoutBusinessInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1217,10 +1089,6 @@ export type SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1241,10 +1109,6 @@ export type SubscriptionInvoiceCreateManyPlanInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -1263,10 +1127,6 @@ export type SubscriptionInvoiceUpdateWithoutPlanInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1289,10 +1149,6 @@ export type SubscriptionInvoiceUncheckedUpdateWithoutPlanInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1313,10 +1169,6 @@ export type SubscriptionInvoiceUncheckedUpdateManyWithoutPlanInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1337,10 +1189,6 @@ export type SubscriptionInvoiceCreateManyBusiness_subscriptionInput = {
   amount_credit_applied?: number
   amount_due: number
   amount_paid?: number
-  paymongo_checkout_session_id?: string | null
-  paymongo_payment_intent_id?: string | null
-  paymongo_payment_method_id?: string | null
-  paymongo_payment_id?: string | null
   paid_at?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
@@ -1359,10 +1207,6 @@ export type SubscriptionInvoiceUpdateWithoutBusiness_subscriptionInput = {
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1385,10 +1229,6 @@ export type SubscriptionInvoiceUncheckedUpdateWithoutBusiness_subscriptionInput 
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1409,10 +1249,6 @@ export type SubscriptionInvoiceUncheckedUpdateManyWithoutBusiness_subscriptionIn
   amount_credit_applied?: Prisma.IntFieldUpdateOperationsInput | number
   amount_due?: Prisma.IntFieldUpdateOperationsInput | number
   amount_paid?: Prisma.IntFieldUpdateOperationsInput | number
-  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1436,10 +1272,6 @@ export type SubscriptionInvoiceSelect<ExtArgs extends runtime.Types.Extensions.I
   amount_credit_applied?: boolean
   amount_due?: boolean
   amount_paid?: boolean
-  paymongo_checkout_session_id?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   paid_at?: boolean
   metadata?: boolean
   created_at?: boolean
@@ -1464,10 +1296,6 @@ export type SubscriptionInvoiceSelectCreateManyAndReturn<ExtArgs extends runtime
   amount_credit_applied?: boolean
   amount_due?: boolean
   amount_paid?: boolean
-  paymongo_checkout_session_id?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   paid_at?: boolean
   metadata?: boolean
   created_at?: boolean
@@ -1492,10 +1320,6 @@ export type SubscriptionInvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime
   amount_credit_applied?: boolean
   amount_due?: boolean
   amount_paid?: boolean
-  paymongo_checkout_session_id?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   paid_at?: boolean
   metadata?: boolean
   created_at?: boolean
@@ -1520,17 +1344,13 @@ export type SubscriptionInvoiceSelectScalar = {
   amount_credit_applied?: boolean
   amount_due?: boolean
   amount_paid?: boolean
-  paymongo_checkout_session_id?: boolean
-  paymongo_payment_intent_id?: boolean
-  paymongo_payment_method_id?: boolean
-  paymongo_payment_id?: boolean
   paid_at?: boolean
   metadata?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type SubscriptionInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_subscription_id" | "business_id" | "plan_id" | "status" | "currency" | "reason" | "period_start" | "period_end" | "due_at" | "amount_subtotal" | "amount_credit_applied" | "amount_due" | "amount_paid" | "paymongo_checkout_session_id" | "paymongo_payment_intent_id" | "paymongo_payment_method_id" | "paymongo_payment_id" | "paid_at" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["subscriptionInvoice"]>
+export type SubscriptionInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_subscription_id" | "business_id" | "plan_id" | "status" | "currency" | "reason" | "period_start" | "period_end" | "due_at" | "amount_subtotal" | "amount_credit_applied" | "amount_due" | "amount_paid" | "paid_at" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["subscriptionInvoice"]>
 export type SubscriptionInvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business_subscription?: boolean | Prisma.BusinessSubscriptionDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1569,10 +1389,6 @@ export type $SubscriptionInvoicePayload<ExtArgs extends runtime.Types.Extensions
     amount_credit_applied: number
     amount_due: number
     amount_paid: number
-    paymongo_checkout_session_id: string | null
-    paymongo_payment_intent_id: string | null
-    paymongo_payment_method_id: string | null
-    paymongo_payment_id: string | null
     paid_at: Date | null
     metadata: runtime.JsonValue | null
     created_at: Date
@@ -2017,10 +1833,6 @@ export interface SubscriptionInvoiceFieldRefs {
   readonly amount_credit_applied: Prisma.FieldRef<"SubscriptionInvoice", 'Int'>
   readonly amount_due: Prisma.FieldRef<"SubscriptionInvoice", 'Int'>
   readonly amount_paid: Prisma.FieldRef<"SubscriptionInvoice", 'Int'>
-  readonly paymongo_checkout_session_id: Prisma.FieldRef<"SubscriptionInvoice", 'String'>
-  readonly paymongo_payment_intent_id: Prisma.FieldRef<"SubscriptionInvoice", 'String'>
-  readonly paymongo_payment_method_id: Prisma.FieldRef<"SubscriptionInvoice", 'String'>
-  readonly paymongo_payment_id: Prisma.FieldRef<"SubscriptionInvoice", 'String'>
   readonly paid_at: Prisma.FieldRef<"SubscriptionInvoice", 'DateTime'>
   readonly metadata: Prisma.FieldRef<"SubscriptionInvoice", 'Json'>
   readonly created_at: Prisma.FieldRef<"SubscriptionInvoice", 'DateTime'>

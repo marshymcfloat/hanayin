@@ -10,9 +10,7 @@ function parsePositiveInt(value: string | undefined) {
 }
 
 export function getQrExpirySeconds() {
-  const configured =
-    parsePositiveInt(process.env.PAYMONGO_QR_EXPIRY_SECONDS) ??
-    parsePositiveInt(process.env.QR_HOLD_EXPIRY_SECONDS);
+  const configured = parsePositiveInt(process.env.QR_HOLD_EXPIRY_SECONDS);
 
   const value = configured ?? DEFAULT_QR_EXPIRY_SECONDS;
   return Math.min(MAX_QR_EXPIRY_SECONDS, Math.max(MIN_QR_EXPIRY_SECONDS, value));

@@ -1,9 +1,6 @@
-import { getBillingCollectionMode } from "@/features/billing/subscription-service";
 import {
-  createSubscriptionCheckoutAction,
   createSubscriptionInvoiceAction,
   markInvoicePaidManuallyAction,
-  retryInvoiceCollectionAction,
 } from "@/lib/server actions/platform-admin";
 import { redirect } from "next/navigation";
 import { prisma } from "@/prisma/prisma";
@@ -95,8 +92,6 @@ export default async function PlatformInvoicesPage({
       take: 100,
     }),
   ]);
-  const manualOnly = getBillingCollectionMode() === "MANUAL_ONLY";
-
   async function createInvoiceFormAction(subscriptionId: string) {
     "use server";
     try {
@@ -112,46 +107,6 @@ export default async function PlatformInvoicesPage({
         buildPlatformErrorPath(
           "/platform/invoices",
           toActionErrorMessage(error, "Unable to create invoice."),
-        ),
-      );
-    }
-  }
-
-  async function createCheckoutFormAction(invoiceId: string) {
-    "use server";
-    try {
-      const result = await createSubscriptionCheckoutAction(invoiceId);
-      if (!result.success) {
-        redirect(buildPlatformErrorPath("/platform/invoices", result.error));
-      }
-
-      redirect(buildPlatformSuccessPath("/platform/invoices", "Checkout link created."));
-    } catch (error) {
-      rethrowIfRedirectError(error);
-      redirect(
-        buildPlatformErrorPath(
-          "/platform/invoices",
-          toActionErrorMessage(error, "Unable to create checkout link."),
-        ),
-      );
-    }
-  }
-
-  async function retryCollectionFormAction(invoiceId: string) {
-    "use server";
-    try {
-      const result = await retryInvoiceCollectionAction(invoiceId);
-      if (!result.success) {
-        redirect(buildPlatformErrorPath("/platform/invoices", result.error));
-      }
-
-      redirect(buildPlatformSuccessPath("/platform/invoices", "Collection retry queued."));
-    } catch (error) {
-      rethrowIfRedirectError(error);
-      redirect(
-        buildPlatformErrorPath(
-          "/platform/invoices",
-          toActionErrorMessage(error, "Unable to retry invoice collection."),
         ),
       );
     }
@@ -337,11 +292,9 @@ export default async function PlatformInvoicesPage({
 
       <section className={`${platformPanelClass} p-5 sm:p-6`}>
         <h3 className="text-lg font-semibold tracking-tight text-[var(--pf-text)]">Invoice Queue</h3>
-        {manualOnly ? (
-          <p className="mt-1 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-            Manual collection mode is active. Mark invoices as paid with your off-platform payment reference.
-          </p>
-        ) : null}
+        <p className="mt-1 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          Mark invoices as paid with your off-platform payment reference.
+        </p>
         <div className={`mt-4 ${platformTableContainerClass}`}>
           <table className={platformTableClass}>
             <thead>
@@ -395,41 +348,26 @@ export default async function PlatformInvoicesPage({
                     <td className={platformTableCellClass}>{formatPlatformDate(invoice.created_at)}</td>
                     <td className={`${platformTableCellClass} min-w-[260px]`}>
                       <div className="flex flex-wrap gap-2">
-                        {manualOnly ? (
-                          invoice.status === "PAID" ? (
-                            <span className="text-xs font-medium text-[var(--pf-muted)]">Settled</span>
-                          ) : (
-                            <form
-                              action={markPaidManualFormAction.bind(null, invoice.id)}
-                              className="flex flex-wrap items-center gap-2"
-                            >
-                              <input
-                                name="paymentReference"
-                                placeholder="Payment reference"
-                                className={`${platformInputClass} h-9 w-44`}
-                                required
-                              />
-                              <button
-                                type="submit"
-                                className={`${platformSecondaryButtonClass} border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100`}
-                              >
-                                Mark Paid
-                              </button>
-                            </form>
-                          )
+                        {invoice.status === "PAID" ? (
+                          <span className="text-xs font-medium text-[var(--pf-muted)]">Settled</span>
                         ) : (
-                          <>
-                            <form action={createCheckoutFormAction.bind(null, invoice.id)}>
-                              <button type="submit" className={platformSecondaryButtonClass}>
-                                Create Checkout
-                              </button>
-                            </form>
-                            <form action={retryCollectionFormAction.bind(null, invoice.id)}>
-                              <button type="submit" className={platformSecondaryButtonClass}>
-                                Retry Charge
-                              </button>
-                            </form>
-                          </>
+                          <form
+                            action={markPaidManualFormAction.bind(null, invoice.id)}
+                            className="flex flex-wrap items-center gap-2"
+                          >
+                            <input
+                              name="paymentReference"
+                              placeholder="Payment reference"
+                              className={`${platformInputClass} h-9 w-44`}
+                              required
+                            />
+                            <button
+                              type="submit"
+                              className={`${platformSecondaryButtonClass} border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100`}
+                            >
+                              Mark Paid
+                            </button>
+                          </form>
                         )}
                       </div>
                     </td>

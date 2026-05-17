@@ -69,7 +69,6 @@ export const ModelName = {
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
   SubscriptionPlanUpgradeRequest: 'SubscriptionPlanUpgradeRequest',
-  SubscriptionPaymentMethod: 'SubscriptionPaymentMethod',
   SubscriptionInvoice: 'SubscriptionInvoice',
   SubscriptionCreditLedger: 'SubscriptionCreditLedger',
   ReferralCode: 'ReferralCode',
@@ -437,23 +436,6 @@ export const SubscriptionPlanUpgradeRequestScalarFieldEnum = {
 export type SubscriptionPlanUpgradeRequestScalarFieldEnum = (typeof SubscriptionPlanUpgradeRequestScalarFieldEnum)[keyof typeof SubscriptionPlanUpgradeRequestScalarFieldEnum]
 
 
-export const SubscriptionPaymentMethodScalarFieldEnum = {
-  id: 'id',
-  business_subscription_id: 'business_subscription_id',
-  provider: 'provider',
-  provider_customer_id: 'provider_customer_id',
-  provider_payment_method_id: 'provider_payment_method_id',
-  provider_payment_intent_id: 'provider_payment_intent_id',
-  brand: 'brand',
-  last4: 'last4',
-  is_default: 'is_default',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-} as const
-
-export type SubscriptionPaymentMethodScalarFieldEnum = (typeof SubscriptionPaymentMethodScalarFieldEnum)[keyof typeof SubscriptionPaymentMethodScalarFieldEnum]
-
-
 export const SubscriptionInvoiceScalarFieldEnum = {
   id: 'id',
   business_subscription_id: 'business_subscription_id',
@@ -469,10 +451,6 @@ export const SubscriptionInvoiceScalarFieldEnum = {
   amount_credit_applied: 'amount_credit_applied',
   amount_due: 'amount_due',
   amount_paid: 'amount_paid',
-  paymongo_checkout_session_id: 'paymongo_checkout_session_id',
-  paymongo_payment_intent_id: 'paymongo_payment_intent_id',
-  paymongo_payment_method_id: 'paymongo_payment_method_id',
-  paymongo_payment_id: 'paymongo_payment_id',
   paid_at: 'paid_at',
   metadata: 'metadata',
   created_at: 'created_at',

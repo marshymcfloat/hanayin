@@ -19,14 +19,12 @@ import {
   ensureDefaultPlans,
   ensureReferralCode,
   formatCentavosToPhp,
-  getBillingCollectionMode,
   SUBSCRIPTION_PLAN_CODES,
 } from "@/features/billing/subscription-service";
 import { authOptions } from "@/lib/next auth/options";
 import {
   createOwnerSubscriptionInvoiceAction,
   requestOwnerPlanUpgradeAction,
-  redirectOwnerSubscriptionCheckoutAction,
   submitManualPaymentReferenceAction,
 } from "@/lib/server actions/subscription-owner";
 import { prisma } from "@/prisma/prisma";
@@ -122,7 +120,6 @@ export default async function BillingPage({
   if (!subscription) redirect("/");
 
   const openInvoice = subscription.invoices.find((invoice) => invoice.status === "OPEN");
-  const manualOnly = getBillingCollectionMode() === "MANUAL_ONLY";
   const openInvoiceManualPayment = openInvoice
     ? getManualPaymentMetadata(openInvoice.metadata)
     : null;
@@ -434,14 +431,12 @@ export default async function BillingPage({
                 <p className="text-xs text-muted-foreground">
                   Due {openInvoice.due_at.toLocaleDateString("en-PH")}
                 </p>
-                {manualOnly ? (
-                  <div className="mt-3 space-y-3">
-                    <p className="text-xs text-foreground/70">
-                      Manual billing mode is active. Submit your payment reference here for
-                      faster verification.
-                    </p>
+                <div className="mt-3 space-y-3">
+                  <p className="text-xs text-foreground/70">
+                    Submit your payment reference here for faster verification.
+                  </p>
 
-                    {openInvoiceManualPayment?.reference ? (
+                  {openInvoiceManualPayment?.reference ? (
                       <div className="rounded-xl border border-border bg-card p-3 text-xs text-foreground">
                         <p className="font-semibold">Latest submitted reference</p>
                         <p className="mt-1 text-muted-foreground">Reference: {openInvoiceManualPayment.reference}</p>
@@ -497,19 +492,6 @@ export default async function BillingPage({
                       </Button>
                     </form>
                   </div>
-                ) : (
-                  <form
-                    action={redirectOwnerSubscriptionCheckoutAction.bind(null, openInvoice.id)}
-                    className="mt-3"
-                  >
-                    <Button
-                      type="submit"
-                      className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-                    >
-                      Pay Now
-                    </Button>
-                  </form>
-                )}
               </div>
             ) : null}
 

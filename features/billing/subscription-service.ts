@@ -3,7 +3,6 @@ import { BillingInterval, CreditSource, InvoiceStatus, LeadStatus, ReferralStatu
 import { prisma } from "@/prisma/prisma";
 
 export const SUBSCRIPTION_READ_ONLY_ERROR = "SUBSCRIPTION_READ_ONLY";
-export const MANUAL_COLLECTION_MODE_ERROR = "MANUAL_COLLECTION_MODE";
 const PHP_CURRENCY = "PHP";
 const REFERRAL_REWARD_CAP_MONTHS = 6;
 const LEGACY_PRO_ANNUAL_PLAN_CODE = "PRO_ANNUAL";
@@ -23,14 +22,6 @@ export function getSubscriptionEnforcementMode(): SubscriptionEnforcementMode {
   const mode = process.env.SUBSCRIPTION_ENFORCEMENT_MODE ?? "OFF";
   if (mode === "ON" || mode === "WARN_ONLY") return mode;
   return "OFF";
-}
-
-export function getBillingCollectionMode() {
-  return "MANUAL_ONLY" as const;
-}
-
-export function isManualCollectionOnly() {
-  return true;
 }
 
 export function getDefaultTrialMonths() {

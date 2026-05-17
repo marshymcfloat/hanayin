@@ -143,11 +143,6 @@ export type BusinessSubscription = Prisma.BusinessSubscriptionModel
  */
 export type SubscriptionPlanUpgradeRequest = Prisma.SubscriptionPlanUpgradeRequestModel
 /**
- * Model SubscriptionPaymentMethod
- * 
- */
-export type SubscriptionPaymentMethod = Prisma.SubscriptionPaymentMethodModel
-/**
  * Model SubscriptionInvoice
  * 
  */

@@ -1,6 +1,6 @@
 import { NextResponse, connection } from "next/server";
 
-import { isManualCollectionOnly, qualifyAndRewardReferralForBusiness } from "@/features/billing/subscription-service";
+import { qualifyAndRewardReferralForBusiness } from "@/features/billing/subscription-service";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import {
   isCronAuthorized,
@@ -15,15 +15,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    if (isManualCollectionOnly()) {
-      return NextResponse.json({
-        success: true,
-        skipped: true,
-        reason: "MANUAL_COLLECTION_MODE",
-        processedAt: getCurrentDateTimePH().toISOString(),
-      });
-    }
-
     const pending = await prisma.referralAttribution.findMany({
       where: {
         status: { in: ["PENDING", "QUALIFIED"] },

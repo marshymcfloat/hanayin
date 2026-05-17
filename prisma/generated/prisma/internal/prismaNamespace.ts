@@ -402,7 +402,6 @@ export const ModelName = {
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
   SubscriptionPlanUpgradeRequest: 'SubscriptionPlanUpgradeRequest',
-  SubscriptionPaymentMethod: 'SubscriptionPaymentMethod',
   SubscriptionInvoice: 'SubscriptionInvoice',
   SubscriptionCreditLedger: 'SubscriptionCreditLedger',
   ReferralCode: 'ReferralCode',
@@ -451,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeSchedule" | "employeeAttendance" | "payslip" | "specialDate" | "brandAsset" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionPaymentMethod" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeSchedule" | "employeeAttendance" | "payslip" | "specialDate" | "brandAsset" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1784,80 +1783,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SubscriptionPlanUpgradeRequestCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SubscriptionPlanUpgradeRequestCountAggregateOutputType> | number
-        }
-      }
-    }
-    SubscriptionPaymentMethod: {
-      payload: Prisma.$SubscriptionPaymentMethodPayload<ExtArgs>
-      fields: Prisma.SubscriptionPaymentMethodFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SubscriptionPaymentMethodFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SubscriptionPaymentMethodFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>
-        }
-        findFirst: {
-          args: Prisma.SubscriptionPaymentMethodFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SubscriptionPaymentMethodFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>
-        }
-        findMany: {
-          args: Prisma.SubscriptionPaymentMethodFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>[]
-        }
-        create: {
-          args: Prisma.SubscriptionPaymentMethodCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>
-        }
-        createMany: {
-          args: Prisma.SubscriptionPaymentMethodCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SubscriptionPaymentMethodCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>[]
-        }
-        delete: {
-          args: Prisma.SubscriptionPaymentMethodDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>
-        }
-        update: {
-          args: Prisma.SubscriptionPaymentMethodUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>
-        }
-        deleteMany: {
-          args: Prisma.SubscriptionPaymentMethodDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SubscriptionPaymentMethodUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SubscriptionPaymentMethodUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>[]
-        }
-        upsert: {
-          args: Prisma.SubscriptionPaymentMethodUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPaymentMethodPayload>
-        }
-        aggregate: {
-          args: Prisma.SubscriptionPaymentMethodAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSubscriptionPaymentMethod>
-        }
-        groupBy: {
-          args: Prisma.SubscriptionPaymentMethodGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SubscriptionPaymentMethodGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SubscriptionPaymentMethodCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SubscriptionPaymentMethodCountAggregateOutputType> | number
         }
       }
     }
@@ -4658,23 +4583,6 @@ export const SubscriptionPlanUpgradeRequestScalarFieldEnum = {
 export type SubscriptionPlanUpgradeRequestScalarFieldEnum = (typeof SubscriptionPlanUpgradeRequestScalarFieldEnum)[keyof typeof SubscriptionPlanUpgradeRequestScalarFieldEnum]
 
 
-export const SubscriptionPaymentMethodScalarFieldEnum = {
-  id: 'id',
-  business_subscription_id: 'business_subscription_id',
-  provider: 'provider',
-  provider_customer_id: 'provider_customer_id',
-  provider_payment_method_id: 'provider_payment_method_id',
-  provider_payment_intent_id: 'provider_payment_intent_id',
-  brand: 'brand',
-  last4: 'last4',
-  is_default: 'is_default',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-} as const
-
-export type SubscriptionPaymentMethodScalarFieldEnum = (typeof SubscriptionPaymentMethodScalarFieldEnum)[keyof typeof SubscriptionPaymentMethodScalarFieldEnum]
-
-
 export const SubscriptionInvoiceScalarFieldEnum = {
   id: 'id',
   business_subscription_id: 'business_subscription_id',
@@ -4690,10 +4598,6 @@ export const SubscriptionInvoiceScalarFieldEnum = {
   amount_credit_applied: 'amount_credit_applied',
   amount_due: 'amount_due',
   amount_paid: 'amount_paid',
-  paymongo_checkout_session_id: 'paymongo_checkout_session_id',
-  paymongo_payment_intent_id: 'paymongo_payment_intent_id',
-  paymongo_payment_method_id: 'paymongo_payment_method_id',
-  paymongo_payment_id: 'paymongo_payment_id',
   paid_at: 'paid_at',
   metadata: 'metadata',
   created_at: 'created_at',
@@ -6133,7 +6037,6 @@ export type GlobalOmitConfig = {
   subscriptionPlan?: Prisma.SubscriptionPlanOmit
   businessSubscription?: Prisma.BusinessSubscriptionOmit
   subscriptionPlanUpgradeRequest?: Prisma.SubscriptionPlanUpgradeRequestOmit
-  subscriptionPaymentMethod?: Prisma.SubscriptionPaymentMethodOmit
   subscriptionInvoice?: Prisma.SubscriptionInvoiceOmit
   subscriptionCreditLedger?: Prisma.SubscriptionCreditLedgerOmit
   referralCode?: Prisma.ReferralCodeOmit

@@ -6,8 +6,6 @@ import { z } from "zod";
 import {
   createInvoiceForSubscription,
   ensureDefaultPlans,
-  getBillingCollectionMode,
-  MANUAL_COLLECTION_MODE_ERROR,
   SUBSCRIPTION_PLAN_CODES,
 } from "@/features/billing/subscription-service";
 import { requireAuth } from "@/lib/auth/guards";
@@ -48,30 +46,6 @@ export async function createOwnerSubscriptionInvoiceAction(reason = "OWNER_MANUA
   const invoice = await createInvoiceForSubscription(subscriptionId, reason);
   revalidatePath(`/app/${auth.businessSlug}/billing`);
   return { success: true as const, data: invoice };
-}
-
-export async function createOwnerSubscriptionCheckoutAction(invoiceId: string) {
-  const auth = await requireAuth();
-  if (!auth.success) return auth;
-
-  const invoice = await prisma.subscriptionInvoice.findUnique({
-    where: { id: invoiceId },
-    include: {
-      business: {
-        select: { slug: true },
-      },
-    },
-  });
-  if (!invoice) return { success: false as const, error: "Invoice not found" };
-  if (invoice.business.slug !== auth.businessSlug) {
-    return { success: false as const, error: "Forbidden" };
-  }
-
-  return { success: false as const, error: MANUAL_COLLECTION_MODE_ERROR };
-}
-
-export async function redirectOwnerSubscriptionCheckoutAction(_invoiceId: string) {
-  throw new Error(MANUAL_COLLECTION_MODE_ERROR);
 }
 
 export async function requestOwnerPlanUpgradeAction(
@@ -199,14 +173,6 @@ export async function submitManualPaymentReferenceAction(
 ) {
   const auth = await requireAuth();
   if (!auth.success) return auth;
-
-  if (getBillingCollectionMode() !== "MANUAL_ONLY") {
-    return {
-      success: false as const,
-      error:
-        "Manual payment submission is disabled while checkout collection is enabled.",
-    };
-  }
 
   const parsedInput = submitManualPaymentReferenceSchema.safeParse(rawInput);
   if (!parsedInput.success) {

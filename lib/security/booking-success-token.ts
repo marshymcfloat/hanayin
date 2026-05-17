@@ -17,9 +17,7 @@ type BookingSuccessPayload = {
 
 function getTokenSecret() {
   const secret =
-    process.env.BOOKING_SUCCESS_TOKEN_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    process.env.PAYMONGO_WEBHOOK_SECRET;
+    process.env.BOOKING_SUCCESS_TOKEN_SECRET || process.env.NEXTAUTH_SECRET;
 
   if (!secret) {
     throw new Error(
