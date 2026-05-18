@@ -89,7 +89,7 @@ export function GiftCardList({
   return (
     <>
       {/* Mobile Card View */}
-      <div className="grid grid-cols-1 gap-3 md:hidden">
+      <div className="grid grid-cols-1 gap-3 lg:hidden">
         {giftCards.map((giftCard) => {
           const items = includedItems(giftCard);
 
@@ -187,7 +187,7 @@ export function GiftCardList({
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:block">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent bg-muted/50">

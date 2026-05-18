@@ -341,7 +341,7 @@ export function BookingList({
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden flex flex-col gap-3">
+            <div className="lg:hidden flex flex-col gap-3">
               {filteredBookings.length > 0 ? (
                 filteredBookings.map((booking) => (
                   <div
@@ -420,7 +420,7 @@ export function BookingList({
             </div>
 
             {/* Desktop Table View */}
-            <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
+            <div className="hidden lg:block rounded-2xl border border-border overflow-hidden bg-card">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-border bg-muted/50">

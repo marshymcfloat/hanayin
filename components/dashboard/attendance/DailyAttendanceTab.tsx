@@ -141,7 +141,7 @@ export function DailyAttendanceTab({
 
   // Statuses that block this employee from serving bookings on the
   // target date. Transitioning into one of these orphans every booking
-  // assigned to them — that's the moment we want to show the preview.
+  // assigned to them â€” that's the moment we want to show the preview.
   const BLOCKING_STATUSES: ReadonlySet<AttendanceStatus> = new Set([
     "ABSENT",
     "OFF",
@@ -176,7 +176,7 @@ export function DailyAttendanceTab({
     employeeId: number,
     newStatus: AttendanceStatus,
   ) => {
-    // Non-blocking transitions (PRESENT, LATE) skip the preview — there
+    // Non-blocking transitions (PRESENT, LATE) skip the preview â€” there
     // are no bookings to orphan.
     if (!BLOCKING_STATUSES.has(newStatus)) {
       await applyStatusChange(employeeId, newStatus);
@@ -184,11 +184,11 @@ export function DailyAttendanceTab({
     }
 
     // Run the preview before mutating. If zero bookings would be
-    // affected, apply silently — no point in a confirmation dialog
+    // affected, apply silently â€” no point in a confirmation dialog
     // that says "0 bookings will be affected".
     const preview = await previewAttendanceImpactAction(employeeId, currentDate);
     if (!preview.success) {
-      // Fall through to normal apply path — failing the preview should
+      // Fall through to normal apply path â€” failing the preview should
       // not block the manager from doing their job.
       await applyStatusChange(employeeId, newStatus);
       return;
@@ -358,7 +358,7 @@ export function DailyAttendanceTab({
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-3">
+      <div className="lg:hidden grid grid-cols-1 gap-3">
         {optimisticData.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-2xl border border-border">
             <User className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
@@ -432,7 +432,7 @@ export function DailyAttendanceTab({
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
+      <div className="hidden lg:block rounded-2xl border border-border overflow-hidden bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border bg-muted/50">

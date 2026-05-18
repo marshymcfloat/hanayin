@@ -31,7 +31,7 @@ export function OwnersPageSkeleton() {
         {/* Content Skeleton */}
         <div className="flex-1">
           {/* Mobile Card Skeleton */}
-          <div className="md:hidden grid grid-cols-1 gap-4">
+          <div className="lg:hidden grid grid-cols-1 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
@@ -56,7 +56,7 @@ export function OwnersPageSkeleton() {
           </div>
 
           {/* Table Skeleton */}
-          <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+          <div className="hidden lg:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
             <Table>
               <TableHeader className="bg-zinc-50/80">
                 <TableRow>

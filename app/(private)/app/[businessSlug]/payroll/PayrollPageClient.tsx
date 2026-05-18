@@ -141,7 +141,7 @@ export function PayrollPageClient({
             ) : (
               <div className="space-y-4">
                 {/* Mobile Card View */}
-                <div className="md:hidden grid grid-cols-1 gap-3">
+                <div className="lg:hidden grid grid-cols-1 gap-3">
                   {filteredEmployees.map((emp) => {
                     const lastPayslip = emp.payslips[0];
                     return (
@@ -230,7 +230,7 @@ export function PayrollPageClient({
                 </div>
 
                 {/* Desktop Table View */}
-                <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
+                <div className="hidden lg:block rounded-2xl border border-border overflow-hidden bg-card">
                   <Table>
                     <TableHeader>
                       <TableRow className="hover:bg-transparent border-border bg-muted/50">

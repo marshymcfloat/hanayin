@@ -71,7 +71,7 @@ export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
   return (
     <div className="space-y-6">
       {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-3">
+      <div className="lg:hidden grid grid-cols-1 gap-3">
         {requests.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-2xl border border-border">
             <UserIcon className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
@@ -151,7 +151,7 @@ export function LeaveRequestsTab({ requests }: LeaveRequestsTabProps) {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
+      <div className="hidden lg:block rounded-2xl border border-border overflow-hidden bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border bg-muted/50">

@@ -23,7 +23,7 @@ export function EmployeesPageSkeleton() {
             <Skeleton className="hidden sm:block h-10 w-36 rounded-xl" />
           </div>
 
-          {/* KPI strip — flat tiles divided by hairlines */}
+          {/* KPI strip â€” flat tiles divided by hairlines */}
           <div className="mt-5 sm:mt-6 -mx-4 sm:mx-0 overflow-hidden">
             <div className="px-4 sm:px-0 grid grid-cols-2 sm:grid-cols-4 gap-y-4 sm:gap-y-0 sm:divide-x sm:divide-border">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -54,7 +54,7 @@ export function EmployeesPageSkeleton() {
           </div>
 
           {/* Mobile cards */}
-          <div className="md:hidden grid grid-cols-1 gap-3">
+          <div className="lg:hidden grid grid-cols-1 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
@@ -96,7 +96,7 @@ export function EmployeesPageSkeleton() {
           </div>
 
           {/* Desktop table */}
-          <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
+          <div className="hidden lg:block rounded-2xl border border-border overflow-hidden bg-card">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-border bg-muted/40">

@@ -28,7 +28,7 @@ export function ServicesPageSkeleton() {
           <Skeleton className="hidden md:block h-10 w-24 rounded-xl" />
         </div>
 
-        <div className="md:hidden grid grid-cols-1 gap-4">
+        <div className="lg:hidden grid grid-cols-1 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
@@ -49,7 +49,7 @@ export function ServicesPageSkeleton() {
           ))}
         </div>
 
-        <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+        <div className="hidden lg:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
           <Table>
             <TableHeader className="bg-zinc-50/80">
               <TableRow className="hover:bg-transparent border-zinc-100">

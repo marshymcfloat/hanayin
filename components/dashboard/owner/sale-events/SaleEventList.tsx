@@ -158,7 +158,7 @@ export function SaleEventList({
   return (
     <>
       {/* Mobile Card View */}
-      <div className="grid grid-cols-1 gap-3 md:hidden">
+      <div className="grid grid-cols-1 gap-3 lg:hidden">
         {events.map((event) => {
           const socialSummary = getSocialSummaryLabel(event.social_posts);
           const socialPostId = getPrioritySocialPostId(event.social_posts);
@@ -232,7 +232,7 @@ export function SaleEventList({
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5 text-muted-foreground/50" />
                   <span className="text-xs font-medium">
-                    {format(new Date(event.start_date), "MMM d")} –{" "}
+                    {format(new Date(event.start_date), "MMM d")} â€“{" "}
                     {format(new Date(event.end_date), "MMM d, yyyy")}
                   </span>
                 </div>
@@ -253,7 +253,7 @@ export function SaleEventList({
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:block">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent bg-muted/50">
@@ -338,7 +338,7 @@ export function SaleEventList({
                   </TableCell>
                   <TableCell className="py-4">{getStatusBadge(event)}</TableCell>
                   <TableCell className="py-4 text-sm text-muted-foreground">
-                    {socialSummary || "—"}
+                    {socialSummary || "â€”"}
                   </TableCell>
                   <TableCell className="py-4 pr-6 text-right">
                     <div className="flex items-center justify-end gap-1">

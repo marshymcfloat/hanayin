@@ -24,7 +24,7 @@ export default function Loading() {
         <div className="flex-1">
           <div className="space-y-6">
             {/* Mobile Card Skeleton */}
-            <div className="md:hidden grid grid-cols-1 gap-4">
+            <div className="lg:hidden grid grid-cols-1 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
@@ -48,7 +48,7 @@ export default function Loading() {
             </div>
 
             {/* Desktop Table Skeleton */}
-            <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+            <div className="hidden lg:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
               <div className="p-0">
                 <div className="bg-zinc-50/80 border-b border-zinc-100 flex items-center h-12 px-6">
                   <Skeleton className="h-4 w-24 mr-auto" />

@@ -82,8 +82,8 @@ export function VoucherList({
 
   return (
     <>
-      {/* ── Mobile: Ticket-style cards ─────────────────── */}
-      <div className="md:hidden grid grid-cols-1 gap-3">
+      {/* â”€â”€ Mobile: Ticket-style cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="lg:hidden grid grid-cols-1 gap-3">
         {vouchers.map((voucher) => (
           <div
             key={voucher.id}
@@ -173,8 +173,8 @@ export function VoucherList({
         ))}
       </div>
 
-      {/* ── Desktop: Table ──────────────────────────────── */}
-      <div className="hidden md:block rounded-2xl border border-border overflow-hidden shadow-sm bg-card">
+      {/* â”€â”€ Desktop: Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="hidden lg:block rounded-2xl border border-border overflow-hidden shadow-sm bg-card">
         <Table>
           <TableHeader className="bg-muted/60 sticky top-0 z-10 backdrop-blur-sm">
             <TableRow className="hover:bg-transparent border-border">
@@ -243,7 +243,7 @@ export function VoucherList({
                 <TableCell className="py-4 text-foreground/80 font-medium">
                   {voucher.minimum_amount > 0
                     ? formatCurrency(voucher.minimum_amount)
-                    : "—"}
+                    : "â€”"}
                 </TableCell>
                 <TableCell className="py-4 text-muted-foreground">
                   {format(new Date(voucher.expires_at), "MMM d, yyyy")}

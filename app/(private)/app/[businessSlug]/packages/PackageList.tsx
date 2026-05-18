@@ -51,7 +51,7 @@ export function PackageList({ packages, onEdit, onDelete, onCategoryClick }: Pac
   return (
     <>
       {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-3">
+      <div className="lg:hidden grid grid-cols-1 gap-3">
         {packages.map((pkg) => (
           <div
             key={pkg.id}
@@ -131,7 +131,7 @@ export function PackageList({ packages, onEdit, onDelete, onCategoryClick }: Pac
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground/50" />
                 <span className="text-xs font-medium">
-                  {pkg.duration ? `${pkg.duration} mins` : "—"}
+                  {pkg.duration ? `${pkg.duration} mins` : "â€”"}
                 </span>
               </div>
               <span className="font-bold text-foreground">
@@ -143,7 +143,7 @@ export function PackageList({ packages, onEdit, onDelete, onCategoryClick }: Pac
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-2xl border border-border overflow-hidden shadow-sm bg-card">
+      <div className="hidden lg:block rounded-2xl border border-border overflow-hidden shadow-sm bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border bg-muted/50">

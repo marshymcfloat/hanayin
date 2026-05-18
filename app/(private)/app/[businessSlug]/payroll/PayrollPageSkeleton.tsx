@@ -24,7 +24,7 @@ export function PayrollPageSkeleton() {
         </div>
 
         <div className="flex-1 space-y-4">
-          <div className="md:hidden grid grid-cols-1 gap-4">
+          <div className="lg:hidden grid grid-cols-1 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
@@ -47,7 +47,7 @@ export function PayrollPageSkeleton() {
             ))}
           </div>
 
-          <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+          <div className="hidden lg:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
             <Card className="shadow-none border-0">
               <CardContent className="p-0">
                 <Table>
