@@ -109,11 +109,11 @@ describe.skipIf(!hasDb)(
       const bkResult = await client.query(
         `INSERT INTO "Booking" (
             business_id, status, scheduled_at, estimated_end,
-            grand_total, amount_paid, payment_status, payment_method,
-            payment_type, updated_at
+            grand_total, total_discount, amount_paid,
+            payment_status, payment_method, updated_at
          ) VALUES ($1, 'ACCEPTED',
             '2026-06-01T09:00:00+00:00', '2026-06-01T11:00:00+00:00',
-            100, 0, 'UNPAID', 'CASH', 'FULL', NOW())
+            100, 0, 0, 'UNPAID', 'CASH', NOW())
          RETURNING id`,
         [businessId],
       );
