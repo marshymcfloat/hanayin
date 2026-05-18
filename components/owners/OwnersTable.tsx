@@ -55,36 +55,42 @@ export function OwnersTable({
 
   return (
     <>
-      {/* Mobile Card View */}
-      <div className="md:hidden grid grid-cols-1 gap-3">
+      {/* Mobile Card View — switched to lg:hidden so iPad portrait
+          (768) still shows cards instead of the overflowing desktop
+          table. */}
+      <div className="lg:hidden grid grid-cols-1 gap-3">
         {owners.map((owner) => (
           <Card
             key={owner.id}
             className="bg-card rounded-2xl border border-border"
           >
             <CardContent className="p-4 space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 bg-primary/10 text-primary">
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="h-10 w-10 bg-primary/10 text-primary shrink-0">
                     <AvatarFallback className="bg-primary/10 text-primary">
                       <Crown className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="font-medium text-sm text-foreground">{owner.user.name}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm text-foreground truncate">
+                      {owner.user.name}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {owner.user.contact_number}
                     </p>
+                    {owner.is_primary ? (
+                      <Badge
+                        variant="outline"
+                        className="mt-1 w-fit text-[10px] h-5 px-1.5 border-amber-300 text-amber-700 bg-amber-50"
+                        title="Primary owner of record"
+                      >
+                        <Star className="h-3 w-3 mr-0.5 fill-amber-400 text-amber-500" />
+                        Primary
+                      </Badge>
+                    ) : null}
                   </div>
                 </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 hover:bg-accent/30 hover:text-foreground cursor-pointer"
-                  onClick={() => onEditSpecialties(owner)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
               </div>
 
               <div className="pt-3 border-t border-border/50">
@@ -109,13 +115,55 @@ export function OwnersTable({
                   )}
                 </div>
               </div>
+
+              {/* Persistent action row — mirrors the desktop hover
+                  buttons. Stays visible because mobile has no hover
+                  state. */}
+              <div className="grid grid-cols-3 gap-1 pt-3 border-t border-border/50">
+                {!owner.is_primary ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 cursor-pointer text-xs hover:bg-amber-50 hover:text-amber-700"
+                    onClick={() => handleSetPrimary(owner)}
+                  >
+                    <Star className="h-3.5 w-3.5 mr-1.5" />
+                    Set Primary
+                  </Button>
+                ) : (
+                  <div className="text-[10px] text-muted-foreground text-center self-center">
+                    Primary owner
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 cursor-pointer text-xs hover:bg-accent/30"
+                  onClick={() => onEditPermissions(owner)}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 mr-1.5" />
+                  Permissions
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 cursor-pointer text-xs hover:bg-accent/30"
+                  onClick={() => onEditSpecialties(owner)}
+                >
+                  <Edit className="h-3.5 w-3.5 mr-1.5" />
+                  Specialties
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
+      <div className="hidden lg:block rounded-2xl border border-border overflow-hidden bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border bg-muted/50">

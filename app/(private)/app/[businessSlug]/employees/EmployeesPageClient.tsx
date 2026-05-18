@@ -498,7 +498,7 @@ export function EmployeesPageClient({
                 Manage your team, their roles, and permissions.
               </p>
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden sm:block shrink-0">
               <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer shadow-sm">

@@ -29,8 +29,6 @@ export type BusinessSubscriptionMinAggregateOutputType = {
   business_id: string | null
   plan_id: string | null
   status: $Enums.SubscriptionStatus | null
-  collection_method: $Enums.CollectionMethod | null
-  recurring_enabled: boolean | null
   current_period_start: Date | null
   current_period_end: Date | null
   trial_ends_at: Date | null
@@ -48,8 +46,6 @@ export type BusinessSubscriptionMaxAggregateOutputType = {
   business_id: string | null
   plan_id: string | null
   status: $Enums.SubscriptionStatus | null
-  collection_method: $Enums.CollectionMethod | null
-  recurring_enabled: boolean | null
   current_period_start: Date | null
   current_period_end: Date | null
   trial_ends_at: Date | null
@@ -67,8 +63,6 @@ export type BusinessSubscriptionCountAggregateOutputType = {
   business_id: number
   plan_id: number
   status: number
-  collection_method: number
-  recurring_enabled: number
   current_period_start: number
   current_period_end: number
   trial_ends_at: number
@@ -88,8 +82,6 @@ export type BusinessSubscriptionMinAggregateInputType = {
   business_id?: true
   plan_id?: true
   status?: true
-  collection_method?: true
-  recurring_enabled?: true
   current_period_start?: true
   current_period_end?: true
   trial_ends_at?: true
@@ -107,8 +99,6 @@ export type BusinessSubscriptionMaxAggregateInputType = {
   business_id?: true
   plan_id?: true
   status?: true
-  collection_method?: true
-  recurring_enabled?: true
   current_period_start?: true
   current_period_end?: true
   trial_ends_at?: true
@@ -126,8 +116,6 @@ export type BusinessSubscriptionCountAggregateInputType = {
   business_id?: true
   plan_id?: true
   status?: true
-  collection_method?: true
-  recurring_enabled?: true
   current_period_start?: true
   current_period_end?: true
   trial_ends_at?: true
@@ -218,8 +206,6 @@ export type BusinessSubscriptionGroupByOutputType = {
   business_id: string
   plan_id: string
   status: $Enums.SubscriptionStatus
-  collection_method: $Enums.CollectionMethod
-  recurring_enabled: boolean
   current_period_start: Date
   current_period_end: Date
   trial_ends_at: Date | null
@@ -258,8 +244,6 @@ export type BusinessSubscriptionWhereInput = {
   business_id?: Prisma.StringFilter<"BusinessSubscription"> | string
   plan_id?: Prisma.StringFilter<"BusinessSubscription"> | string
   status?: Prisma.EnumSubscriptionStatusFilter<"BusinessSubscription"> | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFilter<"BusinessSubscription"> | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFilter<"BusinessSubscription"> | boolean
   current_period_start?: Prisma.DateTimeFilter<"BusinessSubscription"> | Date | string
   current_period_end?: Prisma.DateTimeFilter<"BusinessSubscription"> | Date | string
   trial_ends_at?: Prisma.DateTimeNullableFilter<"BusinessSubscription"> | Date | string | null
@@ -282,8 +266,6 @@ export type BusinessSubscriptionOrderByWithRelationInput = {
   business_id?: Prisma.SortOrder
   plan_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collection_method?: Prisma.SortOrder
-  recurring_enabled?: Prisma.SortOrder
   current_period_start?: Prisma.SortOrder
   current_period_end?: Prisma.SortOrder
   trial_ends_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -309,8 +291,6 @@ export type BusinessSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BusinessSubscriptionWhereInput | Prisma.BusinessSubscriptionWhereInput[]
   plan_id?: Prisma.StringFilter<"BusinessSubscription"> | string
   status?: Prisma.EnumSubscriptionStatusFilter<"BusinessSubscription"> | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFilter<"BusinessSubscription"> | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFilter<"BusinessSubscription"> | boolean
   current_period_start?: Prisma.DateTimeFilter<"BusinessSubscription"> | Date | string
   current_period_end?: Prisma.DateTimeFilter<"BusinessSubscription"> | Date | string
   trial_ends_at?: Prisma.DateTimeNullableFilter<"BusinessSubscription"> | Date | string | null
@@ -333,8 +313,6 @@ export type BusinessSubscriptionOrderByWithAggregationInput = {
   business_id?: Prisma.SortOrder
   plan_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collection_method?: Prisma.SortOrder
-  recurring_enabled?: Prisma.SortOrder
   current_period_start?: Prisma.SortOrder
   current_period_end?: Prisma.SortOrder
   trial_ends_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -358,8 +336,6 @@ export type BusinessSubscriptionScalarWhereWithAggregatesInput = {
   business_id?: Prisma.StringWithAggregatesFilter<"BusinessSubscription"> | string
   plan_id?: Prisma.StringWithAggregatesFilter<"BusinessSubscription"> | string
   status?: Prisma.EnumSubscriptionStatusWithAggregatesFilter<"BusinessSubscription"> | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodWithAggregatesFilter<"BusinessSubscription"> | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolWithAggregatesFilter<"BusinessSubscription"> | boolean
   current_period_start?: Prisma.DateTimeWithAggregatesFilter<"BusinessSubscription"> | Date | string
   current_period_end?: Prisma.DateTimeWithAggregatesFilter<"BusinessSubscription"> | Date | string
   trial_ends_at?: Prisma.DateTimeNullableWithAggregatesFilter<"BusinessSubscription"> | Date | string | null
@@ -375,8 +351,6 @@ export type BusinessSubscriptionScalarWhereWithAggregatesInput = {
 export type BusinessSubscriptionCreateInput = {
   id?: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -399,8 +373,6 @@ export type BusinessSubscriptionUncheckedCreateInput = {
   business_id: string
   plan_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -419,8 +391,6 @@ export type BusinessSubscriptionUncheckedCreateInput = {
 export type BusinessSubscriptionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -443,8 +413,6 @@ export type BusinessSubscriptionUncheckedUpdateInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   plan_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -465,8 +433,6 @@ export type BusinessSubscriptionCreateManyInput = {
   business_id: string
   plan_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -482,8 +448,6 @@ export type BusinessSubscriptionCreateManyInput = {
 export type BusinessSubscriptionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -501,8 +465,6 @@ export type BusinessSubscriptionUncheckedUpdateManyInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   plan_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -530,8 +492,6 @@ export type BusinessSubscriptionCountOrderByAggregateInput = {
   business_id?: Prisma.SortOrder
   plan_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collection_method?: Prisma.SortOrder
-  recurring_enabled?: Prisma.SortOrder
   current_period_start?: Prisma.SortOrder
   current_period_end?: Prisma.SortOrder
   trial_ends_at?: Prisma.SortOrder
@@ -549,8 +509,6 @@ export type BusinessSubscriptionMaxOrderByAggregateInput = {
   business_id?: Prisma.SortOrder
   plan_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collection_method?: Prisma.SortOrder
-  recurring_enabled?: Prisma.SortOrder
   current_period_start?: Prisma.SortOrder
   current_period_end?: Prisma.SortOrder
   trial_ends_at?: Prisma.SortOrder
@@ -568,8 +526,6 @@ export type BusinessSubscriptionMinOrderByAggregateInput = {
   business_id?: Prisma.SortOrder
   plan_id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  collection_method?: Prisma.SortOrder
-  recurring_enabled?: Prisma.SortOrder
   current_period_start?: Prisma.SortOrder
   current_period_end?: Prisma.SortOrder
   trial_ends_at?: Prisma.SortOrder
@@ -675,10 +631,6 @@ export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
   set?: $Enums.SubscriptionStatus
 }
 
-export type EnumCollectionMethodFieldUpdateOperationsInput = {
-  set?: $Enums.CollectionMethod
-}
-
 export type BusinessSubscriptionCreateNestedOneWithoutUpgrade_requestsInput = {
   create?: Prisma.XOR<Prisma.BusinessSubscriptionCreateWithoutUpgrade_requestsInput, Prisma.BusinessSubscriptionUncheckedCreateWithoutUpgrade_requestsInput>
   connectOrCreate?: Prisma.BusinessSubscriptionCreateOrConnectWithoutUpgrade_requestsInput
@@ -724,8 +676,6 @@ export type BusinessSubscriptionUpdateOneRequiredWithoutCreditsNestedInput = {
 export type BusinessSubscriptionCreateWithoutBusinessInput = {
   id?: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -746,8 +696,6 @@ export type BusinessSubscriptionUncheckedCreateWithoutBusinessInput = {
   id?: string
   plan_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -797,8 +745,6 @@ export type BusinessSubscriptionScalarWhereInput = {
   business_id?: Prisma.StringFilter<"BusinessSubscription"> | string
   plan_id?: Prisma.StringFilter<"BusinessSubscription"> | string
   status?: Prisma.EnumSubscriptionStatusFilter<"BusinessSubscription"> | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFilter<"BusinessSubscription"> | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFilter<"BusinessSubscription"> | boolean
   current_period_start?: Prisma.DateTimeFilter<"BusinessSubscription"> | Date | string
   current_period_end?: Prisma.DateTimeFilter<"BusinessSubscription"> | Date | string
   trial_ends_at?: Prisma.DateTimeNullableFilter<"BusinessSubscription"> | Date | string | null
@@ -814,8 +760,6 @@ export type BusinessSubscriptionScalarWhereInput = {
 export type BusinessSubscriptionCreateWithoutPlanInput = {
   id?: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -836,8 +780,6 @@ export type BusinessSubscriptionUncheckedCreateWithoutPlanInput = {
   id?: string
   business_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -882,8 +824,6 @@ export type BusinessSubscriptionUpdateManyWithWhereWithoutPlanInput = {
 export type BusinessSubscriptionCreateWithoutUpgrade_requestsInput = {
   id?: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -905,8 +845,6 @@ export type BusinessSubscriptionUncheckedCreateWithoutUpgrade_requestsInput = {
   business_id: string
   plan_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -940,8 +878,6 @@ export type BusinessSubscriptionUpdateToOneWithWhereWithoutUpgrade_requestsInput
 export type BusinessSubscriptionUpdateWithoutUpgrade_requestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -963,8 +899,6 @@ export type BusinessSubscriptionUncheckedUpdateWithoutUpgrade_requestsInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   plan_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -982,8 +916,6 @@ export type BusinessSubscriptionUncheckedUpdateWithoutUpgrade_requestsInput = {
 export type BusinessSubscriptionCreateWithoutInvoicesInput = {
   id?: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -1005,8 +937,6 @@ export type BusinessSubscriptionUncheckedCreateWithoutInvoicesInput = {
   business_id: string
   plan_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -1040,8 +970,6 @@ export type BusinessSubscriptionUpdateToOneWithWhereWithoutInvoicesInput = {
 export type BusinessSubscriptionUpdateWithoutInvoicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1063,8 +991,6 @@ export type BusinessSubscriptionUncheckedUpdateWithoutInvoicesInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   plan_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1082,8 +1008,6 @@ export type BusinessSubscriptionUncheckedUpdateWithoutInvoicesInput = {
 export type BusinessSubscriptionCreateWithoutCreditsInput = {
   id?: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -1105,8 +1029,6 @@ export type BusinessSubscriptionUncheckedCreateWithoutCreditsInput = {
   business_id: string
   plan_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -1140,8 +1062,6 @@ export type BusinessSubscriptionUpdateToOneWithWhereWithoutCreditsInput = {
 export type BusinessSubscriptionUpdateWithoutCreditsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1163,8 +1083,6 @@ export type BusinessSubscriptionUncheckedUpdateWithoutCreditsInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   plan_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1183,8 +1101,6 @@ export type BusinessSubscriptionCreateManyBusinessInput = {
   id?: string
   plan_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -1200,8 +1116,6 @@ export type BusinessSubscriptionCreateManyBusinessInput = {
 export type BusinessSubscriptionUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1222,8 +1136,6 @@ export type BusinessSubscriptionUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plan_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1243,8 +1155,6 @@ export type BusinessSubscriptionUncheckedUpdateManyWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   plan_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1261,8 +1171,6 @@ export type BusinessSubscriptionCreateManyPlanInput = {
   id?: string
   business_id: string
   status?: $Enums.SubscriptionStatus
-  collection_method?: $Enums.CollectionMethod
-  recurring_enabled?: boolean
   current_period_start: Date | string
   current_period_end: Date | string
   trial_ends_at?: Date | string | null
@@ -1278,8 +1186,6 @@ export type BusinessSubscriptionCreateManyPlanInput = {
 export type BusinessSubscriptionUpdateWithoutPlanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1300,8 +1206,6 @@ export type BusinessSubscriptionUncheckedUpdateWithoutPlanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1321,8 +1225,6 @@ export type BusinessSubscriptionUncheckedUpdateManyWithoutPlanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-  collection_method?: Prisma.EnumCollectionMethodFieldUpdateOperationsInput | $Enums.CollectionMethod
-  recurring_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   current_period_start?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   current_period_end?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   trial_ends_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1389,8 +1291,6 @@ export type BusinessSubscriptionSelect<ExtArgs extends runtime.Types.Extensions.
   business_id?: boolean
   plan_id?: boolean
   status?: boolean
-  collection_method?: boolean
-  recurring_enabled?: boolean
   current_period_start?: boolean
   current_period_end?: boolean
   trial_ends_at?: boolean
@@ -1414,8 +1314,6 @@ export type BusinessSubscriptionSelectCreateManyAndReturn<ExtArgs extends runtim
   business_id?: boolean
   plan_id?: boolean
   status?: boolean
-  collection_method?: boolean
-  recurring_enabled?: boolean
   current_period_start?: boolean
   current_period_end?: boolean
   trial_ends_at?: boolean
@@ -1435,8 +1333,6 @@ export type BusinessSubscriptionSelectUpdateManyAndReturn<ExtArgs extends runtim
   business_id?: boolean
   plan_id?: boolean
   status?: boolean
-  collection_method?: boolean
-  recurring_enabled?: boolean
   current_period_start?: boolean
   current_period_end?: boolean
   trial_ends_at?: boolean
@@ -1456,8 +1352,6 @@ export type BusinessSubscriptionSelectScalar = {
   business_id?: boolean
   plan_id?: boolean
   status?: boolean
-  collection_method?: boolean
-  recurring_enabled?: boolean
   current_period_start?: boolean
   current_period_end?: boolean
   trial_ends_at?: boolean
@@ -1470,7 +1364,7 @@ export type BusinessSubscriptionSelectScalar = {
   updated_at?: boolean
 }
 
-export type BusinessSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_id" | "plan_id" | "status" | "collection_method" | "recurring_enabled" | "current_period_start" | "current_period_end" | "trial_ends_at" | "grace_ends_at" | "suspended_at" | "cancel_at_period_end" | "canceled_at" | "started_at" | "created_at" | "updated_at", ExtArgs["result"]["businessSubscription"]>
+export type BusinessSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_id" | "plan_id" | "status" | "current_period_start" | "current_period_end" | "trial_ends_at" | "grace_ends_at" | "suspended_at" | "cancel_at_period_end" | "canceled_at" | "started_at" | "created_at" | "updated_at", ExtArgs["result"]["businessSubscription"]>
 export type BusinessSubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
@@ -1502,8 +1396,6 @@ export type $BusinessSubscriptionPayload<ExtArgs extends runtime.Types.Extension
     business_id: string
     plan_id: string
     status: $Enums.SubscriptionStatus
-    collection_method: $Enums.CollectionMethod
-    recurring_enabled: boolean
     current_period_start: Date
     current_period_end: Date
     trial_ends_at: Date | null
@@ -1946,8 +1838,6 @@ export interface BusinessSubscriptionFieldRefs {
   readonly business_id: Prisma.FieldRef<"BusinessSubscription", 'String'>
   readonly plan_id: Prisma.FieldRef<"BusinessSubscription", 'String'>
   readonly status: Prisma.FieldRef<"BusinessSubscription", 'SubscriptionStatus'>
-  readonly collection_method: Prisma.FieldRef<"BusinessSubscription", 'CollectionMethod'>
-  readonly recurring_enabled: Prisma.FieldRef<"BusinessSubscription", 'Boolean'>
   readonly current_period_start: Prisma.FieldRef<"BusinessSubscription", 'DateTime'>
   readonly current_period_end: Prisma.FieldRef<"BusinessSubscription", 'DateTime'>
   readonly trial_ends_at: Prisma.FieldRef<"BusinessSubscription", 'DateTime'>

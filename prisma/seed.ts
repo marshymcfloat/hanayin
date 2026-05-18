@@ -107,11 +107,9 @@ async function main() {
       business_id: beautyFeel.id,
       plan_id: monthlyPlan.id,
       status: "TRIALING",
-      collection_method: "MANUAL_CHECKOUT",
       current_period_start: now,
       current_period_end: trialEnd,
       trial_ends_at: trialEnd,
-      recurring_enabled: false,
     },
   });
 
@@ -1090,13 +1088,11 @@ async function main() {
         business_id: business.id,
         plan_id: qaPlan.id,
         status: s.status,
-        collection_method: "MANUAL_CHECKOUT",
         current_period_start: periodStart,
         current_period_end: periodEnd,
         trial_ends_at: trialEndsAt,
         grace_ends_at: graceEndsAt,
         suspended_at: suspendedAt,
-        recurring_enabled: false,
       },
     });
 

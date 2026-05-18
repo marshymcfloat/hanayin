@@ -111,14 +111,6 @@ export const SubscriptionUpgradeRequestStatus = {
 export type SubscriptionUpgradeRequestStatus = (typeof SubscriptionUpgradeRequestStatus)[keyof typeof SubscriptionUpgradeRequestStatus]
 
 
-export const CollectionMethod = {
-  MANUAL_CHECKOUT: 'MANUAL_CHECKOUT',
-  AUTO_CHARGE: 'AUTO_CHARGE'
-} as const
-
-export type CollectionMethod = (typeof CollectionMethod)[keyof typeof CollectionMethod]
-
-
 export const InvoiceStatus = {
   DRAFT: 'DRAFT',
   OPEN: 'OPEN',

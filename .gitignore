@@ -59,3 +59,5 @@ node_modules/
 
 # Claude Code local settings (per-machine; may contain secrets in cached commands)
 .claude/settings.local.json
+qa-screenshots/
+.playwright-cli/

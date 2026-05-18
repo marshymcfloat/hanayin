@@ -400,8 +400,6 @@ export const BusinessSubscriptionScalarFieldEnum = {
   business_id: 'business_id',
   plan_id: 'plan_id',
   status: 'status',
-  collection_method: 'collection_method',
-  recurring_enabled: 'recurring_enabled',
   current_period_start: 'current_period_start',
   current_period_end: 'current_period_end',
   trial_ends_at: 'trial_ends_at',

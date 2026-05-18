@@ -4547,8 +4547,6 @@ export const BusinessSubscriptionScalarFieldEnum = {
   business_id: 'business_id',
   plan_id: 'plan_id',
   status: 'status',
-  collection_method: 'collection_method',
-  recurring_enabled: 'recurring_enabled',
   current_period_start: 'current_period_start',
   current_period_end: 'current_period_end',
   trial_ends_at: 'trial_ends_at',
@@ -5530,20 +5528,6 @@ export type EnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'SubscriptionStatus[]'
  */
 export type ListEnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'CollectionMethod'
- */
-export type EnumCollectionMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CollectionMethod'>
-    
-
-
-/**
- * Reference to a field of type 'CollectionMethod[]'
- */
-export type ListEnumCollectionMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CollectionMethod[]'>
     
 
 

@@ -41,7 +41,7 @@ import {
   ShieldCheck,
   Send,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { formatPH } from "@/lib/date-utils";
 import {
   Employee,
@@ -129,7 +129,7 @@ export function EmployeeList({
   return (
     <>
       {/* MOBILE: card grid */}
-      <div className="md:hidden grid grid-cols-1 gap-3">
+      <div className="lg:hidden grid grid-cols-1 gap-3">
         {employees.map((employee) => {
           const lastPayslip = employee.payslips[0];
           const gradient = getAvatarGradient(employee.user.name);
@@ -181,7 +181,7 @@ export function EmployeeList({
                 <Stat
                   icon={<Wallet className="h-3.5 w-3.5" />}
                   label="Daily rate"
-                  value={`₱${employee.daily_rate.toLocaleString()}`}
+                  value={formatCurrency(employee.daily_rate)}
                   className="pr-3 py-3"
                 />
                 <Stat
@@ -246,7 +246,7 @@ export function EmployeeList({
       </div>
 
       {/* DESKTOP: table */}
-      <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card">
+      <div className="hidden lg:block rounded-2xl border border-border overflow-hidden bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border bg-muted/40">
@@ -305,7 +305,7 @@ export function EmployeeList({
                     </div>
                   </TableCell>
                   <TableCell className="py-4 font-medium text-foreground tabular-nums">
-                    ₱{employee.daily_rate.toLocaleString()}
+                    {formatCurrency(employee.daily_rate)}
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge

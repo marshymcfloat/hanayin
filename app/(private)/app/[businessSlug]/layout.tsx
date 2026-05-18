@@ -162,7 +162,7 @@ async function AppLayoutContent({
             <AppSidebar />
           </React.Suspense>
           <SidebarInset>
-            <header className="flex h-14 items-center gap-3 border-b border-border bg-white px-4 lg:hidden sticky top-0 z-30">
+            <header className="flex h-14 items-center gap-3 border-b border-border bg-white px-4 md:hidden sticky top-0 z-30">
               <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors" />
               <div className="flex items-center gap-2 min-w-0">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm shadow-primary/30">

@@ -277,7 +277,7 @@ export default async function BillingPage({
             </div>
           ) : null}
 
-          <section className="grid gap-4 md:grid-cols-3">
+          <section className="grid gap-4 md:grid-cols-2">
             <article className="rounded-2xl border border-border bg-card p-5">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Plan</p>
               <p className="mt-2 text-lg font-semibold text-foreground">{subscription.plan.name}</p>
@@ -288,13 +288,6 @@ export default async function BillingPage({
               <p className="mt-2 text-lg font-semibold text-foreground">{subscription.status}</p>
               <p className="text-sm text-muted-foreground">
                 Period ends {subscription.current_period_end.toLocaleDateString("en-PH")}
-              </p>
-            </article>
-            <article className="rounded-2xl border border-border bg-card p-5">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Collection</p>
-              <p className="mt-2 text-lg font-semibold text-foreground">{subscription.collection_method}</p>
-              <p className="text-sm text-muted-foreground">
-                Recurring {subscription.recurring_enabled ? "enabled" : "disabled"}
               </p>
             </article>
           </section>

@@ -535,13 +535,6 @@ export type EnumSubscriptionStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
 }
 
-export type EnumCollectionMethodFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollectionMethod | Prisma.EnumCollectionMethodFieldRefInput<$PrismaModel>
-  in?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollectionMethodFilter<$PrismaModel> | $Enums.CollectionMethod
-}
-
 export type EnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.SubscriptionStatus | Prisma.EnumSubscriptionStatusFieldRefInput<$PrismaModel>
   in?: $Enums.SubscriptionStatus[] | Prisma.ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
@@ -550,16 +543,6 @@ export type EnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel>
-}
-
-export type EnumCollectionMethodWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollectionMethod | Prisma.EnumCollectionMethodFieldRefInput<$PrismaModel>
-  in?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollectionMethodWithAggregatesFilter<$PrismaModel> | $Enums.CollectionMethod
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCollectionMethodFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCollectionMethodFilter<$PrismaModel>
 }
 
 export type EnumSubscriptionUpgradeRequestStatusFilter<$PrismaModel = never> = {
@@ -1635,13 +1618,6 @@ export type NestedEnumSubscriptionStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
 }
 
-export type NestedEnumCollectionMethodFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollectionMethod | Prisma.EnumCollectionMethodFieldRefInput<$PrismaModel>
-  in?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollectionMethodFilter<$PrismaModel> | $Enums.CollectionMethod
-}
-
 export type NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.SubscriptionStatus | Prisma.EnumSubscriptionStatusFieldRefInput<$PrismaModel>
   in?: $Enums.SubscriptionStatus[] | Prisma.ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
@@ -1650,16 +1626,6 @@ export type NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel>
-}
-
-export type NestedEnumCollectionMethodWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollectionMethod | Prisma.EnumCollectionMethodFieldRefInput<$PrismaModel>
-  in?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollectionMethod[] | Prisma.ListEnumCollectionMethodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollectionMethodWithAggregatesFilter<$PrismaModel> | $Enums.CollectionMethod
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCollectionMethodFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCollectionMethodFilter<$PrismaModel>
 }
 
 export type NestedEnumSubscriptionUpgradeRequestStatusFilter<$PrismaModel = never> = {

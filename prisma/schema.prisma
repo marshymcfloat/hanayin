@@ -193,11 +193,6 @@ enum SubscriptionUpgradeRequestStatus {
   CANCELED
 }
 
-enum CollectionMethod {
-  MANUAL_CHECKOUT
-  AUTO_CHARGE
-}
-
 enum InvoiceStatus {
   DRAFT
   OPEN
@@ -787,9 +782,7 @@ model BusinessSubscription {
   plan_id String
   plan    SubscriptionPlan @relation(fields: [plan_id], references: [id], onDelete: Restrict)
 
-  status            SubscriptionStatus @default(TRIALING)
-  collection_method CollectionMethod   @default(MANUAL_CHECKOUT)
-  recurring_enabled Boolean            @default(false)
+  status SubscriptionStatus @default(TRIALING)
 
   current_period_start DateTime
   current_period_end   DateTime

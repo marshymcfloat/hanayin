@@ -233,7 +233,6 @@ export async function ensureBusinessSubscription(
       business_id: businessId,
       plan_id: plan.id,
       status: SubscriptionStatus.TRIALING,
-      collection_method: "MANUAL_CHECKOUT",
       current_period_start: now,
       current_period_end: periodEnd,
       trial_ends_at: trialEndsAt,
