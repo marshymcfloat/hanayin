@@ -1103,7 +1103,21 @@ export default function BookingForm({
         );
         return;
       }
-      toast.error("Failed to create booking");
+      // Free-form server errors get surfaced as-is so the operator
+      // sees the actual reason ("Invalid or expired voucher code",
+      // "Minimum spend of 500 required to use this voucher", etc.)
+      // instead of a useless generic "Failed to create booking".
+      // Typed codes (SCREAMING_SNAKE_CASE) that haven't matched a
+      // branch above get a more informative fallback that includes
+      // the code -- this is intentional opacity for codes whose
+      // human-readable rendering would need its own design decision
+      // (e.g. payments errors), but at least surfaces the symbol so
+      // operators can grep the codebase for what went wrong.
+      const fallbackMessage =
+        code && /^[A-Z][A-Z0-9_]*$/.test(code)
+          ? `Couldn't create booking: ${code.replaceAll("_", " ").toLowerCase()}.`
+          : code || "Failed to create booking";
+      toast.error(fallbackMessage);
       console.error("Booking creation failed:", error);
     },
   });
