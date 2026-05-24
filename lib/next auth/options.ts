@@ -46,12 +46,18 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) throw invalidCredentialsError;
 
+        // Distinct error code so the sign-in form can surface a clear
+        // "your temporary password expired -- ask your manager to
+        // resend the invite" message instead of the same generic
+        // "Invalid credentials" the user sees for a wrong password.
+        // Owners hit this when an employee's 24h temp window lapses
+        // before the employee logged in.
         if (
           user.must_change_password &&
           user.temp_password_expires_at &&
           new Date() > user.temp_password_expires_at
         ) {
-          throw invalidCredentialsError;
+          throw new Error("TEMP_PASSWORD_EXPIRED");
         }
 
         return user;

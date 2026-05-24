@@ -398,9 +398,24 @@ export async function resetEmployeePasswordAction(
 
     const hashedPassword = await hash(newPassword, 12);
 
+    // Owner is setting a known permanent password directly -- the
+    // employee should be able to sign in with it immediately, without
+    // being routed through the change-password page. Leaving these
+    // flags stale produced a confusing "Invalid credentials" rejection
+    // at login time once the original 24h temp window had elapsed,
+    // even though the new password was correct: the authorize() guard
+    // (lib/next auth/options.ts) treats `must_change_password=true +
+    // expired temp_password_expires_at` as an invalid credential.
+    // If the owner instead wants to send a fresh temporary password
+    // via SMS (24h forced-change cycle), they should use
+    // resendEmployeeInviteAction below.
     await prisma.user.update({
       where: { id: employee.user_id },
-      data: { hashed_password: hashedPassword },
+      data: {
+        hashed_password: hashedPassword,
+        must_change_password: false,
+        temp_password_expires_at: null,
+      },
     });
 
     return { success: true };

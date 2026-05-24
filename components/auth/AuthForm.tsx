@@ -25,6 +25,8 @@ const INVALID_CREDENTIALS_MESSAGE =
   "Incorrect contact number or password. Please try again.";
 const GENERIC_SIGN_IN_ERROR_MESSAGE =
   "Unable to sign in right now. Please try again.";
+const TEMP_PASSWORD_EXPIRED_MESSAGE =
+  "Your temporary password expired. Ask your owner to resend the invite SMS.";
 
 const FIELD_LABELS: Record<keyof LoginSchemaType, string> = {
   contact_number: "Contact number",
@@ -39,6 +41,9 @@ const FIELD_PLACEHOLDERS: Record<keyof LoginSchemaType, string> = {
 function getSignInErrorMessage(error?: string | null) {
   if (error === "CredentialsSignin" || error === "Invalid credentials") {
     return INVALID_CREDENTIALS_MESSAGE;
+  }
+  if (error === "TEMP_PASSWORD_EXPIRED") {
+    return TEMP_PASSWORD_EXPIRED_MESSAGE;
   }
 
   return GENERIC_SIGN_IN_ERROR_MESSAGE;
@@ -94,7 +99,14 @@ export default function AuthForm() {
 
     if (!result || result.error || !result.ok) {
       const message = getSignInErrorMessage(result?.error);
-      if (message === INVALID_CREDENTIALS_MESSAGE) {
+      // Inline form error for credentials problems so the user can
+      // correct without dismissing a toast. Temp-password expiry uses
+      // a toast because the resolution requires owner action (resend
+      // invite SMS), not a re-type.
+      if (
+        message === INVALID_CREDENTIALS_MESSAGE ||
+        message === TEMP_PASSWORD_EXPIRED_MESSAGE
+      ) {
         form.setError("root", { type: "manual", message });
       }
       throw new Error(message);
