@@ -167,7 +167,7 @@ export function DailyAttendanceTab({
       newStatus,
     );
     if (!result.success) {
-      toast.error("Failed to update status");
+      toast.error(result.error || "Failed to update status");
       router.refresh();
     }
   };

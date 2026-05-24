@@ -117,7 +117,7 @@ export function PackagesPageClient({
       if (result.success) {
         toast.success("Package deleted successfully");
       } else {
-        toast.error("Failed to delete package");
+        toast.error(result.error || "Failed to delete package");
         router.refresh();
       }
     });

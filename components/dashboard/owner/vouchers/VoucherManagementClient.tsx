@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { deleteVoucherAction } from "@/lib/server actions/vouchers";
+import { extractClientErrorMessage } from "@/lib/utils/error-message";
 import { VoucherForm } from "./VoucherForm";
 import { VoucherList } from "./VoucherList";
 import { useRouter } from "next/navigation";
@@ -86,8 +87,8 @@ export function VoucherManagementClient({
         } else {
           toast.error(res.error || "Failed to delete voucher");
         }
-      } catch {
-        toast.error("An error occurred");
+      } catch (err) {
+        toast.error(extractClientErrorMessage(err, "Failed to delete voucher"));
       }
       setVoucherToDelete(null);
     });

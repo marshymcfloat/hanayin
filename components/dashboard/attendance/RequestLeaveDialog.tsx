@@ -42,6 +42,7 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { createLeaveRequest } from "@/app/actions/leave-request";
 import { toast } from "sonner";
+import { extractClientErrorMessage } from "@/lib/utils/error-message";
 import { LeaveType } from "@/prisma/generated/prisma/enums";
 
 const formSchema = z.object({
@@ -98,7 +99,7 @@ export function RequestLeaveDialog({
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred");
+      toast.error(extractClientErrorMessage(error, "Failed to submit request"));
     }
   };
 

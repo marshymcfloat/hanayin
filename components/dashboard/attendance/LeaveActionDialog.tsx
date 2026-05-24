@@ -27,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { updateLeaveRequestStatus } from "@/app/actions/leave-request";
 import { toast } from "sonner";
+import { extractClientErrorMessage } from "@/lib/utils/error-message";
 import { Switch } from "@/components/ui/switch";
 import { LeaveRequestStatus } from "@/prisma/generated/prisma/client";
 
@@ -83,7 +84,12 @@ export function LeaveActionDialog({
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred");
+      toast.error(
+        extractClientErrorMessage(
+          error,
+          `Failed to ${action.toLowerCase()} request`,
+        ),
+      );
     }
   };
 

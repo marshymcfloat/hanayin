@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Gift, Plus, RefreshCcw, Search } from "lucide-react";
 import { toast } from "sonner";
+import { extractClientErrorMessage } from "@/lib/utils/error-message";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -131,8 +132,8 @@ export function GiftCardsPageClient({
       }
 
       return result.code;
-    } catch {
-      toast.error("Failed to generate code");
+    } catch (err) {
+      toast.error(extractClientErrorMessage(err, "Failed to generate code"));
       return null;
     } finally {
       setIsGeneratingCode(false);
@@ -158,8 +159,8 @@ export function GiftCardsPageClient({
 
       setIsCreateOpen(false);
       router.refresh();
-    } catch {
-      toast.error("Failed to create gift card");
+    } catch (err) {
+      toast.error(extractClientErrorMessage(err, "Failed to create gift card"));
     } finally {
       setIsSaving(false);
     }
@@ -181,8 +182,8 @@ export function GiftCardsPageClient({
       toast.success("Gift card updated");
       setEditingGiftCard(null);
       router.refresh();
-    } catch {
-      toast.error("Failed to update gift card");
+    } catch (err) {
+      toast.error(extractClientErrorMessage(err, "Failed to update gift card"));
     } finally {
       setIsSaving(false);
     }
@@ -201,8 +202,8 @@ export function GiftCardsPageClient({
         toast.success("Gift card deleted");
         setGiftCardToDelete(null);
         router.refresh();
-      } catch {
-        toast.error("Failed to delete gift card");
+      } catch (err) {
+        toast.error(extractClientErrorMessage(err, "Failed to delete gift card"));
       }
     });
   };

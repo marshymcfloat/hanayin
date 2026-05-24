@@ -7,6 +7,7 @@ import * as z from "zod";
 import { Loader2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { extractClientErrorMessage } from "@/lib/utils/error-message";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -87,8 +88,8 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
         } else {
           toast.error(res.error || "Failed to create voucher");
         }
-      } catch {
-        toast.error("An error occurred");
+      } catch (err) {
+        toast.error(extractClientErrorMessage(err, "Failed to create voucher"));
       }
     });
   }
@@ -110,8 +111,8 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
         } else {
           toast.error(res.error || "Failed to generate code");
         }
-      } catch {
-        toast.error("Error generating code");
+      } catch (err) {
+        toast.error(extractClientErrorMessage(err, "Failed to generate code"));
       }
     });
   };

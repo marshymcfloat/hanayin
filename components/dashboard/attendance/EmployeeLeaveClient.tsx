@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cancelLeaveRequest } from "@/app/actions/leave-request";
 import { toast } from "sonner";
+import { extractClientErrorMessage } from "@/lib/utils/error-message";
 import { useMemo, useState } from "react";
 import { CalendarPlus, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import {
@@ -83,8 +84,8 @@ export function EmployeeLeaveClient({
       } else {
         toast.error(result.error || "Failed to cancel request");
       }
-    } catch {
-      toast.error("An error occurred");
+    } catch (err) {
+      toast.error(extractClientErrorMessage(err, "Failed to cancel request"));
     } finally {
       setCancellingId(null);
     }
