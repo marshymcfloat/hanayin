@@ -134,7 +134,15 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
                     <Input
                       placeholder="SUMMER2026"
                       {...field}
-                      className="pl-10 h-10 rounded-xl" // Add padding to make room for prefix
+                      // Server normalizes to uppercase regardless, but
+                      // mirroring it client-side keeps the displayed
+                      // value honest and prevents the confused-state
+                      // bug where verify accepted a lowercase suffix
+                      // but the booking submit later rejected it.
+                      onChange={(e) =>
+                        field.onChange(e.target.value.toUpperCase())
+                      }
+                      className="pl-10 h-10 rounded-xl uppercase" // Add padding to make room for prefix
                       style={{ paddingLeft: `${initials.length + 3}ch` }} // dynamic padding roughly
                     />
                   </FormControl>

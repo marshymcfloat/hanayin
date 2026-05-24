@@ -105,4 +105,88 @@ describe("buildBookingPricingSnapshot", () => {
     expect(snapshot.services[1].estimatedCost).toBe(90);
     expect(snapshot.subtotal).toBe(800);
   });
+
+  // Regression: voucher submit was failing with "Invalid or expired
+  // voucher code" when the DB row was stored case-sensitively
+  // ("BF-summer2026") because the snapshot upper-cased the lookup.
+  // Voucher creation + verify now normalize on the way in, so the
+  // snapshot's uppercase lookup is the canonical contract -- this
+  // test pins it so we don't regress.
+  it("looks up the voucher by uppercase code regardless of caller casing", async () => {
+    const db = createMockDb();
+
+    db.business.findUnique.mockResolvedValue({
+      id: "biz_1",
+      slug: "beautyfeel",
+      name: "BeautyFeel",
+      commission_calculation_basis: "ORIGINAL_PRICE",
+    });
+    db.service.findMany.mockResolvedValue([
+      { id: 1, name: "Haircut", price: 500, estimated_cost: 180, duration: 45 },
+    ]);
+    db.packageItem.findMany.mockResolvedValue([]);
+    db.servicePackage.findMany.mockResolvedValue([]);
+    db.saleEvent.findMany.mockResolvedValue([]);
+
+    const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    db.voucher.findUnique.mockResolvedValue({
+      id: 42,
+      code: "BF-SUMMER2026",
+      type: "PERCENTAGE",
+      value: 20,
+      minimum_amount: 0,
+      is_active: true,
+      used_by_id: null,
+      expires_at: futureDate,
+      business: { slug: "beautyfeel" },
+    });
+
+    const snapshot = await buildBookingPricingSnapshot({
+      db: db as never,
+      businessSlug: "beautyfeel",
+      scheduledAt: new Date("2026-02-10T10:00:00.000Z"),
+      services: [{ id: 1, quantity: 1, price: 1 } as never],
+      paymentMethod: "CASH",
+      paymentType: "FULL",
+      // Caller passes mixed-case; snapshot must normalize.
+      voucherCode: "bf-Summer2026",
+    });
+
+    expect(db.voucher.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { code: "BF-SUMMER2026" } }),
+    );
+    expect(snapshot.voucher?.id).toBe(42);
+    expect(snapshot.voucherDiscount).toBe(100); // 20% of 500
+    expect(snapshot.grandTotal).toBe(400);
+  });
+
+  it("rejects voucher when DB returns null after normalize", async () => {
+    const db = createMockDb();
+
+    db.business.findUnique.mockResolvedValue({
+      id: "biz_1",
+      slug: "beautyfeel",
+      name: "BeautyFeel",
+      commission_calculation_basis: "ORIGINAL_PRICE",
+    });
+    db.service.findMany.mockResolvedValue([
+      { id: 1, name: "Haircut", price: 500, estimated_cost: 180, duration: 45 },
+    ]);
+    db.packageItem.findMany.mockResolvedValue([]);
+    db.servicePackage.findMany.mockResolvedValue([]);
+    db.saleEvent.findMany.mockResolvedValue([]);
+    db.voucher.findUnique.mockResolvedValue(null);
+
+    await expect(
+      buildBookingPricingSnapshot({
+        db: db as never,
+        businessSlug: "beautyfeel",
+        scheduledAt: new Date("2026-02-10T10:00:00.000Z"),
+        services: [{ id: 1, quantity: 1, price: 1 } as never],
+        paymentMethod: "CASH",
+        paymentType: "FULL",
+        voucherCode: "BF-NONEXISTENT",
+      }),
+    ).rejects.toThrow("Invalid or expired voucher code");
+  });
 });

@@ -1,4 +1,5 @@
 import { calculateBookingTotal } from "@/lib/utils/pricing";
+import { normalizeVoucherCode } from "@/lib/utils/voucher-code";
 import { Prisma, PrismaClient } from "@/prisma/generated/prisma/client";
 
 type PricingDbClient = PrismaClient | Prisma.TransactionClient;
@@ -323,7 +324,7 @@ export async function buildBookingPricingSnapshot({
   let voucher: { id: number; code: string } | null = null;
 
   if (voucherCode) {
-    const normalizedVoucherCode = voucherCode.trim().toUpperCase();
+    const normalizedVoucherCode = normalizeVoucherCode(voucherCode);
     const dbVoucher = await db.voucher.findUnique({
       where: { code: normalizedVoucherCode },
       include: { business: { select: { slug: true } } },

@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
+import { normalizeVoucherCode } from "@/lib/utils/voucher-code";
 
 // Crockford-style alphabet: excludes I/O/0/1 to avoid ambiguous codes
 // when read off SMS or handwritten. Matches the gift-card generator.
@@ -77,8 +78,13 @@ export async function createVoucherAction(data: CreateVoucherInput) {
 
     if (!business) return { success: false, error: "Business not found" };
 
+    const normalizedCode = normalizeVoucherCode(data.code);
+    if (normalizedCode.length === 0) {
+      return { success: false, error: "Voucher code can't be empty" };
+    }
+
     const existing = await prisma.voucher.findUnique({
-      where: { code: data.code },
+      where: { code: normalizedCode },
     });
 
     if (existing) {
@@ -87,7 +93,7 @@ export async function createVoucherAction(data: CreateVoucherInput) {
 
     const voucher = await prisma.voucher.create({
       data: {
-        code: data.code,
+        code: normalizedCode,
         type: data.type,
         value: data.value,
         minimum_amount: data.minimum_amount,
@@ -145,7 +151,7 @@ export async function generateVoucherCodeAction() {
 
     if (!business) return { success: false, error: "Business not found" };
 
-    const prefix = business.initials || "VO";
+    const prefix = (business.initials || "VO").toUpperCase();
 
     // Retry on collision instead of shipping a duplicate. Collision is
     // astronomically unlikely with 6 chars from a 32-letter alphabet
@@ -153,7 +159,7 @@ export async function generateVoucherCodeAction() {
     // an already-taken code if both random draws collided. 10 attempts
     // pushes the practical collision probability to effectively zero.
     for (let attempt = 0; attempt < VOUCHER_CODE_MAX_ATTEMPTS; attempt += 1) {
-      const code = `${prefix}-${generateVoucherSuffix()}`;
+      const code = normalizeVoucherCode(`${prefix}-${generateVoucherSuffix()}`);
       const existing = await prisma.voucher.findUnique({
         where: { code },
         select: { id: true },
@@ -193,8 +199,12 @@ export async function verifyVoucherAction(
   currentTotal: number,
 ): Promise<VerifyVoucherResult> {
   try {
+    const normalizedCode = normalizeVoucherCode(code);
+    if (normalizedCode.length === 0) {
+      return { success: false, error: "Voucher code can't be empty" };
+    }
     const voucher = await prisma.voucher.findUnique({
-      where: { code },
+      where: { code: normalizedCode },
       include: {
         business: true,
         used_by: true,
