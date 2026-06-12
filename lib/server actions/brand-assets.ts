@@ -11,17 +11,10 @@ import {
   ReferenceSubject,
 } from "@/prisma/generated/prisma/enums";
 import { logger } from "@/lib/logger";
-
-// Exported so server-side helpers that pull reference images back out of
-// blob storage (lib/services/social/reference-image.ts) validate against
-// the exact same size/type budget the upload enforces.
-export const MAX_UPLOAD_SIZE_BYTES = 8 * 1024 * 1024;
-export const ALLOWED_IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-]);
+import {
+  ALLOWED_IMAGE_TYPES,
+  MAX_UPLOAD_SIZE_BYTES,
+} from "@/lib/services/brand-assets/validation";
 
 const VALID_KINDS = new Set<string>(Object.values(BrandAssetKind));
 const VALID_REFERENCE_SUBJECTS = new Set<string>(

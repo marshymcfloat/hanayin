@@ -1,7 +1,7 @@
 import {
   ALLOWED_IMAGE_TYPES,
   MAX_UPLOAD_SIZE_BYTES,
-} from "@/lib/server actions/brand-assets";
+} from "@/lib/services/brand-assets/validation";
 import { logger } from "@/lib/logger";
 
 const FETCH_TIMEOUT_MS = 10_000;

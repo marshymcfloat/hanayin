@@ -1,17 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-// Avoid pulling the heavy "use server" brand-assets module (prisma,
-// @vercel/blob) into this unit test — only the two budget constants matter.
-vi.mock("@/lib/server actions/brand-assets", () => ({
-  MAX_UPLOAD_SIZE_BYTES: 8 * 1024 * 1024,
-  ALLOWED_IMAGE_TYPES: new Set([
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-  ]),
-}));
-
 import { fetchReferenceImageBytes } from "./reference-image";
 
 const URL = "https://example.public.blob.vercel-storage.com/ref.png";
