@@ -10,7 +10,9 @@ import {
 } from "@/lib/auth/guards";
 import { generateSocialCaptionDraft, generateOrganicCaptionDraft, type OrganicPostCategory } from "@/lib/services/social/caption-generator";
 import { generateAndUploadOrganicImage, type OrganicImageInput } from "@/lib/services/social/promo-image";
-import { generateAndUploadPromoImage } from "@/lib/services/social/promo-image";
+import { generateAndUploadPromoImage, type ReferenceImage } from "@/lib/services/social/promo-image";
+import { fetchReferenceImageBytes } from "@/lib/services/social/reference-image";
+import { isGeminiConfigured } from "@/lib/services/social/gemini-client";
 import { publishEvent, publishEvents } from "@/lib/services/outbox";
 import { prisma } from "@/prisma/prisma";
 import { DiscountType } from "@/prisma/generated/prisma/enums";
@@ -643,6 +645,12 @@ export async function generateSocialPostImageAction(input: {
   businessSlug: string;
   postId: string;
   imageProfile?: SocialImageProfile;
+  /**
+   * Optional reusable reference image from the brand-asset library
+   * (kind=REFERENCE). When set, generation is conditioned on the image —
+   * a PERSON reference triggers strict identity-preservation prompting.
+   */
+  referenceAssetId?: string;
 }) {
   const auth = await requireOwnerTenantWriteAccess(input.businessSlug);
   if (!auth.success) return auth;
@@ -653,6 +661,46 @@ export async function generateSocialPostImageAction(input: {
   if (aiError) return aiError;
 
   try {
+    // Resolve the optional reference image up front. The owner explicitly
+    // picked it, so a missing/unfetchable asset is a hard error — we never
+    // silently fall back to a generic generation.
+    let reference: ReferenceImage | null = null;
+    let referenceWarning: string | null = null;
+    if (input.referenceAssetId) {
+      const refAsset = await prisma.brandAsset.findFirst({
+        where: {
+          id: input.referenceAssetId,
+          business: { slug: input.businessSlug },
+          kind: "REFERENCE",
+        },
+        select: { url: true, reference_subject: true },
+      });
+      if (!refAsset) {
+        return {
+          success: false as const,
+          error: "Reference image not found or was removed. Pick another.",
+        };
+      }
+      const fetched = await fetchReferenceImageBytes(refAsset.url);
+      if (!fetched.ok) {
+        return {
+          success: false as const,
+          error: "Could not load the selected reference image. Try again.",
+        };
+      }
+      reference = {
+        data: fetched.data,
+        mimeType: fetched.mimeType,
+        subject: refAsset.reference_subject ?? "STYLE",
+      };
+      // Identity preservation depends on a multimodal model. The OpenAI
+      // edits fallback works but is weaker at faces, so flag it.
+      if (reference.subject === "PERSON" && !isGeminiConfigured()) {
+        referenceWarning =
+          "For best identity preservation, configure GEMINI_KEY — the fallback model may not reproduce a face exactly.";
+      }
+    }
+
     const post = await prisma.socialPost.findFirst({
       where: {
         id: input.postId,
@@ -702,6 +750,7 @@ export async function generateSocialPostImageAction(input: {
         captionText: post.caption_final || post.caption_draft,
         imageProfile,
         imprintBusinessName: true,
+        reference,
       });
     } else {
       const today = new Date();
@@ -721,6 +770,7 @@ export async function generateSocialPostImageAction(input: {
         ),
         packageNames: post.sale_event.applicable_packages.map((pkg) => pkg.name),
         imageProfile,
+        reference,
       });
     }
 
@@ -751,13 +801,18 @@ export async function generateSocialPostImageAction(input: {
         changes: {
           mediaUrl,
           imageProfile,
+          referenceAssetId: input.referenceAssetId ?? null,
+          referenceSubject: reference?.subject ?? null,
         },
       },
     });
 
     revalidatePath(`/app/${input.businessSlug}/social-posts`);
     revalidatePath(`/app/${input.businessSlug}/sale-events`);
-    return { success: true as const, data: { mediaUrl } };
+    return {
+      success: true as const,
+      data: { mediaUrl, warning: referenceWarning },
+    };
   } catch (error) {
     console.error("Error generating social post image:", error);
     return {

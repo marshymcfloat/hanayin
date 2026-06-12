@@ -1,11 +1,13 @@
 import { put } from "@vercel/blob";
 import { DiscountType } from "@/prisma/generated/prisma/enums";
+import type { ReferenceSubject } from "@/prisma/generated/prisma/enums";
 import { logger } from "@/lib/logger";
 import {
   generateGeminiImage,
   isGeminiConfigured,
 } from "@/lib/services/social/gemini-client";
 import {
+  editOpenAIImage,
   generateOpenAIImage,
   isOpenAIImageConfigured,
 } from "@/lib/services/social/openai-image-client";
@@ -21,6 +23,18 @@ import {
 } from "@/lib/services/social/image-text-composer";
 
 // ─── Public types ───────────────────────────────────────────────────────────
+
+/**
+ * An owner-provided reference image, already resolved to base64 bytes plus
+ * the subject classification stored on the BrandAsset. `subject` decides how
+ * the prompt treats it: PERSON triggers strict identity preservation; the
+ * rest feed visual direction only.
+ */
+export type ReferenceImage = {
+  data: string; // base64, no `data:` prefix
+  mimeType: string;
+  subject: ReferenceSubject;
+};
 
 export type PromoImageInput = {
   businessSlug: string;
@@ -38,6 +52,7 @@ export type PromoImageInput = {
   imageProfile?: SocialImageProfile;
   ownerImageDirection?: string;
   actionCategory?: string;
+  reference?: ReferenceImage | null;
 };
 
 export type OrganicImageInput = {
@@ -55,6 +70,7 @@ export type OrganicImageInput = {
    * top-left watermark. Defaults to false — owners can opt in.
    */
   imprintBusinessName?: boolean;
+  reference?: ReferenceImage | null;
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -347,6 +363,61 @@ const PROFILE_BLUEPRINTS: Record<SocialImageProfile, ProfileBlueprint> = {
 
 // ─── Prompt building ────────────────────────────────────────────────────────
 
+/**
+ * Build the reference-image instruction block. When the reference is a
+ * PERSON we emit strict identity-preservation rules AND an explicit override
+ * of the profile's "prefer no people / single product / hands-only" bias so
+ * the model actually renders the person. For BRAND / PRODUCT / STYLE we emit
+ * visual-direction-only wording that never treats the reference as a person.
+ * Returns [] when no reference is attached. The standing NO-text / NO-logo
+ * HARD CONSTRAINTS are intentionally left intact — branding is composited
+ * afterward as an SVG overlay.
+ */
+function buildReferencePromptLines(
+  reference: ReferenceImage | null | undefined,
+): Array<string | null> {
+  if (!reference) return [];
+
+  if (reference.subject === "PERSON") {
+    return [
+      "",
+      "REFERENCE IMAGE PROVIDED — IDENTITY LOCK (highest priority):",
+      "The attached image is a REAL PERSON. Recreate THIS EXACT SAME PERSON in the new photograph — treat the attached image as the primary identity reference.",
+      "Preserve their facial identity precisely: face shape and bone structure, eye shape and eye color, eyebrows, nose, mouth and lips, jawline, skin tone and complexion, apparent age range, gender presentation, and hairstyle / hair color.",
+      "Do NOT beautify, slim, de-age, lighten the skin, or change their ethnicity, age, body type, or proportions. No 'glow-up', no idealization, no face-swap drift into a similar-but-different person.",
+      "Keep facial proportions and anatomy natural and correct — two eyes, one nose, one mouth, undistorted and non-duplicated features. The person must stay clearly recognizable as the same individual.",
+      "This person IS the subject of this photograph. IGNORE any earlier direction that prefers no people, a single product, a hands-only crop, or a multi-person scene — place this one person naturally into the scene, style, palette, and mood described.",
+      "Do NOT change clothing, accessories, or other visible identifying details unless the creative direction explicitly asks for it.",
+    ];
+  }
+
+  if (reference.subject === "PRODUCT") {
+    return [
+      "",
+      "REFERENCE IMAGE PROVIDED — PRODUCT REFERENCE:",
+      "The attached image shows a product / object. Feature THIS product faithfully — keep its shape, color, proportions, and packaging layout accurate and recognizable.",
+      "Do NOT render readable text or logos onto the image; keep the packaging styling without legible lettering (branding is added separately).",
+    ];
+  }
+
+  if (reference.subject === "BRAND") {
+    return [
+      "",
+      "REFERENCE IMAGE PROVIDED — BRAND DIRECTION:",
+      "The attached image is a brand / identity reference. Use it ONLY for visual direction — color palette, materials, textures, mood, and overall styling.",
+      "Do NOT copy any logo, wordmark, or text from it into the output; the photograph itself stays text- and logo-free per the HARD CONSTRAINTS below.",
+    ];
+  }
+
+  // STYLE (default)
+  return [
+    "",
+    "REFERENCE IMAGE PROVIDED — STYLE REFERENCE:",
+    "Use the attached image purely as a STYLE reference — match its lighting, color palette, mood, composition, and finish.",
+    "Do NOT reproduce its specific subject, and do NOT copy any people, faces, text, or logos from it.",
+  ];
+}
+
 function buildPhotographyPrompt(input: {
   imageProfile: SocialImageProfile;
   variant: "promo" | "organic";
@@ -359,6 +430,7 @@ function buildPhotographyPrompt(input: {
   visualFocus: string | null;
   ownerDirection: string | null;
   subjectOverride?: string;
+  reference?: ReferenceImage | null;
 }): string {
   const profile = input.imageProfile;
   const blueprint = PROFILE_BLUEPRINTS[profile];
@@ -389,6 +461,7 @@ function buildPhotographyPrompt(input: {
     "",
     "SUBJECT:",
     subjectDirection,
+    ...buildReferencePromptLines(input.reference),
     "",
     "PHOTOGRAPHIC DIRECTION:",
     `Camera and framing: ${pickRandom(blueprint.camera)}.`,
@@ -642,6 +715,7 @@ export function buildSocialImagePrompt(input: PromoImageInput): string {
     visualFocus: null,
     ownerDirection: input.ownerImageDirection?.trim() || null,
     subjectOverride: subjectOverride ?? undefined,
+    reference: input.reference ?? null,
   });
 }
 
@@ -742,6 +816,7 @@ export function buildOrganicImagePrompt(input: OrganicImageInput): string {
     visualFocus: input.visualFocus?.trim() || null,
     ownerDirection: input.ownerDirection?.trim() || null,
     subjectOverride,
+    reference: input.reference ?? null,
   });
 }
 
@@ -761,13 +836,43 @@ async function attemptOpenAI(prompt: string): Promise<ImageBytes | null> {
   }
 }
 
-async function attemptGemini(prompt: string): Promise<ImageBytes | null> {
+async function attemptGemini(
+  prompt: string,
+  reference?: ReferenceImage | null,
+): Promise<ImageBytes | null> {
   if (!isGeminiConfigured()) return null;
   const model = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image";
   try {
-    return await generateGeminiImage({ model, prompt });
+    return await generateGeminiImage({
+      model,
+      prompt,
+      images: reference
+        ? [{ data: reference.data, mimeType: reference.mimeType }]
+        : undefined,
+    });
   } catch (error) {
     logger.warn("[Social] Gemini image generation failed.", {
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function attemptOpenAIEdit(
+  prompt: string,
+  reference: ReferenceImage,
+): Promise<ImageBytes | null> {
+  if (!isOpenAIImageConfigured()) return null;
+  try {
+    return await editOpenAIImage({
+      prompt,
+      image: {
+        bytes: Buffer.from(reference.data, "base64"),
+        mimeType: reference.mimeType,
+      },
+    });
+  } catch (error) {
+    logger.warn("[Social] OpenAI image edit failed; will try fallback.", {
       errorMessage: error instanceof Error ? error.message : String(error),
     });
     return null;
@@ -790,15 +895,33 @@ async function uploadImage(input: {
 }
 
 /**
- * Generate raw image bytes from the AI providers. Tries OpenAI first, then
- * Gemini, with a single backoff retry on transient failure.
+ * Generate raw image bytes from the AI providers.
+ *
+ * Without a reference: text-to-image, OpenAI /generations first, then Gemini
+ * (unchanged legacy behavior).
+ *
+ * With a reference: route to image-to-image. Gemini (gemini-2.5-flash-image)
+ * goes FIRST because it is the strongest at subject/identity consistency, then
+ * OpenAI's edits endpoint as fallback. The plain /generations path is skipped
+ * entirely here — it cannot accept an input image and would silently ignore
+ * the reference, defeating the feature.
  */
-async function generateBackgroundBytes(prompt: string): Promise<ImageBytes | null> {
+async function generateBackgroundBytes(
+  prompt: string,
+  reference?: ReferenceImage | null,
+): Promise<ImageBytes | null> {
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    const openai = await attemptOpenAI(prompt);
-    if (openai) return openai;
-    const gemini = await attemptGemini(prompt);
-    if (gemini) return gemini;
+    if (reference) {
+      const gemini = await attemptGemini(prompt, reference);
+      if (gemini) return gemini;
+      const edit = await attemptOpenAIEdit(prompt, reference);
+      if (edit) return edit;
+    } else {
+      const openai = await attemptOpenAI(prompt);
+      if (openai) return openai;
+      const gemini = await attemptGemini(prompt);
+      if (gemini) return gemini;
+    }
     if (attempt === 0) {
       // Brief backoff — covers transient 5xx / rate spikes.
       await new Promise((resolve) => setTimeout(resolve, 800));
@@ -818,7 +941,7 @@ export async function generateAndUploadPromoImage(
   }
 
   const prompt = buildSocialImagePrompt(input);
-  const background = await generateBackgroundBytes(prompt);
+  const background = await generateBackgroundBytes(prompt, input.reference);
   if (!background) return null;
 
   const isNonDiscount =
@@ -856,7 +979,7 @@ export async function generateAndUploadOrganicImage(
   }
 
   const prompt = buildOrganicImagePrompt(input);
-  const background = await generateBackgroundBytes(prompt);
+  const background = await generateBackgroundBytes(prompt, input.reference);
   if (!background) return null;
 
   // H6: educational tip-card overlay. When the EDUCATIONAL profile is

@@ -40,8 +40,14 @@ const NON_PROMOTIONAL: OrganicPostCategory[] = [
   "GENERAL",
 ];
 
-const PROMOTIONAL_CTA = /Book now through ServiceFlow/i;
-const PROMOTIONAL_DISCOVERY = /Tap through to see everything we offer/i;
+// Wave N3: promotional footer is picked from a rotating pool so a single
+// string match would be flaky. We match the union of pool entries — and
+// also match "ServiceFlow" + booking verbs as a broader guard against
+// any new pool entry slipping past these tests.
+const PROMOTIONAL_CTA =
+  /Book now through ServiceFlow|Pwede mag-book sa ServiceFlow|Mag-reserve na sa ServiceFlow|Lock in your slot through ServiceFlow|Slot mo na, book na sa ServiceFlow/i;
+const PROMOTIONAL_DISCOVERY =
+  /Tap through to see everything we offer|Silip mo rin ang ibang services namin|Check the full menu and pick what fits your week|Tingnan ang buong list of services|Browse the rest of our services kapag may time ka/i;
 
 const SOFT_CTA_BY_CATEGORY: Record<
   Exclude<OrganicPostCategory, "SERVICE_SHOWCASE">,

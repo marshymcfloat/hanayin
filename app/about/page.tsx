@@ -9,6 +9,8 @@ import OriginSection from "@/components/about/OriginSection";
 import PrinciplesSection from "@/components/about/PrinciplesSection";
 import FounderNoteSection from "@/components/about/FounderNoteSection";
 import ContactSection from "@/components/about/ContactSection";
+import Schema from "@/components/seo/Schema";
+import { breadcrumbSchema, organizationSchema } from "@/lib/json-ld";
 import { constructMetadata } from "@/lib/metadata";
 
 export const metadata = constructMetadata({
@@ -26,8 +28,15 @@ export const metadata = constructMetadata({
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen w-full bg-background flex flex-col font-sans">
+    <div className="min-h-screen w-full bg-background flex flex-col font-sans">
       <SmoothScroll />
+      <Schema data={organizationSchema()} />
+      <Schema
+        data={breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "About", item: "/about" },
+        ])}
+      />
       <LandingHeader />
 
       <main className="flex-1 flex flex-col">
@@ -42,6 +51,6 @@ export default function AboutPage() {
       <Suspense fallback={null}>
         <LandingFooter />
       </Suspense>
-    </main>
+    </div>
   );
 }

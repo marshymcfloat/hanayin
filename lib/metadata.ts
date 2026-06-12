@@ -88,7 +88,7 @@ export function constructMetadata({
   title = defaultTitle,
   description = defaultDescription,
   image = "/og-image.png",
-  icons = "/favicon.ico",
+  icons = "/sf-favicon.png",
   noIndex = false,
   canonical = "/",
   keywords = [],

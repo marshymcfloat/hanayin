@@ -40,7 +40,7 @@ export const metadata = constructMetadata({
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-full bg-background flex flex-col font-sans">
+    <div className="min-h-screen w-full bg-background flex flex-col font-sans">
       <SmoothScroll />
       <Schema data={organizationSchema()} />
       <Schema data={websiteSchema()} />
@@ -62,6 +62,6 @@ export default function Home() {
       <Suspense fallback={null}>
         <LandingFooter />
       </Suspense>
-    </main>
+    </div>
   );
 }

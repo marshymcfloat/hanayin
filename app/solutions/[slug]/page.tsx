@@ -8,6 +8,7 @@ import {
   seoLandingPages,
 } from "@/lib/seo-landing-pages";
 import Schema from "@/components/seo/Schema";
+import { breadcrumbSchema } from "@/lib/json-ld";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
@@ -77,10 +78,17 @@ export default async function SolutionDetailPage({ params }: Props) {
     })),
   };
 
+  const breadcrumb = breadcrumbSchema([
+    { name: "Home", item: "/" },
+    { name: "Solutions", item: "/solutions" },
+    { name: page.headline, item: `/solutions/${page.slug}` },
+  ]);
+
   return (
     <main className="min-h-screen bg-background font-sans flex flex-col">
       <Schema data={serviceSchema} />
       <Schema data={faqSchema} />
+      <Schema data={breadcrumb} />
       <LandingHeader />
 
       <section className="container mx-auto px-4 sm:px-6 pt-28 pb-10">

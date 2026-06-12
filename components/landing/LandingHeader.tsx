@@ -66,32 +66,28 @@ export default function LandingHeader() {
           href="/#hero"
           onClick={(e) => handleScroll(e, "hero")}
           className="flex items-center gap-2 group"
+          aria-label="ServiceFlow home"
         >
           <div
             className={cn(
               "relative transition-all duration-300",
-              scrolled ? "size-7" : "size-8 md:size-9",
+              scrolled ? "h-9 w-32" : "h-12 w-40 md:w-44",
             )}
           >
             <Image
-              src="/serviceFlow-logo.png"
+              src="/serviceFlow_logo_no_bg.png"
               alt="ServiceFlow"
               fill
-              sizes="(min-width: 768px) 36px, 32px"
-              className="rounded-lg object-cover"
+              sizes="(min-width: 768px) 176px, 160px"
+              className="object-contain"
             />
           </div>
-          <span
-            className={cn(
-              "font-semibold tracking-tight text-foreground transition-all duration-300",
-              scrolled ? "text-base" : "text-lg",
-            )}
-          >
-            ServiceFlow
-          </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7 absolute left-1/2 -translate-x-1/2">
+        <nav
+          className="hidden md:flex items-center gap-7 absolute left-1/2 -translate-x-1/2"
+          aria-label="Main navigation"
+        >
           <Link
             href="/#features"
             onClick={(e) => handleScroll(e, "features")}

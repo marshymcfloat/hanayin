@@ -43,6 +43,7 @@ export default async function BusinessSettingsPage({
     select: {
       id: true,
       kind: true,
+      reference_subject: true,
       url: true,
       alt: true,
     },

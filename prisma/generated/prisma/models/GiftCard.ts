@@ -39,6 +39,7 @@ export type GiftCardMinAggregateOutputType = {
   code: string | null
   customer_name: string | null
   customer_email: string | null
+  customer_phone: string | null
   expires_at: Date | null
   is_claimed: boolean | null
   claimed_at: Date | null
@@ -53,6 +54,7 @@ export type GiftCardMaxAggregateOutputType = {
   code: string | null
   customer_name: string | null
   customer_email: string | null
+  customer_phone: string | null
   expires_at: Date | null
   is_claimed: boolean | null
   claimed_at: Date | null
@@ -67,6 +69,7 @@ export type GiftCardCountAggregateOutputType = {
   code: number
   customer_name: number
   customer_email: number
+  customer_phone: number
   expires_at: number
   is_claimed: number
   claimed_at: number
@@ -91,6 +94,7 @@ export type GiftCardMinAggregateInputType = {
   code?: true
   customer_name?: true
   customer_email?: true
+  customer_phone?: true
   expires_at?: true
   is_claimed?: true
   claimed_at?: true
@@ -105,6 +109,7 @@ export type GiftCardMaxAggregateInputType = {
   code?: true
   customer_name?: true
   customer_email?: true
+  customer_phone?: true
   expires_at?: true
   is_claimed?: true
   claimed_at?: true
@@ -119,6 +124,7 @@ export type GiftCardCountAggregateInputType = {
   code?: true
   customer_name?: true
   customer_email?: true
+  customer_phone?: true
   expires_at?: true
   is_claimed?: true
   claimed_at?: true
@@ -219,7 +225,8 @@ export type GiftCardGroupByOutputType = {
   id: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email: string | null
+  customer_phone: string | null
   expires_at: Date
   is_claimed: boolean
   claimed_at: Date | null
@@ -256,7 +263,8 @@ export type GiftCardWhereInput = {
   id?: Prisma.IntFilter<"GiftCard"> | number
   code?: Prisma.StringFilter<"GiftCard"> | string
   customer_name?: Prisma.StringFilter<"GiftCard"> | string
-  customer_email?: Prisma.StringFilter<"GiftCard"> | string
+  customer_email?: Prisma.StringNullableFilter<"GiftCard"> | string | null
+  customer_phone?: Prisma.StringNullableFilter<"GiftCard"> | string | null
   expires_at?: Prisma.DateTimeFilter<"GiftCard"> | Date | string
   is_claimed?: Prisma.BoolFilter<"GiftCard"> | boolean
   claimed_at?: Prisma.DateTimeNullableFilter<"GiftCard"> | Date | string | null
@@ -274,7 +282,8 @@ export type GiftCardOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
   customer_name?: Prisma.SortOrder
-  customer_email?: Prisma.SortOrder
+  customer_email?: Prisma.SortOrderInput | Prisma.SortOrder
+  customer_phone?: Prisma.SortOrderInput | Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   is_claimed?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -295,7 +304,8 @@ export type GiftCardWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.GiftCardWhereInput[]
   NOT?: Prisma.GiftCardWhereInput | Prisma.GiftCardWhereInput[]
   customer_name?: Prisma.StringFilter<"GiftCard"> | string
-  customer_email?: Prisma.StringFilter<"GiftCard"> | string
+  customer_email?: Prisma.StringNullableFilter<"GiftCard"> | string | null
+  customer_phone?: Prisma.StringNullableFilter<"GiftCard"> | string | null
   expires_at?: Prisma.DateTimeFilter<"GiftCard"> | Date | string
   is_claimed?: Prisma.BoolFilter<"GiftCard"> | boolean
   claimed_at?: Prisma.DateTimeNullableFilter<"GiftCard"> | Date | string | null
@@ -313,7 +323,8 @@ export type GiftCardOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
   customer_name?: Prisma.SortOrder
-  customer_email?: Prisma.SortOrder
+  customer_email?: Prisma.SortOrderInput | Prisma.SortOrder
+  customer_phone?: Prisma.SortOrderInput | Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   is_claimed?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -335,7 +346,8 @@ export type GiftCardScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"GiftCard"> | number
   code?: Prisma.StringWithAggregatesFilter<"GiftCard"> | string
   customer_name?: Prisma.StringWithAggregatesFilter<"GiftCard"> | string
-  customer_email?: Prisma.StringWithAggregatesFilter<"GiftCard"> | string
+  customer_email?: Prisma.StringNullableWithAggregatesFilter<"GiftCard"> | string | null
+  customer_phone?: Prisma.StringNullableWithAggregatesFilter<"GiftCard"> | string | null
   expires_at?: Prisma.DateTimeWithAggregatesFilter<"GiftCard"> | Date | string
   is_claimed?: Prisma.BoolWithAggregatesFilter<"GiftCard"> | boolean
   claimed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"GiftCard"> | Date | string | null
@@ -348,7 +360,8 @@ export type GiftCardScalarWhereWithAggregatesInput = {
 export type GiftCardCreateInput = {
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -364,7 +377,8 @@ export type GiftCardUncheckedCreateInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -379,7 +393,8 @@ export type GiftCardUncheckedCreateInput = {
 export type GiftCardUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -395,7 +410,8 @@ export type GiftCardUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -411,7 +427,8 @@ export type GiftCardCreateManyInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -424,7 +441,8 @@ export type GiftCardCreateManyInput = {
 export type GiftCardUpdateManyMutationInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -436,7 +454,8 @@ export type GiftCardUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -461,6 +480,7 @@ export type GiftCardCountOrderByAggregateInput = {
   code?: Prisma.SortOrder
   customer_name?: Prisma.SortOrder
   customer_email?: Prisma.SortOrder
+  customer_phone?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   is_claimed?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrder
@@ -479,6 +499,7 @@ export type GiftCardMaxOrderByAggregateInput = {
   code?: Prisma.SortOrder
   customer_name?: Prisma.SortOrder
   customer_email?: Prisma.SortOrder
+  customer_phone?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   is_claimed?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrder
@@ -493,6 +514,7 @@ export type GiftCardMinOrderByAggregateInput = {
   code?: Prisma.SortOrder
   customer_name?: Prisma.SortOrder
   customer_email?: Prisma.SortOrder
+  customer_phone?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
   is_claimed?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrder
@@ -626,7 +648,8 @@ export type GiftCardUpdateOneRequiredWithoutIncluded_packagesNestedInput = {
 export type GiftCardCreateWithoutBusinessInput = {
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -641,7 +664,8 @@ export type GiftCardUncheckedCreateWithoutBusinessInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -685,7 +709,8 @@ export type GiftCardScalarWhereInput = {
   id?: Prisma.IntFilter<"GiftCard"> | number
   code?: Prisma.StringFilter<"GiftCard"> | string
   customer_name?: Prisma.StringFilter<"GiftCard"> | string
-  customer_email?: Prisma.StringFilter<"GiftCard"> | string
+  customer_email?: Prisma.StringNullableFilter<"GiftCard"> | string | null
+  customer_phone?: Prisma.StringNullableFilter<"GiftCard"> | string | null
   expires_at?: Prisma.DateTimeFilter<"GiftCard"> | Date | string
   is_claimed?: Prisma.BoolFilter<"GiftCard"> | boolean
   claimed_at?: Prisma.DateTimeNullableFilter<"GiftCard"> | Date | string | null
@@ -698,7 +723,8 @@ export type GiftCardScalarWhereInput = {
 export type GiftCardCreateWithoutClaimed_by_customerInput = {
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -713,7 +739,8 @@ export type GiftCardUncheckedCreateWithoutClaimed_by_customerInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -753,7 +780,8 @@ export type GiftCardUpdateManyWithWhereWithoutClaimed_by_customerInput = {
 export type GiftCardCreateWithoutIncluded_servicesInput = {
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -768,7 +796,8 @@ export type GiftCardUncheckedCreateWithoutIncluded_servicesInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -798,7 +827,8 @@ export type GiftCardUpdateToOneWithWhereWithoutIncluded_servicesInput = {
 export type GiftCardUpdateWithoutIncluded_servicesInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -813,7 +843,8 @@ export type GiftCardUncheckedUpdateWithoutIncluded_servicesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -827,7 +858,8 @@ export type GiftCardUncheckedUpdateWithoutIncluded_servicesInput = {
 export type GiftCardCreateWithoutIncluded_packagesInput = {
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -842,7 +874,8 @@ export type GiftCardUncheckedCreateWithoutIncluded_packagesInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -872,7 +905,8 @@ export type GiftCardUpdateToOneWithWhereWithoutIncluded_packagesInput = {
 export type GiftCardUpdateWithoutIncluded_packagesInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -887,7 +921,8 @@ export type GiftCardUncheckedUpdateWithoutIncluded_packagesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -902,7 +937,8 @@ export type GiftCardCreateManyBusinessInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -914,7 +950,8 @@ export type GiftCardCreateManyBusinessInput = {
 export type GiftCardUpdateWithoutBusinessInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -929,7 +966,8 @@ export type GiftCardUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -944,7 +982,8 @@ export type GiftCardUncheckedUpdateManyWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -957,7 +996,8 @@ export type GiftCardCreateManyClaimed_by_customerInput = {
   id?: number
   code: string
   customer_name: string
-  customer_email: string
+  customer_email?: string | null
+  customer_phone?: string | null
   expires_at: Date | string
   is_claimed?: boolean
   claimed_at?: Date | string | null
@@ -969,7 +1009,8 @@ export type GiftCardCreateManyClaimed_by_customerInput = {
 export type GiftCardUpdateWithoutClaimed_by_customerInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -984,7 +1025,8 @@ export type GiftCardUncheckedUpdateWithoutClaimed_by_customerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -999,7 +1041,8 @@ export type GiftCardUncheckedUpdateManyWithoutClaimed_by_customerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   customer_name?: Prisma.StringFieldUpdateOperationsInput | string
-  customer_email?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customer_phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   is_claimed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1053,6 +1096,7 @@ export type GiftCardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   code?: boolean
   customer_name?: boolean
   customer_email?: boolean
+  customer_phone?: boolean
   expires_at?: boolean
   is_claimed?: boolean
   claimed_at?: boolean
@@ -1072,6 +1116,7 @@ export type GiftCardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   code?: boolean
   customer_name?: boolean
   customer_email?: boolean
+  customer_phone?: boolean
   expires_at?: boolean
   is_claimed?: boolean
   claimed_at?: boolean
@@ -1088,6 +1133,7 @@ export type GiftCardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   code?: boolean
   customer_name?: boolean
   customer_email?: boolean
+  customer_phone?: boolean
   expires_at?: boolean
   is_claimed?: boolean
   claimed_at?: boolean
@@ -1104,6 +1150,7 @@ export type GiftCardSelectScalar = {
   code?: boolean
   customer_name?: boolean
   customer_email?: boolean
+  customer_phone?: boolean
   expires_at?: boolean
   is_claimed?: boolean
   claimed_at?: boolean
@@ -1113,7 +1160,7 @@ export type GiftCardSelectScalar = {
   updated_at?: boolean
 }
 
-export type GiftCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "customer_name" | "customer_email" | "expires_at" | "is_claimed" | "claimed_at" | "claimed_by_customer_id" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["giftCard"]>
+export type GiftCardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "customer_name" | "customer_email" | "customer_phone" | "expires_at" | "is_claimed" | "claimed_at" | "claimed_by_customer_id" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["giftCard"]>
 export type GiftCardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   claimed_by_customer?: boolean | Prisma.GiftCard$claimed_by_customerArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1142,7 +1189,8 @@ export type $GiftCardPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: number
     code: string
     customer_name: string
-    customer_email: string
+    customer_email: string | null
+    customer_phone: string | null
     expires_at: Date
     is_claimed: boolean
     claimed_at: Date | null
@@ -1581,6 +1629,7 @@ export interface GiftCardFieldRefs {
   readonly code: Prisma.FieldRef<"GiftCard", 'String'>
   readonly customer_name: Prisma.FieldRef<"GiftCard", 'String'>
   readonly customer_email: Prisma.FieldRef<"GiftCard", 'String'>
+  readonly customer_phone: Prisma.FieldRef<"GiftCard", 'String'>
   readonly expires_at: Prisma.FieldRef<"GiftCard", 'DateTime'>
   readonly is_claimed: Prisma.FieldRef<"GiftCard", 'Boolean'>
   readonly claimed_at: Prisma.FieldRef<"GiftCard", 'DateTime'>

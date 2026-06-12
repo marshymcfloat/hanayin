@@ -37,9 +37,19 @@ type GeminiGenerateContentResponse = GeminiErrorResponse & {
   };
 };
 
+/**
+ * Reference/input image to condition generation on. `data` is raw base64
+ * (no `data:` URI prefix) — the shape `inlineData.data` expects.
+ */
+export type GeminiInputImage = {
+  data: string;
+  mimeType: string;
+};
+
 type GenerateGeminiContentInput = {
   model: string;
   prompt: string;
+  images?: GeminiInputImage[];
   generationConfig?: Record<string, unknown>;
 };
 
@@ -87,7 +97,17 @@ async function generateGeminiContent(input: GenerateGeminiContentInput) {
           contents: [
             {
               role: "user",
-              parts: [{ text: input.prompt }],
+              // Image parts first, then the text instruction — Gemini
+              // conditions most reliably on "here is an image, now do X".
+              parts: [
+                ...(input.images ?? []).map((image) => ({
+                  inlineData: {
+                    data: image.data,
+                    mimeType: image.mimeType,
+                  },
+                })),
+                { text: input.prompt },
+              ],
             },
           ],
           generationConfig: input.generationConfig,
@@ -189,10 +209,17 @@ export async function generateGeminiText(input: {
 export async function generateGeminiImage(input: {
   model: string;
   prompt: string;
+  /**
+   * Optional reference/input images. When provided, Gemini conditions the
+   * generated image on them (image-to-image) — this is what powers
+   * reference-based generation and person identity preservation.
+   */
+  images?: GeminiInputImage[];
 }) {
   const payload = await generateGeminiContent({
     model: input.model,
     prompt: input.prompt,
+    images: input.images,
     generationConfig: {
       responseModalities: ["TEXT", "IMAGE"],
     },

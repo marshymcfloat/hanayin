@@ -157,6 +157,18 @@ enum BrandAssetKind {
   REFERENCE
 }
 
+// Classifies what a reference image actually depicts so the social-post
+// image generator can adapt its prompt. PERSON triggers strict identity-
+// preservation rules (preserve face, skin tone, age, hairstyle); the rest
+// feed the model visual direction only. Nullable on BrandAsset — only
+// meaningful for kind=REFERENCE rows.
+enum ReferenceSubject {
+  PERSON
+  BRAND
+  PRODUCT
+  STYLE
+}
+
 // Per-owner capabilities. Single-owner businesses default to the full
 // set so existing behavior is preserved. Co-owners can be granted a
 // restricted subset (e.g. sales-only) by clearing chips on the owner
@@ -698,6 +710,10 @@ model BrandAsset {
   business    Business       @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   kind BrandAssetKind
+
+  // Only set for kind=REFERENCE. Drives identity-preservation vs visual-
+  // direction wording in the social-post image prompt builder.
+  reference_subject ReferenceSubject?
 
   url         String
   alt         String?
@@ -1291,7 +1307,12 @@ model GiftCard {
 
   code           String   @unique
   customer_name  String
-  customer_email String
+  // Wave N4: phone added for SMS delivery. Email becomes optional in
+  // application logic — at least one of {email, phone} must be present
+  // so the code can actually reach the customer. Phone is also nullable
+  // here for backfill compatibility with rows created before this change.
+  customer_email String?
+  customer_phone String?
   expires_at     DateTime
 
   is_claimed Boolean   @default(false)

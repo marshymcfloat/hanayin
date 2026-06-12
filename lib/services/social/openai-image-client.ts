@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger";
 
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
+const OPENAI_IMAGE_EDITS_URL = "https://api.openai.com/v1/images/edits";
 const DEFAULT_OPENAI_IMAGE_TIMEOUT_MS = 60_000;
 
 type OpenAIImageData = {
@@ -85,6 +86,13 @@ function outputFormatToMimeType(outputFormat: OutputFormat) {
     default:
       return "image/png";
   }
+}
+
+function mimeTypeToExtension(mimeType: string) {
+  if (mimeType === "image/jpeg") return "jpg";
+  if (mimeType === "image/webp") return "webp";
+  if (mimeType === "image/gif") return "gif";
+  return "png";
 }
 
 function isAbortError(error: unknown) {
@@ -190,4 +198,90 @@ export async function generateOpenAIImage(input: { prompt: string }) {
   }
 
   throw new Error("OpenAI image response did not include image bytes or URL");
+}
+
+/**
+ * Image-to-image via the OpenAI edits endpoint. Unlike /generations, this
+ * accepts an input image (the reference) and conditions the result on it,
+ * which is what makes reference-based generation work on the OpenAI path.
+ * gpt-image-1 returns b64_json directly.
+ */
+export async function editOpenAIImage(input: {
+  prompt: string;
+  image: { bytes: Buffer; mimeType: string };
+}) {
+  const apiKey = getOpenAIKey();
+  if (!apiKey) {
+    throw new Error("OPENAI_KEY is not configured");
+  }
+
+  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
+  const outputFormat = resolveOutputFormat();
+  const size = resolveImageSize();
+  const quality = resolveImageQuality();
+  const timeoutMs = resolveTimeoutMs();
+
+  const form = new FormData();
+  form.append("model", model);
+  form.append("prompt", input.prompt);
+  form.append("size", size);
+  form.append("quality", quality);
+  form.append("output_format", outputFormat);
+  form.append("n", "1");
+  const extension = mimeTypeToExtension(input.image.mimeType);
+  // Buffer is a Uint8Array view; wrap as a Blob so fetch builds a proper
+  // multipart body (do NOT set Content-Type manually — fetch adds the
+  // boundary from the FormData).
+  const fileBlob = new Blob([new Uint8Array(input.image.bytes)], {
+    type: input.image.mimeType,
+  });
+  form.append("image", fileBlob, `reference.${extension}`);
+
+  const controller = new AbortController();
+  const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response: Response;
+  try {
+    response = await fetch(OPENAI_IMAGE_EDITS_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: form,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw new Error(`OpenAI image edit timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutHandle);
+  }
+
+  const payload = (await response.json()) as OpenAIImagesResponse;
+
+  if (!response.ok || payload.error) {
+    const message =
+      payload.error?.message ||
+      `OpenAI image edit failed with status ${response.status}`;
+    throw new Error(message);
+  }
+
+  const image = payload.data?.[0];
+  if (!image?.b64_json) {
+    throw new Error("OpenAI image edit returned no image bytes");
+  }
+
+  logger.info("[Social] OpenAI image edit usage", {
+    model,
+    inputTokens: payload.usage?.input_tokens ?? null,
+    outputTokens: payload.usage?.output_tokens ?? null,
+    totalTokens: payload.usage?.total_tokens ?? null,
+  });
+
+  return {
+    bytes: Buffer.from(image.b64_json, "base64"),
+    mimeType: outputFormatToMimeType(outputFormat),
+  };
 }

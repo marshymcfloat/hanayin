@@ -501,6 +501,13 @@ export type EnumBrandAssetKindFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel> | $Enums.BrandAssetKind
 }
 
+export type EnumReferenceSubjectNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceSubject | Prisma.EnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel> | $Enums.ReferenceSubject | null
+}
+
 export type EnumBrandAssetKindWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.BrandAssetKind | Prisma.EnumBrandAssetKindFieldRefInput<$PrismaModel>
   in?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
@@ -509,6 +516,16 @@ export type EnumBrandAssetKindWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
   _max?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
+}
+
+export type EnumReferenceSubjectNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceSubject | Prisma.EnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumReferenceSubjectNullableWithAggregatesFilter<$PrismaModel> | $Enums.ReferenceSubject | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel>
 }
 
 export type EnumBillingIntervalFilter<$PrismaModel = never> = {
@@ -1584,6 +1601,13 @@ export type NestedEnumBrandAssetKindFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel> | $Enums.BrandAssetKind
 }
 
+export type NestedEnumReferenceSubjectNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceSubject | Prisma.EnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel> | $Enums.ReferenceSubject | null
+}
+
 export type NestedEnumBrandAssetKindWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.BrandAssetKind | Prisma.EnumBrandAssetKindFieldRefInput<$PrismaModel>
   in?: $Enums.BrandAssetKind[] | Prisma.ListEnumBrandAssetKindFieldRefInput<$PrismaModel>
@@ -1592,6 +1616,16 @@ export type NestedEnumBrandAssetKindWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
   _max?: Prisma.NestedEnumBrandAssetKindFilter<$PrismaModel>
+}
+
+export type NestedEnumReferenceSubjectNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceSubject | Prisma.EnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ReferenceSubject[] | Prisma.ListEnumReferenceSubjectFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumReferenceSubjectNullableWithAggregatesFilter<$PrismaModel> | $Enums.ReferenceSubject | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumBillingIntervalFilter<$PrismaModel = never> = {

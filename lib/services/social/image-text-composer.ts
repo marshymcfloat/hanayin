@@ -386,10 +386,13 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
   const eyebrowLabel = input.isNonDiscount ? "FEATURED" : "SPECIAL OFFER";
   const headlineTopY =
     headlineBaseY - (headlineLines.length - 1) * headlineLineHeight;
-  const eyebrowSvg = `<text x="${PAD}" y="${headlineTopY - 56}" class="sale-eyebrow">${escapeXml(eyebrowLabel)}</text>`;
+  // Cormorant Garamond at 84px has a cap-height roughly 0.72×font-size above
+  // the baseline, so the headline's top ascender sits ~60px above headlineTopY.
+  // Place the eyebrow above that, with the hairline rule between them.
+  const eyebrowSvg = `<text x="${PAD}" y="${headlineTopY - 96}" class="sale-eyebrow">${escapeXml(eyebrowLabel)}</text>`;
 
   // Hairline accent rule — same gesture used in the educational overlay.
-  const ruleY = headlineTopY - 30;
+  const ruleY = headlineTopY - 72;
   const ruleSvg = `<line x1="${PAD}" y1="${ruleY}" x2="${PAD + 76}" y2="${ruleY}" stroke="${ACCENT}" stroke-width="1.5" stroke-linecap="square" />`;
 
   const discountSvg = discountLabel
@@ -398,10 +401,6 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
 
   const dateY = discountLabel ? H - PAD - 70 : H - PAD - 100;
   const dateSvg = `<text x="${PAD}" y="${dateY}" class="date">${escapeXml(dateLabel)}</text>`;
-
-  // Replaced raw URL with a softer engagement nudge.  The previous
-  // "→ serviceflow.store" rendered like a banner ad.
-  const ctaSvg = `<text x="${W - PAD}" y="${H - PAD}" class="cta" text-anchor="end">Tap to learn more  →</text>`;
 
   // Brand at top-left with a small accent dot.
   const brandSvg = `
@@ -440,7 +439,6 @@ async function renderSaleOverlaySvg(input: SalePromoOverlayInput) {
   ${headlineSvg}
   ${discountSvg}
   ${dateSvg}
-  ${ctaSvg}
 </svg>`;
 
   return Buffer.from(svg);

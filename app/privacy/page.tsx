@@ -4,6 +4,8 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
+import Schema from "@/components/seo/Schema";
+import { breadcrumbSchema } from "@/lib/json-ld";
 import { constructMetadata } from "@/lib/metadata";
 
 export const metadata = constructMetadata({
@@ -21,6 +23,12 @@ export const metadata = constructMetadata({
 export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen bg-background font-sans flex flex-col">
+      <Schema
+        data={breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Privacy Policy", item: "/privacy" },
+        ])}
+      />
       <LandingHeader />
 
       <div className="flex-1 relative pt-32 pb-20">

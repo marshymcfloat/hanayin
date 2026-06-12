@@ -1,12 +1,13 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
 import { logger } from "@/lib/logger";
 
-// Fetches Google Fonts in TTF format (via old User-Agent) and caches them.
-// We expose two shapes:
-//   - getEmbeddedFontStyles(): @font-face CSS with base64 data URIs (legacy
-//     consumers and any non-resvg renderer fallback).
-//   - getFontBuffers(): raw TTF buffers, fed directly to @resvg/resvg-js
-//     because librsvg (the SVG engine inside Sharp) does NOT reliably load
-//     fonts from data: URIs and renders text as tofu/squares.
+// Loads the same three TTFs that font-files.ts exposes to resvg-js, but as
+// raw buffers — used to inline @font-face data URIs into the SVG <style>.
+// Note: resvg-js ignores @font-face data: URIs (it only loads from file
+// paths). The embedded data URIs are kept for any non-resvg consumer and
+// for parity with the previous loader output.
 
 type FontCache = {
   dmSans500: Buffer;
@@ -14,71 +15,22 @@ type FontCache = {
   cormorantGaramond600: Buffer;
 };
 
+const FONT_DIR = path.join(process.cwd(), "lib", "services", "social", "fonts");
+
 let cache: FontCache | null = null;
 let inflight: Promise<FontCache | null> | null = null;
 
-// Old UA → Google Fonts returns TTF (not woff2).
-const TTF_UA = "Mozilla/4.0 (compatible; MSIE 6.0)";
-
-async function fetchCss(family: string): Promise<string | null> {
-  try {
-    const url = `https://fonts.googleapis.com/css2?family=${family}&display=swap`;
-    const res = await fetch(url, { headers: { "User-Agent": TTF_UA } });
-    if (!res.ok) return null;
-    return res.text();
-  } catch {
-    return null;
-  }
-}
-
-function parseSrcUrls(css: string): string[] {
-  const urls: string[] = [];
-  const re = /src:\s*[^;]*url\(([^)]+)\)/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(css)) !== null) {
-    urls.push(m[1].replace(/['"]/g, "").trim());
-  }
-  return urls;
-}
-
-async function toBuffer(url: string): Promise<Buffer | null> {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const buf = await res.arrayBuffer();
-    return Buffer.from(buf);
-  } catch {
-    return null;
-  }
-}
-
 async function loadFonts(): Promise<FontCache | null> {
   try {
-    const [dmSansCss, cormorantCss] = await Promise.all([
-      fetchCss("DM+Sans:wght@500;700"),
-      fetchCss("Cormorant+Garamond:wght@600"),
-    ]);
-
-    if (!dmSansCss || !cormorantCss) return null;
-
-    const dmSansUrls = parseSrcUrls(dmSansCss);
-    const cormorantUrls = parseSrcUrls(cormorantCss);
-
     const [dmSans500, dmSans700, cormorant600] = await Promise.all([
-      toBuffer(dmSansUrls[0] ?? ""),
-      toBuffer(dmSansUrls[1] ?? dmSansUrls[0] ?? ""),
-      toBuffer(cormorantUrls[0] ?? ""),
+      readFile(path.join(FONT_DIR, "DMSans-Regular.ttf")),
+      readFile(path.join(FONT_DIR, "DMSans-Bold.ttf")),
+      readFile(path.join(FONT_DIR, "CormorantGaramond-SemiBold.ttf")),
     ]);
 
-    if (!dmSans500 || !cormorant600) return null;
-
-    return {
-      dmSans500,
-      dmSans700: dmSans700 ?? dmSans500,
-      cormorantGaramond600: cormorant600,
-    };
+    return { dmSans500, dmSans700, cormorantGaramond600: cormorant600 };
   } catch (error) {
-    logger.warn("[Social] Font pre-load failed; SVG will use system fonts.", {
+    logger.warn("[Social] Overlay font files missing; SVG will use system fonts.", {
       errorMessage: error instanceof Error ? error.message : String(error),
     });
     return null;
@@ -94,17 +46,7 @@ async function ensureCache(): Promise<FontCache | null> {
       return result;
     });
   }
-  try {
-    await Promise.race([
-      inflight,
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), 8000),
-      ),
-    ]);
-  } catch {
-    // timed out — caller falls back to system fonts
-  }
-  return cache;
+  return inflight;
 }
 
 export async function getFontBuffers(): Promise<Buffer[]> {

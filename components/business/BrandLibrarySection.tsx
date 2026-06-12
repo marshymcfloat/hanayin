@@ -18,6 +18,23 @@ type Asset = {
   kind: string;
   url: string;
   alt: string | null;
+  reference_subject?: string | null;
+};
+
+const REFERENCE_SUBJECT_OPTIONS = [
+  { value: "PERSON", label: "Person" },
+  { value: "BRAND", label: "Brand" },
+  { value: "PRODUCT", label: "Product / service" },
+  { value: "STYLE", label: "Style" },
+] as const;
+
+type ReferenceSubjectValue = (typeof REFERENCE_SUBJECT_OPTIONS)[number]["value"];
+
+const REFERENCE_SUBJECT_BADGE: Record<string, string> = {
+  PERSON: "bg-violet-100 text-violet-700 border-violet-200",
+  BRAND: "bg-amber-100 text-amber-700 border-amber-200",
+  PRODUCT: "bg-sky-100 text-sky-700 border-sky-200",
+  STYLE: "bg-white/85 text-foreground border-border",
 };
 
 const PICKER_KINDS: {
@@ -49,6 +66,11 @@ const PICKER_KINDS: {
 export function BrandLibrarySection({ assets }: { assets: Asset[] }) {
   const router = useRouter();
   const [uploading, setUploading] = React.useState<string | null>(null);
+  // Subject classification chosen for the next REFERENCE upload. It tells the
+  // social-post image generator whether the reference is a person (identity
+  // preservation) or brand/product/style direction.
+  const [referenceSubject, setReferenceSubject] =
+    React.useState<ReferenceSubjectValue>("STYLE");
   const fileInputs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
   const grouped = React.useMemo(() => {
@@ -68,6 +90,9 @@ export function BrandLibrarySection({ assets }: { assets: Asset[] }) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("kind", kind);
+      if (kind === "REFERENCE") {
+        formData.append("referenceSubject", referenceSubject);
+      }
       const result = await uploadBrandAssetAction(formData);
       if (result.success) {
         toast.success("Asset uploaded");
@@ -126,21 +151,42 @@ export function BrandLibrarySection({ assets }: { assets: Asset[] }) {
                   event.target.value = "";
                 }}
               />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="rounded-xl cursor-pointer"
-                disabled={uploading === kind.value}
-                onClick={() => fileInputs.current[kind.value]?.click()}
-              >
-                {uploading === kind.value ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                ) : (
-                  <Plus className="h-3.5 w-3.5 mr-1.5" />
-                )}
-                Upload
-              </Button>
+              <div className="flex items-center gap-2">
+                {kind.value === "REFERENCE" ? (
+                  <select
+                    className="h-9 rounded-xl border border-input bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer"
+                    value={referenceSubject}
+                    onChange={(event) =>
+                      setReferenceSubject(
+                        event.target.value as ReferenceSubjectValue,
+                      )
+                    }
+                    disabled={uploading === kind.value}
+                    aria-label="Reference type"
+                  >
+                    {REFERENCE_SUBJECT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl cursor-pointer"
+                  disabled={uploading === kind.value}
+                  onClick={() => fileInputs.current[kind.value]?.click()}
+                >
+                  {uploading === kind.value ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                  ) : (
+                    <Plus className="h-3.5 w-3.5 mr-1.5" />
+                  )}
+                  Upload
+                </Button>
+              </div>
             </div>
 
             {items.length === 0 ? (
@@ -164,6 +210,19 @@ export function BrandLibrarySection({ assets }: { assets: Asset[] }) {
                       sizes="120px"
                       unoptimized
                     />
+                    {kind.value === "REFERENCE" && asset.reference_subject ? (
+                      <span
+                        className={cn(
+                          "absolute left-1.5 top-1.5 inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold",
+                          REFERENCE_SUBJECT_BADGE[asset.reference_subject] ??
+                            REFERENCE_SUBJECT_BADGE.STYLE,
+                        )}
+                      >
+                        {REFERENCE_SUBJECT_OPTIONS.find(
+                          (o) => o.value === asset.reference_subject,
+                        )?.label ?? "Style"}
+                      </span>
+                    ) : null}
                     <Button
                       type="button"
                       variant="ghost"

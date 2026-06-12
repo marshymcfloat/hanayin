@@ -7,7 +7,7 @@ import { Prisma } from "@/prisma/generated/prisma/client";
 
 import { requireAuth } from "@/lib/auth/guards";
 import { prisma } from "@/prisma/prisma";
-import { sendGiftCardEmail } from "@/lib/services/gift-cards";
+import { sendGiftCardEmail, sendGiftCardSms } from "@/lib/services/gift-cards";
 import { rateLimit } from "@/lib/rate-limit";
 import { clientIpFromForwardedFor } from "@/lib/client-ip";
 import { getAvailableSlots } from "@/lib/server actions/availability";
@@ -21,7 +21,11 @@ import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/b
 type GiftCardWriteInput = {
   code: string;
   customer_name: string;
-  customer_email: string;
+  // Wave N4: at least one of {email, phone} is required at the application
+  // layer so the code can actually reach the customer. Both are optional in
+  // the DB to keep migration cheap.
+  customer_email?: string | null;
+  customer_phone?: string | null;
   expires_at: Date | string;
   service_ids: number[];
   package_ids: number[];
@@ -48,6 +52,16 @@ function normalizeCode(value: string) {
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
+}
+
+function normalizeOptionalEmail(value: string | null | undefined) {
+  const trimmed = (value ?? "").trim().toLowerCase();
+  return trimmed ? trimmed : null;
+}
+
+function normalizeOptionalPhone(value: string | null | undefined) {
+  const trimmed = (value ?? "").trim();
+  return trimmed ? trimmed : null;
 }
 
 function generateSuffix(length: number) {
@@ -81,7 +95,7 @@ type GiftCardClaimCardDetails = {
   id: number;
   code: string;
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null;
   expires_at: Date;
   is_claimed: boolean;
   business: {
@@ -120,7 +134,7 @@ type GiftCardClaimCardDetails = {
 export type GiftCardClaimPreviewData = {
   code: string;
   customerName: string;
-  customerEmail: string;
+  customerEmail: string | null;
   expiresAt: string;
   lineItems: {
     serviceId: number;
@@ -152,6 +166,13 @@ function getGiftCardClaimErrorMessage(
     return "This gift card has already expired.";
   }
 
+  // Wave N4: customer_email is now optional. If the card was created with
+  // phone-only delivery, we can't match by email — surface a clear error so
+  // the customer is told to use the matching channel. The claim flow itself
+  // is email-based today; phone-only claim is a future-wave feature.
+  if (!giftCard.customer_email) {
+    return "This gift card is not associated with an email address.";
+  }
   if (normalizeEmail(giftCard.customer_email) !== customerEmail) {
     return "Gift card code and email do not match.";
   }
@@ -692,13 +713,21 @@ export async function createGiftCardAction(input: GiftCardWriteInput) {
 
   const code = normalizeCode(input.code);
   const customerName = input.customer_name.trim();
-  const customerEmail = input.customer_email.trim().toLowerCase();
+  const customerEmail = normalizeOptionalEmail(input.customer_email);
+  const customerPhone = normalizeOptionalPhone(input.customer_phone);
   const expiresAt = normalizeDate(input.expires_at);
   const serviceIds = uniqueNumbers(input.service_ids || []);
   const packageIds = uniqueNumbers(input.package_ids || []);
 
-  if (!code || !customerName || !customerEmail || !expiresAt) {
+  if (!code || !customerName || !expiresAt) {
     return { success: false, error: "Missing required fields" };
+  }
+
+  if (!customerEmail && !customerPhone) {
+    return {
+      success: false,
+      error: "Provide at least an email or phone so the code can be delivered",
+    };
   }
 
   if (serviceIds.length === 0 && packageIds.length === 0) {
@@ -757,8 +786,13 @@ export async function createGiftCardAction(input: GiftCardWriteInput) {
         code,
         customer_name: customerName,
         customer_email: customerEmail,
+        customer_phone: customerPhone,
         expires_at: expiresAt,
-        business_id: business.id,
+        // Prisma 7 checked-create rejects the `business_id` scalar when the
+        // statement also drives nested relation writes (included_services /
+        // included_packages). Use the relation form for both consistency
+        // and forward compatibility.
+        business: { connect: { id: business.id } },
         included_services: {
           createMany: {
             data: services.map((service) => ({
@@ -798,28 +832,69 @@ export async function createGiftCardAction(input: GiftCardWriteInput) {
       },
     });
 
-    const emailResult = await sendGiftCardEmail({
-      businessName: business.name,
-      customerName: card.customer_name,
-      customerEmail: card.customer_email,
-      giftCardCode: card.code,
-      expiresAt: card.expires_at,
-      includedServices: services.map((service) => service.name),
-      includedPackages: packages.map((pkg) => pkg.name),
-    });
+    // Wave N4: dispatch to whichever channels are present. SMS goes first
+    // because gift codes are time-sensitive and the SMS body is the minimum
+    // viable delivery (code + expiry). Email still goes when present —
+    // carries the full styled card with services list.
+    const includedServiceNames = services.map((service) => service.name);
+    const includedPackageNames = packages.map((pkg) => pkg.name);
+    const [smsResult, emailResult] = await Promise.all([
+      card.customer_phone
+        ? sendGiftCardSms({
+            businessName: business.name,
+            customerName: card.customer_name,
+            customerPhone: card.customer_phone,
+            giftCardCode: card.code,
+            expiresAt: card.expires_at,
+          })
+        : Promise.resolve(null),
+      card.customer_email
+        ? sendGiftCardEmail({
+            businessName: business.name,
+            customerName: card.customer_name,
+            customerEmail: card.customer_email,
+            giftCardCode: card.code,
+            expiresAt: card.expires_at,
+            includedServices: includedServiceNames,
+            includedPackages: includedPackageNames,
+          })
+        : Promise.resolve(null),
+    ]);
 
     revalidatePath(`/app/${business.slug}/gift-cards`);
 
-    if (!emailResult.success) {
+    const smsAttempted = smsResult !== null;
+    const emailAttempted = emailResult !== null;
+    const smsSucceeded = smsAttempted && smsResult!.success;
+    const emailSucceeded = emailAttempted && emailResult!.success;
+    const smsFailed = smsAttempted && !smsSucceeded;
+    const emailFailed = emailAttempted && !emailSucceeded;
+
+    console.log("[GiftCard] Dispatch outcome", {
+      code: card.code,
+      smsAttempted,
+      smsSucceeded,
+      emailAttempted,
+      emailSucceeded,
+    });
+
+    if (smsFailed || emailFailed) {
+      const failed: string[] = [];
+      if (smsFailed) failed.push("SMS");
+      if (emailFailed) failed.push("email");
       return {
         success: true,
         data: card,
-        warning:
-          "Gift card created but email could not be sent. You can resend manually later.",
+        warning: `Gift card created but ${failed.join(" and ")} could not be sent. You can resend manually later.`,
+        channelOutcome: { smsAttempted, smsSucceeded, emailAttempted, emailSucceeded },
       };
     }
 
-    return { success: true, data: card };
+    return {
+      success: true,
+      data: card,
+      channelOutcome: { smsAttempted, smsSucceeded, emailAttempted, emailSucceeded },
+    };
   } catch (error) {
     console.error("Failed to create gift card:", error);
     return { success: false, error: "Failed to create gift card" };
@@ -835,13 +910,21 @@ export async function updateGiftCardAction(
 
   const code = normalizeCode(input.code);
   const customerName = input.customer_name.trim();
-  const customerEmail = input.customer_email.trim().toLowerCase();
+  const customerEmail = normalizeOptionalEmail(input.customer_email);
+  const customerPhone = normalizeOptionalPhone(input.customer_phone);
   const expiresAt = normalizeDate(input.expires_at);
   const serviceIds = uniqueNumbers(input.service_ids || []);
   const packageIds = uniqueNumbers(input.package_ids || []);
 
-  if (!code || !customerName || !customerEmail || !expiresAt) {
+  if (!code || !customerName || !expiresAt) {
     return { success: false, error: "Missing required fields" };
+  }
+
+  if (!customerEmail && !customerPhone) {
+    return {
+      success: false,
+      error: "Provide at least an email or phone so the code can be delivered",
+    };
   }
 
   if (serviceIds.length === 0 && packageIds.length === 0) {
@@ -911,6 +994,7 @@ export async function updateGiftCardAction(
           code,
           customer_name: customerName,
           customer_email: customerEmail,
+          customer_phone: customerPhone,
           expires_at: expiresAt,
         },
       });

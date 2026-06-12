@@ -15,6 +15,26 @@ import { prisma } from "@/prisma/prisma";
 import { Prisma, Role } from "@/prisma/generated/prisma/client";
 import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 
+// Wave N5: temporary passwords used to be 12 random base64 chars (mixed case
+// + digits), which is hard to read aloud and a chore to type on a mobile
+// keyboard — the channel employees actually use. Now: 6 characters from an
+// alphabet that excludes look-alikes (I/1/L, O/0). Entropy is ~32^6 ≈ 1B,
+// which is fine because the password expires in 24h and the credentials
+// route hashes via bcrypt(12). The owner-facing UI also shows the password
+// once on create, so shorter helps there too.
+const TEMP_PASSWORD_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const TEMP_PASSWORD_LENGTH = 6;
+
+function generateTempPassword() {
+  let output = "";
+  for (let i = 0; i < TEMP_PASSWORD_LENGTH; i += 1) {
+    // crypto.randomInt is unbiased — using Math.random would skew toward
+    // earlier indices because the alphabet length doesn't divide 2^32.
+    output += TEMP_PASSWORD_ALPHABET[crypto.randomInt(TEMP_PASSWORD_ALPHABET.length)];
+  }
+  return output;
+}
+
 async function resolveTenantBusinessId(businessSlug: string) {
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
@@ -144,11 +164,7 @@ export async function createEmployeeAction(data: {
       return { success: false, error: "Business not found" };
     }
 
-    const tempPassword = crypto
-      .randomBytes(12)
-      .toString("base64")
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .slice(0, 12);
+    const tempPassword = generateTempPassword();
     const hashedPassword = await hash(tempPassword, 12);
     const tempPasswordExpiresAt = new Date(
       getCurrentDateTimePH().getTime() + 24 * 60 * 60 * 1000,
@@ -449,11 +465,7 @@ export async function resendEmployeeInviteAction(employeeId: number) {
     return { success: false, error: "Employee has no contact number." };
   }
 
-  const tempPassword = crypto
-    .randomBytes(12)
-    .toString("base64")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .slice(0, 12);
+  const tempPassword = generateTempPassword();
   const hashedPassword = await hash(tempPassword, 12);
   const tempPasswordExpiresAt = new Date(
     getCurrentDateTimePH().getTime() + 24 * 60 * 60 * 1000,

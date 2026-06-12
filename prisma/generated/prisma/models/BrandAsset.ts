@@ -40,6 +40,7 @@ export type BrandAssetMinAggregateOutputType = {
   id: string | null
   business_id: string | null
   kind: $Enums.BrandAssetKind | null
+  reference_subject: $Enums.ReferenceSubject | null
   url: string | null
   alt: string | null
   storage_key: string | null
@@ -54,6 +55,7 @@ export type BrandAssetMaxAggregateOutputType = {
   id: string | null
   business_id: string | null
   kind: $Enums.BrandAssetKind | null
+  reference_subject: $Enums.ReferenceSubject | null
   url: string | null
   alt: string | null
   storage_key: string | null
@@ -68,6 +70,7 @@ export type BrandAssetCountAggregateOutputType = {
   id: number
   business_id: number
   kind: number
+  reference_subject: number
   url: number
   alt: number
   storage_key: number
@@ -94,6 +97,7 @@ export type BrandAssetMinAggregateInputType = {
   id?: true
   business_id?: true
   kind?: true
+  reference_subject?: true
   url?: true
   alt?: true
   storage_key?: true
@@ -108,6 +112,7 @@ export type BrandAssetMaxAggregateInputType = {
   id?: true
   business_id?: true
   kind?: true
+  reference_subject?: true
   url?: true
   alt?: true
   storage_key?: true
@@ -122,6 +127,7 @@ export type BrandAssetCountAggregateInputType = {
   id?: true
   business_id?: true
   kind?: true
+  reference_subject?: true
   url?: true
   alt?: true
   storage_key?: true
@@ -223,6 +229,7 @@ export type BrandAssetGroupByOutputType = {
   id: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject: $Enums.ReferenceSubject | null
   url: string
   alt: string | null
   storage_key: string | null
@@ -260,6 +267,7 @@ export type BrandAssetWhereInput = {
   id?: Prisma.StringFilter<"BrandAsset"> | string
   business_id?: Prisma.StringFilter<"BrandAsset"> | string
   kind?: Prisma.EnumBrandAssetKindFilter<"BrandAsset"> | $Enums.BrandAssetKind
+  reference_subject?: Prisma.EnumReferenceSubjectNullableFilter<"BrandAsset"> | $Enums.ReferenceSubject | null
   url?: Prisma.StringFilter<"BrandAsset"> | string
   alt?: Prisma.StringNullableFilter<"BrandAsset"> | string | null
   storage_key?: Prisma.StringNullableFilter<"BrandAsset"> | string | null
@@ -278,6 +286,7 @@ export type BrandAssetOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  reference_subject?: Prisma.SortOrderInput | Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrderInput | Prisma.SortOrder
   storage_key?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -299,6 +308,7 @@ export type BrandAssetWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BrandAssetWhereInput | Prisma.BrandAssetWhereInput[]
   business_id?: Prisma.StringFilter<"BrandAsset"> | string
   kind?: Prisma.EnumBrandAssetKindFilter<"BrandAsset"> | $Enums.BrandAssetKind
+  reference_subject?: Prisma.EnumReferenceSubjectNullableFilter<"BrandAsset"> | $Enums.ReferenceSubject | null
   url?: Prisma.StringFilter<"BrandAsset"> | string
   alt?: Prisma.StringNullableFilter<"BrandAsset"> | string | null
   storage_key?: Prisma.StringNullableFilter<"BrandAsset"> | string | null
@@ -317,6 +327,7 @@ export type BrandAssetOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  reference_subject?: Prisma.SortOrderInput | Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrderInput | Prisma.SortOrder
   storage_key?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -339,6 +350,7 @@ export type BrandAssetScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"BrandAsset"> | string
   business_id?: Prisma.StringWithAggregatesFilter<"BrandAsset"> | string
   kind?: Prisma.EnumBrandAssetKindWithAggregatesFilter<"BrandAsset"> | $Enums.BrandAssetKind
+  reference_subject?: Prisma.EnumReferenceSubjectNullableWithAggregatesFilter<"BrandAsset"> | $Enums.ReferenceSubject | null
   url?: Prisma.StringWithAggregatesFilter<"BrandAsset"> | string
   alt?: Prisma.StringNullableWithAggregatesFilter<"BrandAsset"> | string | null
   storage_key?: Prisma.StringNullableWithAggregatesFilter<"BrandAsset"> | string | null
@@ -352,6 +364,7 @@ export type BrandAssetScalarWhereWithAggregatesInput = {
 export type BrandAssetCreateInput = {
   id?: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -367,6 +380,7 @@ export type BrandAssetUncheckedCreateInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -380,6 +394,7 @@ export type BrandAssetUncheckedCreateInput = {
 export type BrandAssetUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -395,6 +410,7 @@ export type BrandAssetUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -409,6 +425,7 @@ export type BrandAssetCreateManyInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -422,6 +439,7 @@ export type BrandAssetCreateManyInput = {
 export type BrandAssetUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -433,6 +451,7 @@ export type BrandAssetUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -457,6 +476,7 @@ export type BrandAssetCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  reference_subject?: Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrder
   storage_key?: Prisma.SortOrder
@@ -476,6 +496,7 @@ export type BrandAssetMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  reference_subject?: Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrder
   storage_key?: Prisma.SortOrder
@@ -490,6 +511,7 @@ export type BrandAssetMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  reference_subject?: Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrder
   storage_key?: Prisma.SortOrder
@@ -635,6 +657,10 @@ export type EnumBrandAssetKindFieldUpdateOperationsInput = {
   set?: $Enums.BrandAssetKind
 }
 
+export type NullableEnumReferenceSubjectFieldUpdateOperationsInput = {
+  set?: $Enums.ReferenceSubject | null
+}
+
 export type BrandAssetCreateNestedManyWithoutServiceInput = {
   create?: Prisma.XOR<Prisma.BrandAssetCreateWithoutServiceInput, Prisma.BrandAssetUncheckedCreateWithoutServiceInput> | Prisma.BrandAssetCreateWithoutServiceInput[] | Prisma.BrandAssetUncheckedCreateWithoutServiceInput[]
   connectOrCreate?: Prisma.BrandAssetCreateOrConnectWithoutServiceInput | Prisma.BrandAssetCreateOrConnectWithoutServiceInput[]
@@ -680,6 +706,7 @@ export type BrandAssetUncheckedUpdateManyWithoutServiceNestedInput = {
 export type BrandAssetCreateWithoutBusinessInput = {
   id?: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -693,6 +720,7 @@ export type BrandAssetCreateWithoutBusinessInput = {
 export type BrandAssetUncheckedCreateWithoutBusinessInput = {
   id?: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -736,6 +764,7 @@ export type BrandAssetScalarWhereInput = {
   id?: Prisma.StringFilter<"BrandAsset"> | string
   business_id?: Prisma.StringFilter<"BrandAsset"> | string
   kind?: Prisma.EnumBrandAssetKindFilter<"BrandAsset"> | $Enums.BrandAssetKind
+  reference_subject?: Prisma.EnumReferenceSubjectNullableFilter<"BrandAsset"> | $Enums.ReferenceSubject | null
   url?: Prisma.StringFilter<"BrandAsset"> | string
   alt?: Prisma.StringNullableFilter<"BrandAsset"> | string | null
   storage_key?: Prisma.StringNullableFilter<"BrandAsset"> | string | null
@@ -749,6 +778,7 @@ export type BrandAssetScalarWhereInput = {
 export type BrandAssetCreateWithoutUploaded_byInput = {
   id?: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -763,6 +793,7 @@ export type BrandAssetUncheckedCreateWithoutUploaded_byInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -801,6 +832,7 @@ export type BrandAssetUpdateManyWithWhereWithoutUploaded_byInput = {
 export type BrandAssetCreateWithoutEmployeeInput = {
   id?: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -815,6 +847,7 @@ export type BrandAssetUncheckedCreateWithoutEmployeeInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -853,6 +886,7 @@ export type BrandAssetUpdateManyWithWhereWithoutEmployeeInput = {
 export type BrandAssetCreateWithoutServiceInput = {
   id?: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -867,6 +901,7 @@ export type BrandAssetUncheckedCreateWithoutServiceInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -905,6 +940,7 @@ export type BrandAssetUpdateManyWithWhereWithoutServiceInput = {
 export type BrandAssetCreateManyBusinessInput = {
   id?: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -918,6 +954,7 @@ export type BrandAssetCreateManyBusinessInput = {
 export type BrandAssetUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -931,6 +968,7 @@ export type BrandAssetUpdateWithoutBusinessInput = {
 export type BrandAssetUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -944,6 +982,7 @@ export type BrandAssetUncheckedUpdateWithoutBusinessInput = {
 export type BrandAssetUncheckedUpdateManyWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -958,6 +997,7 @@ export type BrandAssetCreateManyUploaded_byInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -970,6 +1010,7 @@ export type BrandAssetCreateManyUploaded_byInput = {
 export type BrandAssetUpdateWithoutUploaded_byInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -984,6 +1025,7 @@ export type BrandAssetUncheckedUpdateWithoutUploaded_byInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -997,6 +1039,7 @@ export type BrandAssetUncheckedUpdateManyWithoutUploaded_byInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1010,6 +1053,7 @@ export type BrandAssetCreateManyEmployeeInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -1022,6 +1066,7 @@ export type BrandAssetCreateManyEmployeeInput = {
 export type BrandAssetUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1036,6 +1081,7 @@ export type BrandAssetUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1049,6 +1095,7 @@ export type BrandAssetUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1062,6 +1109,7 @@ export type BrandAssetCreateManyServiceInput = {
   id?: string
   business_id: string
   kind: $Enums.BrandAssetKind
+  reference_subject?: $Enums.ReferenceSubject | null
   url: string
   alt?: string | null
   storage_key?: string | null
@@ -1074,6 +1122,7 @@ export type BrandAssetCreateManyServiceInput = {
 export type BrandAssetUpdateWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1088,6 +1137,7 @@ export type BrandAssetUncheckedUpdateWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1101,6 +1151,7 @@ export type BrandAssetUncheckedUpdateManyWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumBrandAssetKindFieldUpdateOperationsInput | $Enums.BrandAssetKind
+  reference_subject?: Prisma.NullableEnumReferenceSubjectFieldUpdateOperationsInput | $Enums.ReferenceSubject | null
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storage_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1116,6 +1167,7 @@ export type BrandAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   id?: boolean
   business_id?: boolean
   kind?: boolean
+  reference_subject?: boolean
   url?: boolean
   alt?: boolean
   storage_key?: boolean
@@ -1134,6 +1186,7 @@ export type BrandAssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   business_id?: boolean
   kind?: boolean
+  reference_subject?: boolean
   url?: boolean
   alt?: boolean
   storage_key?: boolean
@@ -1152,6 +1205,7 @@ export type BrandAssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   business_id?: boolean
   kind?: boolean
+  reference_subject?: boolean
   url?: boolean
   alt?: boolean
   storage_key?: boolean
@@ -1170,6 +1224,7 @@ export type BrandAssetSelectScalar = {
   id?: boolean
   business_id?: boolean
   kind?: boolean
+  reference_subject?: boolean
   url?: boolean
   alt?: boolean
   storage_key?: boolean
@@ -1180,7 +1235,7 @@ export type BrandAssetSelectScalar = {
   updated_at?: boolean
 }
 
-export type BrandAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_id" | "kind" | "url" | "alt" | "storage_key" | "service_id" | "employee_id" | "uploaded_by_user_id" | "created_at" | "updated_at", ExtArgs["result"]["brandAsset"]>
+export type BrandAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "business_id" | "kind" | "reference_subject" | "url" | "alt" | "storage_key" | "service_id" | "employee_id" | "uploaded_by_user_id" | "created_at" | "updated_at", ExtArgs["result"]["brandAsset"]>
 export type BrandAssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   service?: boolean | Prisma.BrandAsset$serviceArgs<ExtArgs>
@@ -1212,6 +1267,7 @@ export type $BrandAssetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     id: string
     business_id: string
     kind: $Enums.BrandAssetKind
+    reference_subject: $Enums.ReferenceSubject | null
     url: string
     alt: string | null
     storage_key: string | null
@@ -1650,6 +1706,7 @@ export interface BrandAssetFieldRefs {
   readonly id: Prisma.FieldRef<"BrandAsset", 'String'>
   readonly business_id: Prisma.FieldRef<"BrandAsset", 'String'>
   readonly kind: Prisma.FieldRef<"BrandAsset", 'BrandAssetKind'>
+  readonly reference_subject: Prisma.FieldRef<"BrandAsset", 'ReferenceSubject'>
   readonly url: Prisma.FieldRef<"BrandAsset", 'String'>
   readonly alt: Prisma.FieldRef<"BrandAsset", 'String'>
   readonly storage_key: Prisma.FieldRef<"BrandAsset", 'String'>

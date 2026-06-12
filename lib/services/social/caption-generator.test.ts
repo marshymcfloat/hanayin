@@ -19,12 +19,29 @@ const BASE_INPUT = {
   packageNames: ["Summer Glow Package"],
 };
 
+// Wave N3: the CTA / discovery footer is picked from a rotating pool so
+// every post does not end identically. We assert the URL is last, and
+// that some footer-shaped CTA + discovery line is present, without
+// pinning to one specific sentence.
+const FOOTER_CTA_POOL = [
+  "Book now through ServiceFlow and claim your spot today.",
+  "Pwede mag-book sa ServiceFlow para hindi maubusan ng slot.",
+  "Mag-reserve na sa ServiceFlow para sa schedule mo this week.",
+  "Lock in your slot through ServiceFlow before the week fills up.",
+  "Slot mo na, book na sa ServiceFlow.",
+];
+const FOOTER_DISCOVERY_POOL = [
+  "Tap through to see everything we offer and book yourself in.",
+  "Silip mo rin ang ibang services namin habang nandiyan ka.",
+  "Check the full menu and pick what fits your week.",
+  "Tingnan ang buong list of services and pick yours.",
+  "Browse the rest of our services kapag may time ka.",
+];
+
 function expectRequiredEnding(caption: string) {
-  expect(caption).toContain("Book now through ServiceFlow and claim your spot today.");
+  expect(FOOTER_CTA_POOL.some((line) => caption.includes(line))).toBe(true);
+  expect(FOOTER_DISCOVERY_POOL.some((line) => caption.includes(line))).toBe(true);
   expect(caption).toContain(`www.serviceflow.store/${BASE_INPUT.businessSlug}`);
-  // Discovery line in first-person plural ("we offer") because the post is
-  // from the business itself; "yourself" because we're addressing one reader.
-  expect(caption).toContain("Tap through to see everything we offer and book yourself in.");
   expect(caption.trim().endsWith(`www.serviceflow.store/${BASE_INPUT.businessSlug}`)).toBe(
     true,
   );

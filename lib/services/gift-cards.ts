@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { formatPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
+import { sendSemaphorePrioritySms, truncateSms } from "@/lib/services/sms";
 
 type SendGiftCardEmailParams = {
   businessName: string;
@@ -180,4 +181,56 @@ export async function sendGiftCardEmail({
     logger.error("[GiftCard] Error sending gift card email", { error });
     return { success: false, error };
   }
+}
+
+type SendGiftCardSmsParams = {
+  businessName: string;
+  customerName: string;
+  customerPhone: string;
+  giftCardCode: string;
+  expiresAt: Date;
+};
+
+/**
+ * Wave N4: SMS delivery for the gift-card code. Uses Semaphore's priority
+ * endpoint (2 credits, no rate limit) — gift codes are time-sensitive and
+ * should arrive within seconds of being generated, like booking confirmations.
+ *
+ * Body is intentionally short: greeting, the code, and the expiry. The full
+ * formatted card (included services, brand styling) lives in the email.
+ */
+export async function sendGiftCardSms({
+  businessName,
+  customerName,
+  customerPhone,
+  giftCardCode,
+  expiresAt,
+}: SendGiftCardSmsParams) {
+  const expirationDate = formatPH(expiresAt, "MMM d, yyyy");
+  const firstName = customerName.trim().split(/\s+/)[0] || "there";
+  const message = truncateSms(
+    `Hi ${firstName}, your gift card from ${businessName} is: ${giftCardCode}. ` +
+      `Valid until ${expirationDate}. Present this code in-store to claim.`,
+  );
+
+  logger.info("[GiftCard] Dispatching gift card SMS", {
+    customerPhone,
+    giftCardCode,
+    messageLength: message.length,
+  });
+  const result = await sendSemaphorePrioritySms(customerPhone, message);
+  if (!result.success) {
+    logger.error("[GiftCard] Failed to send gift card SMS", {
+      error: result.error,
+      customerPhone,
+      giftCardCode,
+    });
+  } else {
+    logger.info("[GiftCard] Gift card SMS sent", {
+      messageId: result.messageId,
+      customerPhone,
+      giftCardCode,
+    });
+  }
+  return result;
 }

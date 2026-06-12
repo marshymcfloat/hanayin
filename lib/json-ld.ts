@@ -15,7 +15,7 @@ export function organizationSchema() {
     ],
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+63-900-000-0000",
+      telephone: "+639951804645",
       contactType: "customer service",
       areaServed: "PH",
       availableLanguage: ["en", "fil"],
@@ -75,6 +75,24 @@ export function breadcrumbSchema(items: { name: string; item: string }[]) {
       position: index + 1,
       name: item.name,
       item: item.item.startsWith("http") ? item.item : `${baseUrl}${item.item}`,
+    })),
+  };
+}
+
+export function itemListSchema(
+  items: { name: string; url: string; image?: string; description?: string }[],
+) {
+  const baseUrl = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: item.url.startsWith("http") ? item.url : `${baseUrl}${item.url}`,
+      name: item.name,
+      ...(item.image ? { image: item.image } : {}),
+      ...(item.description ? { description: item.description } : {}),
     })),
   };
 }

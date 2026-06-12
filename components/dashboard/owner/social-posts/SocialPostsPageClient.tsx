@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -34,6 +34,8 @@ import {
   retrySocialPostTargetAction,
   updateSocialPostDraftAction,
 } from "@/lib/server actions/social";
+import { uploadBrandAssetAction } from "@/lib/server actions/brand-assets";
+import { cn } from "@/lib/utils";
 import {
   DiscountType,
   SocialPlatform,
@@ -41,6 +43,7 @@ import {
   SocialTargetStatus,
 } from "@/prisma/generated/prisma/enums";
 import {
+  AlertTriangle,
   ImageOff,
   ImagePlus,
   Loader2,
@@ -48,7 +51,11 @@ import {
   PenLine,
   RefreshCcw,
   Send,
+  Sparkles,
   Trash2,
+  Upload,
+  UserRound,
+  X,
 } from "lucide-react";
 import {
   DEFAULT_SOCIAL_IMAGE_PROFILE,
@@ -112,6 +119,7 @@ type DraftState = {
   mediaUrl: string;
   imageProfile: SocialImageProfile;
   captionTone: CaptionTone;
+  referenceAssetId: string | null;
 };
 
 type SocialPostGroups = {
@@ -128,6 +136,7 @@ function toDraftState(post: SocialPostView): DraftState {
     mediaUrl: post.media_url || "",
     imageProfile: DEFAULT_SOCIAL_IMAGE_PROFILE,
     captionTone: "AUTO",
+    referenceAssetId: null,
   };
 }
 
@@ -331,11 +340,238 @@ function SelectableLane(props: {
   );
 }
 
+type ReferenceAsset = {
+  id: string;
+  url: string;
+  alt: string | null;
+  reference_subject: string | null;
+};
+
+const REFERENCE_SUBJECT_OPTIONS = [
+  { value: "PERSON", label: "Person" },
+  { value: "BRAND", label: "Brand" },
+  { value: "PRODUCT", label: "Product / service" },
+  { value: "STYLE", label: "Style" },
+] as const;
+
+type ReferenceSubjectValue = (typeof REFERENCE_SUBJECT_OPTIONS)[number]["value"];
+
+const REFERENCE_SUBJECT_BADGE: Record<string, string> = {
+  PERSON: "bg-violet-100 text-violet-700 border-violet-200",
+  BRAND: "bg-amber-100 text-amber-700 border-amber-200",
+  PRODUCT: "bg-sky-100 text-sky-700 border-sky-200",
+  STYLE: "bg-muted text-muted-foreground border-border",
+};
+
+function referenceSubjectLabel(value: string | null) {
+  if (!value) return "Style";
+  return (
+    REFERENCE_SUBJECT_OPTIONS.find((o) => o.value === value)?.label ?? "Style"
+  );
+}
+
+/**
+ * Reference-image picker for the Post Image panel. Lets the owner reuse a
+ * saved brand-asset reference (no re-uploading the same image), upload a new
+ * one tagged with a subject type, see the current selection, and remove it
+ * before generating. Selection is held in the parent draft state and passed
+ * to the generate action; PERSON references surface an identity-accuracy note.
+ */
+function ReferencePicker({
+  assets,
+  selectedId,
+  onSelect,
+  onRemove,
+  disabled,
+}: {
+  assets: ReferenceAsset[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onRemove: () => void;
+  disabled?: boolean;
+}) {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadSubject, setUploadSubject] =
+    useState<ReferenceSubjectValue>("STYLE");
+
+  const selected = assets.find((asset) => asset.id === selectedId) ?? null;
+
+  async function handleUpload(file: File) {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("kind", "REFERENCE");
+      formData.append("referenceSubject", uploadSubject);
+      const result = await uploadBrandAssetAction(formData);
+      if (result.success) {
+        toast.success("Reference image added to your library.");
+        onSelect(result.data.id);
+        router.refresh();
+      } else {
+        toast.error(result.error || "Upload failed.");
+      }
+    } catch {
+      toast.error("Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          Reference Image
+        </p>
+        {selected ? (
+          <button
+            type="button"
+            onClick={onRemove}
+            disabled={disabled}
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-rose-700 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <X className="h-3 w-3" />
+            Remove
+          </button>
+        ) : null}
+      </div>
+
+      {selected ? (
+        <div className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/5 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={selected.url}
+            alt={selected.alt ?? "Selected reference"}
+            className="h-14 w-14 shrink-0 rounded-lg border border-border object-cover"
+          />
+          <div className="min-w-0 space-y-1">
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+                REFERENCE_SUBJECT_BADGE[selected.reference_subject ?? "STYLE"],
+              )}
+            >
+              {referenceSubjectLabel(selected.reference_subject)} reference
+            </span>
+            <p className="text-[11px] text-muted-foreground">
+              Used as a visual reference for the next generated image.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-[11px] text-muted-foreground">
+          Optional. Attach a saved reference or upload one for visual
+          consistency. Generation works fine without one.
+        </p>
+      )}
+
+      {selected?.reference_subject === "PERSON" ? (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-2 text-[11px] text-amber-900">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span>
+            This is a <strong>person</strong> reference — the prompt will lock
+            their identity, but exact likeness still depends on the image
+            model&apos;s capabilities. Review the result before publishing.
+          </span>
+        </div>
+      ) : null}
+
+      {assets.length > 0 ? (
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+          {assets.map((asset) => {
+            const isActive = asset.id === selectedId;
+            return (
+              <button
+                key={asset.id}
+                type="button"
+                disabled={disabled}
+                onClick={() => (isActive ? onRemove() : onSelect(asset.id))}
+                className={cn(
+                  "group relative aspect-square overflow-hidden rounded-lg border bg-muted transition-all cursor-pointer disabled:opacity-50",
+                  isActive
+                    ? "border-primary ring-2 ring-primary/40"
+                    : "border-border hover:border-primary/50",
+                )}
+                title={
+                  isActive
+                    ? "Click to deselect"
+                    : `Use ${referenceSubjectLabel(asset.reference_subject)} reference`
+                }
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={asset.url}
+                  alt={asset.alt ?? "Reference"}
+                  className="h-full w-full object-cover"
+                />
+                {asset.reference_subject === "PERSON" ? (
+                  <span className="absolute left-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-violet-600/90 text-white">
+                    <UserRound className="h-2.5 w-2.5" />
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      <div className="flex items-center gap-2">
+        <select
+          className="h-9 flex-1 rounded-xl border border-input bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30"
+          value={uploadSubject}
+          onChange={(event) =>
+            setUploadSubject(event.target.value as ReferenceSubjectValue)
+          }
+          disabled={disabled || uploading}
+          aria-label="Reference type for upload"
+        >
+          {REFERENCE_SUBJECT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="sr-only"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) handleUpload(file);
+            event.target.value = "";
+          }}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="rounded-xl cursor-pointer"
+          disabled={disabled || uploading}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {uploading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Upload className="h-3.5 w-3.5" />
+          )}
+          <span className="ml-1.5">Upload</span>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function SocialPostsPageClient(props: {
   businessSlug: string;
   businessName: string;
   businessImageUrl?: string | null;
   initialPosts: SocialPostView[];
+  referenceAssets: ReferenceAsset[];
   flowContext?: GrowthFlowContext;
 }) {
   const router = useRouter();
@@ -447,6 +683,7 @@ export function SocialPostsPageClient(props: {
           mediaUrl: "",
           imageProfile: DEFAULT_SOCIAL_IMAGE_PROFILE,
           captionTone: "AUTO" as CaptionTone,
+          referenceAssetId: null,
         }),
         ...changes,
       },
@@ -601,6 +838,7 @@ export function SocialPostsPageClient(props: {
         postId,
         imageProfile:
           drafts[postId]?.imageProfile || DEFAULT_SOCIAL_IMAGE_PROFILE,
+        referenceAssetId: drafts[postId]?.referenceAssetId ?? undefined,
       });
 
       if (!result.success) {
@@ -609,6 +847,9 @@ export function SocialPostsPageClient(props: {
       }
 
       updateDraft(postId, { mediaUrl: result.data.mediaUrl });
+      if (result.data.warning) {
+        toast.warning(result.data.warning);
+      }
       toast.success("Fresh image generated.");
     } catch {
       toast.error("Unexpected error while generating image.");
@@ -1058,6 +1299,18 @@ export function SocialPostsPageClient(props: {
                       </p>
                     </div>
 
+                    <ReferencePicker
+                      assets={props.referenceAssets}
+                      selectedId={draft.referenceAssetId}
+                      onSelect={(id) =>
+                        updateDraft(selectedPost.id, { referenceAssetId: id })
+                      }
+                      onRemove={() =>
+                        updateDraft(selectedPost.id, { referenceAssetId: null })
+                      }
+                      disabled={generatingImagePostId === selectedPost.id}
+                    />
+
                     <Button
                       variant="outline"
                       className="w-full rounded-xl cursor-pointer"
@@ -1072,9 +1325,11 @@ export function SocialPostsPageClient(props: {
                       ) : (
                         <>
                           <ImagePlus className="mr-2 h-4 w-4" />
-                          {previewImageUrl
-                            ? "Regenerate Image"
-                            : "Generate Image"}
+                          {draft.referenceAssetId
+                            ? "Generate from reference"
+                            : previewImageUrl
+                              ? "Regenerate Image"
+                              : "Generate Image"}
                         </>
                       )}
                     </Button>

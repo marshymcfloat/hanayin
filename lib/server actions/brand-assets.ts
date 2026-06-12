@@ -6,11 +6,17 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 import { Role } from "@/prisma/generated/prisma/enums";
-import { BrandAssetKind } from "@/prisma/generated/prisma/enums";
+import {
+  BrandAssetKind,
+  ReferenceSubject,
+} from "@/prisma/generated/prisma/enums";
 import { logger } from "@/lib/logger";
 
-const MAX_UPLOAD_SIZE_BYTES = 8 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = new Set([
+// Exported so server-side helpers that pull reference images back out of
+// blob storage (lib/services/social/reference-image.ts) validate against
+// the exact same size/type budget the upload enforces.
+export const MAX_UPLOAD_SIZE_BYTES = 8 * 1024 * 1024;
+export const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
@@ -18,6 +24,9 @@ const ALLOWED_IMAGE_TYPES = new Set([
 ]);
 
 const VALID_KINDS = new Set<string>(Object.values(BrandAssetKind));
+const VALID_REFERENCE_SUBJECTS = new Set<string>(
+  Object.values(ReferenceSubject),
+);
 
 function extensionFromMimeType(mimeType: string) {
   switch (mimeType) {
@@ -70,6 +79,7 @@ export async function listBrandAssetsAction(kind?: string) {
     select: {
       id: true,
       kind: true,
+      reference_subject: true,
       url: true,
       alt: true,
       service_id: true,
@@ -91,6 +101,7 @@ export async function uploadBrandAssetAction(formData: FormData) {
   const altRaw = formData.get("alt");
   const serviceIdRaw = formData.get("serviceId");
   const employeeIdRaw = formData.get("employeeId");
+  const referenceSubjectRaw = String(formData.get("referenceSubject") || "");
 
   if (!(file instanceof File)) {
     return { success: false as const, error: "No file uploaded" };
@@ -115,6 +126,18 @@ export async function uploadBrandAssetAction(formData: FormData) {
     return { success: false as const, error: "Invalid asset kind." };
   }
   const kind = kindRaw as BrandAssetKind;
+
+  // reference_subject only applies to REFERENCE assets — it tells the image
+  // generator whether the reference is a person (identity preservation) or
+  // brand/product/style direction. Validated when present; ignored for
+  // other kinds so the column stays null there.
+  let referenceSubject: ReferenceSubject | null = null;
+  if (kind === BrandAssetKind.REFERENCE && referenceSubjectRaw) {
+    if (!VALID_REFERENCE_SUBJECTS.has(referenceSubjectRaw)) {
+      return { success: false as const, error: "Invalid reference type." };
+    }
+    referenceSubject = referenceSubjectRaw as ReferenceSubject;
+  }
 
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
@@ -177,6 +200,7 @@ export async function uploadBrandAssetAction(formData: FormData) {
       data: {
         business_id: business.id,
         kind,
+        reference_subject: referenceSubject,
         url: blob.url,
         storage_key: blob.pathname,
         alt: typeof altRaw === "string" && altRaw.length > 0 ? altRaw : null,

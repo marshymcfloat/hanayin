@@ -30,7 +30,8 @@ type GiftCardListItem = {
   id: number;
   code: string;
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null;
+  customer_phone: string | null;
   expires_at: Date;
   is_claimed: boolean;
   included_services: { service: { id: number; name: string } }[];
@@ -123,7 +124,9 @@ export function GiftCardList({
                   <p className="text-sm font-semibold text-foreground">
                     {giftCard.customer_name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{giftCard.customer_email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {giftCard.customer_phone || giftCard.customer_email || "No contact"}
+                  </p>
                 </div>
 
                 <DropdownMenu>
@@ -240,7 +243,7 @@ export function GiftCardList({
                         {giftCard.customer_name}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {giftCard.customer_email}
+                        {giftCard.customer_phone || giftCard.customer_email || "No contact"}
                       </span>
                     </div>
                   </TableCell>

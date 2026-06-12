@@ -54,9 +54,9 @@ export default function PainPointsSection() {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               What you&apos;re juggling now
-            </p>
+            </h3>
             <ul className="mt-6 space-y-3">
               {before.map((item, i) => (
                 <li
@@ -90,9 +90,9 @@ export default function PainPointsSection() {
               aria-hidden
               className="pointer-events-none absolute -inset-x-6 -inset-y-4 -z-10 rounded-3xl bg-gradient-to-br from-primary/[0.06] via-transparent to-transparent"
             />
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
               What ServiceFlow gives you
-            </p>
+            </h3>
             <ul className="mt-6 space-y-3">
               {after.map((item, i) => (
                 <li

@@ -4501,6 +4501,7 @@ export const BrandAssetScalarFieldEnum = {
   id: 'id',
   business_id: 'business_id',
   kind: 'kind',
+  reference_subject: 'reference_subject',
   url: 'url',
   alt: 'alt',
   storage_key: 'storage_key',
@@ -4858,6 +4859,7 @@ export const GiftCardScalarFieldEnum = {
   code: 'code',
   customer_name: 'customer_name',
   customer_email: 'customer_email',
+  customer_phone: 'customer_phone',
   expires_at: 'expires_at',
   is_claimed: 'is_claimed',
   claimed_at: 'claimed_at',
@@ -5486,6 +5488,20 @@ export type EnumBrandAssetKindFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'BrandAssetKind[]'
  */
 export type ListEnumBrandAssetKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BrandAssetKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ReferenceSubject'
+ */
+export type EnumReferenceSubjectFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReferenceSubject'>
+    
+
+
+/**
+ * Reference to a field of type 'ReferenceSubject[]'
+ */
+export type ListEnumReferenceSubjectFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReferenceSubject[]'>
     
 
 

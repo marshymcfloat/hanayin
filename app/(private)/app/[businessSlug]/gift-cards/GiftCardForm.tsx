@@ -11,13 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CustomerSearchInput from "@/components/bookings/CustomerSearchInput";
+import CustomerPicker, {
+  type CustomerPickerValue,
+} from "@/components/bookings/CustomerPicker";
 import { cn } from "@/lib/utils";
 
 export type GiftCardFormValues = {
   code: string;
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null;
+  customer_phone: string | null;
   expires_at: Date;
   service_ids: number[];
   package_ids: number[];
@@ -32,7 +35,8 @@ export type GiftCardOption = {
 type GiftCardInitialData = {
   code: string;
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null;
+  customer_phone: string | null;
   expires_at: Date;
   included_services: { service: { id: number; name: string } }[];
   included_packages: { package: { id: number; name: string } }[];
@@ -65,18 +69,6 @@ function getSuffix(code: string, initials: string) {
 
 function toDateInputValue(date: Date) {
   return format(new Date(date), "yyyy-MM-dd");
-}
-
-function maskEmail(email: string) {
-  if (!email) return "";
-  const [user, domain] = email.split("@");
-  if (!user || !domain) return email;
-
-  const maskedUser =
-    user.length > 2
-      ? `${user.substring(0, 2)}***${user.substring(user.length - 1)}`
-      : `${user}***`;
-  return `${maskedUser}@${domain}`;
 }
 
 function parseDateInput(value: string) {
@@ -293,6 +285,30 @@ const GiftCardSelectorCard = memo(function GiftCardSelectorCard({
 
 GiftCardSelectorCard.displayName = "GiftCardSelectorCard";
 
+/**
+ * Translate a CustomerPickerValue (search/existing/new/anonymous) into the
+ * gift-card form's name/email/phone shape. Anonymous mode is rejected at
+ * submit time — gift cards can't be delivered to a no-contact recipient.
+ */
+function readPickerContact(value: CustomerPickerValue | null) {
+  if (!value) return { name: "", email: null, phone: null };
+  if (value.mode === "existing") {
+    return {
+      name: value.customer.name,
+      email: value.customer.email ?? null,
+      phone: value.customer.phone ?? null,
+    };
+  }
+  if (value.mode === "new") {
+    return {
+      name: value.name,
+      email: value.email?.trim() || null,
+      phone: value.phone?.trim() || null,
+    };
+  }
+  return { name: value.label || "", email: null, phone: null };
+}
+
 export function GiftCardForm({
   businessSlug,
   initials,
@@ -305,18 +321,27 @@ export function GiftCardForm({
   onGenerateCode,
   onSubmit,
 }: GiftCardFormProps) {
-  const [customerId, setCustomerId] = useState("");
   const [suffix, setSuffix] = useState(
     initialData ? getSuffix(initialData.code, initials) : "",
   );
-  const [customerName, setCustomerName] = useState(
-    initialData?.customer_name || "",
-  );
-  const [customerEmail, setCustomerEmail] = useState(
-    initialData?.customer_email || "",
-  );
   const [expiresAt, setExpiresAt] = useState(
     initialData ? toDateInputValue(initialData.expires_at) : "",
+  );
+
+  // Wave N4: customer picker replaces the legacy name-only autocomplete +
+  // separate email field. Pre-seeds with the existing card's contact info
+  // in edit mode by jumping straight into "new" mode (we don't have the
+  // original customer id linked, so showing it as a free-form new entry is
+  // the safe default that lets the staff member edit any field).
+  const [pickerValue, setPickerValue] = useState<CustomerPickerValue | null>(
+    initialData
+      ? {
+          mode: "new",
+          name: initialData.customer_name,
+          email: initialData.customer_email ?? undefined,
+          phone: initialData.customer_phone ?? undefined,
+        }
+      : null,
   );
 
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>(
@@ -325,9 +350,6 @@ export function GiftCardForm({
   const [selectedPackageIds, setSelectedPackageIds] = useState<number[]>(
     initialData?.included_packages.map((item) => item.package.id) || [],
   );
-  const [existingCustomerEmail, setExistingCustomerEmail] = useState<
-    string | null
-  >(null);
 
   const handleToggleService = useCallback((serviceId: number) => {
     setSelectedServiceIds((prev) => toggleId(prev, serviceId));
@@ -336,51 +358,6 @@ export function GiftCardForm({
   const handleTogglePackage = useCallback((packageId: number) => {
     setSelectedPackageIds((prev) => toggleId(prev, packageId));
   }, []);
-
-  const customerSearchForm = useMemo(
-    () => ({
-      setValue: (
-        name: "customerId" | "customerName" | "email" | "phone",
-        value: string,
-      ) => {
-        if (name === "customerId") {
-          setCustomerId(value);
-          return;
-        }
-
-        if (name === "customerName") {
-          setCustomerName(value);
-          return;
-        }
-
-        if (name === "phone") {
-          return;
-        }
-
-        setCustomerEmail(value);
-      },
-    }),
-    [],
-  );
-
-  const handleCustomerSelect = useCallback(
-    (customer: { id: string; name: string; email?: string | null } | null) => {
-      if (!customer) {
-        setCustomerId("");
-        setExistingCustomerEmail(null);
-        return;
-      }
-
-      setCustomerId(customer.id);
-      if (customer.email) {
-        setExistingCustomerEmail(customer.email);
-        setCustomerEmail(customer.email);
-      } else {
-        setExistingCustomerEmail(null);
-      }
-    },
-    [],
-  );
 
   const handleGenerateCode = async () => {
     const generated = await onGenerateCode();
@@ -398,9 +375,22 @@ export function GiftCardForm({
       return;
     }
 
-    const email = customerEmail.trim().toLowerCase();
-    if (!customerName.trim() || !email) {
-      toast.error("Customer name and email are required");
+    if (!pickerValue || pickerValue.mode === "anonymous") {
+      toast.error("Pick or add a customer to receive this gift card");
+      return;
+    }
+
+    const contact = readPickerContact(pickerValue);
+    const name = contact.name.trim();
+    if (!name) {
+      toast.error("Customer name is required");
+      return;
+    }
+
+    const email = contact.email?.trim().toLowerCase() || null;
+    const phone = contact.phone?.trim() || null;
+    if (!email && !phone) {
+      toast.error("Add an email or phone so the code can be delivered");
       return;
     }
 
@@ -417,13 +407,23 @@ export function GiftCardForm({
 
     await onSubmit({
       code: `${initials.toUpperCase()}-${normalizedSuffix}`,
-      customer_name: customerName.trim(),
+      customer_name: name,
       customer_email: email,
+      customer_phone: phone,
       expires_at: parsedDate,
       service_ids: selectedServiceIds,
       package_ids: selectedPackageIds,
     });
   };
+
+  const deliveryHint = useMemo(() => {
+    if (!pickerValue || pickerValue.mode === "anonymous") return null;
+    const { email, phone } = readPickerContact(pickerValue);
+    if (email && phone) return "Code will be sent via SMS and email.";
+    if (phone) return "Code will be sent via SMS.";
+    if (email) return "Code will be sent via email.";
+    return "Add an email or phone so the code can be delivered.";
+  }, [pickerValue]);
 
   return (
     <form onSubmit={handleFormSubmit} className="space-y-5">
@@ -474,40 +474,16 @@ export function GiftCardForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Customer Name</Label>
-            <CustomerSearchInput
-              form={customerSearchForm}
+            <Label>Recipient</Label>
+            <CustomerPicker
               businessSlug={businessSlug}
-              value={customerName}
-              onChange={setCustomerName}
-              onCustomerSelect={handleCustomerSelect}
+              value={pickerValue && pickerValue.mode !== "anonymous" ? pickerValue : null}
+              onChange={setPickerValue}
+              disabled={isSubmitting}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="gift-card-customer-email">Customer Email</Label>
-            {existingCustomerEmail && customerId ? (
-              <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
-                This customer already has an email linked (
-                <span className="font-mono">
-                  {maskEmail(existingCustomerEmail)}
-                </span>
-                ).
-                <br />
-                <span className="text-xs opacity-80">
-                  To change it, update their profile separately.
-                </span>
-              </div>
-            ) : (
-              <Input
-                id="gift-card-customer-email"
-                type="email"
-                value={customerEmail}
-                onChange={(event) => setCustomerEmail(event.target.value)}
-                placeholder="name@example.com"
-                className="h-10 rounded-xl"
-              />
-            )}
+            {deliveryHint ? (
+              <p className="text-xs text-muted-foreground">{deliveryHint}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">

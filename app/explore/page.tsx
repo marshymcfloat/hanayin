@@ -5,14 +5,16 @@ import Image from "next/image";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { constructMetadata } from "@/lib/metadata";
+import Schema from "@/components/seo/Schema";
+import { itemListSchema } from "@/lib/json-ld";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 
 export const metadata = constructMetadata({
-  title: "Explore Businesses | Service Flow",
+  title: "Explore Businesses | ServiceFlow",
   description:
-    "Browse trusted local businesses using Service Flow for their appointments and management.",
+    "Browse trusted local salons, spas, and barbershops on ServiceFlow. See real-time availability and book appointments directly with businesses across the Philippines.",
   image: "/og-image.png",
   canonical: "/explore",
   keywords: [
@@ -162,6 +164,16 @@ async function BusinessList() {
 
   return (
     <>
+      <Schema
+        data={itemListSchema(
+          businesses.map((business) => ({
+            name: business.name,
+            url: `/${business.slug}`,
+            image: business.imageUrl ?? undefined,
+            description: business.description ?? undefined,
+          })),
+        )}
+      />
       <div className="mb-6 flex items-baseline justify-between">
         <p className="text-sm text-muted-foreground tabular-nums">
           {businesses.length}{" "}

@@ -6,6 +6,10 @@ const publishEventsMock = vi.hoisted(() => vi.fn());
 const isSocialPublishingEnabledForBusinessMock = vi.hoisted(() => vi.fn());
 const generateSocialCaptionDraftMock = vi.hoisted(() => vi.fn());
 const getBusinessEntitlementsBySlugMock = vi.hoisted(() => vi.fn());
+const generateAndUploadPromoImageMock = vi.hoisted(() => vi.fn());
+const generateAndUploadOrganicImageMock = vi.hoisted(() => vi.fn());
+const fetchReferenceImageBytesMock = vi.hoisted(() => vi.fn());
+const isGeminiConfiguredMock = vi.hoisted(() => vi.fn());
 
 const txMock = vi.hoisted(() => ({
   socialPost: {
@@ -28,6 +32,13 @@ const prismaMock = vi.hoisted(() => ({
   ),
   socialPost: {
     findFirst: vi.fn(),
+    update: vi.fn(),
+  },
+  brandAsset: {
+    findFirst: vi.fn(),
+  },
+  auditLog: {
+    create: vi.fn(),
   },
 }));
 
@@ -54,7 +65,16 @@ vi.mock("@/lib/services/social/caption-generator", () => ({
 }));
 
 vi.mock("@/lib/services/social/promo-image", () => ({
-  generateAndUploadPromoImage: vi.fn(),
+  generateAndUploadPromoImage: generateAndUploadPromoImageMock,
+  generateAndUploadOrganicImage: generateAndUploadOrganicImageMock,
+}));
+
+vi.mock("@/lib/services/social/reference-image", () => ({
+  fetchReferenceImageBytes: fetchReferenceImageBytesMock,
+}));
+
+vi.mock("@/lib/services/social/gemini-client", () => ({
+  isGeminiConfigured: isGeminiConfiguredMock,
 }));
 
 vi.mock("@/prisma/prisma", () => ({
@@ -66,6 +86,7 @@ vi.mock("next/cache", () => ({
 }));
 
 import {
+  generateSocialPostImageAction,
   publishSocialPostAction,
   regenerateSocialPostCaptionAction,
 } from "./social";
@@ -213,5 +234,127 @@ describe("social server actions", () => {
       error: "Unable to regenerate social caption.",
     });
     expect(generateSocialCaptionDraftMock).not.toHaveBeenCalled();
+  });
+
+  describe("generateSocialPostImageAction reference handling", () => {
+    it("errors when the selected reference asset is missing", async () => {
+      prismaMock.brandAsset.findFirst.mockResolvedValue(null);
+
+      const result = await generateSocialPostImageAction({
+        businessSlug: "demo",
+        postId: "post_1",
+        referenceAssetId: "ref_missing",
+      });
+
+      expect(result).toEqual({
+        success: false,
+        error: "Reference image not found or was removed. Pick another.",
+      });
+      // Never proceeds to generation when the chosen reference is gone.
+      expect(prismaMock.socialPost.findFirst).not.toHaveBeenCalled();
+      expect(generateAndUploadOrganicImageMock).not.toHaveBeenCalled();
+    });
+
+    it("errors when the reference image cannot be fetched", async () => {
+      prismaMock.brandAsset.findFirst.mockResolvedValue({
+        url: "https://blob/ref.png",
+        reference_subject: "STYLE",
+      });
+      fetchReferenceImageBytesMock.mockResolvedValue({
+        ok: false,
+        error: "boom",
+      });
+
+      const result = await generateSocialPostImageAction({
+        businessSlug: "demo",
+        postId: "post_1",
+        referenceAssetId: "ref_1",
+      });
+
+      expect(result).toEqual({
+        success: false,
+        error: "Could not load the selected reference image. Try again.",
+      });
+      expect(generateAndUploadOrganicImageMock).not.toHaveBeenCalled();
+    });
+
+    it("passes a PERSON reference into organic generation", async () => {
+      prismaMock.brandAsset.findFirst.mockResolvedValue({
+        url: "https://blob/person.png",
+        reference_subject: "PERSON",
+      });
+      fetchReferenceImageBytesMock.mockResolvedValue({
+        ok: true,
+        data: "BASE64DATA",
+        mimeType: "image/png",
+      });
+      isGeminiConfiguredMock.mockReturnValue(true);
+      prismaMock.socialPost.findFirst.mockResolvedValue({
+        id: "post_1",
+        title: "Meet our founder",
+        caption_draft: "Say hi!",
+        caption_final: null,
+        business: { id: "biz_1", name: "BeautyFeel", slug: "demo" },
+        sale_event: null,
+      });
+      generateAndUploadOrganicImageMock.mockResolvedValue(
+        "https://blob/out.png",
+      );
+
+      const result = await generateSocialPostImageAction({
+        businessSlug: "demo",
+        postId: "post_1",
+        referenceAssetId: "ref_1",
+      });
+
+      expect(result).toEqual({
+        success: true,
+        data: { mediaUrl: "https://blob/out.png", warning: null },
+      });
+      expect(generateAndUploadOrganicImageMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reference: {
+            data: "BASE64DATA",
+            mimeType: "image/png",
+            subject: "PERSON",
+          },
+        }),
+      );
+    });
+
+    it("warns when a PERSON reference is used but Gemini is not configured", async () => {
+      prismaMock.brandAsset.findFirst.mockResolvedValue({
+        url: "https://blob/person.png",
+        reference_subject: "PERSON",
+      });
+      fetchReferenceImageBytesMock.mockResolvedValue({
+        ok: true,
+        data: "BASE64DATA",
+        mimeType: "image/png",
+      });
+      isGeminiConfiguredMock.mockReturnValue(false);
+      prismaMock.socialPost.findFirst.mockResolvedValue({
+        id: "post_1",
+        title: "Meet our founder",
+        caption_draft: "Say hi!",
+        caption_final: null,
+        business: { id: "biz_1", name: "BeautyFeel", slug: "demo" },
+        sale_event: null,
+      });
+      generateAndUploadOrganicImageMock.mockResolvedValue(
+        "https://blob/out.png",
+      );
+
+      const result = await generateSocialPostImageAction({
+        businessSlug: "demo",
+        postId: "post_1",
+        referenceAssetId: "ref_1",
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.warning).toContain("GEMINI_KEY");
+      }
+    });
   });
 });

@@ -67,6 +67,16 @@ export const BrandAssetKind = {
 export type BrandAssetKind = (typeof BrandAssetKind)[keyof typeof BrandAssetKind]
 
 
+export const ReferenceSubject = {
+  PERSON: 'PERSON',
+  BRAND: 'BRAND',
+  PRODUCT: 'PRODUCT',
+  STYLE: 'STYLE'
+} as const
+
+export type ReferenceSubject = (typeof ReferenceSubject)[keyof typeof ReferenceSubject]
+
+
 export const OwnerPermission = {
   BILLING_VIEW: 'BILLING_VIEW',
   BILLING_MANAGE: 'BILLING_MANAGE',

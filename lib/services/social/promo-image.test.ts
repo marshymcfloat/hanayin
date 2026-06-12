@@ -76,3 +76,59 @@ describe("organic image prompt builder", () => {
     expect(prompt).toContain("Glow Routine for Rainy Season");
   });
 });
+
+const FAKE_REFERENCE = { data: "QUJD", mimeType: "image/png" } as const;
+
+describe("reference-image prompt injection", () => {
+  it("adds strict identity-preservation rules for a PERSON reference", () => {
+    const prompt = buildSocialImagePrompt({
+      ...BASE_PROMO_INPUT,
+      reference: { ...FAKE_REFERENCE, subject: "PERSON" },
+    });
+
+    expect(prompt).toContain("IDENTITY LOCK");
+    expect(prompt).toContain("Recreate THIS EXACT SAME PERSON");
+    expect(prompt).toContain("Do NOT beautify");
+    // The person block must override the profile's "prefer no people" bias.
+    expect(prompt).toContain(
+      "IGNORE any earlier direction that prefers no people",
+    );
+    // The standing no-text / no-logo guardrails must remain intact.
+    expect(prompt).toContain(
+      "Absolutely NO text, letters, words, numbers, or symbols anywhere in the image.",
+    );
+    expect(prompt).toContain("NO logos");
+  });
+
+  it("uses style-only wording for a STYLE reference and omits the person block", () => {
+    const prompt = buildOrganicImagePrompt({
+      businessSlug: "beautyfeel",
+      businessName: "BeautyFeel",
+      topic: "Calm corner",
+      category: "GENERAL",
+      imageProfile: "SOFT_EDITORIAL",
+      reference: { ...FAKE_REFERENCE, subject: "STYLE" },
+    });
+
+    expect(prompt).toContain("STYLE REFERENCE");
+    expect(prompt).toContain("match its lighting, color palette");
+    expect(prompt).not.toContain("IDENTITY LOCK");
+    expect(prompt).not.toContain("Recreate THIS EXACT SAME PERSON");
+  });
+
+  it("treats a PRODUCT reference as a faithful object, not a person", () => {
+    const prompt = buildSocialImagePrompt({
+      ...BASE_PROMO_INPUT,
+      reference: { ...FAKE_REFERENCE, subject: "PRODUCT" },
+    });
+
+    expect(prompt).toContain("PRODUCT REFERENCE");
+    expect(prompt).toContain("Feature THIS product faithfully");
+    expect(prompt).not.toContain("IDENTITY LOCK");
+  });
+
+  it("does not inject any reference block when no reference is attached", () => {
+    const prompt = buildSocialImagePrompt({ ...BASE_PROMO_INPUT });
+    expect(prompt).not.toContain("REFERENCE IMAGE PROVIDED");
+  });
+});

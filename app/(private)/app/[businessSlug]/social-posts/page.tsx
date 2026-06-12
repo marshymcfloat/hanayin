@@ -177,6 +177,15 @@ export default async function SocialPostsPage({
     redirect("/app");
   }
 
+  // Reusable reference images from the brand-asset library. Owners attach one
+  // to an image-generation request for visual consistency / person identity
+  // preservation. Scoped to this business; kind=REFERENCE only.
+  const referenceAssets = await prisma.brandAsset.findMany({
+    where: { business_id: business.id, kind: "REFERENCE" },
+    orderBy: { created_at: "desc" },
+    select: { id: true, url: true, alt: true, reference_subject: true },
+  });
+
   return (
     <div className="flex flex-col bg-background">
       {/* Wave E E6: when the request workflow is on AND the viewer can
@@ -195,6 +204,7 @@ export default async function SocialPostsPage({
         businessName={business.name}
         businessImageUrl={business.imageUrl}
         initialPosts={business.social_posts}
+        referenceAssets={referenceAssets}
         flowContext={flowContext}
       />
     </div>

@@ -44,7 +44,8 @@ type GiftCardData = {
   id: number;
   code: string;
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null;
+  customer_phone: string | null;
   expires_at: Date;
   is_claimed: boolean;
   included_services: { service: { id: number; name: string } }[];
@@ -97,7 +98,8 @@ export function GiftCardsPageClient({
       const matchesMainFields =
         giftCard.code.toLowerCase().includes(query) ||
         giftCard.customer_name.toLowerCase().includes(query) ||
-        giftCard.customer_email.toLowerCase().includes(query);
+        (giftCard.customer_email?.toLowerCase().includes(query) ?? false) ||
+        (giftCard.customer_phone?.toLowerCase().includes(query) ?? false);
 
       if (matchesMainFields) return true;
 
@@ -154,7 +156,12 @@ export function GiftCardsPageClient({
       if (result.warning) {
         toast.warning(result.warning);
       } else {
-        toast.success("Gift card created and emailed successfully");
+        const outcome = result.channelOutcome;
+        const sentVia: string[] = [];
+        if (outcome?.smsSucceeded) sentVia.push("SMS");
+        if (outcome?.emailSucceeded) sentVia.push("email");
+        const suffix = sentVia.length ? ` via ${sentVia.join(" and ")}` : "";
+        toast.success(`Gift card created${suffix}`);
       }
 
       setIsCreateOpen(false);

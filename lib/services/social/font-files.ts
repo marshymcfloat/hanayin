@@ -1,41 +1,34 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { access } from "node:fs/promises";
 import path from "node:path";
 
-import { getFontBuffers } from "@/lib/services/social/font-loader";
+import { logger } from "@/lib/logger";
 
-// resvg-js 2.6 only accepts font *file paths*, not buffers, so we persist the
-// fetched Google Font TTFs to a per-process temp directory once and hand the
-// paths to Resvg. Cached for the lifetime of the process.
+// resvg-js 2.6 only accepts font *file paths*, not buffers. We ship the TTFs
+// in-repo so overlay rendering never depends on a runtime Google Fonts fetch
+// (which used to fail silently and leave the headline blank — only the
+// decorative accent rule remained visible).
+
+const FONT_DIR = path.join(process.cwd(), "lib", "services", "social", "fonts");
+
+const FONT_FILES = [
+  path.join(FONT_DIR, "DMSans-Regular.ttf"),
+  path.join(FONT_DIR, "DMSans-Bold.ttf"),
+  path.join(FONT_DIR, "CormorantGaramond-SemiBold.ttf"),
+];
 
 let cached: string[] | null = null;
-let inflight: Promise<string[]> | null = null;
-
-async function materialize(): Promise<string[]> {
-  const buffers = await getFontBuffers();
-  if (buffers.length === 0) return [];
-
-  const dir = path.join(tmpdir(), "service-flow-overlay-fonts");
-  await mkdir(dir, { recursive: true });
-
-  const names = ["DMSans-Regular.ttf", "DMSans-Bold.ttf", "CormorantGaramond-SemiBold.ttf"];
-  const paths: string[] = [];
-  for (let i = 0; i < buffers.length; i += 1) {
-    const file = path.join(dir, names[i] ?? `overlay-font-${i}.ttf`);
-    await writeFile(file, buffers[i]);
-    paths.push(file);
-  }
-  return paths;
-}
 
 export async function getOverlayFontFiles(): Promise<string[]> {
   if (cached) return cached;
-  if (!inflight) {
-    inflight = materialize().then((result) => {
-      cached = result;
-      inflight = null;
-      return result;
-    });
+  const present: string[] = [];
+  for (const file of FONT_FILES) {
+    try {
+      await access(file);
+      present.push(file);
+    } catch {
+      logger.warn("[Social] Overlay font file missing on disk.", { file });
+    }
   }
-  return inflight;
+  cached = present;
+  return present;
 }

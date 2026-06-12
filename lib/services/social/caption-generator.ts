@@ -102,11 +102,29 @@ export type SocialCaptionVariant = {
 const MAX_HASHTAG_LENGTH = 28;
 const MIN_ACCEPTABLE_WORDS = 55;
 const MIN_ACCEPTABLE_LINES = 8;
-const REQUIRED_CTA_LINE = "Book now through ServiceFlow and claim your spot today.";
-// Voice note: posts are FROM the business, so first-person plural ("we / our")
-// not third-person ("they"). Caller is the singular reader, so "yourself".
-const REQUIRED_DISCOVERY_LINE =
-  "Tap through to see everything we offer and book yourself in.";
+// Wave N3: every promo caption used to end with the same two sentences.
+// That uniform tail is the single strongest "all your posts feel like AI"
+// fingerprint — owners noticed it immediately. We rotate through a small
+// pool of human-sounding equivalents so the footer reads like a real
+// person closing a message instead of a templated sign-off.
+const PROMO_CTA_POOL = [
+  "Book now through ServiceFlow and claim your spot today.",
+  "Pwede mag-book sa ServiceFlow para hindi maubusan ng slot.",
+  "Mag-reserve na sa ServiceFlow para sa schedule mo this week.",
+  "Lock in your slot through ServiceFlow before the week fills up.",
+  "Slot mo na, book na sa ServiceFlow.",
+] as const;
+const PROMO_DISCOVERY_POOL = [
+  "Tap through to see everything we offer and book yourself in.",
+  "Silip mo rin ang ibang services namin habang nandiyan ka.",
+  "Check the full menu and pick what fits your week.",
+  "Tingnan ang buong list of services and pick yours.",
+  "Browse the rest of our services kapag may time ka.",
+] as const;
+// Kept for callers (tests, legacy code) that import the singular constant.
+// Both still match isServiceFlowEndingLine via the pool below.
+const REQUIRED_CTA_LINE = PROMO_CTA_POOL[0];
+const REQUIRED_DISCOVERY_LINE = PROMO_DISCOVERY_POOL[0];
 // Legacy variants we still strip if they sneak through from older drafts —
 // keeps re-runs idempotent and doesn't double up old/new copy on edits.
 const LEGACY_DISCOVERY_LINES = [
@@ -251,12 +269,69 @@ function toHashtagSeed(value: string) {
     .join("");
 }
 
+// Wave N3: Gemini occasionally invents hashtags from prompt words ("#TaglishSpa"
+// from the prompt's "Language: Taglish" line, "#FilipinoCaption", etc). These
+// look human at a glance but nobody searches them — they make the post feel
+// AI-generated. We hard-block any tag containing one of these AI-leak tokens.
+// Case-insensitive substring match. Keep this list short and obvious.
+const HASHTAG_AI_LEAK_TOKENS = [
+  "taglish",
+  "filipinoaudience",
+  "filipinocaption",
+  "aicaption",
+  "promptbeauty",
+  "geminicaption",
+  "aigenerated",
+] as const;
+
+// Wave N3b: PH city/area tokens. Gemini routinely guesses "#ManilaBeauty" /
+// "#CebuSpa" for any Filipino-targeted post even when the business is
+// nowhere near those cities — it misleads followers about location and
+// hurts local-search relevance. We don't have the business's city plumbed
+// through this generator, so the safe policy is: block compound location
+// hashtags entirely. Owners who do operate in a specific city can add the
+// real local tag manually.
+const HASHTAG_PH_LOCATION_TOKENS = [
+  "manila",
+  "makati",
+  "bgc",
+  "taguig",
+  "quezoncity",
+  "cebu",
+  "davao",
+  "baguio",
+  "iloilo",
+  "cagayan",
+  "bacolod",
+  "tagaytay",
+  "boracay",
+  "palawan",
+] as const;
+
+function isAiLeakHashtag(tagWithHash: string): boolean {
+  const lower = tagWithHash.replace(/^#/, "").toLowerCase();
+  if (HASHTAG_AI_LEAK_TOKENS.some((token) => lower.includes(token))) return true;
+  // Block compound location tags like "ManilaBeauty", "CebuSpa", "DavaoWellness".
+  // A bare "#Manila" is NOT blocked — that's a real searchable tag an owner
+  // may legitimately want. Only the AI-style city+suffix compounds are dropped.
+  const isExactCityToken = HASHTAG_PH_LOCATION_TOKENS.some((city) => lower === city);
+  if (isExactCityToken) return false;
+  const hasCityToken = HASHTAG_PH_LOCATION_TOKENS.some((city) => lower.includes(city));
+  const hasBeautySuffix =
+    /(beauty|spa|wellness|salon|skincare|lash|brow|nails|hair|glow|treats?|deals?)/.test(
+      lower,
+    );
+  return hasCityToken && hasBeautySuffix;
+}
+
 function normalizeHashtag(value: string) {
   const seed = value.replace(/^#/, "").trim();
   if (!seed) return null;
 
   const compact = seed.replace(/[^a-zA-Z0-9_]/g, "");
   if (!compact) return null;
+
+  if (isAiLeakHashtag(compact)) return null;
 
   if (compact.length > MAX_HASHTAG_LENGTH) {
     return `#${compact.slice(0, MAX_HASHTAG_LENGTH)}`;
@@ -672,8 +747,8 @@ const SOFT_FOOTER_VARIANTS = [
 ] as const;
 
 const STRIPPABLE_FOOTER_LINES_LOWER = new Set<string>([
-  REQUIRED_CTA_LINE.toLowerCase(),
-  REQUIRED_DISCOVERY_LINE.toLowerCase(),
+  ...PROMO_CTA_POOL.map((line) => line.toLowerCase()),
+  ...PROMO_DISCOVERY_POOL.map((line) => line.toLowerCase()),
   ...SOFT_FOOTER_VARIANTS.map((line) => line.toLowerCase()),
   ...LEGACY_DISCOVERY_LINES,
 ]);
@@ -716,8 +791,8 @@ type FooterPolicy = {
 function selectFooterPolicy(input: CaptionGenerationInput): FooterPolicy {
   if (!input.postCategory || input.postCategory === "SERVICE_SHOWCASE") {
     return {
-      ctaLine: REQUIRED_CTA_LINE,
-      discoveryLine: REQUIRED_DISCOVERY_LINE,
+      ctaLine: pickRandom(PROMO_CTA_POOL),
+      discoveryLine: pickRandom(PROMO_DISCOVERY_POOL),
     };
   }
   switch (input.postCategory) {
@@ -1242,7 +1317,21 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     "- Add a warm invitation line (bestie/partner/family angle is okay when relevant).",
     "- Add a clear CTA to book through ServiceFlow.",
     "- DO NOT use any emojis. Zero. They will be stripped from the output anyway.",
-    "- AVOID AI-feeling phrases: 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your'. Sound like a real person texting a friend.",
+    "- AVOID AI-feeling English phrases: 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your', 'let's talk about', 'when it comes to'.",
+    "- AVOID AI-feeling Taglish phrases that no real Filipino actually says — these are an instant 'this is AI' giveaway:",
+    "    * 'buhayin ang aura mo' / 'buhayin ang glow mo' / 'buhayin ang [anything] mo'",
+    "    * 'sulit na sulit' (overused — use 'sulit' once max, or rephrase)",
+    "    * 'para sa lalong [adjective]' / 'para sa lalong pag-ganda' (textbook Tagalog, not spoken)",
+    "    * 'magpahuli ka pa' / 'wag nang magpahuli' (cliche)",
+    "    * 'hakot-tingin', 'hakot-[anything]' (model-invented compounds)",
+    "    * 'blooming' as a descriptor (dated)",
+    "    * 'malaking bawas sa presyo' (unless the actual discount IS large)",
+    "    * 'i-secure mo ang [anything]' (corporate Taglish, not casual)",
+    "    * 'transformation' as the closing noun (overused)",
+    "- Sound like a real person texting a friend. If you'd never say it out loud to a friend over coffee, don't write it.",
+    "- DO NOT invent specific numbers. NEVER mention 'X slots lang' / '[number] slots remaining' / '[number] na natitira' unless the slot count was given in the input — it was not. Use vague language ('limited slots', 'mabilis maubos') instead.",
+    "- DO NOT invent dates other than the campaign window provided. Do not name specific days ('ngayong May 23') unless that exact date is in the window.",
+    "- DO NOT invent discount percentages or peso amounts. Use only the discount value in the input.",
     "- Limit em-dashes (—) to one per caption. NO exclamation marks unless one is genuinely earned.",
     "- Keep spacing clean: add blank lines between hook, body, bullet list, and CTA.",
     "- Avoid dense paragraph blocks. Keep one main idea per line.",
@@ -1254,6 +1343,14 @@ function buildGeminiPrompt(input: CaptionGenerationInput, dateWindow: string) {
     '- Never include operational lines like "window is active", "15/30 behavior", or confidence/impact scoring.',
     "- Avoid fake urgency, medical claims, or spammy wording.",
     "- Hashtags should be 5-10 items, all start with # and have no spaces.",
+    "- Hashtags must be real things people actually search/use. NEVER coin a tag from prompt words like '#TaglishSpa', '#FilipinoAudience', '#AIcaption', '#PromptBeauty'. Use brand, service, category, and common PH wellness tags only.",
+    "- NEVER invent location-based hashtags like '#ManilaBeauty', '#CebuSpa', '#DavaoWellness', '#MakatiSalon'. You do not know where the business is located. If a city is not mentioned in the business name or description, do not guess one.",
+    "",
+    "Good-example Taglish lines for reference (target this register — natural, short, mixed):",
+    "  - 'Maaga pa ang week, time mo na rin maginhawa.'",
+    "  - 'Kung ako sa'yo, i-book ko na bago mapuno ang Saturday.'",
+    "  - 'May time ka ba this week? Sayang ang slot.'",
+    "  - 'Hindi mo na kailangan i-justify ang self-care.'",
   ].join("\n");
 }
 
@@ -1291,7 +1388,15 @@ function buildGeminiRewritePrompt(input: CaptionGenerationInput, caption: string
     "- Use selected service categories to make the message specific and not generic.",
     "- Include bullet lines when services/packages are relevant.",
     "- DO NOT use any emojis. Zero. They will be stripped from the output anyway.",
-    "- AVOID AI-feeling phrases: 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your'. Sound like a real person texting a friend.",
+    "- AVOID AI-feeling English phrases: 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your', 'let's talk about'.",
+    "- AVOID AI-feeling Taglish phrases that no real Filipino actually says:",
+    "    * 'buhayin ang aura mo' / 'buhayin ang [anything] mo'",
+    "    * 'sulit na sulit' (overused)",
+    "    * 'para sa lalong [adjective]'",
+    "    * 'magpahuli ka pa' / 'wag nang magpahuli'",
+    "    * 'hakot-tingin', 'hakot-[anything]'",
+    "    * 'i-secure mo ang [anything]', 'transformation' as the closing noun",
+    "- DO NOT invent specific slot counts ('X slots lang'), specific dates outside the campaign window, or discount values not given in the input.",
     "- Limit em-dashes (—) to one per caption. NO exclamation marks unless one is genuinely earned.",
     "- Keep spacing clean: add blank lines between hook, body, bullet list, and CTA.",
     "- Avoid dense paragraph blocks. Keep one main idea per line.",
@@ -1299,8 +1404,10 @@ function buildGeminiRewritePrompt(input: CaptionGenerationInput, caption: string
     "- Mention the sale title at most twice, never on two consecutive lines.",
     "- NEVER imply the business is slow, struggling, has low demand, or is having a hard time getting customers. NEVER use \"quiet hours\", \"slow hours\", \"dead hours\", \"off-peak\", \"fill window\", or \"rescue\".",
     '- Never include operational lines like "window is active", "15/30 behavior", or scoring hints.',
-    "- Sound human, local, and warm.",
+    "- Sound human, local, and warm. If you wouldn't say it to a friend over coffee, don't write it.",
     '- Do not include internal/meta phrases like "Focused categories:" or "based on your ... promo."',
+    "- Hashtags must be real things people search/use — never coin tags from prompt words ('#TaglishSpa', '#FilipinoCaption').",
+    "- NEVER invent location-based hashtags ('#ManilaBeauty', '#CebuSpa'). You do not know where the business is located.",
   ].join("\n");
 }
 
@@ -1317,26 +1424,47 @@ function replaceFirstReadableLine(caption: string, nextLine: string) {
   return formatCaptionForSocialFeed(lines.join("\n"));
 }
 
+// Wave N3: each style pool used to be 2 entries, so every INFORMATIVE
+// variant opened with the same hardcoded sentence — that exact line
+// was the first "this is obviously AI" tell owners called out. Wider
+// pools + less-templated phrasing make the opener feel chosen, not
+// stamped on. Lines lean into how Filipinos actually message each
+// other (mixed Taglish, short, no marketing scaffolding).
 const STYLE_HOOKS: Record<SocialCaptionStyle, string[]> = {
   INFORMATIVE: [
-    "Planning your next self-care day? This promo is a great time to book.",
-    "Want a fresh look this week? Grab this limited offer while slots are open.",
+    "Heads up — short window for this one.",
+    "Quick note: book mo na while it's open.",
+    "Sharing this one before it closes.",
+    "Open lang ito for a few days, just a heads up.",
+    "Quick share habang available pa.",
   ],
   FUNNY_LIGHT: [
-    "Main character energy, pero practical pa rin. Tara.",
-    "Glow-up mood activated. Hindi na kailangan i-delay.",
+    "Main character energy, pero practical pa rin.",
+    "Glow-up mood activated. Wala nang excuses.",
+    "Treat yourself muna bago ka magsimba ng work week.",
+    "Self-care first, drama later.",
+    "Nag-self-care ka na ba this week? No? Tara.",
   ],
   URGENCY_DRIVEN: [
-    "Limited promo slots this week, so reserve early to get your preferred time.",
-    "Best schedules go fast during this promo, so book before your ideal slot is gone.",
+    "Maaga pa ang week, maaga ka rin mag-book.",
+    "Best slots go first — usual lang.",
+    "Habang may space pa, grab mo na.",
+    "If this fits your schedule, lock it in now.",
+    "Short window, kaya book na agad.",
   ],
   PREMIUM_TONE: [
-    "A curated self-care experience for clients who choose quality first.",
-    "Premium treatment energy with a limited-time offer worth booking now.",
+    "For the ones who pick quality first.",
+    "Slow, considered, made for you.",
+    "A quiet kind of luxury, kung kailan mo kailangan.",
+    "Small detail, big difference. That's the point.",
+    "Curated for the ones na alam mo, kayang kayang sumustini ng sarili.",
   ],
   QUESTION_ENGAGEMENT: [
-    "Quick reset or full glow-up? Which one fits your vibe today?",
-    "Daytime slot or after-work slot, ano ang preferred mo?",
+    "Quick reset or full glow-up — alin sa'yo?",
+    "Daytime slot ba o after-work? Ano preferred mo?",
+    "Solo session or with bestie — sino sasama?",
+    "Maaga ba o hapon, ano gusto mo?",
+    "Tara, ano lagi mong gustong i-try ulit?",
   ],
 };
 
@@ -1685,7 +1813,12 @@ function buildOrganicGeminiPrompt(input: OrganicCaptionInput): string {
     "- The topic must appear naturally in the caption body — never as a hard heading or label.",
     "- Tie back to the business at most ONCE, softly, and only when it fits the category.",
     "- DO NOT use any emojis. Zero. The caption will be stripped of them anyway.",
-    "- AVOID AI-feeling phrases: no 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your', 'let's talk about'. Speak the way a real person texts a friend.",
+    "- AVOID AI-feeling English phrases: no 'in today's world', 'unlock the secret', 'embark on a journey', 'dive into', 'navigate the world of', 'elevate your', 'let's talk about', 'when it comes to'.",
+    "- AVOID AI-feeling Taglish phrases that no real Filipino says: 'buhayin ang aura/glow mo', 'sulit na sulit', 'para sa lalong [adjective]', 'magpahuli ka pa', 'hakot-tingin', 'i-secure mo ang [anything]', 'blooming' as descriptor, 'transformation' as closing noun.",
+    "- DO NOT invent specific numbers (slot counts, percentages, dates) that were not given in the input.",
+    "- Speak the way a real person texts a friend. If you wouldn't say it out loud over coffee, don't write it.",
+    "- Hashtags must be real things people search/use — never coin tags from prompt words ('#TaglishSpa', '#FilipinoCaption').",
+    "- NEVER invent location-based hashtags ('#ManilaBeauty', '#CebuSpa'). You do not know where the business is located.",
     "- AVOID em-dash sentence openers and overuse of em-dashes. One em-dash per caption max.",
     "- NO exclamation marks unless absolutely warranted (max 1).",
     "- NEVER imply the business is slow or struggling. NEVER use 'quiet hours', 'slow hours', 'fill the window', 'rescue'.",
