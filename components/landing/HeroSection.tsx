@@ -81,7 +81,7 @@ export default function HeroSection() {
         >
           <Link
             href="/apply"
-            className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background shadow-[0_1px_0_rgba(255,255,255,0.1)_inset,0_1px_3px_rgba(0,0,0,0.2)] transition-all hover:bg-foreground/90 active:scale-[0.98]"
+            className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 text-sm font-medium text-white shadow-[0_1px_0_rgba(255,255,255,0.16)_inset,0_8px_20px_-10px_rgba(4,120,87,0.8)] transition-all hover:bg-emerald-800 active:scale-[0.98]"
           >
             Start free trial
             <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
