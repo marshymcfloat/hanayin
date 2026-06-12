@@ -12,7 +12,7 @@ export default function LandingFooter() {
             <Link href="/" className="inline-flex items-center gap-2 group">
               <div className="relative size-7">
                 <Image
-                  src="/serviceFlow-logo.png"
+                  src="/serviceFlow_logo_no_bg.png"
                   alt="ServiceFlow"
                   fill
                   sizes="28px"

@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     // Some local networks/ISPs use DNS64/NAT64 (64:ff9b::/96), which Next.js
     // can classify as private even for public hosts. Keep this dev-only.
     dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",
+    localPatterns: [{ pathname: "/**" }],
     remotePatterns: [
       {
         protocol: "https",

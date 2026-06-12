@@ -23,7 +23,7 @@ const surfaces = [
       "Staff overview",
       "Quick actions",
     ],
-    image: "/SF_Dashboard.png",
+    image: "/SF_Dashboard.png?v=20260612",
     aspect: "aspect-[1919/948]",
   },
   {
@@ -37,7 +37,7 @@ const surfaces = [
       "Cross-platform publish",
       "Engagement tracking",
     ],
-    image: "/SF_Post.png",
+    image: "/SF_Post.png?v=20260612",
     aspect: "aspect-[1919/948]",
   },
   {
@@ -51,7 +51,7 @@ const surfaces = [
       "Mobile-optimized",
       "SEO ready",
     ],
-    image: "/SF_Facing.png",
+    image: "/SF_Facing.png?v=20260612",
     aspect: "aspect-[1919/948]",
   },
   {
@@ -65,7 +65,7 @@ const surfaces = [
       "Trend analysis",
       "Inventory insights",
     ],
-    image: "/SF_Reports.png",
+    image: "/SF_Reports.png?v=20260612",
     aspect: "aspect-[1919/948]",
   },
 ];

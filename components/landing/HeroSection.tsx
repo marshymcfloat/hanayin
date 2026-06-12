@@ -125,7 +125,7 @@ export default function HeroSection() {
           </div>
           <div className="relative aspect-[1919/948] w-full bg-muted/30">
             <Image
-              src="/SF_Dashboard.png"
+              src="/SF_Dashboard.png?v=20260612"
               alt="ServiceFlow dashboard preview"
               fill
               priority
