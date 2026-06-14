@@ -19,10 +19,18 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.contact_number || !credentials.password)
           throw invalidCredentialsError;
 
-        const normalized = normalizePhilippinePhone(credentials.contact_number);
+        const contactNumber = credentials.contact_number.trim();
+        const normalized = normalizePhilippinePhone(contactNumber);
 
-        const user = await prisma.user.findUnique({
-          where: { contact_number: normalized },
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { contact_number: normalized },
+              ...(contactNumber === normalized
+                ? []
+                : [{ contact_number: contactNumber }]),
+            ],
+          },
           include: {
             employee: {
               include: {

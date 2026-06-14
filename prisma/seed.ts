@@ -20,8 +20,17 @@ import {
   VoucherType,
 } from "./generated/prisma/enums";
 import { prisma } from "./prisma";
+import { normalizePhilippinePhone } from "../lib/services/sms-otp";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+function requiredEnv(name: string) {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`${name} is not set.`);
+  }
+  return value;
+}
 
 function daysFromToday(days: number, hour = 10, minute = 0) {
   const date = new Date();
@@ -48,8 +57,22 @@ async function main() {
   await prisma.business.deleteMany();
   await prisma.user.deleteMany();
 
+  const platformAdminContactNumber = normalizePhilippinePhone(
+    requiredEnv("SEED_PLATFORM_ADMIN_CONTACT_NUMBER"),
+  );
+  const platformAdminPassword = requiredEnv("SEED_PLATFORM_ADMIN_PASSWORD");
+  const platformAdminHashedPassword = await hash(platformAdminPassword, 12);
   const ownerPassword = await hash("Ellainepe123", 12);
   const employeePassword = await hash("employee123", 12);
+
+  await prisma.user.create({
+    data: {
+      contact_number: platformAdminContactNumber,
+      name: "Platform Admin",
+      hashed_password: platformAdminHashedPassword,
+      role: Role.PLATFORM_ADMIN,
+    },
+  });
 
   console.log(" Creating BeautyFeel...");
 
@@ -730,6 +753,7 @@ async function main() {
   console.log("   Owner   — Ellaine Pe       639170000001 / Ellainepe123");
   console.log("   Employee — Jan David Almirante 639170000010 / employee123");
   console.log("   Employee — Daniel Canoy        639170000011 / employee123");
+  console.log(`   Platform Admin - ${platformAdminContactNumber} / SEED_PLATFORM_ADMIN_PASSWORD`);
   console.log(`   Demo customers: ${customers.length}`);
   console.log(`   Demo bookings: ${bookingPlans.length + 1}`);
   console.log(`   Demo gift card: ${giftCard.code}`);
