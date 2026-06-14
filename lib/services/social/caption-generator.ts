@@ -121,10 +121,6 @@ const PROMO_DISCOVERY_POOL = [
   "Tingnan ang buong list of services and pick yours.",
   "Browse the rest of our services kapag may time ka.",
 ] as const;
-// Kept for callers (tests, legacy code) that import the singular constant.
-// Both still match isServiceFlowEndingLine via the pool below.
-const REQUIRED_CTA_LINE = PROMO_CTA_POOL[0];
-const REQUIRED_DISCOVERY_LINE = PROMO_DISCOVERY_POOL[0];
 // Legacy variants we still strip if they sneak through from older drafts —
 // keeps re-runs idempotent and doesn't double up old/new copy on edits.
 const LEGACY_DISCOVERY_LINES = [
@@ -729,11 +725,10 @@ function formatCaptionForSocialFeed(value: string) {
 }
 
 // Wave I1: every footer line we strip during regeneration. Promotional
-// categories produce REQUIRED_CTA_LINE / REQUIRED_DISCOVERY_LINE; the
-// soft-CTA categories produce one of SOFT_FOOTER_VARIANTS. We strip
-// them all on every pass so re-renders never double up, regardless of
-// whether the caption was originally generated as promotional and
-// later switched to educational (or vice versa).
+// categories use PROMO_CTA_POOL / PROMO_DISCOVERY_POOL; soft-CTA categories
+// produce one of SOFT_FOOTER_VARIANTS. We strip them all on every pass so
+// re-renders never double up, regardless of whether the caption was originally
+// generated as promotional and later switched to educational (or vice versa).
 const SOFT_FOOTER_VARIANTS = [
   "Save this for later — or send it to a friend who's curious.",
   "Drop by the page anytime — we share little moments often.",
