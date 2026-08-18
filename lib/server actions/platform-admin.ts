@@ -1130,6 +1130,14 @@ export async function convertOnboardingApplicationToBusinessAction(
     };
   }
 
+  // Flag the owner to set a permanent password on first login. The backup
+  // password from the conversion form is a one-time credential that the
+  // owner may never have seen, so we require them to choose their own.
+  await prisma.user.update({
+    where: { id: creation.ownerUserId },
+    data: { must_change_password: true },
+  });
+
   // Demo-data seeding: best-effort. If it fails the conversion is still a
   // success — the business is real, the magic link still works, the owner
   // just lands on an empty dashboard. We log loudly so platform admins can

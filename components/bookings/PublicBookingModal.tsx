@@ -56,7 +56,8 @@ export default async function PublicBookingModal({
             </Badge>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Choose services, pick a time, and confirm your slot.
+            Choose services and a time, then place a temporary hold while you
+            send the 20% GCash deposit.
           </p>
         </div>
 
@@ -67,6 +68,7 @@ export default async function PublicBookingModal({
             categories={categories}
             isModal={true}
             mobileActionBarMode="fixed"
+            gcash={{ accountName: business.gcash_account_name, mobileNumber: business.gcash_mobile_number, qrImageUrl: business.gcash_qr_image_url, instructions: business.gcash_instructions }}
           />
         </div>
       </div>

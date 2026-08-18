@@ -352,7 +352,7 @@ export function ConvertApplicationDialog({
                   We&rsquo;ll text the owner a one-time login link so they can
                   sign in without a password.
                   {!application.ownerPhone
-                    ? " (No phone on file — they&rsquo;ll see the link on their application status page.)"
+                    ? " (No phone on file — copy the magic link after converting and send it to the owner directly.)"
                     : null}
                 </p>
               </div>

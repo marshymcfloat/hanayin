@@ -18,6 +18,7 @@ import {
   User,
   Voucher,
   Owner,
+  BookingPayment,
 } from "@/prisma/generated/prisma/client";
 import { BookingDialog } from "./BookingDialog";
 import { RecentBookingsWidget } from "./RecentBookingsWidget";
@@ -37,11 +38,20 @@ import type { OpportunityView } from "@/lib/services/growth/types";
 import { cn } from "@/lib/utils";
 import { ExpenseWidget } from "./ExpenseWidget";
 import type { ExpenseView } from "@/lib/expenses/constants";
+import {
+  GcashFollowUpQueue,
+  GcashVerificationQueue,
+} from "@/components/dashboard/shared/GcashVerificationQueue";
+import type {
+  GcashFollowUpItem,
+  GcashVerificationItem,
+} from "@/lib/types/manual-gcash";
 
 type BookingWithDetails = Booking & {
   // Nullable for anonymous walk-ins; render via getBookingCustomerName.
   customer: Customer | null;
   vouchers: Voucher[];
+  payments?: BookingPayment[];
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
@@ -207,6 +217,8 @@ export default async function OwnerDashboard({
   reportsEnabled,
   todayExpenseTotal,
   todayRecentExpenses,
+  gcashVerificationItems,
+  gcashFollowUpItems,
 }: {
   businessName: string;
   businessSlug: string;
@@ -251,6 +263,8 @@ export default async function OwnerDashboard({
   reportsEnabled: boolean;
   todayExpenseTotal: number;
   todayRecentExpenses: ExpenseView[];
+  gcashVerificationItems: GcashVerificationItem[];
+  gcashFollowUpItems: GcashFollowUpItem[];
 }) {
   const business = await getCachedBusinessBySlug(businessSlug);
   const services = business ? await getCachedServices(business.id) : [];
@@ -318,6 +332,18 @@ export default async function OwnerDashboard({
               sub="This week"
             />
           </div>
+
+          <GcashVerificationQueue
+            businessSlug={businessSlug}
+            items={gcashVerificationItems.slice(0, 3)}
+            total={gcashVerificationItems.length}
+            compact
+          />
+          <GcashFollowUpQueue
+            businessSlug={businessSlug}
+            items={gcashFollowUpItems}
+            compact
+          />
 
           {/*
            * ── Combined main + sidebar ──────────────────────────

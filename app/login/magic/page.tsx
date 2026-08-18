@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, ShieldAlert, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -85,9 +85,16 @@ function MagicLinkLoginInner() {
         }
         setState("success");
         // Brief beat so the "logging you in" state is visible — feels
-        // less abrupt than immediate redirect.
-        setTimeout(() => {
-          router.push(slug ? `/app/${slug}` : "/");
+        // less abrupt than immediate redirect. Read the fresh session to
+        // check if the new owner must set a permanent password first.
+        setTimeout(async () => {
+          const session = await getSession();
+          const base = slug ? `/app/${slug}` : "/";
+          const target =
+            session?.user?.mustChangePassword
+              ? `/app/${slug}/change-password`
+              : base;
+          router.push(target);
         }, 600);
       } catch {
         setState("error");

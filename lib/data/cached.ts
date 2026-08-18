@@ -21,6 +21,10 @@ export async function getCachedBusinessBySlug(slug: string) {
       initials: true,
       imageUrl: true,
       timezone: true,
+      gcash_account_name: true,
+      gcash_mobile_number: true,
+      gcash_qr_image_url: true,
+      gcash_instructions: true,
       // Hours used by the public booking greeting to render a
       // humanized "Mon–Sat · 9 AM – 6 PM" subline. Small payload
       // (≤ 7 rows × few fields × per category).

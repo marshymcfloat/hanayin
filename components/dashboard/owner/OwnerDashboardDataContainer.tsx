@@ -14,6 +14,7 @@ import { getThisWeeksFlowRemindersCount } from "@/lib/data/flow-reminder-queries
 import { getTodayOpportunityViews } from "@/lib/services/growth/opportunities";
 import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 import { getTodayExpenseSummary } from "@/lib/server actions/expenses";
+import { getGcashVerificationQueueAction } from "@/lib/server actions/manual-gcash";
 
 function toObjectRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -62,6 +63,14 @@ export default async function OwnerDashboardDataContainer({
     return <div>Error loading dashboard</div>;
   }
 
+  const gcashQueueResult = await getGcashVerificationQueueAction(businessSlug);
+  const gcashVerificationItems = gcashQueueResult.success
+    ? gcashQueueResult.verificationItems
+    : [];
+  const gcashFollowUpItems = gcashQueueResult.success
+    ? gcashQueueResult.followUpItems
+    : [];
+
   const [
     totalSalesAggregate,
     bookingsTodayCount,
@@ -88,7 +97,7 @@ export default async function OwnerDashboardDataContainer({
     prisma.booking.aggregate({
       where: {
         business_id: business.id,
-        status: { not: "CANCELLED" },
+        status: { in: ["ACCEPTED", "COMPLETED"] },
       },
       _sum: {
         grand_total: true,
@@ -101,9 +110,7 @@ export default async function OwnerDashboardDataContainer({
           gte: startOfToday,
           lte: endOfToday,
         },
-        status: {
-          not: "CANCELLED",
-        },
+        status: { in: ["ACCEPTED", "COMPLETED"] },
       },
     }),
     prisma.employeeAttendance.findMany({
@@ -137,6 +144,11 @@ export default async function OwnerDashboardDataContainer({
           },
         },
         vouchers: true,
+        payments: {
+          orderBy: { created_at: "desc" },
+          take: 1,
+          include: { verified_by: { select: { name: true } } },
+        },
       },
       orderBy: {
         created_at: "desc",
@@ -378,9 +390,7 @@ export default async function OwnerDashboardDataContainer({
     prisma.booking.findMany({
       where: {
         business_id: business.id,
-        status: {
-          not: "CANCELLED",
-        },
+        status: { in: ["ACCEPTED", "COMPLETED"] },
         created_at: {
           gte: chartWindowStart,
         },
@@ -476,6 +486,8 @@ export default async function OwnerDashboardDataContainer({
       reportsEnabled={entitlements.reportsCore}
       todayExpenseTotal={todayExpenseTotal}
       todayRecentExpenses={todayRecentExpenses}
+      gcashVerificationItems={gcashVerificationItems}
+      gcashFollowUpItems={gcashFollowUpItems}
     />
   );
 }

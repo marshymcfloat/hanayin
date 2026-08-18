@@ -7,7 +7,9 @@ export type AuditAction =
   | "PRICE_MODIFIED"
   | "CANCELLED"
   | "APPROVED"
-  | "REJECTED";
+  | "REJECTED"
+  | "ESCALATED"
+  | "FOLLOW_UP_RESOLVED";
 
 export interface AuditParams {
   entityType: string;

@@ -11,6 +11,7 @@ import { formatPH } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
+import { BOOKING_PAYMENT_STAGE_LABELS, deriveBookingPaymentStage } from "@/lib/utils/booking-payment-stage";
 import type {
   Booking,
   Customer,
@@ -21,6 +22,7 @@ import type {
   User,
   Voucher,
   Owner,
+  BookingPayment,
 } from "@/prisma/generated/prisma/client";
 import {
   Calendar,
@@ -68,6 +70,7 @@ import { AvailedServiceStatus, PaymentStatus } from "@/prisma/generated/prisma/e
 type BookingWithDetails = Booking & {
   customer: Customer | null;
   vouchers: Voucher[];
+  payments?: (BookingPayment & { verified_by?: { name: string } | null })[];
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
@@ -190,9 +193,10 @@ export function BookingDetailsDialog({
   const amountPaid = Math.max(0, booking?.amount_paid || 0);
   const remainingBalance = Math.max(0, (booking?.grand_total || 0) - amountPaid);
   const bookingDateTime = booking?.scheduled_at ?? booking?.created_at ?? new Date();
+  const paymentStage = booking ? deriveBookingPaymentStage(booking) : null;
 
   const canMarkPaid =
-    booking?.status !== "CANCELLED" && booking?.payment_status !== "PAID";
+    booking?.status === "ACCEPTED" && booking?.payment_status !== "PAID";
   const canMarkNoShow = booking?.status === "ACCEPTED";
   const canAddService = booking?.status !== "CANCELLED";
   const availableServiceOptions = useMemo(
@@ -389,7 +393,7 @@ export function BookingDetailsDialog({
                       getStatusColor(booking.status),
                     )}
                   >
-                    {booking.status}
+                    {paymentStage ? BOOKING_PAYMENT_STAGE_LABELS[paymentStage] : booking.status}
                   </Badge>
                   <Badge
                     variant="outline"
@@ -459,6 +463,25 @@ export function BookingDetailsDialog({
                   )}
                 </div>
               </section>
+
+              {booking.payments?.[0] && (
+                <section className="space-y-3">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    GCash payment review
+                  </h3>
+                  <dl className="grid grid-cols-2 gap-3 rounded-2xl border bg-muted/30 p-4 text-xs sm:grid-cols-3">
+                    <div><dt className="text-muted-foreground">Expected amount</dt><dd className="font-semibold">₱{booking.payments[0].amount_principal.toLocaleString()}</dd></div>
+                    <div><dt className="text-muted-foreground">Payer</dt><dd>{booking.payments[0].payer_name || "Not provided"}</dd></div>
+                    <div><dt className="text-muted-foreground">Reference</dt><dd className="break-all font-mono">{booking.payments[0].provider_reference || "Not provided"}</dd></div>
+                    <div><dt className="text-muted-foreground">Submitted</dt><dd>{booking.payments[0].submitted_at ? formatPH(booking.payments[0].submitted_at, "MMM d, h:mm a") : "Not submitted"}</dd></div>
+                    <div><dt className="text-muted-foreground">Reviewed by</dt><dd>{booking.payments[0].verified_by?.name || "Not reviewed"}</dd></div>
+                    <div><dt className="text-muted-foreground">Reviewed</dt><dd>{booking.payments[0].verified_at ? formatPH(booking.payments[0].verified_at, "MMM d, h:mm a") : "Not reviewed"}</dd></div>
+                  </dl>
+                  {booking.payments[0].escalation_reason ? <p className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs text-orange-900"><strong>Escalation:</strong> {booking.payments[0].escalation_reason}</p> : null}
+                  {booking.payments[0].rejection_reason ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-900"><strong>Rejection:</strong> {booking.payments[0].rejection_reason}</p> : null}
+                  {booking.payments[0].resolution_outcome ? <p className="rounded-xl border p-3 text-xs"><strong>Resolution:</strong> {booking.payments[0].resolution_outcome.replaceAll("_", " ")}{booking.payments[0].resolution_note ? ` · ${booking.payments[0].resolution_note}` : ""}</p> : null}
+                </section>
+              )}
 
               <section className="space-y-3">
                 <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

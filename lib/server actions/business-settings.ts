@@ -6,6 +6,7 @@ import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
 import { tenantCacheTags } from "@/lib/data/cached";
 import { getBusinessStructureTemplate, normalizeBusinessStructure } from "@/lib/business-structure";
 import { normalizeGrowthToneProfile } from "@/lib/services/growth/tone-profiles";
+import { extractQrCodePng, QrImageError } from "@/lib/services/qr-image";
 
 const DEFAULT_TIMEZONE = "Asia/Manila";
 
@@ -32,6 +33,39 @@ export async function updateBusinessAction(
     const name = formData.get("name") as string;
     const initials = formData.get("initials") as string;
     const description = formData.get("description") as string;
+    const gcashAccountName = ((formData.get("gcashAccountName") as string) || "").trim();
+    const gcashMobileNumber = ((formData.get("gcashMobileNumber") as string) || "").replace(/\s+/g, "");
+    let gcashQrImageUrl = ((formData.get("existingGcashQrImageUrl") as string) || "").trim();
+    const gcashInstructions = ((formData.get("gcashInstructions") as string) || "").trim();
+    if (gcashMobileNumber && !/^(?:\+63|0)9\d{9}$/.test(gcashMobileNumber)) {
+      return { success: false, error: "Enter a valid Philippine GCash mobile number." };
+    }
+
+    const gcashQrImageFile = formData.get("gcashQrImageFile");
+    if (gcashQrImageFile instanceof File && gcashQrImageFile.size > 0) {
+      try {
+        const croppedQr = await extractQrCodePng(gcashQrImageFile);
+        const { put } = await import("@vercel/blob");
+        const blob = await put(
+          `${businessSlug}/payments/gcash-qr-${Date.now()}.png`,
+          croppedQr,
+          {
+            access: "public",
+            addRandomSuffix: true,
+            contentType: "image/png",
+          },
+        );
+        gcashQrImageUrl = blob.url;
+      } catch (error) {
+        return {
+          success: false,
+          error:
+            error instanceof QrImageError
+              ? error.message
+              : "Failed to process the GCash QR image.",
+        };
+      }
+    }
 
     // Existing image URL
     let imageUrl = formData.get("existingImageUrl") as string;
@@ -115,6 +149,10 @@ export async function updateBusinessAction(
         manager_can_serve: managerCanServe,
         timezone,
         formal_schedule_enabled: formalScheduleEnabled,
+        gcash_account_name: gcashAccountName || null,
+        gcash_mobile_number: gcashMobileNumber || null,
+        gcash_qr_image_url: gcashQrImageUrl || null,
+        gcash_instructions: gcashInstructions || null,
       },
     });
 

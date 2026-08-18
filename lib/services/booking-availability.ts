@@ -1060,18 +1060,6 @@ export async function validateBookingOrThrow({
   db?: AvailabilityDbClient;
 }) {
   const policy = await getBookingPolicyByBusinessSlug(db, businessSlug);
-  if (isPublicBooking) {
-    if (
-      (paymentType === "FULL" && !policy.allowPublicFullPayment) ||
-      (paymentType === "DOWNPAYMENT" && !policy.allowPublicDownpayment)
-    ) {
-      throw new BookingAvailabilityError(
-        "PAYMENT_TYPE_NOT_ALLOWED",
-        "Selected payment type is not available for this booking.",
-      );
-    }
-  }
-
   if (isWalkIn && allowWalkInCapacityBypass) {
     if (!capacityOverride?.reason) {
       throw new BookingAvailabilityError(

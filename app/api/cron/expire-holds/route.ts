@@ -34,6 +34,12 @@ export async function GET(request: Request) {
       select: {
         id: true,
         business_id: true,
+        customer: { select: { name: true, email: true, phone: true } },
+        payments: {
+          where: { status: "PENDING" },
+          select: { submitted_at: true },
+          take: 1,
+        },
       },
     });
 
@@ -48,6 +54,10 @@ export async function GET(request: Request) {
           data: {
             status: "CANCELLED",
             hold_expires_at: null,
+            cancelled_at: now,
+            cancellation_reason: booking.payments?.[0]?.submitted_at
+              ? "PAYMENT_VERIFICATION_EXPIRED"
+              : "PAYMENT_WINDOW_EXPIRED",
           },
         });
 
@@ -62,7 +72,18 @@ export async function GET(request: Request) {
           },
           data: {
             status: "EXPIRED",
+            follow_up_required_at: booking.payments?.[0]?.submitted_at
+              ? now
+              : null,
+            rejection_reason: booking.payments?.[0]?.submitted_at
+              ? "Verification window expired; payment may require follow-up."
+              : "Payment window expired.",
           },
+        });
+
+        await tx.availedService?.updateMany({
+          where: { booking_id: booking.id, status: { not: "COMPLETED" } },
+          data: { status: "CANCELLED", cancelled_at: now },
         });
 
         await tx.voucher.updateMany({
@@ -82,8 +103,13 @@ export async function GET(request: Request) {
           businessId: booking.business_id,
           payload: {
             bookingId: booking.id,
-            reason: "HOLD_EXPIRED",
+            reason: booking.payments?.[0]?.submitted_at
+              ? "Payment verification expired. Please contact the salon if your payment was sent."
+              : "Payment window expired.",
             status: "CANCELLED",
+            email: booking.customer?.email,
+            phone: booking.customer?.phone,
+            customerName: booking.customer?.name,
           },
         });
       });

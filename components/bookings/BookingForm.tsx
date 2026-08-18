@@ -12,6 +12,7 @@ import {
 } from "@/lib/server actions/availability";
 import { getBookingPolicy } from "@/lib/server actions/booking-policy";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import type {
   Service,
   ServicePackage,
@@ -59,9 +60,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Badge } from "../ui/badge";
-import CustomerPicker, {
-  type CustomerPickerValue,
-} from "./CustomerPicker";
+import CustomerPicker, { type CustomerPickerValue } from "./CustomerPicker";
 import ServiceSelect from "./ServiceSelect";
 import SelectedServiceList from "./SelectedServiceList";
 import DatePicker from "./DatePicker";
@@ -95,6 +94,12 @@ interface BookingFormProps {
   isModal?: boolean;
   mobileActionBarMode?: "auto" | "fixed" | "sticky";
   onSuccess?: () => void;
+  gcash?: {
+    accountName: string | null;
+    mobileNumber: string | null;
+    qrImageUrl: string | null;
+    instructions: string | null;
+  };
 }
 
 import {
@@ -108,7 +113,21 @@ import {
   type CustomerTrust,
 } from "@/lib/server actions/booking-otp";
 import { format } from "date-fns";
-import { Sparkles, Calendar, CalendarCheck, Clock, Ticket, X, ShieldCheck, Phone, Loader2, Zap, User2, type LucideIcon } from "lucide-react";
+import {
+  Sparkles,
+  Calendar,
+  CalendarCheck,
+  Clock,
+  Ticket,
+  X,
+  ShieldCheck,
+  Phone,
+  Loader2,
+  Zap,
+  User2,
+  Download,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BookingPolicy } from "@/lib/types/booking-policy";
 import { getMaxBookingDate, getSlotEmptyState } from "./booking-form-utils";
@@ -211,6 +230,7 @@ export default function BookingForm({
   isModal = false,
   mobileActionBarMode = "auto",
   onSuccess,
+  gcash,
 }: BookingFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -226,9 +246,9 @@ export default function BookingForm({
       scheduledAt: undefined,
       employeeId:
         isEmployee && currentEmployeeId ? currentEmployeeId : undefined,
-      paymentMethod: "CASH",
+      paymentMethod: isEmployee ? "CASH" : "ONLINE",
 
-      paymentType: "FULL",
+      paymentType: isEmployee ? "FULL" : "DOWNPAYMENT",
       staffSelectionMode: "ANY_AVAILABLE",
       email: "",
       phone: "",
@@ -318,20 +338,28 @@ export default function BookingForm({
   // Submission payload pending duplicate confirmation — pulled out of onSubmit
   // so we can re-fire createBookingAction once the dialog resolves.
   // Typed loosely; mirrors the shape passed to createBookingAction below.
-  const [pendingSubmitPayload, setPendingSubmitPayload] = useState<
-    Record<string, unknown> | null
-  >(null);
+  const [pendingSubmitPayload, setPendingSubmitPayload] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // --- Phone-first OTP verification (public bookings only) ---
   const [otpPhone, setOtpPhone] = useState("");
   const [otpTier, setOtpTier] = useState<CustomerTrust | null>(null);
-  const [otpCustomerName, setOtpCustomerName] = useState<string | undefined>(undefined);
-  const [otpCustomerEmail, setOtpCustomerEmail] = useState<string | undefined>(undefined);
+  const [otpCustomerName, setOtpCustomerName] = useState<string | undefined>(
+    undefined,
+  );
+  const [otpCustomerEmail, setOtpCustomerEmail] = useState<string | undefined>(
+    undefined,
+  );
   const [otpPrefilled, setOtpPrefilled] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const [otpVerificationId, setOtpVerificationId] = useState<number | undefined>(undefined);
+  const [otpVerificationId, setOtpVerificationId] = useState<
+    number | undefined
+  >(undefined);
   const [isCheckingTrust, setIsCheckingTrust] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -343,14 +371,17 @@ export default function BookingForm({
     if (otpCooldown <= 0) return;
     const timer = setInterval(() => {
       setOtpCooldown((prev) => {
-        if (prev <= 1) { clearInterval(timer); return 0; }
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
   }, [otpCooldown]);
 
-  const isOtpVerified = !!otpVerificationId || otpTier === "TRUSTED";
+  const isOtpVerified = !!otpVerificationId;
   // Public users must complete OTP before the rest of the form unlocks
   const isPublicVerified = isEmployee || isOtpVerified;
 
@@ -365,27 +396,12 @@ export default function BookingForm({
     try {
       const result = await resolveCustomerTrust(otpPhone.trim(), businessSlug);
       setOtpTier(result.tier);
-      setOtpCustomerName(result.customerName);
-      setOtpCustomerEmail(result.customerEmail);
-      if (result.tier === "TRUSTED") {
-        let prefilled = false;
-        if (result.customerName) {
-          form.setValue("customerName", result.customerName, { shouldValidate: true });
-          prefilled = true;
-        }
-        if (result.customerEmail) {
-          form.setValue("email", result.customerEmail, { shouldValidate: true });
-          prefilled = true;
-        }
-        form.setValue("phone", otpPhone.trim(), { shouldValidate: true });
-        if (prefilled) setOtpPrefilled(true);
-      }
     } catch {
       setOtpError("Could not check your number. Please try again.");
     } finally {
       setIsCheckingTrust(false);
     }
-  }, [otpPhone, businessSlug, form]);
+  }, [otpPhone, businessSlug]);
 
   const handleSendOtp = useCallback(async () => {
     if (!otpPhone.trim() || !businessSlug || isSendingOtp) return;
@@ -409,11 +425,16 @@ export default function BookingForm({
   }, [otpPhone, businessSlug, isSendingOtp]);
 
   const handleVerifyOtp = useCallback(async () => {
-    if (!otpPhone.trim() || !otpCode.trim() || !businessSlug || isVerifyingOtp) return;
+    if (!otpPhone.trim() || !otpCode.trim() || !businessSlug || isVerifyingOtp)
+      return;
     setIsVerifyingOtp(true);
     setOtpError(null);
     try {
-      const result = await verifyBookingOtp(otpPhone.trim(), otpCode.trim(), businessSlug);
+      const result = await verifyBookingOtp(
+        otpPhone.trim(),
+        otpCode.trim(),
+        businessSlug,
+      );
       if (result.success && result.verificationId) {
         setOtpVerificationId(result.verificationId);
         setOtpTier(result.customerTier ?? "NEW");
@@ -421,12 +442,16 @@ export default function BookingForm({
         let prefilled = false;
         if (result.customerName) {
           setOtpCustomerName(result.customerName);
-          form.setValue("customerName", result.customerName, { shouldValidate: true });
+          form.setValue("customerName", result.customerName, {
+            shouldValidate: true,
+          });
           prefilled = true;
         }
         if (result.customerEmail) {
           setOtpCustomerEmail(result.customerEmail);
-          form.setValue("email", result.customerEmail, { shouldValidate: true });
+          form.setValue("email", result.customerEmail, {
+            shouldValidate: true,
+          });
           prefilled = true;
         }
         if (prefilled) setOtpPrefilled(true);
@@ -514,7 +539,9 @@ export default function BookingForm({
       }
 
       if (value.mode === "existing") {
-        form.setValue("customerId", value.customer.id, { shouldValidate: true });
+        form.setValue("customerId", value.customer.id, {
+          shouldValidate: true,
+        });
         form.setValue("customerName", value.customer.name, {
           shouldValidate: true,
         });
@@ -580,7 +607,6 @@ export default function BookingForm({
       }
     }
   }, [canceled, businessSlug, router]);
-
 
   const handleWalkInToggle = useCallback(() => {
     if (!isEmployee) return;
@@ -700,8 +726,11 @@ export default function BookingForm({
       voucherDiscount: voucherDiscountAmount,
       paymentMethod: "CASH",
       paymentType,
+      downpaymentPercentage: isEmployee
+        ? (bookingPolicy?.downpaymentPercentage ?? 50)
+        : 20,
     });
-  }, [total, voucherDiscountAmount, paymentType]);
+  }, [total, voucherDiscountAmount, paymentType, isEmployee, bookingPolicy]);
 
   const totalDuration = useMemo(() => {
     return selectedServices.reduce((total, s) => {
@@ -805,12 +834,7 @@ export default function BookingForm({
   // 60s stale time keeps it cheap. Disabled on walk-in flows since they
   // bypass the calendar entirely.
   const { data: dayCapacity } = useQuery({
-    queryKey: [
-      "dayCapacity",
-      businessSlug,
-      slotServiceKey,
-      bookingHorizonDays,
-    ],
+    queryKey: ["dayCapacity", businessSlug, slotServiceKey, bookingHorizonDays],
     queryFn: async () => {
       if (!businessSlug || selectedServices.length === 0 || effectiveIsWalkIn) {
         return {};
@@ -866,8 +890,18 @@ export default function BookingForm({
       voucherDiscount: voucherDiscountAmount,
       paymentMethod,
       paymentType,
+      downpaymentPercentage: isEmployee
+        ? (bookingPolicy?.downpaymentPercentage ?? 50)
+        : 20,
     });
-  }, [total, voucherDiscountAmount, paymentMethod, paymentType]);
+  }, [
+    total,
+    voucherDiscountAmount,
+    paymentMethod,
+    paymentType,
+    isEmployee,
+    bookingPolicy,
+  ]);
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: [
@@ -963,6 +997,14 @@ export default function BookingForm({
       }
 
       if (result.type === "internal") {
+        if (!isEmployee && result.url) {
+          // Intercepted routes can retain their modal slot during a soft
+          // transition. Reload the destination document to close it reliably.
+          setIsRedirecting(true);
+          window.location.replace(result.url);
+          return;
+        }
+
         form.reset();
         setIsWalkIn(false); // Reset walk-in toggle
         setHasReviewedDetails(false);
@@ -970,7 +1012,11 @@ export default function BookingForm({
         setPendingFlows([]);
         setExistingCustomerEmail(null);
         setExistingCustomerPhone(null);
-        toast.success("Booking successfully created");
+        toast.success(
+          isEmployee
+            ? "Booking successfully created"
+            : "Slot held. Complete your GCash deposit to request confirmation.",
+        );
 
         if (onSuccess) {
           // Modal-embedded flow (BookingDialog) — close the modal and
@@ -980,7 +1026,10 @@ export default function BookingForm({
           // Public booking — navigate to the customer-facing success
           // page. The server returns the URL with a signed token so
           // we don't generate one client-side.
-          router.push(result.url);
+          // Replace instead of push so Back cannot reopen the completed
+          // intercepted booking modal. The @modal catch-all simultaneously
+          // clears the parallel route slot on this soft navigation.
+          router.replace(result.url);
         } else {
           router.back();
         }
@@ -989,7 +1038,6 @@ export default function BookingForm({
         setCapacityOverrideNote("");
         return;
       }
-
     },
     onError: (error) => {
       const code = error instanceof Error ? error.message : "";
@@ -1086,7 +1134,9 @@ export default function BookingForm({
             action: {
               label: "Book at regular price",
               onClick: () => {
-                const currentServices = form.getValues("services") as SelectedService[];
+                const currentServices = form.getValues(
+                  "services",
+                ) as SelectedService[];
                 form.setValue(
                   "services",
                   currentServices.map((s) => ({
@@ -1184,8 +1234,7 @@ export default function BookingForm({
             }
           : undefined;
 
-      const isAnonymousWalkIn =
-        isEmployee && pickerValue?.mode === "anonymous";
+      const isAnonymousWalkIn = isEmployee && pickerValue?.mode === "anonymous";
 
       const submitPayload = {
         customerId: data.customerId || undefined,
@@ -1327,11 +1376,13 @@ export default function BookingForm({
 
   const isSubmitDisabled =
     isPending ||
+    isRedirecting ||
     !form.formState.isValid ||
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
     !hasReviewedDetails ||
-    (showCapacityOverrideForm && !capacityOverrideReason);
+    (showCapacityOverrideForm && !capacityOverrideReason) ||
+    (!isEmployee && (!gcash?.accountName || !gcash?.mobileNumber));
 
   const isStep1Complete = selectedServices.length > 0;
   const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
@@ -1387,12 +1438,11 @@ export default function BookingForm({
   const usesFixedMobileActionBar = resolvedMobileActionBarMode === "fixed";
 
   const paymentMethodOptions = useMemo(() => {
-    // Public customers always pay at the salon (CASH); no online payment
     if (!isEmployee) {
       return [
         {
-          value: "CASH" as const,
-          label: "Pay at salon",
+          value: "ONLINE" as const,
+          label: "GCash deposit",
           disabled: !hasReviewedDetails,
         },
       ];
@@ -1427,52 +1477,26 @@ export default function BookingForm({
       ];
     }
 
-    const allowsFull = bookingPolicy?.allowPublicFullPayment ?? true;
-    const allowsDownpayment = bookingPolicy?.allowPublicDownpayment ?? true;
     return [
       {
-        value: "FULL" as const,
-        label: "Full",
-        disabled: !hasReviewedDetails || !allowsFull,
-      },
-      {
         value: "DOWNPAYMENT" as const,
-        label: `${bookingPolicy?.downpaymentPercentage ?? 50}%`,
-        disabled: !hasReviewedDetails || !allowsDownpayment,
+        label: "20% deposit",
+        disabled: !hasReviewedDetails,
       },
     ];
   }, [hasReviewedDetails, isEmployee, bookingPolicy]);
 
   useEffect(() => {
-    if (isEmployee || !bookingPolicy) return;
-    const currentType = form.getValues("paymentType") as PaymentType;
-    const allowsFull = bookingPolicy.allowPublicFullPayment;
-    const allowsDownpayment = bookingPolicy.allowPublicDownpayment;
-
-    if (
-      (currentType === "FULL" && allowsFull) ||
-      (currentType === "DOWNPAYMENT" && allowsDownpayment)
-    ) {
-      return;
-    }
-
-    const fallback =
-      bookingPolicy.defaultPublicPaymentType === "DOWNPAYMENT" &&
-      allowsDownpayment
-        ? "DOWNPAYMENT"
-        : allowsFull
-          ? "FULL"
-          : allowsDownpayment
-            ? "DOWNPAYMENT"
-            : "FULL";
-
-    form.setValue("paymentType", fallback, { shouldValidate: true });
+    if (isEmployee) return;
+    form.setValue("paymentMethod", "ONLINE", { shouldValidate: true });
+    form.setValue("paymentType", "DOWNPAYMENT", { shouldValidate: true });
   }, [bookingPolicy, form, isEmployee]);
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
+        aria-busy={!isEmployee && (isPending || isRedirecting)}
         className={cn(
           "relative flex flex-col gap-6 lg:flex-row lg:gap-10",
           usesFixedMobileActionBar
@@ -1480,6 +1504,36 @@ export default function BookingForm({
             : "pb-0",
         )}
       >
+        {!isEmployee && (isPending || isRedirecting) && (
+          <div
+            className="fixed inset-0 z-[100] grid place-items-center bg-background/90 px-6 backdrop-blur-sm"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="w-full max-w-sm rounded-2xl border bg-card p-6 shadow-xl">
+              <div className="mb-5 flex items-center gap-3">
+                <span className="h-9 w-9 animate-pulse rounded-full bg-primary/15 motion-reduce:animate-none" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-3 w-3/4 animate-pulse rounded bg-primary/20 motion-reduce:animate-none" />
+                  <div className="h-2.5 w-1/2 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+                </div>
+              </div>
+              <p className="font-semibold text-foreground">
+                {isRedirecting
+                  ? "Opening payment instructions…"
+                  : "Reserving your appointment…"}
+              </p>
+              <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                {isRedirecting
+                  ? "Your slot is held. Please keep this page open."
+                  : "We’re checking availability and creating your payment hold."}
+              </p>
+              <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-muted">
+                <div className="h-full w-2/3 animate-pulse rounded-full bg-primary motion-reduce:animate-none" />
+              </div>
+            </div>
+          </div>
+        )}
         <div className={cn("min-w-0 flex-1 flex flex-col gap-7 sm:gap-9 pb-4")}>
           {/* Hidden Fields & Identification */}
           <FormField
@@ -1494,10 +1548,16 @@ export default function BookingForm({
             {/* Step progress bar */}
             {(() => {
               const steps = [
-                ...(!isEmployee ? [{ step: 0, label: "Verify", done: isOtpVerified }] : []),
+                ...(!isEmployee
+                  ? [{ step: 0, label: "Verify", done: isOtpVerified }]
+                  : []),
                 { step: 1, label: "Services", done: isStep1Complete },
                 { step: 2, label: "Date & Time", done: isStep3Complete },
-                { step: 3, label: claimStepEnabled ? "Claim" : "Staff", done: canAccessStep4 },
+                {
+                  step: 3,
+                  label: claimStepEnabled ? "Claim" : "Staff",
+                  done: canAccessStep4,
+                },
                 { step: 4, label: "Details", done: isCustomerDetailsComplete },
                 { step: 5, label: "Confirm", done: hasReviewedDetails },
               ];
@@ -1509,7 +1569,9 @@ export default function BookingForm({
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.08em]">
                       Booking Progress
                     </span>
-                    <span className="text-[10px] font-bold text-primary tabular-nums">{pct}%</span>
+                    <span className="text-[10px] font-bold text-primary tabular-nums">
+                      {pct}%
+                    </span>
                   </div>
                   <div className="h-1 w-full rounded-full bg-primary/10 overflow-hidden">
                     <div
@@ -1531,11 +1593,23 @@ export default function BookingForm({
                         )}
                       >
                         {item.done && (
-                          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 12 12">
-                            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <svg
+                            className="w-2.5 h-2.5"
+                            fill="none"
+                            viewBox="0 0 12 12"
+                          >
+                            <path
+                              d="M2 6l3 3 5-5"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         )}
-                        {item.step === 0 ? item.label : `${item.step}. ${item.label}`}
+                        {item.step === 0
+                          ? item.label
+                          : `${item.step}. ${item.label}`}
                       </span>
                     ))}
                   </div>
@@ -1556,11 +1630,18 @@ export default function BookingForm({
             >
               {/* Header */}
               <div className="flex items-center gap-2.5 mb-4">
-                <div className={cn(
-                  "flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition-all duration-300",
-                  isOtpVerified ? "bg-primary/15" : "bg-primary/10",
-                )}>
-                  <ShieldCheck className={cn("h-4 w-4", isOtpVerified ? "text-primary" : "text-primary")} />
+                <div
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition-all duration-300",
+                    isOtpVerified ? "bg-primary/15" : "bg-primary/10",
+                  )}
+                >
+                  <ShieldCheck
+                    className={cn(
+                      "h-4 w-4",
+                      isOtpVerified ? "text-primary" : "text-primary",
+                    )}
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-base tracking-tight leading-none">
@@ -1568,13 +1649,13 @@ export default function BookingForm({
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {isOtpVerified
-                      ? otpTier === "TRUSTED" ? "Returning customer — no code needed" : "One-time verification complete"
+                      ? "One-time verification complete"
                       : "Required to confirm your booking"}
                   </p>
                 </div>
                 {isOtpVerified && (
                   <span className="shrink-0 text-[10px] font-bold text-primary bg-primary/15 border border-primary/20 px-2 py-1 rounded-full uppercase tracking-wide">
-                    {otpTier === "TRUSTED" ? "Trusted" : "Verified"}
+                    Verified
                   </span>
                 )}
               </div>
@@ -1594,9 +1675,13 @@ export default function BookingForm({
                     </div>
                     <div className="flex-1 min-w-0">
                       {otpCustomerName && (
-                        <p className="text-sm font-semibold text-foreground truncate">{otpCustomerName}</p>
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {otpCustomerName}
+                        </p>
                       )}
-                      <p className="text-xs text-muted-foreground">{otpPhone}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {otpPhone}
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -1610,7 +1695,9 @@ export default function BookingForm({
                         setOtpCustomerName(undefined);
                         setOtpCustomerEmail(undefined);
                         setOtpPrefilled(false);
-                        form.setValue("customerName", "", { shouldValidate: false });
+                        form.setValue("customerName", "", {
+                          shouldValidate: false,
+                        });
                         form.setValue("email", "", { shouldValidate: false });
                         form.setValue("phone", "", { shouldValidate: false });
                       }}
@@ -1621,7 +1708,8 @@ export default function BookingForm({
                   </div>
                   {otpCustomerName && (
                     <p className="text-xs text-primary font-medium pl-0.5">
-                      Welcome back, {otpCustomerName.split(" ")[0]}! Your details have been pre-filled below.
+                      Welcome back, {otpCustomerName.split(" ")[0]}! Your
+                      details have been pre-filled below.
                     </p>
                   )}
                 </div>
@@ -1630,7 +1718,7 @@ export default function BookingForm({
                   {!otpTier && (
                     <>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        Enter your mobile number to continue. Returning customers skip verification automatically.
+                        Enter your mobile number to receive a verification code.
                       </p>
                       <div className="flex gap-2">
                         <div className="relative flex-1">
@@ -1640,8 +1728,13 @@ export default function BookingForm({
                           <input
                             type="tel"
                             value={otpPhone}
-                            onChange={(e) => { setOtpPhone(e.target.value); setOtpError(null); }}
-                            onKeyDown={(e) => e.key === "Enter" && handleCheckTrust()}
+                            onChange={(e) => {
+                              setOtpPhone(e.target.value);
+                              setOtpError(null);
+                            }}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" && handleCheckTrust()
+                            }
                             placeholder="9XX XXX XXXX"
                             className="flex h-11 w-full rounded-lg border border-input bg-background pl-11 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
                           />
@@ -1664,20 +1757,26 @@ export default function BookingForm({
 
                   {otpTier === "RESTRICTED" && (
                     <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-1">
-                      <p className="text-sm font-semibold text-destructive">Account Restricted</p>
+                      <p className="text-sm font-semibold text-destructive">
+                        Account Restricted
+                      </p>
                       <p className="text-sm text-destructive/80">
-                        Your account has been flagged due to missed appointments.
-                        Please contact the business directly to book.
+                        Your account has been flagged due to missed
+                        appointments. Please contact the business directly to
+                        book.
                       </p>
                     </div>
                   )}
 
-                  {otpTier === "NEW" && (
+                  {otpTier && otpTier !== "RESTRICTED" && (
                     <div className="space-y-3 animate-in fade-in duration-200">
                       <div className="flex items-center gap-2 rounded-lg bg-muted/40 border px-3 py-2">
                         <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span className="text-sm text-muted-foreground">
-                          Sending to <span className="font-semibold text-foreground">{otpPhone}</span>
+                          Sending to{" "}
+                          <span className="font-semibold text-foreground">
+                            {otpPhone}
+                          </span>
                         </span>
                       </div>
 
@@ -1689,7 +1788,10 @@ export default function BookingForm({
                           className="w-full h-11 cursor-pointer"
                         >
                           {isSendingOtp ? (
-                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sending code…</>
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Sending code…
+                            </>
                           ) : otpCooldown > 0 ? (
                             `Resend in ${otpCooldown}s`
                           ) : (
@@ -1698,15 +1800,22 @@ export default function BookingForm({
                         </Button>
                       ) : (
                         <div className="space-y-2.5">
-                          <p className="text-xs text-muted-foreground">Enter the 6-digit code we sent you:</p>
+                          <p className="text-xs text-muted-foreground">
+                            Enter the 6-digit code we sent you:
+                          </p>
                           <div className="flex gap-2">
                             <input
                               type="text"
                               inputMode="numeric"
                               maxLength={6}
                               value={otpCode}
-                              onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, "")); setOtpError(null); }}
-                              onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()}
+                              onChange={(e) => {
+                                setOtpCode(e.target.value.replace(/\D/g, ""));
+                                setOtpError(null);
+                              }}
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && handleVerifyOtp()
+                              }
                               placeholder="· · · · · ·"
                               className="flex h-12 w-full rounded-lg border border-input bg-background px-4 py-2 text-center text-lg tracking-[0.5em] font-mono ring-offset-background placeholder:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
                             />
@@ -1729,7 +1838,9 @@ export default function BookingForm({
                             disabled={isSendingOtp || otpCooldown > 0}
                             className="text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {otpCooldown > 0 ? `Resend in ${otpCooldown}s` : "Didn't receive it? Resend"}
+                            {otpCooldown > 0
+                              ? `Resend in ${otpCooldown}s`
+                              : "Didn't receive it? Resend"}
                           </button>
                         </div>
                       )}
@@ -1766,7 +1877,8 @@ export default function BookingForm({
                 <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
                   <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                   <p className="text-xs text-primary/80 leading-relaxed">
-                    We pre-filled your details from a previous booking. Feel free to update anything that&apos;s changed.
+                    We pre-filled your details from a previous booking. Feel
+                    free to update anything that&apos;s changed.
                   </p>
                 </div>
               )}
@@ -1859,7 +1971,8 @@ export default function BookingForm({
                             />
                           </FormControl>
                           <p className="text-xs text-muted-foreground">
-                            Optional — we&apos;ll send your booking confirmation here.
+                            Optional — we&apos;ll send your booking confirmation
+                            here.
                           </p>
                           <FormMessage />
                         </FormItem>
@@ -1876,7 +1989,9 @@ export default function BookingForm({
                         {isOtpVerified ? (
                           <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/[0.04] px-3 py-2.5">
                             <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="text-sm font-medium text-primary">{otpPhone}</span>
+                            <span className="text-sm font-medium text-primary">
+                              {otpPhone}
+                            </span>
                             <span className="ml-auto text-[10px] font-semibold text-primary bg-primary/15 px-1.5 py-0.5 rounded-full">
                               Verified
                             </span>
@@ -1884,10 +1999,15 @@ export default function BookingForm({
                         ) : (
                           <>
                             <FormControl>
-                              <Input type="tel" placeholder="+63 9XX XXX XXXX" {...field} />
+                              <Input
+                                type="tel"
+                                placeholder="+63 9XX XXX XXXX"
+                                {...field}
+                              />
                             </FormControl>
                             <p className="text-xs text-muted-foreground">
-                              Optional — so we can contact you if we need to clarify your booking.
+                              Optional — so we can contact you if we need to
+                              clarify your booking.
                             </p>
                             <FormMessage />
                           </>
@@ -2041,9 +2161,9 @@ export default function BookingForm({
                           <DatePicker
                             value={field.value as Date | undefined}
                             onChange={(date: Date | undefined) => {
-                                field.onChange(date);
-                                form.setValue("selectedTime", undefined);
-                              }}
+                              field.onChange(date);
+                              form.setValue("selectedTime", undefined);
+                            }}
                             minDate={new Date()}
                             maxDate={maxBookingDate}
                             placeholder="Pick a date"
@@ -2125,7 +2245,9 @@ export default function BookingForm({
                     <Zap
                       className={cn(
                         "h-4 w-4 shrink-0 transition-colors",
-                        effectiveIsWalkIn ? "text-primary" : "text-muted-foreground",
+                        effectiveIsWalkIn
+                          ? "text-primary"
+                          : "text-muted-foreground",
                       )}
                     />
                     <span className="text-sm font-medium text-foreground">
@@ -2136,7 +2258,9 @@ export default function BookingForm({
                     aria-hidden="true"
                     className={cn(
                       "w-9 h-5 flex items-center rounded-full p-0.5 shrink-0 transition-colors duration-300",
-                      effectiveIsWalkIn ? "bg-primary" : "bg-muted-foreground/30",
+                      effectiveIsWalkIn
+                        ? "bg-primary"
+                        : "bg-muted-foreground/30",
                     )}
                   >
                     <div
@@ -2205,7 +2329,9 @@ export default function BookingForm({
                   eyebrow="What time"
                   title="Pick a slot"
                   icon={Clock}
-                  count={timeSlots.filter((s) => s.available).length || undefined}
+                  count={
+                    timeSlots.filter((s) => s.available).length || undefined
+                  }
                 />
 
                 <FormField
@@ -2222,8 +2348,8 @@ export default function BookingForm({
                           alternativeSlots={alternativeSlots}
                           value={field.value}
                           onChange={(time: Date) => {
-                              field.onChange(time);
-                            }}
+                            field.onChange(time);
+                          }}
                           isLoading={isLoadingSlots}
                           disabled={selectedServices.length === 0}
                           emptyTitle={slotEmptyState.title}
@@ -2505,8 +2631,12 @@ export default function BookingForm({
                 <div className="flex items-center justify-between text-base">
                   <span className="font-bold">Booking Summary</span>
                   {selectedServices.length > 0 && (
-                    <Badge variant="secondary" className="font-medium text-xs bg-primary/10 text-primary border-primary/20">
-                      {selectedServices.length} {selectedServices.length === 1 ? "service" : "services"}
+                    <Badge
+                      variant="secondary"
+                      className="font-medium text-xs bg-primary/10 text-primary border-primary/20"
+                    >
+                      {selectedServices.length}{" "}
+                      {selectedServices.length === 1 ? "service" : "services"}
                     </Badge>
                   )}
                 </div>
@@ -2523,13 +2653,17 @@ export default function BookingForm({
                 {selectedServices.length > 0 && (
                   <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
                     {selectedServices.some(
-                      (s) => s.slotsRemaining !== null && s.slotsRemaining !== undefined && s.slotsRemaining > 0 && s.slotsRemaining <= 3,
+                      (s) =>
+                        s.slotsRemaining !== null &&
+                        s.slotsRemaining !== undefined &&
+                        s.slotsRemaining > 0 &&
+                        s.slotsRemaining <= 3,
                     ) && (
                       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 flex items-start gap-2">
                         <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                         <span>
-                          Limited promo slots remaining — complete your booking to
-                          secure the sale price.
+                          Limited promo slots remaining — complete your booking
+                          to secure the sale price.
                         </span>
                       </div>
                     )}
@@ -2538,7 +2672,8 @@ export default function BookingForm({
                       <div className="space-y-4 pt-1 border-t border-border/60">
                         {!hasReviewedDetails && (
                           <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 mt-4">
-                            Complete Step 6 (Review &amp; Payment) to unlock payment.
+                            Complete Step 6 (Review &amp; Payment) to unlock
+                            payment.
                           </div>
                         )}
                         <FormField
@@ -2561,6 +2696,71 @@ export default function BookingForm({
                             </FormItem>
                           )}
                         />
+
+                        {!isEmployee &&
+                          (gcash?.accountName && gcash.mobileNumber ? (
+                            <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] p-4">
+                              <div className="space-y-4">
+                                {gcash.qrImageUrl ? (
+                                  <div className="mx-auto w-full max-w-[240px] space-y-2.5">
+                                    <div className="overflow-hidden rounded-2xl border border-border/70 bg-white p-3 shadow-sm">
+                                      <Image
+                                        src={gcash.qrImageUrl}
+                                        alt={`GCash QR code for ${gcash.accountName}`}
+                                        width={720}
+                                        height={720}
+                                        unoptimized
+                                        className="aspect-square w-full object-contain"
+                                      />
+                                    </div>
+                                    <Button
+                                      asChild
+                                      type="button"
+                                      variant="outline"
+                                      className="h-10 w-full rounded-xl bg-white"
+                                    >
+                                      <a
+                                        href={`/api/public/gcash-qr?businessSlug=${encodeURIComponent(businessSlug)}`}
+                                        download
+                                      >
+                                        <Download className="mr-2 size-4" />
+                                        Download QR
+                                      </a>
+                                    </Button>
+                                  </div>
+                                ) : null}
+                                <div className="min-w-0 space-y-2">
+                                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                                    20% GCash deposit
+                                  </p>
+                                  <div>
+                                    <p className="font-semibold text-foreground">
+                                      {gcash.accountName}
+                                    </p>
+                                    <p className="font-mono text-sm text-muted-foreground">
+                                      {gcash.mobileNumber}
+                                    </p>
+                                  </div>
+                                  {gcash.instructions ? (
+                                    <p className="text-xs leading-relaxed text-muted-foreground">
+                                      {gcash.instructions}
+                                    </p>
+                                  ) : null}
+                                </div>
+                                <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900">
+                                  Do not send payment yet. Select{" "}
+                                  <strong>Reserve &amp; Pay</strong> first to
+                                  hold your slot and start the 30-minute payment
+                                  timer.
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+                              Online booking is temporarily unavailable because
+                              this salon has not configured its GCash account.
+                            </div>
+                          ))}
 
                         {isEmployee && (
                           <FormField
@@ -2645,10 +2845,13 @@ export default function BookingForm({
                                 </span>
                                 <span className="ml-auto font-bold tabular-nums">
                                   -₱
-                                  {appliedVoucher.discountAmount.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  })}
+                                  {appliedVoucher.discountAmount.toLocaleString(
+                                    undefined,
+                                    {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    },
+                                  )}
                                 </span>
                               </div>
                             )}
@@ -2661,7 +2864,8 @@ export default function BookingForm({
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span className="font-medium tabular-nums">
-                          ₱{total.toLocaleString(undefined, {
+                          ₱
+                          {total.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -2674,10 +2878,14 @@ export default function BookingForm({
                             <Ticket className="w-3.5 h-3.5" /> Voucher Discount
                           </span>
                           <span className="font-medium tabular-nums">
-                            -₱{appliedVoucher.discountAmount.toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                            -₱
+                            {appliedVoucher.discountAmount.toLocaleString(
+                              undefined,
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              },
+                            )}
                           </span>
                         </div>
                       )}
@@ -2688,10 +2896,14 @@ export default function BookingForm({
                             <div className="flex justify-between items-center text-xs text-muted-foreground">
                               <span>Balance (pay later)</span>
                               <span className="tabular-nums">
-                                ₱{(finalTotal - finalAmountToPay).toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })}
+                                ₱
+                                {(finalTotal - finalAmountToPay).toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  },
+                                )}
                               </span>
                             </div>
                           </>
@@ -2699,12 +2911,11 @@ export default function BookingForm({
 
                       <div className="flex justify-between items-baseline pt-3 mt-1 border-t border-border/60">
                         <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                          {paymentType === "DOWNPAYMENT"
-                            ? "Due Now"
-                            : "Total"}
+                          {paymentType === "DOWNPAYMENT" ? "Due Now" : "Total"}
                         </span>
                         <span className="text-2xl font-bold text-primary tabular-nums tracking-tight">
-                          ₱{totalWithFee.toLocaleString(undefined, {
+                          ₱
+                          {totalWithFee.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -2809,8 +3020,8 @@ export default function BookingForm({
                 )}
                 {pendingDuplicate?.nameMismatch && (
                   <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-2 leading-relaxed">
-                    Heads-up: the name you typed doesn&apos;t match this
-                    record. Double-check before linking.
+                    Heads-up: the name you typed doesn&apos;t match this record.
+                    Double-check before linking.
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground">
@@ -2821,9 +3032,7 @@ export default function BookingForm({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel className="sm:order-1">
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel className="sm:order-1">Cancel</AlertDialogCancel>
             <button
               type="button"
               onClick={handleConfirmCreateAnyway}

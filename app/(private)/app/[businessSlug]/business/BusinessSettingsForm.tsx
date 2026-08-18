@@ -31,6 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { GcashQrUpload } from "@/components/business/GcashQrUpload";
 import LocationInputGroup from "@/components/business/LocationInputGroup";
 import { updateBusinessAction } from "@/lib/server actions/business-settings";
 import { disconnectSocialConnectionAction } from "@/lib/server actions/social";
@@ -72,6 +73,10 @@ interface BusinessSettingsFormProps {
     manager_can_serve: boolean;
     timezone: string;
     formal_schedule_enabled: boolean;
+    gcash_account_name: string | null;
+    gcash_mobile_number: string | null;
+    gcash_qr_image_url: string | null;
+    gcash_instructions: string | null;
     growth_settings: {
       business_type: BusinessType;
       max_discount_percent: number;
@@ -269,6 +274,31 @@ export function BusinessSettingsForm({
               This is your unique identifier used in the URL. Only admins can
               change this.
             </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl border-zinc-200/60 shadow-sm overflow-hidden">
+        <CardHeader className="bg-white border-b border-zinc-100 p-6">
+          <CardTitle className="text-xl font-bold text-foreground">GCash booking payments</CardTitle>
+          <CardDescription>Public booking is available only after the account name and mobile number are configured.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 bg-white p-6 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="gcashAccountName">Account name</Label>
+            <Input id="gcashAccountName" name="gcashAccountName" defaultValue={business.gcash_account_name ?? ""} maxLength={100} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="gcashMobileNumber">Mobile number</Label>
+            <Input id="gcashMobileNumber" name="gcashMobileNumber" inputMode="tel" placeholder="09XXXXXXXXX" defaultValue={business.gcash_mobile_number ?? ""} />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <Label>GCash QR image (optional)</Label>
+            <GcashQrUpload defaultValue={business.gcash_qr_image_url} />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="gcashInstructions">Customer instructions (optional)</Label>
+            <Textarea id="gcashInstructions" name="gcashInstructions" maxLength={500} defaultValue={business.gcash_instructions ?? ""} placeholder="Include the booking reference in your payment note." />
           </div>
         </CardContent>
       </Card>

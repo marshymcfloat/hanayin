@@ -64,7 +64,7 @@ interface CreateBookingParams {
     reason: CapacityOverrideReason;
     note?: string;
   };
-  /** OTP verification ID from verifyBookingOtp — required for public bookings by NEW customers. */
+  /** OTP verification ID from verifyBookingOtp — required for every public booking. */
   otpVerificationId?: number;
   /**
    * Staff-only: skip Customer creation entirely. customer_id will be null on
@@ -212,29 +212,35 @@ export async function createBooking({
     metricBusinessId = accessState.businessId;
     metricIsPublicBooking = !session;
 
+    if (!session) {
+      if (paymentMethod !== "ONLINE" || paymentType !== "DOWNPAYMENT") {
+        throw new Error("Public bookings require a 20% GCash deposit.");
+      }
+    }
+
     // --- OTP / trust-tier gate for public bookings ---
-    if (!session && phone) {
+    if (!session) {
+      if (!phone) {
+        throw new Error("OTP_REQUIRED");
+      }
       const trust = await resolveCustomerTrust(phone, businessSlug);
 
       if (trust.tier === "RESTRICTED") {
         throw new Error("CUSTOMER_RESTRICTED");
       }
 
-      if (trust.tier === "NEW") {
-        if (!otpVerificationId) {
-          throw new Error("OTP_REQUIRED");
-        }
-        // Consume the OTP inside the same DB operation — consumeOtpVerification
-        // is called here (non-transactional); the OTP validity window is 10 min
-        // which is already enforced by the expires_at check inside the function.
-        const valid = await consumeOtpVerification(
-          otpVerificationId,
-          phone,
-          accessState.businessId!,
-        );
-        if (!valid) {
-          throw new Error("OTP_INVALID_OR_EXPIRED");
-        }
+      if (!otpVerificationId) {
+        throw new Error("OTP_REQUIRED");
+      }
+      // A trust tier describes booking history, not ownership of this phone.
+      // Every public booking therefore consumes a fresh verification.
+      const valid = await consumeOtpVerification(
+        otpVerificationId,
+        phone,
+        accessState.businessId!,
+      );
+      if (!valid) {
+        throw new Error("OTP_INVALID_OR_EXPIRED");
       }
     }
 

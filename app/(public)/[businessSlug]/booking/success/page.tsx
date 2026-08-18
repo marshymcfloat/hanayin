@@ -22,6 +22,7 @@ import {
   verifyBookingSuccessToken,
 } from "@/lib/security/booking-success-token";
 import { getBookingPaymentDisplay } from "@/lib/utils/booking-payment-display";
+import { GcashPaymentSubmission } from "@/components/bookings/GcashPaymentSubmission";
 
 type BookingSuccessSearchParams = {
   bookingId?: string | string[];
@@ -42,7 +43,7 @@ const escapeIcsText = (value: string) =>
     .replace(/;/g, "\\;");
 
 export const metadata: Metadata = {
-  title: "Booking Confirmed | Service Flow",
+  title: "Booking Payment | Service Flow",
   description:
     "Your booking is confirmed. Thank you for choosing Service Flow.",
   robots: {
@@ -91,12 +92,16 @@ async function BookingSuccessContent({
         },
         select: {
           id: true,
+          status: true,
+          cancellation_reason: true,
+          hold_expires_at: true,
           scheduled_at: true,
           estimated_end: true,
           payment_method: true,
           grand_total: true,
           amount_paid: true,
-          business: { select: { name: true } },
+          business: { select: { name: true, gcash_account_name: true, gcash_mobile_number: true, gcash_qr_image_url: true, gcash_instructions: true } },
+          payments: { orderBy: { created_at: "desc" }, take: 1, select: { status: true, amount_principal: true, submitted_at: true, expires_at: true, rejection_reason: true } },
           availed_services: {
             select: { service: { select: { name: true } } },
           },
@@ -121,9 +126,21 @@ async function BookingSuccessContent({
         amountPaid: booking.amount_paid,
       })
     : null;
+  const payment = booking?.payments[0];
+  const stateLabel = booking?.status === "HOLD"
+    ? payment?.submitted_at ? "Awaiting payment verification" : "Awaiting payment"
+    : booking?.status === "ACCEPTED" ? "Booking confirmed"
+    : booking?.status === "CANCELLED" && payment?.status === "FAILED" ? "Payment rejected"
+    : booking?.status === "CANCELLED" ? "Booking expired or cancelled"
+    : "Booking complete";
+  const stateTitle = booking?.status === "HOLD"
+    ? payment?.submitted_at ? "The salon is checking your payment." : "Complete your GCash deposit."
+    : booking?.status === "ACCEPTED" ? "You’re all set, see you soon."
+    : booking?.status === "CANCELLED" ? "This appointment is not confirmed."
+    : "Your appointment is complete.";
 
   const calendarHref =
-    booking && scheduledAt && estimatedEnd
+    booking?.status === "ACCEPTED" && scheduledAt && estimatedEnd
       ? (() => {
           const servicesLabel =
             serviceNames.length > 0 ? serviceNames.join(", ") : "Appointment";
@@ -180,7 +197,7 @@ async function BookingSuccessContent({
         <div className="flex flex-col gap-4 p-6 sm:p-8">
           <div className="flex items-start justify-between gap-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-50/85">
-              Booking confirmed
+              {stateLabel}
             </p>
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/15 ring-1 ring-inset ring-white/20 backdrop-blur-sm">
               <CheckCircle2 className="size-4" />
@@ -189,7 +206,7 @@ async function BookingSuccessContent({
 
           <div>
             <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-3xl">
-              You&rsquo;re all set, see you soon.
+              {stateTitle}
             </h1>
             <p className="mt-2 text-sm text-emerald-100/85">
               {scheduledAt ? (
@@ -233,6 +250,21 @@ async function BookingSuccessContent({
           title="Booking details"
         />
         <PortalCardBody className="space-y-5">
+          {booking?.status === "HOLD" && booking.payments[0] && booking.hold_expires_at && booking.business.gcash_account_name && booking.business.gcash_mobile_number ? (
+            <GcashPaymentSubmission
+              bookingId={booking.id}
+              businessSlug={businessSlug}
+              token={token}
+              amount={booking.payments[0].amount_principal}
+              expiresAt={(booking.payments[0].expires_at ?? booking.hold_expires_at).toISOString()}
+              submittedAt={booking.payments[0].submitted_at?.toISOString()}
+              accountName={booking.business.gcash_account_name}
+              mobileNumber={booking.business.gcash_mobile_number}
+              qrImageUrl={booking.business.gcash_qr_image_url}
+              instructions={booking.business.gcash_instructions}
+            />
+          ) : null}
+          {booking?.status === "CANCELLED" ? <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">{payment?.rejection_reason || booking.cancellation_reason || "The payment window expired. Contact the salon if you already sent money."}</div> : null}
           {booking ? (
             <>
               {estimatedEnd ? (
@@ -321,7 +353,7 @@ async function BookingSuccessContent({
             customer can come back and cancel / reschedule from this URL
             up until the 6-hour cutoff. Issued only when the success-page
             token already verified, so we're not leaking it to randoms. */}
-        {booking ? (
+        {booking && booking.status === "ACCEPTED" ? (
           <Button
             asChild
             variant="outline"
@@ -379,9 +411,7 @@ async function BookingSuccessContent({
         </div>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground">
-        A confirmation email has been sent to your inbox.
-      </p>
+      <p className="text-center text-xs text-muted-foreground">{booking?.status === "HOLD" ? "A confirmation SMS is sent only after the salon verifies payment." : "A confirmation message has been sent."}</p>
     </div>
   );
 }

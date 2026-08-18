@@ -7,6 +7,9 @@ import { connection } from "next/server";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookingStatus } from "@/prisma/generated/prisma/enums";
 import { requireTenantAccess } from "@/lib/auth/guards";
+import { resolveTenantActorContext } from "@/lib/auth/staff-access";
+import { GcashFollowUpQueue, GcashVerificationQueue } from "@/components/dashboard/shared/GcashVerificationQueue";
+import { getGcashVerificationQueueAction } from "@/lib/server actions/manual-gcash";
 
 function BookingsPageSkeleton() {
   return (
@@ -140,6 +143,8 @@ async function BookingsContent({
     },
   };
 
+  const actor = await resolveTenantActorContext(businessSlug, auth.session.user.id);
+  const canVerify = actor.success && actor.actorType === "OWNER";
   const [totalBookings, bookings] = await prisma.$transaction([
     prisma.booking.count(whereClause),
     prisma.booking.findMany({
@@ -160,6 +165,11 @@ async function BookingsContent({
           },
         },
         vouchers: true,
+        payments: {
+          orderBy: { created_at: "desc" },
+          take: 1,
+          include: { verified_by: { select: { name: true } } },
+        },
       },
       orderBy: {
         created_at: "desc",
@@ -200,7 +210,22 @@ async function BookingsContent({
     .map((signal) => Number.parseInt(signal.aggregate_id, 10))
     .filter(Number.isFinite);
 
+  const verificationData = canVerify
+    ? await getGcashVerificationQueueAction(businessSlug)
+    : null;
+  const verificationItems = verificationData?.success
+    ? verificationData.verificationItems
+    : [];
+  const followUpItems = verificationData?.success
+    ? verificationData.followUpItems
+    : [];
+
   return (
+    <>
+    <div className="px-4 pt-5 sm:px-8">
+      <GcashVerificationQueue businessSlug={businessSlug} items={verificationItems} />
+      <GcashFollowUpQueue businessSlug={businessSlug} items={followUpItems} />
+    </div>
     <BookingList
       key={`${businessSlug}:${status}:${searchTerm}:${currentPage}`}
       bookings={bookings}
@@ -216,5 +241,6 @@ async function BookingsContent({
         status: status === "ALL" ? "ALL" : status,
       }}
     />
+    </>
   );
 }

@@ -50,6 +50,10 @@ model Business {
   structure                          BusinessStructure @default(OWNER_EMPLOYEE_SELF_SERVICE)
   allow_employee_self_booking        Boolean           @default(true)
   manager_can_serve                  Boolean           @default(true)
+  gcash_account_name                 String?
+  gcash_mobile_number                String?
+  gcash_qr_image_url                 String?
+  gcash_instructions                 String?
 
   services                          Service[]
   employees                         Employee[]
@@ -130,6 +134,7 @@ enum StaffProfile {
 enum StaffPermission {
   BOOKING_CREATE
   PAYMENT_COLLECT
+  PAYMENT_VERIFY
   QUEUE_CLAIM_SELF
   QUEUE_SERVE_SELF
   QUEUE_OVERRIDE_ALL
@@ -547,6 +552,7 @@ model User {
   submitted_social_post_requests          SocialPostRequest[]              @relation("SocialPostRequestRequestedBy")
   reviewed_social_post_requests           SocialPostRequest[]              @relation("SocialPostRequestReviewedBy")
   uploaded_brand_assets                   BrandAsset[]                     @relation("BrandAssetsUploadedBy")
+  booking_payments_verified               BookingPayment[]                 @relation("BookingPaymentVerifiedBy")
 
   must_change_password     Boolean   @default(false)
   temp_password_expires_at DateTime?
@@ -581,7 +587,7 @@ model Employee {
   served_services AvailedService[]
   payslips        Payslip[]
   leave_requests  LeaveRequest[]
-  brand_assets    BrandAsset[]   @relation("EmployeeBrandAssets")
+  brand_assets    BrandAsset[]     @relation("EmployeeBrandAssets")
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
@@ -600,12 +606,10 @@ model Employee {
  * employee with zero rows falls back to the default behavior
  * (recurring_days_off + business hours) even when the flag is on, so
  * tenants can opt employees in incrementally.
- *
  * `start_time` / `end_time` are "HH:MM" strings in the business's
  * timezone — same shape as BusinessHours, intentionally consistent.
  * Multiple rows per (employee, day_of_week) are allowed to model
  * split shifts (e.g. morning + evening with a midday break).
- *
  * No admin UI ships in this iteration — managed via Prisma Studio or
  * a future settings screen. Schema and slot integration only.
  */
@@ -614,7 +618,7 @@ model EmployeeSchedule {
   employee_id Int
   employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
-  day_of_week Int    // 0 = Sunday, 6 = Saturday
+  day_of_week Int // 0 = Sunday, 6 = Saturday
   start_time  String // "09:00"
   end_time    String // "17:00"
 
@@ -705,9 +709,9 @@ model SpecialDate {
 // Postgres conditional NOT NULL needs CHECK constraints we'd rather
 // keep loose for migration ergonomics.
 model BrandAsset {
-  id          String         @id @default(cuid())
+  id          String   @id @default(cuid())
   business_id String
-  business    Business       @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   kind BrandAssetKind
 
@@ -722,14 +726,14 @@ model BrandAsset {
   // (e.g. CDN swap) without losing the original key.
   storage_key String?
 
-  service_id  Int?
-  service     Service?       @relation("ServiceBrandAssets", fields: [service_id], references: [id], onDelete: Cascade)
+  service_id Int?
+  service    Service? @relation("ServiceBrandAssets", fields: [service_id], references: [id], onDelete: Cascade)
 
   employee_id Int?
-  employee    Employee?      @relation("EmployeeBrandAssets", fields: [employee_id], references: [id], onDelete: Cascade)
+  employee    Employee? @relation("EmployeeBrandAssets", fields: [employee_id], references: [id], onDelete: Cascade)
 
   uploaded_by_user_id String?
-  uploaded_by         User?  @relation("BrandAssetsUploadedBy", fields: [uploaded_by_user_id], references: [id], onDelete: SetNull)
+  uploaded_by         User?   @relation("BrandAssetsUploadedBy", fields: [uploaded_by_user_id], references: [id], onDelete: SetNull)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1023,7 +1027,7 @@ model PlatformActionLog {
   id String @id @default(cuid())
 
   actor_user_id    String?
-  actor_user       User?    @relation("PlatformActorUser", fields: [actor_user_id], references: [id], onDelete: SetNull)
+  actor_user       User?   @relation("PlatformActorUser", fields: [actor_user_id], references: [id], onDelete: SetNull)
   // Identifier of the actor as recorded at log time (phone or email). Was
   // previously named `actor_email` but actually stored phone numbers, which
   // broke filter/redaction tooling that assumed the column was email-shaped.
@@ -1060,7 +1064,7 @@ model Service {
   sale_events      SaleEvent[]
   package_items    PackageItem[]
   gift_card_items  GiftCardService[]
-  brand_assets     BrandAsset[]    @relation("ServiceBrandAssets")
+  brand_assets     BrandAsset[]      @relation("ServiceBrandAssets")
 
   flow_triggers    ServiceFlow[] @relation("FlowTrigger")
   flow_suggestions ServiceFlow[] @relation("FlowSuggestion")
@@ -1267,15 +1271,31 @@ model BookingPayment {
   amount_principal Float
   amount_charged   Float
 
-  expires_at DateTime?
-  paid_at    DateTime?
-  metadata   Json?
+  expires_at          DateTime?
+  paid_at             DateTime?
+  payer_name          String?
+  provider_reference  String?
+  submitted_at        DateTime?
+  verified_at         DateTime?
+  verified_by_user_id String?
+  verified_by         User?     @relation("BookingPaymentVerifiedBy", fields: [verified_by_user_id], references: [id], onDelete: SetNull)
+  rejection_reason    String?
+  escalated_at        DateTime?
+  escalation_reason  String?
+  follow_up_required_at DateTime?
+  resolution_resolved_at DateTime?
+  resolution_outcome String?
+  resolution_note    String?
+  metadata            Json?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@index([booking_id, status])
   @@index([status, payment_method, created_at])
+  @@index([status, submitted_at, expires_at])
+  @@index([follow_up_required_at, resolution_resolved_at])
+  @@index([provider_reference])
   @@index([created_at])
 }
 

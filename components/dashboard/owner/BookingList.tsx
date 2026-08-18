@@ -12,6 +12,7 @@ import {
   User,
   Voucher,
   Owner,
+  BookingPayment,
 } from "@/prisma/generated/prisma/client";
 import { Input } from "@/components/ui/input";
 import {
@@ -63,6 +64,7 @@ import {
 } from "@/components/bookings/BookingQuickPanel";
 import { useViewer } from "@/lib/auth/viewer-context";
 import { cn } from "@/lib/utils";
+import { BOOKING_PAYMENT_STAGE_LABELS, deriveBookingPaymentStage, type BookingPaymentStage } from "@/lib/utils/booking-payment-stage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,6 +77,7 @@ import {
 type BookingWithDetails = Booking & {
   customer: Customer | null;
   vouchers: Voucher[];
+  payments?: BookingPayment[];
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
@@ -170,17 +173,19 @@ export function BookingList({
         booking.id.toString().includes(searchLower) ||
         (booking.customer?.phone &&
           booking.customer.phone.includes(searchLower));
-      const matchesStatus = statusFilter === "ALL" || booking.status === statusFilter;
+      const stage = deriveBookingPaymentStage(booking);
+      const matchesStatus = statusFilter === "ALL" || stage === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [bookings, search, statusFilter]);
 
-  const getStatusClass = (status: BookingStatus) => {
-    switch (status) {
-      case "ACCEPTED":
+  const getStatusClass = (stage: BookingPaymentStage) => {
+    switch (stage) {
+      case "CONFIRMED":
         return "border-blue-300 bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800";
       case "COMPLETED":
         return "border-primary/30 bg-primary/10 text-primary";
+      case "REJECTED":
       case "CANCELLED":
         return "border-destructive/30 bg-destructive/10 text-destructive";
       default:
@@ -324,8 +329,13 @@ export function BookingList({
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl">
                   <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="ACCEPTED">Accepted</SelectItem>
+                  <SelectItem value="AWAITING_PAYMENT">Awaiting payment</SelectItem>
+                  <SelectItem value="AWAITING_VERIFICATION">Awaiting verification</SelectItem>
+                  <SelectItem value="NEEDS_RESOLUTION">Needs resolution</SelectItem>
+                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
                   <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="REJECTED">Rejected</SelectItem>
+                  <SelectItem value="EXPIRED">Expired</SelectItem>
                   <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
@@ -363,8 +373,8 @@ export function BookingList({
                           </span>
                         </div>
                       </div>
-                      <Badge variant="outline" className={cn("text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg", getStatusClass(booking.status))}>
-                        {booking.status}
+                      <Badge variant="outline" className={cn("text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg", getStatusClass(deriveBookingPaymentStage(booking)))}>
+                        {BOOKING_PAYMENT_STAGE_LABELS[deriveBookingPaymentStage(booking)]}
                       </Badge>
                     </div>
 
@@ -468,8 +478,8 @@ export function BookingList({
                         </TableCell>
                         <TableCell className="py-4">
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg", getStatusClass(booking.status))}>
-                              {booking.status}
+                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg", getStatusClass(deriveBookingPaymentStage(booking)))}>
+                              {BOOKING_PAYMENT_STAGE_LABELS[deriveBookingPaymentStage(booking)]}
                             </Badge>
                             {booking.status === "ACCEPTED" && (booking.downpayment || 0) > 0 && booking.grand_total > (booking.downpayment || 0) && (
                               <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800 text-[10px] px-2 py-0.5 font-medium rounded-md">

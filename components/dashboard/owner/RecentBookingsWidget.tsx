@@ -5,25 +5,27 @@ import { formatPH } from "@/lib/date-utils";
 import {
   Booking,
   Customer,
-  BookingStatus,
   AvailedService,
   Service,
   Employee,
   User,
   Voucher,
   Owner,
+  BookingPayment,
 } from "@/prisma/generated/prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
+import { BOOKING_PAYMENT_STAGE_LABELS, deriveBookingPaymentStage, type BookingPaymentStage } from "@/lib/utils/booking-payment-stage";
 
 type BookingWithDetails = Booking & {
   // customer can be null on anonymous walk-ins. The widget falls back to the
   // customer_label via getBookingCustomerName.
   customer: Customer | null;
   vouchers: Voucher[];
+  payments?: BookingPayment[];
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
@@ -38,18 +40,15 @@ interface RecentBookingsWidgetProps {
   compact?: boolean;
 }
 
-const STATUS_STYLES: Record<BookingStatus, string> = {
-  HOLD: "bg-muted text-muted-foreground border-border",
-  ACCEPTED: "bg-blue-50 text-blue-700 border-blue-200",
+const STATUS_STYLES: Record<BookingPaymentStage, string> = {
+  AWAITING_PAYMENT: "bg-amber-50 text-amber-700 border-amber-200",
+  AWAITING_VERIFICATION: "bg-amber-50 text-amber-800 border-amber-300",
+  NEEDS_RESOLUTION: "bg-orange-50 text-orange-800 border-orange-300",
+  CONFIRMED: "bg-blue-50 text-blue-700 border-blue-200",
   COMPLETED: "bg-primary/10 text-primary border-primary/20",
+  REJECTED: "bg-red-50 text-red-700 border-red-200",
+  EXPIRED: "bg-muted text-muted-foreground border-border",
   CANCELLED: "bg-red-50 text-red-700 border-red-200",
-};
-
-const STATUS_LABELS: Partial<Record<BookingStatus, string>> = {
-  HOLD: "Hold",
-  ACCEPTED: "Active",
-  COMPLETED: "Done",
-  CANCELLED: "Cancel",
 };
 
 export function RecentBookingsWidget({
@@ -70,11 +69,11 @@ export function RecentBookingsWidget({
     return formatPH(date, "h:mm a");
   };
 
-  const getStatusStyle = (status: BookingStatus) =>
-    STATUS_STYLES[status] ?? "bg-muted text-muted-foreground border-border";
+  const getStatusStyle = (booking: BookingWithDetails) =>
+    STATUS_STYLES[deriveBookingPaymentStage(booking)];
 
-  const getStatusLabel = (status: BookingStatus) =>
-    STATUS_LABELS[status] ?? status;
+  const getStatusLabel = (booking: BookingWithDetails) =>
+    BOOKING_PAYMENT_STAGE_LABELS[deriveBookingPaymentStage(booking)];
 
   // ── Compact strip variant (used inside OwnerDashboard center column) ──
   if (compact) {
@@ -120,10 +119,10 @@ export function RecentBookingsWidget({
                   <span
                     className={cn(
                       "text-[8px] uppercase font-bold tracking-wide px-1.5 py-0.5 rounded border",
-                      getStatusStyle(booking.status),
+                      getStatusStyle(booking),
                     )}
                   >
-                    {getStatusLabel(booking.status)}
+                    {getStatusLabel(booking)}
                   </span>
                   <span className="text-xs font-bold text-foreground tabular-nums">
                     ₱{booking.grand_total.toLocaleString()}
@@ -189,10 +188,10 @@ export function RecentBookingsWidget({
                   <span
                     className={cn(
                       "text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md border",
-                      getStatusStyle(booking.status),
+                      getStatusStyle(booking),
                     )}
                   >
-                    {booking.status}
+                    {getStatusLabel(booking)}
                   </span>
                   <span className="font-bold text-sm text-foreground tabular-nums">
                     ₱{booking.grand_total.toLocaleString()}

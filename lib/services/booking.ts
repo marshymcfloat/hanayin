@@ -149,6 +149,13 @@ export async function createBookingInDb({
               voucherCode,
             }));
           const { business } = pricing;
+          if (
+            isPublicBooking &&
+            (!business.gcash_account_name?.trim() ||
+              !business.gcash_mobile_number?.trim())
+          ) {
+            throw new Error("GCASH_NOT_CONFIGURED");
+          }
           const validatedServices = pricing.services;
 
           if (!allowWalkInCapacityBypass) {
@@ -277,7 +284,9 @@ export async function createBookingInDb({
           const finalVoucherDiscount = pricing.voucherDiscount;
           const grandTotal = pricing.grandTotal;
           const downpaymentAmount = isDownpayment
-            ? pricing.downpaymentAmount
+            ? isPublicBooking
+              ? roundMoney(grandTotal * 0.2)
+              : pricing.downpaymentAmount
             : null;
           const principalAmountForInitialPayment = isDownpayment
             ? downpaymentAmount || 0
@@ -299,12 +308,15 @@ export async function createBookingInDb({
               grand_total: grandTotal,
               total_discount: finalVoucherDiscount,
               payment_method: paymentMethod,
-              status: "ACCEPTED",
+              status: isPublicBooking ? "HOLD" : "ACCEPTED",
               payment_status: paymentStatus,
               amount_paid: amountPaid,
               sale_event_id: appliedSaleEventId,
               scheduled_at: scheduledAt,
               estimated_end: pricing.estimatedEnd,
+              hold_expires_at: isPublicBooking
+                ? new Date(Date.now() + 30 * 60 * 1000)
+                : null,
               capacity_override_applied: allowWalkInCapacityBypass,
               capacity_override_reason: allowWalkInCapacityBypass
                 ? capacityOverride?.reason || null
@@ -366,6 +378,20 @@ export async function createBookingInDb({
             },
           });
 
+          if (isPublicBooking) {
+            await tx.bookingPayment.create({
+              data: {
+                booking_id: booking.id,
+                type: "DOWNPAYMENT",
+                status: "PENDING",
+                payment_method: "ONLINE",
+                amount_principal: downpaymentAmount ?? 0,
+                amount_charged: downpaymentAmount ?? 0,
+                expires_at: booking.hold_expires_at,
+              },
+            });
+          }
+
           if (pricing.voucher?.id) {
             const reserveVoucher = await tx.voucher.updateMany({
               where: {
@@ -385,7 +411,9 @@ export async function createBookingInDb({
           }
 
 
-          const eventType = "BOOKING_CONFIRMED";
+          const eventType = isPublicBooking
+            ? "BOOKING_CREATED"
+            : "BOOKING_CONFIRMED";
 
           await publishEvent(tx as Prisma.TransactionClient, {
             type: eventType,
@@ -399,7 +427,7 @@ export async function createBookingInDb({
               scheduledAt: scheduledAt.toISOString(),
               estimatedEnd: pricing.estimatedEnd.toISOString(),
               grandTotal,
-              status: "ACCEPTED",
+              status: isPublicBooking ? "HOLD" : "ACCEPTED",
               isWalkIn,
             },
           });

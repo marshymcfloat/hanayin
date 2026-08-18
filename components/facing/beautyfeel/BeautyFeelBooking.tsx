@@ -80,6 +80,7 @@ export default async function BeautyFeelBooking({
               services={services}
               packages={packages}
               categories={categories}
+              gcash={{ accountName: business.gcash_account_name, mobileNumber: business.gcash_mobile_number, qrImageUrl: business.gcash_qr_image_url, instructions: business.gcash_instructions }}
             />
           </div>
         </div>

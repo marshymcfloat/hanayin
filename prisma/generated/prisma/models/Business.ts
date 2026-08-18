@@ -69,6 +69,10 @@ export type BusinessMinAggregateOutputType = {
   structure: $Enums.BusinessStructure | null
   allow_employee_self_booking: boolean | null
   manager_can_serve: boolean | null
+  gcash_account_name: string | null
+  gcash_mobile_number: string | null
+  gcash_qr_image_url: string | null
+  gcash_instructions: string | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
   created_at: Date | null
   updated_at: Date | null
@@ -97,6 +101,10 @@ export type BusinessMaxAggregateOutputType = {
   structure: $Enums.BusinessStructure | null
   allow_employee_self_booking: boolean | null
   manager_can_serve: boolean | null
+  gcash_account_name: string | null
+  gcash_mobile_number: string | null
+  gcash_qr_image_url: string | null
+  gcash_instructions: string | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
   created_at: Date | null
   updated_at: Date | null
@@ -125,6 +133,10 @@ export type BusinessCountAggregateOutputType = {
   structure: number
   allow_employee_self_booking: number
   manager_can_serve: number
+  gcash_account_name: number
+  gcash_mobile_number: number
+  gcash_qr_image_url: number
+  gcash_instructions: number
   commission_calculation_basis: number
   created_at: number
   updated_at: number
@@ -175,6 +187,10 @@ export type BusinessMinAggregateInputType = {
   structure?: true
   allow_employee_self_booking?: true
   manager_can_serve?: true
+  gcash_account_name?: true
+  gcash_mobile_number?: true
+  gcash_qr_image_url?: true
+  gcash_instructions?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -203,6 +219,10 @@ export type BusinessMaxAggregateInputType = {
   structure?: true
   allow_employee_self_booking?: true
   manager_can_serve?: true
+  gcash_account_name?: true
+  gcash_mobile_number?: true
+  gcash_qr_image_url?: true
+  gcash_instructions?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -231,6 +251,10 @@ export type BusinessCountAggregateInputType = {
   structure?: true
   allow_employee_self_booking?: true
   manager_can_serve?: true
+  gcash_account_name?: true
+  gcash_mobile_number?: true
+  gcash_qr_image_url?: true
+  gcash_instructions?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -346,6 +370,10 @@ export type BusinessGroupByOutputType = {
   structure: $Enums.BusinessStructure
   allow_employee_self_booking: boolean
   manager_can_serve: boolean
+  gcash_account_name: string | null
+  gcash_mobile_number: string | null
+  gcash_qr_image_url: string | null
+  gcash_instructions: string | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis
   created_at: Date
   updated_at: Date
@@ -397,6 +425,10 @@ export type BusinessWhereInput = {
   structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFilter<"Business"> | boolean
   manager_can_serve?: Prisma.BoolFilter<"Business"> | boolean
+  gcash_account_name?: Prisma.StringNullableFilter<"Business"> | string | null
+  gcash_mobile_number?: Prisma.StringNullableFilter<"Business"> | string | null
+  gcash_qr_image_url?: Prisma.StringNullableFilter<"Business"> | string | null
+  gcash_instructions?: Prisma.StringNullableFilter<"Business"> | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -457,6 +489,10 @@ export type BusinessOrderByWithRelationInput = {
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
+  gcash_account_name?: Prisma.SortOrderInput | Prisma.SortOrder
+  gcash_mobile_number?: Prisma.SortOrderInput | Prisma.SortOrder
+  gcash_qr_image_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  gcash_instructions?: Prisma.SortOrderInput | Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -520,6 +556,10 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   structure?: Prisma.EnumBusinessStructureFilter<"Business"> | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFilter<"Business"> | boolean
   manager_can_serve?: Prisma.BoolFilter<"Business"> | boolean
+  gcash_account_name?: Prisma.StringNullableFilter<"Business"> | string | null
+  gcash_mobile_number?: Prisma.StringNullableFilter<"Business"> | string | null
+  gcash_qr_image_url?: Prisma.StringNullableFilter<"Business"> | string | null
+  gcash_instructions?: Prisma.StringNullableFilter<"Business"> | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -580,6 +620,10 @@ export type BusinessOrderByWithAggregationInput = {
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
+  gcash_account_name?: Prisma.SortOrderInput | Prisma.SortOrder
+  gcash_mobile_number?: Prisma.SortOrderInput | Prisma.SortOrder
+  gcash_qr_image_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  gcash_instructions?: Prisma.SortOrderInput | Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -616,6 +660,10 @@ export type BusinessScalarWhereWithAggregatesInput = {
   structure?: Prisma.EnumBusinessStructureWithAggregatesFilter<"Business"> | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   manager_can_serve?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
+  gcash_account_name?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
+  gcash_mobile_number?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
+  gcash_qr_image_url?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
+  gcash_instructions?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisWithAggregatesFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
@@ -644,6 +692,10 @@ export type BusinessCreateInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -704,6 +756,10 @@ export type BusinessUncheckedCreateInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -764,6 +820,10 @@ export type BusinessUpdateInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -824,6 +884,10 @@ export type BusinessUncheckedUpdateInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -884,6 +948,10 @@ export type BusinessCreateManyInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -912,6 +980,10 @@ export type BusinessUpdateManyMutationInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -940,6 +1012,10 @@ export type BusinessUncheckedUpdateManyInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -968,6 +1044,10 @@ export type BusinessCountOrderByAggregateInput = {
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
+  gcash_account_name?: Prisma.SortOrder
+  gcash_mobile_number?: Prisma.SortOrder
+  gcash_qr_image_url?: Prisma.SortOrder
+  gcash_instructions?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -1006,6 +1086,10 @@ export type BusinessMaxOrderByAggregateInput = {
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
+  gcash_account_name?: Prisma.SortOrder
+  gcash_mobile_number?: Prisma.SortOrder
+  gcash_qr_image_url?: Prisma.SortOrder
+  gcash_instructions?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -1034,6 +1118,10 @@ export type BusinessMinOrderByAggregateInput = {
   structure?: Prisma.SortOrder
   allow_employee_self_booking?: Prisma.SortOrder
   manager_can_serve?: Prisma.SortOrder
+  gcash_account_name?: Prisma.SortOrder
+  gcash_mobile_number?: Prisma.SortOrder
+  gcash_qr_image_url?: Prisma.SortOrder
+  gcash_instructions?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -1576,6 +1664,10 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1635,6 +1727,10 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1710,6 +1806,10 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1769,6 +1869,10 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1828,6 +1932,10 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1887,6 +1995,10 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1962,6 +2074,10 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2021,6 +2137,10 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2080,6 +2200,10 @@ export type BusinessCreateWithoutSale_eventsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2139,6 +2263,10 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2214,6 +2342,10 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2273,6 +2405,10 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2332,6 +2468,10 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2391,6 +2531,10 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2466,6 +2610,10 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2525,6 +2673,10 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2584,6 +2736,10 @@ export type BusinessCreateWithoutSocial_postsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2643,6 +2799,10 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2718,6 +2878,10 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2777,6 +2941,10 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2836,6 +3004,10 @@ export type BusinessCreateWithoutEmployeesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2895,6 +3067,10 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2970,6 +3146,10 @@ export type BusinessUpdateWithoutEmployeesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3029,6 +3209,10 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3088,6 +3272,10 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3147,6 +3335,10 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3222,6 +3414,10 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3281,6 +3477,10 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3340,6 +3540,10 @@ export type BusinessCreateWithoutBrand_assetsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3399,6 +3603,10 @@ export type BusinessUncheckedCreateWithoutBrand_assetsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3474,6 +3682,10 @@ export type BusinessUpdateWithoutBrand_assetsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3533,6 +3745,10 @@ export type BusinessUncheckedUpdateWithoutBrand_assetsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3592,6 +3808,10 @@ export type BusinessCreateWithoutOwnersInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3651,6 +3871,10 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3726,6 +3950,10 @@ export type BusinessUpdateWithoutOwnersInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3785,6 +4013,10 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3844,6 +4076,10 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3903,6 +4139,10 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -3978,6 +4218,10 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4037,6 +4281,10 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4096,6 +4344,10 @@ export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4155,6 +4407,10 @@ export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4230,6 +4486,10 @@ export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4289,6 +4549,10 @@ export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4348,6 +4612,10 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4407,6 +4675,10 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4482,6 +4754,10 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4541,6 +4817,10 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4600,6 +4880,10 @@ export type BusinessCreateWithoutReferral_codeInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4659,6 +4943,10 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4734,6 +5022,10 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4793,6 +5085,10 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4852,6 +5148,10 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4911,6 +5211,10 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -4986,6 +5290,10 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5045,6 +5353,10 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5104,6 +5416,10 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5163,6 +5479,10 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5227,6 +5547,10 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5286,6 +5610,10 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5361,6 +5689,10 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5420,6 +5752,10 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5490,6 +5826,10 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5549,6 +5889,10 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5608,6 +5952,10 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5667,6 +6015,10 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5742,6 +6094,10 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5801,6 +6157,10 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5860,6 +6220,10 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5919,6 +6283,10 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -5994,6 +6362,10 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6053,6 +6425,10 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6112,6 +6488,10 @@ export type BusinessCreateWithoutServicesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6171,6 +6551,10 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6246,6 +6630,10 @@ export type BusinessUpdateWithoutServicesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6305,6 +6693,10 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6364,6 +6756,10 @@ export type BusinessCreateWithoutPackagesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6423,6 +6819,10 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6498,6 +6898,10 @@ export type BusinessUpdateWithoutPackagesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6557,6 +6961,10 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6616,6 +7024,10 @@ export type BusinessCreateWithoutCustomersInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6675,6 +7087,10 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6750,6 +7166,10 @@ export type BusinessUpdateWithoutCustomersInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6809,6 +7229,10 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6868,6 +7292,10 @@ export type BusinessCreateWithoutBooking_otp_codesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -6927,6 +7355,10 @@ export type BusinessUncheckedCreateWithoutBooking_otp_codesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7002,6 +7434,10 @@ export type BusinessUpdateWithoutBooking_otp_codesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7061,6 +7497,10 @@ export type BusinessUncheckedUpdateWithoutBooking_otp_codesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7120,6 +7560,10 @@ export type BusinessCreateWithoutBookingsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7179,6 +7623,10 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7254,6 +7702,10 @@ export type BusinessUpdateWithoutBookingsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7313,6 +7765,10 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7372,6 +7828,10 @@ export type BusinessCreateWithoutVouchersInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7431,6 +7891,10 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7506,6 +7970,10 @@ export type BusinessUpdateWithoutVouchersInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7565,6 +8033,10 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7624,6 +8096,10 @@ export type BusinessCreateWithoutGift_cardsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7683,6 +8159,10 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7758,6 +8238,10 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7817,6 +8301,10 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7876,6 +8364,10 @@ export type BusinessCreateWithoutService_flowsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -7935,6 +8427,10 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8010,6 +8506,10 @@ export type BusinessUpdateWithoutService_flowsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8069,6 +8569,10 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8128,6 +8632,10 @@ export type BusinessCreateWithoutGrowth_settingsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8187,6 +8695,10 @@ export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8262,6 +8774,10 @@ export type BusinessUpdateWithoutGrowth_settingsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8321,6 +8837,10 @@ export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8380,6 +8900,10 @@ export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8439,6 +8963,10 @@ export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8514,6 +9042,10 @@ export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8573,6 +9105,10 @@ export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8632,6 +9168,10 @@ export type BusinessCreateWithoutOpportunitiesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8691,6 +9231,10 @@ export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8766,6 +9310,10 @@ export type BusinessUpdateWithoutOpportunitiesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8825,6 +9373,10 @@ export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8884,6 +9436,10 @@ export type BusinessCreateWithoutCampaignsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -8943,6 +9499,10 @@ export type BusinessUncheckedCreateWithoutCampaignsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -9018,6 +9578,10 @@ export type BusinessUpdateWithoutCampaignsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9077,6 +9641,10 @@ export type BusinessUncheckedUpdateWithoutCampaignsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9136,6 +9704,10 @@ export type BusinessCreateWithoutSocial_post_requestsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -9195,6 +9767,10 @@ export type BusinessUncheckedCreateWithoutSocial_post_requestsInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -9270,6 +9846,10 @@ export type BusinessUpdateWithoutSocial_post_requestsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9329,6 +9909,10 @@ export type BusinessUncheckedUpdateWithoutSocial_post_requestsInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9388,6 +9972,10 @@ export type BusinessCreateWithoutExpensesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -9447,6 +10035,10 @@ export type BusinessUncheckedCreateWithoutExpensesInput = {
   structure?: $Enums.BusinessStructure
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -9522,6 +10114,10 @@ export type BusinessUpdateWithoutExpensesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9581,6 +10177,10 @@ export type BusinessUncheckedUpdateWithoutExpensesInput = {
   structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
   allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9932,6 +10532,10 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: boolean
+  gcash_mobile_number?: boolean
+  gcash_qr_image_url?: boolean
+  gcash_instructions?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -9993,6 +10597,10 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: boolean
+  gcash_mobile_number?: boolean
+  gcash_qr_image_url?: boolean
+  gcash_instructions?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -10021,6 +10629,10 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: boolean
+  gcash_mobile_number?: boolean
+  gcash_qr_image_url?: boolean
+  gcash_instructions?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -10049,12 +10661,16 @@ export type BusinessSelectScalar = {
   structure?: boolean
   allow_employee_self_booking?: boolean
   manager_can_serve?: boolean
+  gcash_account_name?: boolean
+  gcash_mobile_number?: boolean
+  gcash_qr_image_url?: boolean
+  gcash_instructions?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "timezone" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "downpayment_percentage" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "formal_schedule_enabled" | "structure" | "allow_employee_self_booking" | "manager_can_serve" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "timezone" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "downpayment_percentage" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "formal_schedule_enabled" | "structure" | "allow_employee_self_booking" | "manager_can_serve" | "gcash_account_name" | "gcash_mobile_number" | "gcash_qr_image_url" | "gcash_instructions" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -10152,6 +10768,10 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     structure: $Enums.BusinessStructure
     allow_employee_self_booking: boolean
     manager_can_serve: boolean
+    gcash_account_name: string | null
+    gcash_mobile_number: string | null
+    gcash_qr_image_url: string | null
+    gcash_instructions: string | null
     commission_calculation_basis: $Enums.CommissionCalculationBasis
     created_at: Date
     updated_at: Date
@@ -10632,6 +11252,10 @@ export interface BusinessFieldRefs {
   readonly structure: Prisma.FieldRef<"Business", 'BusinessStructure'>
   readonly allow_employee_self_booking: Prisma.FieldRef<"Business", 'Boolean'>
   readonly manager_can_serve: Prisma.FieldRef<"Business", 'Boolean'>
+  readonly gcash_account_name: Prisma.FieldRef<"Business", 'String'>
+  readonly gcash_mobile_number: Prisma.FieldRef<"Business", 'String'>
+  readonly gcash_qr_image_url: Prisma.FieldRef<"Business", 'String'>
+  readonly gcash_instructions: Prisma.FieldRef<"Business", 'String'>
   readonly commission_calculation_basis: Prisma.FieldRef<"Business", 'CommissionCalculationBasis'>
   readonly created_at: Prisma.FieldRef<"Business", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Business", 'DateTime'>

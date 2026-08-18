@@ -756,9 +756,7 @@ export async function getEmployeeTodayBookingsAction() {
     const bookings = await prisma.booking.findMany({
       where: {
         business: { slug: businessSlug },
-        status: {
-          not: BookingStatus.CANCELLED,
-        },
+        status: { in: [BookingStatus.ACCEPTED, BookingStatus.COMPLETED] },
         ...getTodayBookingFilter(),
       },
       select: {
@@ -831,7 +829,7 @@ export async function markEmployeeBookingPaidAction(bookingId: number) {
       where: {
         id: bookingId,
         business: { slug: businessSlug },
-        status: { not: BookingStatus.CANCELLED },
+        status: { in: [BookingStatus.ACCEPTED, BookingStatus.COMPLETED] },
         ...getTodayBookingFilter(),
       },
       select: {

@@ -230,6 +230,7 @@ export type UserWhereInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestListRelationFilter
   reviewed_social_post_requests?: Prisma.SocialPostRequestListRelationFilter
   uploaded_brand_assets?: Prisma.BrandAssetListRelationFilter
+  booking_payments_verified?: Prisma.BookingPaymentListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -258,6 +259,7 @@ export type UserOrderByWithRelationInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestOrderByRelationAggregateInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestOrderByRelationAggregateInput
   uploaded_brand_assets?: Prisma.BrandAssetOrderByRelationAggregateInput
+  booking_payments_verified?: Prisma.BookingPaymentOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -289,6 +291,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   submitted_social_post_requests?: Prisma.SocialPostRequestListRelationFilter
   reviewed_social_post_requests?: Prisma.SocialPostRequestListRelationFilter
   uploaded_brand_assets?: Prisma.BrandAssetListRelationFilter
+  booking_payments_verified?: Prisma.BookingPaymentListRelationFilter
 }, "id" | "contact_number">
 
 export type UserOrderByWithAggregationInput = {
@@ -347,6 +350,7 @@ export type UserCreateInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -375,6 +379,7 @@ export type UserUncheckedCreateInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUpdateInput = {
@@ -403,6 +408,7 @@ export type UserUpdateInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -431,6 +437,7 @@ export type UserUncheckedUpdateInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -673,6 +680,22 @@ export type UserUpdateOneWithoutCancelled_bookingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCancelled_bookingsInput, Prisma.UserUpdateWithoutCancelled_bookingsInput>, Prisma.UserUncheckedUpdateWithoutCancelled_bookingsInput>
 }
 
+export type UserCreateNestedOneWithoutBooking_payments_verifiedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBooking_payments_verifiedInput, Prisma.UserUncheckedCreateWithoutBooking_payments_verifiedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBooking_payments_verifiedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutBooking_payments_verifiedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBooking_payments_verifiedInput, Prisma.UserUncheckedCreateWithoutBooking_payments_verifiedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBooking_payments_verifiedInput
+  upsert?: Prisma.UserUpsertWithoutBooking_payments_verifiedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBooking_payments_verifiedInput, Prisma.UserUpdateWithoutBooking_payments_verifiedInput>, Prisma.UserUncheckedUpdateWithoutBooking_payments_verifiedInput>
+}
+
 export type UserCreateNestedOneWithoutGrowth_campaigns_createdInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutGrowth_campaigns_createdInput, Prisma.UserUncheckedCreateWithoutGrowth_campaigns_createdInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutGrowth_campaigns_createdInput
@@ -792,6 +815,7 @@ export type UserCreateWithoutSocial_posts_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutSocial_posts_createdInput = {
@@ -819,6 +843,7 @@ export type UserUncheckedCreateWithoutSocial_posts_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutSocial_posts_createdInput = {
@@ -862,6 +887,7 @@ export type UserUpdateWithoutSocial_posts_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSocial_posts_createdInput = {
@@ -889,6 +915,7 @@ export type UserUncheckedUpdateWithoutSocial_posts_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutEmployeeInput = {
@@ -916,6 +943,7 @@ export type UserCreateWithoutEmployeeInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutEmployeeInput = {
@@ -943,6 +971,7 @@ export type UserUncheckedCreateWithoutEmployeeInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutEmployeeInput = {
@@ -986,6 +1015,7 @@ export type UserUpdateWithoutEmployeeInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeeInput = {
@@ -1013,6 +1043,7 @@ export type UserUncheckedUpdateWithoutEmployeeInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutUploaded_brand_assetsInput = {
@@ -1040,6 +1071,7 @@ export type UserCreateWithoutUploaded_brand_assetsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutCreated_by_userInput
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutUploaded_brand_assetsInput = {
@@ -1067,6 +1099,7 @@ export type UserUncheckedCreateWithoutUploaded_brand_assetsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutCreated_by_userInput
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutUploaded_brand_assetsInput = {
@@ -1110,6 +1143,7 @@ export type UserUpdateWithoutUploaded_brand_assetsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUpdateManyWithoutCreated_by_userNestedInput
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUploaded_brand_assetsInput = {
@@ -1137,6 +1171,7 @@ export type UserUncheckedUpdateWithoutUploaded_brand_assetsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutCreated_by_userNestedInput
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutOwnerInput = {
@@ -1164,6 +1199,7 @@ export type UserCreateWithoutOwnerInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutOwnerInput = {
@@ -1191,6 +1227,7 @@ export type UserUncheckedCreateWithoutOwnerInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutOwnerInput = {
@@ -1234,6 +1271,7 @@ export type UserUpdateWithoutOwnerInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnerInput = {
@@ -1261,6 +1299,7 @@ export type UserUncheckedUpdateWithoutOwnerInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutSubmitted_subscription_upgrade_requestsInput = {
@@ -1288,6 +1327,7 @@ export type UserCreateWithoutSubmitted_subscription_upgrade_requestsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutSubmitted_subscription_upgrade_requestsInput = {
@@ -1315,6 +1355,7 @@ export type UserUncheckedCreateWithoutSubmitted_subscription_upgrade_requestsInp
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutSubmitted_subscription_upgrade_requestsInput = {
@@ -1347,6 +1388,7 @@ export type UserCreateWithoutReviewed_subscription_upgrade_requestsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutReviewed_subscription_upgrade_requestsInput = {
@@ -1374,6 +1416,7 @@ export type UserUncheckedCreateWithoutReviewed_subscription_upgrade_requestsInpu
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutReviewed_subscription_upgrade_requestsInput = {
@@ -1417,6 +1460,7 @@ export type UserUpdateWithoutSubmitted_subscription_upgrade_requestsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubmitted_subscription_upgrade_requestsInput = {
@@ -1444,6 +1488,7 @@ export type UserUncheckedUpdateWithoutSubmitted_subscription_upgrade_requestsInp
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUpsertWithoutReviewed_subscription_upgrade_requestsInput = {
@@ -1482,6 +1527,7 @@ export type UserUpdateWithoutReviewed_subscription_upgrade_requestsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewed_subscription_upgrade_requestsInput = {
@@ -1509,6 +1555,7 @@ export type UserUncheckedUpdateWithoutReviewed_subscription_upgrade_requestsInpu
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutAwarded_subscription_creditsInput = {
@@ -1536,6 +1583,7 @@ export type UserCreateWithoutAwarded_subscription_creditsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutAwarded_subscription_creditsInput = {
@@ -1563,6 +1611,7 @@ export type UserUncheckedCreateWithoutAwarded_subscription_creditsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutAwarded_subscription_creditsInput = {
@@ -1606,6 +1655,7 @@ export type UserUpdateWithoutAwarded_subscription_creditsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAwarded_subscription_creditsInput = {
@@ -1633,6 +1683,7 @@ export type UserUncheckedUpdateWithoutAwarded_subscription_creditsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutReviewed_onboarding_applicationsInput = {
@@ -1660,6 +1711,7 @@ export type UserCreateWithoutReviewed_onboarding_applicationsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutReviewed_onboarding_applicationsInput = {
@@ -1687,6 +1739,7 @@ export type UserUncheckedCreateWithoutReviewed_onboarding_applicationsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutReviewed_onboarding_applicationsInput = {
@@ -1730,6 +1783,7 @@ export type UserUpdateWithoutReviewed_onboarding_applicationsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewed_onboarding_applicationsInput = {
@@ -1757,6 +1811,7 @@ export type UserUncheckedUpdateWithoutReviewed_onboarding_applicationsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutPlatform_action_logsInput = {
@@ -1784,6 +1839,7 @@ export type UserCreateWithoutPlatform_action_logsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutPlatform_action_logsInput = {
@@ -1811,6 +1867,7 @@ export type UserUncheckedCreateWithoutPlatform_action_logsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutPlatform_action_logsInput = {
@@ -1854,6 +1911,7 @@ export type UserUpdateWithoutPlatform_action_logsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlatform_action_logsInput = {
@@ -1881,6 +1939,7 @@ export type UserUncheckedUpdateWithoutPlatform_action_logsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutCancelled_bookingsInput = {
@@ -1908,6 +1967,7 @@ export type UserCreateWithoutCancelled_bookingsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutCancelled_bookingsInput = {
@@ -1935,6 +1995,7 @@ export type UserUncheckedCreateWithoutCancelled_bookingsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutCancelled_bookingsInput = {
@@ -1978,6 +2039,7 @@ export type UserUpdateWithoutCancelled_bookingsInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCancelled_bookingsInput = {
@@ -2000,6 +2062,135 @@ export type UserUncheckedUpdateWithoutCancelled_bookingsInput = {
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   submitted_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
+  booking_notes_created?: Prisma.BookingNoteUncheckedUpdateManyWithoutCreated_by_userNestedInput
+  booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutCreated_by_userNestedInput
+  submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
+  reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
+  uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
+}
+
+export type UserCreateWithoutBooking_payments_verifiedInput = {
+  id?: string
+  contact_number: string
+  hashed_password: string
+  name: string
+  role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
+  owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostCreateNestedManyWithoutCreated_by_userInput
+  growth_campaigns_created?: Prisma.CampaignCreateNestedManyWithoutCreated_by_userInput
+  expenses_created?: Prisma.ExpenseCreateNestedManyWithoutCreated_by_userInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutAwarded_by_userInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutActor_userInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationCreateNestedManyWithoutReviewed_by_userInput
+  submitted_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutRequested_by_userInput
+  reviewed_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutReviewed_by_userInput
+  cancelled_bookings?: Prisma.BookingCreateNestedManyWithoutCancelled_byInput
+  booking_notes_created?: Prisma.BookingNoteCreateNestedManyWithoutCreated_by_userInput
+  booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutCreated_by_userInput
+  submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
+  reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
+  uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+}
+
+export type UserUncheckedCreateWithoutBooking_payments_verifiedInput = {
+  id?: string
+  contact_number: string
+  hashed_password: string
+  name: string
+  role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
+  owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostUncheckedCreateNestedManyWithoutCreated_by_userInput
+  growth_campaigns_created?: Prisma.CampaignUncheckedCreateNestedManyWithoutCreated_by_userInput
+  expenses_created?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreated_by_userInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutAwarded_by_userInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutActor_userInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutReviewed_by_userInput
+  submitted_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
+  reviewed_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
+  cancelled_bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCancelled_byInput
+  booking_notes_created?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutCreated_by_userInput
+  booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutCreated_by_userInput
+  submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
+  reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
+  uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+}
+
+export type UserCreateOrConnectWithoutBooking_payments_verifiedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBooking_payments_verifiedInput, Prisma.UserUncheckedCreateWithoutBooking_payments_verifiedInput>
+}
+
+export type UserUpsertWithoutBooking_payments_verifiedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBooking_payments_verifiedInput, Prisma.UserUncheckedUpdateWithoutBooking_payments_verifiedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBooking_payments_verifiedInput, Prisma.UserUncheckedCreateWithoutBooking_payments_verifiedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBooking_payments_verifiedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBooking_payments_verifiedInput, Prisma.UserUncheckedUpdateWithoutBooking_payments_verifiedInput>
+}
+
+export type UserUpdateWithoutBooking_payments_verifiedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
+  hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
+  owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUpdateManyWithoutCreated_by_userNestedInput
+  growth_campaigns_created?: Prisma.CampaignUpdateManyWithoutCreated_by_userNestedInput
+  expenses_created?: Prisma.ExpenseUpdateManyWithoutCreated_by_userNestedInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutAwarded_by_userNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutActor_userNestedInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationUpdateManyWithoutReviewed_by_userNestedInput
+  submitted_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutRequested_by_userNestedInput
+  reviewed_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutReviewed_by_userNestedInput
+  cancelled_bookings?: Prisma.BookingUpdateManyWithoutCancelled_byNestedInput
+  booking_notes_created?: Prisma.BookingNoteUpdateManyWithoutCreated_by_userNestedInput
+  booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUpdateManyWithoutCreated_by_userNestedInput
+  submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
+  reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
+  uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBooking_payments_verifiedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  contact_number?: Prisma.StringFieldUpdateOperationsInput | string
+  hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
+  owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput
+  growth_campaigns_created?: Prisma.CampaignUncheckedUpdateManyWithoutCreated_by_userNestedInput
+  expenses_created?: Prisma.ExpenseUncheckedUpdateManyWithoutCreated_by_userNestedInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutAwarded_by_userNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
+  submitted_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
+  reviewed_subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
+  cancelled_bookings?: Prisma.BookingUncheckedUpdateManyWithoutCancelled_byNestedInput
   booking_notes_created?: Prisma.BookingNoteUncheckedUpdateManyWithoutCreated_by_userNestedInput
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutCreated_by_userNestedInput
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
@@ -2032,6 +2223,7 @@ export type UserCreateWithoutGrowth_campaigns_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutGrowth_campaigns_createdInput = {
@@ -2059,6 +2251,7 @@ export type UserUncheckedCreateWithoutGrowth_campaigns_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutGrowth_campaigns_createdInput = {
@@ -2102,6 +2295,7 @@ export type UserUpdateWithoutGrowth_campaigns_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGrowth_campaigns_createdInput = {
@@ -2129,6 +2323,7 @@ export type UserUncheckedUpdateWithoutGrowth_campaigns_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutBooking_notes_createdInput = {
@@ -2156,6 +2351,7 @@ export type UserCreateWithoutBooking_notes_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutBooking_notes_createdInput = {
@@ -2183,6 +2379,7 @@ export type UserUncheckedCreateWithoutBooking_notes_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutBooking_notes_createdInput = {
@@ -2226,6 +2423,7 @@ export type UserUpdateWithoutBooking_notes_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBooking_notes_createdInput = {
@@ -2253,6 +2451,7 @@ export type UserUncheckedUpdateWithoutBooking_notes_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutBooking_price_adjustments_createdInput = {
@@ -2280,6 +2479,7 @@ export type UserCreateWithoutBooking_price_adjustments_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutBooking_price_adjustments_createdInput = {
@@ -2307,6 +2507,7 @@ export type UserUncheckedCreateWithoutBooking_price_adjustments_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutBooking_price_adjustments_createdInput = {
@@ -2350,6 +2551,7 @@ export type UserUpdateWithoutBooking_price_adjustments_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBooking_price_adjustments_createdInput = {
@@ -2377,6 +2579,7 @@ export type UserUncheckedUpdateWithoutBooking_price_adjustments_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutSubmitted_social_post_requestsInput = {
@@ -2404,6 +2607,7 @@ export type UserCreateWithoutSubmitted_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutCreated_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutSubmitted_social_post_requestsInput = {
@@ -2431,6 +2635,7 @@ export type UserUncheckedCreateWithoutSubmitted_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutCreated_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutSubmitted_social_post_requestsInput = {
@@ -2463,6 +2668,7 @@ export type UserCreateWithoutReviewed_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutCreated_by_userInput
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutReviewed_social_post_requestsInput = {
@@ -2490,6 +2696,7 @@ export type UserUncheckedCreateWithoutReviewed_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutCreated_by_userInput
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutReviewed_social_post_requestsInput = {
@@ -2533,6 +2740,7 @@ export type UserUpdateWithoutSubmitted_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUpdateManyWithoutCreated_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubmitted_social_post_requestsInput = {
@@ -2560,6 +2768,7 @@ export type UserUncheckedUpdateWithoutSubmitted_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutCreated_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUpsertWithoutReviewed_social_post_requestsInput = {
@@ -2598,6 +2807,7 @@ export type UserUpdateWithoutReviewed_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUpdateManyWithoutCreated_by_userNestedInput
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewed_social_post_requestsInput = {
@@ -2625,6 +2835,7 @@ export type UserUncheckedUpdateWithoutReviewed_social_post_requestsInput = {
   booking_price_adjustments_created?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutCreated_by_userNestedInput
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserCreateWithoutExpenses_createdInput = {
@@ -2652,6 +2863,7 @@ export type UserCreateWithoutExpenses_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserUncheckedCreateWithoutExpenses_createdInput = {
@@ -2679,6 +2891,7 @@ export type UserUncheckedCreateWithoutExpenses_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutRequested_by_userInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutReviewed_by_userInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutUploaded_byInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput
 }
 
 export type UserCreateOrConnectWithoutExpenses_createdInput = {
@@ -2722,6 +2935,7 @@ export type UserUpdateWithoutExpenses_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUpdateManyWithoutVerified_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExpenses_createdInput = {
@@ -2749,6 +2963,7 @@ export type UserUncheckedUpdateWithoutExpenses_createdInput = {
   submitted_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutRequested_by_userNestedInput
   reviewed_social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutReviewed_by_userNestedInput
   uploaded_brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutUploaded_byNestedInput
+  booking_payments_verified?: Prisma.BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput
 }
 
 
@@ -2771,6 +2986,7 @@ export type UserCountOutputType = {
   submitted_social_post_requests: number
   reviewed_social_post_requests: number
   uploaded_brand_assets: number
+  booking_payments_verified: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2788,6 +3004,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   submitted_social_post_requests?: boolean | UserCountOutputTypeCountSubmitted_social_post_requestsArgs
   reviewed_social_post_requests?: boolean | UserCountOutputTypeCountReviewed_social_post_requestsArgs
   uploaded_brand_assets?: boolean | UserCountOutputTypeCountUploaded_brand_assetsArgs
+  booking_payments_verified?: boolean | UserCountOutputTypeCountBooking_payments_verifiedArgs
 }
 
 /**
@@ -2898,6 +3115,13 @@ export type UserCountOutputTypeCountUploaded_brand_assetsArgs<ExtArgs extends ru
   where?: Prisma.BrandAssetWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountBooking_payments_verifiedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingPaymentWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2925,6 +3149,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   submitted_social_post_requests?: boolean | Prisma.User$submitted_social_post_requestsArgs<ExtArgs>
   reviewed_social_post_requests?: boolean | Prisma.User$reviewed_social_post_requestsArgs<ExtArgs>
   uploaded_brand_assets?: boolean | Prisma.User$uploaded_brand_assetsArgs<ExtArgs>
+  booking_payments_verified?: boolean | Prisma.User$booking_payments_verifiedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2982,6 +3207,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   submitted_social_post_requests?: boolean | Prisma.User$submitted_social_post_requestsArgs<ExtArgs>
   reviewed_social_post_requests?: boolean | Prisma.User$reviewed_social_post_requestsArgs<ExtArgs>
   uploaded_brand_assets?: boolean | Prisma.User$uploaded_brand_assetsArgs<ExtArgs>
+  booking_payments_verified?: boolean | Prisma.User$booking_payments_verifiedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -3006,6 +3232,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     submitted_social_post_requests: Prisma.$SocialPostRequestPayload<ExtArgs>[]
     reviewed_social_post_requests: Prisma.$SocialPostRequestPayload<ExtArgs>[]
     uploaded_brand_assets: Prisma.$BrandAssetPayload<ExtArgs>[]
+    booking_payments_verified: Prisma.$BookingPaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3427,6 +3654,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   submitted_social_post_requests<T extends Prisma.User$submitted_social_post_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$submitted_social_post_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewed_social_post_requests<T extends Prisma.User$reviewed_social_post_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewed_social_post_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   uploaded_brand_assets<T extends Prisma.User$uploaded_brand_assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$uploaded_brand_assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  booking_payments_verified<T extends Prisma.User$booking_payments_verifiedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$booking_payments_verifiedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4224,6 +4452,30 @@ export type User$uploaded_brand_assetsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.BrandAssetScalarFieldEnum | Prisma.BrandAssetScalarFieldEnum[]
+}
+
+/**
+ * User.booking_payments_verified
+ */
+export type User$booking_payments_verifiedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BookingPayment
+   */
+  select?: Prisma.BookingPaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BookingPayment
+   */
+  omit?: Prisma.BookingPaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingPaymentInclude<ExtArgs> | null
+  where?: Prisma.BookingPaymentWhereInput
+  orderBy?: Prisma.BookingPaymentOrderByWithRelationInput | Prisma.BookingPaymentOrderByWithRelationInput[]
+  cursor?: Prisma.BookingPaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingPaymentScalarFieldEnum | Prisma.BookingPaymentScalarFieldEnum[]
 }
 
 /**

@@ -34,6 +34,8 @@ export type BookingPricingSnapshot = {
     slug: string;
     name: string;
     commission_calculation_basis: "ORIGINAL_PRICE" | "DISCOUNTED_PRICE";
+    gcash_account_name?: string | null;
+    gcash_mobile_number?: string | null;
   };
   services: CanonicalBookingService[];
   subtotal: number;
@@ -94,6 +96,8 @@ export async function buildBookingPricingSnapshot({
       name: true,
       commission_calculation_basis: true,
       downpayment_percentage: true,
+      gcash_account_name: true,
+      gcash_mobile_number: true,
     },
   });
 
@@ -382,6 +386,8 @@ export async function buildBookingPricingSnapshot({
       slug: business.slug,
       name: business.name,
       commission_calculation_basis: business.commission_calculation_basis,
+      gcash_account_name: business.gcash_account_name,
+      gcash_mobile_number: business.gcash_mobile_number,
     },
     services: canonicalServices,
     subtotal,

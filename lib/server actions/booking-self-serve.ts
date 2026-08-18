@@ -295,6 +295,9 @@ export async function rescheduleBookingByCustomerAction({
         if (existing.status === "CANCELLED" || existing.cancelled_at) {
           throw new Error("ALREADY_CANCELLED");
         }
+        if (existing.status !== "ACCEPTED") {
+          throw new Error("BOOKING_NOT_CONFIRMED");
+        }
         if (!isSelfServeAllowed(existing.scheduled_at)) {
           throw new Error("WINDOW_CLOSED");
         }

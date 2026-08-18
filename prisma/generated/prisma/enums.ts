@@ -40,6 +40,7 @@ export type StaffProfile = (typeof StaffProfile)[keyof typeof StaffProfile]
 export const StaffPermission = {
   BOOKING_CREATE: 'BOOKING_CREATE',
   PAYMENT_COLLECT: 'PAYMENT_COLLECT',
+  PAYMENT_VERIFY: 'PAYMENT_VERIFY',
   QUEUE_CLAIM_SELF: 'QUEUE_CLAIM_SELF',
   QUEUE_SERVE_SELF: 'QUEUE_SERVE_SELF',
   QUEUE_OVERRIDE_ALL: 'QUEUE_OVERRIDE_ALL',

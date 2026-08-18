@@ -26,7 +26,7 @@ export interface CustomerTrustResult {
  * Resolves the trust tier for a phone number without sending an OTP.
  * Use this on phone entry to decide whether to show the OTP step.
  *
- * - TRUSTED  → customer has ≥1 completed booking with 0 no-shows → skip OTP
+ * - TRUSTED  → customer has prior successful history, but must still verify OTP
  * - RESTRICTED → customer has ≥2 no-shows → block, show "contact us"
  * - NEW       → no prior history → OTP required
  */
@@ -58,15 +58,16 @@ export async function resolveCustomerTrust(
       business_id: business.id,
       phone: { in: [normalizedPhone, localPhone, shortPhone] },
     },
-    select: { id: true, trust_tier: true, name: true, no_show_count: true, email: true },
+    // Do not return identity data from a phone-number existence check.
+    // Name and email are fetched only after a successful OTP verification.
+    select: { id: true, trust_tier: true },
   });
 
   if (!customer) return { tier: "NEW", requiresOtp: true };
 
   let tier = (customer.trust_tier as CustomerTrust) ?? "NEW";
 
-  // Backfill: if tier is still NEW but the customer has a completed booking,
-  // promote inline so existing customers skip OTP without needing a data migration.
+  // Backfill booking-history trust independently from phone ownership.
   if (tier === "NEW") {
     const completedBooking = await prisma.booking.findFirst({
       where: {
@@ -87,9 +88,7 @@ export async function resolveCustomerTrust(
 
   return {
     tier,
-    requiresOtp: tier !== "TRUSTED",
-    customerName: customer.name,
-    customerEmail: customer.email ?? undefined,
+    requiresOtp: true,
   };
 }
 
