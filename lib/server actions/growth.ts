@@ -14,7 +14,8 @@ import { generateCaptionVariants } from "@/lib/services/growth/caption-generator
 import { generateImagePromptVariants } from "@/lib/services/growth/image-prompt-generator";
 import { recommendPostingSchedule } from "@/lib/services/growth/schedule-recommender";
 import { trackCampaignEvent } from "@/lib/services/growth/campaign-tracker";
-import { generateAndUploadPromoImage } from "@/lib/services/social/promo-image";
+import { generateAndUploadPromoImage, type ReferenceImage } from "@/lib/services/social/promo-image";
+import { fetchReferenceImageBytes } from "@/lib/services/social/reference-image";
 import type {
   GeneratedCampaignView,
   GrowthContextPayload,
@@ -28,6 +29,7 @@ import { pickCampaignStyling } from "@/lib/services/growth/styling-recommender";
 import { resolveTenantActorContext } from "@/lib/auth/staff-access";
 import { startGrowthCampaignTimer } from "@/lib/telemetry/growth-events";
 import type { SocialImageProfile } from "@/lib/services/social/image-profiles";
+import { buildCampaignCreativeContext } from "@/lib/services/growth/creative-context";
 
 function normalizeHashtags(hashtags: string[]) {
   return Array.from(
@@ -357,6 +359,20 @@ export async function generateGrowthCampaignAction(
     const imageProfileSelection: SocialImageProfile = styling.imageProfile;
     const ownerCaptionDirection = input.styling?.ownerCaptionDirection?.trim();
     const ownerImageDirection = input.styling?.ownerImageDirection?.trim();
+    const serviceNames = serviceCandidates.map((service) => service.name);
+    const serviceCategories = Array.from(new Set(serviceCandidates.map((service) => service.category)));
+    const packageNames = packageCandidates.map((pkg) => pkg.name);
+    const creativeContext = buildCampaignCreativeContext({
+      opportunity: { type: opportunity.type, reason: opportunity.reason, metadata: opportunity.metadata },
+      offer,
+      serviceNames,
+      serviceCategories,
+      packageNames,
+      imageProfile: imageProfileSelection,
+      captionTone,
+      ownerCaptionDirection,
+      ownerImageDirection,
+    });
 
     // Wave J5 — telemetry. Resolve actor context for businessId + role.
     // Failure here is non-fatal; we just skip the event. The helpers
@@ -380,16 +396,15 @@ export async function generateGrowthCampaignAction(
       businessSlug: business.slug,
       businessName: business.name,
       businessType: settings.business_type,
-      opportunityReason: offer.publicDescription,
+      opportunityReason: opportunity.reason,
       offer,
       toneProfile: settings.tone_profile,
-      serviceNames: serviceCandidates.map((service) => service.name),
-      serviceCategories: Array.from(
-        new Set(serviceCandidates.map((service) => service.category)),
-      ),
-      packageNames: packageCandidates.map((pkg) => pkg.name),
+      serviceNames,
+      serviceCategories,
+      packageNames,
       captionTone,
       ownerCaptionDirection,
+      creativeContext,
     });
 
     const imagePrompts = await generateImagePromptVariants({
@@ -400,6 +415,7 @@ export async function generateGrowthCampaignAction(
         (entry) => entry.text.split("\n")[0] || entry.text,
       ),
       skipLlm: true,
+      creativeContext,
     });
 
     const schedule = recommendPostingSchedule({
@@ -415,11 +431,6 @@ export async function generateGrowthCampaignAction(
       offerWindowEnd: offer.timeWindowEnd,
       schedule,
     });
-    const serviceNames = serviceCandidates.map((service) => service.name);
-    const serviceCategories = Array.from(
-      new Set(serviceCandidates.map((service) => service.category)),
-    );
-    const packageNames = packageCandidates.map((pkg) => pkg.name);
 
     const finalDiscountPercent =
       offer.actionCategory === "DISCOUNT" && input.overrides?.discountPercent != null
@@ -437,6 +448,40 @@ export async function generateGrowthCampaignAction(
       input.overrides?.slotLimit != null
         ? input.overrides.slotLimit
         : (offer.mechanics.limitedSlots ?? null);
+
+    let approvedReference: ReferenceImage | null = null;
+    if (business.slug === "beautyfeel") {
+      // Reference discovery is an optional pilot. A long-running dev/server
+      // process can temporarily hold the pre-migration Prisma client, where
+      // this delegate does not exist yet. Never let that block the core
+      // campaign flow; prompt-only generation remains the supported fallback.
+      const referenceCandidate = (
+        prisma as typeof prisma & {
+          referenceCandidate?: typeof prisma.referenceCandidate;
+        }
+      ).referenceCandidate;
+      if (referenceCandidate) {
+        const candidate = await referenceCandidate.findFirst({
+          where: {
+            business_id: business.id,
+            status: "APPROVED",
+            approved_asset_id: { not: null },
+            service_category: { in: serviceCategories.map((value) => value.toUpperCase()) },
+          },
+          orderBy: [{ quality_score: "desc" }, { updated_at: "desc" }],
+        });
+        if (candidate?.approved_asset_id) {
+          const asset = await prisma.brandAsset.findFirst({
+            where: { id: candidate.approved_asset_id, business_id: business.id, kind: "REFERENCE" },
+            select: { url: true, reference_subject: true },
+          });
+          if (asset) {
+            const fetched = await fetchReferenceImageBytes(asset.url);
+            if (fetched.ok) approvedReference = { data: fetched.data, mimeType: fetched.mimeType, subject: asset.reference_subject ?? "STYLE" };
+          }
+        }
+      }
+    }
 
     let mediaUrl: string | null = null;
     try {
@@ -456,6 +501,9 @@ export async function generateGrowthCampaignAction(
         actionCategory: offer.actionCategory,
         imageProfile: imageProfileSelection,
         ownerImageDirection,
+        creativeContext,
+        creativeBrief: imagePrompts[0]?.prompt || creativeContext.visualBrief,
+        reference: approvedReference,
       });
     } catch (error) {
       console.warn("Failed to auto-generate growth campaign social image:", error);
@@ -529,6 +577,7 @@ export async function generateGrowthCampaignAction(
             opportunityType: opportunity.type,
             score: opportunity.total_score,
             confidence: opportunity.confidence_score,
+            creativeContext,
           }),
           sale_event_id: saleEventId,
           social_post_id: socialPost.id,

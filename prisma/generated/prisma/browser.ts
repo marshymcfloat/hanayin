@@ -99,6 +99,11 @@ export type SpecialDate = Prisma.SpecialDateModel
  */
 export type BrandAsset = Prisma.BrandAssetModel
 /**
+ * Model ReferenceCandidate
+ * 
+ */
+export type ReferenceCandidate = Prisma.ReferenceCandidateModel
+/**
  * Model Owner
  * 
  */

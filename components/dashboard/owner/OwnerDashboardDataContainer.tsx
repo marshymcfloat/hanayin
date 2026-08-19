@@ -30,9 +30,7 @@ export default async function OwnerDashboardDataContainer({
   const nowPH = getCurrentDateTimePH();
   const startOfToday = getStartOfDayPH(nowPH);
   const endOfToday = getEndOfDayPH(nowPH);
-  const metricWindowStart = new Date(
-    nowPH.getTime() - 7 * 24 * 60 * 60 * 1000,
-  );
+  const metricWindowStart = new Date(nowPH.getTime() - 7 * 24 * 60 * 60 * 1000);
   const chartWindowStart = new Date(
     nowPH.getTime() - 400 * 24 * 60 * 60 * 1000,
   );
@@ -64,9 +62,6 @@ export default async function OwnerDashboardDataContainer({
   }
 
   const gcashQueueResult = await getGcashVerificationQueueAction(businessSlug);
-  const gcashVerificationItems = gcashQueueResult.success
-    ? gcashQueueResult.verificationItems
-    : [];
   const gcashFollowUpItems = gcashQueueResult.success
     ? gcashQueueResult.followUpItems
     : [];
@@ -439,8 +434,12 @@ export default async function OwnerDashboardDataContainer({
   const publicConversionRate =
     publicStarted > 0 ? (publicCompleted / publicStarted) * 100 : 0;
 
-  const todayExpenseTotal = todayExpenseResult.success ? todayExpenseResult.total : 0;
-  const todayRecentExpenses = todayExpenseResult.success ? todayExpenseResult.recentExpenses : [];
+  const todayExpenseTotal = todayExpenseResult.success
+    ? todayExpenseResult.total
+    : 0;
+  const todayRecentExpenses = todayExpenseResult.success
+    ? todayExpenseResult.recentExpenses
+    : [];
 
   const staffingConflictAlerts = rawConflictSignals.map((signal) => {
     const payload = toObjectRecord(signal.payload);
@@ -486,7 +485,6 @@ export default async function OwnerDashboardDataContainer({
       reportsEnabled={entitlements.reportsCore}
       todayExpenseTotal={todayExpenseTotal}
       todayRecentExpenses={todayRecentExpenses}
-      gcashVerificationItems={gcashVerificationItems}
       gcashFollowUpItems={gcashFollowUpItems}
     />
   );

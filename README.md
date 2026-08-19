@@ -168,7 +168,7 @@ docker run -p 3000:3000 --env-file .env service-flow
 ### Vercel
 
 - Set the same environment variables in your Vercel project.
-- Configure external scheduler jobs (for example `cron-job.org`) to hit the cron endpoints with auth.
+- Configure external scheduler jobs (for example `cron-job.org`) to hit the cron endpoints with auth. Run `/api/cron/process-outbox` every minute for prompt confirmation messages and `/api/cron/reminders` at least every 5 minutes for timely 30-minute reminders.
 - Ensure PayMongo webhook points to `/api/paymongo/webhook`.
 
 ## Project structure

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Booking,
@@ -64,7 +64,11 @@ import {
 } from "@/components/bookings/BookingQuickPanel";
 import { useViewer } from "@/lib/auth/viewer-context";
 import { cn } from "@/lib/utils";
-import { BOOKING_PAYMENT_STAGE_LABELS, deriveBookingPaymentStage, type BookingPaymentStage } from "@/lib/utils/booking-payment-stage";
+import {
+  BOOKING_PAYMENT_STAGE_LABELS,
+  deriveBookingPaymentStage,
+  type BookingPaymentStage,
+} from "@/lib/utils/booking-payment-stage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -131,10 +135,17 @@ export function BookingList({
   );
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [selectedBooking, setSelectedBooking] = useState<BookingWithDetails | null>(null);
+  const [selectedBooking, setSelectedBooking] =
+    useState<BookingWithDetails | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Deep-link auto-open. Runs once per change of initialOpenBookingId
   // (which only changes if the user navigates with a different ?open=).
@@ -239,11 +250,27 @@ export function BookingList({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[180px] rounded-xl">
-        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider">Actions</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider">
+          Actions
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="rounded-lg cursor-pointer" onClick={() => openBookingDetails(booking)}>
+        <DropdownMenuItem
+          className="rounded-lg cursor-pointer"
+          onClick={() => openBookingDetails(booking)}
+        >
           View Details
         </DropdownMenuItem>
+        {viewerContext.role === "OWNER" &&
+          deriveBookingPaymentStage(booking) === "AWAITING_PAYMENT" &&
+          booking.hold_expires_at &&
+          new Date(booking.hold_expires_at).getTime() > currentTime && (
+            <DropdownMenuItem
+              className="rounded-lg cursor-pointer font-medium text-primary focus:text-primary"
+              onClick={() => openBookingDetails(booking)}
+            >
+              Check GCash
+            </DropdownMenuItem>
+          )}
         {booking.status === "ACCEPTED" && (
           <DropdownMenuItem
             className="text-destructive focus:text-destructive focus:bg-destructive/10 rounded-lg cursor-pointer"
@@ -262,7 +289,10 @@ export function BookingList({
                   Delete
                 </div>
               </AlertDialogTrigger>
-              <AlertDialogContent onClick={(e) => e.stopPropagation()} className="rounded-2xl">
+              <AlertDialogContent
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-2xl"
+              >
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Booking?</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -274,7 +304,9 @@ export function BookingList({
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                  <AlertDialogCancel className="rounded-xl">
+                    Cancel
+                  </AlertDialogCancel>
                   <AlertDialogAction
                     className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     onClick={() => handleDelete(booking.id)}
@@ -301,10 +333,13 @@ export function BookingList({
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">Bookings</h1>
-                <p className="text-xs text-muted-foreground">View and manage all customer appointments.</p>
+                <p className="text-xs text-muted-foreground">
+                  View and manage all customer appointments.
+                </p>
               </div>
               <span className="ml-auto rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                {bookings.length} {bookings.length === 1 ? "booking" : "bookings"}
+                {bookings.length}{" "}
+                {bookings.length === 1 ? "booking" : "bookings"}
               </span>
             </div>
           </div>
@@ -329,9 +364,15 @@ export function BookingList({
                 </SelectTrigger>
                 <SelectContent position="popper" className="rounded-xl">
                   <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="AWAITING_PAYMENT">Awaiting payment</SelectItem>
-                  <SelectItem value="AWAITING_VERIFICATION">Awaiting verification</SelectItem>
-                  <SelectItem value="NEEDS_RESOLUTION">Needs resolution</SelectItem>
+                  <SelectItem value="AWAITING_PAYMENT">
+                    Awaiting payment
+                  </SelectItem>
+                  <SelectItem value="AWAITING_VERIFICATION">
+                    Awaiting verification
+                  </SelectItem>
+                  <SelectItem value="NEEDS_RESOLUTION">
+                    Needs resolution
+                  </SelectItem>
                   <SelectItem value="CONFIRMED">Confirmed</SelectItem>
                   <SelectItem value="COMPLETED">Completed</SelectItem>
                   <SelectItem value="REJECTED">Rejected</SelectItem>
@@ -345,7 +386,9 @@ export function BookingList({
                 className="h-9 gap-2 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground cursor-pointer ml-auto"
                 onClick={handleRefresh}
               >
-                <RefreshCcw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                <RefreshCcw
+                  className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
             </div>
@@ -373,25 +416,42 @@ export function BookingList({
                           </span>
                         </div>
                       </div>
-                      <Badge variant="outline" className={cn("text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg", getStatusClass(deriveBookingPaymentStage(booking)))}>
-                        {BOOKING_PAYMENT_STAGE_LABELS[deriveBookingPaymentStage(booking)]}
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg",
+                          getStatusClass(deriveBookingPaymentStage(booking)),
+                        )}
+                      >
+                        {
+                          BOOKING_PAYMENT_STAGE_LABELS[
+                            deriveBookingPaymentStage(booking)
+                          ]
+                        }
                       </Badge>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 py-3 border-y border-border/50">
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Date</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                          Date
+                        </span>
                         <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                           <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                           {formatPH(booking.created_at, "MMM d, h:mm a")}
                         </div>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Total</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                          Total
+                        </span>
                         <div className="flex flex-col items-start gap-0.5">
                           {booking.total_discount > 0 && (
                             <span className="text-xs text-muted-foreground line-through">
-                              ₱{(booking.grand_total + booking.total_discount).toLocaleString()}
+                              ₱
+                              {(
+                                booking.grand_total + booking.total_discount
+                              ).toLocaleString()}
                             </span>
                           )}
                           <span className="text-sm font-bold text-foreground">
@@ -402,8 +462,13 @@ export function BookingList({
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Tap to view details</span>
-                      <div className="flex items-center gap-1 -mr-2" onClick={(e) => e.stopPropagation()}>
+                      <span className="text-xs text-muted-foreground">
+                        Tap to view details
+                      </span>
+                      <div
+                        className="flex items-center gap-1 -mr-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button
                           size="sm"
                           variant="ghost"
@@ -423,8 +488,12 @@ export function BookingList({
                   <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center mb-4">
                     <Calendar className="h-6 w-6 text-muted-foreground/40" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">No bookings found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search or filters.</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    No bookings found
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Try adjusting your search or filters.
+                  </p>
                 </div>
               )}
             </div>
@@ -434,12 +503,24 @@ export function BookingList({
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-border bg-muted/50">
-                    <TableHead className="pl-6 w-[90px] font-semibold text-muted-foreground h-11">ID</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground h-11">Customer</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground h-11">Date & Time</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground h-11">Status</TableHead>
-                    <TableHead className="text-right font-semibold text-muted-foreground h-11">Total</TableHead>
-                    <TableHead className="text-right pr-6 font-semibold text-muted-foreground h-11">Actions</TableHead>
+                    <TableHead className="pl-6 w-[90px] font-semibold text-muted-foreground h-11">
+                      ID
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground h-11">
+                      Customer
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground h-11">
+                      Date & Time
+                    </TableHead>
+                    <TableHead className="font-semibold text-muted-foreground h-11">
+                      Status
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-muted-foreground h-11">
+                      Total
+                    </TableHead>
+                    <TableHead className="text-right pr-6 font-semibold text-muted-foreground h-11">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -465,7 +546,9 @@ export function BookingList({
                                 {getBookingCustomerName(booking)}
                               </span>
                               {booking.customer?.phone && (
-                                <span className="text-xs text-muted-foreground">{booking.customer.phone}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {booking.customer.phone}
+                                </span>
                               )}
                             </div>
                           </div>
@@ -473,33 +556,65 @@ export function BookingList({
                         <TableCell className="text-muted-foreground font-medium py-4">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
-                            {formatPH(booking.created_at, "MMM d, yyyy • h:mm a")}
+                            {formatPH(
+                              booking.created_at,
+                              "MMM d, yyyy • h:mm a",
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="py-4">
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg", getStatusClass(deriveBookingPaymentStage(booking)))}>
-                              {BOOKING_PAYMENT_STAGE_LABELS[deriveBookingPaymentStage(booking)]}
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg",
+                                getStatusClass(
+                                  deriveBookingPaymentStage(booking),
+                                ),
+                              )}
+                            >
+                              {
+                                BOOKING_PAYMENT_STAGE_LABELS[
+                                  deriveBookingPaymentStage(booking)
+                                ]
+                              }
                             </Badge>
-                            {booking.status === "ACCEPTED" && (booking.downpayment || 0) > 0 && booking.grand_total > (booking.downpayment || 0) && (
-                              <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800 text-[10px] px-2 py-0.5 font-medium rounded-md">
-                                Bal: ₱{(booking.grand_total - (booking.downpayment || 0)).toLocaleString()}
-                              </Badge>
-                            )}
+                            {booking.status === "ACCEPTED" &&
+                              (booking.downpayment || 0) > 0 &&
+                              booking.grand_total >
+                                (booking.downpayment || 0) && (
+                                <Badge
+                                  variant="outline"
+                                  className="border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800 text-[10px] px-2 py-0.5 font-medium rounded-md"
+                                >
+                                  Bal: ₱
+                                  {(
+                                    booking.grand_total -
+                                    (booking.downpayment || 0)
+                                  ).toLocaleString()}
+                                </Badge>
+                              )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right py-4">
                           <div className="flex items-center justify-end gap-2">
                             {booking.total_discount > 0 && (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 border-primary/30 bg-primary/10 text-primary hidden xl:inline-flex">
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] px-1.5 py-0.5 border-primary/30 bg-primary/10 text-primary hidden xl:inline-flex"
+                              >
                                 -{booking.total_discount.toLocaleString()}
-                                {booking.vouchers.length > 0 && ` (${booking.vouchers[0].code})`}
+                                {booking.vouchers.length > 0 &&
+                                  ` (${booking.vouchers[0].code})`}
                               </Badge>
                             )}
                             <div className="flex flex-col items-end gap-0.5">
                               {booking.total_discount > 0 && (
                                 <span className="text-xs text-muted-foreground line-through">
-                                  ₱{(booking.grand_total + booking.total_discount).toLocaleString()}
+                                  ₱
+                                  {(
+                                    booking.grand_total + booking.total_discount
+                                  ).toLocaleString()}
                                 </span>
                               )}
                               <span className="font-bold text-foreground text-base">
@@ -509,7 +624,10 @@ export function BookingList({
                           </div>
                         </TableCell>
                         <TableCell className="text-right pr-6 py-4">
-                          <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                          <div
+                            className="flex justify-end gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             {renderBookingActions(booking)}
                           </div>
                         </TableCell>
@@ -523,8 +641,12 @@ export function BookingList({
                             <Calendar className="h-6 w-6 text-muted-foreground/40" />
                           </div>
                           <div className="space-y-1">
-                            <p className="text-base font-semibold text-foreground">No bookings found</p>
-                            <p className="text-sm text-muted-foreground">Try adjusting your search or filters.</p>
+                            <p className="text-base font-semibold text-foreground">
+                              No bookings found
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Try adjusting your search or filters.
+                            </p>
                           </div>
                         </div>
                       </TableCell>

@@ -15,6 +15,10 @@ export const GCASH_RESOLUTION_OUTCOMES = [
 
 export type GcashResolutionOutcome = (typeof GCASH_RESOLUTION_OUTCOMES)[number];
 
+export type GcashVerificationSource =
+  | "CUSTOMER_SUBMITTED"
+  | "OWNER_VERIFIED_WITHOUT_SUBMISSION";
+
 export type GcashVerificationItem = {
   id: number;
   stage: "AWAITING_VERIFICATION" | "NEEDS_RESOLUTION";

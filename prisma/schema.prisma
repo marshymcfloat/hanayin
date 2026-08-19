@@ -72,6 +72,7 @@ model Business {
   business_hours                    BusinessHours[]
   service_flows                     ServiceFlow[]
   brand_assets                      BrandAsset[]
+  reference_candidates              ReferenceCandidate[]
   growth_settings                   BusinessGrowthSettings?
   growth_context_snapshots          GrowthContextSnapshot[]
   opportunities                     Opportunity[]
@@ -743,6 +744,39 @@ model BrandAsset {
   @@index([employee_id])
 }
 
+enum ReferenceCandidateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ReferenceCandidate {
+  id          String   @id @default(cuid())
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  provider       String
+  provider_id    String?
+  source_url     String
+  preview_url    String?
+  creator_name   String?
+  attribution    String?
+  license_status String
+  service_category String
+  mood_tags      String[] @default([])
+  quality_score  Float    @default(0)
+  content_hash   String?
+  link_only      Boolean  @default(false)
+  status         ReferenceCandidateStatus @default(PENDING)
+  approved_asset_id String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([business_id, provider, source_url])
+  @@index([business_id, status, service_category])
+}
+
 model Owner {
   id      Int    @id @default(autoincrement())
   user_id String @unique
@@ -1204,6 +1238,10 @@ model Booking {
   scheduled_at              DateTime? // When the booking is scheduled to start
   estimated_end             DateTime? // Calculated from service durations
   reminder_sent             Boolean   @default(false)
+  reminder_sent_at          DateTime?
+  reminder_message_id       String?
+  reminder_last_error       String?
+  reminder_attempts         Int       @default(0)
   hold_expires_at           DateTime? // Legacy: was used for QRPH payment hold
   capacity_override_applied Boolean   @default(false)
   capacity_override_reason  String?

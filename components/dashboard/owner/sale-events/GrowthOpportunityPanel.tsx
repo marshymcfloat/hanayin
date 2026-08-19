@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { CalendarClock, Loader2, Megaphone, RefreshCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarClock, Check, Loader2, Megaphone, RefreshCcw, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -130,6 +130,8 @@ export function GrowthOpportunityPanel(props: {
   const [isRefreshing, startRefresh] = useTransition();
   const [isGenerating, setIsGenerating] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [draftStep, setDraftStep] = useState<1 | 2>(1);
+  const [scopeSearch, setScopeSearch] = useState("");
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
   const [selectedPackageIds, setSelectedPackageIds] = useState<number[]>([]);
   const [generatedDraft, setGeneratedDraft] = useState<{
@@ -192,6 +194,28 @@ export function GrowthOpportunityPanel(props: {
         services: [...services].sort((a, b) => a.name.localeCompare(b.name)),
       }));
   }, [props.services]);
+
+  const filteredServicesByCategory = useMemo(() => {
+    const query = scopeSearch.trim().toLowerCase();
+    if (!query) return servicesByCategory;
+    return servicesByCategory
+      .map((group) => ({
+        ...group,
+        services: group.services.filter((service) =>
+          `${service.name} ${group.category}`.toLowerCase().includes(query),
+        ),
+      }))
+      .filter((group) => group.services.length > 0);
+  }, [scopeSearch, servicesByCategory]);
+
+  const filteredPackages = useMemo(() => {
+    const query = scopeSearch.trim().toLowerCase();
+    return query
+      ? props.packages.filter((pkg) => pkg.name.toLowerCase().includes(query))
+      : props.packages;
+  }, [scopeSearch, props.packages]);
+
+  const selectedScopeCount = selectedServiceIds.length + selectedPackageIds.length;
   const allServiceIds = useMemo(
     () => props.services.map((service) => service.id),
     [props.services],
@@ -372,7 +396,7 @@ export function GrowthOpportunityPanel(props: {
 
   return (
     <>
-      <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
+      <article className="rounded-2xl bg-muted/30 p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Megaphone className="size-4 text-emerald-600" />
@@ -383,7 +407,7 @@ export function GrowthOpportunityPanel(props: {
         <button
           type="button"
           onClick={refresh}
-          className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-50"
+          className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-border bg-background px-3 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground"
           disabled={isRefreshing}
         >
           {isRefreshing ? (
@@ -401,20 +425,13 @@ export function GrowthOpportunityPanel(props: {
         </div>
       ) : (
         <>
-          <p className="mt-3 text-sm font-medium text-zinc-900">{opportunity.reason}</p>
-          <p className="mt-1 text-xs text-zinc-500">
-            {opportunity.type.replaceAll("_", " ")} | Score{" "}
-            {(opportunity.score * 100).toFixed(0)}% | Confidence{" "}
-            {(opportunity.confidence * 100).toFixed(0)}%
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Window: {formatDateTime(opportunity.timeWindowStart)} to{" "}
-            {formatDateTime(opportunity.timeWindowEnd)}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Suggested offer:{" "}
-            {opportunity.recommendedOfferTypes.join(", ").replaceAll("_", " ")}
-          </p>
+          <p className="mt-4 max-w-3xl text-base font-semibold leading-6 text-foreground">{opportunity.reason}</p>
+          <dl className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-border bg-background px-3 py-2.5"><dt className="text-[11px] font-medium text-muted-foreground">Opportunity</dt><dd className="mt-1 text-sm font-semibold capitalize text-foreground">{opportunity.type.replaceAll("_", " ").toLowerCase()}</dd></div>
+            <div className="rounded-xl border border-border bg-background px-3 py-2.5"><dt className="text-[11px] font-medium text-muted-foreground">Confidence</dt><dd className="mt-1 text-sm font-semibold tabular-nums text-foreground">{(opportunity.confidence * 100).toFixed(0)}%</dd></div>
+            <div className="rounded-xl border border-border bg-background px-3 py-2.5"><dt className="text-[11px] font-medium text-muted-foreground">Suggested offer</dt><dd className="mt-1 text-sm font-semibold capitalize text-foreground">{opportunity.recommendedOfferTypes.join(", ").replaceAll("_", " ").toLowerCase()}</dd></div>
+            <div className="rounded-xl border border-border bg-background px-3 py-2.5"><dt className="text-[11px] font-medium text-muted-foreground">Best window</dt><dd className="mt-1 text-xs font-semibold leading-5 text-foreground">{formatDateTime(opportunity.timeWindowStart)} – {formatDateTime(opportunity.timeWindowEnd)}</dd></div>
+          </dl>
 
           {capacitySummary ? (
             <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2">
@@ -427,10 +444,19 @@ export function GrowthOpportunityPanel(props: {
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {props.growthAiEnabled ? (
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <Dialog
+                open={dialogOpen}
+                onOpenChange={(open) => {
+                  setDialogOpen(open);
+                  if (!open) {
+                    setDraftStep(1);
+                    setScopeSearch("");
+                  }
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button
-                    className="h-8 bg-emerald-600 px-3 text-xs text-white hover:bg-emerald-700"
+                    className="h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors duration-200 hover:bg-primary/90"
                     disabled={isGenerating}
                   >
                     {isGenerating ? (
@@ -439,36 +465,72 @@ export function GrowthOpportunityPanel(props: {
                     {isGenerating ? "Generating Draft..." : "Create Draft Event + Post"}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-3xl">
-                  <DialogHeader>
-                    <DialogTitle>Create Draft Event + Post</DialogTitle>
-                    <DialogDescription>
-                      Select service/package scope, then create a draft campaign.
-                      Leave both tabs unselected to auto-pick best-fit services.
+                <DialogContent className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-4xl sm:rounded-[28px] sm:border">
+                  <DialogHeader className="shrink-0 border-b border-border bg-background px-5 pb-4 pt-5 pr-14 sm:px-7 sm:pb-5 sm:pt-6">
+                    <div className="mb-4 flex items-center gap-2" aria-label={`Step ${draftStep} of 2`}>
+                      {[1, 2].map((step) => (
+                        <div key={step} className="flex flex-1 items-center gap-2">
+                          <span className={`flex size-7 items-center justify-center rounded-full text-xs font-semibold ${draftStep >= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                            {draftStep > step ? <Check className="size-3.5" /> : step}
+                          </span>
+                          <span className={`hidden text-xs font-medium sm:inline ${draftStep >= step ? "text-foreground" : "text-muted-foreground"}`}>
+                            {step === 1 ? "Choose scope" : "Campaign details"}
+                          </span>
+                          {step === 1 ? <span className="h-px flex-1 bg-border" /> : null}
+                        </div>
+                      ))}
+                    </div>
+                    <DialogTitle className="text-xl font-semibold tracking-tight sm:text-2xl">
+                      {draftStep === 1 ? "What should this campaign promote?" : "Shape your draft campaign"}
+                    </DialogTitle>
+                    <DialogDescription className="mt-1 max-w-2xl text-sm leading-6">
+                      {draftStep === 1
+                        ? "Choose services or packages, or let AI select the best fit for this opportunity."
+                        : "Confirm the offer and choose a creative style."}
                     </DialogDescription>
                   </DialogHeader>
 
-                  <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-3 text-xs text-zinc-700">
-                    <p className="font-semibold text-zinc-900">What will happen</p>
-                    <ul className="mt-2 list-disc space-y-1 pl-4">
-                      <li>A draft sale event is created.</li>
-                      <li>A social post draft is created.</li>
-                      <li>Nothing is published automatically.</li>
-                    </ul>
-                  </div>
+                  <div className="min-h-0 flex-1 overflow-y-auto bg-background px-4 py-3 sm:px-7 sm:py-4">
+                  {draftStep === 1 ? (
+                  <div className="mx-auto max-w-4xl space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedServiceIds([]);
+                        setSelectedPackageIds([]);
+                      }}
+                      className={`flex w-full cursor-pointer items-center gap-3 border-b px-1 py-3 text-left transition-colors duration-200 ${selectedScopeCount === 0 ? "border-primary text-foreground" : "border-border hover:bg-muted/30"}`}
+                    >
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Sparkles className="size-4" /></span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2 font-semibold text-foreground">AI chooses the best fit {selectedScopeCount === 0 ? <Check className="size-4 text-primary" /> : null}</span>
+                        <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">Recommended — matches this opportunity with the most relevant services.</span>
+                      </span>
+                    </button>
 
-                  <Tabs defaultValue="services" className="rounded-md border p-3">
-                    <TabsList className="grid h-10 w-full grid-cols-2">
-                      <TabsTrigger value="services">
-                        Services ({selectedServiceIds.length})
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        value={scopeSearch}
+                        onChange={(event) => setScopeSearch(event.target.value)}
+                        placeholder="Search services or packages"
+                        aria-label="Search services or packages"
+                        className="h-10 rounded-lg border-border bg-background pl-10 shadow-none"
+                      />
+                    </div>
+
+                  <Tabs defaultValue="services" className="w-full">
+                    <TabsList className="grid h-10 w-full grid-cols-2 rounded-none border-b border-border bg-transparent p-0">
+                      <TabsTrigger value="services" className="h-10 rounded-none border-b-2 border-transparent bg-transparent shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+                        Services <span className="ml-1 tabular-nums text-muted-foreground">{selectedServiceIds.length}</span>
                       </TabsTrigger>
-                      <TabsTrigger value="packages">
-                        Packages ({selectedPackageIds.length})
+                      <TabsTrigger value="packages" className="h-10 rounded-none border-b-2 border-transparent bg-transparent shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+                        Packages <span className="ml-1 tabular-nums text-muted-foreground">{selectedPackageIds.length}</span>
                       </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="services" className="mt-3 space-y-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
+                    <TabsContent value="services" className="mt-0">
+                      <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-border px-1">
                         <label className="flex items-center gap-2 text-sm font-medium">
                           <Checkbox
                             checked={
@@ -496,12 +558,12 @@ export function GrowthOpportunityPanel(props: {
                         </Button>
                       </div>
 
-                      {servicesByCategory.length === 0 ? (
+                      {filteredServicesByCategory.length === 0 ? (
                         <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
-                          No services available yet.
+                          {scopeSearch ? "No services match your search." : "No services available yet."}
                         </p>
                       ) : (
-                        servicesByCategory.map(({ category, services }) => {
+                        filteredServicesByCategory.map(({ category, services }) => {
                           const categoryServiceIds = services.map((service) => service.id);
                           const categoryAllSelected = isAllSelected(
                             selectedServiceIds,
@@ -512,8 +574,8 @@ export function GrowthOpportunityPanel(props: {
                             isPartiallySelected(selectedServiceIds, categoryServiceIds);
 
                           return (
-                            <div key={category} className="rounded-md border p-3">
-                              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <section key={category} className="border-b border-border py-3 last:border-b-0">
+                              <div className="mb-1 flex flex-wrap items-center justify-between gap-2 px-1">
                                 <div>
                                   <p className="text-sm font-medium text-zinc-800">
                                     {category}
@@ -546,11 +608,11 @@ export function GrowthOpportunityPanel(props: {
                                 </label>
                               </div>
 
-                              <div className="grid gap-2 sm:grid-cols-2">
+                              <div className="grid gap-x-5 sm:grid-cols-2">
                                 {services.map((service) => (
                                   <label
                                     key={service.id}
-                                    className="flex min-h-10 items-center gap-2 text-sm text-zinc-700"
+                                    className="flex min-h-9 cursor-pointer items-center gap-2 px-1 text-sm text-foreground transition-colors hover:bg-muted/40"
                                   >
                                     <Checkbox
                                       checked={selectedServiceIds.includes(service.id)}
@@ -562,14 +624,14 @@ export function GrowthOpportunityPanel(props: {
                                   </label>
                                 ))}
                               </div>
-                            </div>
+                            </section>
                           );
                         })
                       )}
                     </TabsContent>
 
-                    <TabsContent value="packages" className="mt-3 space-y-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
+                    <TabsContent value="packages" className="mt-0">
+                      <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-border px-1">
                         <label className="flex items-center gap-2 text-sm font-medium">
                           <Checkbox
                             checked={
@@ -597,16 +659,16 @@ export function GrowthOpportunityPanel(props: {
                         </Button>
                       </div>
 
-                      {props.packages.length === 0 ? (
+                      {filteredPackages.length === 0 ? (
                         <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
-                          No packages available yet.
+                          {scopeSearch ? "No packages match your search." : "No packages available yet."}
                         </p>
                       ) : (
-                        <div className="grid gap-2 rounded-md border p-3 sm:grid-cols-2">
-                          {props.packages.map((pkg) => (
+                        <div className="grid gap-x-5 py-2 sm:grid-cols-2">
+                          {filteredPackages.map((pkg) => (
                             <label
                               key={pkg.id}
-                              className="flex min-h-10 items-center gap-2 text-sm text-zinc-700"
+                              className="flex min-h-9 cursor-pointer items-center gap-2 px-1 text-sm text-foreground transition-colors hover:bg-muted/40"
                             >
                               <Checkbox
                                 checked={selectedPackageIds.includes(pkg.id)}
@@ -621,9 +683,11 @@ export function GrowthOpportunityPanel(props: {
                       )}
                     </TabsContent>
                   </Tabs>
-
-                  <div className="space-y-4 rounded-md border border-zinc-200 p-3">
-                    <p className="text-sm font-semibold text-zinc-800">Campaign Details</p>
+                  </div>
+                  ) : (
+                  <div className="mx-auto flex max-w-4xl flex-col gap-4">
+                  <div className="space-y-4">
+                    <p className="text-sm font-semibold text-foreground">Offer &amp; timing</p>
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1">
@@ -639,9 +703,6 @@ export function GrowthOpportunityPanel(props: {
                           placeholder="e.g. 15"
                           className="h-9 text-sm"
                         />
-                        <p className="text-[11px] text-zinc-500">
-                          Only applied for discount-type offers (Flash Deal, Limited Slots)
-                        </p>
                       </div>
 
                       <div className="space-y-1">
@@ -687,24 +748,17 @@ export function GrowthOpportunityPanel(props: {
                     {/* Voice & visuals — owner-overridable. Defaults come from
                         recommendCampaignStyling based on the opportunity type
                         and the dominant service category. */}
-                    <div className="space-y-3 rounded-lg border border-zinc-100 bg-zinc-50/40 p-3">
+                    <div className="space-y-3 border-t border-border pt-4">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-zinc-700">
-                          Voice & visuals
+                        <p className="text-sm font-semibold text-foreground">
+                           Creative style
                         </p>
                         {stylingRecommendation && (
                           <span
-                            className="text-[10px] font-medium text-emerald-700"
+                            className="text-[11px] font-medium text-primary"
                             title={stylingRecommendation.rationale}
                           >
-                            Engine recommends:{" "}
-                            {stylingRecommendation.captionTone
-                              .toLowerCase()
-                              .replace(/_/g, " ")}{" "}
-                            +{" "}
-                            {stylingRecommendation.imageProfile
-                              .toLowerCase()
-                              .replace(/_/g, " ")}
+                            Recommended defaults applied
                           </span>
                         )}
                       </div>
@@ -720,18 +774,15 @@ export function GrowthOpportunityPanel(props: {
                               setCaptionTone(value as CaptionTone)
                             }
                           >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue />
+                            <SelectTrigger className="h-10 rounded-lg bg-background text-sm shadow-none">
+                              <SelectValue>
+                                {CAPTION_TONE_OPTIONS.find((option) => option.value === captionTone)?.label ?? "Recommended"}
+                              </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
                               {CAPTION_TONE_OPTIONS.map((opt) => (
                                 <SelectItem key={opt.value} value={opt.value}>
-                                  <div className="flex flex-col">
-                                    <span>{opt.label}</span>
-                                    <span className="text-[10px] text-zinc-500">
-                                      {opt.hint}
-                                    </span>
-                                  </div>
+                                  {opt.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -748,26 +799,18 @@ export function GrowthOpportunityPanel(props: {
                               setImageProfile(value as SocialImageProfile | "AUTO")
                             }
                           >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue />
+                            <SelectTrigger className="h-10 rounded-lg bg-background text-sm shadow-none">
+                              <SelectValue>
+                                {imageProfile === "AUTO"
+                                  ? "Recommended"
+                                  : SOCIAL_IMAGE_PROFILE_OPTIONS.find((option) => option.value === imageProfile)?.label}
+                              </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="AUTO">
-                                <div className="flex flex-col">
-                                  <span>Recommended (auto)</span>
-                                  <span className="text-[10px] text-zinc-500">
-                                    Pick based on service category.
-                                  </span>
-                                </div>
-                              </SelectItem>
+                              <SelectItem value="AUTO">Recommended</SelectItem>
                               {SOCIAL_IMAGE_PROFILE_OPTIONS.map((opt) => (
                                 <SelectItem key={opt.value} value={opt.value}>
-                                  <div className="flex flex-col">
-                                    <span>{opt.label}</span>
-                                    <span className="text-[10px] text-zinc-500">
-                                      {opt.description}
-                                    </span>
-                                  </div>
+                                  {opt.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -775,57 +818,62 @@ export function GrowthOpportunityPanel(props: {
                         </div>
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-xs font-medium text-zinc-700">
-                          Caption direction{" "}
-                          <span className="font-normal text-zinc-400">
-                            (optional)
-                          </span>
-                        </label>
-                        <Textarea
-                          value={ownerCaptionDirection}
-                          onChange={(e) =>
-                            setOwnerCaptionDirection(e.target.value)
-                          }
-                          placeholder='e.g. "lean into the bestie-bonding angle" or "mention rainy season"'
-                          rows={2}
-                          className="text-sm"
-                          maxLength={400}
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-medium text-zinc-700">
-                          Image direction{" "}
-                          <span className="font-normal text-zinc-400">
-                            (optional)
-                          </span>
-                        </label>
-                        <Textarea
-                          value={ownerImageDirection}
-                          onChange={(e) =>
-                            setOwnerImageDirection(e.target.value)
-                          }
-                          placeholder='e.g. "show eyelash extensions specifically, focus on closed eyes" or "warm candlelit ambiance"'
-                          rows={2}
-                          className="text-sm"
-                          maxLength={400}
-                        />
-                      </div>
+                      <details className="group border-t border-border pt-3">
+                        <summary className="w-fit cursor-pointer select-none text-xs font-medium text-muted-foreground transition-colors hover:text-foreground">
+                          Add creative direction <span className="font-normal">(optional)</span>
+                        </summary>
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          <div className="space-y-1">
+                            <label className="text-xs font-medium text-foreground">Caption notes</label>
+                            <Textarea
+                              value={ownerCaptionDirection}
+                              onChange={(e) => setOwnerCaptionDirection(e.target.value)}
+                              placeholder="Tone, angle, or message to mention"
+                              rows={2}
+                              className="resize-none text-sm"
+                              maxLength={400}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-medium text-foreground">Image notes</label>
+                            <Textarea
+                              value={ownerImageDirection}
+                              onChange={(e) => setOwnerImageDirection(e.target.value)}
+                              placeholder="Subject, setting, or visual detail"
+                              rows={2}
+                              className="resize-none text-sm"
+                              maxLength={400}
+                            />
+                          </div>
+                        </div>
+                      </details>
                     </div>
                   </div>
+                  <aside className="order-first border-b border-border pb-3">
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                      <span><span className="text-muted-foreground">Scope:</span> <strong className="font-medium">{selectedScopeCount === 0 ? "AI best fit" : `${selectedServiceIds.length} services, ${selectedPackageIds.length} packages`}</strong></span>
+                      <span><span className="text-muted-foreground">Offer:</span> <strong className="font-medium">{customDiscount || "—"}% off</strong></span>
+                      <span><span className="text-muted-foreground">Slots:</span> <strong className="font-medium">{customSlotLimit || "Unlimited"}</strong></span>
+                    </div>
+                  </aside>
+                  </div>
+                  )}
+                  </div>
 
-                  <DialogFooter>
+                  <DialogFooter className="shrink-0 flex-row items-center justify-between gap-3 border-t border-border bg-background px-4 py-4 sm:px-7">
                     <Button
                       type="button"
                       variant="ghost"
                       onClick={() => setDialogOpen(false)}
+                      className="h-11 rounded-xl px-4"
                     >
                       Cancel
                     </Button>
-                    <Button
+                    <div className="ml-auto flex items-center gap-2">
+                    {draftStep === 2 ? <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setDraftStep(1)}><ArrowLeft className="mr-2 size-4" />Back</Button> : null}
+                    {draftStep === 1 ? <Button type="button" className="h-11 rounded-xl" onClick={() => setDraftStep(2)}>Continue<ArrowRight className="ml-2 size-4" /></Button> : <Button
                       type="button"
-                      className="bg-emerald-600 text-white hover:bg-emerald-700"
+                      className="h-11 rounded-xl bg-primary px-5 text-primary-foreground hover:bg-primary/90"
                       disabled={isGenerating}
                       onClick={() => {
                         void generateDraft();
@@ -835,7 +883,8 @@ export function GrowthOpportunityPanel(props: {
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : null}
                       Create Draft Event + Post
-                    </Button>
+                    </Button>}
+                    </div>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

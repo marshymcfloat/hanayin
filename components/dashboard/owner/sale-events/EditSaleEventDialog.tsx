@@ -151,19 +151,17 @@ export function EditSaleEventDialog(props: Props) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl rounded-3xl p-0 gap-0">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-bold text-foreground">Edit Sale Event</DialogTitle>
+      <DialogContent className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-3xl sm:rounded-[28px] sm:border">
+        <DialogHeader className="shrink-0 border-b border-border px-5 pb-4 pt-5 pr-14 sm:px-7">
+          <DialogTitle className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">Edit sale event</DialogTitle>
           <DialogDescription className="text-muted-foreground">
             Adjust schedule, discount, and service/package scope.
           </DialogDescription>
         </DialogHeader>
-        <div className="h-px bg-border mx-6" />
-
-        <div className="px-6 py-4 space-y-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-background px-4 py-4 sm:px-7">
           <div className="grid gap-2">
-            <Label>Title</Label>
-            <Input className="h-10 rounded-xl" value={title} onChange={(event) => setTitle(event.target.value)} />
+            <Label htmlFor={`sale-title-${props.event.id}`}>Title</Label>
+            <Input id={`sale-title-${props.event.id}`} className="h-11 rounded-xl bg-background" value={title} onChange={(event) => setTitle(event.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label>Description</Label>
@@ -217,20 +215,20 @@ export function EditSaleEventDialog(props: Props) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
+          <div className="space-y-2 border-t border-border pt-4">
             <p className="text-sm font-semibold text-foreground">Services ({serviceIds.length} selected)</p>
             {servicesByCategory.length === 0 ? (
               <p className="text-xs text-muted-foreground">No services available.</p>
             ) : (
               <div className="space-y-2">
                 {servicesByCategory.map(({ category, services }) => (
-                  <div key={category} className="rounded-lg border border-border bg-background p-3">
+                  <div key={category} className="border-b border-border py-3 last:border-b-0">
                     <p className="mb-2 text-xs font-semibold text-foreground">{category}</p>
                     <div className="grid gap-1.5 sm:grid-cols-2">
                       {services.map((service) => (
                         <label
                           key={service.id}
-                          className="flex items-center gap-2 text-sm text-foreground min-h-10 rounded-md px-2 py-1.5 cursor-pointer hover:bg-accent/30 transition-colors"
+                          className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-foreground transition-colors duration-200 hover:bg-accent/40"
                         >
                           <Checkbox
                             checked={serviceIds.includes(service.id)}
@@ -248,16 +246,16 @@ export function EditSaleEventDialog(props: Props) {
             )}
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
+          <div className="space-y-2 border-t border-border pt-4">
             <p className="text-sm font-semibold text-foreground">Packages ({packageIds.length} selected)</p>
             {props.packages.length === 0 ? (
               <p className="text-xs text-muted-foreground">No packages available.</p>
             ) : (
-              <div className="grid gap-1.5 rounded-lg border border-border bg-background p-3 sm:grid-cols-2">
+              <div className="grid gap-x-4 py-2 sm:grid-cols-2">
                 {props.packages.map((pkg) => (
                   <label
                     key={pkg.id}
-                    className="flex items-center gap-2 text-sm text-foreground min-h-10 rounded-md px-2 py-1.5 cursor-pointer hover:bg-accent/30 transition-colors"
+                    className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-foreground transition-colors duration-200 hover:bg-accent/40"
                   >
                     <Checkbox
                       checked={packageIds.includes(pkg.id)}
@@ -273,13 +271,13 @@ export function EditSaleEventDialog(props: Props) {
           </div>
         </div>
 
-        <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
-          <Button type="button" variant="outline" className="rounded-xl cursor-pointer" onClick={() => setOpen(false)}>
+        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-border bg-background px-4 py-4 sm:px-7">
+          <Button type="button" variant="ghost" className="h-11 cursor-pointer rounded-xl" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button
             type="button"
-            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+            className="h-11 cursor-pointer rounded-xl bg-primary px-5 text-primary-foreground hover:bg-primary/90"
             onClick={onSave}
             disabled={isSaving}
           >

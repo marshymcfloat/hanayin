@@ -11,7 +11,10 @@ import { formatPH } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
-import { BOOKING_PAYMENT_STAGE_LABELS, deriveBookingPaymentStage } from "@/lib/utils/booking-payment-stage";
+import {
+  BOOKING_PAYMENT_STAGE_LABELS,
+  deriveBookingPaymentStage,
+} from "@/lib/utils/booking-payment-stage";
 import type {
   Booking,
   Customer,
@@ -49,11 +52,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  markBookingPaidAction,
-} from "@/lib/server actions/dashboard";
+import { markBookingPaidAction } from "@/lib/server actions/dashboard";
 import { markBookingNoShowAction } from "@/lib/server actions/dashboard/owner";
 import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/booking-addons";
 import { removeBookingServiceAction } from "@/lib/server actions/booking-modify";
@@ -65,7 +66,11 @@ import { AdjustPriceDialog } from "@/components/dashboard/owner/booking-actions/
 import { ReassignStaffDialog } from "@/components/dashboard/owner/booking-actions/ReassignStaffDialog";
 import { BookingNotesPanel } from "@/components/dashboard/owner/booking-actions/BookingNotesPanel";
 import { SwapServiceDialog } from "@/components/dashboard/owner/booking-actions/SwapServiceDialog";
-import { AvailedServiceStatus, PaymentStatus } from "@/prisma/generated/prisma/enums";
+import {
+  AvailedServiceStatus,
+  PaymentStatus,
+} from "@/prisma/generated/prisma/enums";
+import { approveGcashPaymentAction } from "@/lib/server actions/manual-gcash";
 
 type BookingWithDetails = Booking & {
   customer: Customer | null;
@@ -166,7 +171,10 @@ export function BookingDetailsDialog({
   viewerContext = DEFAULT_OWNER_VIEWER,
 }: BookingDetailsDialogProps) {
   const router = useRouter();
+  const params = useParams<{ businessSlug: string }>();
   const [isMarkingPaid, setIsMarkingPaid] = useState(false);
+  const [isVerifyingGcash, setIsVerifyingGcash] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [serviceQuantity, setServiceQuantity] = useState(1);
@@ -191,9 +199,25 @@ export function BookingDetailsDialog({
   };
 
   const amountPaid = Math.max(0, booking?.amount_paid || 0);
-  const remainingBalance = Math.max(0, (booking?.grand_total || 0) - amountPaid);
-  const bookingDateTime = booking?.scheduled_at ?? booking?.created_at ?? new Date();
+  const remainingBalance = Math.max(
+    0,
+    (booking?.grand_total || 0) - amountPaid,
+  );
+  const bookingDateTime =
+    booking?.scheduled_at ?? booking?.created_at ?? new Date();
   const paymentStage = booking ? deriveBookingPaymentStage(booking) : null;
+  const pendingGcashPayment = booking?.payments?.[0];
+  const canVerifyAwaitingPayment =
+    viewerContext.role === "OWNER" &&
+    paymentStage === "AWAITING_PAYMENT" &&
+    pendingGcashPayment?.status === "PENDING" &&
+    !!booking?.hold_expires_at &&
+    new Date(booking.hold_expires_at).getTime() > currentTime;
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const canMarkPaid =
     booking?.status === "ACCEPTED" && booking?.payment_status !== "PAID";
@@ -318,6 +342,33 @@ export function BookingDetailsDialog({
     }
   };
 
+  const handleVerifyUnsubmittedGcash = async () => {
+    if (!pendingGcashPayment || !params.businessSlug) return;
+    setIsVerifyingGcash(true);
+    try {
+      const result = await approveGcashPaymentAction({
+        paymentId: pendingGcashPayment.id,
+        businessSlug: params.businessSlug,
+        source: "OWNER_VERIFIED_WITHOUT_SUBMISSION",
+        attestation: {
+          transactionFound: true,
+          recipientMatched: true,
+          amountMatched: true,
+          detailsReviewed: true,
+        },
+      });
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Payment confirmed. The booking is now accepted.");
+      onOpenChange(false);
+      router.refresh();
+    } finally {
+      setIsVerifyingGcash(false);
+    }
+  };
+
   const handleAddService = async () => {
     if (!canAddService) {
       toast.error("Cannot add services to a cancelled booking.");
@@ -393,7 +444,9 @@ export function BookingDetailsDialog({
                       getStatusColor(booking.status),
                     )}
                   >
-                    {paymentStage ? BOOKING_PAYMENT_STAGE_LABELS[paymentStage] : booking.status}
+                    {paymentStage
+                      ? BOOKING_PAYMENT_STAGE_LABELS[paymentStage]
+                      : booking.status}
                   </Badge>
                   <Badge
                     variant="outline"
@@ -425,23 +478,36 @@ export function BookingDetailsDialog({
                       {getBookingCustomerName(booking)}
                     </span>
                     {booking.is_anonymous_walk_in && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium">
+                      <Badge
+                        variant="outline"
+                        className="text-[9px] px-1.5 py-0 h-4 rounded-md border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium"
+                      >
                         Anonymous walk-in
                       </Badge>
                     )}
                     {booking.customer?.trust_tier === "TRUSTED" && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-primary/30 text-primary bg-primary/10 leading-none font-medium">
+                      <Badge
+                        variant="outline"
+                        className="text-[9px] px-1.5 py-0 h-4 rounded-md border-primary/30 text-primary bg-primary/10 leading-none font-medium"
+                      >
                         Trusted
                       </Badge>
                     )}
                     {booking.customer?.trust_tier === "RESTRICTED" && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-destructive/30 text-destructive bg-destructive/10 leading-none font-medium">
+                      <Badge
+                        variant="outline"
+                        className="text-[9px] px-1.5 py-0 h-4 rounded-md border-destructive/30 text-destructive bg-destructive/10 leading-none font-medium"
+                      >
                         Restricted
                       </Badge>
                     )}
                     {booking.customer && booking.customer.no_show_count > 0 && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 rounded-md border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium">
-                        {booking.customer.no_show_count} no-show{booking.customer.no_show_count > 1 ? "s" : ""}
+                      <Badge
+                        variant="outline"
+                        className="text-[9px] px-1.5 py-0 h-4 rounded-md border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium"
+                      >
+                        {booking.customer.no_show_count} no-show
+                        {booking.customer.no_show_count > 1 ? "s" : ""}
                       </Badge>
                     )}
                   </div>
@@ -450,13 +516,17 @@ export function BookingDetailsDialog({
                       {booking.customer?.phone && (
                         <div className="flex items-center gap-1.5">
                           <Phone className="h-3 w-3" />
-                          <span className="font-medium text-foreground/80">{booking.customer.phone}</span>
+                          <span className="font-medium text-foreground/80">
+                            {booking.customer.phone}
+                          </span>
                         </div>
                       )}
                       {booking.customer?.email && (
                         <div className="flex items-center gap-1.5 min-w-0">
                           <Mail className="h-3 w-3 shrink-0" />
-                          <span className="font-medium text-foreground/80 truncate">{booking.customer.email}</span>
+                          <span className="font-medium text-foreground/80 truncate">
+                            {booking.customer.email}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -470,16 +540,123 @@ export function BookingDetailsDialog({
                     GCash payment review
                   </h3>
                   <dl className="grid grid-cols-2 gap-3 rounded-2xl border bg-muted/30 p-4 text-xs sm:grid-cols-3">
-                    <div><dt className="text-muted-foreground">Expected amount</dt><dd className="font-semibold">₱{booking.payments[0].amount_principal.toLocaleString()}</dd></div>
-                    <div><dt className="text-muted-foreground">Payer</dt><dd>{booking.payments[0].payer_name || "Not provided"}</dd></div>
-                    <div><dt className="text-muted-foreground">Reference</dt><dd className="break-all font-mono">{booking.payments[0].provider_reference || "Not provided"}</dd></div>
-                    <div><dt className="text-muted-foreground">Submitted</dt><dd>{booking.payments[0].submitted_at ? formatPH(booking.payments[0].submitted_at, "MMM d, h:mm a") : "Not submitted"}</dd></div>
-                    <div><dt className="text-muted-foreground">Reviewed by</dt><dd>{booking.payments[0].verified_by?.name || "Not reviewed"}</dd></div>
-                    <div><dt className="text-muted-foreground">Reviewed</dt><dd>{booking.payments[0].verified_at ? formatPH(booking.payments[0].verified_at, "MMM d, h:mm a") : "Not reviewed"}</dd></div>
+                    <div>
+                      <dt className="text-muted-foreground">Expected amount</dt>
+                      <dd className="font-semibold">
+                        ₱{booking.payments[0].amount_principal.toLocaleString()}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Payer</dt>
+                      <dd>
+                        {booking.payments[0].payer_name || "Not provided"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Reference</dt>
+                      <dd className="break-all font-mono">
+                        {booking.payments[0].provider_reference ||
+                          "Not provided"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Submitted</dt>
+                      <dd>
+                        {booking.payments[0].submitted_at
+                          ? formatPH(
+                              booking.payments[0].submitted_at,
+                              "MMM d, h:mm a",
+                            )
+                          : "Not submitted"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Reviewed by</dt>
+                      <dd>
+                        {booking.payments[0].verified_by?.name ||
+                          "Not reviewed"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Reviewed</dt>
+                      <dd>
+                        {booking.payments[0].verified_at
+                          ? formatPH(
+                              booking.payments[0].verified_at,
+                              "MMM d, h:mm a",
+                            )
+                          : "Not reviewed"}
+                      </dd>
+                    </div>
                   </dl>
-                  {booking.payments[0].escalation_reason ? <p className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs text-orange-900"><strong>Escalation:</strong> {booking.payments[0].escalation_reason}</p> : null}
-                  {booking.payments[0].rejection_reason ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-900"><strong>Rejection:</strong> {booking.payments[0].rejection_reason}</p> : null}
-                  {booking.payments[0].resolution_outcome ? <p className="rounded-xl border p-3 text-xs"><strong>Resolution:</strong> {booking.payments[0].resolution_outcome.replaceAll("_", " ")}{booking.payments[0].resolution_note ? ` · ${booking.payments[0].resolution_note}` : ""}</p> : null}
+                  {canVerifyAwaitingPayment && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button type="button" className="w-full rounded-xl">
+                          <CheckCircle2 className="mr-2 size-4" />
+                          Check GCash
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-3xl">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Confirm GCash payment?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            The customer did not notify the salon. Confirm only
+                            after finding the transaction in the salon&apos;s
+                            GCash history and matching the recipient and exact
+                            amount.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="flex items-center justify-between rounded-xl bg-muted/50 p-3 text-sm">
+                          <span>Booking #{booking.id}</span>
+                          <strong>
+                            {formatCurrency(
+                              pendingGcashPayment.amount_principal,
+                            )}
+                          </strong>
+                        </div>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isVerifyingGcash}>
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleVerifyUnsubmittedGcash}
+                            disabled={isVerifyingGcash}
+                          >
+                            {isVerifyingGcash
+                              ? "Confirming…"
+                              : "Confirm payment"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                  {booking.payments[0].escalation_reason ? (
+                    <p className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs text-orange-900">
+                      <strong>Escalation:</strong>{" "}
+                      {booking.payments[0].escalation_reason}
+                    </p>
+                  ) : null}
+                  {booking.payments[0].rejection_reason ? (
+                    <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-900">
+                      <strong>Rejection:</strong>{" "}
+                      {booking.payments[0].rejection_reason}
+                    </p>
+                  ) : null}
+                  {booking.payments[0].resolution_outcome ? (
+                    <p className="rounded-xl border p-3 text-xs">
+                      <strong>Resolution:</strong>{" "}
+                      {booking.payments[0].resolution_outcome.replaceAll(
+                        "_",
+                        " ",
+                      )}
+                      {booking.payments[0].resolution_note
+                        ? ` · ${booking.payments[0].resolution_note}`
+                        : ""}
+                    </p>
+                  ) : null}
                 </section>
               )}
 
@@ -492,7 +669,8 @@ export function BookingDetailsDialog({
                     const removable = isLineRemovable(as);
                     const isRemovingThis = removingLineId === as.id;
                     const showRowActions =
-                      viewerContext.canAddService || viewerContext.canReassignStaff;
+                      viewerContext.canAddService ||
+                      viewerContext.canReassignStaff;
                     return (
                       <div
                         key={as.id}
@@ -511,7 +689,10 @@ export function BookingDetailsDialog({
                                 <span className="text-muted-foreground truncate">
                                   {as.served_by_owner.user.name}
                                 </span>
-                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 rounded-full border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium shrink-0">
+                                <Badge
+                                  variant="outline"
+                                  className="text-[9px] px-1 py-0 h-3.5 rounded-full border-transparent bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/20 dark:text-amber-300 leading-none font-medium shrink-0"
+                                >
                                   Owner
                                 </Badge>
                               </>
@@ -586,7 +767,8 @@ export function BookingDetailsDialog({
                                       <span className="font-semibold text-foreground">
                                         {formatCurrency(as.final_price)}
                                       </span>
-                                      . The customer is not notified automatically.
+                                      . The customer is not notified
+                                      automatically.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
@@ -634,7 +816,8 @@ export function BookingDetailsDialog({
                         >
                           {availableServiceOptions.map((service) => (
                             <option key={service.id} value={service.id}>
-                              {service.name} ({service.category}) - {formatCurrency(service.price)}
+                              {service.name} ({service.category}) -{" "}
+                              {formatCurrency(service.price)}
                             </option>
                           ))}
                         </select>
@@ -736,7 +919,9 @@ export function BookingDetailsDialog({
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium tabular-nums">
-                      {formatCurrency(booking.grand_total + booking.total_discount)}
+                      {formatCurrency(
+                        booking.grand_total + booking.total_discount,
+                      )}
                     </span>
                   </div>
                   {booking.total_discount > 0 && (
@@ -770,10 +955,14 @@ export function BookingDetailsDialog({
                         : "Awaiting settlement"}
                     </span>
                   </div>
-                  <span className={cn(
-                    "text-2xl font-bold tabular-nums tracking-tight",
-                    remainingBalance === 0 ? "text-primary" : "text-foreground",
-                  )}>
+                  <span
+                    className={cn(
+                      "text-2xl font-bold tabular-nums tracking-tight",
+                      remainingBalance === 0
+                        ? "text-primary"
+                        : "text-foreground",
+                    )}
+                  >
                     {formatCurrency(remainingBalance)}
                   </span>
                 </div>
@@ -841,7 +1030,9 @@ export function BookingDetailsDialog({
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="rounded-full">
+                          Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           className="rounded-full bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-600 dark:hover:bg-amber-700"
                           onClick={handleMarkNoShow}
@@ -873,7 +1064,6 @@ export function BookingDetailsDialog({
           </div>
         </DialogContent>
       </Dialog>
-
     </>
   );
 }

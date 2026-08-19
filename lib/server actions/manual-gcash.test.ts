@@ -11,7 +11,9 @@ const { prismaMock, txMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/prisma/prisma", () => ({ prisma: prismaMock }));
-vi.mock("@/lib/security/booking-success-token", () => ({ verifyBookingSuccessToken: vi.fn(() => true) }));
+vi.mock("@/lib/security/booking-success-token", () => ({
+  verifyBookingSuccessToken: vi.fn(() => true),
+}));
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/auth/staff-access", () => ({
@@ -23,17 +25,28 @@ vi.mock("@/lib/services/booking-availability", () => ({
 }));
 vi.mock("@/lib/services/audit", () => ({ logAudit: vi.fn() }));
 vi.mock("@/lib/services/outbox", () => ({ publishEvent: vi.fn() }));
+vi.mock("@/lib/services/outbox-immediate", () => ({
+  deliverOutboxMessageNow: vi.fn().mockResolvedValue({ delivered: true }),
+}));
 
 import { getServerSession } from "next-auth";
 import { resolveTenantActorContext } from "@/lib/auth/staff-access";
 import { validateBookingOrThrow } from "@/lib/services/booking-availability";
 import { publishEvent } from "@/lib/services/outbox";
-import { approveGcashPaymentAction, submitGcashPaymentAction } from "./manual-gcash";
+import {
+  approveGcashPaymentAction,
+  submitGcashPaymentAction,
+} from "./manual-gcash";
 
 describe("manual GCash payment submission", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    prismaMock.$transaction.mockImplementation(async (callback) => callback(txMock));
+    vi.mocked(publishEvent).mockResolvedValue({
+      id: "confirmation-event",
+    } as never);
+    prismaMock.$transaction.mockImplementation(async (callback) =>
+      callback(txMock),
+    );
     txMock.bookingPayment.count.mockResolvedValue(0);
     txMock.bookingPayment.updateMany.mockResolvedValue({ count: 1 });
     txMock.booking.update.mockResolvedValue({});
@@ -41,7 +54,9 @@ describe("manual GCash payment submission", () => {
     txMock.availedService.updateMany.mockResolvedValue({ count: 1 });
     txMock.voucher.updateMany.mockResolvedValue({ count: 1 });
     vi.mocked(validateBookingOrThrow).mockResolvedValue(undefined);
-    vi.mocked(getServerSession).mockResolvedValue({ user: { id: "owner_1" } } as never);
+    vi.mocked(getServerSession).mockResolvedValue({
+      user: { id: "owner_1" },
+    } as never);
     vi.mocked(resolveTenantActorContext).mockResolvedValue({
       success: true,
       actorType: "OWNER",
@@ -53,7 +68,11 @@ describe("manual GCash payment submission", () => {
       role: "OWNER",
       profile: null,
       permissions: [],
-      businessPolicy: { structure: "OWNER_EMPLOYEE_SELF_SERVICE", allowEmployeeSelfBooking: true, managerCanServe: true },
+      businessPolicy: {
+        structure: "OWNER_EMPLOYEE_SELF_SERVICE",
+        allowEmployeeSelfBooking: true,
+        managerCanServe: true,
+      },
     } as never);
   });
 
@@ -63,11 +82,29 @@ describe("manual GCash payment submission", () => {
       status: "PENDING",
       submitted_at: null,
       expires_at: new Date(Date.now() + 60_000),
-      booking: { id: 4, status: "HOLD", business_id: "biz", business: { slug: "salon" } },
+      booking: {
+        id: 4,
+        status: "HOLD",
+        business_id: "biz",
+        business: { slug: "salon" },
+      },
     });
-    const result = await submitGcashPaymentAction({ bookingId: 4, businessSlug: "salon", token: "valid", payerName: "  Ana  Dela Cruz ", reference: " ab 123 " });
+    const result = await submitGcashPaymentAction({
+      bookingId: 4,
+      businessSlug: "salon",
+      token: "valid",
+      payerName: "  Ana  Dela Cruz ",
+      reference: " ab 123 ",
+    });
     expect(result.success).toBe(true);
-    expect(txMock.bookingPayment.updateMany).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ payer_name: "Ana Dela Cruz", provider_reference: "AB 123" }) }));
+    expect(txMock.bookingPayment.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          payer_name: "Ana Dela Cruz",
+          provider_reference: "AB 123",
+        }),
+      }),
+    );
     expect(txMock.booking.update).toHaveBeenCalledTimes(1);
   });
 
@@ -77,7 +114,11 @@ describe("manual GCash payment submission", () => {
       submitted_at: new Date(),
       booking: { status: "HOLD", business: { slug: "salon" } },
     });
-    const result = await submitGcashPaymentAction({ bookingId: 4, businessSlug: "salon", token: "valid" });
+    const result = await submitGcashPaymentAction({
+      bookingId: 4,
+      businessSlug: "salon",
+      token: "valid",
+    });
     expect(result).toMatchObject({ success: true, idempotent: true });
     expect(txMock.bookingPayment.updateMany).not.toHaveBeenCalled();
   });
@@ -89,8 +130,15 @@ describe("manual GCash payment submission", () => {
       expires_at: new Date(Date.now() - 1),
       booking: { status: "HOLD", business: { slug: "salon" } },
     });
-    const result = await submitGcashPaymentAction({ bookingId: 4, businessSlug: "salon", token: "valid" });
-    expect(result).toEqual({ success: false, error: "This payment window has expired." });
+    const result = await submitGcashPaymentAction({
+      bookingId: 4,
+      businessSlug: "salon",
+      token: "valid",
+    });
+    expect(result).toEqual({
+      success: false,
+      error: "This payment window has expired.",
+    });
   });
 
   it("rejects verification by employees even with legacy permission grants", async () => {
@@ -103,7 +151,13 @@ describe("manual GCash payment submission", () => {
     const result = await approveGcashPaymentAction({
       paymentId: 9,
       businessSlug: "salon",
-      attestation: { transactionFound: true, recipientMatched: true, amountMatched: true, detailsReviewed: true },
+      source: "CUSTOMER_SUBMITTED",
+      attestation: {
+        transactionFound: true,
+        recipientMatched: true,
+        amountMatched: true,
+        detailsReviewed: true,
+      },
     });
 
     expect(result).toEqual({ success: false, error: "Forbidden" });
@@ -114,10 +168,19 @@ describe("manual GCash payment submission", () => {
     const result = await approveGcashPaymentAction({
       paymentId: 9,
       businessSlug: "salon",
-      attestation: { transactionFound: true, recipientMatched: true, amountMatched: false, detailsReviewed: true },
+      source: "CUSTOMER_SUBMITTED",
+      attestation: {
+        transactionFound: true,
+        recipientMatched: true,
+        amountMatched: false,
+        detailsReviewed: true,
+      },
     });
 
-    expect(result).toEqual({ success: false, error: "Complete every verification check before confirming." });
+    expect(result).toEqual({
+      success: false,
+      error: "Complete every verification check before confirming.",
+    });
     expect(prismaMock.$transaction).not.toHaveBeenCalled();
   });
 
@@ -138,7 +201,9 @@ describe("manual GCash payment submission", () => {
         estimated_end: new Date(Date.now() + 90_000_000),
         customer: { name: "Ana", email: null },
         business: { slug: "salon" },
-        availed_services: [{ service_id: 2, served_by_id: null, service: { id: 2 } }],
+        availed_services: [
+          { service_id: 2, served_by_id: null, service: { id: 2 } },
+        ],
       },
     });
     txMock.bookingPayment.updateMany.mockResolvedValue({ count: 1 });
@@ -146,12 +211,63 @@ describe("manual GCash payment submission", () => {
     const result = await approveGcashPaymentAction({
       paymentId: 9,
       businessSlug: "salon",
-      attestation: { transactionFound: true, recipientMatched: true, amountMatched: true, detailsReviewed: true },
+      source: "CUSTOMER_SUBMITTED",
+      attestation: {
+        transactionFound: true,
+        recipientMatched: true,
+        amountMatched: true,
+        detailsReviewed: true,
+      },
     });
 
     expect(result).toEqual({ success: true });
     expect(validateBookingOrThrow).toHaveBeenCalled();
     expect(txMock.booking.updateMany).toHaveBeenCalledTimes(2);
+    expect(publishEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it("allows an owner to verify an unsubmitted payment before hold expiry", async () => {
+    txMock.bookingPayment.findFirst.mockResolvedValue({
+      id: 9,
+      booking_id: 4,
+      status: "PENDING",
+      submitted_at: null,
+      amount_principal: 200,
+      expires_at: new Date(Date.now() + 60_000),
+      booking: {
+        id: 4,
+        status: "HOLD",
+        business_id: "biz",
+        grand_total: 1000,
+        scheduled_at: new Date(Date.now() + 86_400_000),
+        created_at: new Date(),
+        estimated_end: new Date(Date.now() + 90_000_000),
+        customer: { name: "Ana", email: null },
+        business: { slug: "salon" },
+        availed_services: [
+          { service_id: 2, served_by_id: null, service: { id: 2 } },
+        ],
+      },
+    });
+
+    const result = await approveGcashPaymentAction({
+      paymentId: 9,
+      businessSlug: "salon",
+      source: "OWNER_VERIFIED_WITHOUT_SUBMISSION",
+      attestation: {
+        transactionFound: true,
+        recipientMatched: true,
+        amountMatched: true,
+        detailsReviewed: true,
+      },
+    });
+
+    expect(result).toEqual({ success: true });
+    expect(txMock.bookingPayment.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ submitted_at: null }),
+      }),
+    );
     expect(publishEvent).toHaveBeenCalledTimes(1);
   });
 
@@ -169,7 +285,9 @@ describe("manual GCash payment submission", () => {
         created_at: new Date(),
         customer: null,
         business: { slug: "salon" },
-        availed_services: [{ service_id: 2, served_by_id: null, service: { id: 2 } }],
+        availed_services: [
+          { service_id: 2, served_by_id: null, service: { id: 2 } },
+        ],
       },
     });
     txMock.booking.updateMany.mockResolvedValueOnce({ count: 0 });
@@ -177,10 +295,19 @@ describe("manual GCash payment submission", () => {
     const result = await approveGcashPaymentAction({
       paymentId: 9,
       businessSlug: "salon",
-      attestation: { transactionFound: true, recipientMatched: true, amountMatched: true, detailsReviewed: true },
+      source: "CUSTOMER_SUBMITTED",
+      attestation: {
+        transactionFound: true,
+        recipientMatched: true,
+        amountMatched: true,
+        detailsReviewed: true,
+      },
     });
 
-    expect(result).toEqual({ success: false, error: "Payment is no longer available for approval." });
+    expect(result).toEqual({
+      success: false,
+      error: "Payment is no longer available for approval.",
+    });
     expect(publishEvent).not.toHaveBeenCalled();
   });
 });

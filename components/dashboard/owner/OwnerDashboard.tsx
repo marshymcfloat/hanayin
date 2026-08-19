@@ -38,14 +38,8 @@ import type { OpportunityView } from "@/lib/services/growth/types";
 import { cn } from "@/lib/utils";
 import { ExpenseWidget } from "./ExpenseWidget";
 import type { ExpenseView } from "@/lib/expenses/constants";
-import {
-  GcashFollowUpQueue,
-  GcashVerificationQueue,
-} from "@/components/dashboard/shared/GcashVerificationQueue";
-import type {
-  GcashFollowUpItem,
-  GcashVerificationItem,
-} from "@/lib/types/manual-gcash";
+import { GcashFollowUpQueue } from "@/components/dashboard/shared/GcashVerificationQueue";
+import type { GcashFollowUpItem } from "@/lib/types/manual-gcash";
 
 type BookingWithDetails = Booking & {
   // Nullable for anonymous walk-ins; render via getBookingCustomerName.
@@ -152,11 +146,7 @@ function MetricBar({
 }) {
   const pct = Math.min(100, Math.max(0, value));
   const color =
-    pct >= 70
-      ? "bg-primary"
-      : pct >= 40
-        ? "bg-amber-400"
-        : "bg-destructive/60";
+    pct >= 70 ? "bg-primary" : pct >= 40 ? "bg-amber-400" : "bg-destructive/60";
 
   return (
     <div className="space-y-1.5">
@@ -168,7 +158,10 @@ function MetricBar({
       </div>
       <div className="h-2 rounded-full bg-muted overflow-hidden">
         <div
-          className={cn("h-full rounded-full transition-all duration-500", color)}
+          className={cn(
+            "h-full rounded-full transition-all duration-500",
+            color,
+          )}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -217,7 +210,6 @@ export default async function OwnerDashboard({
   reportsEnabled,
   todayExpenseTotal,
   todayRecentExpenses,
-  gcashVerificationItems,
   gcashFollowUpItems,
 }: {
   businessName: string;
@@ -263,7 +255,6 @@ export default async function OwnerDashboard({
   reportsEnabled: boolean;
   todayExpenseTotal: number;
   todayRecentExpenses: ExpenseView[];
-  gcashVerificationItems: GcashVerificationItem[];
   gcashFollowUpItems: GcashFollowUpItem[];
 }) {
   const business = await getCachedBusinessBySlug(businessSlug);
@@ -278,7 +269,6 @@ export default async function OwnerDashboard({
 
   return (
     <div className="flex flex-col h-full bg-background">
-
       {/* ── Header ──────────────────────────────────────────── */}
       <header className="shrink-0 bg-card border-b border-border px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
         <div className="min-w-0">
@@ -303,7 +293,6 @@ export default async function OwnerDashboard({
       {/* ── Scrollable body ─────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 sm:py-6 space-y-4 sm:space-y-5">
-
           {/* ── KPI Cards ───────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <KpiCard
@@ -333,12 +322,6 @@ export default async function OwnerDashboard({
             />
           </div>
 
-          <GcashVerificationQueue
-            businessSlug={businessSlug}
-            items={gcashVerificationItems.slice(0, 3)}
-            total={gcashVerificationItems.length}
-            compact
-          />
           <GcashFollowUpQueue
             businessSlug={businessSlug}
             items={gcashFollowUpItems}
@@ -356,10 +339,8 @@ export default async function OwnerDashboard({
            *   Right col-4: Sidebar items (stacked)
            */}
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-5">
-
             {/* ── RIGHT sidebar — mobile: first, desktop: right ── */}
             <div className="order-1 lg:order-2 lg:col-span-4 flex flex-col gap-4">
-
               {/* Growth Opportunity */}
               <SideCard className="overflow-hidden">
                 {growthEnabled ? (
@@ -378,7 +359,8 @@ export default async function OwnerDashboard({
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      Unlock AI-powered growth suggestions on Plus and Pro plans.
+                      Unlock AI-powered growth suggestions on Plus and Pro
+                      plans.
                     </p>
                     <Link
                       href={`/app/${businessSlug}/billing`}
@@ -440,7 +422,10 @@ export default async function OwnerDashboard({
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
                           {alert.scheduledAt
-                            ? formatPH(new Date(alert.scheduledAt), "MMM d, h:mm a")
+                            ? formatPH(
+                                new Date(alert.scheduledAt),
+                                "MMM d, h:mm a",
+                              )
                             : "Unscheduled"}
                         </p>
                       </Link>
@@ -507,12 +492,10 @@ export default async function OwnerDashboard({
                   />
                 </div>
               </SideCard>
-
             </div>
 
             {/* ── LEFT main — mobile: second, desktop: left ── */}
             <div className="order-2 lg:order-1 lg:col-span-8 flex flex-col gap-4 sm:gap-5">
-
               {/* Chart — hero */}
               <SalesChart
                 bookings={bookings}
@@ -531,9 +514,7 @@ export default async function OwnerDashboard({
                   businessSlug={businessSlug}
                 />
               </div>
-
             </div>
-
           </div>
         </div>
       </div>

@@ -295,24 +295,23 @@ export function CreateSaleEventDialog(props: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-9 rounded-xl bg-primary px-3 text-primary-foreground font-semibold shadow-sm shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 active:scale-[0.97] cursor-pointer sm:h-10 sm:px-4">
+        <Button className="h-11 cursor-pointer rounded-xl bg-primary px-4 font-semibold text-primary-foreground shadow-sm transition-colors duration-200 hover:bg-primary/90 active:scale-[0.98] motion-reduce:transform-none">
           <Plus className="h-4 w-4 sm:mr-2" strokeWidth={2.5} />
           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Create Event</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl rounded-3xl p-0 gap-0">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-bold text-foreground">Create Sale Event</DialogTitle>
+      <DialogContent className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-3xl sm:rounded-[28px] sm:border">
+        <DialogHeader className="shrink-0 border-b border-border px-5 pb-4 pt-5 pr-14 sm:px-7">
+          <DialogTitle className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">Create sale event</DialogTitle>
           <DialogDescription className="text-muted-foreground">
             Create discounts and optionally prepare social drafts.
           </DialogDescription>
         </DialogHeader>
-        <div className="h-px bg-border mx-6" />
-
-        <div className="px-6 py-4 space-y-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-background px-4 py-4 sm:px-7">
           <div className="grid gap-2">
-            <Label>Title</Label>
-            <Input className="h-10 rounded-xl" {...form.register("title")} />
+            <Label htmlFor="sale-event-title">Title</Label>
+            <Input id="sale-event-title" className="h-11 rounded-xl bg-background" aria-invalid={Boolean(form.formState.errors.title)} {...form.register("title")} />
+            {form.formState.errors.title ? <p className="text-xs font-medium text-destructive">Add an event title.</p> : null}
           </div>
           <div className="grid gap-2">
             <Label>Description</Label>
@@ -320,12 +319,12 @@ export function CreateSaleEventDialog(props: Props) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label>Start</Label>
-              <Input type="datetime-local" className="h-10 rounded-xl" {...form.register("startDate")} />
+              <Label htmlFor="sale-start">Start</Label>
+              <Input id="sale-start" type="datetime-local" className="h-11 rounded-xl bg-background" {...form.register("startDate")} />
             </div>
             <div className="grid gap-2">
-              <Label>End</Label>
-              <Input type="datetime-local" className="h-10 rounded-xl" {...form.register("endDate")} />
+              <Label htmlFor="sale-end">End</Label>
+              <Input id="sale-end" type="datetime-local" className="h-11 rounded-xl bg-background" {...form.register("endDate")} />
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -370,18 +369,18 @@ export function CreateSaleEventDialog(props: Props) {
 
           <div className="grid gap-2">
             <Label>Applies To</Label>
-            <Tabs defaultValue="services" className="rounded-xl border border-border p-3 bg-muted/20">
-              <TabsList className="grid h-10 w-full grid-cols-2 rounded-lg">
-                <TabsTrigger value="services" className="rounded-md">
+            <Tabs defaultValue="services" className="border-t border-border pt-2">
+              <TabsList className="grid h-10 w-full grid-cols-2 rounded-none border-b border-border bg-transparent p-0">
+                <TabsTrigger value="services" className="h-10 rounded-none border-b-2 border-transparent bg-transparent shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">
                   Services ({values.serviceIds.length}/{allServiceIds.length})
                 </TabsTrigger>
-                <TabsTrigger value="packages" className="rounded-md">
+                <TabsTrigger value="packages" className="h-10 rounded-none border-b-2 border-transparent bg-transparent shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none">
                   Packages ({values.packageIds.length}/{allPackageIds.length})
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="services" className="mt-3 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-2">
+              <TabsContent value="services" className="mt-0">
+                <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-border px-1">
                   <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                     <Checkbox
                       checked={
@@ -427,7 +426,7 @@ export function CreateSaleEventDialog(props: Props) {
                         isPartiallySelected(values.serviceIds, categoryServiceIds);
 
                       return (
-                        <div key={category} className="rounded-lg border border-border bg-background p-3">
+                        <div key={category} className="border-b border-border py-3 last:border-b-0">
                           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                             <div>
                               <p className="text-sm font-semibold text-foreground">{category}</p>
@@ -462,7 +461,7 @@ export function CreateSaleEventDialog(props: Props) {
                             {services.map((service) => (
                               <label
                                 key={service.id}
-                                className="flex min-h-10 items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-accent/30 transition-colors"
+                                className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors duration-200 hover:bg-accent/40"
                               >
                                 <Checkbox
                                   checked={values.serviceIds.includes(service.id)}
@@ -481,8 +480,8 @@ export function CreateSaleEventDialog(props: Props) {
                 )}
               </TabsContent>
 
-              <TabsContent value="packages" className="mt-3 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background p-2">
+              <TabsContent value="packages" className="mt-0">
+                <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b border-border px-1">
                   <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                     <Checkbox
                       checked={
@@ -516,11 +515,11 @@ export function CreateSaleEventDialog(props: Props) {
                     No packages available yet.
                   </p>
                 ) : (
-                  <div className="grid gap-1.5 rounded-lg border border-border bg-background p-3 sm:grid-cols-2">
+                  <div className="grid gap-x-4 py-2 sm:grid-cols-2">
                     {props.packages.map((pkg) => (
                       <label
                         key={pkg.id}
-                        className="flex min-h-10 items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-accent/30 transition-colors"
+                        className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors duration-200 hover:bg-accent/40"
                       >
                         <Checkbox
                           checked={values.packageIds.includes(pkg.id)}
@@ -535,7 +534,7 @@ export function CreateSaleEventDialog(props: Props) {
             </Tabs>
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/20 p-3 space-y-3">
+          <div className="space-y-3 border-t border-border pt-4">
             <button
               type="button"
               onClick={() => setShowSocialOptions((previous) => !previous)}
@@ -661,13 +660,13 @@ export function CreateSaleEventDialog(props: Props) {
           </div>
         </div>
 
-        <div className="px-6 py-4 border-t border-border bg-muted/30 flex items-center justify-end gap-2">
-          <Button type="button" variant="outline" className="rounded-xl cursor-pointer" onClick={() => setOpen(false)}>
+        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-border bg-background px-4 py-4 sm:px-7">
+          <Button type="button" variant="ghost" className="h-11 cursor-pointer rounded-xl" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button
             type="button"
-            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+            className="h-11 cursor-pointer rounded-xl bg-primary px-5 text-primary-foreground hover:bg-primary/90"
             onClick={onSubmit}
             disabled={form.formState.isSubmitting}
           >

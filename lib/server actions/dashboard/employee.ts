@@ -44,9 +44,9 @@ type StaffContextResult =
     }
   | { success: false; error: string };
 
-async function requireStaffContext(
-  options?: { write?: boolean },
-): Promise<StaffContextResult> {
+async function requireStaffContext(options?: {
+  write?: boolean;
+}): Promise<StaffContextResult> {
   const auth = await requireAuth(options);
   if (!auth.success) {
     return { success: false, error: auth.error };
@@ -126,6 +126,7 @@ export async function claimServiceAction(
           package_id: true,
           served_by_id: true,
           served_by_owner_id: true,
+          booking: { select: { status: true } },
         },
       }),
     ]);
@@ -136,6 +137,13 @@ export async function claimServiceAction(
 
     if (!serviceToClaim) {
       return { success: false, error: "Service not found." };
+    }
+
+    if (serviceToClaim.booking.status !== BookingStatus.ACCEPTED) {
+      return {
+        success: false,
+        error: "Booking must be confirmed before services can be claimed.",
+      };
     }
 
     if (serviceToClaim.served_by_owner_id) {
@@ -161,7 +169,8 @@ export async function claimServiceAction(
     }
 
     const saleEventsResult = await getActiveSaleEvents(businessSlug);
-    const saleEvents = (saleEventsResult.success && saleEventsResult.data) || [];
+    const saleEvents =
+      (saleEventsResult.success && saleEventsResult.data) || [];
 
     const discountInfo = getApplicableDiscount(
       serviceToClaim.service_id,
@@ -181,7 +190,10 @@ export async function claimServiceAction(
             AvailedServiceStatus.SERVING,
           ],
         },
-        booking: { business: { slug: businessSlug } },
+        booking: {
+          business: { slug: businessSlug },
+          status: BookingStatus.ACCEPTED,
+        },
       },
       data: {
         status: AvailedServiceStatus.CLAIMED,
@@ -367,10 +379,16 @@ export async function markServiceServedAction(
           status: true,
           served_by_id: true,
           served_by_owner_id: true,
+          booking: { select: { status: true } },
         },
       });
 
       if (!service) throw new Error("Service not found");
+      if (service.booking.status !== BookingStatus.ACCEPTED) {
+        throw new Error(
+          "Booking must be confirmed before services can be served",
+        );
+      }
       if (service.served_by_owner_id) {
         throw new Error("Owner-claimed services cannot be served here");
       }
@@ -418,7 +436,10 @@ export async function markServiceServedAction(
           status: {
             in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING],
           },
-          booking: { business: { slug: businessSlug } },
+          booking: {
+            business: { slug: businessSlug },
+            status: BookingStatus.ACCEPTED,
+          },
         },
         data: {
           served_by_id: employeeId,
@@ -701,9 +722,10 @@ function getTodayBookingFilter() {
   };
 }
 
-async function requireEmployeeAuth(
-  options?: { write?: boolean; permission?: StaffPermission },
-): Promise<EmployeeAuthResult> {
+async function requireEmployeeAuth(options?: {
+  write?: boolean;
+  permission?: StaffPermission;
+}): Promise<EmployeeAuthResult> {
   const auth = await requireStaffContext({ write: options?.write });
   if (!auth.success) {
     return { success: false, error: auth.error };
@@ -714,10 +736,7 @@ async function requireEmployeeAuth(
     return { success: false, error: "Unauthorized" };
   }
 
-  if (
-    options?.permission &&
-    !hasStaffPermission(context, options.permission)
-  ) {
+  if (options?.permission && !hasStaffPermission(context, options.permission)) {
     return { success: false, error: "Forbidden" };
   }
 

@@ -5,6 +5,7 @@ import { SOCIAL_IMAGE_PROFILES } from "./image-profiles";
 import {
   buildOrganicImagePrompt,
   buildSocialImagePrompt,
+  validateCampaignPromptAlignment,
 } from "./promo-image";
 
 const BASE_PROMO_INPUT = {
@@ -23,6 +24,21 @@ const BASE_PROMO_INPUT = {
 };
 
 describe("promo-image prompt builder", () => {
+  it("enforces rainy opportunity and manicure alignment", () => {
+    const creativeContext = {
+      version: 1 as const, opportunityType: "WEATHER_HOOK" as const, opportunityReason: "Rainy conditions expected.", anchor: "RAINY_SEASON_COMFORT" as const,
+      anchorLabel: "Rainy-season comfort", requiredContext: "Make rainy weather unmistakable.", campaignIntent: "DISCOUNT", audience: "Local clients",
+      visualMood: "Visible rain outside and warm comfort inside.", visualSubject: "Manicure as hero", visualBrief: "Rainy-season manicure with visible rain and warm indoor comfort.",
+      services: ["Regular manicure"], serviceCategories: ["NAILS"], packages: [], imageProfile: "SOFT_EDITORIAL", captionTone: "FRIENDLY_TAGLISH",
+    };
+    const input = { ...BASE_PROMO_INPUT, serviceNames: ["Regular manicure"], serviceCategories: ["NAILS"], creativeContext };
+    const prompt = buildSocialImagePrompt(input);
+    expect(prompt).toMatch(/REQUIRED OPPORTUNITY ANCHOR/i);
+    expect(prompt).toMatch(/rain/i);
+    expect(prompt).toMatch(/manicure/i);
+    expect(validateCampaignPromptAlignment(input, prompt)).toEqual({ aligned: true, missing: [] });
+  });
+
   it.each(SOCIAL_IMAGE_PROFILES)(
     "produces a photography-only prompt for %s and forbids embedded text",
     (profile) => {

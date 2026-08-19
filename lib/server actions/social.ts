@@ -24,6 +24,7 @@ import {
 import { inferCreativeBrief } from "@/lib/services/social/creative-brief";
 import { resolveTenantActorContext } from "@/lib/auth/staff-access";
 import { startOrganicPostTimer } from "@/lib/telemetry/social-organic-events";
+import { parseCampaignCreativeContext } from "@/lib/services/growth/creative-context";
 
 function normalizeHashtags(hashtags: string[]) {
   return Array.from(
@@ -726,6 +727,11 @@ export async function generateSocialPostImageAction(input: {
             applicable_packages: { select: { name: true } },
           },
         },
+        growth_campaigns: {
+          select: { opportunity_snapshot: true },
+          orderBy: { created_at: "desc" },
+          take: 1,
+        },
       },
     });
 
@@ -739,6 +745,9 @@ export async function generateSocialPostImageAction(input: {
     }
 
     let mediaUrl: string | null | undefined;
+    const creativeContext = parseCampaignCreativeContext(
+      post.growth_campaigns?.[0]?.opportunity_snapshot,
+    );
 
     if (!post.sale_event) {
       // Organic post — pure photography with a small brand-name watermark.
@@ -771,6 +780,8 @@ export async function generateSocialPostImageAction(input: {
         packageNames: post.sale_event.applicable_packages.map((pkg) => pkg.name),
         imageProfile,
         reference,
+        creativeContext,
+        creativeBrief: creativeContext?.visualBrief,
       });
     }
 
@@ -882,6 +893,11 @@ export async function regenerateSocialPostCaptionAction(input: {
             applicable_packages: { select: { name: true } },
           },
         },
+        growth_campaigns: {
+          select: { opportunity_snapshot: true },
+          orderBy: { created_at: "desc" },
+          take: 1,
+        },
       },
     });
 
@@ -893,6 +909,9 @@ export async function regenerateSocialPostCaptionAction(input: {
       input.captionTone && input.captionTone !== "AUTO"
         ? input.captionTone
         : undefined;
+    const creativeContext = parseCampaignCreativeContext(
+      post.growth_campaigns?.[0]?.opportunity_snapshot,
+    );
 
     let generated;
     if (post.sale_event) {
@@ -912,6 +931,9 @@ export async function regenerateSocialPostCaptionAction(input: {
         ),
         packageNames: post.sale_event.applicable_packages.map((pkg) => pkg.name),
         captionTone: toneOverride,
+        ownerCaptionDirection: creativeContext
+          ? `REQUIRED CAMPAIGN ANCHOR (${creativeContext.anchorLabel}): ${creativeContext.requiredContext} Preserve this originating growth opportunity in the opening or primary message. Original signal: ${creativeContext.opportunityReason}`
+          : undefined,
       });
     } else {
       // Wave L1: prefer the post's own category, fall back to the

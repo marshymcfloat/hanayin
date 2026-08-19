@@ -398,6 +398,7 @@ export const ModelName = {
   Payslip: 'Payslip',
   SpecialDate: 'SpecialDate',
   BrandAsset: 'BrandAsset',
+  ReferenceCandidate: 'ReferenceCandidate',
   Owner: 'Owner',
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
@@ -450,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeSchedule" | "employeeAttendance" | "payslip" | "specialDate" | "brandAsset" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "socialConnection" | "socialPost" | "socialPostTarget" | "user" | "employee" | "employeeSchedule" | "employeeAttendance" | "payslip" | "specialDate" | "brandAsset" | "referenceCandidate" | "owner" | "subscriptionPlan" | "businessSubscription" | "subscriptionPlanUpgradeRequest" | "subscriptionInvoice" | "subscriptionCreditLedger" | "referralCode" | "referralLead" | "referralAttribution" | "onboardingApplication" | "platformActionLog" | "service" | "servicePackage" | "packageItem" | "customer" | "bookingOtpCode" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "businessGrowthSettings" | "growthContextSnapshot" | "opportunity" | "campaign" | "campaignAsset" | "campaignEvent" | "seasonalCalendar" | "outboxMessage" | "bookingNote" | "bookingPriceAdjustment" | "socialPostRequest" | "auditLog" | "expense"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1487,6 +1488,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BrandAssetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BrandAssetCountAggregateOutputType> | number
+        }
+      }
+    }
+    ReferenceCandidate: {
+      payload: Prisma.$ReferenceCandidatePayload<ExtArgs>
+      fields: Prisma.ReferenceCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReferenceCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReferenceCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.ReferenceCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReferenceCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.ReferenceCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.ReferenceCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.ReferenceCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReferenceCandidateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>[]
+        }
+        delete: {
+          args: Prisma.ReferenceCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>
+        }
+        update: {
+          args: Prisma.ReferenceCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.ReferenceCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReferenceCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReferenceCandidateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>[]
+        }
+        upsert: {
+          args: Prisma.ReferenceCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReferenceCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.ReferenceCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReferenceCandidate>
+        }
+        groupBy: {
+          args: Prisma.ReferenceCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReferenceCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReferenceCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReferenceCandidateCountAggregateOutputType> | number
         }
       }
     }
@@ -4519,6 +4594,30 @@ export const BrandAssetScalarFieldEnum = {
 export type BrandAssetScalarFieldEnum = (typeof BrandAssetScalarFieldEnum)[keyof typeof BrandAssetScalarFieldEnum]
 
 
+export const ReferenceCandidateScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  provider: 'provider',
+  provider_id: 'provider_id',
+  source_url: 'source_url',
+  preview_url: 'preview_url',
+  creator_name: 'creator_name',
+  attribution: 'attribution',
+  license_status: 'license_status',
+  service_category: 'service_category',
+  mood_tags: 'mood_tags',
+  quality_score: 'quality_score',
+  content_hash: 'content_hash',
+  link_only: 'link_only',
+  status: 'status',
+  approved_asset_id: 'approved_asset_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ReferenceCandidateScalarFieldEnum = (typeof ReferenceCandidateScalarFieldEnum)[keyof typeof ReferenceCandidateScalarFieldEnum]
+
+
 export const OwnerScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
@@ -4804,6 +4903,10 @@ export const BookingScalarFieldEnum = {
   scheduled_at: 'scheduled_at',
   estimated_end: 'estimated_end',
   reminder_sent: 'reminder_sent',
+  reminder_sent_at: 'reminder_sent_at',
+  reminder_message_id: 'reminder_message_id',
+  reminder_last_error: 'reminder_last_error',
+  reminder_attempts: 'reminder_attempts',
   hold_expires_at: 'hold_expires_at',
   capacity_override_applied: 'capacity_override_applied',
   capacity_override_reason: 'capacity_override_reason',
@@ -5522,6 +5625,20 @@ export type ListEnumReferenceSubjectFieldRefInput<$PrismaModel> = FieldRefInputT
 
 
 /**
+ * Reference to a field of type 'ReferenceCandidateStatus'
+ */
+export type EnumReferenceCandidateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReferenceCandidateStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ReferenceCandidateStatus[]'
+ */
+export type ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReferenceCandidateStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'OwnerPermission[]'
  */
 export type ListEnumOwnerPermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OwnerPermission[]'>
@@ -6049,6 +6166,7 @@ export type GlobalOmitConfig = {
   payslip?: Prisma.PayslipOmit
   specialDate?: Prisma.SpecialDateOmit
   brandAsset?: Prisma.BrandAssetOmit
+  referenceCandidate?: Prisma.ReferenceCandidateOmit
   owner?: Prisma.OwnerOmit
   subscriptionPlan?: Prisma.SubscriptionPlanOmit
   businessSubscription?: Prisma.BusinessSubscriptionOmit

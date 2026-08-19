@@ -96,6 +96,9 @@ export type SocialPostView = {
     start_date: Date;
     end_date: Date;
   } | null;
+  growth_campaigns?: Array<{
+    opportunity_snapshot: unknown;
+  }>;
   targets: SocialPostTargetView[];
 };
 
@@ -1115,6 +1118,22 @@ export function SocialPostsPageClient(props: {
                 </p>
               </CardHeader>
               <CardContent className="space-y-5 px-4 sm:px-6 pb-5 sm:pb-6">
+                {(() => {
+                  const snapshot = selectedPost.growth_campaigns?.[0]?.opportunity_snapshot;
+                  const creative = snapshot && typeof snapshot === "object"
+                    ? (snapshot as { creativeContext?: { anchorLabel?: string; visualBrief?: string } }).creativeContext
+                    : null;
+                  return creative ? (
+                    <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm">
+                      <p className="font-medium text-foreground">Opportunity anchor: {creative.anchorLabel}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{creative.visualBrief}</p>
+                    </div>
+                  ) : selectedPost.sale_event ? (
+                    <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                      Legacy campaign: caption and image regeneration use title/service fallback inference.
+                    </p>
+                  ) : null;
+                })()}
                 {selectedPost.targets.length === 0 ? (
                   <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
                     No connected channels on this draft. Connect Facebook or
@@ -1170,7 +1189,7 @@ export function SocialPostsPageClient(props: {
                           ) : (
                             <>
                               <RefreshCcw className="mr-2 h-3.5 w-3.5" />
-                              Regenerate
+                              Regenerate · preserve anchor
                             </>
                           )}
                         </Button>
@@ -1240,6 +1259,9 @@ export function SocialPostsPageClient(props: {
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Post Image
                     </p>
+                    {selectedPost.growth_campaigns?.[0] ? (
+                      <p className="text-[11px] text-muted-foreground">Image regeneration preserves the originating opportunity and service focus.</p>
+                    ) : null}
                     <div className="relative aspect-[4/5] sm:aspect-[2/3] mx-auto w-full max-w-[320px] lg:max-w-none overflow-hidden rounded-2xl border border-border bg-muted">
                       {previewImageUrl && !hasImageLoadError ? (
                         // eslint-disable-next-line @next/next/no-img-element

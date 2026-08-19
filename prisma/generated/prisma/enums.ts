@@ -346,6 +346,15 @@ export const LeaveType = {
 export type LeaveType = (typeof LeaveType)[keyof typeof LeaveType]
 
 
+export const ReferenceCandidateStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ReferenceCandidateStatus = (typeof ReferenceCandidateStatus)[keyof typeof ReferenceCandidateStatus]
+
+
 export const FlowDelayUnit = {
   DAYS: 'DAYS',
   WEEKS: 'WEEKS',

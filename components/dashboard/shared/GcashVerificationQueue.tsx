@@ -90,6 +90,7 @@ export function GcashVerificationQueue({
           ? await approveGcashPaymentAction({
               paymentId: selected.id,
               businessSlug,
+              source: "CUSTOMER_SUBMITTED",
               attestation: {
                 transactionFound: true,
                 recipientMatched: true,

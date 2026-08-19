@@ -3,6 +3,7 @@
   type SocialCaptionStyle,
 } from "@/lib/services/social/caption-generator";
 import type { CaptionStyle, CaptionVariant, GeneratedOffer } from "@/lib/services/growth/types";
+import type { CampaignCreativeContext } from "@/lib/services/growth/creative-context";
 import type { CaptionTone } from "@/lib/zod-schemas/growth";
 
 const STYLE_ORDER: CaptionStyle[] = [
@@ -39,6 +40,7 @@ export async function generateCaptionVariants(input: {
    * the rainy season").
    */
   ownerCaptionDirection?: string;
+  creativeContext?: CampaignCreativeContext | null;
 }): Promise<CaptionVariant[]> {
   const isDiscount = input.offer.actionCategory === "DISCOUNT";
   // Use the offer's publicDescription (already built for public consumption
@@ -63,7 +65,10 @@ export async function generateCaptionVariants(input: {
     allowRewritePass: true,
     actionCategory: input.offer.actionCategory,
     captionTone: input.captionTone,
-    ownerCaptionDirection: input.ownerCaptionDirection,
+    ownerCaptionDirection: [
+      input.creativeContext ? `REQUIRED CAMPAIGN ANCHOR (${input.creativeContext.anchorLabel}): ${input.creativeContext.requiredContext} The opening or primary message must make this connection explicit and natural. Original signal: ${input.creativeContext.opportunityReason}` : "",
+      input.ownerCaptionDirection || "",
+    ].filter(Boolean).join("\n"),
   });
 
   const mapped = variants.map((variant) => ({

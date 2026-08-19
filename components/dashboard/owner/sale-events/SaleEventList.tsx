@@ -141,15 +141,15 @@ export function SaleEventList({
 
   if (events.length === 0) {
     return (
-      <div className="bg-card rounded-2xl border border-border shadow-sm p-12 flex flex-col items-center justify-center text-center">
-        <div className="h-12 w-12 bg-muted rounded-xl flex items-center justify-center mb-4">
-          <Percent className="h-6 w-6 text-muted-foreground/40" />
+      <div className="flex flex-col items-center justify-center rounded-[28px] border border-dashed border-border bg-background px-6 py-14 text-center sm:py-16">
+        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/10">
+          <Percent className="h-6 w-6 text-primary" />
         </div>
         <h3 className="text-base font-semibold text-foreground mb-1">
-          No sale events yet
+          Your first campaign starts here
         </h3>
         <p className="text-sm text-muted-foreground max-w-sm">
-          Create a new sale event to attract more customers and boost your revenue.
+          Use Create event above, or turn today&apos;s growth opportunity into a ready-to-review draft.
         </p>
       </div>
     );
@@ -222,6 +222,7 @@ export function SaleEventList({
                     size="icon"
                     className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                     onClick={() => onDelete(event.id)}
+                    aria-label={`Delete ${event.title}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -253,7 +254,7 @@ export function SaleEventList({
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:block">
+      <div className="hidden overflow-hidden rounded-[24px] border border-border bg-background shadow-sm shadow-foreground/[0.03] lg:block">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent bg-muted/50">
@@ -358,6 +359,7 @@ export function SaleEventList({
                         size="icon"
                         className="h-8 w-8 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                         onClick={() => onDelete(event.id)}
+                        aria-label={`Delete ${event.title}`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

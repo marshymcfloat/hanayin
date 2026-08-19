@@ -4,6 +4,7 @@ import type {
   ImagePromptStyle,
   ImagePromptVariant,
 } from "@/lib/services/growth/types";
+import type { CampaignCreativeContext } from "@/lib/services/growth/creative-context";
 import { generateGrowthJson } from "@/lib/services/growth/llm-client";
 
 const STYLE_ORDER: ImagePromptStyle[] = [
@@ -16,8 +17,10 @@ function fallbackPrompt(input: {
   style: ImagePromptStyle;
   businessName: string;
   offer: GeneratedOffer;
+  creativeContext?: CampaignCreativeContext | null;
 }): ImagePromptVariant {
-  const shared = `Promo visual for ${input.businessName}, headline "${input.offer.title}", include readable text hierarchy, no logos, no watermarks, premium beauty/wellness mood, facebook/instagram feed composition.`;
+  const aligned = input.creativeContext ? ` REQUIRED CREATIVE BRIEF: ${input.creativeContext.visualBrief}` : "";
+  const shared = `Promo background visual for ${input.businessName}, campaign "${input.offer.title}".${aligned} Do not render text, logos, watermarks, prices, or fake brand marks. Premium Facebook/Instagram portrait composition with overlay-safe negative space.`;
   const byStyle: Record<ImagePromptStyle, string> = {
     CLEAN_EDITORIAL: `${shared} Style: minimal editorial, airy lighting, neutral palette, clean typography.`,
     LUXE_STUDIO: `${shared} Style: luxury studio aesthetic, controlled shadows, elegant serif accents, polished skin tones.`,
@@ -36,6 +39,7 @@ export async function generateImagePromptVariants(input: {
   businessType: string;
   offer: GeneratedOffer;
   captionHooks: string[];
+  creativeContext?: CampaignCreativeContext | null;
   skipLlm?: boolean;
 }): Promise<ImagePromptVariant[]> {
   if (input.skipLlm) {
@@ -44,6 +48,7 @@ export async function generateImagePromptVariants(input: {
         style,
         businessName: input.businessName,
         offer: input.offer,
+        creativeContext: input.creativeContext,
       }),
     );
   }
@@ -72,7 +77,7 @@ export async function generateImagePromptVariants(input: {
 
   if (llmPrompts && llmPrompts.length >= 3) {
     return STYLE_ORDER.map(
-      (style) => llmPrompts.find((entry) => entry.style === style) || fallbackPrompt({ style, businessName: input.businessName, offer: input.offer }),
+      (style) => llmPrompts.find((entry) => entry.style === style) || fallbackPrompt({ style, businessName: input.businessName, offer: input.offer, creativeContext: input.creativeContext }),
     );
   }
 
@@ -81,6 +86,7 @@ export async function generateImagePromptVariants(input: {
       style,
       businessName: input.businessName,
       offer: input.offer,
+      creativeContext: input.creativeContext,
     }),
   );
 }

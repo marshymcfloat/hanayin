@@ -3,7 +3,8 @@ import { render } from "@react-email/render";
 import { prisma } from "@/prisma/prisma";
 import { formatPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
-import { sendSemaphorePrioritySms, truncateSms } from "@/lib/services/sms";
+import { sendSemaphorePrioritySms } from "@/lib/services/sms";
+import { buildBookingConfirmationSms } from "@/lib/services/booking-sms";
 import { BookingConfirmationEmail } from "@/components/emails/BookingConfirmationEmail";
 import {
   BOOKING_MANAGE_TOKEN_TTL_SECONDS,
@@ -18,7 +19,11 @@ function getResendClient() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
-function paymentStatusLabel(status: string, amountPaid: number, grandTotal: number) {
+function paymentStatusLabel(
+  status: string,
+  amountPaid: number,
+  grandTotal: number,
+) {
   if (amountPaid >= grandTotal && grandTotal > 0) return "Paid in Full";
   if (amountPaid > 0) return "Partially Paid";
   if (status === "PAID") return "Paid in Full";
@@ -60,10 +65,13 @@ export async function sendBookingConfirmation(bookingId: number) {
     }
 
     const scheduledAt = booking.scheduled_at;
-    const scheduledDate = scheduledAt ? formatPH(scheduledAt, "MMMM d, yyyy") : "N/A";
+    const scheduledDate = scheduledAt
+      ? formatPH(scheduledAt, "MMMM d, yyyy")
+      : "N/A";
     const scheduledTime = scheduledAt ? formatPH(scheduledAt, "h:mm a") : "N/A";
     const businessName = booking.business.name;
     const firstName = booking.customer.name.split(" ")[0];
+    let smsDeliveryError: string | null = null;
 
     // Mint a 30-day manage token so the customer can self-serve cancel /
     // reschedule. Same token shape as the success page.
@@ -79,14 +87,25 @@ export async function sendBookingConfirmation(bookingId: number) {
 
     // --- SMS (priority — time-sensitive) ---
     if (booking.customer.phone) {
-      const smsText = truncateSms(
-        `Hi ${firstName}! Your booking at ${businessName} on ${scheduledDate} at ${scheduledTime} is confirmed. Manage: ${manageUrl}`,
+      const smsText = buildBookingConfirmationSms({
+        firstName,
+        businessName,
+        scheduledDate,
+        scheduledTime,
+        bookingId: booking.id,
+      });
+      const smsResult = await sendSemaphorePrioritySms(
+        booking.customer.phone,
+        smsText,
       );
-      const smsResult = await sendSemaphorePrioritySms(booking.customer.phone, smsText);
       if (!smsResult.success) {
-        logger.warn(`[BookingConfirmation] SMS failed for booking ${bookingId}:`, {
-          error: smsResult.error,
-        });
+        smsDeliveryError = smsResult.error || "Unknown Semaphore error";
+        logger.warn(
+          `[BookingConfirmation] SMS failed for booking ${bookingId}:`,
+          {
+            error: smsResult.error,
+          },
+        );
         // Don't return here — still try the email below if available.
       }
     } else {
@@ -100,7 +119,10 @@ export async function sendBookingConfirmation(bookingId: number) {
       try {
         // Group identical service+price rows so the email shows
         // "2x Foot Spa @ 150" instead of two adjacent rows.
-        const grouped = new Map<string, { name: string; price: number; quantity: number }>();
+        const grouped = new Map<
+          string,
+          { name: string; price: number; quantity: number }
+        >();
         for (const row of booking.availed_services) {
           const name = row.service?.name ?? "Service";
           const key = `${name}|${row.price}`;
@@ -109,8 +131,7 @@ export async function sendBookingConfirmation(bookingId: number) {
           else grouped.set(key, { name, price: row.price, quantity: 1 });
         }
         const services = Array.from(grouped.values());
-        const primaryServiceName =
-          services[0]?.name ?? "Your appointment";
+        const primaryServiceName = services[0]?.name ?? "Your appointment";
         const grandTotal = booking.grand_total ?? 0;
         const amountPaid = booking.amount_paid ?? 0;
         const remainingBalance = Math.max(0, grandTotal - amountPaid);
@@ -160,9 +181,18 @@ export async function sendBookingConfirmation(bookingId: number) {
       }
     }
 
+    if (smsDeliveryError) {
+      return {
+        success: false,
+        error: `SMS delivery failed: ${smsDeliveryError}`,
+      };
+    }
+
     return { success: true };
   } catch (error) {
-    logger.error("[BookingConfirmation] Error sending booking confirmation:", { error });
+    logger.error("[BookingConfirmation] Error sending booking confirmation:", {
+      error,
+    });
     return { success: false, error };
   }
 }

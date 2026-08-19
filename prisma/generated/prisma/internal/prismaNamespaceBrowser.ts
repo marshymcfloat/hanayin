@@ -65,6 +65,7 @@ export const ModelName = {
   Payslip: 'Payslip',
   SpecialDate: 'SpecialDate',
   BrandAsset: 'BrandAsset',
+  ReferenceCandidate: 'ReferenceCandidate',
   Owner: 'Owner',
   SubscriptionPlan: 'SubscriptionPlan',
   BusinessSubscription: 'BusinessSubscription',
@@ -372,6 +373,30 @@ export const BrandAssetScalarFieldEnum = {
 export type BrandAssetScalarFieldEnum = (typeof BrandAssetScalarFieldEnum)[keyof typeof BrandAssetScalarFieldEnum]
 
 
+export const ReferenceCandidateScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  provider: 'provider',
+  provider_id: 'provider_id',
+  source_url: 'source_url',
+  preview_url: 'preview_url',
+  creator_name: 'creator_name',
+  attribution: 'attribution',
+  license_status: 'license_status',
+  service_category: 'service_category',
+  mood_tags: 'mood_tags',
+  quality_score: 'quality_score',
+  content_hash: 'content_hash',
+  link_only: 'link_only',
+  status: 'status',
+  approved_asset_id: 'approved_asset_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ReferenceCandidateScalarFieldEnum = (typeof ReferenceCandidateScalarFieldEnum)[keyof typeof ReferenceCandidateScalarFieldEnum]
+
+
 export const OwnerScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
@@ -657,6 +682,10 @@ export const BookingScalarFieldEnum = {
   scheduled_at: 'scheduled_at',
   estimated_end: 'estimated_end',
   reminder_sent: 'reminder_sent',
+  reminder_sent_at: 'reminder_sent_at',
+  reminder_message_id: 'reminder_message_id',
+  reminder_last_error: 'reminder_last_error',
+  reminder_attempts: 'reminder_attempts',
   hold_expires_at: 'hold_expires_at',
   capacity_override_applied: 'capacity_override_applied',
   capacity_override_reason: 'capacity_override_reason',

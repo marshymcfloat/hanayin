@@ -528,6 +528,23 @@ export type EnumReferenceSubjectNullableWithAggregatesFilter<$PrismaModel = neve
   _max?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel>
 }
 
+export type EnumReferenceCandidateStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceCandidateStatus | Prisma.EnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReferenceCandidateStatusFilter<$PrismaModel> | $Enums.ReferenceCandidateStatus
+}
+
+export type EnumReferenceCandidateStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceCandidateStatus | Prisma.EnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReferenceCandidateStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReferenceCandidateStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReferenceCandidateStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReferenceCandidateStatusFilter<$PrismaModel>
+}
+
 export type EnumBillingIntervalFilter<$PrismaModel = never> = {
   equals?: $Enums.BillingInterval | Prisma.EnumBillingIntervalFieldRefInput<$PrismaModel>
   in?: $Enums.BillingInterval[] | Prisma.ListEnumBillingIntervalFieldRefInput<$PrismaModel>
@@ -1626,6 +1643,23 @@ export type NestedEnumReferenceSubjectNullableWithAggregatesFilter<$PrismaModel 
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumReferenceSubjectNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumReferenceCandidateStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceCandidateStatus | Prisma.EnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReferenceCandidateStatusFilter<$PrismaModel> | $Enums.ReferenceCandidateStatus
+}
+
+export type NestedEnumReferenceCandidateStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ReferenceCandidateStatus | Prisma.EnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ReferenceCandidateStatus[] | Prisma.ListEnumReferenceCandidateStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumReferenceCandidateStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReferenceCandidateStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumReferenceCandidateStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumReferenceCandidateStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumBillingIntervalFilter<$PrismaModel = never> = {

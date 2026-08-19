@@ -5,6 +5,7 @@ const resolveTenantActorContextMock = vi.hoisted(() => vi.fn());
 const hasStaffPermissionMock = vi.hoisted(() => vi.fn());
 
 const prismaMock = vi.hoisted(() => ({
+  $transaction: vi.fn(),
   availedService: {
     findFirst: vi.fn(),
     findUnique: vi.fn(),
@@ -13,6 +14,7 @@ const prismaMock = vi.hoisted(() => ({
   employee: {
     findFirst: vi.fn(),
     findUnique: vi.fn(),
+    update: vi.fn(),
   },
   booking: {
     findMany: vi.fn(),
@@ -43,18 +45,21 @@ vi.mock("@/lib/server actions/sale-event", () => ({
 
 vi.mock("@/lib/utils/pricing", () => ({
   getApplicableDiscount: vi.fn().mockReturnValue(null),
-  calculateBookingTotal: vi
-    .fn()
-    .mockImplementation(({ subtotal }) => subtotal),
+  calculateBookingTotal: vi.fn().mockImplementation(({ subtotal }) => subtotal),
 }));
 
 import {
   claimServiceAction,
   getEmployeeTodayBookingsAction,
   markEmployeeBookingPaidAction,
+  markServiceServedAction,
   unclaimServiceAction,
 } from "./employee";
-import { AvailedServiceStatus, BookingStatus, PaymentStatus } from "@/prisma/generated/prisma/client";
+import {
+  AvailedServiceStatus,
+  BookingStatus,
+  PaymentStatus,
+} from "@/prisma/generated/prisma/client";
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
 import { getApplicableDiscount } from "@/lib/utils/pricing";
 
@@ -98,6 +103,9 @@ describe("Employee Dashboard Actions", () => {
       ],
     });
     hasStaffPermissionMock.mockReturnValue(true);
+    prismaMock.$transaction.mockImplementation(async (callback) =>
+      callback(prismaMock),
+    );
   });
 
   describe("claimServiceAction", () => {
@@ -116,6 +124,7 @@ describe("Employee Dashboard Actions", () => {
         package_id: null,
         served_by_id: null,
         served_by_owner_id: null,
+        booking: { status: "ACCEPTED" },
       });
       prismaMock.availedService.updateMany.mockResolvedValue({ count: 1 });
       prismaMock.availedService.findUnique.mockResolvedValue({
@@ -129,6 +138,24 @@ describe("Employee Dashboard Actions", () => {
 
       expect(result.success).toBe(true);
       expect(prismaMock.availedService.updateMany).toHaveBeenCalled();
+    });
+
+    it("rejects claiming a service from an unconfirmed hold", async () => {
+      prismaMock.employee.findFirst.mockResolvedValue({ id: 101 });
+      prismaMock.availedService.findFirst.mockResolvedValue({
+        status: AvailedServiceStatus.PENDING,
+        price: 100,
+        service_id: 1,
+        package_id: null,
+        served_by_id: null,
+        served_by_owner_id: null,
+        booking: { status: "HOLD" },
+      });
+
+      const result = await claimServiceAction(1, 101);
+
+      expect(result).toMatchObject({ success: false });
+      expect(prismaMock.availedService.updateMany).not.toHaveBeenCalled();
     });
   });
 
@@ -151,6 +178,26 @@ describe("Employee Dashboard Actions", () => {
 
       expect(result.success).toBe(true);
       expect(prismaMock.availedService.updateMany).toHaveBeenCalled();
+    });
+  });
+
+  describe("markServiceServedAction", () => {
+    it("rejects serving a service from an unconfirmed hold", async () => {
+      prismaMock.availedService.findFirst.mockResolvedValue({
+        commission_base: 100,
+        price: 100,
+        booking_id: 1,
+        status: AvailedServiceStatus.CLAIMED,
+        served_by_id: 101,
+        served_by_owner_id: null,
+        booking: { status: "HOLD" },
+      });
+
+      const result = await markServiceServedAction(1, 101);
+
+      expect(result).toMatchObject({ success: false });
+      expect(prismaMock.employee.update).not.toHaveBeenCalled();
+      expect(prismaMock.availedService.updateMany).not.toHaveBeenCalled();
     });
   });
 

@@ -156,6 +156,11 @@ export default async function SocialPostsPage({
               end_date: true,
             },
           },
+          growth_campaigns: {
+            select: { opportunity_snapshot: true },
+            orderBy: { created_at: "desc" },
+            take: 1,
+          },
           targets: {
             include: {
               social_connection: {

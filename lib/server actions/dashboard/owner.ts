@@ -96,7 +96,10 @@ export async function claimServiceAsOwnerAction(serviceId: number) {
       where: {
         id: serviceId,
         status: AvailedServiceStatus.PENDING,
-        booking: { business: { slug: businessSlug } },
+        booking: {
+          business: { slug: businessSlug },
+          status: BookingStatus.ACCEPTED,
+        },
       },
       data: updateData,
     });
@@ -223,17 +226,27 @@ export async function markServiceServedAsOwnerAction(serviceId: number) {
         select: {
           booking_id: true,
           served_by_owner_id: true,
+          booking: { select: { status: true } },
         },
       });
 
       if (!service || service.served_by_owner_id !== owner.id) {
         throw new Error("Service not found or not claimed by owner");
       }
+      if (service.booking.status !== BookingStatus.ACCEPTED) {
+        throw new Error(
+          "Booking must be confirmed before services can be served",
+        );
+      }
       const nowPH = getCurrentDateTimePH();
 
-      const updatedService = await tx.availedService.update({
+      const changed = await tx.availedService.updateMany({
         where: {
           id: serviceId,
+          booking: {
+            business: { slug: businessSlug },
+            status: BookingStatus.ACCEPTED,
+          },
         },
         data: {
           status: AvailedServiceStatus.COMPLETED,
@@ -241,6 +254,14 @@ export async function markServiceServedAsOwnerAction(serviceId: number) {
           completed_at: nowPH,
         },
       });
+      if (changed.count !== 1) {
+        throw new Error("Unable to mark service as served");
+      }
+
+      const updatedService = await tx.availedService.findUnique({
+        where: { id: serviceId },
+      });
+      if (!updatedService) throw new Error("Service not found");
 
       await promoteBookingToCompletedIfEligible(tx, service.booking_id);
 
@@ -403,9 +424,8 @@ export async function markBookingNoShowAction(bookingId: number) {
   // resolveTenantActorContext / hasStaffPermission keeps the existing
   // call sites that rely on this module's surface area (and its bigger
   // imports) unaffected.
-  const { resolveTenantActorContext, hasStaffPermission } = await import(
-    "@/lib/auth/staff-access"
-  );
+  const { resolveTenantActorContext, hasStaffPermission } =
+    await import("@/lib/auth/staff-access");
   const { StaffPermission } = await import("@/prisma/generated/prisma/enums");
   const actorContext = await resolveTenantActorContext(
     businessSlug,
@@ -429,7 +449,10 @@ export async function markBookingNoShowAction(bookingId: number) {
       return { success: false, error: "Booking is already cancelled." };
     }
     if (booking.status === BookingStatus.COMPLETED) {
-      return { success: false, error: "Cannot mark a completed booking as no-show." };
+      return {
+        success: false,
+        error: "Cannot mark a completed booking as no-show.",
+      };
     }
 
     // Anonymous walk-ins have no Customer to track no-shows against — only
@@ -540,7 +563,10 @@ export async function markBookingPaidAction(bookingId: number) {
     }
 
     if (booking.status === BookingStatus.CANCELLED) {
-      return { success: false, error: "Cancelled bookings cannot be marked paid." };
+      return {
+        success: false,
+        error: "Cancelled bookings cannot be marked paid.",
+      };
     }
 
     if (booking.payment_status === PaymentStatus.PAID) {

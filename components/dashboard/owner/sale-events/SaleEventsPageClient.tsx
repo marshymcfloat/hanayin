@@ -6,7 +6,7 @@ import { SaleEventList, type SaleEvent } from "./SaleEventList";
 import { deleteSaleEvent } from "@/lib/server actions/sale-event";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Percent, RefreshCcw } from "lucide-react";
+import { Megaphone, Percent, RefreshCcw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SocialPlatform } from "@/prisma/generated/prisma/enums";
 import type { OpportunityView } from "@/lib/services/growth/types";
@@ -71,26 +71,26 @@ export function SaleEventsPageClient({
   };
 
   return (
-    <div className="flex flex-col bg-background">
+    <main className="min-h-full bg-muted/20">
 
       {/* ── Page Header ────────────────────────────────── */}
-      <div className="border-b border-border bg-card px-4 sm:px-8 py-4 sm:py-5">
-        <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+      <header className="border-b border-border bg-background px-4 py-5 sm:px-8 sm:py-7">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <Percent className="h-4 w-4 text-primary" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/10">
+              <Percent className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-[17px] sm:text-xl font-bold tracking-tight text-foreground">
+                <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
                   Sale Events
                 </h1>
-                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary tabular-nums">
-                  {initialEvents.length}
+                <span className="shrink-0 rounded-lg bg-muted px-2 py-1 text-xs font-semibold text-muted-foreground tabular-nums">
+                  {initialEvents.length} {initialEvents.length === 1 ? "event" : "events"}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
-                Manage promotional campaigns and discounts
+              <p className="mt-1 hidden text-sm text-muted-foreground sm:block">
+                Plan offers, create campaign drafts, and track what is live.
               </p>
             </div>
           </div>
@@ -115,11 +115,11 @@ export function SaleEventsPageClient({
             />
           </div>
         </div>
-      </div>
+      </header>
 
       {/* ── Main Content ───────────────────────────────── */}
-      <div className="px-4 sm:px-8 py-4 sm:py-6">
-        <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
+      <div className="px-4 py-5 sm:px-8 sm:py-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-5">
 
           {growthEnabled ? (
             <GrowthFlowChecklist
@@ -146,28 +146,47 @@ export function SaleEventsPageClient({
                 </div>
               ) : null}
 
-              <GrowthOpportunityPanel
-                businessSlug={businessSlug}
-                initialOpportunity={initialOpportunity}
-                services={services}
-                packages={packages}
-                flowContext={flowContext}
-                growthAiEnabled={growthAiEnabled}
-                socialEnabled={socialEnabled}
-              />
+              <section aria-labelledby="campaign-workspace-title" className="overflow-hidden rounded-[28px] border border-border bg-background shadow-sm shadow-foreground/[0.03]">
+                <div className="flex items-center gap-3 border-b border-border px-4 py-4 sm:px-6">
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Sparkles className="size-5" /></span>
+                  <div>
+                    <h2 id="campaign-workspace-title" className="font-semibold text-foreground">Campaign workspace</h2>
+                    <p className="text-sm text-muted-foreground">Turn today&apos;s strongest opportunity into a ready-to-review campaign.</p>
+                  </div>
+                </div>
+                <div className="p-3 sm:p-4">
+                  <GrowthOpportunityPanel
+                    businessSlug={businessSlug}
+                    initialOpportunity={initialOpportunity}
+                    services={services}
+                    packages={packages}
+                    flowContext={flowContext}
+                    growthAiEnabled={growthAiEnabled}
+                    socialEnabled={socialEnabled}
+                  />
+                </div>
+              </section>
             </>
           ) : null}
 
-          <SaleEventList
-            businessSlug={businessSlug}
-            events={initialEvents}
-            services={services}
-            packages={packages}
-            onDelete={handleDelete}
-            flowContext={flowContext}
-          />
+          <section aria-labelledby="events-title" className="space-y-3">
+            <div className="flex items-end justify-between gap-3 px-1">
+              <div>
+                <h2 id="events-title" className="flex items-center gap-2 text-base font-semibold text-foreground"><Megaphone className="size-4 text-primary" />Your campaigns</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Active, scheduled, and past sale events.</p>
+              </div>
+            </div>
+            <SaleEventList
+              businessSlug={businessSlug}
+              events={initialEvents}
+              services={services}
+              packages={packages}
+              onDelete={handleDelete}
+              flowContext={flowContext}
+            />
+          </section>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -16,6 +16,7 @@ import {
   type SocialImageProfile,
 } from "@/lib/services/social/image-profiles";
 import type { OrganicPostCategory } from "@/lib/services/social/caption-generator";
+import type { CampaignCreativeContext } from "@/lib/services/growth/creative-context";
 import {
   composeBusinessNameWatermark,
   composeEducationalOverlay,
@@ -53,6 +54,8 @@ export type PromoImageInput = {
   ownerImageDirection?: string;
   actionCategory?: string;
   reference?: ReferenceImage | null;
+  creativeContext?: CampaignCreativeContext | null;
+  creativeBrief?: string | null;
 };
 
 export type OrganicImageInput = {
@@ -682,7 +685,9 @@ export function buildSocialImagePrompt(input: PromoImageInput): string {
           : null;
 
   const dateRange = formatDateRange(input.startDate, input.endDate);
-  const seasonLine = inferSeasonContext(input.title, dateRange);
+  const seasonLine = input.creativeContext
+    ? `REQUIRED OPPORTUNITY ANCHOR — ${input.creativeContext.anchorLabel}: ${input.creativeContext.requiredContext} Visual mood: ${input.creativeContext.visualMood}`
+    : inferSeasonContext(`${input.title} ${input.saleDescription ?? ""}`, dateRange);
   const hookContext = extractCaptionHook(input.captionText);
 
   const isNonDiscountAction =
@@ -696,7 +701,7 @@ export function buildSocialImagePrompt(input: PromoImageInput): string {
       : `flat-amount promo, but DO NOT render any price in the image — it stays in the caption only`
     : "non-discount campaign — focus purely on the mood, no promotional cues in-frame";
 
-  const contextLine = `Campaign "${input.title}" for ${input.businessName} — ${discountBlurb}. Window: ${dateRange}.${input.saleDescription ? ` ${input.saleDescription.trim()}.` : ""}`;
+  const contextLine = `Campaign "${input.title}" for ${input.businessName} — ${discountBlurb}. Window: ${dateRange}.${input.saleDescription ? ` ${input.saleDescription.trim()}.` : ""}${input.creativeBrief ? ` APPROVED VISUAL BRIEF: ${input.creativeBrief}` : ""}`;
 
   // Prefer a service-category-aware subject so the image actually shows what's
   // being sold. Falls back to the profile's generic subject pool when the
@@ -717,6 +722,21 @@ export function buildSocialImagePrompt(input: PromoImageInput): string {
     subjectOverride: subjectOverride ?? undefined,
     reference: input.reference ?? null,
   });
+}
+
+export function validateCampaignPromptAlignment(input: PromoImageInput, prompt: string) {
+  if (!input.creativeContext) return { aligned: true, missing: [] as string[] };
+  const normalized = prompt.toLowerCase();
+  const anchorTerms = input.creativeContext.anchor === "RAINY_SEASON_COMFORT"
+    ? ["rain", "monsoon", "wet-city"]
+    : input.creativeContext.anchorLabel.toLowerCase().split(/[^a-z]+/).filter((term) => term.length > 3);
+  const serviceTerms = [...(input.serviceNames ?? []), ...(input.serviceCategories ?? [])]
+    .flatMap((value) => value.toLowerCase().split(/[^a-z]+/))
+    .filter((term) => term.length > 3);
+  const missing: string[] = [];
+  if (anchorTerms.length > 0 && !anchorTerms.some((term) => normalized.includes(term))) missing.push("opportunity anchor");
+  if (serviceTerms.length > 0 && !serviceTerms.some((term) => normalized.includes(term))) missing.push("service subject");
+  return { aligned: missing.length === 0, missing };
 }
 
 const ORGANIC_CATEGORY_SUBJECT: Record<OrganicPostCategory, string> = {
@@ -940,7 +960,11 @@ export async function generateAndUploadPromoImage(
     return null;
   }
 
-  const prompt = buildSocialImagePrompt(input);
+  let prompt = buildSocialImagePrompt(input);
+  const alignment = validateCampaignPromptAlignment(input, prompt);
+  if (!alignment.aligned && input.creativeContext) {
+    prompt = `${prompt}\nALIGNMENT CORRECTION (mandatory): ${input.creativeContext.visualBrief}\nExplicit services: ${(input.serviceNames ?? []).join(", ")}. Avoid unrelated generic beauty photography.`;
+  }
   const background = await generateBackgroundBytes(prompt, input.reference);
   if (!background) return null;
 

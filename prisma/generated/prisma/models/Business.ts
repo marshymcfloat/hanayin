@@ -449,6 +449,7 @@ export type BusinessWhereInput = {
   business_hours?: Prisma.BusinessHoursListRelationFilter
   service_flows?: Prisma.ServiceFlowListRelationFilter
   brand_assets?: Prisma.BrandAssetListRelationFilter
+  reference_candidates?: Prisma.ReferenceCandidateListRelationFilter
   growth_settings?: Prisma.XOR<Prisma.BusinessGrowthSettingsNullableScalarRelationFilter, Prisma.BusinessGrowthSettingsWhereInput> | null
   growth_context_snapshots?: Prisma.GrowthContextSnapshotListRelationFilter
   opportunities?: Prisma.OpportunityListRelationFilter
@@ -513,6 +514,7 @@ export type BusinessOrderByWithRelationInput = {
   business_hours?: Prisma.BusinessHoursOrderByRelationAggregateInput
   service_flows?: Prisma.ServiceFlowOrderByRelationAggregateInput
   brand_assets?: Prisma.BrandAssetOrderByRelationAggregateInput
+  reference_candidates?: Prisma.ReferenceCandidateOrderByRelationAggregateInput
   growth_settings?: Prisma.BusinessGrowthSettingsOrderByWithRelationInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotOrderByRelationAggregateInput
   opportunities?: Prisma.OpportunityOrderByRelationAggregateInput
@@ -580,6 +582,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   business_hours?: Prisma.BusinessHoursListRelationFilter
   service_flows?: Prisma.ServiceFlowListRelationFilter
   brand_assets?: Prisma.BrandAssetListRelationFilter
+  reference_candidates?: Prisma.ReferenceCandidateListRelationFilter
   growth_settings?: Prisma.XOR<Prisma.BusinessGrowthSettingsNullableScalarRelationFilter, Prisma.BusinessGrowthSettingsWhereInput> | null
   growth_context_snapshots?: Prisma.GrowthContextSnapshotListRelationFilter
   opportunities?: Prisma.OpportunityListRelationFilter
@@ -716,6 +719,7 @@ export type BusinessCreateInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -780,6 +784,7 @@ export type BusinessUncheckedCreateInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -844,6 +849,7 @@ export type BusinessUpdateInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -908,6 +914,7 @@ export type BusinessUncheckedUpdateInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1299,6 +1306,20 @@ export type BusinessUpdateOneRequiredWithoutBrand_assetsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutBrand_assetsInput, Prisma.BusinessUpdateWithoutBrand_assetsInput>, Prisma.BusinessUncheckedUpdateWithoutBrand_assetsInput>
 }
 
+export type BusinessCreateNestedOneWithoutReference_candidatesInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReference_candidatesInput, Prisma.BusinessUncheckedCreateWithoutReference_candidatesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReference_candidatesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutReference_candidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReference_candidatesInput, Prisma.BusinessUncheckedCreateWithoutReference_candidatesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReference_candidatesInput
+  upsert?: Prisma.BusinessUpsertWithoutReference_candidatesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutReference_candidatesInput, Prisma.BusinessUpdateWithoutReference_candidatesInput>, Prisma.BusinessUncheckedUpdateWithoutReference_candidatesInput>
+}
+
 export type BusinessCreateNestedOneWithoutOwnersInput = {
   create?: Prisma.XOR<Prisma.BusinessCreateWithoutOwnersInput, Prisma.BusinessUncheckedCreateWithoutOwnersInput>
   connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutOwnersInput
@@ -1687,6 +1708,7 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -1750,6 +1772,7 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -1829,6 +1852,7 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -1892,6 +1916,7 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1955,6 +1980,7 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -2018,6 +2044,7 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -2097,6 +2124,7 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -2160,6 +2188,7 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2223,6 +2252,7 @@ export type BusinessCreateWithoutSale_eventsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -2286,6 +2316,7 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -2365,6 +2396,7 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -2428,6 +2460,7 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2491,6 +2524,7 @@ export type BusinessCreateWithoutSocial_connectionsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -2554,6 +2588,7 @@ export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -2633,6 +2668,7 @@ export type BusinessUpdateWithoutSocial_connectionsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -2696,6 +2732,7 @@ export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2759,6 +2796,7 @@ export type BusinessCreateWithoutSocial_postsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -2822,6 +2860,7 @@ export type BusinessUncheckedCreateWithoutSocial_postsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -2901,6 +2940,7 @@ export type BusinessUpdateWithoutSocial_postsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -2964,6 +3004,7 @@ export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3027,6 +3068,7 @@ export type BusinessCreateWithoutEmployeesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -3090,6 +3132,7 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -3169,6 +3212,7 @@ export type BusinessUpdateWithoutEmployeesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -3232,6 +3276,7 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3295,6 +3340,7 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -3358,6 +3404,7 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -3437,6 +3484,7 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -3500,6 +3548,7 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3563,6 +3612,7 @@ export type BusinessCreateWithoutBrand_assetsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -3626,6 +3676,7 @@ export type BusinessUncheckedCreateWithoutBrand_assetsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -3705,6 +3756,7 @@ export type BusinessUpdateWithoutBrand_assetsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -3768,6 +3820,279 @@ export type BusinessUncheckedUpdateWithoutBrand_assetsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutReference_candidatesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  timezone?: string
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  downpayment_percentage?: number
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  social_post_requests?: Prisma.SocialPostRequestCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutReference_candidatesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  timezone?: string
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  downpayment_percentage?: number
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  formal_schedule_enabled?: boolean
+  structure?: $Enums.BusinessStructure
+  allow_employee_self_booking?: boolean
+  manager_can_serve?: boolean
+  gcash_account_name?: string | null
+  gcash_mobile_number?: string | null
+  gcash_qr_image_url?: string | null
+  gcash_instructions?: string | null
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  social_post_requests?: Prisma.SocialPostRequestUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
+  opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUncheckedCreateNestedManyWithoutBusinessInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutReference_candidatesInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReference_candidatesInput, Prisma.BusinessUncheckedCreateWithoutReference_candidatesInput>
+}
+
+export type BusinessUpsertWithoutReference_candidatesInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutReference_candidatesInput, Prisma.BusinessUncheckedUpdateWithoutReference_candidatesInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReference_candidatesInput, Prisma.BusinessUncheckedCreateWithoutReference_candidatesInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutReference_candidatesInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutReference_candidatesInput, Prisma.BusinessUncheckedUpdateWithoutReference_candidatesInput>
+}
+
+export type BusinessUpdateWithoutReference_candidatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  social_post_requests?: Prisma.SocialPostRequestUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
+  growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
+  opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_upgrade_requests?: Prisma.SubscriptionPlanUpgradeRequestUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+  booking_otp_codes?: Prisma.BookingOtpCodeUpdateManyWithoutBusinessNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutReference_candidatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  downpayment_percentage?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  formal_schedule_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  structure?: Prisma.EnumBusinessStructureFieldUpdateOperationsInput | $Enums.BusinessStructure
+  allow_employee_self_booking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manager_can_serve?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gcash_account_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_mobile_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_qr_image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gcash_instructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  social_post_requests?: Prisma.SocialPostRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3831,6 +4156,7 @@ export type BusinessCreateWithoutOwnersInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -3894,6 +4220,7 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -3973,6 +4300,7 @@ export type BusinessUpdateWithoutOwnersInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -4036,6 +4364,7 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4100,6 +4429,7 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -4163,6 +4493,7 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -4242,6 +4573,7 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -4305,6 +4637,7 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4368,6 +4701,7 @@ export type BusinessCreateWithoutSubscription_upgrade_requestsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -4431,6 +4765,7 @@ export type BusinessUncheckedCreateWithoutSubscription_upgrade_requestsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -4510,6 +4845,7 @@ export type BusinessUpdateWithoutSubscription_upgrade_requestsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -4573,6 +4909,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_upgrade_requestsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4636,6 +4973,7 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -4699,6 +5037,7 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -4778,6 +5117,7 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -4841,6 +5181,7 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4904,6 +5245,7 @@ export type BusinessCreateWithoutReferral_codeInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -4967,6 +5309,7 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -5046,6 +5389,7 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -5109,6 +5453,7 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -5172,6 +5517,7 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -5235,6 +5581,7 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -5314,6 +5661,7 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -5377,6 +5725,7 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -5440,6 +5789,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -5503,6 +5853,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -5571,6 +5922,7 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -5634,6 +5986,7 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -5713,6 +6066,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -5776,6 +6130,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -5850,6 +6205,7 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -5913,6 +6269,7 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -5976,6 +6333,7 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -6039,6 +6397,7 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -6118,6 +6477,7 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -6181,6 +6541,7 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -6244,6 +6605,7 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -6307,6 +6669,7 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -6386,6 +6749,7 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -6449,6 +6813,7 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -6511,6 +6876,7 @@ export type BusinessCreateWithoutServicesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -6574,6 +6940,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -6653,6 +7020,7 @@ export type BusinessUpdateWithoutServicesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -6716,6 +7084,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -6779,6 +7148,7 @@ export type BusinessCreateWithoutPackagesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -6842,6 +7212,7 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -6921,6 +7292,7 @@ export type BusinessUpdateWithoutPackagesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -6984,6 +7356,7 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -7047,6 +7420,7 @@ export type BusinessCreateWithoutCustomersInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -7110,6 +7484,7 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -7189,6 +7564,7 @@ export type BusinessUpdateWithoutCustomersInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -7252,6 +7628,7 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -7316,6 +7693,7 @@ export type BusinessCreateWithoutBooking_otp_codesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -7379,6 +7757,7 @@ export type BusinessUncheckedCreateWithoutBooking_otp_codesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -7458,6 +7837,7 @@ export type BusinessUpdateWithoutBooking_otp_codesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -7521,6 +7901,7 @@ export type BusinessUncheckedUpdateWithoutBooking_otp_codesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -7583,6 +7964,7 @@ export type BusinessCreateWithoutBookingsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -7646,6 +8028,7 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -7725,6 +8108,7 @@ export type BusinessUpdateWithoutBookingsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -7788,6 +8172,7 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -7851,6 +8236,7 @@ export type BusinessCreateWithoutVouchersInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -7914,6 +8300,7 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -7993,6 +8380,7 @@ export type BusinessUpdateWithoutVouchersInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -8056,6 +8444,7 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -8119,6 +8508,7 @@ export type BusinessCreateWithoutGift_cardsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -8182,6 +8572,7 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -8261,6 +8652,7 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -8324,6 +8716,7 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -8387,6 +8780,7 @@ export type BusinessCreateWithoutService_flowsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -8450,6 +8844,7 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -8529,6 +8924,7 @@ export type BusinessUpdateWithoutService_flowsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -8592,6 +8988,7 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -8656,6 +9053,7 @@ export type BusinessCreateWithoutGrowth_settingsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
@@ -8719,6 +9117,7 @@ export type BusinessUncheckedCreateWithoutGrowth_settingsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
@@ -8798,6 +9197,7 @@ export type BusinessUpdateWithoutGrowth_settingsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
@@ -8861,6 +9261,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_settingsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
@@ -8924,6 +9325,7 @@ export type BusinessCreateWithoutGrowth_context_snapshotsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
@@ -8987,6 +9389,7 @@ export type BusinessUncheckedCreateWithoutGrowth_context_snapshotsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
@@ -9066,6 +9469,7 @@ export type BusinessUpdateWithoutGrowth_context_snapshotsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
@@ -9129,6 +9533,7 @@ export type BusinessUncheckedUpdateWithoutGrowth_context_snapshotsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
@@ -9192,6 +9597,7 @@ export type BusinessCreateWithoutOpportunitiesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutBusinessInput
@@ -9255,6 +9661,7 @@ export type BusinessUncheckedCreateWithoutOpportunitiesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutBusinessInput
@@ -9334,6 +9741,7 @@ export type BusinessUpdateWithoutOpportunitiesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutBusinessNestedInput
@@ -9397,6 +9805,7 @@ export type BusinessUncheckedUpdateWithoutOpportunitiesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutBusinessNestedInput
@@ -9460,6 +9869,7 @@ export type BusinessCreateWithoutCampaignsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -9523,6 +9933,7 @@ export type BusinessUncheckedCreateWithoutCampaignsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -9602,6 +10013,7 @@ export type BusinessUpdateWithoutCampaignsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -9665,6 +10077,7 @@ export type BusinessUncheckedUpdateWithoutCampaignsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -9727,6 +10140,7 @@ export type BusinessCreateWithoutSocial_post_requestsInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -9790,6 +10204,7 @@ export type BusinessUncheckedCreateWithoutSocial_post_requestsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -9869,6 +10284,7 @@ export type BusinessUpdateWithoutSocial_post_requestsInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -9932,6 +10348,7 @@ export type BusinessUncheckedUpdateWithoutSocial_post_requestsInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -9996,6 +10413,7 @@ export type BusinessCreateWithoutExpensesInput = {
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityCreateNestedManyWithoutBusinessInput
@@ -10059,6 +10477,7 @@ export type BusinessUncheckedCreateWithoutExpensesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
   brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutBusinessInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedCreateNestedManyWithoutBusinessInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedCreateNestedOneWithoutBusinessInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedCreateNestedManyWithoutBusinessInput
   opportunities?: Prisma.OpportunityUncheckedCreateNestedManyWithoutBusinessInput
@@ -10138,6 +10557,7 @@ export type BusinessUpdateWithoutExpensesInput = {
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUpdateManyWithoutBusinessNestedInput
@@ -10201,6 +10621,7 @@ export type BusinessUncheckedUpdateWithoutExpensesInput = {
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutBusinessNestedInput
+  reference_candidates?: Prisma.ReferenceCandidateUncheckedUpdateManyWithoutBusinessNestedInput
   growth_settings?: Prisma.BusinessGrowthSettingsUncheckedUpdateOneWithoutBusinessNestedInput
   growth_context_snapshots?: Prisma.GrowthContextSnapshotUncheckedUpdateManyWithoutBusinessNestedInput
   opportunities?: Prisma.OpportunityUncheckedUpdateManyWithoutBusinessNestedInput
@@ -10240,6 +10661,7 @@ export type BusinessCountOutputType = {
   business_hours: number
   service_flows: number
   brand_assets: number
+  reference_candidates: number
   growth_context_snapshots: number
   opportunities: number
   campaigns: number
@@ -10273,6 +10695,7 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   business_hours?: boolean | BusinessCountOutputTypeCountBusiness_hoursArgs
   service_flows?: boolean | BusinessCountOutputTypeCountService_flowsArgs
   brand_assets?: boolean | BusinessCountOutputTypeCountBrand_assetsArgs
+  reference_candidates?: boolean | BusinessCountOutputTypeCountReference_candidatesArgs
   growth_context_snapshots?: boolean | BusinessCountOutputTypeCountGrowth_context_snapshotsArgs
   opportunities?: boolean | BusinessCountOutputTypeCountOpportunitiesArgs
   campaigns?: boolean | BusinessCountOutputTypeCountCampaignsArgs
@@ -10420,6 +10843,13 @@ export type BusinessCountOutputTypeCountBrand_assetsArgs<ExtArgs extends runtime
 /**
  * BusinessCountOutputType without action
  */
+export type BusinessCountOutputTypeCountReference_candidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReferenceCandidateWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
 export type BusinessCountOutputTypeCountGrowth_context_snapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.GrowthContextSnapshotWhereInput
 }
@@ -10556,6 +10986,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
   brand_assets?: boolean | Prisma.Business$brand_assetsArgs<ExtArgs>
+  reference_candidates?: boolean | Prisma.Business$reference_candidatesArgs<ExtArgs>
   growth_settings?: boolean | Prisma.Business$growth_settingsArgs<ExtArgs>
   growth_context_snapshots?: boolean | Prisma.Business$growth_context_snapshotsArgs<ExtArgs>
   opportunities?: boolean | Prisma.Business$opportunitiesArgs<ExtArgs>
@@ -10689,6 +11120,7 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
   brand_assets?: boolean | Prisma.Business$brand_assetsArgs<ExtArgs>
+  reference_candidates?: boolean | Prisma.Business$reference_candidatesArgs<ExtArgs>
   growth_settings?: boolean | Prisma.Business$growth_settingsArgs<ExtArgs>
   growth_context_snapshots?: boolean | Prisma.Business$growth_context_snapshotsArgs<ExtArgs>
   opportunities?: boolean | Prisma.Business$opportunitiesArgs<ExtArgs>
@@ -10729,6 +11161,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     business_hours: Prisma.$BusinessHoursPayload<ExtArgs>[]
     service_flows: Prisma.$ServiceFlowPayload<ExtArgs>[]
     brand_assets: Prisma.$BrandAssetPayload<ExtArgs>[]
+    reference_candidates: Prisma.$ReferenceCandidatePayload<ExtArgs>[]
     growth_settings: Prisma.$BusinessGrowthSettingsPayload<ExtArgs> | null
     growth_context_snapshots: Prisma.$GrowthContextSnapshotPayload<ExtArgs>[]
     opportunities: Prisma.$OpportunityPayload<ExtArgs>[]
@@ -11186,6 +11619,7 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   business_hours<T extends Prisma.Business$business_hoursArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$business_hoursArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessHoursPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   service_flows<T extends Prisma.Business$service_flowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$service_flowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceFlowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   brand_assets<T extends Prisma.Business$brand_assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$brand_assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BrandAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reference_candidates<T extends Prisma.Business$reference_candidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$reference_candidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReferenceCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   growth_settings<T extends Prisma.Business$growth_settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$growth_settingsArgs<ExtArgs>>): Prisma.Prisma__BusinessGrowthSettingsClient<runtime.Types.Result.GetResult<Prisma.$BusinessGrowthSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   growth_context_snapshots<T extends Prisma.Business$growth_context_snapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$growth_context_snapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GrowthContextSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   opportunities<T extends Prisma.Business$opportunitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$opportunitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OpportunityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -12052,6 +12486,30 @@ export type Business$brand_assetsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.BrandAssetScalarFieldEnum | Prisma.BrandAssetScalarFieldEnum[]
+}
+
+/**
+ * Business.reference_candidates
+ */
+export type Business$reference_candidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReferenceCandidate
+   */
+  select?: Prisma.ReferenceCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReferenceCandidate
+   */
+  omit?: Prisma.ReferenceCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReferenceCandidateInclude<ExtArgs> | null
+  where?: Prisma.ReferenceCandidateWhereInput
+  orderBy?: Prisma.ReferenceCandidateOrderByWithRelationInput | Prisma.ReferenceCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.ReferenceCandidateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReferenceCandidateScalarFieldEnum | Prisma.ReferenceCandidateScalarFieldEnum[]
 }
 
 /**
