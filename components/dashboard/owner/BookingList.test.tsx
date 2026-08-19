@@ -11,6 +11,7 @@ const useRouterMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   useRouter: () => useRouterMock(),
+  useParams: () => ({ businessSlug: "demo" }),
 }));
 
 // Server actions imported by BookingList; mocked so the test never
