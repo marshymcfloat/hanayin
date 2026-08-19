@@ -982,9 +982,19 @@ export default function BookingForm({
   }, [effectiveIsWalkIn]);
 
   const { mutate: createBookingAction, isPending } = useMutation({
-    mutationFn: createBooking,
+    mutationFn: async (...args: Parameters<typeof createBooking>) => {
+      const result = await createBooking(...args);
+      // Expected server-side rejections are returned as data so Next.js does
+      // not turn them into opaque production 500 responses. Re-throw locally
+      // to retain the form's existing per-code recovery behavior.
+      if (result.type === "error") {
+        throw new Error(result.code);
+      }
+      return result;
+    },
     onSuccess: (result: CreateBookingResult) => {
       if (!result) return;
+      if (result.type === "error") return;
       if (result.warnings?.length) {
         result.warnings.forEach((warning) => toast.message(warning));
       }

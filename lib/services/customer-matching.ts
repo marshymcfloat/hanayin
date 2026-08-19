@@ -82,6 +82,60 @@ export async function findExistingCustomerByContact({
 }
 
 /**
+ * Public bookings establish customer identity through a freshly verified
+ * phone number. Editable fields such as email must not participate in the
+ * lookup because they may have changed since the customer's last booking.
+ */
+export async function findExistingCustomerByVerifiedPhone({
+  customerDelegate,
+  businessId,
+  phone,
+}: {
+  customerDelegate: CustomerLookupDelegate;
+  businessId: string;
+  phone?: string;
+}) {
+  if (!phone) return null;
+
+  return customerDelegate.findFirst({
+    where: {
+      business_id: businessId,
+      phone,
+    },
+    orderBy: { created_at: "asc" },
+  });
+}
+
+export function buildCustomerProfileUpdateForBooking({
+  isPublicBooking,
+  customerName,
+  email,
+  phone,
+  existingEmail,
+  existingPhone,
+}: {
+  isPublicBooking: boolean;
+  customerName: string;
+  email?: string;
+  phone?: string;
+  existingEmail: string | null;
+  existingPhone: string | null;
+}) {
+  if (isPublicBooking) {
+    return {
+      name: customerName,
+      ...(email ? { email } : {}),
+      ...(phone ? { phone } : {}),
+    };
+  }
+
+  return {
+    ...(email && !existingEmail ? { email } : {}),
+    ...(phone && !existingPhone ? { phone } : {}),
+  };
+}
+
+/**
  * Richer lookup used by the staff CustomerPicker and the duplicate-detection
  * confirmation dialog. Returns name + contact so the UI can show "Maria Santos
  * (0917 123 4567)" rather than just an opaque match.

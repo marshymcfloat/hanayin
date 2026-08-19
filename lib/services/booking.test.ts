@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  buildCustomerProfileUpdateForBooking,
   findDuplicateCustomerCandidate,
   findExistingCustomerByContact,
+  findExistingCustomerByVerifiedPhone,
   normalizeCustomerEmail,
   normalizeCustomerPhone,
 } from "./customer-matching";
@@ -99,6 +101,75 @@ describe("findExistingCustomerByContact", () => {
 
     expect(result).toBeNull();
     expect(findFirst).not.toHaveBeenCalled();
+  });
+});
+
+describe("findExistingCustomerByVerifiedPhone", () => {
+  it("identifies a returning public customer only by verified phone", async () => {
+    const findFirst = vi.fn().mockResolvedValue({
+      id: "cus_2",
+      email: "old@example.com",
+      phone: "639171234567",
+    });
+
+    const result = await findExistingCustomerByVerifiedPhone({
+      customerDelegate: { findFirst },
+      businessId: "biz_1",
+      phone: "639171234567",
+    });
+
+    expect(result?.id).toBe("cus_2");
+    expect(findFirst).toHaveBeenCalledWith({
+      where: {
+        business_id: "biz_1",
+        phone: "639171234567",
+      },
+      orderBy: { created_at: "asc" },
+    });
+  });
+
+  it("does not query without a verified phone", async () => {
+    const findFirst = vi.fn();
+
+    const result = await findExistingCustomerByVerifiedPhone({
+      customerDelegate: { findFirst },
+      businessId: "biz_1",
+    });
+
+    expect(result).toBeNull();
+    expect(findFirst).not.toHaveBeenCalled();
+  });
+});
+
+describe("buildCustomerProfileUpdateForBooking", () => {
+  it("replaces editable returning-customer details after public verification", () => {
+    expect(
+      buildCustomerProfileUpdateForBooking({
+        isPublicBooking: true,
+        customerName: "Daniel Canoy",
+        email: "new@example.com",
+        phone: "639951804645",
+        existingEmail: "old@example.com",
+        existingPhone: "639951804645",
+      }),
+    ).toEqual({
+      name: "Daniel Canoy",
+      email: "new@example.com",
+      phone: "639951804645",
+    });
+  });
+
+  it("preserves existing staff-linked customer details", () => {
+    expect(
+      buildCustomerProfileUpdateForBooking({
+        isPublicBooking: false,
+        customerName: "Different Name",
+        email: "different@example.com",
+        phone: "639999999999",
+        existingEmail: "saved@example.com",
+        existingPhone: "639171234567",
+      }),
+    ).toEqual({});
   });
 });
 

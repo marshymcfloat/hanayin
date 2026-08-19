@@ -9,7 +9,9 @@ import {
   buildBookingPricingSnapshot,
 } from "./booking-pricing";
 import {
+  buildCustomerProfileUpdateForBooking,
   findExistingCustomerByContact,
+  findExistingCustomerByVerifiedPhone,
   normalizeCustomerEmail,
   normalizeCustomerPhone,
 } from "./customer-matching";
@@ -224,37 +226,36 @@ export async function createBookingInDb({
             // dialog before reaching this code (see findDuplicateCustomer).
             // forceCreateCustomer=true means staff confirmed "create new
             // anyway" — skip the silent-link branch entirely.
-            const existingCustomer =
-              !forceCreateCustomer && !isPublicBooking
+            const existingCustomer = isPublicBooking
+              ? await findExistingCustomerByVerifiedPhone({
+                  customerDelegate: tx.customer,
+                  businessId: business.id,
+                  phone: normalizedPhone,
+                })
+              : !forceCreateCustomer
                 ? await findExistingCustomerByContact({
                     customerDelegate: tx.customer,
                     businessId: business.id,
                     email: normalizedEmail,
                     phone: normalizedPhone,
                   })
-                : isPublicBooking
-                  ? await findExistingCustomerByContact({
-                      customerDelegate: tx.customer,
-                      businessId: business.id,
-                      email: normalizedEmail,
-                      phone: normalizedPhone,
-                    })
-                  : null;
+                : null;
 
             if (existingCustomer) {
               finalCustomerId = existingCustomer.id;
-              const shouldUpdateEmail =
-                !!normalizedEmail && !existingCustomer.email;
-              const shouldUpdatePhone =
-                !!normalizedPhone && !existingCustomer.phone;
+              const customerUpdate = buildCustomerProfileUpdateForBooking({
+                isPublicBooking,
+                customerName,
+                email: normalizedEmail,
+                phone: normalizedPhone,
+                existingEmail: existingCustomer.email,
+                existingPhone: existingCustomer.phone,
+              });
 
-              if (shouldUpdateEmail || shouldUpdatePhone) {
+              if (Object.keys(customerUpdate).length > 0) {
                 await tx.customer.update({
                   where: { id: existingCustomer.id },
-                  data: {
-                    ...(shouldUpdateEmail ? { email: normalizedEmail } : {}),
-                    ...(shouldUpdatePhone ? { phone: normalizedPhone } : {}),
-                  },
+                  data: customerUpdate,
                 });
               }
             } else {

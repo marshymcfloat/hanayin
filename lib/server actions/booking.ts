@@ -81,7 +81,43 @@ interface CreateBookingParams {
 
 export type CreateBookingResult =
   | { type: "redirect"; url: string; warnings?: string[] }
-  | { type: "internal"; url: string; warnings?: string[] };
+  | { type: "internal"; url: string; warnings?: string[] }
+  | { type: "error"; code: string };
+
+const CLIENT_SAFE_BOOKING_ERRORS = new Set([
+  "OTP_REQUIRED",
+  "OTP_INVALID_OR_EXPIRED",
+  "CUSTOMER_RESTRICTED",
+  "DATE_OUTSIDE_HORIZON",
+  "LEAD_TIME_VIOLATION",
+  "PAYMENT_TYPE_NOT_ALLOWED",
+  "NO_CAPACITY_FOR_SELECTED_SERVICES",
+  "REQUIRED_STAFF_UNAVAILABLE",
+  "PREFERRED_STAFF_UNAVAILABLE",
+  "WALK_IN_CAPACITY_EXCEEDED",
+  "CAPACITY_OVERRIDE_NOT_ALLOWED",
+  "CAPACITY_OVERRIDE_REASON_REQUIRED",
+  "SLOT_JUST_TAKEN",
+  "SALE_SLOT_LIMIT_REACHED",
+  "GCASH_NOT_CONFIGURED",
+]);
+
+function getClientSafeBookingError(error: unknown) {
+  if (!(error instanceof Error)) return "BOOKING_FAILED";
+  if (CLIENT_SAFE_BOOKING_ERRORS.has(error.message)) return error.message;
+
+  const safeMessagePrefixes = [
+    "Invalid or expired voucher code",
+    "Minimum spend of ",
+    "Public bookings require ",
+    "Too many booking attempts",
+    "Business not found",
+  ];
+
+  return safeMessagePrefixes.some((prefix) => error.message.startsWith(prefix))
+    ? error.message
+    : "BOOKING_FAILED";
+}
 
 
 export async function createBooking({
@@ -403,7 +439,9 @@ export async function createBooking({
         "OTP_INVALID_OR_EXPIRED",
         "CUSTOMER_RESTRICTED",
       ]);
-      if (otpErrors.has(err.message)) throw err;
+      if (otpErrors.has(err.message)) {
+        return { type: "error", code: err.message };
+      }
     }
 
     if (err instanceof BookingAvailabilityError) {
@@ -426,7 +464,7 @@ export async function createBooking({
         code: err.code,
         isPublicBooking: metricIsPublicBooking,
       });
-      throw new Error(err.code);
+      return { type: "error", code: err.code };
     }
     logger.error("[BookingSubmit] Failed", {
       businessSlug,
@@ -434,6 +472,6 @@ export async function createBooking({
       error: err instanceof Error ? err.message : String(err),
     });
     console.error("Error creating booking:", err);
-    throw err;
+    return { type: "error", code: getClientSafeBookingError(err) };
   }
 }

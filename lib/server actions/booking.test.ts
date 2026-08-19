@@ -263,7 +263,7 @@ describe("createBooking Server Action", () => {
     });
   });
 
-  it("should rate-limit unauthenticated booking attempts", async () => {
+  it("should return a client-safe rate-limit error", async () => {
     mockedGetServerSession.mockResolvedValue(null);
     mockedRateLimit.mockResolvedValue({
       success: false,
@@ -282,12 +282,15 @@ describe("createBooking Server Action", () => {
         services: [{ id: 1, quantity: 1 }],
         email: "john@example.com",
       }),
-    ).rejects.toThrow("Too many booking attempts");
+    ).resolves.toEqual({
+      type: "error",
+      code: "Too many booking attempts. Please wait a few minutes and try again.",
+    });
 
     expect(mockedBuildBookingPricingSnapshot).not.toHaveBeenCalled();
   });
 
-  it("should throw error if business not found", async () => {
+  it("should return a client-safe error if business is not found", async () => {
     mockedBusinessFindUnique.mockResolvedValueOnce(null);
 
     await expect(
@@ -299,8 +302,25 @@ describe("createBooking Server Action", () => {
         paymentType: "FULL",
         services: [],
       }),
-    ).rejects.toThrow("Business not found");
+    ).resolves.toEqual({ type: "error", code: "Business not found" });
 
     expect(mockedBuildBookingPricingSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("does not expose unexpected server errors to public clients", async () => {
+    mockedBuildBookingPricingSnapshot.mockRejectedValueOnce(
+      new Error("Database connection includes sensitive details"),
+    );
+
+    await expect(
+      createBooking({
+        customerName: "John Doe",
+        businessSlug: "demo-business",
+        scheduledAt: mockDate,
+        paymentMethod: "CASH",
+        paymentType: "FULL",
+        services: [{ id: 1, quantity: 1 }],
+      }),
+    ).resolves.toEqual({ type: "error", code: "BOOKING_FAILED" });
   });
 });
