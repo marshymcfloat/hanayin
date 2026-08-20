@@ -6,6 +6,7 @@ export interface SmsResult {
   success: boolean;
   messageId?: string;
   error?: string;
+  failureKind?: "REJECTED" | "UNKNOWN";
 }
 
 /**
@@ -68,6 +69,7 @@ async function sendSms(
       return {
         success: false,
         error: `Semaphore ${endpoint} API error ${response.status}: ${responseText.slice(0, 200)}`,
+        failureKind: "REJECTED",
       };
     }
 
@@ -85,6 +87,7 @@ async function sendSms(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown SMS error",
+      failureKind: "UNKNOWN",
     };
   }
 }

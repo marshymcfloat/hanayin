@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { parseOutboxPayload } from "@/lib/services/outbox";
+import { parseOutboxPayload, publishEvent } from "@/lib/services/outbox";
+import type { Prisma } from "@/prisma/generated/prisma/client";
 
 describe("parseOutboxPayload", () => {
   it("parses manual payment submitted payload", () => {
@@ -68,5 +69,30 @@ describe("parseOutboxPayload", () => {
       socialPostTargetId: "spt_123",
       businessId: "biz_123",
     });
+  });
+});
+
+describe("publishEvent", () => {
+  it("upserts events with a deduplication key", async () => {
+    const upsert = vi.fn().mockResolvedValue({ id: "existing-event" });
+    const tx = {
+      outboxMessage: { upsert, create: vi.fn() },
+    } as unknown as Prisma.TransactionClient;
+
+    await publishEvent(tx, {
+      type: "BOOKING_CONFIRMED",
+      aggregateType: "Booking",
+      aggregateId: "125",
+      businessId: "business-1",
+      dedupeKey: "BOOKING_CONFIRMED:Booking:125",
+      payload: { bookingId: 125, status: "ACCEPTED" },
+    });
+
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { dedupe_key: "BOOKING_CONFIRMED:Booking:125" },
+        update: {},
+      }),
+    );
   });
 });

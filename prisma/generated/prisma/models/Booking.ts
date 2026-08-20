@@ -70,6 +70,10 @@ export type BookingMinAggregateOutputType = {
   reminder_message_id: string | null
   reminder_last_error: string | null
   reminder_attempts: number | null
+  confirmation_sms_attempted_at: Date | null
+  confirmation_sms_sent_at: Date | null
+  confirmation_sms_message_id: string | null
+  confirmation_sms_last_error: string | null
   hold_expires_at: Date | null
   capacity_override_applied: boolean | null
   capacity_override_reason: string | null
@@ -108,6 +112,10 @@ export type BookingMaxAggregateOutputType = {
   reminder_message_id: string | null
   reminder_last_error: string | null
   reminder_attempts: number | null
+  confirmation_sms_attempted_at: Date | null
+  confirmation_sms_sent_at: Date | null
+  confirmation_sms_message_id: string | null
+  confirmation_sms_last_error: string | null
   hold_expires_at: Date | null
   capacity_override_applied: boolean | null
   capacity_override_reason: string | null
@@ -146,6 +154,10 @@ export type BookingCountAggregateOutputType = {
   reminder_message_id: number
   reminder_last_error: number
   reminder_attempts: number
+  confirmation_sms_attempted_at: number
+  confirmation_sms_sent_at: number
+  confirmation_sms_message_id: number
+  confirmation_sms_last_error: number
   hold_expires_at: number
   capacity_override_applied: number
   capacity_override_reason: number
@@ -208,6 +220,10 @@ export type BookingMinAggregateInputType = {
   reminder_message_id?: true
   reminder_last_error?: true
   reminder_attempts?: true
+  confirmation_sms_attempted_at?: true
+  confirmation_sms_sent_at?: true
+  confirmation_sms_message_id?: true
+  confirmation_sms_last_error?: true
   hold_expires_at?: true
   capacity_override_applied?: true
   capacity_override_reason?: true
@@ -246,6 +262,10 @@ export type BookingMaxAggregateInputType = {
   reminder_message_id?: true
   reminder_last_error?: true
   reminder_attempts?: true
+  confirmation_sms_attempted_at?: true
+  confirmation_sms_sent_at?: true
+  confirmation_sms_message_id?: true
+  confirmation_sms_last_error?: true
   hold_expires_at?: true
   capacity_override_applied?: true
   capacity_override_reason?: true
@@ -284,6 +304,10 @@ export type BookingCountAggregateInputType = {
   reminder_message_id?: true
   reminder_last_error?: true
   reminder_attempts?: true
+  confirmation_sms_attempted_at?: true
+  confirmation_sms_sent_at?: true
+  confirmation_sms_message_id?: true
+  confirmation_sms_last_error?: true
   hold_expires_at?: true
   capacity_override_applied?: true
   capacity_override_reason?: true
@@ -409,6 +433,10 @@ export type BookingGroupByOutputType = {
   reminder_message_id: string | null
   reminder_last_error: string | null
   reminder_attempts: number
+  confirmation_sms_attempted_at: Date | null
+  confirmation_sms_sent_at: Date | null
+  confirmation_sms_message_id: string | null
+  confirmation_sms_last_error: string | null
   hold_expires_at: Date | null
   capacity_override_applied: boolean
   capacity_override_reason: string | null
@@ -470,6 +498,10 @@ export type BookingWhereInput = {
   reminder_message_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   reminder_last_error?: Prisma.StringNullableFilter<"Booking"> | string | null
   reminder_attempts?: Prisma.IntFilter<"Booking"> | number
+  confirmation_sms_attempted_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  confirmation_sms_sent_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  confirmation_sms_message_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  confirmation_sms_last_error?: Prisma.StringNullableFilter<"Booking"> | string | null
   hold_expires_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   capacity_override_applied?: Prisma.BoolFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
@@ -517,6 +549,10 @@ export type BookingOrderByWithRelationInput = {
   reminder_message_id?: Prisma.SortOrderInput | Prisma.SortOrder
   reminder_last_error?: Prisma.SortOrderInput | Prisma.SortOrder
   reminder_attempts?: Prisma.SortOrder
+  confirmation_sms_attempted_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmation_sms_sent_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmation_sms_message_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmation_sms_last_error?: Prisma.SortOrderInput | Prisma.SortOrder
   hold_expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -567,6 +603,10 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   reminder_message_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   reminder_last_error?: Prisma.StringNullableFilter<"Booking"> | string | null
   reminder_attempts?: Prisma.IntFilter<"Booking"> | number
+  confirmation_sms_attempted_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  confirmation_sms_sent_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  confirmation_sms_message_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  confirmation_sms_last_error?: Prisma.StringNullableFilter<"Booking"> | string | null
   hold_expires_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   capacity_override_applied?: Prisma.BoolFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
@@ -614,6 +654,10 @@ export type BookingOrderByWithAggregationInput = {
   reminder_message_id?: Prisma.SortOrderInput | Prisma.SortOrder
   reminder_last_error?: Prisma.SortOrderInput | Prisma.SortOrder
   reminder_attempts?: Prisma.SortOrder
+  confirmation_sms_attempted_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmation_sms_sent_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmation_sms_message_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  confirmation_sms_last_error?: Prisma.SortOrderInput | Prisma.SortOrder
   hold_expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -660,6 +704,10 @@ export type BookingScalarWhereWithAggregatesInput = {
   reminder_message_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   reminder_last_error?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   reminder_attempts?: Prisma.IntWithAggregatesFilter<"Booking"> | number
+  confirmation_sms_attempted_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
+  confirmation_sms_sent_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
+  confirmation_sms_message_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  confirmation_sms_last_error?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   hold_expires_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
   capacity_override_applied?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
@@ -695,6 +743,10 @@ export type BookingCreateInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -740,6 +792,10 @@ export type BookingUncheckedCreateInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -780,6 +836,10 @@ export type BookingUpdateInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -825,6 +885,10 @@ export type BookingUncheckedUpdateInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -868,6 +932,10 @@ export type BookingCreateManyInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -903,6 +971,10 @@ export type BookingUpdateManyMutationInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -939,6 +1011,10 @@ export type BookingUncheckedUpdateManyInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -987,6 +1063,10 @@ export type BookingCountOrderByAggregateInput = {
   reminder_message_id?: Prisma.SortOrder
   reminder_last_error?: Prisma.SortOrder
   reminder_attempts?: Prisma.SortOrder
+  confirmation_sms_attempted_at?: Prisma.SortOrder
+  confirmation_sms_sent_at?: Prisma.SortOrder
+  confirmation_sms_message_id?: Prisma.SortOrder
+  confirmation_sms_last_error?: Prisma.SortOrder
   hold_expires_at?: Prisma.SortOrder
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrder
@@ -1036,6 +1116,10 @@ export type BookingMaxOrderByAggregateInput = {
   reminder_message_id?: Prisma.SortOrder
   reminder_last_error?: Prisma.SortOrder
   reminder_attempts?: Prisma.SortOrder
+  confirmation_sms_attempted_at?: Prisma.SortOrder
+  confirmation_sms_sent_at?: Prisma.SortOrder
+  confirmation_sms_message_id?: Prisma.SortOrder
+  confirmation_sms_last_error?: Prisma.SortOrder
   hold_expires_at?: Prisma.SortOrder
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrder
@@ -1074,6 +1158,10 @@ export type BookingMinOrderByAggregateInput = {
   reminder_message_id?: Prisma.SortOrder
   reminder_last_error?: Prisma.SortOrder
   reminder_attempts?: Prisma.SortOrder
+  confirmation_sms_attempted_at?: Prisma.SortOrder
+  confirmation_sms_sent_at?: Prisma.SortOrder
+  confirmation_sms_message_id?: Prisma.SortOrder
+  confirmation_sms_last_error?: Prisma.SortOrder
   hold_expires_at?: Prisma.SortOrder
   capacity_override_applied?: Prisma.SortOrder
   capacity_override_reason?: Prisma.SortOrder
@@ -1386,6 +1474,10 @@ export type BookingCreateWithoutBusinessInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1429,6 +1521,10 @@ export type BookingUncheckedCreateWithoutBusinessInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1501,6 +1597,10 @@ export type BookingScalarWhereInput = {
   reminder_message_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   reminder_last_error?: Prisma.StringNullableFilter<"Booking"> | string | null
   reminder_attempts?: Prisma.IntFilter<"Booking"> | number
+  confirmation_sms_attempted_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  confirmation_sms_sent_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  confirmation_sms_message_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  confirmation_sms_last_error?: Prisma.StringNullableFilter<"Booking"> | string | null
   hold_expires_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   capacity_override_applied?: Prisma.BoolFilter<"Booking"> | boolean
   capacity_override_reason?: Prisma.StringNullableFilter<"Booking"> | string | null
@@ -1536,6 +1636,10 @@ export type BookingCreateWithoutSale_eventInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1580,6 +1684,10 @@ export type BookingUncheckedCreateWithoutSale_eventInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1645,6 +1753,10 @@ export type BookingCreateWithoutCancelled_byInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1689,6 +1801,10 @@ export type BookingUncheckedCreateWithoutCancelled_byInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1754,6 +1870,10 @@ export type BookingCreateWithoutCustomerInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1797,6 +1917,10 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1863,6 +1987,10 @@ export type BookingCreateWithoutPaymentsInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1907,6 +2035,10 @@ export type BookingUncheckedCreateWithoutPaymentsInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -1962,6 +2094,10 @@ export type BookingUpdateWithoutPaymentsInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2006,6 +2142,10 @@ export type BookingUncheckedUpdateWithoutPaymentsInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2045,6 +2185,10 @@ export type BookingCreateWithoutVouchersInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2089,6 +2233,10 @@ export type BookingUncheckedCreateWithoutVouchersInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2144,6 +2292,10 @@ export type BookingUpdateWithoutVouchersInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2188,6 +2340,10 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2227,6 +2383,10 @@ export type BookingCreateWithoutAvailed_servicesInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2271,6 +2431,10 @@ export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2326,6 +2490,10 @@ export type BookingUpdateWithoutAvailed_servicesInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2370,6 +2538,10 @@ export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2409,6 +2581,10 @@ export type BookingCreateWithoutNotesInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2453,6 +2629,10 @@ export type BookingUncheckedCreateWithoutNotesInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2508,6 +2688,10 @@ export type BookingUpdateWithoutNotesInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2552,6 +2736,10 @@ export type BookingUncheckedUpdateWithoutNotesInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2591,6 +2779,10 @@ export type BookingCreateWithoutPrice_adjustmentsInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2635,6 +2827,10 @@ export type BookingUncheckedCreateWithoutPrice_adjustmentsInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2690,6 +2886,10 @@ export type BookingUpdateWithoutPrice_adjustmentsInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2734,6 +2934,10 @@ export type BookingUncheckedUpdateWithoutPrice_adjustmentsInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2775,6 +2979,10 @@ export type BookingCreateManyBusinessInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2810,6 +3018,10 @@ export type BookingUpdateWithoutBusinessInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2853,6 +3065,10 @@ export type BookingUncheckedUpdateWithoutBusinessInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2895,6 +3111,10 @@ export type BookingUncheckedUpdateManyWithoutBusinessInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2933,6 +3153,10 @@ export type BookingCreateManySale_eventInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -2967,6 +3191,10 @@ export type BookingUpdateWithoutSale_eventInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3011,6 +3239,10 @@ export type BookingUncheckedUpdateWithoutSale_eventInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3053,6 +3285,10 @@ export type BookingUncheckedUpdateManyWithoutSale_eventInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3090,6 +3326,10 @@ export type BookingCreateManyCancelled_byInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -3124,6 +3364,10 @@ export type BookingUpdateWithoutCancelled_byInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3168,6 +3412,10 @@ export type BookingUncheckedUpdateWithoutCancelled_byInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3210,6 +3458,10 @@ export type BookingUncheckedUpdateManyWithoutCancelled_byInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3246,6 +3498,10 @@ export type BookingCreateManyCustomerInput = {
   reminder_message_id?: string | null
   reminder_last_error?: string | null
   reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
   hold_expires_at?: Date | string | null
   capacity_override_applied?: boolean
   capacity_override_reason?: string | null
@@ -3281,6 +3537,10 @@ export type BookingUpdateWithoutCustomerInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3324,6 +3584,10 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3366,6 +3630,10 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3471,6 +3739,10 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   reminder_message_id?: boolean
   reminder_last_error?: boolean
   reminder_attempts?: boolean
+  confirmation_sms_attempted_at?: boolean
+  confirmation_sms_sent_at?: boolean
+  confirmation_sms_message_id?: boolean
+  confirmation_sms_last_error?: boolean
   hold_expires_at?: boolean
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
@@ -3519,6 +3791,10 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   reminder_message_id?: boolean
   reminder_last_error?: boolean
   reminder_attempts?: boolean
+  confirmation_sms_attempted_at?: boolean
+  confirmation_sms_sent_at?: boolean
+  confirmation_sms_message_id?: boolean
+  confirmation_sms_last_error?: boolean
   hold_expires_at?: boolean
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
@@ -3561,6 +3837,10 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   reminder_message_id?: boolean
   reminder_last_error?: boolean
   reminder_attempts?: boolean
+  confirmation_sms_attempted_at?: boolean
+  confirmation_sms_sent_at?: boolean
+  confirmation_sms_message_id?: boolean
+  confirmation_sms_last_error?: boolean
   hold_expires_at?: boolean
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
@@ -3603,6 +3883,10 @@ export type BookingSelectScalar = {
   reminder_message_id?: boolean
   reminder_last_error?: boolean
   reminder_attempts?: boolean
+  confirmation_sms_attempted_at?: boolean
+  confirmation_sms_sent_at?: boolean
+  confirmation_sms_message_id?: boolean
+  confirmation_sms_last_error?: boolean
   hold_expires_at?: boolean
   capacity_override_applied?: boolean
   capacity_override_reason?: boolean
@@ -3619,7 +3903,7 @@ export type BookingSelectScalar = {
   updated_at?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "is_anonymous_walk_in" | "customer_label" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "reminder_sent_at" | "reminder_message_id" | "reminder_last_error" | "reminder_attempts" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "sale_event_id" | "cancelled_at" | "cancelled_by_id" | "cancellation_reason" | "cancelled_by_customer" | "rescheduled_at" | "reschedule_count" | "is_demo" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "is_anonymous_walk_in" | "customer_label" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "reminder_sent_at" | "reminder_message_id" | "reminder_last_error" | "reminder_attempts" | "confirmation_sms_attempted_at" | "confirmation_sms_sent_at" | "confirmation_sms_message_id" | "confirmation_sms_last_error" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "sale_event_id" | "cancelled_at" | "cancelled_by_id" | "cancellation_reason" | "cancelled_by_customer" | "rescheduled_at" | "reschedule_count" | "is_demo" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.Booking$customerArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -3680,6 +3964,10 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     reminder_message_id: string | null
     reminder_last_error: string | null
     reminder_attempts: number
+    confirmation_sms_attempted_at: Date | null
+    confirmation_sms_sent_at: Date | null
+    confirmation_sms_message_id: string | null
+    confirmation_sms_last_error: string | null
     hold_expires_at: Date | null
     capacity_override_applied: boolean
     capacity_override_reason: string | null
@@ -4147,6 +4435,10 @@ export interface BookingFieldRefs {
   readonly reminder_message_id: Prisma.FieldRef<"Booking", 'String'>
   readonly reminder_last_error: Prisma.FieldRef<"Booking", 'String'>
   readonly reminder_attempts: Prisma.FieldRef<"Booking", 'Int'>
+  readonly confirmation_sms_attempted_at: Prisma.FieldRef<"Booking", 'DateTime'>
+  readonly confirmation_sms_sent_at: Prisma.FieldRef<"Booking", 'DateTime'>
+  readonly confirmation_sms_message_id: Prisma.FieldRef<"Booking", 'String'>
+  readonly confirmation_sms_last_error: Prisma.FieldRef<"Booking", 'String'>
   readonly hold_expires_at: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly capacity_override_applied: Prisma.FieldRef<"Booking", 'Boolean'>
   readonly capacity_override_reason: Prisma.FieldRef<"Booking", 'String'>

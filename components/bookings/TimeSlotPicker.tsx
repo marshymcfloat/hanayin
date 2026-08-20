@@ -18,7 +18,7 @@ interface TimeSlotPickerProps {
   /**
    * When true, hides the per-period "X open" aggregate pill — that
    * number leaks how booked-up the business is to anyone scraping
-   * the public page. Per-slot capacity ("2 free" / "1 left") is
+   * the public page. Per-slot capacity ("2 available" / "1 left") is
    * always shown because (a) the dot color already leaks the same
    * staffing tier and (b) honest numbers help customers pick
    * non-peak times.
@@ -123,7 +123,7 @@ function AvailabilityDot({ level, selected }: { level: AvailabilityLevel; select
 /**
  * Replaces the old binary "Available" / "Limited" label with a
  * concrete numeric anchor — the customer can tell the difference
- * between "3 free" (relaxed) and "1 left" (act now). Numeric capacity
+ * between "3 available" (relaxed) and "1 left" (act now). Numeric capacity
  * is shown on every surface, public or staff: the dot color already
  * leaks the same staffing tier, and an honest number sets better
  * expectations than a vague label.
@@ -158,7 +158,7 @@ function AvailabilityLabel({
             : "text-primary",
       )}
     >
-      {`${count} free`}
+      {`${count} available`}
     </span>
   );
 }

@@ -311,6 +311,7 @@ export interface OutboxEvent<TType extends OutboxEventType = OutboxEventType> {
   aggregateId: string;
   businessId: string;
   payload: OutboxPayloadMap[TType];
+  dedupeKey?: string;
 }
 
 /**
@@ -333,6 +334,21 @@ export async function publishEvent(
   tx: Prisma.TransactionClient,
   event: OutboxEvent,
 ) {
+  if (event.dedupeKey) {
+    return tx.outboxMessage.upsert({
+      where: { dedupe_key: event.dedupeKey },
+      create: {
+        event_type: event.type,
+        aggregate_type: event.aggregateType,
+        aggregate_id: event.aggregateId,
+        business_id: event.businessId,
+        payload: event.payload as Prisma.JsonObject,
+        dedupe_key: event.dedupeKey,
+      },
+      update: {},
+    });
+  }
+
   return tx.outboxMessage.create({
     data: {
       event_type: event.type,
@@ -340,6 +356,7 @@ export async function publishEvent(
       aggregate_id: event.aggregateId,
       business_id: event.businessId,
       payload: event.payload as Prisma.JsonObject,
+      dedupe_key: null,
     },
   });
 }
@@ -365,7 +382,9 @@ function requireString(
 ) {
   const value = payload[key];
   if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`[Outbox:${eventType}] Missing required string field "${key}"`);
+    throw new Error(
+      `[Outbox:${eventType}] Missing required string field "${key}"`,
+    );
   }
   return value;
 }
@@ -385,7 +404,9 @@ function requireNumber(
 ) {
   const value = payload[key];
   if (typeof value !== "number" || Number.isNaN(value)) {
-    throw new Error(`[Outbox:${eventType}] Missing required numeric field "${key}"`);
+    throw new Error(
+      `[Outbox:${eventType}] Missing required numeric field "${key}"`,
+    );
   }
   return value;
 }
@@ -433,7 +454,9 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         status: requireString(payload, "status", eventType),
       } as OutboxPayloadMap[TType];
     case "BOOKING_CANCELLED":
-      return parseBookingCancellationPayload(payload) as OutboxPayloadMap[TType];
+      return parseBookingCancellationPayload(
+        payload,
+      ) as OutboxPayloadMap[TType];
     case "BOOKING_CANCELLED_BY_CUSTOMER":
       return {
         bookingId: requireNumber(payload, "bookingId", eventType),
@@ -463,8 +486,16 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
     case "BOOKING_SERVICE_SWAPPED":
       return {
         bookingId: requireNumber(payload, "bookingId", eventType),
-        removedAvailedServiceId: requireNumber(payload, "removedAvailedServiceId", eventType),
-        removedServiceName: requireString(payload, "removedServiceName", eventType),
+        removedAvailedServiceId: requireNumber(
+          payload,
+          "removedAvailedServiceId",
+          eventType,
+        ),
+        removedServiceName: requireString(
+          payload,
+          "removedServiceName",
+          eventType,
+        ),
         addedServiceId: requireNumber(payload, "addedServiceId", eventType),
         addedServiceName: requireString(payload, "addedServiceName", eventType),
         priceDelta: requireNumber(payload, "priceDelta", eventType),
@@ -519,7 +550,10 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
       } as OutboxPayloadMap[TType];
     case "BOOKING_NOTE_ADDED": {
       const visibilityRaw = requireString(payload, "visibility", eventType);
-      if (visibilityRaw !== "INTERNAL" && visibilityRaw !== "CUSTOMER_VISIBLE") {
+      if (
+        visibilityRaw !== "INTERNAL" &&
+        visibilityRaw !== "CUSTOMER_VISIBLE"
+      ) {
         throw new Error(
           `[Outbox:${eventType}] Invalid visibility "${visibilityRaw}"`,
         );
@@ -561,12 +595,24 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         customerName: requireString(payload, "customerName", eventType),
         customerEmail: optionalString(payload, "customerEmail") ?? null,
         customerPhone: optionalString(payload, "customerPhone") ?? null,
-        triggerServiceName: requireString(payload, "triggerServiceName", eventType),
-        suggestedServiceName: requireString(payload, "suggestedServiceName", eventType),
+        triggerServiceName: requireString(
+          payload,
+          "triggerServiceName",
+          eventType,
+        ),
+        suggestedServiceName: requireString(
+          payload,
+          "suggestedServiceName",
+          eventType,
+        ),
         flowType: requireString(payload, "flowType", eventType),
         sentAt: requireString(payload, "sentAt", eventType),
-        smsSent: typeof payload.smsSent === "boolean" ? payload.smsSent : undefined,
-        emailSent: typeof payload.emailSent === "boolean" ? payload.emailSent : undefined,
+        smsSent:
+          typeof payload.smsSent === "boolean" ? payload.smsSent : undefined,
+        emailSent:
+          typeof payload.emailSent === "boolean"
+            ? payload.emailSent
+            : undefined,
       } as OutboxPayloadMap[TType];
     case "RE_ENGAGEMENT_REMINDER_SENT":
       return {
@@ -574,18 +620,31 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         customerName: requireString(payload, "customerName", eventType),
         customerEmail: optionalString(payload, "customerEmail") ?? null,
         customerPhone: optionalString(payload, "customerPhone") ?? null,
-        lastCompletedBookingId: optionalNumber(payload, "lastCompletedBookingId") ?? null,
-        lastCompletedBookingAt: requireString(payload, "lastCompletedBookingAt", eventType),
+        lastCompletedBookingId:
+          optionalNumber(payload, "lastCompletedBookingId") ?? null,
+        lastCompletedBookingAt: requireString(
+          payload,
+          "lastCompletedBookingAt",
+          eventType,
+        ),
         sentAt: requireString(payload, "sentAt", eventType),
-        smsSent: typeof payload.smsSent === "boolean" ? payload.smsSent : undefined,
-        emailSent: typeof payload.emailSent === "boolean" ? payload.emailSent : undefined,
+        smsSent:
+          typeof payload.smsSent === "boolean" ? payload.smsSent : undefined,
+        emailSent:
+          typeof payload.emailSent === "boolean"
+            ? payload.emailSent
+            : undefined,
       } as OutboxPayloadMap[TType];
     case "MANUAL_PAYMENT_SUBMITTED":
       return {
         invoiceId: requireString(payload, "invoiceId", eventType),
         businessId: requireString(payload, "businessId", eventType),
         businessSlug: requireString(payload, "businessSlug", eventType),
-        submittedByUserId: requireString(payload, "submittedByUserId", eventType),
+        submittedByUserId: requireString(
+          payload,
+          "submittedByUserId",
+          eventType,
+        ),
         paymentReference: requireString(payload, "paymentReference", eventType),
         amountCentavos: optionalNumber(payload, "amountCentavos"),
         note: optionalString(payload, "note"),
@@ -598,20 +657,32 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         businessId: requireString(payload, "businessId", eventType),
         businessSlug: requireString(payload, "businessSlug", eventType),
         planCode: requireString(payload, "planCode", eventType),
-        amountPaidCentavos: requireNumber(payload, "amountPaidCentavos", eventType),
+        amountPaidCentavos: requireNumber(
+          payload,
+          "amountPaidCentavos",
+          eventType,
+        ),
         periodEndsAt: requireString(payload, "periodEndsAt", eventType),
         confirmedAt: requireString(payload, "confirmedAt", eventType),
       } as OutboxPayloadMap[TType];
     case "SOCIAL_TARGET_PUBLISH":
       return {
-        socialPostTargetId: requireString(payload, "socialPostTargetId", eventType),
+        socialPostTargetId: requireString(
+          payload,
+          "socialPostTargetId",
+          eventType,
+        ),
         businessId: requireString(payload, "businessId", eventType),
       } as OutboxPayloadMap[TType];
     case "SOCIAL_POST_REQUEST_SUBMITTED":
       return {
         requestId: requireString(payload, "requestId", eventType),
         businessId: requireString(payload, "businessId", eventType),
-        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        requestedByUserId: requireString(
+          payload,
+          "requestedByUserId",
+          eventType,
+        ),
         requestedByName: optionalString(payload, "requestedByName") ?? null,
         topic: requireString(payload, "topic", eventType),
         category: requireString(payload, "category", eventType),
@@ -620,7 +691,11 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
       return {
         requestId: requireString(payload, "requestId", eventType),
         businessId: requireString(payload, "businessId", eventType),
-        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        requestedByUserId: requireString(
+          payload,
+          "requestedByUserId",
+          eventType,
+        ),
         reviewedByUserId: requireString(payload, "reviewedByUserId", eventType),
         socialPostId: requireString(payload, "socialPostId", eventType),
         topic: requireString(payload, "topic", eventType),
@@ -629,7 +704,11 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
       return {
         requestId: requireString(payload, "requestId", eventType),
         businessId: requireString(payload, "businessId", eventType),
-        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        requestedByUserId: requireString(
+          payload,
+          "requestedByUserId",
+          eventType,
+        ),
         reviewedByUserId: requireString(payload, "reviewedByUserId", eventType),
         topic: requireString(payload, "topic", eventType),
         rejectionReason: requireString(payload, "rejectionReason", eventType),
@@ -638,13 +717,19 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
       return {
         requestId: requireString(payload, "requestId", eventType),
         businessId: requireString(payload, "businessId", eventType),
-        requestedByUserId: requireString(payload, "requestedByUserId", eventType),
+        requestedByUserId: requireString(
+          payload,
+          "requestedByUserId",
+          eventType,
+        ),
         socialPostId: requireString(payload, "socialPostId", eventType),
         topic: requireString(payload, "topic", eventType),
-        permalinks: Array.isArray((payload as { permalinks?: unknown }).permalinks)
-          ? ((payload as { permalinks: unknown[] }).permalinks.filter(
+        permalinks: Array.isArray(
+          (payload as { permalinks?: unknown }).permalinks,
+        )
+          ? (payload as { permalinks: unknown[] }).permalinks.filter(
               (v): v is string => typeof v === "string",
-            ))
+            )
           : [],
       } as OutboxPayloadMap[TType];
     default:

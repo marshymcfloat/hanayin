@@ -1,9 +1,6 @@
 import { prisma } from "@/prisma/prisma";
 import { publishEvent } from "./outbox";
-import {
-  PaymentStatus,
-  Prisma,
-} from "@/prisma/generated/prisma/client";
+import { PaymentStatus, Prisma } from "@/prisma/generated/prisma/client";
 import {
   BookingServiceInput,
   buildBookingPricingSnapshot,
@@ -294,7 +291,9 @@ export async function createBookingInDb({
             : grandTotal;
           // Walk-ins pay immediately; all other bookings are settled when services are done
           const amountPaid = isWalkIn
-            ? (isDownpayment ? principalAmountForInitialPayment : grandTotal)
+            ? isDownpayment
+              ? principalAmountForInitialPayment
+              : grandTotal
             : 0;
           const paymentStatus = resolvePaymentStatus(grandTotal, amountPaid);
 
@@ -323,7 +322,7 @@ export async function createBookingInDb({
                 ? capacityOverride?.reason || null
                 : null,
               capacity_override_note: allowWalkInCapacityBypass
-                ? (capacityOverride?.note || null)
+                ? capacityOverride?.note || null
                 : null,
               downpayment: downpaymentAmount,
               availed_services: {
@@ -332,7 +331,8 @@ export async function createBookingInDb({
                   const previousDurations = validatedServices
                     .slice(0, index)
                     .reduce(
-                      (sum, prev) => sum + (prev.duration || 30) * prev.quantity,
+                      (sum, prev) =>
+                        sum + (prev.duration || 30) * prev.quantity,
                       0,
                     );
 
@@ -411,7 +411,6 @@ export async function createBookingInDb({
             }
           }
 
-
           const eventType = isPublicBooking
             ? "BOOKING_CREATED"
             : "BOOKING_CONFIRMED";
@@ -421,6 +420,10 @@ export async function createBookingInDb({
             aggregateType: "Booking",
             aggregateId: String(booking.id),
             businessId: business.id,
+            dedupeKey:
+              eventType === "BOOKING_CONFIRMED"
+                ? `BOOKING_CONFIRMED:Booking:${booking.id}`
+                : undefined,
             payload: {
               bookingId: booking.id,
               customerName,

@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { prismaMock, sendSmsMock } = vi.hoisted(() => ({
-  prismaMock: { booking: { findUnique: vi.fn() } },
+  prismaMock: {
+    booking: {
+      findUnique: vi.fn(),
+      updateMany: vi.fn(),
+      update: vi.fn(),
+    },
+  },
   sendSmsMock: vi.fn(),
 }));
 
@@ -27,6 +33,8 @@ import { sendBookingConfirmation } from "./send-booking-details";
 describe("sendBookingConfirmation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.booking.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.booking.update.mockResolvedValue({});
     prismaMock.booking.findUnique.mockResolvedValue({
       id: 125,
       scheduled_at: new Date("2026-08-19T10:00:00Z"),
@@ -48,21 +56,35 @@ describe("sendBookingConfirmation", () => {
 
     const result = await sendBookingConfirmation(125);
 
-    expect(result).toEqual({ success: true });
+    expect(result).toEqual({ success: true, smsStatus: "sent" });
     expect(sendSmsMock).toHaveBeenCalledWith(
       "09951804645",
       expect.stringContaining("Booking confirmed!\n\nHi Daniel,"),
     );
   });
 
-  it("reports Semaphore failure so the outbox can retry", async () => {
-    sendSmsMock.mockResolvedValue({ success: false, error: "API unavailable" });
+  it("records Semaphore failure without asking the outbox to retry", async () => {
+    sendSmsMock.mockResolvedValue({
+      success: false,
+      error: "API unavailable",
+      failureKind: "UNKNOWN",
+    });
 
     const result = await sendBookingConfirmation(125);
 
-    expect(result).toEqual({
-      success: false,
-      error: "SMS delivery failed: API unavailable",
+    expect(result).toEqual({ success: true, smsStatus: "failed" });
+    expect(prismaMock.booking.update).toHaveBeenCalledWith({
+      where: { id: 125 },
+      data: { confirmation_sms_last_error: "UNKNOWN: API unavailable" },
     });
+  });
+
+  it("skips SMS when another worker already claimed the booking", async () => {
+    prismaMock.booking.updateMany.mockResolvedValue({ count: 0 });
+
+    const result = await sendBookingConfirmation(125);
+
+    expect(result).toEqual({ success: true, smsStatus: "already_attempted" });
+    expect(sendSmsMock).not.toHaveBeenCalled();
   });
 });

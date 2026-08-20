@@ -6,6 +6,7 @@ import { buildBookingReminderSms } from "@/lib/services/booking-sms";
 
 const BOOKING_REMINDER_CONCURRENCY = 8;
 const BOOKING_REMINDER_MINUTES_BEFORE = 30;
+const BOOKING_REMINDER_MINIMUM_LEAD_MINUTES = 60;
 
 async function runInChunks<T>(
   items: T[],
@@ -25,7 +26,7 @@ export async function sendBookingReminders() {
       now.getTime() + BOOKING_REMINDER_MINUTES_BEFORE * 60 * 1000,
     );
 
-    const bookings = await prisma.booking.findMany({
+    const candidates = await prisma.booking.findMany({
       where: {
         status: "ACCEPTED",
         reminder_sent: false,
@@ -59,10 +60,23 @@ export async function sendBookingReminders() {
       },
     });
 
+    const bookings = candidates.filter((booking) => {
+      if (!booking.scheduled_at) return false;
+      return (
+        booking.created_at.getTime() <=
+        booking.scheduled_at.getTime() -
+          BOOKING_REMINDER_MINIMUM_LEAD_MINUTES * 60 * 1000
+      );
+    });
+    const skippedLeadTime = candidates.length - bookings.length;
+
     logger.info(
       `[Reminders] Checking window: ${now.toISOString()} - ${reminderCutoff.toISOString()}`,
     );
-    logger.info(`[Reminders] Found ${bookings.length} bookings to remind.`);
+    logger.info(`[Reminders] Found ${bookings.length} eligible bookings.`, {
+      candidates: candidates.length,
+      skippedLeadTime,
+    });
 
     const results: {
       id: number;
@@ -81,6 +95,24 @@ export async function sendBookingReminders() {
         // reminded. Skip defensively even though the where clause already filters
         // on `customer.phone IS NOT NULL` (which implies a non-null relation).
         if (!booking.customer) return;
+
+        const claimed = await prisma.booking.updateMany({
+          where: {
+            id: booking.id,
+            reminder_sent: false,
+            reminder_attempts: booking.reminder_attempts,
+          },
+          data: { reminder_attempts: { increment: 1 } },
+        });
+        if (claimed.count !== 1) {
+          results.push({
+            id: booking.id,
+            success: false,
+            channels: [],
+            error: "Skipped because another reminder worker claimed it",
+          });
+          return;
+        }
 
         const scheduledTime = formatPH(scheduledAt, "h:mm a");
         const businessName = booking.business.name;
@@ -119,12 +151,10 @@ export async function sendBookingReminders() {
                   reminder_sent_at: now,
                   reminder_message_id: smsResult.messageId || null,
                   reminder_last_error: null,
-                  reminder_attempts: { increment: 1 },
                 }
               : {
                   reminder_last_error:
                     smsResult.error || "Unknown Semaphore error",
-                  reminder_attempts: { increment: 1 },
                 },
           });
         }
@@ -133,13 +163,31 @@ export async function sendBookingReminders() {
           id: booking.id,
           success: anySuccess,
           channels: successChannels,
+          error: anySuccess
+            ? undefined
+            : "SMS delivery failed; see booking.reminder_last_error",
         });
       },
     );
 
     return {
       success: true,
+      candidates: candidates.length,
+      eligible: bookings.length,
+      skippedLeadTime,
       processed: results.length,
+      sent: results.filter((result) => result.success).length,
+      failed: results.filter(
+        (result) =>
+          !result.success &&
+          result.error !== "Skipped because another reminder worker claimed it",
+      ).length,
+      skipped:
+        results.filter(
+          (result) =>
+            result.error ===
+            "Skipped because another reminder worker claimed it",
+        ).length + skippedLeadTime,
       details: results,
     };
   } catch (error) {

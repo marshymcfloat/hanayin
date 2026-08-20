@@ -39,6 +39,7 @@ export type OutboxMessageMinAggregateOutputType = {
   event_type: string | null
   aggregate_type: string | null
   aggregate_id: string | null
+  dedupe_key: string | null
   processed: boolean | null
   processed_at: Date | null
   attempts: number | null
@@ -52,6 +53,7 @@ export type OutboxMessageMaxAggregateOutputType = {
   event_type: string | null
   aggregate_type: string | null
   aggregate_id: string | null
+  dedupe_key: string | null
   processed: boolean | null
   processed_at: Date | null
   attempts: number | null
@@ -66,6 +68,7 @@ export type OutboxMessageCountAggregateOutputType = {
   aggregate_type: number
   aggregate_id: number
   payload: number
+  dedupe_key: number
   processed: number
   processed_at: number
   attempts: number
@@ -89,6 +92,7 @@ export type OutboxMessageMinAggregateInputType = {
   event_type?: true
   aggregate_type?: true
   aggregate_id?: true
+  dedupe_key?: true
   processed?: true
   processed_at?: true
   attempts?: true
@@ -102,6 +106,7 @@ export type OutboxMessageMaxAggregateInputType = {
   event_type?: true
   aggregate_type?: true
   aggregate_id?: true
+  dedupe_key?: true
   processed?: true
   processed_at?: true
   attempts?: true
@@ -116,6 +121,7 @@ export type OutboxMessageCountAggregateInputType = {
   aggregate_type?: true
   aggregate_id?: true
   payload?: true
+  dedupe_key?: true
   processed?: true
   processed_at?: true
   attempts?: true
@@ -217,6 +223,7 @@ export type OutboxMessageGroupByOutputType = {
   aggregate_type: string
   aggregate_id: string
   payload: runtime.JsonValue
+  dedupe_key: string | null
   processed: boolean
   processed_at: Date | null
   attempts: number
@@ -254,6 +261,7 @@ export type OutboxMessageWhereInput = {
   aggregate_type?: Prisma.StringFilter<"OutboxMessage"> | string
   aggregate_id?: Prisma.StringFilter<"OutboxMessage"> | string
   payload?: Prisma.JsonFilter<"OutboxMessage">
+  dedupe_key?: Prisma.StringNullableFilter<"OutboxMessage"> | string | null
   processed?: Prisma.BoolFilter<"OutboxMessage"> | boolean
   processed_at?: Prisma.DateTimeNullableFilter<"OutboxMessage"> | Date | string | null
   attempts?: Prisma.IntFilter<"OutboxMessage"> | number
@@ -268,6 +276,7 @@ export type OutboxMessageOrderByWithRelationInput = {
   aggregate_type?: Prisma.SortOrder
   aggregate_id?: Prisma.SortOrder
   payload?: Prisma.SortOrder
+  dedupe_key?: Prisma.SortOrderInput | Prisma.SortOrder
   processed?: Prisma.SortOrder
   processed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -278,6 +287,7 @@ export type OutboxMessageOrderByWithRelationInput = {
 
 export type OutboxMessageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  dedupe_key?: string
   AND?: Prisma.OutboxMessageWhereInput | Prisma.OutboxMessageWhereInput[]
   OR?: Prisma.OutboxMessageWhereInput[]
   NOT?: Prisma.OutboxMessageWhereInput | Prisma.OutboxMessageWhereInput[]
@@ -291,7 +301,7 @@ export type OutboxMessageWhereUniqueInput = Prisma.AtLeast<{
   last_error?: Prisma.StringNullableFilter<"OutboxMessage"> | string | null
   business_id?: Prisma.StringFilter<"OutboxMessage"> | string
   created_at?: Prisma.DateTimeFilter<"OutboxMessage"> | Date | string
-}, "id">
+}, "id" | "dedupe_key">
 
 export type OutboxMessageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -299,6 +309,7 @@ export type OutboxMessageOrderByWithAggregationInput = {
   aggregate_type?: Prisma.SortOrder
   aggregate_id?: Prisma.SortOrder
   payload?: Prisma.SortOrder
+  dedupe_key?: Prisma.SortOrderInput | Prisma.SortOrder
   processed?: Prisma.SortOrder
   processed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -321,6 +332,7 @@ export type OutboxMessageScalarWhereWithAggregatesInput = {
   aggregate_type?: Prisma.StringWithAggregatesFilter<"OutboxMessage"> | string
   aggregate_id?: Prisma.StringWithAggregatesFilter<"OutboxMessage"> | string
   payload?: Prisma.JsonWithAggregatesFilter<"OutboxMessage">
+  dedupe_key?: Prisma.StringNullableWithAggregatesFilter<"OutboxMessage"> | string | null
   processed?: Prisma.BoolWithAggregatesFilter<"OutboxMessage"> | boolean
   processed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"OutboxMessage"> | Date | string | null
   attempts?: Prisma.IntWithAggregatesFilter<"OutboxMessage"> | number
@@ -335,6 +347,7 @@ export type OutboxMessageCreateInput = {
   aggregate_type: string
   aggregate_id: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  dedupe_key?: string | null
   processed?: boolean
   processed_at?: Date | string | null
   attempts?: number
@@ -349,6 +362,7 @@ export type OutboxMessageUncheckedCreateInput = {
   aggregate_type: string
   aggregate_id: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  dedupe_key?: string | null
   processed?: boolean
   processed_at?: Date | string | null
   attempts?: number
@@ -363,6 +377,7 @@ export type OutboxMessageUpdateInput = {
   aggregate_type?: Prisma.StringFieldUpdateOperationsInput | string
   aggregate_id?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  dedupe_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   processed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -377,6 +392,7 @@ export type OutboxMessageUncheckedUpdateInput = {
   aggregate_type?: Prisma.StringFieldUpdateOperationsInput | string
   aggregate_id?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  dedupe_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   processed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -391,6 +407,7 @@ export type OutboxMessageCreateManyInput = {
   aggregate_type: string
   aggregate_id: string
   payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  dedupe_key?: string | null
   processed?: boolean
   processed_at?: Date | string | null
   attempts?: number
@@ -405,6 +422,7 @@ export type OutboxMessageUpdateManyMutationInput = {
   aggregate_type?: Prisma.StringFieldUpdateOperationsInput | string
   aggregate_id?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  dedupe_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   processed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -419,6 +437,7 @@ export type OutboxMessageUncheckedUpdateManyInput = {
   aggregate_type?: Prisma.StringFieldUpdateOperationsInput | string
   aggregate_id?: Prisma.StringFieldUpdateOperationsInput | string
   payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  dedupe_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   processed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   processed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -433,6 +452,7 @@ export type OutboxMessageCountOrderByAggregateInput = {
   aggregate_type?: Prisma.SortOrder
   aggregate_id?: Prisma.SortOrder
   payload?: Prisma.SortOrder
+  dedupe_key?: Prisma.SortOrder
   processed?: Prisma.SortOrder
   processed_at?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -450,6 +470,7 @@ export type OutboxMessageMaxOrderByAggregateInput = {
   event_type?: Prisma.SortOrder
   aggregate_type?: Prisma.SortOrder
   aggregate_id?: Prisma.SortOrder
+  dedupe_key?: Prisma.SortOrder
   processed?: Prisma.SortOrder
   processed_at?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -463,6 +484,7 @@ export type OutboxMessageMinOrderByAggregateInput = {
   event_type?: Prisma.SortOrder
   aggregate_type?: Prisma.SortOrder
   aggregate_id?: Prisma.SortOrder
+  dedupe_key?: Prisma.SortOrder
   processed?: Prisma.SortOrder
   processed_at?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -483,6 +505,7 @@ export type OutboxMessageSelect<ExtArgs extends runtime.Types.Extensions.Interna
   aggregate_type?: boolean
   aggregate_id?: boolean
   payload?: boolean
+  dedupe_key?: boolean
   processed?: boolean
   processed_at?: boolean
   attempts?: boolean
@@ -497,6 +520,7 @@ export type OutboxMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   aggregate_type?: boolean
   aggregate_id?: boolean
   payload?: boolean
+  dedupe_key?: boolean
   processed?: boolean
   processed_at?: boolean
   attempts?: boolean
@@ -511,6 +535,7 @@ export type OutboxMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   aggregate_type?: boolean
   aggregate_id?: boolean
   payload?: boolean
+  dedupe_key?: boolean
   processed?: boolean
   processed_at?: boolean
   attempts?: boolean
@@ -525,6 +550,7 @@ export type OutboxMessageSelectScalar = {
   aggregate_type?: boolean
   aggregate_id?: boolean
   payload?: boolean
+  dedupe_key?: boolean
   processed?: boolean
   processed_at?: boolean
   attempts?: boolean
@@ -533,7 +559,7 @@ export type OutboxMessageSelectScalar = {
   created_at?: boolean
 }
 
-export type OutboxMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "event_type" | "aggregate_type" | "aggregate_id" | "payload" | "processed" | "processed_at" | "attempts" | "last_error" | "business_id" | "created_at", ExtArgs["result"]["outboxMessage"]>
+export type OutboxMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "event_type" | "aggregate_type" | "aggregate_id" | "payload" | "dedupe_key" | "processed" | "processed_at" | "attempts" | "last_error" | "business_id" | "created_at", ExtArgs["result"]["outboxMessage"]>
 
 export type $OutboxMessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "OutboxMessage"
@@ -544,6 +570,7 @@ export type $OutboxMessagePayload<ExtArgs extends runtime.Types.Extensions.Inter
     aggregate_type: string
     aggregate_id: string
     payload: runtime.JsonValue
+    dedupe_key: string | null
     processed: boolean
     processed_at: Date | null
     attempts: number
@@ -978,6 +1005,7 @@ export interface OutboxMessageFieldRefs {
   readonly aggregate_type: Prisma.FieldRef<"OutboxMessage", 'String'>
   readonly aggregate_id: Prisma.FieldRef<"OutboxMessage", 'String'>
   readonly payload: Prisma.FieldRef<"OutboxMessage", 'Json'>
+  readonly dedupe_key: Prisma.FieldRef<"OutboxMessage", 'String'>
   readonly processed: Prisma.FieldRef<"OutboxMessage", 'Boolean'>
   readonly processed_at: Prisma.FieldRef<"OutboxMessage", 'DateTime'>
   readonly attempts: Prisma.FieldRef<"OutboxMessage", 'Int'>

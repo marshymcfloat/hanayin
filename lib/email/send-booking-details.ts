@@ -71,7 +71,8 @@ export async function sendBookingConfirmation(bookingId: number) {
     const scheduledTime = scheduledAt ? formatPH(scheduledAt, "h:mm a") : "N/A";
     const businessName = booking.business.name;
     const firstName = booking.customer.name.split(" ")[0];
-    let smsDeliveryError: string | null = null;
+    let smsStatus: "not_applicable" | "already_attempted" | "sent" | "failed" =
+      "not_applicable";
 
     // Mint a 30-day manage token so the customer can self-serve cancel /
     // reschedule. Same token shape as the success page.
@@ -87,26 +88,52 @@ export async function sendBookingConfirmation(bookingId: number) {
 
     // --- SMS (priority — time-sensitive) ---
     if (booking.customer.phone) {
-      const smsText = buildBookingConfirmationSms({
-        firstName,
-        businessName,
-        scheduledDate,
-        scheduledTime,
-        bookingId: booking.id,
+      const claim = await prisma.booking.updateMany({
+        where: { id: booking.id, confirmation_sms_attempted_at: null },
+        data: {
+          confirmation_sms_attempted_at: new Date(),
+          confirmation_sms_last_error: null,
+        },
       });
-      const smsResult = await sendSemaphorePrioritySms(
-        booking.customer.phone,
-        smsText,
-      );
-      if (!smsResult.success) {
-        smsDeliveryError = smsResult.error || "Unknown Semaphore error";
-        logger.warn(
-          `[BookingConfirmation] SMS failed for booking ${bookingId}:`,
-          {
-            error: smsResult.error,
-          },
+      if (claim.count === 0) {
+        smsStatus = "already_attempted";
+        logger.info(
+          `[BookingConfirmation] SMS already attempted for booking ${bookingId}; skipping duplicate delivery.`,
         );
-        // Don't return here — still try the email below if available.
+      } else {
+        const smsText = buildBookingConfirmationSms({
+          firstName,
+          businessName,
+          scheduledDate,
+          scheduledTime,
+          bookingId: booking.id,
+        });
+        const smsResult = await sendSemaphorePrioritySms(
+          booking.customer.phone,
+          smsText,
+        );
+        smsStatus = smsResult.success ? "sent" : "failed";
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: smsResult.success
+            ? {
+                confirmation_sms_sent_at: new Date(),
+                confirmation_sms_message_id: smsResult.messageId || null,
+                confirmation_sms_last_error: null,
+              }
+            : {
+                confirmation_sms_last_error: `${smsResult.failureKind || "UNKNOWN"}: ${smsResult.error || "Unknown Semaphore error"}`,
+              },
+        });
+        if (!smsResult.success) {
+          logger.warn(
+            `[BookingConfirmation] SMS failed for booking ${bookingId}:`,
+            {
+              error: smsResult.error,
+            },
+          );
+          // Don't return here — still try the email below if available.
+        }
       }
     } else {
       logger.info(
@@ -181,14 +208,7 @@ export async function sendBookingConfirmation(bookingId: number) {
       }
     }
 
-    if (smsDeliveryError) {
-      return {
-        success: false,
-        error: `SMS delivery failed: ${smsDeliveryError}`,
-      };
-    }
-
-    return { success: true };
+    return { success: true, smsStatus };
   } catch (error) {
     logger.error("[BookingConfirmation] Error sending booking confirmation:", {
       error,

@@ -33,6 +33,12 @@ type OutboxMessageRow = {
   attempts: number;
   last_error: string | null;
   created_at: string;
+  delivery_diagnostic: {
+    attemptedAt: string | null;
+    sentAt: string | null;
+    messageId: string | null;
+    error: string | null;
+  } | null;
 };
 
 type OutboxBusinessSummary = {
@@ -180,6 +186,7 @@ export function OutboxTableClient({
               <th className={platformTableHeadClass}>Business</th>
               <th className={platformTableHeadClass}>Queue Status</th>
               <th className={platformTableHeadClass}>Attempts</th>
+              <th className={platformTableHeadClass}>SMS Delivery</th>
               <th className={platformTableHeadClass}>Last Error</th>
               <th className={platformTableHeadClass}>Created</th>
               <th className={platformTableHeadClass}>Actions</th>
@@ -226,6 +233,33 @@ export function OutboxTableClient({
                   </td>
                   <td className={`${platformTableCellClass} text-stone-600`}>
                     {message.attempts}
+                  </td>
+                  <td
+                    className={`${platformTableCellClass} min-w-[170px] ${platformTableWrapCellClass}`}
+                  >
+                    {message.delivery_diagnostic ? (
+                      <div
+                        className="text-xs leading-5"
+                        title={message.delivery_diagnostic.error || undefined}
+                      >
+                        <p className="font-medium text-stone-800">
+                          {message.delivery_diagnostic.sentAt
+                            ? "Sent"
+                            : message.delivery_diagnostic.error
+                              ? "Failed — manual review"
+                              : message.delivery_diagnostic.attemptedAt
+                                ? "Attempted"
+                                : "Not attempted"}
+                        </p>
+                        {message.delivery_diagnostic.messageId ? (
+                          <p className="text-stone-500">
+                            ID: {message.delivery_diagnostic.messageId}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-stone-400">—</span>
+                    )}
                   </td>
                   <td
                     className={`${platformTableCellClass} min-w-[280px] max-w-[440px] ${platformTableWrapCellClass}`}

@@ -22,7 +22,7 @@ describe("TimeSlotPicker", () => {
     );
 
     // Numeric anchor replaces the old binary "Available" / "Limited" label.
-    expect(screen.getByText("2 free")).toBeDefined();
+    expect(screen.getByText("2 available")).toBeDefined();
   });
 
   it("shows '1 left' when only one staff member is available", () => {

@@ -401,7 +401,7 @@ async function BookingSuccessContent({
           <Button
             asChild
             variant="outline"
-            className="h-11 rounded-2xl border-black/[0.06]"
+            className="col-span-2 h-11 w-full rounded-2xl border-black/[0.06]"
           >
             <Link href="/">
               <Home className="mr-2 size-4" />

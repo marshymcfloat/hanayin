@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { prismaMock, sendSmsMock, now } = vi.hoisted(() => ({
   prismaMock: {
-    booking: { findMany: vi.fn(), update: vi.fn() },
+    booking: { findMany: vi.fn(), updateMany: vi.fn(), update: vi.fn() },
   },
   sendSmsMock: vi.fn(),
   now: new Date("2026-08-19T08:00:00.000Z"),
@@ -29,6 +29,7 @@ describe("sendBookingReminders", () => {
     vi.clearAllMocks();
     prismaMock.booking.findMany.mockResolvedValue([]);
     prismaMock.booking.update.mockResolvedValue({});
+    prismaMock.booking.updateMany.mockResolvedValue({ count: 1 });
     sendSmsMock.mockResolvedValue({ success: true, messageId: "278100999" });
   });
 
@@ -60,6 +61,8 @@ describe("sendBookingReminders", () => {
     prismaMock.booking.findMany.mockResolvedValue([
       {
         id: 124,
+        created_at: new Date("2026-08-19T07:00:00.000Z"),
+        reminder_attempts: 0,
         scheduled_at: new Date("2026-08-19T08:30:00.000Z"),
         customer: { name: "Daniel Canoy", phone: "09951804645" },
         business: { name: "BeautyFeel" },
@@ -80,7 +83,6 @@ describe("sendBookingReminders", () => {
         reminder_sent_at: now,
         reminder_message_id: "278100999",
         reminder_last_error: null,
-        reminder_attempts: { increment: 1 },
       },
     });
   });
@@ -89,6 +91,8 @@ describe("sendBookingReminders", () => {
     prismaMock.booking.findMany.mockResolvedValue([
       {
         id: 125,
+        created_at: new Date("2026-08-19T07:00:00.000Z"),
+        reminder_attempts: 0,
         scheduled_at: new Date("2026-08-19T08:20:00.000Z"),
         customer: { name: "Daniel", phone: "09951804645" },
         business: { name: "BeautyFeel" },
@@ -106,8 +110,46 @@ describe("sendBookingReminders", () => {
       where: { id: 125 },
       data: {
         reminder_last_error: "Provider unavailable",
-        reminder_attempts: { increment: 1 },
       },
     });
+  });
+
+  it("skips bookings created less than one hour before the appointment", async () => {
+    prismaMock.booking.findMany.mockResolvedValue([
+      {
+        id: 126,
+        created_at: new Date("2026-08-19T07:30:01.000Z"),
+        reminder_attempts: 0,
+        scheduled_at: new Date("2026-08-19T08:30:00.000Z"),
+        customer: { name: "Daniel", phone: "09951804645" },
+        business: { name: "BeautyFeel" },
+        availed_services: [],
+      },
+    ]);
+
+    const result = await sendBookingReminders();
+
+    expect(result).toMatchObject({ eligible: 0, skippedLeadTime: 1, sent: 0 });
+    expect(sendSmsMock).not.toHaveBeenCalled();
+  });
+
+  it("allows only one concurrent worker to send a reminder", async () => {
+    prismaMock.booking.findMany.mockResolvedValue([
+      {
+        id: 127,
+        created_at: new Date("2026-08-19T07:00:00.000Z"),
+        reminder_attempts: 0,
+        scheduled_at: new Date("2026-08-19T08:20:00.000Z"),
+        customer: { name: "Daniel", phone: "09951804645" },
+        business: { name: "BeautyFeel" },
+        availed_services: [],
+      },
+    ]);
+    prismaMock.booking.updateMany.mockResolvedValue({ count: 0 });
+
+    const result = await sendBookingReminders();
+
+    expect(result).toMatchObject({ sent: 0, skipped: 1 });
+    expect(sendSmsMock).not.toHaveBeenCalled();
   });
 });

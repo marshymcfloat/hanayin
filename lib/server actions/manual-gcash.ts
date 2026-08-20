@@ -384,6 +384,7 @@ export async function approveGcashPaymentAction(input: {
             aggregateType: "Booking",
             aggregateId: String(payment.booking_id),
             businessId: payment.booking.business_id,
+            dedupeKey: `BOOKING_CONFIRMED:Booking:${payment.booking_id}`,
             payload: {
               bookingId: payment.booking_id,
               customerName: payment.booking.customer?.name,

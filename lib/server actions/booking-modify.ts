@@ -48,10 +48,7 @@ import {
   type RescheduleRejection,
 } from "@/lib/services/booking-modify";
 import { publishEvent } from "@/lib/services/outbox";
-import {
-  Prisma,
-  StaffPermission,
-} from "@/prisma/generated/prisma/client";
+import { Prisma, StaffPermission } from "@/prisma/generated/prisma/client";
 import { prisma } from "@/prisma/prisma";
 
 const removeBookingServiceSchema = z.object({
@@ -74,7 +71,11 @@ export type RemoveBookingServiceResult =
        * Stable code for clients that want to branch UX (e.g. show a
        * "go cancel the booking instead" link when LAST_REMAINING_SERVICE).
        */
-      code?: RemovableServiceRejection | "Forbidden" | "Unauthorized" | "InvalidInput";
+      code?:
+        | RemovableServiceRejection
+        | "Forbidden"
+        | "Unauthorized"
+        | "InvalidInput";
     };
 
 export async function removeBookingServiceAction(
@@ -252,8 +253,7 @@ export async function removeBookingServiceAction(
     // Anything not caught by the typed guards above is treated as a
     // real failure. Sentry / logging will surface it; the user gets a
     // generic message rather than an internal stack trace.
-    const message =
-      error instanceof Error ? error.message : "Unknown error";
+    const message = error instanceof Error ? error.message : "Unknown error";
     finishTelemetry({ success: false, errorCode: "UNKNOWN" });
     return { success: false, error: message };
   }
@@ -381,15 +381,14 @@ export async function swapBookingServiceAction(
           (s) => s.id === validation.data.availedServiceId,
         )!;
 
-        const grandTotalBeforeAppend =
-          recomputeTotalsAfterRemoval({
-            currentGrandTotal: booking!.grand_total,
-            currentTotalDiscount: booking!.total_discount,
-            removedLine: {
-              final_price: lineToRemove.final_price,
-              discount: lineToRemove.discount,
-            },
-          }).grandTotal;
+        const grandTotalBeforeAppend = recomputeTotalsAfterRemoval({
+          currentGrandTotal: booking!.grand_total,
+          currentTotalDiscount: booking!.total_discount,
+          removedLine: {
+            final_price: lineToRemove.final_price,
+            discount: lineToRemove.discount,
+          },
+        }).grandTotal;
 
         // Step 1: delete the old line.
         await tx.availedService.delete({
@@ -485,8 +484,9 @@ export async function swapBookingServiceAction(
             addedServiceId: addedLine.service.id,
             addedServiceName: addedLine.service.name,
             priceDelta:
-              Math.round((finalBooking.grand_total - booking!.grand_total) * 100) /
-              100,
+              Math.round(
+                (finalBooking.grand_total - booking!.grand_total) * 100,
+              ) / 100,
             newGrandTotal: finalBooking.grand_total,
             actorUserId: actorContext.userId,
             customerName: booking!.customer?.name ?? null,
@@ -661,6 +661,10 @@ export async function rescheduleBookingAction(
           // Reset reminder_sent so the rescheduled booking is eligible
           // for a fresh reminder at the new time.
           reminder_sent: false,
+          reminder_sent_at: null,
+          reminder_message_id: null,
+          reminder_last_error: null,
+          reminder_attempts: 0,
         },
         select: {
           id: true,
@@ -745,11 +749,7 @@ export type ReassignBookingStaffResult =
   | {
       success: false;
       error: string;
-      code?:
-        | ReassignRejection
-        | "Forbidden"
-        | "Unauthorized"
-        | "InvalidInput";
+      code?: ReassignRejection | "Forbidden" | "Unauthorized" | "InvalidInput";
     };
 
 /**
@@ -1080,8 +1080,9 @@ export async function adjustBookingPriceAction(
         );
         const newLineDiscount = Math.max(
           0,
-          Math.round((targetLine.discount - validation.data.deltaAmount) * 100) /
-            100,
+          Math.round(
+            (targetLine.discount - validation.data.deltaAmount) * 100,
+          ) / 100,
         );
         await tx.availedService.update({
           where: { id: targetLine.id },

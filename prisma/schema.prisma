@@ -755,19 +755,19 @@ model ReferenceCandidate {
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
-  provider       String
-  provider_id    String?
-  source_url     String
-  preview_url    String?
-  creator_name   String?
-  attribution    String?
-  license_status String
-  service_category String
-  mood_tags      String[] @default([])
-  quality_score  Float    @default(0)
-  content_hash   String?
-  link_only      Boolean  @default(false)
-  status         ReferenceCandidateStatus @default(PENDING)
+  provider          String
+  provider_id       String?
+  source_url        String
+  preview_url       String?
+  creator_name      String?
+  attribution       String?
+  license_status    String
+  service_category  String
+  mood_tags         String[]                 @default([])
+  quality_score     Float                    @default(0)
+  content_hash      String?
+  link_only         Boolean                  @default(false)
+  status            ReferenceCandidateStatus @default(PENDING)
   approved_asset_id String?
 
   created_at DateTime @default(now())
@@ -1235,17 +1235,21 @@ model Booking {
   downpayment_date   DateTime?
 
   // Scheduling fields
-  scheduled_at              DateTime? // When the booking is scheduled to start
-  estimated_end             DateTime? // Calculated from service durations
-  reminder_sent             Boolean   @default(false)
-  reminder_sent_at          DateTime?
-  reminder_message_id       String?
-  reminder_last_error       String?
-  reminder_attempts         Int       @default(0)
-  hold_expires_at           DateTime? // Legacy: was used for QRPH payment hold
-  capacity_override_applied Boolean   @default(false)
-  capacity_override_reason  String?
-  capacity_override_note    String?
+  scheduled_at                  DateTime? // When the booking is scheduled to start
+  estimated_end                 DateTime? // Calculated from service durations
+  reminder_sent                 Boolean   @default(false)
+  reminder_sent_at              DateTime?
+  reminder_message_id           String?
+  reminder_last_error           String?
+  reminder_attempts             Int       @default(0)
+  confirmation_sms_attempted_at DateTime?
+  confirmation_sms_sent_at      DateTime?
+  confirmation_sms_message_id   String?
+  confirmation_sms_last_error   String?
+  hold_expires_at               DateTime? // Legacy: was used for QRPH payment hold
+  capacity_override_applied     Boolean   @default(false)
+  capacity_override_reason      String?
+  capacity_override_note        String?
 
   sale_event_id Int?
   sale_event    SaleEvent? @relation(fields: [sale_event_id], references: [id], onDelete: SetNull)
@@ -1309,22 +1313,22 @@ model BookingPayment {
   amount_principal Float
   amount_charged   Float
 
-  expires_at          DateTime?
-  paid_at             DateTime?
-  payer_name          String?
-  provider_reference  String?
-  submitted_at        DateTime?
-  verified_at         DateTime?
-  verified_by_user_id String?
-  verified_by         User?     @relation("BookingPaymentVerifiedBy", fields: [verified_by_user_id], references: [id], onDelete: SetNull)
-  rejection_reason    String?
-  escalated_at        DateTime?
-  escalation_reason  String?
-  follow_up_required_at DateTime?
+  expires_at             DateTime?
+  paid_at                DateTime?
+  payer_name             String?
+  provider_reference     String?
+  submitted_at           DateTime?
+  verified_at            DateTime?
+  verified_by_user_id    String?
+  verified_by            User?     @relation("BookingPaymentVerifiedBy", fields: [verified_by_user_id], references: [id], onDelete: SetNull)
+  rejection_reason       String?
+  escalated_at           DateTime?
+  escalation_reason      String?
+  follow_up_required_at  DateTime?
   resolution_resolved_at DateTime?
-  resolution_outcome String?
-  resolution_note    String?
-  metadata            Json?
+  resolution_outcome     String?
+  resolution_note        String?
+  metadata               Json?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1762,11 +1766,12 @@ model SeasonalCalendar {
 
 // Transactional Outbox: ensures side-effects are sent iff transaction commits
 model OutboxMessage {
-  id             String @id @default(cuid())
+  id             String  @id @default(cuid())
   event_type     String // "BOOKING_CREATED", "PAYMENT_CONFIRMED"
   aggregate_type String // "Booking", "Payslip"
   aggregate_id   String
   payload        Json
+  dedupe_key     String? @unique
 
   processed    Boolean   @default(false)
   processed_at DateTime?
