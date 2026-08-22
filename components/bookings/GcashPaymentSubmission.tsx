@@ -24,16 +24,26 @@ export function GcashPaymentSubmission(props: {
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [now, setNow] = useState(() => Date.now());
+  // Keep the server HTML and the browser's first render identical. Reading
+  // Date.now() during initialization can cross a second boundary before
+  // hydration and produce different countdown text.
+  const [now, setNow] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(Boolean(props.submittedAt));
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    const tick = () => setNow(Date.now());
+    tick();
+    const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
   }, []);
-  const remaining = Math.max(0, new Date(props.expiresAt).getTime() - now);
+  const remaining =
+    now === null
+      ? null
+      : Math.max(0, new Date(props.expiresAt).getTime() - now);
   const countdown = useMemo(
     () =>
-      `${Math.floor(remaining / 60000)}:${String(Math.floor((remaining % 60000) / 1000)).padStart(2, "0")}`,
+      remaining === null
+        ? "--:--"
+        : `${Math.floor(remaining / 60000)}:${String(Math.floor((remaining % 60000) / 1000)).padStart(2, "0")}`,
     [remaining],
   );
 
@@ -60,6 +70,7 @@ export function GcashPaymentSubmission(props: {
               width={720}
               height={720}
               unoptimized
+              priority
               className="aspect-square w-full rounded-2xl border bg-white object-contain p-2 shadow-sm"
             />
             <Button
@@ -135,7 +146,7 @@ export function GcashPaymentSubmission(props: {
         </div>
         <Button
           className="h-12 w-full rounded-2xl"
-          disabled={pending || remaining === 0}
+          disabled={pending || remaining === null || remaining === 0}
         >
           {pending
             ? "Notifying salon…"

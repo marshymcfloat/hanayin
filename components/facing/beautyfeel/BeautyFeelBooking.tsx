@@ -71,19 +71,18 @@ export default async function BeautyFeelBooking({
           ink-on-cream palette. Mapping the tokens to BF brand colors
           inside this wrapper re-themes the entire form to BF without
           forking the form component. */}
-      <section
-        className="mx-auto max-w-5xl px-4 pt-10 pb-6 sm:px-6 sm:pt-14 sm:pb-10 lg:pt-20 lg:pb-14 [--primary:var(--bf-ink)] [--primary-foreground:var(--bf-cream)] [--ring:var(--bf-ink)]"
-      >
-        <div className="rounded-2xl border border-black/[0.08] bg-[color:var(--bf-cream)] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)]">
-          <div className="p-4 sm:p-7">
-            <BookingForm
-              services={services}
-              packages={packages}
-              categories={categories}
-              gcash={{ accountName: business.gcash_account_name, mobileNumber: business.gcash_mobile_number, qrImageUrl: business.gcash_qr_image_url, instructions: business.gcash_instructions }}
-            />
-          </div>
-        </div>
+      <section className="mx-auto w-full max-w-6xl px-5 pt-10 pb-8 sm:px-8 sm:pt-14 sm:pb-12 lg:px-10 lg:pt-20 lg:pb-16 [--primary:var(--bf-ink)] [--primary-foreground:var(--bf-cream)] [--ring:var(--bf-ink)]">
+        <BookingForm
+          services={services}
+          packages={packages}
+          categories={categories}
+          gcash={{
+            accountName: business.gcash_account_name,
+            mobileNumber: business.gcash_mobile_number,
+            qrImageUrl: business.gcash_qr_image_url,
+            instructions: business.gcash_instructions,
+          }}
+        />
       </section>
     </BeautyFeelShell>
   );

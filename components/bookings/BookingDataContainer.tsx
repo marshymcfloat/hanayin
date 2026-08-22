@@ -6,10 +6,6 @@ import {
 } from "@/lib/data/cached";
 import BookingForm from "@/components/bookings/BookingForm";
 import { PortalShell } from "@/components/portal/PortalShell";
-import {
-  PortalCard,
-  PortalCardBody,
-} from "@/components/dashboard/employee/portal/PortalCard";
 import { PublicBookingGreeting } from "@/components/bookings/public-booking/PublicBookingGreeting";
 import { summarizeBusinessHours } from "@/components/bookings/public-booking/hours-summary";
 
@@ -42,25 +38,19 @@ export default async function BookingDataContainer({
         />
       }
     >
-      {/* The full booking form lives as a single full-width card in
-          the bento body. Internal sections (Services / Date & Time /
-          Details) use StepHeader for portal language without nested
-          card chrome. */}
-      <PortalCard className="md:col-span-2 xl:col-span-12">
-        <PortalCardBody className="px-4 pb-5 pt-4 sm:px-6 sm:pb-6 sm:pt-5">
-          <BookingForm
-            services={services}
-            packages={packages}
-            categories={categories}
-            gcash={{
-              accountName: business.gcash_account_name,
-              mobileNumber: business.gcash_mobile_number,
-              qrImageUrl: business.gcash_qr_image_url,
-              instructions: business.gcash_instructions,
-            }}
-          />
-        </PortalCardBody>
-      </PortalCard>
+      <main className="md:col-span-2 xl:col-span-12">
+        <BookingForm
+          services={services}
+          packages={packages}
+          categories={categories}
+          gcash={{
+            accountName: business.gcash_account_name,
+            mobileNumber: business.gcash_mobile_number,
+            qrImageUrl: business.gcash_qr_image_url,
+            instructions: business.gcash_instructions,
+          }}
+        />
+      </main>
     </PortalShell>
   );
 }

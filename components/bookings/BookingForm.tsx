@@ -126,6 +126,9 @@ import {
   Zap,
   User2,
   Download,
+  ArrowLeft,
+  ArrowRight,
+  Check,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -344,6 +347,17 @@ export default function BookingForm({
   > | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [activeWizardStep, setActiveWizardStep] = useState(0);
+
+  const revealWizardStep = useCallback((step: number) => {
+    setActiveWizardStep(step);
+    requestAnimationFrame(() => {
+      document.getElementById("booking-wizard-progress")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, []);
 
   // --- Phone-first OTP verification (public bookings only) ---
   const [otpPhone, setOtpPhone] = useState("");
@@ -455,6 +469,7 @@ export default function BookingForm({
           prefilled = true;
         }
         if (prefilled) setOtpPrefilled(true);
+        revealWizardStep(1);
       } else {
         setOtpError(result.error ?? "Invalid code. Please try again.");
       }
@@ -463,7 +478,7 @@ export default function BookingForm({
     } finally {
       setIsVerifyingOtp(false);
     }
-  }, [otpPhone, otpCode, businessSlug, form, isVerifyingOtp]);
+  }, [otpPhone, otpCode, businessSlug, form, isVerifyingOtp, revealWizardStep]);
 
   useEffect(() => {
     async function fetchFlows() {
@@ -624,6 +639,7 @@ export default function BookingForm({
       setShowCapacityOverrideForm(false);
       setCapacityOverrideReason("");
       setCapacityOverrideNote("");
+      revealWizardStep(2);
     } else {
       form.setValue("scheduledAt", undefined);
       form.setValue("selectedTime", undefined);
@@ -631,7 +647,13 @@ export default function BookingForm({
       setCapacityOverrideReason("");
       setCapacityOverrideNote("");
     }
-  }, [isWalkIn, form, isEmployee, bookingPolicy?.slotIntervalMinutes]);
+  }, [
+    isWalkIn,
+    form,
+    isEmployee,
+    bookingPolicy?.slotIntervalMinutes,
+    revealWizardStep,
+  ]);
 
   const { total } = useMemo(() => {
     const total = selectedServices.reduce((sum, s) => {
@@ -1410,17 +1432,68 @@ export default function BookingForm({
   const canAccessStep4 = canAccessStep3 && isStep3Complete;
   const canAccessStep5 = canAccessStep4;
   const canReviewAndConfirm = canAccessStep5;
-  const currentStep = !isStep1Complete
-    ? 1
-    : !isStep2Complete
-      ? 2
-      : !isStep3Complete
-        ? 3
-        : !canAccessStep4
-          ? 4
-          : !isCustomerDetailsComplete
-            ? 5
-            : 6;
+  const wizardSteps = useMemo(
+    () =>
+      isEmployee
+        ? [
+            { label: "Services", hint: "Choose treatments" },
+            { label: "Schedule", hint: "Pick date and time" },
+            { label: "Customer", hint: "Add booking details" },
+            { label: "Review", hint: "Confirm booking" },
+          ]
+        : [
+            { label: "Verify", hint: "Confirm your number" },
+            { label: "Services", hint: "Choose treatments" },
+            { label: "Schedule", hint: "Pick date and time" },
+            { label: "Details", hint: "Staff and contact info" },
+            { label: "Review", hint: "Confirm and pay" },
+          ],
+    [isEmployee],
+  );
+  const wizardStepComplete = useMemo(
+    () =>
+      isEmployee
+        ? [
+            isStep1Complete,
+            isStep2Complete && isStep3Complete,
+            isCustomerDetailsComplete,
+            hasReviewedDetails,
+          ]
+        : [
+            isOtpVerified,
+            isStep1Complete,
+            isStep2Complete && isStep3Complete,
+            isCustomerDetailsComplete,
+            hasReviewedDetails,
+          ],
+    [
+      hasReviewedDetails,
+      isCustomerDetailsComplete,
+      isEmployee,
+      isOtpVerified,
+      isStep1Complete,
+      isStep2Complete,
+      isStep3Complete,
+    ],
+  );
+  const isLastWizardStep = activeWizardStep === wizardSteps.length - 1;
+  const canContinueWizard = wizardStepComplete[activeWizardStep] ?? false;
+  const goToNextWizardStep = useCallback(async () => {
+    if (!canContinueWizard) {
+      if (activeWizardStep === (isEmployee ? 2 : 3)) {
+        await form.trigger(["customerName", "email", "phone"]);
+      }
+      return;
+    }
+    revealWizardStep(Math.min(activeWizardStep + 1, wizardSteps.length - 1));
+  }, [
+    activeWizardStep,
+    canContinueWizard,
+    form,
+    isEmployee,
+    revealWizardStep,
+    wizardSteps.length,
+  ]);
   const selectedEmployeeName = useMemo(
     () =>
       employees.find((employee) => employee.id === selectedEmployeeId)?.name,
@@ -1433,6 +1506,46 @@ export default function BookingForm({
         0,
       ),
     [selectedServices],
+  );
+  const scheduleSummary = useMemo(() => {
+    if (effectiveIsWalkIn) return "Walk-in · starts now";
+    if (!selectedDate || !selectedTime) return "Schedule not selected";
+    return `${format(selectedDate, "MMM d")} · ${selectedTime.toLocaleTimeString(
+      "en-US",
+      {
+        timeZone: "Asia/Manila",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      },
+    )}`;
+  }, [effectiveIsWalkIn, selectedDate, selectedTime]);
+  const wizardStepSummaries = useMemo(
+    () =>
+      isEmployee
+        ? [
+            `${totalSelectedServiceUnits} service${totalSelectedServiceUnits === 1 ? "" : "s"}`,
+            scheduleSummary,
+            customerNameValue || "Customer details added",
+            "Ready to confirm",
+          ]
+        : [
+            otpPhone || "Mobile number verified",
+            `${totalSelectedServiceUnits} service${totalSelectedServiceUnits === 1 ? "" : "s"}`,
+            scheduleSummary,
+            [selectedEmployeeName || "Any available staff", customerNameValue]
+              .filter(Boolean)
+              .join(" · "),
+            "Ready to confirm",
+          ],
+    [
+      customerNameValue,
+      isEmployee,
+      otpPhone,
+      scheduleSummary,
+      selectedEmployeeName,
+      totalSelectedServiceUnits,
+    ],
   );
   const slotEmptyState = getSlotEmptyState({
     isSelectedDateInFuture,
@@ -1554,85 +1667,111 @@ export default function BookingForm({
             )}
           />
 
-          <div className="order-0 sticky top-[calc(var(--bf-header-h,0px)+0.75rem)] z-20 -mx-1 px-3 py-2.5 bg-primary/[0.04] backdrop-blur supports-[backdrop-filter]:bg-primary/[0.05] border-b border-primary/15 rounded-md">
-            {/* Step progress bar */}
-            {(() => {
-              const steps = [
-                ...(!isEmployee
-                  ? [{ step: 0, label: "Verify", done: isOtpVerified }]
-                  : []),
-                { step: 1, label: "Services", done: isStep1Complete },
-                { step: 2, label: "Date & Time", done: isStep3Complete },
-                {
-                  step: 3,
-                  label: claimStepEnabled ? "Claim" : "Staff",
-                  done: canAccessStep4,
-                },
-                { step: 4, label: "Details", done: isCustomerDetailsComplete },
-                { step: 5, label: "Confirm", done: hasReviewedDetails },
-              ];
-              const doneCount = steps.filter((s) => s.done).length;
-              const pct = Math.round((doneCount / steps.length) * 100);
-              return (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.08em]">
-                      Booking Progress
+          <div
+            id="booking-wizard-progress"
+            className="order-0 sticky top-[calc(var(--bf-header-h,0px)+0.75rem)] z-20 -mx-1 rounded-2xl border border-primary/15 bg-background/95 px-4 py-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85"
+          >
+            <div className="mb-3 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
+                  Step {activeWizardStep + 1} of {wizardSteps.length}
+                </p>
+                <p className="mt-0.5 text-sm font-semibold text-foreground">
+                  {wizardSteps[activeWizardStep].hint}
+                </p>
+              </div>
+              <span className="text-xs font-medium tabular-nums text-muted-foreground">
+                {Math.round(
+                  ((activeWizardStep + 1) / wizardSteps.length) * 100,
+                )}
+                %
+              </span>
+            </div>
+            <div
+              className="grid gap-1.5"
+              style={{
+                gridTemplateColumns: `repeat(${wizardSteps.length}, minmax(0, 1fr))`,
+              }}
+              role="list"
+              aria-label="Booking progress"
+            >
+              {wizardSteps.map((item, index) => {
+                const completed =
+                  wizardStepComplete[index] && index < activeWizardStep;
+                const accessible =
+                  index <= activeWizardStep || wizardStepComplete[index - 1];
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    disabled={!accessible}
+                    onClick={() => accessible && setActiveWizardStep(index)}
+                    aria-current={
+                      index === activeWizardStep ? "step" : undefined
+                    }
+                    className={cn(
+                      "group min-w-0 cursor-pointer rounded-lg px-1 py-1.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed",
+                      index === activeWizardStep && "bg-primary/8",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "mx-auto mb-1 flex size-6 items-center justify-center rounded-full border text-[11px] font-bold transition-colors",
+                        index === activeWizardStep
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : completed
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border bg-background text-muted-foreground",
+                      )}
+                    >
+                      {completed ? <Check className="size-3.5" /> : index + 1}
                     </span>
-                    <span className="text-[10px] font-bold text-primary tabular-nums">
-                      {pct}%
+                    <span className="block truncate text-[10px] font-semibold text-muted-foreground sm:text-xs">
+                      {item.label}
                     </span>
-                  </div>
-                  <div className="h-1 w-full rounded-full bg-primary/10 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {steps.map((item) => (
-                      <span
-                        key={item.step}
-                        className={cn(
-                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-all duration-200",
-                          item.done
-                            ? "bg-primary/10 text-primary"
-                            : currentStep === item.step
-                              ? "bg-primary text-primary-foreground shadow-sm"
-                              : "bg-background/70 text-muted-foreground/60 ring-1 ring-inset ring-border/60",
-                        )}
-                      >
-                        {item.done && (
-                          <svg
-                            className="w-2.5 h-2.5"
-                            fill="none"
-                            viewBox="0 0 12 12"
-                          >
-                            <path
-                              d="M2 6l3 3 5-5"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
-                        {item.step === 0
-                          ? item.label
-                          : `${item.step}. ${item.label}`}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
+          {activeWizardStep > 0 && (
+            <div
+              className="order-[1] space-y-2"
+              aria-label="Completed booking steps"
+            >
+              {wizardSteps.slice(0, activeWizardStep).map((step, index) => (
+                <button
+                  key={step.label}
+                  type="button"
+                  onClick={() => revealWizardStep(index)}
+                  className="group flex min-h-11 w-full cursor-pointer items-center gap-3 border-b border-border/60 px-1 py-2.5 text-left transition-colors hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Check className="size-3.5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                      {step.label}
+                    </span>
+                    <span className="block truncate text-sm font-medium text-foreground">
+                      {wizardStepSummaries[index]}
+                    </span>
+                  </span>
+                  <span className="text-xs font-semibold text-muted-foreground transition-colors group-hover:text-primary">
+                    Edit
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Phone OTP Verification — public users only */}
           {!isEmployee && (
             <div
               className={cn(
                 "order-[5] py-1 sm:py-2 transition-all duration-300",
+                activeWizardStep !== 0 && "hidden",
                 isOtpVerified
                   ? "border-l-2 border-primary/30 pl-3"
                   : "border-border",
@@ -1868,10 +2007,17 @@ export default function BookingForm({
           )}
 
           {canAccessStep5 && (
-            <div className="order-50 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200">
+            <div
+              className={cn(
+                "order-50 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200",
+                activeWizardStep !== (isEmployee ? 2 : 3) && "hidden",
+              )}
+            >
               <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                  <span className="text-xs font-bold text-primary">4</span>
+                  <span className="text-xs font-bold text-primary">
+                    {isEmployee ? 3 : 4}
+                  </span>
                 </div>
                 <h3 className="font-semibold text-lg tracking-tight flex-1">
                   Your Details
@@ -2032,7 +2178,12 @@ export default function BookingForm({
 
           {/* Pending Flows / Upsells */}
           {canAccessStep5 && pendingFlows.length > 0 && (
-            <div className="order-[55] space-y-3 animate-in fade-in duration-200">
+            <div
+              className={cn(
+                "order-[55] space-y-3 animate-in fade-in duration-200",
+                activeWizardStep !== (isEmployee ? 2 : 3) && "hidden",
+              )}
+            >
               {pendingFlows.map((flow, idx) => (
                 <div
                   key={idx}
@@ -2140,14 +2291,15 @@ export default function BookingForm({
           <div
             className={cn(
               "order-20 space-y-6 py-1 sm:py-2 transition-all",
+              activeWizardStep !== (isEmployee ? 1 : 2) && "hidden",
               !canAccessStep2 && "pointer-events-none opacity-50",
             )}
           >
             <div className="space-y-4">
               <StepHeader
-                step={2}
+                step={isEmployee ? 2 : 3}
                 eyebrow="When"
-                title="Pick a date"
+                title="Choose date and time"
                 icon={CalendarCheck}
               />
 
@@ -2286,9 +2438,14 @@ export default function BookingForm({
           </div>
 
           {/* Service Selection */}
-          <div className="order-10 space-y-4 py-1 sm:py-2">
+          <div
+            className={cn(
+              "order-10 space-y-4 py-1 sm:py-2",
+              activeWizardStep !== (isEmployee ? 0 : 1) && "hidden",
+            )}
+          >
             <StepHeader
-              step={1}
+              step={isEmployee ? 1 : 2}
               eyebrow="What"
               title="Choose services"
               icon={Sparkles}
@@ -2332,17 +2489,25 @@ export default function BookingForm({
                     : { x: [0, -6, 6, -4, 4, -2, 2, 0] }
                 }
                 transition={{ duration: 0.45, ease: "easeOut" }}
-                className="order-30 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200"
+                className={cn(
+                  "order-30 space-y-4 py-1 sm:py-2 animate-in fade-in duration-200",
+                  activeWizardStep !== (isEmployee ? 1 : 2) && "hidden",
+                )}
               >
-                <StepHeader
-                  step={3}
-                  eyebrow="What time"
-                  title="Pick a slot"
-                  icon={Clock}
-                  count={
-                    timeSlots.filter((s) => s.available).length || undefined
-                  }
-                />
+                <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-5">
+                  <div className="flex items-center gap-2">
+                    <Clock className="size-4 text-primary" />
+                    <h3 className="font-semibold text-foreground">
+                      Available times
+                    </h3>
+                  </div>
+                  <Badge
+                    variant="secondary"
+                    className="bg-primary/10 text-primary"
+                  >
+                    {timeSlots.filter((slot) => slot.available).length} open
+                  </Badge>
+                </div>
 
                 <FormField
                   control={form.control}
@@ -2359,6 +2524,7 @@ export default function BookingForm({
                           value={field.value}
                           onChange={(time: Date) => {
                             field.onChange(time);
+                            revealWizardStep(isEmployee ? 2 : 3);
                           }}
                           isLoading={isLoadingSlots}
                           disabled={selectedServices.length === 0}
@@ -2377,8 +2543,13 @@ export default function BookingForm({
           )}
 
           {canAccessStep3 && effectiveIsWalkIn && (
-            <div className="order-30 py-1 text-sm text-muted-foreground sm:py-2">
-              <p className="font-medium text-foreground">3. Time Slot</p>
+            <div
+              className={cn(
+                "order-30 py-1 text-sm text-muted-foreground sm:py-2",
+                activeWizardStep !== (isEmployee ? 1 : 2) && "hidden",
+              )}
+            >
+              <p className="font-medium text-foreground">Walk-in appointment</p>
               <p>Walk-in mode uses immediate start time automatically.</p>
             </div>
           )}
@@ -2386,7 +2557,12 @@ export default function BookingForm({
           {canAccessStep4 &&
             (effectiveIsWalkIn || selectedTime) &&
             !isEmployee && (
-              <div className="order-40 space-y-4 py-1 animate-in fade-in duration-200 sm:py-2">
+              <div
+                className={cn(
+                  "order-40 space-y-4 py-1 animate-in fade-in duration-200 sm:py-2",
+                  activeWizardStep !== 3 && "hidden",
+                )}
+              >
                 <StepHeader
                   step={4}
                   eyebrow="Who"
@@ -2438,11 +2614,18 @@ export default function BookingForm({
             (effectiveIsWalkIn || selectedTime) &&
             claimStepEnabled &&
             selectedServices.length > 0 && (
-              <div className="order-40 space-y-3 py-1 animate-in fade-in duration-200 sm:space-y-4 sm:py-2">
+              <div
+                className={cn(
+                  "order-40 space-y-3 py-1 animate-in fade-in duration-200 sm:space-y-4 sm:py-2",
+                  activeWizardStep !== (isEmployee ? 2 : 3) && "hidden",
+                )}
+              >
                 <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                      <span className="text-xs font-bold text-primary">4</span>
+                      <span className="text-xs font-bold text-primary">
+                        {isEmployee ? 3 : 4}
+                      </span>
                     </div>
                     <h3 className="font-semibold text-lg tracking-tight">
                       Claim Services
@@ -2484,9 +2667,14 @@ export default function BookingForm({
             )}
 
           {canReviewAndConfirm && (
-            <div className="order-[60] space-y-4 py-1 animate-in fade-in duration-200 sm:py-2">
+            <div
+              className={cn(
+                "order-[60] space-y-4 py-1 animate-in fade-in duration-200 sm:py-2",
+                activeWizardStep !== wizardSteps.length - 1 && "hidden",
+              )}
+            >
               <StepHeader
-                step={5}
+                step={isEmployee ? 4 : 5}
                 eyebrow="Confirm"
                 title="Review & confirm"
                 icon={ShieldCheck}
@@ -2627,11 +2815,54 @@ export default function BookingForm({
 
               {!hasReviewedDetails && (
                 <p className="text-xs text-muted-foreground">
-                  Confirm Step 6 to unlock payment and final submission.
+                  Confirm the review above to unlock final submission.
                 </p>
               )}
             </div>
           )}
+
+          <div className="order-[70] hidden items-end justify-between gap-3 border-t border-border/70 pt-5 lg:flex">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() =>
+                setActiveWizardStep((step) => Math.max(0, step - 1))
+              }
+              disabled={activeWizardStep === 0}
+              className="h-11 cursor-pointer px-3 disabled:invisible"
+            >
+              <ArrowLeft className="mr-2 size-4" />
+              Back
+            </Button>
+            {!isLastWizardStep && (
+              <div className="text-right">
+                {!canContinueWizard && (
+                  <p
+                    className="mb-1.5 text-xs text-muted-foreground"
+                    aria-live="polite"
+                  >
+                    {activeWizardStep === 0 && !isEmployee
+                      ? "Verify your mobile number to continue."
+                      : activeWizardStep === (isEmployee ? 0 : 1)
+                        ? "Select at least one service to continue."
+                        : activeWizardStep === (isEmployee ? 1 : 2)
+                          ? "Choose both a date and an available time."
+                          : "Complete the required customer details."}
+                  </p>
+                )}
+                <Button
+                  type="button"
+                  size="lg"
+                  onClick={goToNextWizardStep}
+                  disabled={!canContinueWizard}
+                  className="h-11 min-w-32 cursor-pointer shadow-sm"
+                >
+                  Continue
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="w-full lg:w-[320px] xl:w-[360px] lg:shrink-0">
@@ -2678,11 +2909,11 @@ export default function BookingForm({
                       </div>
                     )}
 
-                    {canReviewAndConfirm && (
+                    {canReviewAndConfirm && isLastWizardStep && (
                       <div className="space-y-4 pt-1 border-t border-border/60">
                         {!hasReviewedDetails && (
                           <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 mt-4">
-                            Complete Step 6 (Review &amp; Payment) to unlock
+                            Review and confirm the booking details to unlock
                             payment.
                           </div>
                         )}
@@ -2961,30 +3192,57 @@ export default function BookingForm({
           )}
         >
           <div className="mx-auto flex max-w-2xl items-center gap-3">
+            {activeWizardStep > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  setActiveWizardStep((step) => Math.max(0, step - 1))
+                }
+                aria-label="Go to previous booking step"
+                className="size-11 shrink-0"
+              >
+                <ArrowLeft className="size-4" />
+              </Button>
+            )}
             <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                Due Now
+                {isLastWizardStep
+                  ? "Due Now"
+                  : `Step ${activeWizardStep + 1} of ${wizardSteps.length}`}
               </p>
               <p className="truncate text-base font-bold tabular-nums text-primary">
-                ₱
-                {totalWithFee.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {isLastWizardStep
+                  ? `₱${totalWithFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : wizardSteps[activeWizardStep].label}
               </p>
             </div>
-            <Button
-              disabled={isSubmitDisabled || isCheckingDuplicate}
-              type="submit"
-              size="lg"
-              className="h-11 flex-1 font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]"
-            >
-              {isPending || isCheckingDuplicate
-                ? "Processing..."
-                : paymentMethod === "CASH"
-                  ? "Confirm Booking"
-                  : "Reserve & Pay"}
-            </Button>
+            {isLastWizardStep ? (
+              <Button
+                disabled={isSubmitDisabled || isCheckingDuplicate}
+                type="submit"
+                size="lg"
+                className="h-11 flex-1 font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]"
+              >
+                {isPending || isCheckingDuplicate
+                  ? "Processing..."
+                  : paymentMethod === "CASH"
+                    ? "Confirm Booking"
+                    : "Reserve & Pay"}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="lg"
+                onClick={goToNextWizardStep}
+                disabled={!canContinueWizard}
+                className="h-11 flex-1 font-semibold"
+              >
+                Continue
+                <ArrowRight className="ml-2 size-4" />
+              </Button>
+            )}
           </div>
         </div>
       </form>
