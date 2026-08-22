@@ -16,7 +16,10 @@ const businessId = `e2e_${Date.now()}`;
 let dbClient: Client | null = null;
 
 test.describe("Public booking smoke", () => {
-  test.skip(!hasDatabase, "DIRECT_DATABASE_URL (or E2E_DATABASE_URL) is required for booking smoke E2E.");
+  test.skip(
+    !hasDatabase,
+    "DIRECT_DATABASE_URL (or E2E_DATABASE_URL) is required for booking smoke E2E.",
+  );
 
   test.beforeAll(async () => {
     if (usesAccelerateProtocol) {
@@ -38,7 +41,9 @@ test.describe("Public booking smoke", () => {
         await dbClient.end().catch(() => undefined);
         dbClient = null;
       }
-      throw new Error(`Database is not reachable for booking smoke E2E: ${reason}`);
+      throw new Error(
+        `Database is not reachable for booking smoke E2E: ${reason}`,
+      );
     }
 
     await dbClient.query(
@@ -87,8 +92,8 @@ test.describe("Public booking smoke", () => {
       });
     }
 
-    const selectServicesHeading = page.getByRole("heading", {
-      name: "Services",
+    const bookingStepHeading = page.getByRole("heading", {
+      name: "Verify Your Number",
     });
     const modalBadge = page.getByText("Secure booking").first();
     const fullPageBusinessHeading = page.getByRole("heading", {
@@ -96,7 +101,7 @@ test.describe("Public booking smoke", () => {
     });
 
     await Promise.race([
-      selectServicesHeading.waitFor({ state: "visible", timeout: 10_000 }),
+      bookingStepHeading.waitFor({ state: "visible", timeout: 10_000 }),
       modalBadge.waitFor({ state: "visible", timeout: 10_000 }),
       fullPageBusinessHeading.waitFor({ state: "visible", timeout: 10_000 }),
     ]);
@@ -112,7 +117,11 @@ test.describe("Public booking smoke", () => {
       await expect(fullPageBusinessHeading).toBeVisible();
     }
 
-    await expect(selectServicesHeading).toBeVisible();
-    await expect(page.getByText("Booking Summary", { exact: true })).toBeVisible();
+    // Public bookings now start with phone verification. Service selection is
+    // intentionally hidden until that step succeeds.
+    await expect(bookingStepHeading).toBeVisible();
+    await expect(
+      page.getByText("Booking Summary", { exact: true }),
+    ).toBeVisible();
   });
 });
