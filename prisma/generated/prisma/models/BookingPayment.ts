@@ -62,6 +62,10 @@ export type BookingPaymentMinAggregateOutputType = {
   resolution_resolved_at: Date | null
   resolution_outcome: string | null
   resolution_note: string | null
+  voided_at: Date | null
+  voided_by_user_id: string | null
+  void_reason: string | null
+  idempotency_key: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -88,6 +92,10 @@ export type BookingPaymentMaxAggregateOutputType = {
   resolution_resolved_at: Date | null
   resolution_outcome: string | null
   resolution_note: string | null
+  voided_at: Date | null
+  voided_by_user_id: string | null
+  void_reason: string | null
+  idempotency_key: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -114,6 +122,10 @@ export type BookingPaymentCountAggregateOutputType = {
   resolution_resolved_at: number
   resolution_outcome: number
   resolution_note: number
+  voided_at: number
+  voided_by_user_id: number
+  void_reason: number
+  idempotency_key: number
   metadata: number
   created_at: number
   updated_at: number
@@ -157,6 +169,10 @@ export type BookingPaymentMinAggregateInputType = {
   resolution_resolved_at?: true
   resolution_outcome?: true
   resolution_note?: true
+  voided_at?: true
+  voided_by_user_id?: true
+  void_reason?: true
+  idempotency_key?: true
   created_at?: true
   updated_at?: true
 }
@@ -183,6 +199,10 @@ export type BookingPaymentMaxAggregateInputType = {
   resolution_resolved_at?: true
   resolution_outcome?: true
   resolution_note?: true
+  voided_at?: true
+  voided_by_user_id?: true
+  void_reason?: true
+  idempotency_key?: true
   created_at?: true
   updated_at?: true
 }
@@ -209,6 +229,10 @@ export type BookingPaymentCountAggregateInputType = {
   resolution_resolved_at?: true
   resolution_outcome?: true
   resolution_note?: true
+  voided_at?: true
+  voided_by_user_id?: true
+  void_reason?: true
+  idempotency_key?: true
   metadata?: true
   created_at?: true
   updated_at?: true
@@ -323,6 +347,10 @@ export type BookingPaymentGroupByOutputType = {
   resolution_resolved_at: Date | null
   resolution_outcome: string | null
   resolution_note: string | null
+  voided_at: Date | null
+  voided_by_user_id: string | null
+  void_reason: string | null
+  idempotency_key: string | null
   metadata: runtime.JsonValue | null
   created_at: Date
   updated_at: Date
@@ -373,11 +401,16 @@ export type BookingPaymentWhereInput = {
   resolution_resolved_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   resolution_outcome?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   resolution_note?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  voided_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
+  voided_by_user_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  void_reason?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  idempotency_key?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   metadata?: Prisma.JsonNullableFilter<"BookingPayment">
   created_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
   booking?: Prisma.XOR<Prisma.BookingScalarRelationFilter, Prisma.BookingWhereInput>
   verified_by?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  voided_by?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type BookingPaymentOrderByWithRelationInput = {
@@ -402,15 +435,21 @@ export type BookingPaymentOrderByWithRelationInput = {
   resolution_resolved_at?: Prisma.SortOrderInput | Prisma.SortOrder
   resolution_outcome?: Prisma.SortOrderInput | Prisma.SortOrder
   resolution_note?: Prisma.SortOrderInput | Prisma.SortOrder
+  voided_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  voided_by_user_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  void_reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotency_key?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   booking?: Prisma.BookingOrderByWithRelationInput
   verified_by?: Prisma.UserOrderByWithRelationInput
+  voided_by?: Prisma.UserOrderByWithRelationInput
 }
 
 export type BookingPaymentWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  idempotency_key?: string
   AND?: Prisma.BookingPaymentWhereInput | Prisma.BookingPaymentWhereInput[]
   OR?: Prisma.BookingPaymentWhereInput[]
   NOT?: Prisma.BookingPaymentWhereInput | Prisma.BookingPaymentWhereInput[]
@@ -434,12 +473,16 @@ export type BookingPaymentWhereUniqueInput = Prisma.AtLeast<{
   resolution_resolved_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   resolution_outcome?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   resolution_note?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  voided_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
+  voided_by_user_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  void_reason?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   metadata?: Prisma.JsonNullableFilter<"BookingPayment">
   created_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
   booking?: Prisma.XOR<Prisma.BookingScalarRelationFilter, Prisma.BookingWhereInput>
   verified_by?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id">
+  voided_by?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+}, "id" | "idempotency_key">
 
 export type BookingPaymentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -463,6 +506,10 @@ export type BookingPaymentOrderByWithAggregationInput = {
   resolution_resolved_at?: Prisma.SortOrderInput | Prisma.SortOrder
   resolution_outcome?: Prisma.SortOrderInput | Prisma.SortOrder
   resolution_note?: Prisma.SortOrderInput | Prisma.SortOrder
+  voided_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  voided_by_user_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  void_reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  idempotency_key?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -498,6 +545,10 @@ export type BookingPaymentScalarWhereWithAggregatesInput = {
   resolution_resolved_at?: Prisma.DateTimeNullableWithAggregatesFilter<"BookingPayment"> | Date | string | null
   resolution_outcome?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
   resolution_note?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
+  voided_at?: Prisma.DateTimeNullableWithAggregatesFilter<"BookingPayment"> | Date | string | null
+  voided_by_user_id?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
+  void_reason?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
+  idempotency_key?: Prisma.StringNullableWithAggregatesFilter<"BookingPayment"> | string | null
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"BookingPayment">
   created_at?: Prisma.DateTimeWithAggregatesFilter<"BookingPayment"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"BookingPayment"> | Date | string
@@ -522,11 +573,15 @@ export type BookingPaymentCreateInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
   booking: Prisma.BookingCreateNestedOneWithoutPaymentsInput
   verified_by?: Prisma.UserCreateNestedOneWithoutBooking_payments_verifiedInput
+  voided_by?: Prisma.UserCreateNestedOneWithoutBooking_payments_voidedInput
 }
 
 export type BookingPaymentUncheckedCreateInput = {
@@ -551,6 +606,10 @@ export type BookingPaymentUncheckedCreateInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  voided_by_user_id?: string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
@@ -575,11 +634,15 @@ export type BookingPaymentUpdateInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   booking?: Prisma.BookingUpdateOneRequiredWithoutPaymentsNestedInput
   verified_by?: Prisma.UserUpdateOneWithoutBooking_payments_verifiedNestedInput
+  voided_by?: Prisma.UserUpdateOneWithoutBooking_payments_voidedNestedInput
 }
 
 export type BookingPaymentUncheckedUpdateInput = {
@@ -604,6 +667,10 @@ export type BookingPaymentUncheckedUpdateInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  voided_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -631,6 +698,10 @@ export type BookingPaymentCreateManyInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  voided_by_user_id?: string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
@@ -655,6 +726,9 @@ export type BookingPaymentUpdateManyMutationInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -682,6 +756,10 @@ export type BookingPaymentUncheckedUpdateManyInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  voided_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -719,6 +797,10 @@ export type BookingPaymentCountOrderByAggregateInput = {
   resolution_resolved_at?: Prisma.SortOrder
   resolution_outcome?: Prisma.SortOrder
   resolution_note?: Prisma.SortOrder
+  voided_at?: Prisma.SortOrder
+  voided_by_user_id?: Prisma.SortOrder
+  void_reason?: Prisma.SortOrder
+  idempotency_key?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -753,6 +835,10 @@ export type BookingPaymentMaxOrderByAggregateInput = {
   resolution_resolved_at?: Prisma.SortOrder
   resolution_outcome?: Prisma.SortOrder
   resolution_note?: Prisma.SortOrder
+  voided_at?: Prisma.SortOrder
+  voided_by_user_id?: Prisma.SortOrder
+  void_reason?: Prisma.SortOrder
+  idempotency_key?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -779,6 +865,10 @@ export type BookingPaymentMinOrderByAggregateInput = {
   resolution_resolved_at?: Prisma.SortOrder
   resolution_outcome?: Prisma.SortOrder
   resolution_note?: Prisma.SortOrder
+  voided_at?: Prisma.SortOrder
+  voided_by_user_id?: Prisma.SortOrder
+  void_reason?: Prisma.SortOrder
+  idempotency_key?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -797,10 +887,24 @@ export type BookingPaymentCreateNestedManyWithoutVerified_byInput = {
   connect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
 }
 
+export type BookingPaymentCreateNestedManyWithoutVoided_byInput = {
+  create?: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput> | Prisma.BookingPaymentCreateWithoutVoided_byInput[] | Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput[]
+  connectOrCreate?: Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput | Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput[]
+  createMany?: Prisma.BookingPaymentCreateManyVoided_byInputEnvelope
+  connect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+}
+
 export type BookingPaymentUncheckedCreateNestedManyWithoutVerified_byInput = {
   create?: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVerified_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVerified_byInput> | Prisma.BookingPaymentCreateWithoutVerified_byInput[] | Prisma.BookingPaymentUncheckedCreateWithoutVerified_byInput[]
   connectOrCreate?: Prisma.BookingPaymentCreateOrConnectWithoutVerified_byInput | Prisma.BookingPaymentCreateOrConnectWithoutVerified_byInput[]
   createMany?: Prisma.BookingPaymentCreateManyVerified_byInputEnvelope
+  connect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+}
+
+export type BookingPaymentUncheckedCreateNestedManyWithoutVoided_byInput = {
+  create?: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput> | Prisma.BookingPaymentCreateWithoutVoided_byInput[] | Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput[]
+  connectOrCreate?: Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput | Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput[]
+  createMany?: Prisma.BookingPaymentCreateManyVoided_byInputEnvelope
   connect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
 }
 
@@ -818,6 +922,20 @@ export type BookingPaymentUpdateManyWithoutVerified_byNestedInput = {
   deleteMany?: Prisma.BookingPaymentScalarWhereInput | Prisma.BookingPaymentScalarWhereInput[]
 }
 
+export type BookingPaymentUpdateManyWithoutVoided_byNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput> | Prisma.BookingPaymentCreateWithoutVoided_byInput[] | Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput[]
+  connectOrCreate?: Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput | Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput[]
+  upsert?: Prisma.BookingPaymentUpsertWithWhereUniqueWithoutVoided_byInput | Prisma.BookingPaymentUpsertWithWhereUniqueWithoutVoided_byInput[]
+  createMany?: Prisma.BookingPaymentCreateManyVoided_byInputEnvelope
+  set?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  disconnect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  delete?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  connect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  update?: Prisma.BookingPaymentUpdateWithWhereUniqueWithoutVoided_byInput | Prisma.BookingPaymentUpdateWithWhereUniqueWithoutVoided_byInput[]
+  updateMany?: Prisma.BookingPaymentUpdateManyWithWhereWithoutVoided_byInput | Prisma.BookingPaymentUpdateManyWithWhereWithoutVoided_byInput[]
+  deleteMany?: Prisma.BookingPaymentScalarWhereInput | Prisma.BookingPaymentScalarWhereInput[]
+}
+
 export type BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput = {
   create?: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVerified_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVerified_byInput> | Prisma.BookingPaymentCreateWithoutVerified_byInput[] | Prisma.BookingPaymentUncheckedCreateWithoutVerified_byInput[]
   connectOrCreate?: Prisma.BookingPaymentCreateOrConnectWithoutVerified_byInput | Prisma.BookingPaymentCreateOrConnectWithoutVerified_byInput[]
@@ -829,6 +947,20 @@ export type BookingPaymentUncheckedUpdateManyWithoutVerified_byNestedInput = {
   connect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
   update?: Prisma.BookingPaymentUpdateWithWhereUniqueWithoutVerified_byInput | Prisma.BookingPaymentUpdateWithWhereUniqueWithoutVerified_byInput[]
   updateMany?: Prisma.BookingPaymentUpdateManyWithWhereWithoutVerified_byInput | Prisma.BookingPaymentUpdateManyWithWhereWithoutVerified_byInput[]
+  deleteMany?: Prisma.BookingPaymentScalarWhereInput | Prisma.BookingPaymentScalarWhereInput[]
+}
+
+export type BookingPaymentUncheckedUpdateManyWithoutVoided_byNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput> | Prisma.BookingPaymentCreateWithoutVoided_byInput[] | Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput[]
+  connectOrCreate?: Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput | Prisma.BookingPaymentCreateOrConnectWithoutVoided_byInput[]
+  upsert?: Prisma.BookingPaymentUpsertWithWhereUniqueWithoutVoided_byInput | Prisma.BookingPaymentUpsertWithWhereUniqueWithoutVoided_byInput[]
+  createMany?: Prisma.BookingPaymentCreateManyVoided_byInputEnvelope
+  set?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  disconnect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  delete?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  connect?: Prisma.BookingPaymentWhereUniqueInput | Prisma.BookingPaymentWhereUniqueInput[]
+  update?: Prisma.BookingPaymentUpdateWithWhereUniqueWithoutVoided_byInput | Prisma.BookingPaymentUpdateWithWhereUniqueWithoutVoided_byInput[]
+  updateMany?: Prisma.BookingPaymentUpdateManyWithWhereWithoutVoided_byInput | Prisma.BookingPaymentUpdateManyWithWhereWithoutVoided_byInput[]
   deleteMany?: Prisma.BookingPaymentScalarWhereInput | Prisma.BookingPaymentScalarWhereInput[]
 }
 
@@ -901,10 +1033,14 @@ export type BookingPaymentCreateWithoutVerified_byInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
   booking: Prisma.BookingCreateNestedOneWithoutPaymentsInput
+  voided_by?: Prisma.UserCreateNestedOneWithoutBooking_payments_voidedInput
 }
 
 export type BookingPaymentUncheckedCreateWithoutVerified_byInput = {
@@ -928,6 +1064,10 @@ export type BookingPaymentUncheckedCreateWithoutVerified_byInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  voided_by_user_id?: string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
@@ -940,6 +1080,75 @@ export type BookingPaymentCreateOrConnectWithoutVerified_byInput = {
 
 export type BookingPaymentCreateManyVerified_byInputEnvelope = {
   data: Prisma.BookingPaymentCreateManyVerified_byInput | Prisma.BookingPaymentCreateManyVerified_byInput[]
+  skipDuplicates?: boolean
+}
+
+export type BookingPaymentCreateWithoutVoided_byInput = {
+  type: $Enums.BookingPaymentType
+  status?: $Enums.BookingPaymentStatus
+  payment_method?: $Enums.PaymentMethod
+  amount_principal: number
+  amount_charged: number
+  expires_at?: Date | string | null
+  paid_at?: Date | string | null
+  payer_name?: string | null
+  provider_reference?: string | null
+  submitted_at?: Date | string | null
+  verified_at?: Date | string | null
+  rejection_reason?: string | null
+  escalated_at?: Date | string | null
+  escalation_reason?: string | null
+  follow_up_required_at?: Date | string | null
+  resolution_resolved_at?: Date | string | null
+  resolution_outcome?: string | null
+  resolution_note?: string | null
+  voided_at?: Date | string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Date | string
+  updated_at?: Date | string
+  booking: Prisma.BookingCreateNestedOneWithoutPaymentsInput
+  verified_by?: Prisma.UserCreateNestedOneWithoutBooking_payments_verifiedInput
+}
+
+export type BookingPaymentUncheckedCreateWithoutVoided_byInput = {
+  id?: number
+  booking_id: number
+  type: $Enums.BookingPaymentType
+  status?: $Enums.BookingPaymentStatus
+  payment_method?: $Enums.PaymentMethod
+  amount_principal: number
+  amount_charged: number
+  expires_at?: Date | string | null
+  paid_at?: Date | string | null
+  payer_name?: string | null
+  provider_reference?: string | null
+  submitted_at?: Date | string | null
+  verified_at?: Date | string | null
+  verified_by_user_id?: string | null
+  rejection_reason?: string | null
+  escalated_at?: Date | string | null
+  escalation_reason?: string | null
+  follow_up_required_at?: Date | string | null
+  resolution_resolved_at?: Date | string | null
+  resolution_outcome?: string | null
+  resolution_note?: string | null
+  voided_at?: Date | string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Date | string
+  updated_at?: Date | string
+}
+
+export type BookingPaymentCreateOrConnectWithoutVoided_byInput = {
+  where: Prisma.BookingPaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput>
+}
+
+export type BookingPaymentCreateManyVoided_byInputEnvelope = {
+  data: Prisma.BookingPaymentCreateManyVoided_byInput | Prisma.BookingPaymentCreateManyVoided_byInput[]
   skipDuplicates?: boolean
 }
 
@@ -984,9 +1193,29 @@ export type BookingPaymentScalarWhereInput = {
   resolution_resolved_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
   resolution_outcome?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   resolution_note?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  voided_at?: Prisma.DateTimeNullableFilter<"BookingPayment"> | Date | string | null
+  voided_by_user_id?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  void_reason?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
+  idempotency_key?: Prisma.StringNullableFilter<"BookingPayment"> | string | null
   metadata?: Prisma.JsonNullableFilter<"BookingPayment">
   created_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"BookingPayment"> | Date | string
+}
+
+export type BookingPaymentUpsertWithWhereUniqueWithoutVoided_byInput = {
+  where: Prisma.BookingPaymentWhereUniqueInput
+  update: Prisma.XOR<Prisma.BookingPaymentUpdateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedUpdateWithoutVoided_byInput>
+  create: Prisma.XOR<Prisma.BookingPaymentCreateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedCreateWithoutVoided_byInput>
+}
+
+export type BookingPaymentUpdateWithWhereUniqueWithoutVoided_byInput = {
+  where: Prisma.BookingPaymentWhereUniqueInput
+  data: Prisma.XOR<Prisma.BookingPaymentUpdateWithoutVoided_byInput, Prisma.BookingPaymentUncheckedUpdateWithoutVoided_byInput>
+}
+
+export type BookingPaymentUpdateManyWithWhereWithoutVoided_byInput = {
+  where: Prisma.BookingPaymentScalarWhereInput
+  data: Prisma.XOR<Prisma.BookingPaymentUpdateManyMutationInput, Prisma.BookingPaymentUncheckedUpdateManyWithoutVoided_byInput>
 }
 
 export type BookingPaymentCreateWithoutBookingInput = {
@@ -1008,10 +1237,14 @@ export type BookingPaymentCreateWithoutBookingInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
   verified_by?: Prisma.UserCreateNestedOneWithoutBooking_payments_verifiedInput
+  voided_by?: Prisma.UserCreateNestedOneWithoutBooking_payments_voidedInput
 }
 
 export type BookingPaymentUncheckedCreateWithoutBookingInput = {
@@ -1035,6 +1268,10 @@ export type BookingPaymentUncheckedCreateWithoutBookingInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  voided_by_user_id?: string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
@@ -1087,6 +1324,40 @@ export type BookingPaymentCreateManyVerified_byInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  voided_by_user_id?: string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Date | string
+  updated_at?: Date | string
+}
+
+export type BookingPaymentCreateManyVoided_byInput = {
+  id?: number
+  booking_id: number
+  type: $Enums.BookingPaymentType
+  status?: $Enums.BookingPaymentStatus
+  payment_method?: $Enums.PaymentMethod
+  amount_principal: number
+  amount_charged: number
+  expires_at?: Date | string | null
+  paid_at?: Date | string | null
+  payer_name?: string | null
+  provider_reference?: string | null
+  submitted_at?: Date | string | null
+  verified_at?: Date | string | null
+  verified_by_user_id?: string | null
+  rejection_reason?: string | null
+  escalated_at?: Date | string | null
+  escalation_reason?: string | null
+  follow_up_required_at?: Date | string | null
+  resolution_resolved_at?: Date | string | null
+  resolution_outcome?: string | null
+  resolution_note?: string | null
+  voided_at?: Date | string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
@@ -1111,10 +1382,14 @@ export type BookingPaymentUpdateWithoutVerified_byInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   booking?: Prisma.BookingUpdateOneRequiredWithoutPaymentsNestedInput
+  voided_by?: Prisma.UserUpdateOneWithoutBooking_payments_voidedNestedInput
 }
 
 export type BookingPaymentUncheckedUpdateWithoutVerified_byInput = {
@@ -1138,6 +1413,10 @@ export type BookingPaymentUncheckedUpdateWithoutVerified_byInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  voided_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1164,6 +1443,99 @@ export type BookingPaymentUncheckedUpdateManyWithoutVerified_byInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  voided_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BookingPaymentUpdateWithoutVoided_byInput = {
+  type?: Prisma.EnumBookingPaymentTypeFieldUpdateOperationsInput | $Enums.BookingPaymentType
+  status?: Prisma.EnumBookingPaymentStatusFieldUpdateOperationsInput | $Enums.BookingPaymentStatus
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payer_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider_reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verified_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rejection_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  escalated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  escalation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  follow_up_required_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  booking?: Prisma.BookingUpdateOneRequiredWithoutPaymentsNestedInput
+  verified_by?: Prisma.UserUpdateOneWithoutBooking_payments_verifiedNestedInput
+}
+
+export type BookingPaymentUncheckedUpdateWithoutVoided_byInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_id?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumBookingPaymentTypeFieldUpdateOperationsInput | $Enums.BookingPaymentType
+  status?: Prisma.EnumBookingPaymentStatusFieldUpdateOperationsInput | $Enums.BookingPaymentStatus
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payer_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider_reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verified_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verified_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejection_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  escalated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  escalation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  follow_up_required_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BookingPaymentUncheckedUpdateManyWithoutVoided_byInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_id?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumBookingPaymentTypeFieldUpdateOperationsInput | $Enums.BookingPaymentType
+  status?: Prisma.EnumBookingPaymentStatusFieldUpdateOperationsInput | $Enums.BookingPaymentStatus
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  amount_principal?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount_charged?: Prisma.FloatFieldUpdateOperationsInput | number
+  expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paid_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payer_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider_reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verified_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verified_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rejection_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  escalated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  escalation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  follow_up_required_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1190,6 +1562,10 @@ export type BookingPaymentCreateManyBookingInput = {
   resolution_resolved_at?: Date | string | null
   resolution_outcome?: string | null
   resolution_note?: string | null
+  voided_at?: Date | string | null
+  voided_by_user_id?: string | null
+  void_reason?: string | null
+  idempotency_key?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Date | string
   updated_at?: Date | string
@@ -1214,10 +1590,14 @@ export type BookingPaymentUpdateWithoutBookingInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   verified_by?: Prisma.UserUpdateOneWithoutBooking_payments_verifiedNestedInput
+  voided_by?: Prisma.UserUpdateOneWithoutBooking_payments_voidedNestedInput
 }
 
 export type BookingPaymentUncheckedUpdateWithoutBookingInput = {
@@ -1241,6 +1621,10 @@ export type BookingPaymentUncheckedUpdateWithoutBookingInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  voided_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1267,6 +1651,10 @@ export type BookingPaymentUncheckedUpdateManyWithoutBookingInput = {
   resolution_resolved_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resolution_outcome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resolution_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  voided_by_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  void_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  idempotency_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1296,11 +1684,16 @@ export type BookingPaymentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   resolution_resolved_at?: boolean
   resolution_outcome?: boolean
   resolution_note?: boolean
+  voided_at?: boolean
+  voided_by_user_id?: boolean
+  void_reason?: boolean
+  idempotency_key?: boolean
   metadata?: boolean
   created_at?: boolean
   updated_at?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   verified_by?: boolean | Prisma.BookingPayment$verified_byArgs<ExtArgs>
+  voided_by?: boolean | Prisma.BookingPayment$voided_byArgs<ExtArgs>
 }, ExtArgs["result"]["bookingPayment"]>
 
 export type BookingPaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1325,11 +1718,16 @@ export type BookingPaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   resolution_resolved_at?: boolean
   resolution_outcome?: boolean
   resolution_note?: boolean
+  voided_at?: boolean
+  voided_by_user_id?: boolean
+  void_reason?: boolean
+  idempotency_key?: boolean
   metadata?: boolean
   created_at?: boolean
   updated_at?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   verified_by?: boolean | Prisma.BookingPayment$verified_byArgs<ExtArgs>
+  voided_by?: boolean | Prisma.BookingPayment$voided_byArgs<ExtArgs>
 }, ExtArgs["result"]["bookingPayment"]>
 
 export type BookingPaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1354,11 +1752,16 @@ export type BookingPaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   resolution_resolved_at?: boolean
   resolution_outcome?: boolean
   resolution_note?: boolean
+  voided_at?: boolean
+  voided_by_user_id?: boolean
+  void_reason?: boolean
+  idempotency_key?: boolean
   metadata?: boolean
   created_at?: boolean
   updated_at?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   verified_by?: boolean | Prisma.BookingPayment$verified_byArgs<ExtArgs>
+  voided_by?: boolean | Prisma.BookingPayment$voided_byArgs<ExtArgs>
 }, ExtArgs["result"]["bookingPayment"]>
 
 export type BookingPaymentSelectScalar = {
@@ -1383,23 +1786,30 @@ export type BookingPaymentSelectScalar = {
   resolution_resolved_at?: boolean
   resolution_outcome?: boolean
   resolution_note?: boolean
+  voided_at?: boolean
+  voided_by_user_id?: boolean
+  void_reason?: boolean
+  idempotency_key?: boolean
   metadata?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BookingPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "booking_id" | "type" | "status" | "payment_method" | "amount_principal" | "amount_charged" | "expires_at" | "paid_at" | "payer_name" | "provider_reference" | "submitted_at" | "verified_at" | "verified_by_user_id" | "rejection_reason" | "escalated_at" | "escalation_reason" | "follow_up_required_at" | "resolution_resolved_at" | "resolution_outcome" | "resolution_note" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["bookingPayment"]>
+export type BookingPaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "booking_id" | "type" | "status" | "payment_method" | "amount_principal" | "amount_charged" | "expires_at" | "paid_at" | "payer_name" | "provider_reference" | "submitted_at" | "verified_at" | "verified_by_user_id" | "rejection_reason" | "escalated_at" | "escalation_reason" | "follow_up_required_at" | "resolution_resolved_at" | "resolution_outcome" | "resolution_note" | "voided_at" | "voided_by_user_id" | "void_reason" | "idempotency_key" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["bookingPayment"]>
 export type BookingPaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   verified_by?: boolean | Prisma.BookingPayment$verified_byArgs<ExtArgs>
+  voided_by?: boolean | Prisma.BookingPayment$voided_byArgs<ExtArgs>
 }
 export type BookingPaymentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   verified_by?: boolean | Prisma.BookingPayment$verified_byArgs<ExtArgs>
+  voided_by?: boolean | Prisma.BookingPayment$voided_byArgs<ExtArgs>
 }
 export type BookingPaymentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   verified_by?: boolean | Prisma.BookingPayment$verified_byArgs<ExtArgs>
+  voided_by?: boolean | Prisma.BookingPayment$voided_byArgs<ExtArgs>
 }
 
 export type $BookingPaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1407,6 +1817,7 @@ export type $BookingPaymentPayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     booking: Prisma.$BookingPayload<ExtArgs>
     verified_by: Prisma.$UserPayload<ExtArgs> | null
+    voided_by: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1430,6 +1841,10 @@ export type $BookingPaymentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     resolution_resolved_at: Date | null
     resolution_outcome: string | null
     resolution_note: string | null
+    voided_at: Date | null
+    voided_by_user_id: string | null
+    void_reason: string | null
+    idempotency_key: string | null
     metadata: runtime.JsonValue | null
     created_at: Date
     updated_at: Date
@@ -1829,6 +2244,7 @@ export interface Prisma__BookingPaymentClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   booking<T extends Prisma.BookingDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BookingDefaultArgs<ExtArgs>>): Prisma.Prisma__BookingClient<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   verified_by<T extends Prisma.BookingPayment$verified_byArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BookingPayment$verified_byArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  voided_by<T extends Prisma.BookingPayment$voided_byArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BookingPayment$voided_byArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1879,6 +2295,10 @@ export interface BookingPaymentFieldRefs {
   readonly resolution_resolved_at: Prisma.FieldRef<"BookingPayment", 'DateTime'>
   readonly resolution_outcome: Prisma.FieldRef<"BookingPayment", 'String'>
   readonly resolution_note: Prisma.FieldRef<"BookingPayment", 'String'>
+  readonly voided_at: Prisma.FieldRef<"BookingPayment", 'DateTime'>
+  readonly voided_by_user_id: Prisma.FieldRef<"BookingPayment", 'String'>
+  readonly void_reason: Prisma.FieldRef<"BookingPayment", 'String'>
+  readonly idempotency_key: Prisma.FieldRef<"BookingPayment", 'String'>
   readonly metadata: Prisma.FieldRef<"BookingPayment", 'Json'>
   readonly created_at: Prisma.FieldRef<"BookingPayment", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"BookingPayment", 'DateTime'>
@@ -2281,6 +2701,25 @@ export type BookingPaymentDeleteManyArgs<ExtArgs extends runtime.Types.Extension
  * BookingPayment.verified_by
  */
 export type BookingPayment$verified_byArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * BookingPayment.voided_by
+ */
+export type BookingPayment$voided_byArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the User
    */

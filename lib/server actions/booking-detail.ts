@@ -35,7 +35,7 @@ export type BookingDetailPayload = {
   } | null;
   is_anonymous_walk_in: boolean;
   customer_label: string | null;
-  payment_method: "CASH" | "ONLINE";
+  payment_method: "CASH" | "ONLINE" | "GCASH" | "CARD" | "BANK_TRANSFER" | "OTHER";
   payment_status: "UNPAID" | "PARTIALLY_PAID" | "PAID";
   amount_paid: number;
   grand_total: number;

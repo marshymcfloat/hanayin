@@ -60,6 +60,8 @@ export interface ServedService {
     downpayment: number | null;
     downpayment_status: string | null;
     grand_total: number;
+    amount_paid: number;
+    payment_status: "UNPAID" | "PARTIALLY_PAID" | "PAID";
   };
   scheduled_at: Date | null;
   price: number;
@@ -199,7 +201,7 @@ export default function EmployeeServedHistory({
             </div>
           </div>
         ) : (
-          <ul className="-mx-2 divide-y divide-border">
+          <ul className="min-w-0 divide-y divide-border overflow-x-hidden">
             {visibleServices.map((item) => {
               const customerInitials = getBookingCustomerName(item.booking)
                 .split(" ")
@@ -216,7 +218,7 @@ export default function EmployeeServedHistory({
                   <button
                     type="button"
                     onClick={() => setSelectedService(item)}
-                    className="group flex w-full items-center justify-between gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
+                    className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-1 py-2.5 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-inset ring-primary/15">
@@ -382,29 +384,26 @@ export default function EmployeeServedHistory({
                       {formatCurrency(selectedService.booking.grand_total)}
                     </span>
                   </div>
-                  {selectedService.booking.downpayment &&
-                  selectedService.booking.downpayment > 0 ? (
+                  {selectedService.booking.payment_status !== "PAID" ? (
                     <>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Downpayment</span>
+                        <span className="text-muted-foreground">Paid</span>
                         <span className="font-medium text-primary tabular-nums">
-                          {formatCurrency(selectedService.booking.downpayment)}
+                          {formatCurrency(selectedService.booking.amount_paid)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Balance</span>
                         <span className="font-bold text-amber-600 dark:text-amber-400 tabular-nums">
                           {formatCurrency(
-                            selectedService.booking.grand_total -
-                              selectedService.booking.downpayment,
+                            selectedService.booking.grand_total - selectedService.booking.amount_paid,
                           )}
                         </span>
                       </div>
                       <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-2 pl-2 border-l-2 border-amber-400">
-                        Half-paid · Balance of{" "}
+                        {selectedService.booking.payment_status === "PARTIALLY_PAID" ? "Partially paid" : "Unpaid"} · Balance of{" "}
                         {formatCurrency(
-                          selectedService.booking.grand_total -
-                            selectedService.booking.downpayment,
+                          selectedService.booking.grand_total - selectedService.booking.amount_paid,
                         )}{" "}
                         still due
                       </p>

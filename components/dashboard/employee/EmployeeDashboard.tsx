@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
@@ -16,6 +17,7 @@ import ManagerQueueBoard, {
   type ManagerQueueService,
 } from "../manager/ManagerQueueBoard";
 import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
+import { RequestLeaveDialog } from "../attendance/RequestLeaveDialog";
 import {
   type AvailedService,
   type Booking,
@@ -47,13 +49,35 @@ import {
   PortalCardBody,
   PortalCardHeader,
 } from "./portal/PortalCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import {
   Briefcase,
-  CalendarCheck,
+  CalendarPlus,
   Clock,
-  ListTodo,
+  Loader2,
+  RefreshCcw,
   Wallet,
 } from "lucide-react";
+
+function WorkspaceRefreshButton() {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      className="size-11 rounded-full"
+      aria-label={pending ? "Refreshing service work" : "Refresh service work"}
+      title={pending ? "Refreshing service work" : "Refresh service work"}
+      disabled={pending}
+      onClick={() => startTransition(() => router.refresh())}
+    >
+      {pending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCcw className="size-4" />}
+    </Button>
+  );
+}
 
 type BookingWithDetails = Booking & {
   customer: Customer | null;
@@ -190,6 +214,16 @@ export default function EmployeeDashboard({
     [todayBookings, employeeSpecialtySet],
   );
 
+  const unsettledPaymentCount = useMemo(
+    () =>
+      visibleTodayBookings.filter(
+        (booking) =>
+          (booking.status === "ACCEPTED" || booking.status === "COMPLETED") &&
+          booking.payment_status !== "PAID",
+      ).length,
+    [visibleTodayBookings],
+  );
+
   const servedTodayCount = useMemo(() => {
     const today = new Date();
     return visibleServedHistory.filter((s) => {
@@ -212,41 +246,6 @@ export default function EmployeeDashboard({
   const showQueueSection = capabilities.canClaimQueue;
   const showServedSection = capabilities.canServeQueue;
   const showPaymentsSection = capabilities.canCollectPayment;
-  const hasMyBookings = myBookings.length > 0;
-
-  // Bento span rules — when a row's sibling is missing, the remaining
-  // card expands to fill the empty space rather than leaving a gap on
-  // the right. mobile/md cascade to the tailwind defaults on each card.
-  //
-  // Row 1 (xl, 12 cols): Attendance(4) + Leaves(4|8) + ?MyBookings(4)
-  //   - all 3 present → 4 / 4 / 4
-  //   - no MyBookings → 4 / 8  (Leaves takes the right space)
-  //
-  // Row 2 (xl, 12 cols): mix of Pending / Served / Payments per
-  //   capability flags. Spans flex so a single card always claims 12.
-  const leavesXlSpan = hasMyBookings ? "xl:col-span-4" : "xl:col-span-8";
-
-  // Row 2: queue + served + payments combinations.
-  const row2Items = [
-    showPaymentsSection ? "payments" : null,
-    showQueueSection ? "queue" : null,
-    showServedSection ? "served" : null,
-  ].filter(Boolean) as Array<"payments" | "queue" | "served">;
-
-  const row2Span = (kind: "payments" | "queue" | "served"): string => {
-    if (row2Items.length === 1) return "xl:col-span-12";
-    if (row2Items.length === 2) {
-      // Pair them 7/5 with the queue-style cards getting the wider slot
-      // and payments getting the narrower slot when both are present.
-      if (kind === "payments") return "xl:col-span-5";
-      return "xl:col-span-7";
-    }
-    // 3 items present — split 5 / 4 / 3
-    if (kind === "queue") return "xl:col-span-5";
-    if (kind === "served") return "xl:col-span-4";
-    return "xl:col-span-3"; // payments
-  };
-
   const greetingActions = (
     <>
       {capabilities.canCreateBooking ? (
@@ -282,146 +281,68 @@ export default function EmployeeDashboard({
           salaryEstimate={currentEmployeeSalary}
           servedToday={servedTodayCount}
           queuePending={visiblePendingServices.length}
-          leavesThisMonth={leaveRequests.length}
         />
       }
     >
-      {/* ── Attendance ── */}
-      <PortalCard className="md:col-span-1 xl:col-span-4">
+      <PortalCard className="md:col-span-2 xl:col-span-12">
         <PortalCardHeader
           eyebrow="Today"
-          title="Attendance"
+          title="My day"
           icon={Clock}
+          count={leaveRequests.length || undefined}
+          action={
+            <RequestLeaveDialog
+              employeeId={currentEmployeeId}
+              businessId={businessId}
+              businessSlug={businessSlug}
+              leavesThisMonth={leaveRequests.length}
+              trigger={<Button type="button" variant="outline" className="h-9 rounded-lg px-2.5 text-xs font-medium shadow-none"><CalendarPlus className="mr-1.5 size-3.5" />Request leave</Button>}
+            />
+          }
         />
         <PortalCardBody>
-          <AttendanceCard
-            employeeId={currentEmployeeId}
-            businessSlug={businessSlug}
-            todayAttendance={todayAttendance ?? null}
-          />
+          <div className={leaveRequests.length > 0 ? "grid gap-4 lg:grid-cols-2 lg:divide-x lg:divide-border" : "grid"}>
+            <section aria-labelledby="attendance-heading">
+              <h3 id="attendance-heading" className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attendance</h3>
+              <AttendanceCard employeeId={currentEmployeeId} businessSlug={businessSlug} todayAttendance={todayAttendance ?? null} compact />
+            </section>
+            {leaveRequests.length > 0 ? <section aria-labelledby="leave-heading" className="lg:pl-6">
+              <h3 id="leave-heading" className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Leave requests</h3>
+              <EmployeeLeaveClient employeeId={currentEmployeeId} businessId={businessId} businessSlug={businessSlug} requests={leaveRequests} compact showRequestAction={false} />
+            </section> : null}
+          </div>
         </PortalCardBody>
       </PortalCard>
 
-      {/* ── Leaves ── */}
-      <PortalCard className={`md:col-span-1 ${leavesXlSpan}`}>
-        <PortalCardHeader
-          eyebrow="Time off"
-          title="Leave requests"
-          count={leaveRequests.length}
-          icon={CalendarCheck}
-        />
-        <PortalCardBody>
-          <EmployeeLeaveClient
-            employeeId={currentEmployeeId}
-            businessId={businessId}
-            businessSlug={businessSlug}
-            requests={leaveRequests}
-          />
+      <PortalCard className="max-h-[34rem] overflow-hidden md:col-span-2 xl:col-span-12">
+        <PortalCardHeader eyebrow="Operations" title="Service work" icon={Briefcase} count={myBookings.length + visiblePendingServices.length} action={<WorkspaceRefreshButton />} />
+        <PortalCardBody className="min-h-0 overflow-hidden">
+          <Tabs defaultValue="upcoming">
+            <TabsList className="grid h-9 w-full grid-cols-3 rounded-lg p-0.5">
+              <TabsTrigger value="upcoming" className="h-8 min-h-0 rounded-md py-0 text-xs shadow-none data-[state=active]:shadow-sm">Upcoming</TabsTrigger>
+              <TabsTrigger value="available" className="h-8 min-h-0 rounded-md py-0 text-xs shadow-none data-[state=active]:shadow-sm">Available</TabsTrigger>
+              <TabsTrigger value="history" className="h-8 min-h-0 rounded-md py-0 text-xs shadow-none data-[state=active]:shadow-sm">History</TabsTrigger>
+            </TabsList>
+            <TabsContent value="upcoming" className="mt-2 max-h-[24rem] overflow-x-hidden overflow-y-auto overscroll-contain pr-1 sm:max-h-[27rem]">
+              <MyBookingsList bookings={myBookings} servicesCatalog={services.map((service) => ({ id: service.id, name: service.name, category: service.category, price: service.price, duration: service.duration }))} />
+            </TabsContent>
+            <TabsContent value="available" className="mt-2 max-h-[24rem] overflow-x-hidden overflow-y-auto overscroll-contain pr-1 sm:max-h-[27rem]">
+              {showQueueSection ? <PendingServicesList services={visiblePendingServices} businessSlug={businessSlug} currentEmployeeId={currentEmployeeId} employeeSpecialties={currentEmployeeSpecialties} saleEvents={saleEvents} canClaimServices={capabilities.canClaimQueue} showRefresh={false} /> : <p className="py-10 text-center text-sm text-muted-foreground">Your profile cannot claim available services.</p>}
+            </TabsContent>
+            <TabsContent value="history" className="mt-2 max-h-[24rem] overflow-x-hidden overflow-y-auto overscroll-contain pr-1 sm:max-h-[27rem]">
+              {showServedSection ? <EmployeeServedHistory services={visibleServedHistory} employeeSpecialties={currentEmployeeSpecialties} currentEmployeeId={currentEmployeeId} currentEmployeeCommission={currentEmployeeCommission} /> : <p className="py-10 text-center text-sm text-muted-foreground">No service history is available for this profile.</p>}
+            </TabsContent>
+          </Tabs>
         </PortalCardBody>
       </PortalCard>
 
-      {/* ── My bookings ── */}
-      {myBookings.length > 0 ? (
-        <PortalCard className="md:col-span-2 xl:col-span-4">
-          <PortalCardHeader
-            eyebrow="Up next"
-            title="My bookings"
-            count={myBookings.length}
-            icon={Briefcase}
-          />
-          <PortalCardBody scrollable className="max-h-[28rem]">
-            <MyBookingsList
-              bookings={myBookings}
-              servicesCatalog={services.map((s) => ({
-                id: s.id,
-                name: s.name,
-                category: s.category,
-                price: s.price,
-                duration: s.duration,
-              }))}
-            />
-          </PortalCardBody>
-        </PortalCard>
-      ) : null}
-
-      {/* ── Payments queue (cashier) ── */}
-      {showPaymentsSection ? (
-        <PortalCard className={`md:col-span-2 ${row2Span("payments")}`}>
-          <PortalCardHeader
-            eyebrow="Cashier"
-            title="Payments queue"
-            count={visibleTodayBookings.length}
-            icon={Wallet}
-          />
-          <PortalCardBody>
-            <EmployeePaymentsQueue
-              businessSlug={businessSlug}
-              bookings={visibleTodayBookings}
-              employeeSpecialties={currentEmployeeSpecialties}
-            />
-          </PortalCardBody>
-        </PortalCard>
-      ) : null}
-
-      {/* ── Pending queue ── */}
-      {showQueueSection ? (
-        <PortalCard className={`md:col-span-2 ${row2Span("queue")}`}>
-          <PortalCardHeader
-            eyebrow="Queue"
-            title="Pending services"
-            count={visiblePendingServices.length}
-            icon={ListTodo}
-          />
-          <PortalCardBody scrollable className="max-h-[32rem]">
-            <PendingServicesList
-              services={visiblePendingServices}
-              businessSlug={businessSlug}
-              currentEmployeeId={currentEmployeeId}
-              employeeSpecialties={currentEmployeeSpecialties}
-              saleEvents={saleEvents}
-              canClaimServices={capabilities.canClaimQueue}
-            />
-          </PortalCardBody>
-        </PortalCard>
-      ) : null}
-
-      {/* ── Served history ── */}
-      {showServedSection ? (
-        <PortalCard className={`md:col-span-2 ${row2Span("served")}`}>
-          <PortalCardHeader
-            eyebrow="Served"
-            title="Recent history"
-            count={visibleServedHistory.length}
-            icon={Briefcase}
-          />
-          <PortalCardBody scrollable className="max-h-[32rem]">
-            <EmployeeServedHistory
-              services={visibleServedHistory}
-              employeeSpecialties={currentEmployeeSpecialties}
-              currentEmployeeId={currentEmployeeId}
-              currentEmployeeCommission={currentEmployeeCommission}
-            />
-          </PortalCardBody>
-        </PortalCard>
-      ) : null}
-
-      {/* No-queue fallback. Spans the whole row when there's no queue or
-          served section to render — keeps the bento balanced rather
-          than leaving a gap. */}
-      {!showQueueSection && !showServedSection && !showPaymentsSection ? (
+      {showPaymentsSection && unsettledPaymentCount > 0 ? (
         <PortalCard className="md:col-span-2 xl:col-span-12">
-          <PortalCardBody className="flex items-center justify-center py-12 text-center">
-            <p className="text-sm text-muted-foreground">
-              No queue activity assigned to your profile yet.
-            </p>
-          </PortalCardBody>
+          <PortalCardHeader eyebrow="Payments" title="Collect balances" count={unsettledPaymentCount} icon={Wallet} />
+          <PortalCardBody><EmployeePaymentsQueue businessSlug={businessSlug} bookings={visibleTodayBookings} employeeSpecialties={currentEmployeeSpecialties} /></PortalCardBody>
         </PortalCard>
       ) : null}
 
-      {/* Manager queue board — only when QUEUE_OVERRIDE_ALL is granted.
-          Rendered inline in the bento (last) rather than the manager
-          band so non-manager queue-override users still see it. The
-          dedicated ManagerDashboard handles its own band. */}
       {capabilities.canQueueOverride && employeeProfile !== StaffProfile.MANAGER ? (
         <PortalCard className="md:col-span-2 xl:col-span-12">
           <PortalCardHeader

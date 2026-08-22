@@ -214,6 +214,8 @@ export default async function EmployeeDashboardDataContainer({
           downpayment: true,
           downpayment_status: true,
           grand_total: true,
+          amount_paid: true,
+          payment_status: true,
         },
       },
     },
@@ -242,6 +244,8 @@ export default async function EmployeeDashboardDataContainer({
           downpayment: true,
           downpayment_status: true,
           grand_total: true,
+          amount_paid: true,
+          payment_status: true,
         },
       },
     },
@@ -254,7 +258,7 @@ export default async function EmployeeDashboardDataContainer({
   const todayBookings = await prisma.booking.findMany({
     where: {
       business_id: business.id,
-      status: { not: "CANCELLED" },
+      status: { in: ["ACCEPTED", "COMPLETED"] },
       OR: [
         {
           scheduled_at: {
@@ -296,6 +300,18 @@ export default async function EmployeeDashboardDataContainer({
             },
           },
         },
+      },
+      payments: {
+        where: { status: { in: ["SUCCEEDED", "CANCELED"] } },
+        select: {
+          id: true,
+          status: true,
+          payment_method: true,
+          amount_principal: true,
+          provider_reference: true,
+          paid_at: true,
+        },
+        orderBy: { created_at: "desc" },
       },
     },
     orderBy: [{ scheduled_at: "asc" }, { created_at: "desc" }],

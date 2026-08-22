@@ -272,7 +272,11 @@ export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof Attendance
 
 export const PaymentMethod = {
   CASH: 'CASH',
-  ONLINE: 'ONLINE'
+  ONLINE: 'ONLINE',
+  GCASH: 'GCASH',
+  CARD: 'CARD',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  OTHER: 'OTHER'
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

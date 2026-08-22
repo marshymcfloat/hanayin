@@ -317,6 +317,10 @@ enum AttendanceStatus {
 enum PaymentMethod {
   CASH
   ONLINE
+  GCASH
+  CARD
+  BANK_TRANSFER
+  OTHER
 }
 
 enum PaymentStatus {
@@ -554,6 +558,7 @@ model User {
   reviewed_social_post_requests           SocialPostRequest[]              @relation("SocialPostRequestReviewedBy")
   uploaded_brand_assets                   BrandAsset[]                     @relation("BrandAssetsUploadedBy")
   booking_payments_verified               BookingPayment[]                 @relation("BookingPaymentVerifiedBy")
+  booking_payments_voided                 BookingPayment[]                 @relation("BookingPaymentVoidedBy")
 
   must_change_password     Boolean   @default(false)
   temp_password_expires_at DateTime?
@@ -1328,6 +1333,11 @@ model BookingPayment {
   resolution_resolved_at DateTime?
   resolution_outcome     String?
   resolution_note        String?
+  voided_at              DateTime?
+  voided_by_user_id      String?
+  voided_by              User?     @relation("BookingPaymentVoidedBy", fields: [voided_by_user_id], references: [id], onDelete: SetNull)
+  void_reason            String?
+  idempotency_key        String?   @unique
   metadata               Json?
 
   created_at DateTime @default(now())
@@ -1338,6 +1348,7 @@ model BookingPayment {
   @@index([status, submitted_at, expires_at])
   @@index([follow_up_required_at, resolution_resolved_at])
   @@index([provider_reference])
+  @@index([voided_by_user_id, voided_at])
   @@index([created_at])
 }
 

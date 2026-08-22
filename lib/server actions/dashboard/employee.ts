@@ -4,7 +4,6 @@ import { prisma } from "@/prisma/prisma";
 import {
   AvailedServiceStatus,
   BookingStatus,
-  PaymentStatus,
   ServiceProviderType,
 } from "@/prisma/generated/prisma/client";
 import { revalidatePath } from "next/cache";
@@ -22,7 +21,6 @@ import {
   hasAnyAllowedCategoryForEmployee,
 } from "@/lib/utils/employee-specialties";
 import {
-  bookingIdSchema,
   claimServiceSchema,
   serviceIdSchema,
   markServedSchema,
@@ -697,8 +695,6 @@ type EmployeeAuthResult =
     }
   | { success: false; error: string };
 
-const roundMoney = (value: number) => Math.round(value * 100) / 100;
-
 function getTodayBookingFilter() {
   const startOfToday = getStartOfDayPH();
   const endOfToday = getEndOfDayPH();
@@ -804,6 +800,18 @@ export async function getEmployeeTodayBookingsAction() {
             },
           },
         },
+        payments: {
+          where: { status: { in: ["SUCCEEDED", "CANCELED"] } },
+          select: {
+            id: true,
+            status: true,
+            payment_method: true,
+            amount_principal: true,
+            provider_reference: true,
+            paid_at: true,
+          },
+          orderBy: { created_at: "desc" },
+        },
       },
       orderBy: [
         {
@@ -827,87 +835,5 @@ export async function getEmployeeTodayBookingsAction() {
   } catch (error) {
     console.error("Error fetching employee today bookings:", error);
     return [];
-  }
-}
-
-export async function markEmployeeBookingPaidAction(bookingId: number) {
-  const validation = bookingIdSchema.safeParse({ bookingId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid booking ID." };
-  }
-
-  const auth = await requireEmployeeAuth({
-    write: true,
-    permission: StaffPermission.PAYMENT_COLLECT,
-  });
-  if (!auth.success) return auth;
-  const { businessSlug, employeeId } = auth;
-
-  try {
-    const booking = await prisma.booking.findFirst({
-      where: {
-        id: bookingId,
-        business: { slug: businessSlug },
-        status: { in: [BookingStatus.ACCEPTED, BookingStatus.COMPLETED] },
-        ...getTodayBookingFilter(),
-      },
-      select: {
-        id: true,
-        status: true,
-        payment_status: true,
-        payment_method: true,
-        grand_total: true,
-        amount_paid: true,
-      },
-    });
-
-    if (!booking) {
-      return { success: false, error: "Booking not found for today." };
-    }
-
-    if (booking.payment_status === PaymentStatus.PAID) {
-      return { success: true };
-    }
-
-    const remainingBalance = roundMoney(
-      Math.max(0, booking.grand_total - booking.amount_paid),
-    );
-
-    await prisma.$transaction(async (tx) => {
-      await tx.booking.update({
-        where: { id: booking.id },
-        data: {
-          amount_paid: booking.grand_total,
-          payment_status: PaymentStatus.PAID,
-          status: booking.status,
-        },
-      });
-
-      if (remainingBalance > 0) {
-        await tx.bookingPayment.create({
-          data: {
-            booking_id: booking.id,
-            type: "MANUAL",
-            status: "SUCCEEDED",
-            payment_method: booking.payment_method,
-            amount_principal: remainingBalance,
-            amount_charged: remainingBalance,
-            paid_at: getCurrentDateTimePH(),
-            metadata: {
-              source: "EMPLOYEE_MARK_PAID",
-              employeeId,
-            },
-          },
-        });
-      }
-
-      await promoteBookingToCompletedIfEligible(tx, booking.id);
-    });
-
-    revalidatePath(`/app/${businessSlug}`);
-    return { success: true };
-  } catch (error) {
-    console.error("Error marking employee booking as paid:", error);
-    return { success: false, error: "Failed to mark booking as paid." };
   }
 }

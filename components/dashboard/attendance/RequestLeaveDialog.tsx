@@ -59,6 +59,8 @@ interface RequestLeaveDialogProps {
   businessId: string;
   businessSlug: string; // Added prop
   onSuccess?: () => void;
+  trigger?: React.ReactNode;
+  leavesThisMonth?: number;
 }
 
 export function RequestLeaveDialog({
@@ -66,6 +68,8 @@ export function RequestLeaveDialog({
   businessId,
   businessSlug,
   onSuccess,
+  trigger,
+  leavesThisMonth,
 }: RequestLeaveDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -106,7 +110,7 @@ export function RequestLeaveDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Request Leave</Button>
+        {trigger ?? <Button>Request Leave</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -114,6 +118,12 @@ export function RequestLeaveDialog({
           <DialogDescription>
             Select the dates, type, and provide a reason for your leave.
           </DialogDescription>
+          {leavesThisMonth !== undefined ? (
+            <p className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
+              <CalendarIcon className="size-3.5" aria-hidden="true" />
+              {leavesThisMonth.toLocaleString()} {leavesThisMonth === 1 ? "request" : "requests"} filed this month
+            </p>
+          ) : null}
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

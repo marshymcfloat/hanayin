@@ -7,6 +7,7 @@ import { formatPH } from "@/lib/date-utils";
 import { formatCurrency } from "@/lib/utils";
 import type {
   BookingStatus,
+  BookingPaymentStatus,
   PaymentMethod,
   PaymentStatus,
 } from "@/prisma/generated/prisma/enums";
@@ -20,12 +21,11 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Loader2, ReceiptText, Wallet } from "lucide-react";
-import { toast } from "sonner";
+import { Banknote, ReceiptText, Wallet } from "lucide-react";
 import {
   getEmployeeTodayBookingsAction,
-  markEmployeeBookingPaidAction,
 } from "@/lib/server actions/dashboard";
+import { RecordPaymentDialog } from "@/components/bookings/RecordPaymentDialog";
 import { cn } from "@/lib/utils";
 import {
   getEmployeeSpecialtySet,
@@ -53,6 +53,14 @@ export type EmployeePaymentBooking = {
       name: string;
       category: string;
     };
+  }>;
+  payments: Array<{
+    id: number;
+    status: BookingPaymentStatus;
+    payment_method: PaymentMethod;
+    amount_principal: number;
+    provider_reference: string | null;
+    paid_at: Date | null;
   }>;
 };
 
@@ -104,7 +112,6 @@ export default function EmployeePaymentsQueue({
   const [activeTab, setActiveTab] = useState<"unsettled" | "all">("unsettled");
   const [selectedBooking, setSelectedBooking] =
     useState<EmployeePaymentBooking | null>(null);
-  const [actionId, setActionId] = useState<number | null>(null);
   const queryKey = ["employee-today-bookings", businessSlug];
   const { data: bookings = [] } = useQuery({
     queryKey,
@@ -138,30 +145,13 @@ export default function EmployeePaymentsQueue({
     await queryClient.invalidateQueries({ queryKey });
   };
 
-  const handleMarkPaid = async (booking: EmployeePaymentBooking) => {
-    setActionId(booking.id);
-    setSelectedBooking(booking);
-    try {
-      const result = await markEmployeeBookingPaidAction(booking.id);
-      if (!result.success) {
-        toast.error(result.error || "Unable to mark booking as paid.");
-        return;
-      }
-
-      toast.success("Booking marked as paid.");
-      await refreshBookings();
-    } finally {
-      setActionId(null);
-    }
-  };
-
   const renderBookingActions = (
     booking: EmployeePaymentBooking,
     options?: { includeDetails?: boolean },
   ) => {
     const canMarkPaid =
-      booking.status !== "CANCELLED" && booking.payment_status !== "PAID";
-    const isLoading = actionId === booking.id;
+      (booking.status === "ACCEPTED" || booking.status === "COMPLETED") &&
+      booking.payment_status !== "PAID";
     const includeDetails = Boolean(options?.includeDetails);
 
     return (
@@ -178,22 +168,16 @@ export default function EmployeePaymentsQueue({
             Details
           </Button>
         )}
-        {canMarkPaid && (
-          <Button
-            type="button"
-            size="sm"
-            className="h-8 shrink-0 rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
-            disabled={isLoading}
-            onClick={() => handleMarkPaid(booking)}
-          >
-            {isLoading ? (
-              <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-            ) : (
-              <CheckCircle2 className="mr-1.5 size-3.5" />
-            )}
-            Mark Paid
-          </Button>
-        )}
+        {canMarkPaid ? (
+          <RecordPaymentDialog
+            bookingId={booking.id}
+            customerName={getBookingCustomerName(booking)}
+            grandTotal={booking.grand_total}
+            amountPaid={booking.amount_paid}
+            onRecorded={refreshBookings}
+            trigger={<Button type="button" size="sm" className="min-h-11 shrink-0 rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"><Banknote className="mr-1.5 size-3.5" />Record payment</Button>}
+          />
+        ) : null}
       </div>
     );
   };
@@ -221,7 +205,7 @@ export default function EmployeePaymentsQueue({
                 value="all"
                 className="rounded-full text-xs font-medium data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.04)] cursor-pointer"
               >
-                All Today
+                Today&apos;s bookings
               </TabsTrigger>
             </TabsList>
             <TabsContent value={activeTab} className="mt-4">
@@ -434,6 +418,20 @@ export default function EmployeePaymentsQueue({
                   ))}
                 </ul>
               </div>
+
+              {selectedBooking.payments.length ? (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Payment history</p>
+                  <ul className="divide-y rounded-2xl border px-3">
+                    {selectedBooking.payments.map((payment) => (
+                      <li key={payment.id} className="flex items-center justify-between gap-3 py-2.5 text-xs">
+                        <div><span className="font-semibold">{payment.payment_method.replaceAll("_", " ")}</span><span className="ml-2 text-muted-foreground">{payment.status}</span>{payment.provider_reference ? <p className="font-mono text-muted-foreground">{payment.provider_reference}</p> : null}</div>
+                        <strong>{formatCurrency(payment.amount_principal)}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
               {/* Totals */}
               <div className="space-y-2 rounded-2xl bg-foreground/[0.02] p-4 text-sm">

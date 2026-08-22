@@ -43,7 +43,7 @@ test.describe("Booking editor — role walkthrough", () => {
     // 2. Open the bookings list, click any ACCEPTED + unpaid booking
     //    with multiple service lines.
     // 3. Assert the panel shows: Reschedule, Adjust price, Cancel,
-    //    Mark No-Show, Mark Paid in the action row; Reassign + Swap +
+    //    Mark No-Show, Record payment in the action row; Reassign + Swap +
     //    Remove icons in each service line.
     // 4. Click Add service → submit → expect "Service added" toast.
     // 5. Click trash on a different line → confirm → expect "Service removed".
@@ -69,7 +69,7 @@ test.describe("Booking editor — role walkthrough", () => {
     await signIn(page, ENV.cashierEmail!, ENV.password!);
     // 1. Cashier lands in EmployeeDashboard.
     // 2. Payments queue is visible. Click a booking with unsettled total.
-    // 3. Mark Paid → expect "Booking marked as paid" toast.
+    // 3. Record payment → review and confirm the payment details.
   });
 
   test("STAFF sees only their own bookings, no destructive actions", async ({

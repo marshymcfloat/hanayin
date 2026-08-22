@@ -22,6 +22,8 @@ Resolution helper: `resolveTenantActorContext()` in `lib/auth/staff-access.ts` a
 
 ## 2. New permissions to add
 
+`PAYMENT_COLLECT` is not a regular `STAFF` default. Owners may grant it to trusted staff at small businesses. It records received booking balances only; manual GCash deposit verification remains owner-only.
+
 The current `StaffPermission` enum doesn't cover the actions these features need. Add the following values to the enum and to `DEFAULT_PERMISSIONS_BY_PROFILE` (`lib/auth/staff-access.ts`). A migration is required.
 
 | New permission                | Purpose                                                       | Default for STAFF | Default for MANAGER | Default for CASHIER |

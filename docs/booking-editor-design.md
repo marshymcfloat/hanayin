@@ -65,7 +65,7 @@ Anything in **bold** is new server-side work. Everything else exists.
 - **Swap service** — sugar over remove + add in one transaction. **New action** `swapBookingServiceAction(bookingId, oldId, newServiceId)`.
 - **Reschedule** — **new action** `rescheduleBookingAction(bookingId, newScheduledAt)`. Recalculates `estimated_end` and pushes downstream queue entries. Triggers customer reschedule notification. Permission: `BOOKING_MODIFY`.
 - **Reassign staff** — **new action** `reassignBookingStaffAction(availedServiceId, newEmployeeId)`. Reuses queue claim logic. Permission: `QUEUE_OVERRIDE_ALL`.
-- **Record payment** — existing `markBookingPaidAction`. Add support for partial amounts (`amount_paid` increments). Permission: `PAYMENT_COLLECT`.
+- **Record payment** — use the shared ledger-backed payment action for partial or full amounts. Permission: `PAYMENT_COLLECT`.
 - **Apply discount / adjust price** — **new action** `adjustBookingPriceAction(bookingId, lineId, deltaOrFinal, reason)`. Permission: `BOOKING_ADJUST_PRICE`. Reason is required and shows up in audit trail and customer receipt.
 - **Refund** — owner-only path that walks back through `BookingPayment` records. Out of scope for v1 of this design beyond the existing flow.
 - **Mark no-show** — existing `markBookingNoShowAction`. Permission gate switched from owner-only to `BOOKING_MARK_NO_SHOW`.

@@ -31,7 +31,6 @@ describe("staff access helpers", () => {
     // Defaults come from docs/role-permissions-matrix.md.
     expect(getDefaultPermissionsForProfile(StaffProfile.STAFF)).toEqual([
       StaffPermission.BOOKING_CREATE,
-      StaffPermission.PAYMENT_COLLECT,
       StaffPermission.QUEUE_CLAIM_SELF,
       StaffPermission.QUEUE_SERVE_SELF,
       StaffPermission.SOCIAL_POST_REQUEST_CREATE,

@@ -4,7 +4,6 @@ import * as React from "react";
 import { motion, useReducedMotion } from "motion/react";
 import {
   Briefcase,
-  CalendarCheck,
   ListTodo,
   PhilippinePeso,
   type LucideIcon,
@@ -37,7 +36,6 @@ interface HeroKpiGridProps {
   salaryWindowLabel?: string;
   servedToday: number;
   queuePending: number;
-  leavesThisMonth: number;
 }
 
 export function HeroKpiGrid({
@@ -45,13 +43,12 @@ export function HeroKpiGrid({
   salaryWindowLabel = "Since last payslip",
   servedToday,
   queuePending,
-  leavesThisMonth,
 }: HeroKpiGridProps) {
   const reduced = useReducedMotion();
   const animatedSalary = useCountUp(salaryEstimate, !reduced);
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 sm:gap-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
       {/* Hero — Salary. Spans 2 columns on mobile, 1 on md+. */}
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 8 }}
@@ -112,15 +109,6 @@ export function HeroKpiGrid({
         sub="Available to claim"
         value={queuePending}
         icon={ListTodo}
-      />
-      <NeutralKpiTile
-        index={3}
-        className="col-span-2 md:col-span-1"
-        label="Leaves filed"
-        shortLabel="Leaves"
-        sub="This month"
-        value={leavesThisMonth}
-        icon={CalendarCheck}
       />
     </div>
   );

@@ -54,7 +54,8 @@ import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { markBookingPaidAction } from "@/lib/server actions/dashboard";
+import { RecordPaymentDialog } from "@/components/bookings/RecordPaymentDialog";
+import { BookingPaymentHistory } from "@/components/bookings/BookingPaymentHistory";
 import { markBookingNoShowAction } from "@/lib/server actions/dashboard/owner";
 import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/booking-addons";
 import { removeBookingServiceAction } from "@/lib/server actions/booking-modify";
@@ -172,7 +173,6 @@ export function BookingDetailsDialog({
 }: BookingDetailsDialogProps) {
   const router = useRouter();
   const params = useParams<{ businessSlug: string }>();
-  const [isMarkingPaid, setIsMarkingPaid] = useState(false);
   const [isVerifyingGcash, setIsVerifyingGcash] = useState(false);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
@@ -206,7 +206,9 @@ export function BookingDetailsDialog({
   const bookingDateTime =
     booking?.scheduled_at ?? booking?.created_at ?? new Date();
   const paymentStage = booking ? deriveBookingPaymentStage(booking) : null;
-  const pendingGcashPayment = booking?.payments?.[0];
+  const pendingGcashPayment = booking?.payments?.find(
+    (payment) => payment.status === "PENDING" && payment.type === "DOWNPAYMENT",
+  );
   const canVerifyAwaitingPayment =
     viewerContext.role === "OWNER" &&
     paymentStage === "AWAITING_PAYMENT" &&
@@ -220,7 +222,8 @@ export function BookingDetailsDialog({
   }, []);
 
   const canMarkPaid =
-    booking?.status === "ACCEPTED" && booking?.payment_status !== "PAID";
+    (booking?.status === "ACCEPTED" || booking?.status === "COMPLETED") &&
+    booking?.payment_status !== "PAID";
   const canMarkNoShow = booking?.status === "ACCEPTED";
   const canAddService = booking?.status !== "CANCELLED";
   const availableServiceOptions = useMemo(
@@ -308,21 +311,6 @@ export function BookingDetailsDialog({
       showActionErrorToast(message, { action: "remove this service" });
     } finally {
       setRemovingLineId(null);
-    }
-  };
-
-  const handleMarkPaid = async () => {
-    setIsMarkingPaid(true);
-    try {
-      const result = await markBookingPaidAction(booking.id);
-      if (!result.success) {
-        toast.error(result.error || "Unable to mark booking as paid.");
-        return;
-      }
-      toast.success("Booking marked as paid.");
-      router.refresh();
-    } finally {
-      setIsMarkingPaid(false);
     }
   };
 
@@ -534,7 +522,7 @@ export function BookingDetailsDialog({
                 </div>
               </section>
 
-              {booking.payments?.[0] && (
+              {pendingGcashPayment && (
                 <section className="space-y-3">
                   <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     GCash payment review
@@ -543,28 +531,28 @@ export function BookingDetailsDialog({
                     <div>
                       <dt className="text-muted-foreground">Expected amount</dt>
                       <dd className="font-semibold">
-                        ₱{booking.payments[0].amount_principal.toLocaleString()}
+                        {formatCurrency(pendingGcashPayment.amount_principal)}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Payer</dt>
                       <dd>
-                        {booking.payments[0].payer_name || "Not provided"}
+                        {pendingGcashPayment.payer_name || "Not provided"}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Reference</dt>
                       <dd className="break-all font-mono">
-                        {booking.payments[0].provider_reference ||
+                        {pendingGcashPayment.provider_reference ||
                           "Not provided"}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Submitted</dt>
                       <dd>
-                        {booking.payments[0].submitted_at
+                        {pendingGcashPayment.submitted_at
                           ? formatPH(
-                              booking.payments[0].submitted_at,
+                              pendingGcashPayment.submitted_at,
                               "MMM d, h:mm a",
                             )
                           : "Not submitted"}
@@ -573,16 +561,16 @@ export function BookingDetailsDialog({
                     <div>
                       <dt className="text-muted-foreground">Reviewed by</dt>
                       <dd>
-                        {booking.payments[0].verified_by?.name ||
+                        {pendingGcashPayment.verified_by?.name ||
                           "Not reviewed"}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Reviewed</dt>
                       <dd>
-                        {booking.payments[0].verified_at
+                        {pendingGcashPayment.verified_at
                           ? formatPH(
-                              booking.payments[0].verified_at,
+                              pendingGcashPayment.verified_at,
                               "MMM d, h:mm a",
                             )
                           : "Not reviewed"}
@@ -633,32 +621,37 @@ export function BookingDetailsDialog({
                       </AlertDialogContent>
                     </AlertDialog>
                   )}
-                  {booking.payments[0].escalation_reason ? (
+                  {pendingGcashPayment.escalation_reason ? (
                     <p className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs text-orange-900">
                       <strong>Escalation:</strong>{" "}
-                      {booking.payments[0].escalation_reason}
+                      {pendingGcashPayment.escalation_reason}
                     </p>
                   ) : null}
-                  {booking.payments[0].rejection_reason ? (
+                  {pendingGcashPayment.rejection_reason ? (
                     <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-900">
                       <strong>Rejection:</strong>{" "}
-                      {booking.payments[0].rejection_reason}
+                      {pendingGcashPayment.rejection_reason}
                     </p>
                   ) : null}
-                  {booking.payments[0].resolution_outcome ? (
+                  {pendingGcashPayment.resolution_outcome ? (
                     <p className="rounded-xl border p-3 text-xs">
                       <strong>Resolution:</strong>{" "}
-                      {booking.payments[0].resolution_outcome.replaceAll(
+                      {pendingGcashPayment.resolution_outcome.replaceAll(
                         "_",
                         " ",
                       )}
-                      {booking.payments[0].resolution_note
-                        ? ` · ${booking.payments[0].resolution_note}`
+                      {pendingGcashPayment.resolution_note
+                        ? ` · ${pendingGcashPayment.resolution_note}`
                         : ""}
                     </p>
                   ) : null}
                 </section>
               )}
+
+              <BookingPaymentHistory
+                payments={booking.payments ?? []}
+                canVoid={viewerContext.role === "OWNER"}
+              />
 
               <section className="space-y-3">
                 <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -1043,22 +1036,15 @@ export function BookingDetailsDialog({
                     </AlertDialogContent>
                   </AlertDialog>
                 )}
-                {canMarkPaid && viewerContext.canMarkPaid && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="h-9 rounded-full bg-primary px-4 text-primary-foreground hover:bg-primary/90"
-                    onClick={handleMarkPaid}
-                    disabled={isMarkingPaid}
-                  >
-                    {isMarkingPaid ? (
-                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                    )}
-                    Mark as Paid
-                  </Button>
-                )}
+                {canMarkPaid && viewerContext.canMarkPaid ? (
+                  <RecordPaymentDialog
+                    bookingId={booking.id}
+                    customerName={getBookingCustomerName(booking)}
+                    grandTotal={booking.grand_total}
+                    amountPaid={booking.amount_paid}
+                    trigger={<Button type="button" size="sm" className="min-h-11 rounded-full bg-primary px-4 text-primary-foreground hover:bg-primary/90">Record payment</Button>}
+                  />
+                ) : null}
               </section>
             </div>
           </div>

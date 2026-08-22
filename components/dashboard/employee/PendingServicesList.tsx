@@ -49,6 +49,8 @@ export interface PendingService {
     downpayment: number | null;
     downpayment_status: string | null;
     grand_total: number;
+    amount_paid: number;
+    payment_status: "UNPAID" | "PARTIALLY_PAID" | "PAID";
   };
   scheduled_at: Date | null;
   price: number;
@@ -65,6 +67,7 @@ export default function PendingServicesList({
   employeeSpecialties,
   saleEvents = [],
   canClaimServices = true,
+  showRefresh = true,
 }: {
   services: PendingService[];
   businessSlug: string;
@@ -72,6 +75,7 @@ export default function PendingServicesList({
   employeeSpecialties?: string[];
   saleEvents?: SaleEventForPricing[];
   canClaimServices?: boolean;
+  showRefresh?: boolean;
 }) {
   const [selectedService, setSelectedService] = useState<PendingService | null>(
     null,
@@ -134,7 +138,7 @@ export default function PendingServicesList({
     <>
       <div className="flex h-full flex-col">
         <div className="mb-2 flex justify-end">
-          <Button
+        {showRefresh ? <Button
             variant="outline"
             size="sm"
             onClick={handleRefresh}
@@ -145,7 +149,7 @@ export default function PendingServicesList({
               className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
             Refresh
-          </Button>
+        </Button> : null}
         </div>
 
         {visibleServices.length === 0 ? (
@@ -163,7 +167,7 @@ export default function PendingServicesList({
             </div>
           </div>
         ) : (
-          <ul className="-mx-2 divide-y divide-border">
+          <ul className="min-w-0 divide-y divide-border overflow-x-hidden">
             {visibleServices.map((item) => {
               const customerInitials = getBookingCustomerName(item.booking)
                 .split(" ")
@@ -189,7 +193,7 @@ export default function PendingServicesList({
                     }}
                     disabled={!interactive}
                     className={cn(
-                      "group flex w-full items-start justify-between gap-3 rounded-xl px-2 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                      "group flex w-full min-w-0 items-start justify-between gap-2 rounded-xl px-1 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
                       interactive
                         ? "cursor-pointer hover:bg-primary/[0.04]"
                         : "cursor-default opacity-70",
@@ -291,33 +295,30 @@ export default function PendingServicesList({
                       {formatCurrency(selectedService.booking.grand_total)}
                     </span>
                   </div>
-                  {selectedService.booking.downpayment &&
-                  selectedService.booking.downpayment > 0 ? (
+                  {selectedService.booking.payment_status !== "PAID" ? (
                     <>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
-                          Downpayment:
+                          Paid:
                         </span>
                         <span className="font-medium text-primary tabular-nums">
-                          {formatCurrency(selectedService.booking.downpayment)}
+                          {formatCurrency(selectedService.booking.amount_paid)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Balance:</span>
                         <span className="font-bold text-amber-700 dark:text-amber-400 tabular-nums">
                           {formatCurrency(
-                            selectedService.booking.grand_total -
-                              selectedService.booking.downpayment,
+                            selectedService.booking.grand_total - selectedService.booking.amount_paid,
                           )}
                         </span>
                       </div>
                       <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900/60 dark:bg-amber-950/30">
                         <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
-                          Half-paid · Balance of{" "}
+                          {selectedService.booking.payment_status === "PARTIALLY_PAID" ? "Partially paid" : "Unpaid"} · Balance of{" "}
                           <span className="tabular-nums">
                             {formatCurrency(
-                              selectedService.booking.grand_total -
-                                selectedService.booking.downpayment,
+                              selectedService.booking.grand_total - selectedService.booking.amount_paid,
                             )}
                           </span>{" "}
                           still due

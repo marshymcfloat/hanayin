@@ -15,7 +15,6 @@ import { requireAuth } from "@/lib/auth/guards";
 const DEFAULT_PERMISSIONS_BY_PROFILE: Record<StaffProfile, StaffPermission[]> = {
   STAFF: [
     StaffPermission.BOOKING_CREATE,
-    StaffPermission.PAYMENT_COLLECT,
     StaffPermission.QUEUE_CLAIM_SELF,
     StaffPermission.QUEUE_SERVE_SELF,
     StaffPermission.SOCIAL_POST_REQUEST_CREATE,

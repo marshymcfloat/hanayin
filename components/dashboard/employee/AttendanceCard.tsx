@@ -27,12 +27,14 @@ interface AttendanceCardProps {
     time_in: Date | null;
     time_out: Date | null;
   } | null;
+  compact?: boolean;
 }
 
 export default function AttendanceCard({
   employeeId,
   businessSlug,
   todayAttendance,
+  compact = false,
   className,
 }: AttendanceCardProps & { className?: string }) {
   const [loading, setLoading] = useState(false);
@@ -57,8 +59,8 @@ export default function AttendanceCard({
       }
     };
 
-    fetchAttendance();
-  }, [employeeId, calendarDate, todayAttendance]);
+    if (!compact) fetchAttendance();
+  }, [compact, employeeId, calendarDate, todayAttendance]);
 
   const handleClockIn = async () => {
     setLoading(true);
@@ -146,6 +148,33 @@ export default function AttendanceCard({
     day: "numeric",
     year: "numeric",
   });
+
+  if (compact) {
+    return (
+      <div className={cn("space-y-2", className)}>
+        {!isClockedOut ? (
+          <Button
+            onClick={isClockedIn ? handleClockOut : handleClockIn}
+            disabled={loading}
+            className={cn(
+              "h-11 w-full rounded-xl text-sm font-bold cursor-pointer",
+              isClockedIn
+                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                : "bg-primary text-primary-foreground hover:bg-primary/90",
+            )}
+          >
+            {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : isClockedIn ? <StopCircle className="mr-2 size-4" /> : <PlayCircle className="mr-2 size-4" />}
+            {loading ? "Processing..." : isClockedIn ? "End Shift" : "Start Shift"}
+          </Button>
+        ) : (
+          <p className="flex min-h-11 items-center justify-center rounded-xl bg-muted/50 text-sm font-semibold text-muted-foreground">Shift completed</p>
+        )}
+        {isClockedIn && todayAttendance?.time_in ? (
+          <p className="text-center text-xs text-muted-foreground">Started {new Date(todayAttendance.time_in).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</p>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <motion.div

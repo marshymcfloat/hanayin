@@ -64,6 +64,8 @@ export async function getPendingServicesAction() {
             downpayment: true,
             downpayment_status: true,
             grand_total: true,
+            amount_paid: true,
+            payment_status: true,
           },
         },
       },

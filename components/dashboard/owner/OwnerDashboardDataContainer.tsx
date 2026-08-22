@@ -141,7 +141,6 @@ export default async function OwnerDashboardDataContainer({
         vouchers: true,
         payments: {
           orderBy: { created_at: "desc" },
-          take: 1,
           include: { verified_by: { select: { name: true } } },
         },
       },

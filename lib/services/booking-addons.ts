@@ -251,7 +251,7 @@ export async function appendServicesToUntouchedBookingInTx(
         businessSlug: params.actorContext.businessSlug,
         scheduledAt: bookingStart,
         services: Array.from(aggregateMap.values()),
-        paymentMethod: booking.payment_method,
+        paymentMethod: booking.payment_method === "CASH" ? "CASH" : "ONLINE",
         paymentType: "FULL",
       });
 

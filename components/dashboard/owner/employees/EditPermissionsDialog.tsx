@@ -82,12 +82,12 @@ const PERMISSION_GROUPS: ReadonlyArray<{
   },
   {
     label: "Payments",
-    description: "Collect payments at the front desk.",
+    description: "Record money received at the front desk. This does not verify pending GCash deposits.",
     permissions: [
       {
         flag: StaffPermission.PAYMENT_COLLECT,
         label: "Collect payment",
-        description: "Mark bookings as paid, record partial payments.",
+        description: "Record partial or full booking payments. Deposit verification remains owner-only.",
       },
     ],
   },

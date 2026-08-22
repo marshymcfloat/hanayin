@@ -51,7 +51,6 @@ vi.mock("@/lib/utils/pricing", () => ({
 import {
   claimServiceAction,
   getEmployeeTodayBookingsAction,
-  markEmployeeBookingPaidAction,
   markServiceServedAction,
   unclaimServiceAction,
 } from "./employee";
@@ -261,15 +260,5 @@ describe("Employee Dashboard Actions", () => {
       expect(prismaMock.booking.findMany).toHaveBeenCalled();
     });
 
-    it("blocks mark paid when actor lacks payment permission", async () => {
-      hasStaffPermissionMock.mockImplementation((_ctx, permission) => {
-        return permission !== "PAYMENT_COLLECT";
-      });
-
-      const result = await markEmployeeBookingPaidAction(123);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Forbidden");
-    });
   });
 });

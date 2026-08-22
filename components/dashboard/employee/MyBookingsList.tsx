@@ -103,7 +103,7 @@ export function MyBookingsList({
 
   return (
     <>
-      <ul className="-mx-2 divide-y divide-border">
+      <ul className="min-w-0 divide-y divide-border overflow-x-hidden">
         {bookings.map((booking) => {
           const when = booking.scheduled_at ?? booking.created_at;
           const customerName = getBookingCustomerName(booking);
@@ -122,7 +122,7 @@ export function MyBookingsList({
                   setSelected(booking);
                   setOpen(true);
                 }}
-                className="group flex w-full items-center justify-between gap-3 rounded-xl px-2 py-3 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
+                className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-1 py-2.5 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-inset ring-primary/15">

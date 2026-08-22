@@ -43,6 +43,8 @@ interface EmployeeLeaveClientProps {
   businessId: string;
   businessSlug: string; // Added prop
   requests: LeaveRequest[];
+  compact?: boolean;
+  showRequestAction?: boolean;
 }
 
 export function EmployeeLeaveClient({
@@ -50,6 +52,8 @@ export function EmployeeLeaveClient({
   businessId,
   businessSlug,
   requests,
+  compact = false,
+  showRequestAction = true,
 }: EmployeeLeaveClientProps) {
   const [cancellingId, setCancellingId] = useState<number | null>(null);
 
@@ -101,7 +105,14 @@ export function EmployeeLeaveClient({
 
   return (
     <Dialog>
-      {hasRequests ? (
+      {compact ? (
+        <DialogTrigger asChild>
+          <button type="button" className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 px-3 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer">
+            <span className="min-w-0"><span className="block truncate text-sm font-medium text-foreground">{summary}</span>{counts.pending > 0 ? <span className="block text-xs text-amber-600">Awaiting review</span> : null}</span>
+            {showRequestAction ? <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-primary"><CalendarPlus className="size-4" />Request leave</span> : <ChevronRight className="size-4 shrink-0 text-muted-foreground" />}
+          </button>
+        </DialogTrigger>
+      ) : hasRequests ? (
         <div className="flex h-full flex-col gap-4">
           <DialogTrigger asChild>
             <button

@@ -731,6 +731,10 @@ export const BookingPaymentScalarFieldEnum = {
   resolution_resolved_at: 'resolution_resolved_at',
   resolution_outcome: 'resolution_outcome',
   resolution_note: 'resolution_note',
+  voided_at: 'voided_at',
+  voided_by_user_id: 'voided_by_user_id',
+  void_reason: 'void_reason',
+  idempotency_key: 'idempotency_key',
   metadata: 'metadata',
   created_at: 'created_at',
   updated_at: 'updated_at'
