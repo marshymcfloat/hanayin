@@ -61,7 +61,7 @@ export function GcashPaymentSubmission(props: {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col items-center gap-5 rounded-2xl border border-primary/15 bg-primary/[0.04] p-5 sm:flex-row sm:items-start">
+      <div className="flex flex-col items-center gap-5 rounded-2xl border border-primary/15 bg-primary/[0.04] p-5 sm:flex-row">
         {props.qrImageUrl ? (
           <div className="w-full max-w-[260px] space-y-2">
             <Image
@@ -89,7 +89,7 @@ export function GcashPaymentSubmission(props: {
             </Button>
           </div>
         ) : null}
-        <div className="min-w-0 flex-1 space-y-1 text-center sm:pt-2 sm:text-left">
+        <div className="min-w-0 flex-1 space-y-1 text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">
             Send exactly
           </p>

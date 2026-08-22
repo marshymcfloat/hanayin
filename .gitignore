@@ -61,3 +61,10 @@ node_modules/
 .claude/settings.local.json
 qa-screenshots/
 .playwright-cli/
+
+# Experimental owner dashboard preview
+/app/(private-preview)/
+/components/dashboard/owner-preview/
+/DESIGN.md
+/reference-dashboard.jpg
+/scripts/refero.design 3a5e86cf-ca8b-45e5-a77b-688489dc80d9.jpg

@@ -25,6 +25,7 @@ import {
   Clock,
   Loader2,
   Phone,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
@@ -275,9 +276,15 @@ export function RecentBookingsWidget({
   businessSlug,
   compact = false,
 }: RecentBookingsWidgetProps) {
+  const router = useRouter();
+  const [refreshing, startRefreshTransition] = useTransition();
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
     null,
   );
+
+  const refreshBookings = () => {
+    startRefreshTransition(() => router.refresh());
+  };
   const selectedBooking =
     bookings.find((booking) => booking.id === selectedBookingId) ?? null;
   const recentBookings = [...bookings]
@@ -308,12 +315,31 @@ export function RecentBookingsWidget({
             <p className="text-[11px] font-semibold text-foreground uppercase tracking-wide">
               Recent Bookings
             </p>
-            <Link
-              href={`/app/${businessSlug}/bookings`}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
-            >
-              All <ArrowRight className="h-3 w-3" />
-            </Link>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={refreshBookings}
+                disabled={refreshing}
+                aria-label={
+                  refreshing
+                    ? "Refreshing recent bookings"
+                    : "Refresh recent bookings"
+                }
+                className="size-7 cursor-pointer text-muted-foreground hover:text-foreground"
+              >
+                <RefreshCw
+                  className={cn("size-3.5", refreshing && "animate-spin")}
+                />
+              </Button>
+              <Link
+                href={`/app/${businessSlug}/bookings`}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+              >
+                All <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
           </div>
           {recentBookings.length === 0 ? (
             <div className="flex items-center justify-center h-12 text-xs text-muted-foreground">
@@ -388,17 +414,37 @@ export function RecentBookingsWidget({
               Latest 5 for today
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs font-semibold text-primary hover:text-primary hover:bg-primary/8 h-7 gap-1 cursor-pointer"
-            asChild
-          >
-            <Link href={`/app/${businessSlug}/bookings`}>
-              View All
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={refreshBookings}
+              disabled={refreshing}
+              className="h-7 min-w-[82px] cursor-pointer gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+              aria-label={
+                refreshing
+                  ? "Refreshing recent bookings"
+                  : "Refresh recent bookings"
+              }
+            >
+              <RefreshCw
+                className={cn("size-3.5", refreshing && "animate-spin")}
+              />
+              {refreshing ? "Refreshing" : "Refresh"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs font-semibold text-primary hover:text-primary hover:bg-primary/8 h-7 gap-1 cursor-pointer"
+              asChild
+            >
+              <Link href={`/app/${businessSlug}/bookings`}>
+                View All
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0 overflow-auto flex-1">
           {recentBookings.length > 0 ? (
