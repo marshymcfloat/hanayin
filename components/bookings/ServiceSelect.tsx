@@ -27,6 +27,10 @@ import {
   CommandList,
 } from "../ui/command";
 import { Badge } from "../ui/badge";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
@@ -115,32 +119,33 @@ const ServiceRow = React.memo(function ServiceRow({
       value={service.name}
       onSelect={handleSelect}
       className={cn(
-        "cursor-pointer aria-selected:bg-primary/5",
+        "min-h-12 cursor-pointer rounded-lg border border-transparent px-2 py-2 aria-selected:border-border aria-selected:bg-muted/60",
+        isSelected && "border-foreground/20 bg-muted/70",
         isDisabled && "opacity-50 cursor-not-allowed",
       )}
       disabled={isDisabled}
     >
-      <div className="flex items-start gap-3 w-full">
+      <div className="flex w-full items-center gap-2.5">
         <div
           className={cn(
-            "flex items-center justify-center w-5 h-5 mt-0.5 rounded-md border-2 shrink-0 transition-all duration-150",
+            "flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors duration-150",
             isSelected
-              ? "bg-primary border-primary text-primary-foreground shadow-sm"
-              : "border-muted-foreground/30 bg-background",
+              ? "border-foreground bg-foreground text-background"
+              : "border-muted-foreground/35 bg-background",
           )}
         >
           <Check
             className={cn(
-              "h-3.5 w-3.5 stroke-[3] text-white",
+              "size-3.5 stroke-[3] text-background",
               isSelected ? "opacity-100" : "opacity-0",
             )}
           />
         </div>
-        <div className="flex flex-col flex-1 gap-1">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
             <span
               className={cn(
-                "font-medium",
+                "truncate text-sm font-medium",
                 isUnavailable ? "text-muted-foreground" : "text-foreground",
               )}
             >
@@ -150,9 +155,9 @@ const ServiceRow = React.memo(function ServiceRow({
               <Badge
                 variant="secondary"
                 className={cn(
-                  "h-4 px-1 text-[10px] shadow-none",
+                  "h-4 shrink-0 px-1 text-[9px] shadow-none",
                   discountSlotsRemaining !== null && discountSlotsRemaining <= 3
-                    ? "bg-red-100 text-red-700 border-red-300 animate-pulse"
+                    ? "border-red-300 bg-red-50 text-red-700"
                     : discountSlotsRemaining !== null && discountSlotsRemaining <= 5
                       ? "bg-amber-100 text-amber-700 border-amber-300"
                       : "bg-destructive/10 text-destructive border-destructive/20",
@@ -199,18 +204,18 @@ const ServiceRow = React.memo(function ServiceRow({
               </Badge>
             )}
           </div>
-          <span className="text-xs text-muted-foreground capitalize">
+          <span className="mt-0.5 block truncate text-[11px] capitalize leading-4 text-muted-foreground">
             {service.category}
             {qualifiedEmployeeCount > 0 &&
               !outsideHours &&
               !noBusinessHours && (
-                <span className="ml-2 text-green-600">
-                  - {qualifiedEmployeeCount} qualified staff
+                <span className="ml-1.5">
+                  · {qualifiedEmployeeCount} staff available
                 </span>
               )}
           </span>
         </div>
-        <div className="flex flex-col items-end gap-0.5">
+        <div className="flex shrink-0 flex-col items-end gap-0.5">
           {showDiscount && discountFinalPrice !== null ? (
             <>
               <span className="text-sm font-semibold text-destructive tabular-nums">
@@ -258,6 +263,56 @@ const ServiceSelect = React.memo(function ServiceSelect({
   const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
   const [viewMode, setViewMode] = React.useState<"services" | "packages">(
     "services",
+  );
+  const panelRef = React.useRef<HTMLDivElement | null>(null);
+
+  useGSAP(
+    () => {
+      if (!open || !panelRef.current) return;
+      const media = gsap.matchMedia();
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          panelRef.current,
+          { autoAlpha: 0, y: -6, scale: 0.99 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.18,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+          },
+        );
+      });
+      return () => media.revert();
+    },
+    { dependencies: [open], scope: panelRef, revertOnUpdate: true },
+  );
+
+  useGSAP(
+    () => {
+      if (!open || !panelRef.current) return;
+      const media = gsap.matchMedia();
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".service-select-results",
+          { autoAlpha: 0, y: 4 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.14,
+            ease: "power1.out",
+            clearProps: "transform,opacity,visibility",
+          },
+        );
+      });
+      return () => media.revert();
+    },
+    {
+      dependencies: [open, viewMode, selectedCategory],
+      scope: panelRef,
+      revertOnUpdate: true,
+    },
   );
 
   const selectedServices = useWatch({
@@ -485,46 +540,66 @@ const ServiceSelect = React.memo(function ServiceSelect({
         <Button
           variant="outline"
           role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className="h-11 w-full justify-between rounded-xl"
+        aria-expanded={open}
+        disabled={disabled}
+          className="h-11 w-full justify-between rounded-lg border-border bg-background px-3 font-medium shadow-none hover:bg-muted/40"
         >
-          {selectedServices.length > 0
-            ? `${selectedServices.length} service${
-                selectedServices.length > 1 ? "s" : ""
-              } selected`
-            : disabled
-              ? "Select a date first..."
-              : "Select services or packages..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <span className="min-w-0 truncate text-left">
+            {selectedServices.length > 0
+              ? `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} selected`
+              : disabled
+                ? "Select a date first"
+                : "Choose services"}
+          </span>
+          <span className="ml-2 flex shrink-0 items-center gap-2">
+            {selectedServices.length > 0 && (
+              <span className="flex size-5 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+                {selectedServices.length}
+              </span>
+            )}
+            <ChevronsUpDown className="size-3.5 opacity-50" />
+          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-(--radix-popover-trigger-width) max-h-[70vh] overflow-hidden rounded-xl border p-0 pointer-events-auto"
+        ref={panelRef}
+        className="w-(--radix-popover-trigger-width) max-h-[70vh] overflow-hidden rounded-xl border p-0 shadow-lg pointer-events-auto data-[state=open]:animate-none data-[state=closed]:animate-none"
         align="start"
       >
-        <div className="flex p-2 gap-2 border-b">
-          <Button
-            size="sm"
-            variant={viewMode === "services" ? "default" : "secondary"}
+        <div className="flex items-center gap-1 border-b bg-muted/25 p-1.5" role="tablist" aria-label="Service type">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "services"}
             onClick={() => setViewMode("services")}
-            className="flex-1"
+            className={cn(
+              "min-h-9 flex-1 cursor-pointer rounded-md px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              viewMode === "services"
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:bg-background hover:text-foreground",
+            )}
           >
-            Services
-          </Button>
-          <Button
-            size="sm"
-            variant={viewMode === "packages" ? "default" : "secondary"}
+            Services <span className="ml-1 opacity-60">{services.length}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "packages"}
             onClick={() => setViewMode("packages")}
-            className="flex-1"
+            className={cn(
+              "min-h-9 flex-1 cursor-pointer rounded-md px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              viewMode === "packages"
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:bg-background hover:text-foreground",
+            )}
           >
-            Packages
-          </Button>
+            Packages <span className="ml-1 opacity-60">{packages.length}</span>
+          </button>
         </div>
 
         {viewMode === "services" && (
           <div
-            className="flex gap-1 p-2 border-b overflow-x-auto"
+            className="flex gap-1 overflow-x-auto border-b px-2 py-1.5"
             onTouchMove={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
           >
@@ -532,10 +607,10 @@ const ServiceSelect = React.memo(function ServiceSelect({
               type="button"
               onClick={() => setSelectedCategory("all")}
               className={cn(
-                "h-8 shrink-0 rounded-full px-3.5 text-xs font-medium transition-colors cursor-pointer",
+                "h-8 shrink-0 cursor-pointer rounded-md px-3 text-[11px] font-medium transition-colors",
                 selectedCategory === "all"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-primary/[0.04] hover:text-foreground",
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               All
@@ -546,10 +621,10 @@ const ServiceSelect = React.memo(function ServiceSelect({
                 type="button"
                 onClick={() => setSelectedCategory(category)}
                 className={cn(
-                  "h-8 shrink-0 rounded-full px-3.5 text-xs font-medium capitalize transition-colors cursor-pointer",
+                  "h-8 shrink-0 cursor-pointer rounded-md px-3 text-[11px] font-medium capitalize transition-colors",
                   selectedCategory === category
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-primary/[0.04] hover:text-foreground",
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 {category}
@@ -567,7 +642,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
             }
           />
           <div
-            className="max-h-[320px] overflow-y-auto overscroll-contain sm:max-h-[360px]"
+            className="service-select-results max-h-[288px] overflow-y-auto overscroll-contain sm:max-h-[336px]"
             onWheel={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
@@ -672,43 +747,44 @@ const ServiceSelect = React.memo(function ServiceSelect({
                             }
                           }}
                           className={cn(
-                            "cursor-pointer aria-selected:bg-primary/5",
+                            "min-h-14 cursor-pointer rounded-lg border border-transparent px-2 py-2 aria-selected:border-border aria-selected:bg-muted/60",
+                            isSelected && "border-foreground/20 bg-muted/70",
                             isDisabled && "opacity-50 cursor-not-allowed",
                           )}
                           disabled={isDisabled}
                         >
-                          <div className="flex items-start gap-3 w-full">
+                          <div className="flex w-full items-start gap-2.5">
                             <div
                               className={cn(
-                                "flex items-center justify-center w-5 h-5 mt-0.5 rounded-md border-2 shrink-0 transition-all duration-150",
+                                "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors duration-150",
                                 isSelected
-                                  ? "bg-primary border-primary text-primary-foreground shadow-sm"
-                                  : "border-muted-foreground/30 bg-background",
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-muted-foreground/35 bg-background",
                               )}
                             >
                               <Check
                                 className={cn(
-                                  "h-3.5 w-3.5 stroke-[3] text-white",
+                                    "size-3.5 stroke-[3] text-background",
                                   isSelected ? "opacity-100" : "opacity-0",
                                 )}
                               />
                             </div>
 
-                            <div className="flex flex-col flex-1 gap-1.5">
-                              <div className="flex items-center gap-2">
-                                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary">
-                                  <PackageIcon className="h-3 w-3" />
+                            <div className="min-w-0 flex-1 space-y-1">
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex size-5 shrink-0 items-center justify-center rounded-md bg-muted text-foreground">
+                                  <PackageIcon className="size-3" />
                                 </div>
-                                <span className="font-semibold text-foreground">
+                                <span className="truncate text-sm font-semibold text-foreground">
                                   {pkg.name}
                                 </span>
                                 {discountInfo && (
                                   <Badge
                                     variant="secondary"
                                     className={cn(
-                                      "h-4 px-1 text-[10px] shadow-none",
+                                      "h-4 shrink-0 px-1 text-[9px] shadow-none",
                                       discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 3
-                                        ? "bg-red-100 text-red-700 border-red-300 animate-pulse"
+                                        ? "border-red-300 bg-red-50 text-red-700"
                                         : discountInfo.slotsRemaining !== null && discountInfo.slotsRemaining <= 5
                                           ? "bg-amber-100 text-amber-700 border-amber-300"
                                           : "bg-destructive/10 text-destructive border-destructive/20",
@@ -756,18 +832,18 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                 )}
                               </div>
 
-                              <div className="flex flex-wrap gap-1">
-                                {pkg.items.slice(0, 3).map((item) => (
+                              <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+                                {pkg.items.slice(0, 2).map((item) => (
                                   <span
                                     key={item.service_id}
-                                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground border border-border"
+                                    className="inline-flex max-w-28 shrink truncate rounded border border-border bg-muted px-1.5 py-0.5 text-[9px] text-muted-foreground"
                                   >
                                     {item.service.name}
                                   </span>
                                 ))}
-                                {pkg.items.length > 3 && (
-                                  <span className="text-[10px] text-muted-foreground self-center">
-                                    +{pkg.items.length - 3} more
+                                {pkg.items.length > 2 && (
+                                  <span className="shrink-0 self-center text-[9px] text-muted-foreground">
+                                    +{pkg.items.length - 2}
                                   </span>
                                 )}
                               </div>
@@ -806,7 +882,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                 );
                                 if (original > pkg.price) {
                                   return (
-                                    <span className="text-[10px] text-green-600 font-medium bg-green-50 px-1 rounded-sm">
+                                    <span className="rounded-sm bg-muted px-1 text-[10px] font-medium text-foreground/70">
                                       Save ₱
                                       {(original - pkg.price).toLocaleString()}
                                     </span>

@@ -61,8 +61,9 @@ import {
 } from "../ui/form";
 import { Badge } from "../ui/badge";
 import CustomerPicker, { type CustomerPickerValue } from "./CustomerPicker";
-import ServiceSelect from "./ServiceSelect";
+import ServicePicker from "./ServicePicker";
 import SelectedServiceList from "./SelectedServiceList";
+import BookingCheckoutReview from "./BookingCheckoutReview";
 import DatePicker from "./DatePicker";
 import TimeSlotPicker from "./TimeSlotPicker";
 import EmployeeSelect from "./EmployeeSelect";
@@ -129,6 +130,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Pencil,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -312,6 +314,15 @@ export default function BookingForm({
     control: form.control,
     name: "customerName",
   }) as string;
+  const customerEmailInput = useWatch({
+    control: form.control,
+    name: "email",
+  }) as string;
+  const customerPhoneInput = useWatch({
+    control: form.control,
+    name: "phone",
+  }) as string;
+  const customerNameValue = (customerNameInput || "").trim();
 
   const [, setExistingCustomerEmail] = useState<string | null>(null);
   const [, setExistingCustomerPhone] = useState<string | null>(null);
@@ -349,12 +360,16 @@ export default function BookingForm({
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [activeWizardStep, setActiveWizardStep] = useState(0);
 
-  const revealWizardStep = useCallback((step: number) => {
+  const revealWizardStep = useCallback((step: number, targetId?: string) => {
     setActiveWizardStep(step);
     requestAnimationFrame(() => {
-      document.getElementById("booking-wizard-progress")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+      requestAnimationFrame(() => {
+        document
+          .getElementById(targetId || "booking-wizard-progress")
+          ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
       });
     });
   }, []);
@@ -613,6 +628,21 @@ export default function BookingForm({
   >("");
   const [capacityOverrideNote, setCapacityOverrideNote] = useState("");
   const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
+  const [showReviewGuidance, setShowReviewGuidance] = useState(false);
+  const reviewConfirmationRef = useRef<HTMLDivElement | null>(null);
+
+  const guideToReviewConfirmation = useCallback(() => {
+    setShowReviewGuidance(true);
+    reviewConfirmationRef.current?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "center",
+    });
+    requestAnimationFrame(() => {
+      document.getElementById("confirm-booking-details")?.focus({
+        preventScroll: true,
+      });
+    });
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (canceled === "true") {
@@ -986,6 +1016,7 @@ export default function BookingForm({
 
   useEffect(() => {
     setHasReviewedDetails(false);
+    setShowReviewGuidance(false);
   }, [
     effectiveIsWalkIn,
     slotServiceKey,
@@ -993,6 +1024,13 @@ export default function BookingForm({
     selectedTimeKey,
     selectedEmployeeId,
     claimedUniqueIdsKey,
+    customerNameValue,
+    customerEmailInput,
+    customerPhoneInput,
+    paymentMethod,
+    paymentType,
+    requireSelectedStaff,
+    capacityOverrideReason,
   ]);
 
   useEffect(() => {
@@ -1415,11 +1453,18 @@ export default function BookingForm({
     !hasReviewedDetails ||
     (showCapacityOverrideForm && !capacityOverrideReason) ||
     (!isEmployee && (!gcash?.accountName || !gcash?.mobileNumber));
+  const isSubmissionBlockedBeforeReview =
+    isPending ||
+    isRedirecting ||
+    !form.formState.isValid ||
+    (!selectedTime && !effectiveIsWalkIn) ||
+    selectedServices.length === 0 ||
+    (showCapacityOverrideForm && !capacityOverrideReason) ||
+    (!isEmployee && (!gcash?.accountName || !gcash?.mobileNumber));
 
   const isStep1Complete = selectedServices.length > 0;
   const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
   const isStep3Complete = effectiveIsWalkIn || !!selectedTime;
-  const customerNameValue = (customerNameInput || "").trim();
   // Staff: anonymous walk-in is a complete customer step on its own; otherwise
   // require either a linked customer or a typed-in name (>=2 chars).
   const isCustomerDetailsComplete = isEmployee
@@ -1485,7 +1530,14 @@ export default function BookingForm({
       }
       return;
     }
-    revealWizardStep(Math.min(activeWizardStep + 1, wizardSteps.length - 1));
+    const nextStep = Math.min(
+      activeWizardStep + 1,
+      wizardSteps.length - 1,
+    );
+    revealWizardStep(
+      nextStep,
+      nextStep === wizardSteps.length - 1 ? "booking-review-step" : undefined,
+    );
   }, [
     activeWizardStep,
     canContinueWizard,
@@ -1621,7 +1673,7 @@ export default function BookingForm({
         onSubmit={form.handleSubmit(onSubmit)}
         aria-busy={!isEmployee && (isPending || isRedirecting)}
         className={cn(
-          "relative flex flex-col gap-6 lg:flex-row lg:gap-10",
+          "relative flex flex-col gap-4 lg:flex-row lg:gap-10",
           usesFixedMobileActionBar
             ? "pb-[calc(10rem+env(safe-area-inset-bottom))] sm:pb-[calc(11rem+env(safe-area-inset-bottom))] lg:pb-0"
             : "pb-0",
@@ -1657,7 +1709,7 @@ export default function BookingForm({
             </div>
           </div>
         )}
-        <div className={cn("min-w-0 flex-1 flex flex-col gap-7 sm:gap-9 pb-4")}>
+        <div className={cn("min-w-0 flex flex-1 flex-col gap-4 pb-2 sm:gap-6 sm:pb-4")}>
           {/* Hidden Fields & Identification */}
           <FormField
             control={form.control}
@@ -1669,18 +1721,16 @@ export default function BookingForm({
 
           <div
             id="booking-wizard-progress"
-            className="order-0 sticky top-[calc(var(--bf-header-h,0px)+0.75rem)] z-20 -mx-1 rounded-2xl border border-primary/15 bg-background/95 px-4 py-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85"
+            className="order-0 sticky top-[calc(var(--bf-header-h,0px)+0.5rem)] z-20 -mx-1 rounded-xl border border-primary/15 bg-background/95 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85"
           >
-            <div className="mb-3 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
-                  Step {activeWizardStep + 1} of {wizardSteps.length}
-                </p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">
-                  {wizardSteps[activeWizardStep].hint}
-                </p>
-              </div>
-              <span className="text-xs font-medium tabular-nums text-muted-foreground">
+            <div className="mb-1 flex min-h-6 items-center justify-between gap-3 px-1">
+              <p className="min-w-0 truncate text-xs font-semibold text-foreground">
+                <span className="mr-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-primary">
+                  Step {activeWizardStep + 1}/{wizardSteps.length}
+                </span>
+                {wizardSteps[activeWizardStep].hint}
+              </p>
+              <span className="shrink-0 text-[10px] font-medium tabular-nums text-muted-foreground">
                 {Math.round(
                   ((activeWizardStep + 1) / wizardSteps.length) * 100,
                 )}
@@ -1705,18 +1755,26 @@ export default function BookingForm({
                     key={item.label}
                     type="button"
                     disabled={!accessible}
-                    onClick={() => accessible && setActiveWizardStep(index)}
+                    onClick={() =>
+                      accessible &&
+                      revealWizardStep(
+                        index,
+                        index === wizardSteps.length - 1
+                          ? "booking-review-step"
+                          : undefined,
+                      )
+                    }
                     aria-current={
                       index === activeWizardStep ? "step" : undefined
                     }
                     className={cn(
-                      "group min-w-0 cursor-pointer rounded-lg px-1 py-1.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed",
+                      "group min-h-11 min-w-0 cursor-pointer rounded-lg px-0.5 py-1 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed",
                       index === activeWizardStep && "bg-primary/8",
                     )}
                   >
                     <span
                       className={cn(
-                        "mx-auto mb-1 flex size-6 items-center justify-center rounded-full border text-[11px] font-bold transition-colors",
+                        "mx-auto mb-0.5 flex size-5 items-center justify-center rounded-full border text-[10px] font-bold transition-colors",
                         index === activeWizardStep
                           ? "border-primary bg-primary text-primary-foreground"
                           : completed
@@ -1724,9 +1782,9 @@ export default function BookingForm({
                             : "border-border bg-background text-muted-foreground",
                       )}
                     >
-                      {completed ? <Check className="size-3.5" /> : index + 1}
+                      {completed ? <Check className="size-3" /> : index + 1}
                     </span>
-                    <span className="block truncate text-[10px] font-semibold text-muted-foreground sm:text-xs">
+                    <span className="block truncate text-[9px] font-semibold leading-3 text-muted-foreground sm:text-[10px]">
                       {item.label}
                     </span>
                   </button>
@@ -1770,7 +1828,7 @@ export default function BookingForm({
           {!isEmployee && (
             <div
               className={cn(
-                "order-[5] py-1 sm:py-2 transition-all duration-300",
+                "order-[5] transition-all duration-300",
                 activeWizardStep !== 0 && "hidden",
                 isOtpVerified
                   ? "border-l-2 border-primary/30 pl-3"
@@ -1778,25 +1836,25 @@ export default function BookingForm({
               )}
             >
               {/* Header */}
-              <div className="flex items-center gap-2.5 mb-4">
+              <div className="mb-2 flex items-center gap-2">
                 <div
                   className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition-all duration-300",
+                    "flex size-7 shrink-0 items-center justify-center rounded-full transition-all duration-300",
                     isOtpVerified ? "bg-primary/15" : "bg-primary/10",
                   )}
                 >
                   <ShieldCheck
                     className={cn(
-                      "h-4 w-4",
+                      "size-3.5",
                       isOtpVerified ? "text-primary" : "text-primary",
                     )}
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base tracking-tight leading-none">
+                  <h3 className="text-sm font-semibold leading-none tracking-tight">
                     {isOtpVerified ? "Identity Verified" : "Verify Your Number"}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
                     {isOtpVerified
                       ? "One-time verification complete"
                       : "Required to confirm your booking"}
@@ -1855,18 +1913,12 @@ export default function BookingForm({
                       Change
                     </button>
                   </div>
-                  {otpCustomerName && (
-                    <p className="text-xs text-primary font-medium pl-0.5">
-                      Welcome back, {otpCustomerName.split(" ")[0]}! Your
-                      details have been pre-filled below.
-                    </p>
-                  )}
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {!otpTier && (
                     <>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-xs leading-5 text-muted-foreground">
                         Enter your mobile number to receive a verification code.
                       </p>
                       <div className="flex gap-2">
@@ -1918,8 +1970,8 @@ export default function BookingForm({
                   )}
 
                   {otpTier && otpTier !== "RESTRICTED" && (
-                    <div className="space-y-3 animate-in fade-in duration-200">
-                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 border px-3 py-2">
+                    <div className="space-y-2 animate-in fade-in duration-200">
+                      <div className="flex min-h-9 items-center gap-2 rounded-lg border bg-muted/40 px-3 py-1.5">
                         <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span className="text-sm text-muted-foreground">
                           Sending to{" "}
@@ -1948,8 +2000,8 @@ export default function BookingForm({
                           )}
                         </Button>
                       ) : (
-                        <div className="space-y-2.5">
-                          <p className="text-xs text-muted-foreground">
+                        <div className="space-y-1.5">
+                          <p className="text-[11px] leading-4 text-muted-foreground">
                             Enter the 6-digit code we sent you:
                           </p>
                           <div className="flex gap-2">
@@ -1966,13 +2018,13 @@ export default function BookingForm({
                                 e.key === "Enter" && handleVerifyOtp()
                               }
                               placeholder="· · · · · ·"
-                              className="flex h-12 w-full rounded-lg border border-input bg-background px-4 py-2 text-center text-lg tracking-[0.5em] font-mono ring-offset-background placeholder:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
+                              className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-center font-mono text-base tracking-[0.35em] ring-offset-background placeholder:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring touch-manipulation"
                             />
                             <Button
                               type="button"
                               onClick={handleVerifyOtp}
                               disabled={otpCode.length < 6 || isVerifyingOtp}
-                              className="h-12 px-5 shrink-0 cursor-pointer"
+                              className="h-11 shrink-0 cursor-pointer px-4"
                             >
                               {isVerifyingOtp ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -2028,16 +2080,6 @@ export default function BookingForm({
                   </span>
                 )}
               </div>
-
-              {!isEmployee && otpPrefilled && (
-                <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                  <p className="text-xs text-primary/80 leading-relaxed">
-                    We pre-filled your details from a previous booking. Feel
-                    free to update anything that&apos;s changed.
-                  </p>
-                </div>
-              )}
 
               {isEmployee ? (
                 // Staff path: single CustomerPicker handles all three modes
@@ -2459,7 +2501,7 @@ export default function BookingForm({
               render={() => (
                 <FormItem>
                   <FormControl>
-                    <ServiceSelect
+                    <ServicePicker
                       form={form}
                       services={services}
                       packages={packages}
@@ -2668,70 +2710,258 @@ export default function BookingForm({
 
           {canReviewAndConfirm && (
             <div
+              id="booking-review-step"
               className={cn(
-                "order-[60] space-y-4 py-1 animate-in fade-in duration-200 sm:py-2",
+                "order-[60] scroll-mt-[calc(var(--bf-header-h,0px)+10rem)] space-y-3 py-1 animate-in fade-in duration-200 sm:py-2",
                 activeWizardStep !== wizardSteps.length - 1 && "hidden",
               )}
             >
-              <StepHeader
-                step={isEmployee ? 4 : 5}
-                eyebrow="Confirm"
-                title="Review & confirm"
-                icon={ShieldCheck}
+              <BookingCheckoutReview
+                key={activeWizardStep}
+                serviceCount={totalSelectedServiceUnits}
+                schedule={scheduleSummary}
+                staff={selectedEmployeeName || "Any available staff"}
+                customer={customerNameValue || "Customer details"}
+                contact={
+                  [customerPhoneInput?.trim() || otpPhone.trim(), customerEmailInput?.trim()]
+                    .filter(Boolean)
+                    .join(" · ") ||
+                  (pickerValue?.mode === "anonymous"
+                    ? "Anonymous walk-in"
+                    : "No contact details")
+                }
+                onEdit={(target) =>
+                  revealWizardStep(
+                    target === "services"
+                      ? isEmployee
+                        ? 0
+                        : 1
+                      : target === "schedule"
+                        ? isEmployee
+                          ? 1
+                          : 2
+                        : isEmployee
+                          ? 2
+                          : 3,
+                  )
+                }
+                servicesContent={
+                  <SelectedServiceList form={form} services={selectedServices} />
+                }
+                paymentControls={
+                  <div className="space-y-3">
+                    {isEmployee && (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name="paymentMethod"
+                          render={({ field }) => (
+                            <FormItem className="space-y-1">
+                              <FormLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                                Payment
+                              </FormLabel>
+                              <FormControl>
+                                <SegmentedToggle options={paymentMethodOptions} value={field.value} onChange={field.onChange} className="w-full" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="paymentType"
+                          render={({ field }) => (
+                            <FormItem className="space-y-1">
+                              <FormLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                                Amount
+                              </FormLabel>
+                              <FormControl>
+                                <SegmentedToggle options={paymentTypeOptions} value={field.value} onChange={field.onChange} className="w-full" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </>
+                    )}
+                    {hasActivePromos && (
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                          Voucher
+                        </label>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Code"
+                            value={voucherCode}
+                            onChange={(event) =>
+                              setVoucherCode(event.target.value.toUpperCase())
+                            }
+                            disabled={
+                              !!appliedVoucher ||
+                              isVerifyingVoucher ||
+                              !hasReviewedDetails
+                            }
+                            className="h-9 uppercase"
+                          />
+                          {appliedVoucher ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={clearVoucher}
+                              className="size-9 shrink-0"
+                            >
+                              <X className="size-3.5" />
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              onClick={handleVerifyVoucher}
+                              disabled={
+                                isVerifyingVoucher ||
+                                !voucherCode.trim() ||
+                                !hasReviewedDetails
+                              }
+                              className="h-9 shrink-0 px-3 text-xs"
+                            >
+                              {isVerifyingVoucher ? "…" : "Apply"}
+                            </Button>
+                          )}
+                        </div>
+                        {voucherError && (
+                          <p className="text-xs text-destructive">{voucherError}</p>
+                        )}
+                        {appliedVoucher && (
+                          <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                            <Ticket className="size-3.5" />
+                            {appliedVoucher.code} · −₱
+                            {appliedVoucher.discountAmount.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                }
+                subtotal={total}
+                discount={voucherDiscountAmount}
+                balance={
+                  paymentType === "DOWNPAYMENT"
+                    ? finalTotal - finalAmountToPay
+                    : undefined
+                }
+                dueNow={totalWithFee}
+                totalLabel={paymentType === "DOWNPAYMENT" ? "Due now" : "Total"}
+                action={
+                  <Button
+                    disabled={isSubmitDisabled || isCheckingDuplicate}
+                    type="submit"
+                    className="hidden h-11 w-full font-semibold lg:flex"
+                  >
+                    {isPending || isCheckingDuplicate
+                      ? "Processing..."
+                      : paymentMethod === "CASH"
+                        ? "Confirm Booking"
+                        : "Reserve & Pay"}
+                  </Button>
+                }
+                confirmation={
+                  <div
+                    ref={reviewConfirmationRef}
+                    className={cn(
+                      "scroll-mb-28 scroll-mt-28 rounded-lg border transition-colors",
+                      hasReviewedDetails
+                        ? "border-primary/40 bg-primary/[0.04]"
+                        : showReviewGuidance
+                          ? "border-amber-500 bg-amber-50 ring-2 ring-amber-500/15"
+                          : "border-border",
+                    )}
+                  >
+                    <label
+                      htmlFor="confirm-booking-details"
+                      className="flex min-h-12 cursor-pointer items-center gap-2.5 px-3 py-2"
+                    >
+                      <Checkbox
+                        id="confirm-booking-details"
+                        checked={hasReviewedDetails}
+                        onCheckedChange={(checked) => {
+                          const confirmed = checked === true;
+                          setHasReviewedDetails(confirmed);
+                          if (confirmed) setShowReviewGuidance(false);
+                        }}
+                        aria-describedby="confirm-booking-help"
+                        className="size-5 shrink-0"
+                      />
+                      <span>
+                        <span className="block text-xs font-semibold">Details are correct</span>
+                        <span id="confirm-booking-help" className="block text-[10px] text-muted-foreground">
+                          Ready to submit
+                        </span>
+                      </span>
+                    </label>
+                    {showReviewGuidance && !hasReviewedDetails && (
+                      <p className="border-t border-amber-300 px-3 py-2 text-xs text-amber-900" role="alert">
+                        Confirm these details to continue.
+                      </p>
+                    )}
+                  </div>
+                }
               />
 
-              <div className="rounded-xl border bg-muted/30 p-3 text-sm space-y-2">
-                <p>
-                  <span className="font-semibold">Booking type:</span>{" "}
-                  {effectiveIsWalkIn ? "Walk-in / Immediate" : "Scheduled"}
-                </p>
-                {!effectiveIsWalkIn && selectedDate && (
-                  <p>
-                    <span className="font-semibold">Date:</span>{" "}
-                    {format(selectedDate, "EEEE, MMMM d, yyyy")}
-                  </p>
-                )}
-                {!effectiveIsWalkIn && selectedTime && (
-                  <p>
-                    <span className="font-semibold">Time:</span>{" "}
-                    {selectedTime.toLocaleTimeString("en-US", {
-                      timeZone: "Asia/Manila",
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
-                  </p>
-                )}
-                <p>
-                  <span className="font-semibold">Services:</span>{" "}
-                  {totalSelectedServiceUnits} selected
-                </p>
-                {!isEmployee && (
-                  <p>
-                    <span className="font-semibold">Preferred staff:</span>{" "}
-                    {selectedEmployeeName || "Any available"}
-                  </p>
-                )}
-                {claimStepEnabled && (
-                  <p>
-                    <span className="font-semibold">Claimed services:</span>{" "}
-                    {claimedUniqueIds.length}
-                  </p>
-                )}
-                {isEmployee && selectedEmployeeId && (
-                  <p>
-                    <span className="font-semibold">Staff requirement:</span>{" "}
-                    {requireSelectedStaff
-                      ? "Required selected staff"
-                      : "Prefer selected staff"}
-                  </p>
-                )}
-                {showCapacityOverrideForm && capacityOverrideReason && (
-                  <p className="text-amber-700">
-                    <span className="font-semibold">Capacity override:</span>{" "}
-                    {capacityOverrideReason.replaceAll("_", " ")}
-                  </p>
-                )}
+              <div className="hidden overflow-hidden rounded-xl border border-border bg-card">
+                <div className="flex min-h-10 items-center justify-between border-b bg-muted/25 px-3 py-2">
+                  <p className="text-sm font-semibold">Booking details</p>
+                  <Badge variant="secondary" className="h-5 px-2 text-[10px]">{totalSelectedServiceUnits} selected</Badge>
+                </div>
+
+                <div className="divide-y divide-border/70">
+                  <section className="px-3 py-2" aria-labelledby="review-services-heading">
+                    <div className="flex min-h-9 items-center justify-between gap-3">
+                      <h4 id="review-services-heading" className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Services</h4>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => revealWizardStep(isEmployee ? 0 : 1)} aria-label="Edit services" title="Edit services" className="-mr-2 size-11 cursor-pointer text-muted-foreground hover:text-foreground"><Pencil className="size-3.5" /></Button>
+                    </div>
+                    <ul className="space-y-1">
+                      {selectedServices.map((service, index) => (
+                        <li key={`${service.id}-${service.packageId ?? "service"}-${index}`} className="flex items-start justify-between gap-3 text-xs leading-5">
+                          <span className="min-w-0 truncate font-medium">{service.name}<span className="ml-1 text-muted-foreground">×{service.quantity || 1}</span></span>
+                          <span className="shrink-0 tabular-nums">₱{((service.price || 0) * (service.quantity || 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  <section className="px-3 py-2" aria-labelledby="review-schedule-heading">
+                    <div className="flex min-h-11 items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <h4 id="review-schedule-heading" className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Schedule</h4>
+                        <p className="mt-0.5 truncate text-xs font-medium">{effectiveIsWalkIn ? "Walk-in · now" : selectedDate && selectedTime ? `${format(selectedDate, "EEE, MMM d, yyyy")} · ${selectedTime.toLocaleTimeString("en-US", { timeZone: "Asia/Manila", hour: "numeric", minute: "2-digit", hour12: true })}` : "Not selected"}</p>
+                        <p className="truncate text-[11px] text-muted-foreground">{selectedEmployeeName || "Any available staff"}</p>
+                      </div>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => revealWizardStep(isEmployee ? 1 : 2)} aria-label="Edit schedule" title="Edit schedule" className="-mr-2 size-11 cursor-pointer text-muted-foreground hover:text-foreground"><Pencil className="size-3.5" /></Button>
+                    </div>
+                  </section>
+
+                  <section className="px-3 py-2" aria-labelledby="review-customer-heading">
+                    <div className="flex min-h-11 items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <h4 id="review-customer-heading" className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Customer</h4>
+                        <p className="mt-0.5 truncate text-xs font-medium">{customerNameValue || "Customer details"}</p>
+                        <p className="truncate text-[11px] text-muted-foreground">{[customerPhoneInput?.trim() || otpPhone.trim(), customerEmailInput?.trim()].filter(Boolean).join(" · ") || (pickerValue?.mode === "anonymous" ? "Anonymous walk-in" : "No contact details")}</p>
+                      </div>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => revealWizardStep(isEmployee ? 2 : 3)} aria-label="Edit customer details" title="Edit customer details" className="-mr-2 size-11 cursor-pointer text-muted-foreground hover:text-foreground"><Pencil className="size-3.5" /></Button>
+                    </div>
+                  </section>
+
+                  <section className="flex items-center justify-between gap-4 bg-muted/30 px-3 py-2.5" aria-label="Payment summary">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{paymentType === "DOWNPAYMENT" ? "Due now" : "Total"}</p>
+                      <p className="text-[11px] text-muted-foreground">{paymentMethod === "CASH" ? "Cash" : "Online"}</p>
+                    </div>
+                    <p className="text-xl font-bold tabular-nums text-primary">₱{totalWithFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </section>
+                </div>
               </div>
 
               {isEmployee && selectedEmployeeId && (
@@ -2796,28 +3026,38 @@ export default function BookingForm({
                 </div>
               )}
 
-              <div className="flex items-start gap-3 rounded-xl border p-3">
-                <Checkbox
-                  id="confirm-booking-details"
-                  checked={hasReviewedDetails}
-                  onCheckedChange={(checked) =>
-                    setHasReviewedDetails(checked === true)
-                  }
-                  className="mt-0.5"
-                />
-                <label
-                  htmlFor="confirm-booking-details"
-                  className="text-sm leading-relaxed cursor-pointer"
-                >
-                  I reviewed the booking details and confirm they are correct.
+              <div
+                className={cn(
+                  "hidden scroll-mb-28 scroll-mt-28 rounded-2xl border-2 bg-card transition-colors duration-200 motion-reduce:transition-none",
+                  hasReviewedDetails
+                    ? "border-primary bg-primary/[0.05]"
+                    : showReviewGuidance
+                      ? "border-amber-500 bg-amber-50 ring-4 ring-amber-500/15"
+                      : "border-primary/35 bg-primary/[0.03]",
+                )}
+              >
+                <label htmlFor="legacy-confirm-booking-details" className="flex min-h-14 cursor-pointer items-start gap-2.5 p-3">
+                  <Checkbox
+                    id="legacy-confirm-booking-details"
+                    checked={hasReviewedDetails}
+                    onCheckedChange={(checked) => {
+                      const confirmed = checked === true;
+                      setHasReviewedDetails(confirmed);
+                      if (confirmed) setShowReviewGuidance(false);
+                    }}
+                    aria-describedby="confirm-booking-help"
+                    className="mt-0.5 size-5 shrink-0 focus-visible:ring-4 focus-visible:ring-primary/30"
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold leading-5">Details are correct</span>
+                    <span id="confirm-booking-help" className="block text-xs leading-4 text-muted-foreground">Services, schedule, customer, and payment confirmed.</span>
+                  </span>
                 </label>
+                {showReviewGuidance && !hasReviewedDetails && (
+                  <p className="border-t border-amber-300 px-4 py-3 text-sm font-medium text-amber-900" role="alert">Check this box to continue with your booking.</p>
+                )}
               </div>
-
-              {!hasReviewedDetails && (
-                <p className="text-xs text-muted-foreground">
-                  Confirm the review above to unlock final submission.
-                </p>
-              )}
+              <p className="sr-only" aria-live="polite">{showReviewGuidance && !hasReviewedDetails ? "Review confirmation is required before booking." : hasReviewedDetails ? "Booking details confirmed. Final submission is ready." : ""}</p>
             </div>
           )}
 
@@ -2865,10 +3105,11 @@ export default function BookingForm({
           </div>
         </div>
 
-        <div className="w-full lg:w-[320px] xl:w-[360px] lg:shrink-0">
-          <div className="space-y-4 lg:sticky lg:top-[calc(var(--bf-header-h,0px)+1rem)] lg:self-start">
-            <div className="rounded-3xl border border-black/[0.06] bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-16px_rgba(0,0,0,0.06)] overflow-hidden lg:flex lg:flex-col lg:max-h-[calc(100dvh-var(--bf-header-h,0px)-2rem)]">
-              <div className="border-b border-black/[0.06] px-5 py-4 lg:shrink-0">
+        {!isLastWizardStep && (
+        <aside className="w-full lg:w-[320px] lg:shrink-0 xl:w-[360px]" aria-label="Booking summary">
+          <div className="lg:sticky lg:top-[calc(var(--bf-header-h,0px)+1rem)] lg:self-start">
+            <div className="border-y border-border/70 bg-transparent lg:flex lg:max-h-[calc(100dvh-var(--bf-header-h,0px)-2rem)] lg:flex-col lg:overflow-hidden lg:rounded-2xl lg:border lg:bg-card lg:shadow-sm">
+              <div className="border-b border-border/70 py-3 lg:shrink-0 lg:px-4">
                 <div className="flex items-center justify-between text-base">
                   <span className="font-bold">Booking Summary</span>
                   {selectedServices.length > 0 && (
@@ -2883,8 +3124,8 @@ export default function BookingForm({
                 </div>
               </div>
 
-              <div className="space-y-5 px-4 py-4 sm:py-5 lg:flex-1 lg:overflow-y-auto lg:min-h-0">
-                <div className="max-h-[220px] overflow-y-auto pr-1 -mr-2 sm:max-h-[300px] lg:max-h-none lg:overflow-visible lg:pr-0 lg:-mr-0">
+              <div className="space-y-4 py-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:px-4 lg:py-4">
+                <div className="max-h-[180px] overflow-y-auto pr-1 sm:max-h-[240px] lg:max-h-none lg:overflow-visible lg:pr-0">
                   <SelectedServiceList
                     form={form}
                     services={selectedServices}
@@ -2892,7 +3133,7 @@ export default function BookingForm({
                 </div>
 
                 {selectedServices.length > 0 && (
-                  <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
+                  <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
                     {selectedServices.some(
                       (s) =>
                         s.slotsRemaining !== null &&
@@ -2910,18 +3151,12 @@ export default function BookingForm({
                     )}
 
                     {canReviewAndConfirm && isLastWizardStep && (
-                      <div className="space-y-4 pt-1 border-t border-border/60">
-                        {!hasReviewedDetails && (
-                          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 mt-4">
-                            Review and confirm the booking details to unlock
-                            payment.
-                          </div>
-                        )}
+                      <div className="space-y-3 border-t border-border/60 pt-3">
                         <FormField
                           control={form.control}
                           name="paymentMethod"
                           render={({ field }) => (
-                            <FormItem className="space-y-1.5 mt-4">
+                            <FormItem className="space-y-1.5">
                               <FormLabel className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                                 Payment Method
                               </FormLabel>
@@ -2940,11 +3175,11 @@ export default function BookingForm({
 
                         {!isEmployee &&
                           (gcash?.accountName && gcash.mobileNumber ? (
-                            <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] p-4">
-                              <div className="space-y-4">
+                            <div className="border-y border-primary/15 bg-primary/[0.035] py-3 lg:rounded-xl lg:border lg:p-3">
+                              <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] items-start gap-3 lg:grid-cols-1">
                                 {gcash.qrImageUrl ? (
-                                  <div className="mx-auto w-full max-w-[240px] space-y-2.5">
-                                    <div className="overflow-hidden rounded-2xl border border-border/70 bg-white p-3 shadow-sm">
+                                  <div className="w-full space-y-2 lg:mx-auto lg:max-w-[180px]">
+                                    <div className="overflow-hidden rounded-xl border border-border/70 bg-white p-2">
                                       <Image
                                         src={gcash.qrImageUrl}
                                         alt={`GCash QR code for ${gcash.accountName}`}
@@ -2958,41 +3193,35 @@ export default function BookingForm({
                                       asChild
                                       type="button"
                                       variant="outline"
-                                      className="h-10 w-full rounded-xl bg-white"
+                                      className="h-9 w-full rounded-lg bg-white px-2 text-xs"
                                     >
                                       <a
                                         href={`/api/public/gcash-qr?businessSlug=${encodeURIComponent(businessSlug)}`}
                                         download
                                       >
-                                        <Download className="mr-2 size-4" />
-                                        Download QR
+                                        <Download className="mr-1.5 size-3.5" />
+                                        Save QR
                                       </a>
                                     </Button>
                                   </div>
                                 ) : null}
-                                <div className="min-w-0 space-y-2">
-                                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                                <div className="min-w-0 space-y-2 pt-0.5">
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
                                     20% GCash deposit
                                   </p>
                                   <div>
-                                    <p className="font-semibold text-foreground">
+                                    <p className="text-sm font-semibold text-foreground">
                                       {gcash.accountName}
                                     </p>
-                                    <p className="font-mono text-sm text-muted-foreground">
+                                    <p className="font-mono text-xs text-muted-foreground">
                                       {gcash.mobileNumber}
                                     </p>
                                   </div>
                                   {gcash.instructions ? (
-                                    <p className="text-xs leading-relaxed text-muted-foreground">
+                                    <p className="text-xs leading-5 text-muted-foreground">
                                       {gcash.instructions}
                                     </p>
                                   ) : null}
-                                </div>
-                                <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900">
-                                  Do not send payment yet. Select{" "}
-                                  <strong>Reserve &amp; Pay</strong> first to
-                                  hold your slot and start the 30-minute payment
-                                  timer.
                                 </div>
                               </div>
                             </div>
@@ -3101,7 +3330,7 @@ export default function BookingForm({
                       </div>
                     )}
 
-                    <div className="space-y-2 pt-4 border-t border-border/60">
+                    <div className="space-y-2 border-t border-border/60 pt-3">
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span className="font-medium tabular-nums">
@@ -3181,7 +3410,8 @@ export default function BookingForm({
               </div>
             </div>
           </div>
-        </div>
+        </aside>
+        )}
 
         <div
           className={cn(
@@ -3220,13 +3450,20 @@ export default function BookingForm({
             </div>
             {isLastWizardStep ? (
               <Button
-                disabled={isSubmitDisabled || isCheckingDuplicate}
-                type="submit"
+                disabled={
+                  isSubmissionBlockedBeforeReview || isCheckingDuplicate
+                }
+                type={hasReviewedDetails ? "submit" : "button"}
+                onClick={
+                  hasReviewedDetails ? undefined : guideToReviewConfirmation
+                }
                 size="lg"
                 className="h-11 flex-1 font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]"
               >
                 {isPending || isCheckingDuplicate
                   ? "Processing..."
+                  : !hasReviewedDetails
+                    ? "Review & confirm"
                   : paymentMethod === "CASH"
                     ? "Confirm Booking"
                     : "Reserve & Pay"}

@@ -138,7 +138,7 @@ function AvailabilityLabel({
   selected: boolean;
 }) {
   // Portal eyebrow type scale — matches PortalCardHeader (10px / 0.18em).
-  const base = "text-[10px] font-semibold uppercase tracking-[0.18em] tabular-nums";
+  const base = "text-[9px] font-semibold uppercase tracking-[0.1em] tabular-nums";
   if (count <= 1) {
     return (
       <span className={cn(base, selected ? "text-primary-foreground/85" : "text-amber-600")}>
@@ -184,9 +184,7 @@ function SlotButton({
       disabled={!slot.available}
       onClick={() => onChange(slot.startTime)}
       className={cn(
-        // Portal language: rounded-2xl + hairline border + soft layered shadow on select.
-        // min-h-[52px] satisfies 44px touch target requirement with padding.
-        "h-auto min-h-[52px] rounded-2xl px-2 py-2.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer",
+        "h-11 min-h-11 rounded-xl px-3 py-1.5 flex items-center justify-between gap-2 transition-colors duration-150 cursor-pointer",
         !slot.available && "opacity-40 cursor-not-allowed bg-muted/50 border-black/[0.04]",
         isSelected
           ? "bg-primary text-primary-foreground border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-16px_color-mix(in_oklch,var(--primary)_60%,transparent)]"
@@ -196,14 +194,14 @@ function SlotButton({
     >
       <span
         className={cn(
-          "font-semibold text-sm tracking-[-0.01em] tabular-nums",
+          "whitespace-nowrap text-xs font-semibold tracking-[-0.01em] tabular-nums sm:text-sm",
           isSelected ? "text-primary-foreground" : "text-foreground",
         )}
       >
         {formatSlotTime(slot.startTime, timezone)}
       </span>
       {slot.available && (
-        <span className="flex items-center gap-1">
+        <span className="flex shrink-0 items-center gap-1">
           <AvailabilityDot level={level} selected={isSelected} />
           <AvailabilityLabel
             count={slot.availableEmployeeCount}
@@ -235,18 +233,18 @@ function PeriodGroup({
   const availableCount = slots.filter((s) => s.available).length;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* Period header — mirrors PortalCardHeader recipe (icon chip + eyebrow + count pill).
           Kept flat (no extra card chrome) since this lives inside a PortalCard already. */}
-      <div className="flex items-center gap-3">
-        <span className="grid size-7 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
-          <Icon className="size-3.5" />
+      <div className="flex min-h-7 items-center gap-2">
+        <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground ring-1 ring-inset ring-border">
+          <Icon className="size-3" />
         </span>
-        <div className="min-w-0 leading-tight">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <div className="flex min-w-0 items-baseline gap-2 leading-tight">
+          <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">{label}</p>
+          <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             {hours}
           </p>
-          <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">{label}</p>
         </div>
         {/* Per-period count pill is staff-only by default — leaks scheduling
             pressure to anyone scraping the public page. The "Full" state is
@@ -269,7 +267,7 @@ function PeriodGroup({
       </div>
 
       {/* Slot grid */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4">
         {slots.map((slot) => (
           <SlotButton
             key={slot.startTime.toISOString()}
@@ -319,20 +317,17 @@ export default React.memo(function TimeSlotPicker({
 
   if (isLoading) {
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Loading skeleton mimics period groups in portal chrome */}
         {[5, 4, 3].map((count, gi) => (
-          <div key={gi} className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="size-7 rounded-xl bg-muted animate-pulse" />
-              <div className="space-y-1.5">
-                <div className="h-2.5 w-20 rounded bg-muted animate-pulse" />
-                <div className="h-3 w-16 rounded bg-muted animate-pulse" />
-              </div>
+          <div key={gi} className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="size-6 rounded-lg bg-muted animate-pulse" />
+              <div className="h-3 w-28 rounded bg-muted animate-pulse" />
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="h-[52px] rounded-2xl bg-muted animate-pulse" />
+                <div key={i} className="h-11 rounded-xl bg-muted animate-pulse" />
               ))}
             </div>
           </div>
@@ -393,7 +388,7 @@ export default React.memo(function TimeSlotPicker({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {activePeriods.map((period) => (
         <PeriodGroup
           key={period}
