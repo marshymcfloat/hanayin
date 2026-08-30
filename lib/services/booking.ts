@@ -1,5 +1,6 @@
 import { prisma } from "@/prisma/prisma";
 import { publishEvent } from "./outbox";
+import { getBookingLifecycleEventType } from "./booking-event-policy";
 import { PaymentStatus, Prisma } from "@/prisma/generated/prisma/client";
 import {
   BookingServiceInput,
@@ -15,12 +16,12 @@ import {
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import {
   BookingAvailabilityError,
-  CapacityOverrideInput,
   checkSaleEventSlotLimit,
   resolveStaffSelectionOrThrow,
   StaffSelectionMode,
   validateBookingOrThrow,
 } from "./booking-availability";
+import { isAvailedServiceOverlapViolation } from "./availed-service-overlap";
 
 export type BookingServiceParams = {
   businessSlug: string;
@@ -48,7 +49,6 @@ export type BookingServiceParams = {
   isPublicBooking?: boolean;
   isWalkIn?: boolean;
   staffSelectionMode?: StaffSelectionMode;
-  capacityOverride?: CapacityOverrideInput;
   allowWalkInCapacityBypass?: boolean;
   pricingSnapshot?: Awaited<ReturnType<typeof buildBookingPricingSnapshot>>;
   /**
@@ -120,7 +120,6 @@ export async function createBookingInDb({
   isAnonymousWalkIn = false,
   forceCreateCustomer = false,
   staffSelectionMode = "ANY_AVAILABLE",
-  capacityOverride,
   allowWalkInCapacityBypass = false,
   pricingSnapshot,
 }: BookingServiceParams) {
@@ -171,7 +170,6 @@ export async function createBookingInDb({
               selectedEmployeeId: employeeId ?? undefined,
               staffSelectionMode,
               allowWalkInCapacityBypass,
-              capacityOverride,
               db: tx,
             });
           }
@@ -318,12 +316,8 @@ export async function createBookingInDb({
                 ? new Date(Date.now() + 30 * 60 * 1000)
                 : null,
               capacity_override_applied: allowWalkInCapacityBypass,
-              capacity_override_reason: allowWalkInCapacityBypass
-                ? capacityOverride?.reason || null
-                : null,
-              capacity_override_note: allowWalkInCapacityBypass
-                ? capacityOverride?.note || null
-                : null,
+              capacity_override_reason: null,
+              capacity_override_note: null,
               downpayment: downpaymentAmount,
               availed_services: {
                 create: validatedServices.map((service, index) => {
@@ -411,19 +405,16 @@ export async function createBookingInDb({
             }
           }
 
-          const eventType = isPublicBooking
-            ? "BOOKING_CREATED"
-            : "BOOKING_CONFIRMED";
+          // Creation never confirms a booking for notification purposes.
+          // Customer confirmation is reserved for the owner-approved public
+          // payment transition in manual-gcash.ts.
+          const eventType = getBookingLifecycleEventType("BOOKING_CREATED");
 
           await publishEvent(tx as Prisma.TransactionClient, {
             type: eventType,
             aggregateType: "Booking",
             aggregateId: String(booking.id),
             businessId: business.id,
-            dedupeKey:
-              eventType === "BOOKING_CONFIRMED"
-                ? `BOOKING_CONFIRMED:Booking:${booking.id}`
-                : undefined,
             payload: {
               bookingId: booking.id,
               customerName,
@@ -479,16 +470,4 @@ export async function createBookingInDb({
  * Prisma versions, since 23P01 surfaces as either P2010 or
  * PrismaClientUnknownRequestError depending on the version.
  */
-export function isAvailedServiceOverlapViolation(error: unknown): boolean {
-  if (
-    !(error instanceof Prisma.PrismaClientKnownRequestError) &&
-    !(error instanceof Prisma.PrismaClientUnknownRequestError)
-  ) {
-    return false;
-  }
-  const message = error.message ?? "";
-  return (
-    message.includes("AvailedService_employee_no_overlap_excl") ||
-    message.includes("AvailedService_owner_no_overlap_excl")
-  );
-}
+export { isAvailedServiceOverlapViolation } from "./availed-service-overlap";

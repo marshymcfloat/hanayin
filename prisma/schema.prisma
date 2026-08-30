@@ -575,7 +575,7 @@ model Employee {
   commission_percentage Float                @default(0)
   daily_rate            Float                @default(0)
   profile               StaffProfile         @default(STAFF)
-  permissions           StaffPermission[]    @default([BOOKING_CREATE, PAYMENT_COLLECT, QUEUE_CLAIM_SELF, QUEUE_SERVE_SELF, SOCIAL_POST_REQUEST_CREATE])
+  permissions           StaffPermission[]    @default([BOOKING_CREATE, BOOKING_MODIFY, BOOKING_CANCEL, BOOKING_MARK_NO_SHOW, BOOKING_ADJUST_PRICE, QUEUE_CLAIM_SELF, QUEUE_SERVE_SELF])
   specialties           String[]             @default([]) // Array of service categories this employee can perform
   // Day-of-week values (0=Sunday … 6=Saturday) the employee never
   // works. Captures "Anna doesn't work Sundays" for shops that

@@ -34,17 +34,6 @@ export type StaffSelectionMode =
   | "PREFER_SELECTED"
   | "REQUIRE_SELECTED";
 
-export type CapacityOverrideReason =
-  | "LATE_CUSTOMER"
-  | "VIP"
-  | "MANUAL_EXCEPTION"
-  | "SYSTEM_RECOVERY";
-
-export interface CapacityOverrideInput {
-  reason: CapacityOverrideReason;
-  note?: string;
-}
-
 export interface StaffSelectionResolution {
   assignedEmployeeId: number | null;
   assignmentDowngraded: boolean;
@@ -75,8 +64,6 @@ export type BookingAvailabilityErrorCode =
   | "PREFERRED_STAFF_UNAVAILABLE"
   | "REQUIRED_STAFF_UNAVAILABLE"
   | "WALK_IN_CAPACITY_EXCEEDED"
-  | "CAPACITY_OVERRIDE_NOT_ALLOWED"
-  | "CAPACITY_OVERRIDE_REASON_REQUIRED"
   | "SALE_SLOT_LIMIT_REACHED";
 
 export class BookingAvailabilityError extends Error {
@@ -1042,7 +1029,6 @@ export async function validateBookingOrThrow({
   selectedEmployeeId,
   staffSelectionMode = "ANY_AVAILABLE",
   allowWalkInCapacityBypass = false,
-  capacityOverride,
   now = getCurrentDateTimePH(),
   db = prisma,
 }: {
@@ -1055,20 +1041,10 @@ export async function validateBookingOrThrow({
   selectedEmployeeId?: number;
   staffSelectionMode?: StaffSelectionMode;
   allowWalkInCapacityBypass?: boolean;
-  capacityOverride?: CapacityOverrideInput;
   now?: Date;
   db?: AvailabilityDbClient;
 }) {
   const policy = await getBookingPolicyByBusinessSlug(db, businessSlug);
-  if (isWalkIn && allowWalkInCapacityBypass) {
-    if (!capacityOverride?.reason) {
-      throw new BookingAvailabilityError(
-        "CAPACITY_OVERRIDE_REASON_REQUIRED",
-        "Capacity override reason is required for walk-in bypass.",
-      );
-    }
-  }
-
   if (!isWalkIn) {
     const dayDiff = getHorizonDayDiff(scheduledAt, now);
     if (dayDiff < 0 || dayDiff >= policy.bookingHorizonDays) {

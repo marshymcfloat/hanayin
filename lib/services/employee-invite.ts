@@ -1,7 +1,7 @@
 "use server";
 
 import { formatPH } from "@/lib/date-utils";
-import { sendSemaphorePrioritySms, truncateSms } from "@/lib/services/sms";
+import { sendSemaphorePrioritySms } from "@/lib/services/sms";
 import { getSiteUrl } from "@/lib/site-url";
 
 export async function sendEmployeeInviteSms({
@@ -21,14 +21,12 @@ export async function sendEmployeeInviteSms({
   const firstName = employeeName.trim().split(/\s+/)[0] || employeeName;
   const loginUrl = `${getSiteUrl()}/login`;
 
-  // Login URL goes last so SMS truncation never eats the credentials.
-  // truncateSms caps at 160 chars to stay inside one segment; if the
-  // URL pushes us over the message still contains the password.
-  const message = truncateSms(
+  // Keep the complete URL and password. Semaphore can deliver a
+  // concatenated SMS when the business name makes this exceed one segment.
+  const message =
     `Hi ${firstName}, you're added to ${businessName} on ServiceFlow. ` +
-      `Temp password: ${tempPassword}. ` +
-      `Sign in at ${loginUrl} before ${expiry}.`,
-  );
+    `Sign in: ${loginUrl} Temp password: ${tempPassword}. ` +
+    `Expires ${expiry}.`;
 
   const result = await sendSemaphorePrioritySms(to, message);
 

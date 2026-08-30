@@ -202,7 +202,18 @@ export default function OwnerServiceQueue({
       revealPendingId(serviceId);
       setPendingCache(previousPending);
       setClaimedCache(previousClaimed);
-      toast.error(result.error || "Unable to claim service");
+      if ("code" in result && result.code === "SCHEDULE_CONFLICT") {
+        const description =
+          "conflict" in result && result.conflict
+            ? `You already have ${result.conflict.serviceName} scheduled at ${formatPH(result.conflict.scheduledAt, "h:mm a")}. Finish, unclaim, reschedule, or reassign it first.`
+            : result.error;
+        toast.error("Schedule conflict", { description });
+        await refreshLists();
+      } else {
+        toast.error("Unable to claim service", {
+          description: result.error || "Please try again.",
+        });
+      }
     }
   };
 

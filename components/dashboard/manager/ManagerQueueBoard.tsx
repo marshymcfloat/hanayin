@@ -17,6 +17,7 @@ import {
   QueueEmployee,
 } from "./ManagerQueueCard";
 import { AvailedServiceStatus } from "@/prisma/generated/prisma/enums";
+import { formatPH } from "@/lib/date-utils";
 
 // Re-export types for compatibility if needed elsewhere, mapped to the new component types
 export type ManagerQueueService = QueueService;
@@ -114,7 +115,24 @@ export default function ManagerQueueBoard({
     try {
       const result = await claimServiceAction(service.id, assigneeId);
       if (!result.success) {
-        toast.error(result.error || "Unable to assign service.");
+        if ("code" in result && result.code === "SCHEDULE_CONFLICT") {
+          const conflict =
+            "conflict" in result
+              ? (result.conflict as
+                  | { serviceName: string; scheduledAt: string }
+                  | undefined)
+              : undefined;
+          const description =
+            conflict
+              ? `${conflict.serviceName} is already scheduled at ${formatPH(conflict.scheduledAt, "h:mm a")} for this employee. Finish, unclaim, reschedule, or reassign it first.`
+              : result.error;
+          toast.error("Schedule conflict", { description });
+          await invalidateQueueQueries();
+          return;
+        }
+        toast.error("Unable to assign service", {
+          description: result.error || "Please try again.",
+        });
         return;
       }
 

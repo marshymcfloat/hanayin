@@ -4,7 +4,13 @@ import { formatPH } from "@/lib/date-utils";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Inbox, Clock as ClockIcon, RefreshCcw } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Inbox,
+  Clock as ClockIcon,
+  RefreshCcw,
+} from "lucide-react";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import {
   Dialog,
@@ -16,10 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  claimServiceAction,
-  getPendingServicesAction,
-} from "@/lib/server actions/dashboard";
+import { toast } from "sonner";
+import { claimServiceAction, getPendingServicesAction } from "@/lib/server actions/dashboard";
 import {
   getEmployeeSpecialtySet,
   isCategoryAllowedForEmployee,
@@ -29,66 +33,46 @@ import {
   getApplicableDiscount,
   type SaleEventForPricing,
 } from "@/lib/utils/pricing";
+import type { EmployeeServiceWorkItem } from "./service-work-state";
 
-export interface PendingService {
-  id: number;
-  service: {
-    id: number; // Ensure ID is present
-    name: string;
-    duration: number | null;
-    category: string;
-  };
-  booking: {
-    customer: {
-      name: string;
-    } | null;
-    is_anonymous_walk_in?: boolean | null;
-    customer_label?: string | null;
-    scheduled_at?: Date | null;
-    created_at?: Date | null;
-    downpayment: number | null;
-    downpayment_status: string | null;
-    grand_total: number;
-    amount_paid: number;
-    payment_status: "UNPAID" | "PARTIALLY_PAID" | "PAID";
-  };
-  scheduled_at: Date | null;
-  price: number;
-  package_id: number | null;
-  package: {
-    name: string;
-  } | null;
-}
+export type PendingService = EmployeeServiceWorkItem;
 
 export default function PendingServicesList({
   services: initialServices,
-  businessSlug,
+  businessSlug = "",
   currentEmployeeId,
   employeeSpecialties,
   saleEvents = [],
   canClaimServices = true,
   showRefresh = true,
+  onClaim,
+  onClaimed,
+  pendingActionIds = new Set<number>(),
 }: {
   services: PendingService[];
-  businessSlug: string;
-  currentEmployeeId: number;
+  businessSlug?: string;
+  currentEmployeeId?: number;
   employeeSpecialties?: string[];
   saleEvents?: SaleEventForPricing[];
   canClaimServices?: boolean;
   showRefresh?: boolean;
+  onClaim?: (service: PendingService) => Promise<void>;
+  onClaimed?: () => void;
+  pendingActionIds?: ReadonlySet<number>;
 }) {
   const [selectedService, setSelectedService] = useState<PendingService | null>(
     null,
   );
-  const [isClaiming, setIsClaiming] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const { data: services = [], refetch } = useQuery({
+  const { data: legacyServices = initialServices, refetch } = useQuery<PendingService[]>({
     queryKey: ["pending-services", businessSlug],
-    queryFn: () => getPendingServicesAction(),
+    queryFn: async () =>
+      (await getPendingServicesAction()) as unknown as PendingService[],
     initialData: initialServices,
-    refetchInterval: 5000,
+    enabled: !onClaim && !!businessSlug,
+    refetchInterval: onClaim ? false : 5_000,
   });
+  const services = onClaim ? initialServices : legacyServices;
 
   const employeeSpecialtySet = useMemo(
     () => getEmployeeSpecialtySet(employeeSpecialties),
@@ -106,6 +90,25 @@ export default function PendingServicesList({
   const getDisplayScheduledAt = (item: PendingService) =>
     item.booking.scheduled_at ?? item.booking.created_at ?? item.scheduled_at;
 
+  const handleClaim = async () => {
+    if (!canClaimServices) return;
+    if (!selectedService) return;
+    const service = selectedService;
+    setSelectedService(null);
+    if (onClaim) {
+      await onClaim(service);
+      return;
+    }
+    if (!currentEmployeeId) return;
+    const result = await claimServiceAction(service.id, currentEmployeeId);
+    if (result.success) {
+      onClaimed?.();
+    } else {
+      toast.error("Unable to claim service", { description: result.error });
+    }
+    await refetch();
+  };
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
@@ -115,43 +118,17 @@ export default function PendingServicesList({
     }
   };
 
-  const handleClaim = async () => {
-    if (!canClaimServices) {
-      return;
-    }
-    if (!selectedService) return;
-    setIsClaiming(true);
-    const result = await claimServiceAction(
-      selectedService.id,
-      currentEmployeeId,
-    );
-    setIsClaiming(false);
-
-    if (result.success) {
-      setSelectedService(null);
-    } else {
-      alert(result.error);
-    }
-  };
-
   return (
     <>
       <div className="flex h-full flex-col">
-        <div className="mb-2 flex justify-end">
-        {showRefresh ? <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="h-8 gap-2 rounded-full border-black/[0.08] bg-transparent text-xs font-medium hover:bg-primary/[0.04] hover:text-primary cursor-pointer"
-          >
-            <RefreshCcw
-              className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-            Refresh
-        </Button> : null}
-        </div>
-
+        {showRefresh ? (
+          <div className="mb-2 flex justify-end">
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+              <RefreshCcw className={cn("mr-2 size-3.5", isRefreshing && "animate-spin")} />
+              Refresh
+            </Button>
+          </div>
+        ) : null}
         {visibleServices.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center py-12 text-center space-y-3">
             <div className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
@@ -265,88 +242,85 @@ export default function PendingServicesList({
         open={!!selectedService}
         onOpenChange={(open) => !open && setSelectedService(null)}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Claim Service</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to claim this service?
-              <br />
-              <strong>{selectedService?.service.name}</strong> for{" "}
+        <DialogContent className="gap-0 overflow-hidden rounded-2xl border-primary/15 p-0 shadow-2xl sm:max-w-sm">
+          <div className="h-1 bg-primary" aria-hidden="true" />
+          <DialogHeader className="items-center gap-1.5 px-10 pb-5 pt-5 text-center sm:text-center">
+            <DialogTitle className="text-lg">Claim Service</DialogTitle>
+            <DialogDescription className="max-w-[16rem] leading-5">
+              <span className="font-semibold text-foreground">
+                {selectedService?.service.name}
+              </span>{" "}
+              for{" "}
               {selectedService
                 ? getBookingCustomerName(selectedService.booking)
                 : ""}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4 space-y-4">
-            <p className="text-sm text-muted-foreground">
-              By claiming this service, you will be assigned as the staff member
-              responsible for it. You can mark it as served later.
-            </p>
-
+          <div className="px-5 pb-5">
             {selectedService && (
-              <div className="border-t pt-4 space-y-2">
-                <h4 className="text-sm font-semibold text-slate-900">
-                  Payment Status
-                </h4>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Amount:</span>
-                    <span className="font-medium">
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-center gap-3">
+                  <h4 className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    Payment
+                  </h4>
+                  <div className="h-px flex-1 bg-border" aria-hidden="true" />
+                </div>
+                <div className="space-y-2.5 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">Total amount</span>
+                    <span className="font-semibold tabular-nums">
                       {formatCurrency(selectedService.booking.grand_total)}
                     </span>
                   </div>
                   {selectedService.booking.payment_status !== "PAID" ? (
                     <>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Paid:
-                        </span>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-muted-foreground">Paid</span>
                         <span className="font-medium text-primary tabular-nums">
                           {formatCurrency(selectedService.booking.amount_paid)}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Balance:</span>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-muted-foreground">Balance</span>
                         <span className="font-bold text-amber-700 dark:text-amber-400 tabular-nums">
                           {formatCurrency(
                             selectedService.booking.grand_total - selectedService.booking.amount_paid,
                           )}
                         </span>
                       </div>
-                      <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900/60 dark:bg-amber-950/30">
-                        <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
-                          {selectedService.booking.payment_status === "PARTIALLY_PAID" ? "Partially paid" : "Unpaid"} · Balance of{" "}
-                          <span className="tabular-nums">
-                            {formatCurrency(
-                              selectedService.booking.grand_total - selectedService.booking.amount_paid,
-                            )}
-                          </span>{" "}
-                          still due
-                        </p>
+                      <div className="flex items-center gap-2 pt-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+                        <AlertCircle className="size-4 shrink-0" aria-hidden="true" />
+                        <span>
+                          {selectedService.booking.payment_status === "PARTIALLY_PAID"
+                            ? "Partially paid"
+                            : "Payment still due"}
+                        </span>
                       </div>
                     </>
                   ) : (
-                    <div className="mt-2 rounded-xl border border-primary/20 bg-primary/[0.06] px-3 py-2">
-                      <p className="text-xs font-medium text-primary">
-                        Fully paid
-                      </p>
+                    <div className="flex items-center gap-2 pt-1 text-xs font-medium text-primary">
+                      <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
+                      <span>Fully paid</span>
                     </div>
                   )}
                 </div>
               </div>
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="border-t bg-muted/20 px-5 py-4">
             <Button
               variant="outline"
               onClick={() => setSelectedService(null)}
-              disabled={isClaiming}
+              disabled={!!selectedService && pendingActionIds.has(selectedService.id)}
             >
               Cancel
             </Button>
             {canClaimServices ? (
-              <Button onClick={handleClaim} disabled={isClaiming}>
-                {isClaiming ? "Claiming..." : "Claim Service"}
+              <Button
+                onClick={handleClaim}
+                disabled={!!selectedService && pendingActionIds.has(selectedService.id)}
+              >
+                Claim Service
               </Button>
             ) : null}
           </DialogFooter>

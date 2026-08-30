@@ -303,7 +303,7 @@ export default function CustomerPicker({
                   phone: newPhone || undefined,
                 });
               }}
-              placeholder="e.g. Maria Santos"
+              autoComplete="off"
               disabled={disabled}
               autoFocus
             />
@@ -324,12 +324,9 @@ export default function CustomerPicker({
                   phone: e.target.value || undefined,
                 });
               }}
-              placeholder="+63 9XX XXX XXXX"
+              autoComplete="off"
               disabled={disabled}
             />
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Recommended.
-            </p>
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">
@@ -347,7 +344,7 @@ export default function CustomerPicker({
                   phone: newPhone || undefined,
                 });
               }}
-              placeholder="email@example.com"
+              autoComplete="off"
               disabled={disabled}
             />
           </div>

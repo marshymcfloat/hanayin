@@ -22,7 +22,6 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createBookingSchema,
-  CapacityOverrideReason,
   PaymentMethod,
   PaymentType,
   StaffSelectionMode,
@@ -69,17 +68,10 @@ import TimeSlotPicker from "./TimeSlotPicker";
 import EmployeeSelect from "./EmployeeSelect";
 import ServiceClaimSelector from "./ServiceClaimSelector";
 import { SegmentedToggle } from "../ui/segmented-toggle";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
+import { Switch } from "../ui/switch";
 
 export type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
@@ -124,7 +116,6 @@ import {
   ShieldCheck,
   Phone,
   Loader2,
-  Zap,
   User2,
   Download,
   ArrowLeft,
@@ -621,12 +612,6 @@ export default function BookingForm({
   const claimStepEnabled = isEmployee && allowServiceClaim;
   const effectiveIsWalkIn = isEmployee && isWalkIn;
   const [requireSelectedStaff, setRequireSelectedStaff] = useState(false);
-  const [showCapacityOverrideForm, setShowCapacityOverrideForm] =
-    useState(false);
-  const [capacityOverrideReason, setCapacityOverrideReason] = useState<
-    CapacityOverrideReason | ""
-  >("");
-  const [capacityOverrideNote, setCapacityOverrideNote] = useState("");
   const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
   const [showReviewGuidance, setShowReviewGuidance] = useState(false);
   const reviewConfirmationRef = useRef<HTMLDivElement | null>(null);
@@ -666,16 +651,10 @@ export default function BookingForm({
       form.setValue("selectedTime", roundedNow, {
         shouldValidate: true,
       });
-      setShowCapacityOverrideForm(false);
-      setCapacityOverrideReason("");
-      setCapacityOverrideNote("");
       revealWizardStep(2);
     } else {
       form.setValue("scheduledAt", undefined);
       form.setValue("selectedTime", undefined);
-      setShowCapacityOverrideForm(false);
-      setCapacityOverrideReason("");
-      setCapacityOverrideNote("");
     }
   }, [
     isWalkIn,
@@ -1027,19 +1006,8 @@ export default function BookingForm({
     customerNameValue,
     customerEmailInput,
     customerPhoneInput,
-    paymentMethod,
-    paymentType,
     requireSelectedStaff,
-    capacityOverrideReason,
   ]);
-
-  useEffect(() => {
-    if (!effectiveIsWalkIn) {
-      setShowCapacityOverrideForm(false);
-      setCapacityOverrideReason("");
-      setCapacityOverrideNote("");
-    }
-  }, [effectiveIsWalkIn]);
 
   const { mutate: createBookingAction, isPending } = useMutation({
     mutationFn: async (...args: Parameters<typeof createBooking>) => {
@@ -1103,9 +1071,6 @@ export default function BookingForm({
         } else {
           router.back();
         }
-        setShowCapacityOverrideForm(false);
-        setCapacityOverrideReason("");
-        setCapacityOverrideNote("");
         return;
       }
     },
@@ -1155,24 +1120,7 @@ export default function BookingForm({
         return;
       }
       if (code === "WALK_IN_CAPACITY_EXCEEDED") {
-        if (effectiveIsWalkIn && isEmployee) {
-          setShowCapacityOverrideForm(true);
-          toast.error(
-            "No immediate walk-in capacity. Add an override reason to proceed if permitted.",
-          );
-          return;
-        }
         toast.error("No immediate walk-in capacity right now.");
-        return;
-      }
-      if (code === "CAPACITY_OVERRIDE_NOT_ALLOWED") {
-        toast.error("You do not have permission to override walk-in capacity.");
-        return;
-      }
-      if (code === "CAPACITY_OVERRIDE_REASON_REQUIRED") {
-        toast.error(
-          "Override reason is required to continue this walk-in booking.",
-        );
         return;
       }
       if (code === "SLOT_JUST_TAKEN") {
@@ -1223,6 +1171,15 @@ export default function BookingForm({
         );
         return;
       }
+      if (code === "BOOKING_FAILED") {
+        toast.error(
+          "We couldn't create the booking. Please refresh the available times and try again.",
+        );
+        queryClient.invalidateQueries({
+          queryKey: ["timeSlots", businessSlug],
+        });
+        return;
+      }
       // Free-form server errors get surfaced as-is so the operator
       // sees the actual reason ("Invalid or expired voucher code",
       // "Minimum spend of 500 required to use this voucher", etc.)
@@ -1238,7 +1195,6 @@ export default function BookingForm({
           ? `Couldn't create booking: ${code.replaceAll("_", " ").toLowerCase()}.`
           : code || "Failed to create booking";
       toast.error(fallbackMessage);
-      console.error("Booking creation failed:", error);
     },
   });
 
@@ -1296,14 +1252,6 @@ export default function BookingForm({
           ? "REQUIRE_SELECTED"
           : "PREFER_SELECTED"
         : "ANY_AVAILABLE";
-      const normalizedCapacityOverride =
-        showCapacityOverrideForm && capacityOverrideReason
-          ? {
-              reason: capacityOverrideReason,
-              note: capacityOverrideNote.trim() || undefined,
-            }
-          : undefined;
-
       const isAnonymousWalkIn = isEmployee && pickerValue?.mode === "anonymous";
 
       const submitPayload = {
@@ -1324,7 +1272,6 @@ export default function BookingForm({
         isAnonymousWalkIn,
         forceCreateCustomer,
         staffSelectionMode: computedStaffSelectionMode,
-        capacityOverride: normalizedCapacityOverride,
         otpVerificationId: isEmployee ? undefined : otpVerificationId,
       } as const;
 
@@ -1384,9 +1331,6 @@ export default function BookingForm({
       bookingPolicy?.slotIntervalMinutes,
       selectedEmployeeId,
       requireSelectedStaff,
-      showCapacityOverrideForm,
-      capacityOverrideReason,
-      capacityOverrideNote,
       otpPhone,
       otpVerificationId,
       pickerValue,
@@ -1451,7 +1395,6 @@ export default function BookingForm({
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
     !hasReviewedDetails ||
-    (showCapacityOverrideForm && !capacityOverrideReason) ||
     (!isEmployee && (!gcash?.accountName || !gcash?.mobileNumber));
   const isSubmissionBlockedBeforeReview =
     isPending ||
@@ -1459,7 +1402,6 @@ export default function BookingForm({
     !form.formState.isValid ||
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
-    (showCapacityOverrideForm && !capacityOverrideReason) ||
     (!isEmployee && (!gcash?.accountName || !gcash?.mobileNumber));
 
   const isStep1Complete = selectedServices.length > 0;
@@ -1618,7 +1560,6 @@ export default function BookingForm({
         {
           value: "ONLINE" as const,
           label: "GCash deposit",
-          disabled: !hasReviewedDetails,
         },
       ];
     }
@@ -1626,15 +1567,13 @@ export default function BookingForm({
       {
         value: "CASH" as const,
         label: "Cash",
-        disabled: !hasReviewedDetails,
       },
       {
         value: "ONLINE" as const,
         label: "Paid Online (GCash / Maya)",
-        disabled: !hasReviewedDetails,
       },
     ];
-  }, [isEmployee, hasReviewedDetails]);
+  }, [isEmployee]);
 
   const paymentTypeOptions = useMemo(() => {
     if (isEmployee) {
@@ -1642,12 +1581,10 @@ export default function BookingForm({
         {
           value: "FULL" as const,
           label: "Full",
-          disabled: !hasReviewedDetails,
         },
         {
           value: "DOWNPAYMENT" as const,
           label: `${bookingPolicy?.downpaymentPercentage ?? 50}%`,
-          disabled: !hasReviewedDetails,
         },
       ];
     }
@@ -1656,10 +1593,9 @@ export default function BookingForm({
       {
         value: "DOWNPAYMENT" as const,
         label: "20% deposit",
-        disabled: !hasReviewedDetails,
       },
     ];
-  }, [hasReviewedDetails, isEmployee, bookingPolicy]);
+  }, [isEmployee, bookingPolicy]);
 
   useEffect(() => {
     if (isEmployee) return;
@@ -2072,7 +2008,7 @@ export default function BookingForm({
                   </span>
                 </div>
                 <h3 className="font-semibold text-lg tracking-tight flex-1">
-                  Your Details
+                  {isEmployee ? "Customer Details" : "Your Details"}
                 </h3>
                 {!isEmployee && otpPrefilled && (
                   <span className="text-[10px] font-semibold text-primary/80 bg-primary/8 border border-primary/20 px-2 py-0.5 rounded-full uppercase tracking-wide">
@@ -2351,129 +2287,133 @@ export default function BookingForm({
                 </p>
               )}
 
-              {!effectiveIsWalkIn && canAccessStep2 ? (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="scheduledAt"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
-                          Date
-                        </FormLabel>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value as Date | undefined}
-                            onChange={(date: Date | undefined) => {
-                              field.onChange(date);
-                              form.setValue("selectedTime", undefined);
-                            }}
-                            minDate={new Date()}
-                            maxDate={maxBookingDate}
-                            placeholder="Pick a date"
-                            dayCapacity={dayCapacity}
-                          />
-                        </FormControl>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {Array.from({
-                            length: bookingV2Enabled
-                              ? Math.min(5, bookingHorizonDays)
-                              : 1,
-                          }).map((_, index) => {
-                            const date = new Date();
-                            date.setDate(date.getDate() + index);
+              {canAccessStep2 ? (
+                <FormField
+                  control={form.control}
+                  name="scheduledAt"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormControl>
+                        <div className="space-y-2">
+                          {(() => {
+                            const today = new Date();
+                            const tomorrow = new Date(today);
+                            tomorrow.setDate(tomorrow.getDate() + 1);
+                            const isCustomDate =
+                              !effectiveIsWalkIn &&
+                              !!selectedDate &&
+                              toPHDateString(selectedDate) !==
+                                toPHDateString(today) &&
+                              toPHDateString(selectedDate) !==
+                                toPHDateString(tomorrow);
+
                             return (
-                              <Button
-                                key={date.toISOString()}
-                                type="button"
-                                variant={
-                                  selectedDate &&
-                                  toPHDateString(selectedDate) ===
-                                    toPHDateString(date)
-                                    ? "default"
-                                    : "outline"
-                                }
-                                size="sm"
-                                className="h-8 px-3 text-xs"
-                                onClick={() => {
+                              <DatePicker
+                                value={field.value as Date | undefined}
+                                onChange={(date: Date | undefined) => {
+                                  if (effectiveIsWalkIn) handleWalkInToggle();
                                   field.onChange(date);
                                   form.setValue("selectedTime", undefined);
                                 }}
-                              >
-                                {index === 0
-                                  ? "Today"
-                                  : index === 1
-                                    ? "Tomorrow"
-                                    : format(date, "EEE, MMM d")}
-                              </Button>
+                                minDate={new Date()}
+                                maxDate={maxBookingDate}
+                                dayCapacity={dayCapacity}
+                                triggerLabel={
+                                  isCustomDate && selectedDate
+                                    ? format(selectedDate, "EEE, MMM d")
+                                    : "Other date"
+                                }
+                                triggerAriaLabel={
+                                  isCustomDate && selectedDate
+                                    ? `Change date, currently ${format(selectedDate, "MMMM d, yyyy")}`
+                                    : "Choose another date within the booking window"
+                                }
+                                triggerClassName={cn(
+                                  "h-11 text-sm",
+                                  isCustomDate &&
+                                    "border-primary bg-primary/[0.06] text-primary hover:bg-primary/10 hover:text-primary",
+                                )}
+                              />
                             );
-                          })}
+                          })()}
+                          <div
+                            className={cn(
+                              "grid overflow-hidden rounded-lg border border-border/60 bg-muted/40 p-0.5",
+                              isEmployee
+                                ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+                                : "grid-cols-2",
+                            )}
+                          >
+                            {["today", "tomorrow"].map((quickDate) => {
+                              const date = new Date();
+                              if (quickDate === "tomorrow") {
+                                date.setDate(date.getDate() + 1);
+                              }
+                              const isSelected =
+                                !effectiveIsWalkIn &&
+                                selectedDate &&
+                                toPHDateString(selectedDate) ===
+                                  toPHDateString(date);
+                              const isOutsideBookingWindow =
+                                date.getTime() > maxBookingDate.getTime();
+
+                              return (
+                                <Button
+                                  key={quickDate}
+                                  type="button"
+                                  variant="ghost"
+                                  disabled={isOutsideBookingWindow}
+                                  aria-pressed={!!isSelected}
+                                  className={cn(
+                                    "h-9 rounded-md px-2 text-xs font-medium shadow-none sm:text-sm",
+                                    isSelected
+                                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                                      : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
+                                  )}
+                                  onClick={() => {
+                                    if (effectiveIsWalkIn) handleWalkInToggle();
+                                    field.onChange(date);
+                                    form.setValue("selectedTime", undefined);
+                                  }}
+                                >
+                                  {quickDate === "today" ? "Today" : "Tomorrow"}
+                                </Button>
+                              );
+                            })}
+                            {isEmployee ? (
+                              <label
+                                className={cn(
+                                  "ml-0.5 flex h-9 cursor-pointer items-center gap-2 border-l border-border/70 px-2.5 transition-colors",
+                                  effectiveIsWalkIn
+                                    ? "bg-primary/[0.08] text-primary"
+                                    : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
+                                )}
+                              >
+                                <span className="whitespace-nowrap text-xs font-medium">
+                                  Walk-in
+                                </span>
+                                <Switch
+                                  checked={effectiveIsWalkIn}
+                                  onCheckedChange={handleWalkInToggle}
+                                  aria-label="Walk-in booking"
+                                />
+                              </label>
+                            ) : null}
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {bookingV2Enabled
-                            ? `Booking window: up to ${bookingHorizonDays} day${bookingHorizonDays > 1 ? "s" : ""} ahead.`
-                            : "Booking window: today only for this business."}
+                      </FormControl>
+                      {effectiveIsWalkIn ? (
+                        <p className="text-xs font-medium text-primary">
+                          Starts now. No date or time needed.
                         </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              ) : effectiveIsWalkIn ? null : (
+                      ) : null}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
                 <div className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground">
                   Date selection is locked until services are selected.
-                </div>
-              )}
-
-              {isEmployee && (
-                <div
-                  role="switch"
-                  aria-checked={effectiveIsWalkIn}
-                  aria-label="Walk-in"
-                  tabIndex={0}
-                  onClick={handleWalkInToggle}
-                  onKeyDown={(e) => {
-                    if (e.key === " " || e.key === "Enter") {
-                      e.preventDefault();
-                      handleWalkInToggle();
-                    }
-                  }}
-                  className={cn(
-                    "flex items-center justify-between gap-3 rounded-lg border px-3 py-2 cursor-pointer transition-colors select-none",
-                    effectiveIsWalkIn
-                      ? "border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.08]"
-                      : "border-border/70 bg-muted/30 hover:bg-muted/50",
-                  )}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Zap
-                      className={cn(
-                        "h-4 w-4 shrink-0 transition-colors",
-                        effectiveIsWalkIn
-                          ? "text-primary"
-                          : "text-muted-foreground",
-                      )}
-                    />
-                    <span className="text-sm font-medium text-foreground">
-                      Walk-in?
-                    </span>
-                  </div>
-                  <div
-                    aria-hidden="true"
-                    className={cn(
-                      "w-9 h-5 flex items-center rounded-full p-0.5 shrink-0 transition-colors duration-300",
-                      effectiveIsWalkIn
-                        ? "bg-primary"
-                        : "bg-muted-foreground/30",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "bg-white w-4 h-4 rounded-full shadow-sm transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
-                        effectiveIsWalkIn ? "translate-x-4" : "translate-x-0",
-                      )}
-                    />
-                  </div>
                 </div>
               )}
             </div>
@@ -2658,18 +2598,18 @@ export default function BookingForm({
             selectedServices.length > 0 && (
               <div
                 className={cn(
-                  "order-40 space-y-3 py-1 animate-in fade-in duration-200 sm:space-y-4 sm:py-2",
+                  "order-40 space-y-2 py-1 animate-in fade-in duration-200 sm:py-2",
                   activeWizardStep !== (isEmployee ? 2 : 3) && "hidden",
                 )}
               >
-                <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
-                      <span className="text-xs font-bold text-primary">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <span className="text-[11px] font-bold text-primary">
                         {isEmployee ? 3 : 4}
                       </span>
                     </div>
-                    <h3 className="font-semibold text-lg tracking-tight">
+                    <h3 className="text-base font-semibold tracking-tight">
                       Claim Services
                     </h3>
                   </div>
@@ -2677,17 +2617,12 @@ export default function BookingForm({
                     variant={
                       claimedUniqueIds.length > 0 ? "default" : "secondary"
                     }
-                    className="font-medium"
+                    className="h-5 px-2 text-[10px] font-semibold"
                   >
                     {claimedUniqueIds.length}/{totalSelectedServiceUnits}{" "}
                     claimed
                   </Badge>
                 </div>
-
-                <p className="text-sm text-muted-foreground">
-                  Claimed services are assigned to you immediately. Unclaimed
-                  services stay open for other staff.
-                </p>
 
                 <ServiceClaimSelector
                   services={selectedServices.flatMap((s) =>
@@ -2871,17 +2806,15 @@ export default function BookingForm({
                   <div
                     ref={reviewConfirmationRef}
                     className={cn(
-                      "scroll-mb-28 scroll-mt-28 rounded-lg border transition-colors",
-                      hasReviewedDetails
-                        ? "border-primary/40 bg-primary/[0.04]"
-                        : showReviewGuidance
-                          ? "border-amber-500 bg-amber-50 ring-2 ring-amber-500/15"
-                          : "border-border",
+                      "scroll-mb-28 scroll-mt-28 border-t border-border/70 pt-3 transition-colors",
+                      showReviewGuidance &&
+                        !hasReviewedDetails &&
+                        "border-amber-400",
                     )}
                   >
                     <label
                       htmlFor="confirm-booking-details"
-                      className="flex min-h-12 cursor-pointer items-center gap-2.5 px-3 py-2"
+                      className="flex min-h-10 cursor-pointer items-center gap-2.5"
                     >
                       <Checkbox
                         id="confirm-booking-details"
@@ -2902,7 +2835,7 @@ export default function BookingForm({
                       </span>
                     </label>
                     {showReviewGuidance && !hasReviewedDetails && (
-                      <p className="border-t border-amber-300 px-3 py-2 text-xs text-amber-900" role="alert">
+                      <p className="mt-1.5 pl-8 text-xs text-amber-800" role="alert">
                         Confirm these details to continue.
                       </p>
                     )}
@@ -2979,49 +2912,6 @@ export default function BookingForm({
                     onCheckedChange={(checked) =>
                       setRequireSelectedStaff(checked === true)
                     }
-                  />
-                </div>
-              )}
-
-              {effectiveIsWalkIn && isEmployee && showCapacityOverrideForm && (
-                <div className="space-y-3 rounded-xl border border-amber-300 bg-amber-50 p-3">
-                  <p className="text-sm font-semibold text-amber-900">
-                    Walk-in capacity override
-                  </p>
-                  <p className="text-xs text-amber-800">
-                    Provide a reason to proceed if your role has override
-                    access.
-                  </p>
-                  <Select
-                    value={capacityOverrideReason}
-                    onValueChange={(value: string) =>
-                      setCapacityOverrideReason(value as CapacityOverrideReason)
-                    }
-                  >
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Select override reason" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LATE_CUSTOMER">
-                        Late Customer
-                      </SelectItem>
-                      <SelectItem value="VIP">VIP</SelectItem>
-                      <SelectItem value="MANUAL_EXCEPTION">
-                        Manual Exception
-                      </SelectItem>
-                      <SelectItem value="SYSTEM_RECOVERY">
-                        System Recovery
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Textarea
-                    value={capacityOverrideNote}
-                    onChange={(event) =>
-                      setCapacityOverrideNote(event.target.value)
-                    }
-                    placeholder="Add context (optional)"
-                    className="min-h-20 bg-white"
-                    maxLength={240}
                   />
                 </div>
               )}

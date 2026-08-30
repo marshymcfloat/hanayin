@@ -62,10 +62,12 @@ type EmployeeWithDetails = Employee & {
 const PROFILE_DEFAULT_PERMISSIONS: Record<StaffProfile, StaffPermission[]> = {
   STAFF: [
     StaffPermission.BOOKING_CREATE,
-    StaffPermission.PAYMENT_COLLECT,
+    StaffPermission.BOOKING_MODIFY,
+    StaffPermission.BOOKING_CANCEL,
+    StaffPermission.BOOKING_MARK_NO_SHOW,
+    StaffPermission.BOOKING_ADJUST_PRICE,
     StaffPermission.QUEUE_CLAIM_SELF,
     StaffPermission.QUEUE_SERVE_SELF,
-    StaffPermission.SOCIAL_POST_REQUEST_CREATE,
   ],
   MANAGER: [
     StaffPermission.BOOKING_CREATE,
@@ -152,13 +154,13 @@ const PERMISSION_OPTIONS: Array<{
   },
   {
     value: StaffPermission.QUEUE_CLAIM_SELF,
-    label: "Claim own queue",
-    description: "Can claim services for self.",
+    label: "Claim available services",
+    description: "Can claim available services for self.",
   },
   {
     value: StaffPermission.QUEUE_SERVE_SELF,
-    label: "Serve own queue",
-    description: "Can mark claimed services as served.",
+    label: "Complete own services",
+    description: "Can mark their claimed services as done.",
   },
   {
     value: StaffPermission.QUEUE_OVERRIDE_ALL,

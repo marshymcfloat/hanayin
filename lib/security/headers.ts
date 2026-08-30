@@ -36,11 +36,7 @@ const frameSrc = [
   ...parseCspList(process.env.NEXT_PUBLIC_CSP_FRAME_SRC),
 ];
 
-const scriptSrc = [
-  "'self'",
-  "'unsafe-inline'",
-  ...VERCEL_ANALYTICS_SCRIPTS,
-];
+const scriptSrc = ["'self'", "'unsafe-inline'", ...VERCEL_ANALYTICS_SCRIPTS];
 
 const contentSecurityPolicyDirectives = [
   "default-src 'self'",
@@ -61,7 +57,8 @@ if (isProduction) {
   contentSecurityPolicyDirectives.push("upgrade-insecure-requests");
 }
 
-export const CONTENT_SECURITY_POLICY = contentSecurityPolicyDirectives.join("; ");
+export const CONTENT_SECURITY_POLICY =
+  contentSecurityPolicyDirectives.join("; ");
 
 export const SECURITY_HEADERS = {
   "X-DNS-Prefetch-Control": "on",
@@ -74,7 +71,7 @@ export const SECURITY_HEADERS = {
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(self)",
   "Cross-Origin-Opener-Policy": "same-origin",
   "Cross-Origin-Resource-Policy": "same-origin",
   "X-Permitted-Cross-Domain-Policies": "none",

@@ -78,9 +78,12 @@ function employeeContext(input: {
 
 const DEFAULT_STAFF_PERMS: ReadonlySet<StaffPermission> = new Set([
   StaffPermission.BOOKING_CREATE,
+  StaffPermission.BOOKING_MODIFY,
+  StaffPermission.BOOKING_CANCEL,
+  StaffPermission.BOOKING_MARK_NO_SHOW,
+  StaffPermission.BOOKING_ADJUST_PRICE,
   StaffPermission.QUEUE_CLAIM_SELF,
   StaffPermission.QUEUE_SERVE_SELF,
-  StaffPermission.SOCIAL_POST_REQUEST_CREATE,
 ]);
 
 const DEFAULT_MANAGER_PERMS: ReadonlySet<StaffPermission> = new Set([

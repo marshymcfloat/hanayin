@@ -7,6 +7,7 @@ const hasStaffPermissionMock = vi.hoisted(() => vi.fn());
 const prismaMock = vi.hoisted(() => ({
   $transaction: vi.fn(),
   availedService: {
+    findMany: vi.fn(),
     findFirst: vi.fn(),
     findUnique: vi.fn(),
     updateMany: vi.fn(),
@@ -50,6 +51,7 @@ vi.mock("@/lib/utils/pricing", () => ({
 
 import {
   claimServiceAction,
+  getEmployeeServiceWorkAction,
   getEmployeeTodayBookingsAction,
   markServiceServedAction,
   unclaimServiceAction,
@@ -155,6 +157,80 @@ describe("Employee Dashboard Actions", () => {
 
       expect(result).toMatchObject({ success: false });
       expect(prismaMock.availedService.updateMany).not.toHaveBeenCalled();
+    });
+
+    it("returns a structured schedule conflict before claiming", async () => {
+      const targetStart = new Date("2026-08-29T09:30:00+08:00");
+      const targetEnd = new Date("2026-08-29T10:30:00+08:00");
+      const conflictStart = new Date("2026-08-29T09:00:00+08:00");
+
+      prismaMock.employee.findFirst.mockResolvedValue({ id: 101 });
+      prismaMock.availedService.findFirst
+        .mockResolvedValueOnce({
+          status: AvailedServiceStatus.PENDING,
+          price: 100,
+          service_id: 1,
+          package_id: null,
+          served_by_id: null,
+          served_by_owner_id: null,
+          booking: { status: BookingStatus.ACCEPTED },
+        })
+        .mockResolvedValueOnce({
+          scheduled_at: targetStart,
+          estimated_end: targetEnd,
+        })
+        .mockResolvedValueOnce({
+          scheduled_at: conflictStart,
+          service: { name: "Hair color" },
+        });
+
+      const result = await claimServiceAction(1, 101);
+
+      expect(result).toEqual({
+        success: false,
+        code: "SCHEDULE_CONFLICT",
+        error: "You already have another service scheduled during this time.",
+        conflict: {
+          serviceName: "Hair color",
+          scheduledAt: conflictStart.toISOString(),
+        },
+      });
+      expect(prismaMock.availedService.updateMany).not.toHaveBeenCalled();
+      expect(prismaMock.availedService.findFirst).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            served_by_id: 101,
+            cancelled_at: null,
+            scheduled_at: { lt: targetEnd },
+            estimated_end: { gt: targetStart },
+          }),
+        }),
+      );
+    });
+  });
+
+  describe("getEmployeeServiceWorkAction", () => {
+    it("returns pending, active, and completed lists from one refresh", async () => {
+      prismaMock.employee.findUnique.mockResolvedValue({
+        id: 101,
+        specialties: ["Nails"],
+      });
+      prismaMock.availedService.findMany
+        .mockResolvedValueOnce([{ id: 1, status: "PENDING" }])
+        .mockResolvedValueOnce([{ id: 2, status: "CLAIMED" }])
+        .mockResolvedValueOnce([{ id: 3, status: "COMPLETED" }]);
+
+      const result = await getEmployeeServiceWorkAction();
+
+      expect(result).toEqual({
+        success: true,
+        data: {
+          pending: [{ id: 1, status: "PENDING" }],
+          active: [{ id: 2, status: "CLAIMED" }],
+          completed: [{ id: 3, status: "COMPLETED" }],
+        },
+      });
+      expect(prismaMock.availedService.findMany).toHaveBeenCalledTimes(3);
     });
   });
 

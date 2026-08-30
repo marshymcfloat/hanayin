@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Prisma } from "@/prisma/generated/prisma/client";
-import { isAvailedServiceOverlapViolation } from "./booking";
+import { isAvailedServiceOverlapViolation } from "./availed-service-overlap";
 
 /**
  * The exclusion-constraint behavior itself can only be exercised
@@ -32,6 +32,24 @@ describe("isAvailedServiceOverlapViolation", () => {
       'EXCLUDE: AvailedService_employee_no_overlap_excl',
       { clientVersion: "test" },
     );
+    expect(isAvailedServiceOverlapViolation(err)).toBe(true);
+  });
+
+  it("matches Prisma 7 DriverAdapterError messages", () => {
+    class DriverAdapterError extends Error {}
+    const err = new DriverAdapterError(
+      'conflicting key value violates exclusion constraint "AvailedService_employee_no_overlap_excl"',
+    );
+
+    expect(isAvailedServiceOverlapViolation(err)).toBe(true);
+  });
+
+  it("matches an overlap constraint in a nested cause", () => {
+    const cause = new Error(
+      'constraint "AvailedService_owner_no_overlap_excl" violated',
+    );
+    const err = new Error("Database request failed", { cause });
+
     expect(isAvailedServiceOverlapViolation(err)).toBe(true);
   });
 

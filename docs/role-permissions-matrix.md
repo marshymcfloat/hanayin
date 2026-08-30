@@ -28,10 +28,10 @@ The current `StaffPermission` enum doesn't cover the actions these features need
 
 | New permission                | Purpose                                                       | Default for STAFF | Default for MANAGER | Default for CASHIER |
 | ----------------------------- | ------------------------------------------------------------- | ----------------- | ------------------- | ------------------- |
-| `BOOKING_MODIFY`              | Add/remove services, change time/staff on an existing booking | no                | yes                 | no                  |
-| `BOOKING_MARK_NO_SHOW`        | Flag a customer as no-show                                    | no                | yes                 | no                  |
-| `BOOKING_ADJUST_PRICE`        | Apply manual discount or override final price                 | no                | yes                 | no                  |
-| `BOOKING_CANCEL`              | Cancel a booking (soft, recoverable)                          | no                | yes                 | no                  |
+| `BOOKING_MODIFY`              | Add/remove services, change time/staff on an existing booking | yes               | yes                 | no                  |
+| `BOOKING_MARK_NO_SHOW`        | Flag a customer as no-show                                    | yes               | yes                 | no                  |
+| `BOOKING_ADJUST_PRICE`        | Apply manual discount or override final price                 | yes               | yes                 | no                  |
+| `BOOKING_CANCEL`              | Cancel a booking (soft, recoverable)                          | yes               | yes                 | no                  |
 | `SOCIAL_POST_REQUEST_CREATE`  | Submit a custom-post request to the owner                     | yes               | yes                 | yes                 |
 | `SOCIAL_POST_REVIEW`          | Approve, reject, or edit a request before it becomes a draft  | no                | yes                 | no                  |
 | `SOCIAL_POST_PUBLISH`         | Take a draft and publish it                                   | no                | no                  | no                  |

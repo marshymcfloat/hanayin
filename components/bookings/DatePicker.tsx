@@ -25,6 +25,9 @@ interface DatePickerProps {
    * Skip = no per-day data (hides the dots, picker behaves as before).
    */
   dayCapacity?: Record<string, number>;
+  triggerLabel?: React.ReactNode;
+  triggerClassName?: string;
+  triggerAriaLabel?: string;
 }
 
 function dateKey(d: Date): string {
@@ -57,6 +60,9 @@ export default React.memo(function DatePicker({
   maxDate,
   placeholder = "Pick a date",
   dayCapacity,
+  triggerLabel,
+  triggerClassName,
+  triggerAriaLabel,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const minStart = new Date(minDate);
@@ -102,13 +108,16 @@ export default React.memo(function DatePicker({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
+          aria-label={triggerAriaLabel}
           className={cn(
             "w-full justify-start text-left font-normal",
             !value && "text-muted-foreground",
+            triggerClassName,
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, "EEEE, MMMM d, yyyy") : placeholder}
+          {triggerLabel ??
+            (value ? format(value, "EEEE, MMMM d, yyyy") : placeholder)}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

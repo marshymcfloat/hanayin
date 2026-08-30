@@ -93,17 +93,17 @@ const PERMISSION_GROUPS: ReadonlyArray<{
   },
   {
     label: "Queue",
-    description: "Claim and serve queue items.",
+    description: "Claim and complete service work.",
     permissions: [
       {
         flag: StaffPermission.QUEUE_CLAIM_SELF,
-        label: "Claim own services",
-        description: "Pick up pending services to serve.",
+        label: "Claim available services",
+        description: "Claim available services for self.",
       },
       {
         flag: StaffPermission.QUEUE_SERVE_SELF,
-        label: "Serve own services",
-        description: "Mark services as in-progress and complete.",
+        label: "Complete own services",
+        description: "Mark claimed services as done.",
       },
       {
         flag: StaffPermission.QUEUE_OVERRIDE_ALL,

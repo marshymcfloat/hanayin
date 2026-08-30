@@ -7,7 +7,6 @@ import {
   PaymentMethod,
   PaymentType,
   StaffSelectionMode,
-  CapacityOverrideReason,
 } from "@/lib/zod schemas/bookings";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -60,10 +59,6 @@ interface CreateBookingParams {
   voucherCode?: string;
   isWalkIn?: boolean;
   staffSelectionMode?: StaffSelectionMode;
-  capacityOverride?: {
-    reason: CapacityOverrideReason;
-    note?: string;
-  };
   /** OTP verification ID from verifyBookingOtp — required for every public booking. */
   otpVerificationId?: number;
   /**
@@ -95,8 +90,6 @@ const CLIENT_SAFE_BOOKING_ERRORS = new Set([
   "REQUIRED_STAFF_UNAVAILABLE",
   "PREFERRED_STAFF_UNAVAILABLE",
   "WALK_IN_CAPACITY_EXCEEDED",
-  "CAPACITY_OVERRIDE_NOT_ALLOWED",
-  "CAPACITY_OVERRIDE_REASON_REQUIRED",
   "SLOT_JUST_TAKEN",
   "SALE_SLOT_LIMIT_REACHED",
   "GCASH_NOT_CONFIGURED",
@@ -135,7 +128,6 @@ export async function createBooking({
   voucherCode,
   isWalkIn = false,
   staffSelectionMode = "ANY_AVAILABLE",
-  capacityOverride,
   otpVerificationId,
   isAnonymousWalkIn = false,
   forceCreateCustomer = false,
@@ -166,16 +158,11 @@ export async function createBooking({
       throw new Error("Forbidden");
     }
 
-    let employeeActorContext:
-      | Awaited<ReturnType<typeof resolveTenantActorContext>>
-      | null = null;
-
     if (session?.user?.role === "EMPLOYEE") {
       const actorContext = await resolveTenantActorContext(
         businessSlug,
         session.user.id,
       );
-      employeeActorContext = actorContext;
       if (!actorContext.success || actorContext.actorType !== "EMPLOYEE") {
         throw new Error("Unauthorized");
       }
@@ -185,26 +172,9 @@ export async function createBooking({
       }
     }
 
-    if (isWalkIn && capacityOverride) {
-      const hasEmployeeOverridePermission =
-        session?.user.role === "EMPLOYEE" &&
-        !!employeeActorContext &&
-        employeeActorContext.success &&
-        employeeActorContext.actorType === "EMPLOYEE" &&
-        hasStaffPermission(employeeActorContext, StaffPermission.QUEUE_OVERRIDE_ALL);
-      const hasOverridePermission =
-        !!session &&
-        (session.user.role === "OWNER" || hasEmployeeOverridePermission);
-
-      if (!hasOverridePermission) {
-        throw new BookingAvailabilityError(
-          "CAPACITY_OVERRIDE_NOT_ALLOWED",
-          "You do not have permission to override capacity for walk-ins.",
-        );
-      }
-
-      walkInCapacityBypassAllowed = true;
-    }
+    walkInCapacityBypassAllowed =
+      isWalkIn &&
+      (session?.user.role === "OWNER" || session?.user.role === "EMPLOYEE");
 
     if (!session) {
       // Per-IP bucket caps a single source. clientIp is /64-normalized
@@ -352,7 +322,6 @@ export async function createBooking({
       selectedEmployeeId: employeeId,
       staffSelectionMode,
       allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
-      capacityOverride,
       db: prisma,
     });
 
@@ -378,7 +347,6 @@ export async function createBooking({
       isAnonymousWalkIn: !!session && isAnonymousWalkIn,
       forceCreateCustomer: !!session && forceCreateCustomer,
       staffSelectionMode,
-      capacityOverride,
       allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
     });
 

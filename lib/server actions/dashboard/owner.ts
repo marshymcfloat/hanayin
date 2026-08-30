@@ -18,6 +18,11 @@ import {
   updateBookingStatusSchema,
   bookingIdSchema,
 } from "@/lib/zod-schemas/dashboard";
+import {
+  findAvailedServiceScheduleConflict,
+  isAvailedServiceOverlapViolation,
+  scheduleConflictResult,
+} from "@/lib/services/availed-service-overlap";
 
 export async function claimServiceAsOwnerAction(serviceId: number) {
   const validation = serviceIdSchema.safeParse({ serviceId });
@@ -58,6 +63,16 @@ export async function claimServiceAsOwnerAction(serviceId: number) {
 
     if (!serviceToClaim) {
       return { success: false, error: "Service not found." };
+    }
+
+    const scheduleConflict = await findAvailedServiceScheduleConflict({
+      businessSlug,
+      serviceId,
+      providerType: "OWNER",
+      providerId: owner.id,
+    });
+    if (scheduleConflict) {
+      return scheduleConflictResult(scheduleConflict);
     }
 
     const saleEventsResult = await getActiveSaleEvents(businessSlug);
@@ -114,6 +129,21 @@ export async function claimServiceAsOwnerAction(serviceId: number) {
     const e = error as { code?: string };
     if (e.code === "P2025") {
       return { success: false, error: "Service already claimed or not found." };
+    }
+    if (isAvailedServiceOverlapViolation(error)) {
+      const owner = await prisma.owner.findFirst({
+        where: { user_id: session.user.id, business: { slug: businessSlug } },
+        select: { id: true },
+      }).catch(() => null);
+      const conflict = owner
+        ? await findAvailedServiceScheduleConflict({
+            businessSlug,
+            serviceId,
+            providerType: "OWNER",
+            providerId: owner.id,
+          }).catch(() => null)
+        : null;
+      return scheduleConflictResult(conflict);
     }
     console.error("Error claiming service as owner:", error);
     return { success: false, error: "Unable to claim service." };

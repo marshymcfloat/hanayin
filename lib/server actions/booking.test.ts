@@ -96,7 +96,7 @@ describe("createBooking Server Action", () => {
     } as never);
 
     mockedGetServerSession.mockResolvedValue({
-      user: { id: "owner_1" },
+      user: { id: "owner_1", role: "OWNER" },
     } as never);
     mockedRateLimit.mockResolvedValue({
       success: true,
@@ -188,6 +188,57 @@ describe("createBooking Server Action", () => {
       type: "internal",
       url: "/app/demo-business/bookings/123?created=true",
     });
+  });
+
+  it("automatically bypasses capacity for an owner-created walk-in", async () => {
+    mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      business: {
+        id: "biz_1",
+        slug: "demo-business",
+        name: "Demo Business",
+        commission_calculation_basis: "ORIGINAL_PRICE" as const,
+      },
+      services: [{
+        id: 1,
+        name: "Haircut",
+        quantity: 1,
+        duration: 30,
+        price: 500,
+        originalPrice: 500,
+        estimatedCost: 200,
+        discount: 0,
+        discountReason: null,
+        saleEventId: null,
+        commissionBase: 500,
+      }],
+      subtotal: 500,
+      voucherDiscount: 0,
+      grandTotal: 500,
+      appliedSaleEventId: null,
+      downpaymentAmount: null,
+      amountToPay: 500,
+      totalDuration: 30,
+      estimatedEnd: new Date(mockDate.getTime() + 30 * 60 * 1000),
+      voucher: null,
+    });
+    mockedCreateBookingInDb.mockResolvedValue({ id: 124 } as never);
+
+    await createBooking({
+      customerName: "Walk-in Customer",
+      businessSlug: "demo-business",
+      scheduledAt: mockDate,
+      paymentMethod: "CASH",
+      paymentType: "FULL",
+      services: [{ id: 1, quantity: 1 }],
+      isWalkIn: true,
+    });
+
+    expect(mockedValidateBookingOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({ allowWalkInCapacityBypass: true }),
+    );
+    expect(mockedCreateBookingInDb).toHaveBeenCalledWith(
+      expect.objectContaining({ allowWalkInCapacityBypass: true }),
+    );
   });
 
   it("should return warning when preferred staff is downgraded to any available", async () => {

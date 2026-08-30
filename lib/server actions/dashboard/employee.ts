@@ -31,6 +31,11 @@ import {
   type TenantActorContext,
 } from "@/lib/auth/staff-access";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
+import {
+  findAvailedServiceScheduleConflict,
+  isAvailedServiceOverlapViolation,
+  scheduleConflictResult,
+} from "@/lib/services/availed-service-overlap";
 
 type StaffContext = Extract<TenantActorContext, { success: true }>;
 
@@ -166,6 +171,16 @@ export async function claimServiceAction(
       return { success: false, error: "Forbidden" };
     }
 
+    const scheduleConflict = await findAvailedServiceScheduleConflict({
+      businessSlug,
+      serviceId,
+      providerType: "EMPLOYEE",
+      providerId: employeeId,
+    });
+    if (scheduleConflict) {
+      return scheduleConflictResult(scheduleConflict);
+    }
+
     const saleEventsResult = await getActiveSaleEvents(businessSlug);
     const saleEvents =
       (saleEventsResult.success && saleEventsResult.data) || [];
@@ -238,8 +253,17 @@ export async function claimServiceAction(
     if (e.code === "P2025") {
       return { success: false, error: "Service already claimed or not found." };
     }
+    if (isAvailedServiceOverlapViolation(error)) {
+      const conflict = await findAvailedServiceScheduleConflict({
+        businessSlug,
+        serviceId,
+        providerType: "EMPLOYEE",
+        providerId: employeeId,
+      }).catch(() => null);
+      return scheduleConflictResult(conflict);
+    }
     console.error("Error claiming service:", error);
-    return { success: false, error: "Service already claimed or not found." };
+    return { success: false, error: "Unable to claim service." };
   }
 }
 
@@ -835,5 +859,68 @@ export async function getEmployeeTodayBookingsAction() {
   } catch (error) {
     console.error("Error fetching employee today bookings:", error);
     return [];
+  }
+}
+
+export async function getEmployeeServiceWorkAction() {
+  const auth = await requireEmployeeAuth();
+  if (!auth.success) return auth;
+  const { businessSlug, employeeId } = auth;
+
+  const include = {
+    service: true,
+    package: true,
+    booking: {
+      select: {
+        customer: true,
+        is_anonymous_walk_in: true,
+        customer_label: true,
+        scheduled_at: true,
+        created_at: true,
+        downpayment: true,
+        downpayment_status: true,
+        grand_total: true,
+        amount_paid: true,
+        payment_status: true,
+      },
+    },
+  } as const;
+
+  try {
+    const [pending, active, completed] = await Promise.all([
+      prisma.availedService.findMany({
+        where: {
+          status: AvailedServiceStatus.PENDING,
+          booking: { business: { slug: businessSlug }, status: BookingStatus.ACCEPTED },
+        },
+        include,
+        orderBy: { scheduled_at: "asc" },
+      }),
+      prisma.availedService.findMany({
+        where: {
+          served_by_id: employeeId,
+          status: { in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING] },
+          booking: { business: { slug: businessSlug }, status: BookingStatus.ACCEPTED },
+        },
+        include,
+        orderBy: { updated_at: "desc" },
+        take: 50,
+      }),
+      prisma.availedService.findMany({
+        where: {
+          served_by_id: employeeId,
+          status: AvailedServiceStatus.COMPLETED,
+          booking: { business: { slug: businessSlug } },
+        },
+        include,
+        orderBy: { updated_at: "desc" },
+        take: 10,
+      }),
+    ]);
+
+    return { success: true as const, data: { pending, active, completed } };
+  } catch (error) {
+    console.error("Error fetching employee service work:", error);
+    return { success: false as const, error: "Unable to refresh service work." };
   }
 }

@@ -12,28 +12,7 @@ import { requireAuth } from "@/lib/auth/guards";
 import { Role } from "@/prisma/generated/prisma/enums";
 import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
 import { logger } from "@/lib/logger";
-
-const MAX_DISTANCE_METERS = 100;
-
-function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
-  const R = 6371e3;
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-}
+import { verifyAttendanceLocation } from "@/lib/services/attendance-location";
 
 export async function checkAttendanceStatusAction(
   employeeId: number,
@@ -130,23 +109,13 @@ export async function clockInAction(
       };
     }
 
-    const distance = calculateDistance(
-      latitude,
-      longitude,
-      business.latitude,
-      business.longitude,
-    );
-
-    // Skip distance check in development mode
-    if (
-      process.env.NODE_ENV !== "development" &&
-      distance > MAX_DISTANCE_METERS
-    ) {
-      return {
-        success: false,
-        error: `You are too far from the workplace (${Math.round(distance)}m away). Max allowed: ${MAX_DISTANCE_METERS}m.`,
-      };
-    }
+    const location = verifyAttendanceLocation({
+      staffLatitude: latitude,
+      staffLongitude: longitude,
+      businessLatitude: business.latitude,
+      businessLongitude: business.longitude,
+    });
+    if (!location.success) return location;
 
     const existing = await checkAttendanceStatusAction(employeeId);
     if (existing.success && existing.data) {
@@ -190,7 +159,12 @@ export async function clockInAction(
   }
 }
 
-export async function clockOutAction(employeeId: number) {
+export async function clockOutAction(
+  employeeId: number,
+  latitude: number,
+  longitude: number,
+  businessSlug: string,
+) {
   const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { session } = auth;
@@ -207,7 +181,35 @@ export async function clockOutAction(employeeId: number) {
     };
   }
 
+  if (auth.businessSlug !== businessSlug) {
+    return { success: false, error: "Unauthorized business context" };
+  }
+
   try {
+    const business = await prisma.business.findUnique({
+      where: { slug: businessSlug },
+      select: { latitude: true, longitude: true },
+    });
+
+    if (
+      !business ||
+      business.latitude === null ||
+      business.longitude === null
+    ) {
+      return {
+        success: false,
+        error: "Business location not set. Contact owner.",
+      };
+    }
+
+    const location = verifyAttendanceLocation({
+      staffLatitude: latitude,
+      staffLongitude: longitude,
+      businessLatitude: business.latitude,
+      businessLongitude: business.longitude,
+    });
+    if (!location.success) return location;
+
     const now = getCurrentDateTimePH();
     const startOfDay = getStartOfDayPH(now);
     const endOfDay = getEndOfDayPH(now);
@@ -244,7 +246,7 @@ export async function clockOutAction(employeeId: number) {
       });
       if (employee?.business.slug) {
         await detectAndEmitFutureBookingConflicts({
-          businessSlug: employee.business.slug,
+          businessSlug,
           changedDate: startOfDay,
           trigger: "ATTENDANCE_UPDATED",
         });

@@ -223,7 +223,13 @@ describe("manual GCash payment submission", () => {
     expect(result).toEqual({ success: true });
     expect(validateBookingOrThrow).toHaveBeenCalled();
     expect(txMock.booking.updateMany).toHaveBeenCalledTimes(2);
-    expect(publishEvent).toHaveBeenCalledTimes(1);
+    expect(publishEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        type: "BOOKING_CONFIRMED",
+        dedupeKey: "BOOKING_CONFIRMED:Booking:4",
+      }),
+    );
   });
 
   it("allows an owner to verify an unsubmitted payment before hold expiry", async () => {

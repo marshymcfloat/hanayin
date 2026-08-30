@@ -94,21 +94,8 @@ export default function AttendanceCard({
         }
         setLoading(false);
       },
-      async (error) => {
+      (error) => {
         console.error("Geolocation error:", error);
-
-        if (process.env.NODE_ENV === "development") {
-          toast.info("Dev Mode: Geolocation failed, using mock location.");
-          const result = await clockInAction(employeeId, 0, 0, businessSlug);
-
-          if (result.success) {
-            toast.success("Clocked in successfully (Dev Bypass)!");
-          } else {
-            toast.error(result.error);
-          }
-          setLoading(false);
-          return;
-        }
 
         let errorMessage = "Unable to retrieve location.";
         switch (error.code) {
@@ -132,13 +119,39 @@ export default function AttendanceCard({
 
   const handleClockOut = async () => {
     setLoading(true);
-    const result = await clockOutAction(employeeId);
-    if (result.success) {
-      toast.success("Clocked out successfully!");
-    } else {
-      toast.error(result.error);
+
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const result = await clockOutAction(
+          employeeId,
+          coords.latitude,
+          coords.longitude,
+          businessSlug,
+        );
+        if (result.success) {
+          toast.success("Clocked out successfully!");
+        } else {
+          toast.error(result.error);
+        }
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        toast.error(
+          error.code === error.PERMISSION_DENIED
+            ? "Location permission denied. Enable it to end your shift."
+            : "Unable to verify your workplace location.",
+        );
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
   };
 
   const today = new Date();
@@ -159,18 +172,36 @@ export default function AttendanceCard({
             className={cn(
               "h-11 w-full rounded-xl text-sm font-bold cursor-pointer",
               isClockedIn
-                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                ? "border border-amber-300 bg-amber-50 text-amber-900 shadow-none hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200 dark:hover:bg-amber-950/60"
                 : "bg-primary text-primary-foreground hover:bg-primary/90",
             )}
           >
-            {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : isClockedIn ? <StopCircle className="mr-2 size-4" /> : <PlayCircle className="mr-2 size-4" />}
-            {loading ? "Processing..." : isClockedIn ? "End Shift" : "Start Shift"}
+            {loading ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : isClockedIn ? (
+              <StopCircle className="mr-2 size-4" />
+            ) : (
+              <PlayCircle className="mr-2 size-4" />
+            )}
+            {loading
+              ? "Processing..."
+              : isClockedIn
+                ? "End Shift"
+                : "Start Shift"}
           </Button>
         ) : (
-          <p className="flex min-h-11 items-center justify-center rounded-xl bg-muted/50 text-sm font-semibold text-muted-foreground">Shift completed</p>
+          <p className="flex min-h-11 items-center justify-center rounded-xl bg-muted/50 text-sm font-semibold text-muted-foreground">
+            Shift completed
+          </p>
         )}
         {isClockedIn && todayAttendance?.time_in ? (
-          <p className="text-center text-xs text-muted-foreground">Started {new Date(todayAttendance.time_in).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</p>
+          <p className="text-center text-xs text-muted-foreground">
+            Started{" "}
+            {new Date(todayAttendance.time_in).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
         ) : null}
       </div>
     );
@@ -180,10 +211,7 @@ export default function AttendanceCard({
     <motion.div
       layout="position"
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={cn(
-        "flex h-full flex-col gap-5 relative",
-        className,
-      )}
+      className={cn("flex h-full flex-col gap-5 relative", className)}
     >
       {/* Header row: date + status dot + calendar toggle */}
       <div className="flex items-start justify-between gap-3">
@@ -240,7 +268,11 @@ export default function AttendanceCard({
               : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground",
           )}
         >
-          {showCalendar ? <MapPin className="h-4 w-4" /> : <CalendarDays className="h-4 w-4" />}
+          {showCalendar ? (
+            <MapPin className="h-4 w-4" />
+          ) : (
+            <CalendarDays className="h-4 w-4" />
+          )}
         </motion.button>
       </div>
 
@@ -252,7 +284,7 @@ export default function AttendanceCard({
           className={cn(
             "w-full h-12 rounded-xl text-sm font-bold transition-colors active:scale-[0.99] cursor-pointer",
             isClockedIn
-              ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              ? "border border-amber-300 bg-amber-50 text-amber-900 shadow-none hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200 dark:hover:bg-amber-950/60"
               : "bg-primary text-primary-foreground hover:bg-primary/90",
           )}
         >

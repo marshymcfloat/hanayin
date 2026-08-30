@@ -10,6 +10,7 @@ import {
   unclaimServiceAction,
   unserveServiceAction,
 } from "@/lib/server actions/dashboard";
+import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import {
   Loader2,
@@ -38,8 +39,13 @@ import {
   getEmployeeSpecialtySet,
   isCategoryAllowedForEmployee,
 } from "@/lib/utils/employee-specialties";
+import type { EmployeeServiceWorkItem } from "./service-work-state";
 
-export interface ServedService {
+export interface ServedService extends EmployeeServiceWorkItem {
+  service: EmployeeServiceWorkItem["service"];
+  package: EmployeeServiceWorkItem["package"];
+  package_id: number | null;
+  /*
   id: number;
   updated_at: Date;
   service: {
@@ -72,20 +78,33 @@ export interface ServedService {
   package?: {
     name: string;
   } | null;
+  */
 }
 
 export default function EmployeeServedHistory({
+  mode = "history",
   services,
   employeeSpecialties,
   currentEmployeeId,
   currentEmployeeCommission,
+  onMarkServed,
+  onUnclaim,
+  onUnserve,
+  pendingActionIds,
+  onWorkChanged,
 }: {
+  mode?: "active" | "history";
   services: ServedService[];
   employeeSpecialties?: string[];
-  currentEmployeeId: number;
+  currentEmployeeId?: number;
   currentEmployeeCommission: number;
+  onMarkServed?: (service: ServedService) => Promise<void>;
+  onUnclaim?: (service: ServedService) => Promise<void>;
+  onUnserve?: (service: ServedService) => Promise<void>;
+  pendingActionIds?: ReadonlySet<number>;
+  onWorkChanged?: () => void;
 }) {
-  const [loadingId, setLoadingId] = useState<number | null>(null);
+  const busyIds = pendingActionIds ?? new Set<number>();
   const [selectedService, setSelectedService] = useState<ServedService | null>(
     null,
   );
@@ -113,21 +132,14 @@ export default function EmployeeServedHistory({
     service.scheduled_at;
 
   const handleMarkAsServed = async (serviceId: number) => {
-    setLoadingId(serviceId);
-    try {
-      const result = await markServiceServedAction(
-        serviceId,
-        currentEmployeeId,
-      );
-      if (!result.success) {
-        alert(result.error);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    } finally {
-      setLoadingId(null);
-    }
+    const service = services.find((item) => item.id === serviceId);
+    if (!service || busyIds.has(serviceId)) return;
+    setSelectedService(null);
+    if (onMarkServed) return onMarkServed(service);
+    if (!currentEmployeeId) return;
+    const result = await markServiceServedAction(serviceId, currentEmployeeId);
+    if (!result.success) toast.error("Unable to mark service as served", { description: result.error });
+    else onWorkChanged?.();
   };
 
   const requestUnclaim = (serviceId: number) => {
@@ -135,21 +147,14 @@ export default function EmployeeServedHistory({
   };
 
   const executeUnclaim = async (serviceId: number) => {
-    setLoadingId(serviceId);
-    try {
-      const result = await unclaimServiceAction(serviceId);
-      if (!result.success) {
-        alert(result.error);
-      } else {
-        setSelectedService(null);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    } finally {
-      setLoadingId(null);
-      setPendingAction(null);
-    }
+    const service = services.find((item) => item.id === serviceId);
+    setPendingAction(null);
+    setSelectedService(null);
+    if (!service || busyIds.has(serviceId)) return;
+    if (onUnclaim) return onUnclaim(service);
+    const result = await unclaimServiceAction(serviceId);
+    if (!result.success) toast.error("Unable to unclaim service", { description: result.error });
+    else onWorkChanged?.();
   };
 
   const requestUnserve = (serviceId: number) => {
@@ -157,21 +162,14 @@ export default function EmployeeServedHistory({
   };
 
   const executeUnserve = async (serviceId: number) => {
-    setLoadingId(serviceId);
-    try {
-      const result = await unserveServiceAction(serviceId);
-      if (!result.success) {
-        alert(result.error);
-      } else {
-        setSelectedService(null);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    } finally {
-      setLoadingId(null);
-      setPendingAction(null);
-    }
+    const service = services.find((item) => item.id === serviceId);
+    setPendingAction(null);
+    setSelectedService(null);
+    if (!service || busyIds.has(serviceId)) return;
+    if (onUnserve) return onUnserve(service);
+    const result = await unserveServiceAction(serviceId);
+    if (!result.success) toast.error("Unable to undo completed service", { description: result.error });
+    else onWorkChanged?.();
   };
 
   const handleConfirmAction = () => {
@@ -193,10 +191,12 @@ export default function EmployeeServedHistory({
             </div>
             <div className="space-y-0.5">
               <h3 className="text-sm font-semibold text-foreground">
-                No served history
+                {mode === "active" ? "Nothing in progress" : "No served history"}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Completed services will appear here.
+                {mode === "active"
+                  ? "Claimed services will appear here."
+                  : "Completed services will appear here."}
               </p>
             </div>
           </div>
@@ -215,11 +215,12 @@ export default function EmployeeServedHistory({
 
               return (
                 <li key={item.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedService(item)}
-                    className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-1 py-2.5 text-left transition-colors hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer"
-                  >
+                  <div className="group flex min-w-0 items-center gap-2 rounded-xl px-1 py-2 transition-colors hover:bg-primary/[0.04]">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedService(item)}
+                      className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                    >
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-inset ring-primary/15">
                         {customerInitials}
@@ -234,7 +235,7 @@ export default function EmployeeServedHistory({
                           )}
                         </div>
                         <div className="truncate text-xs text-muted-foreground">
-                          {getBookingCustomerName(item.booking)}
+                          {getBookingCustomerName(item.booking)} · {getDisplayScheduledAt(item) ? formatPH(getDisplayScheduledAt(item), "h:mm a") : "Walk-in"}
                         </div>
                       </div>
                     </div>
@@ -254,23 +255,24 @@ export default function EmployeeServedHistory({
                           {formatCurrency(item.price)}
                         </span>
                       )}
-                      {item.status === "CLAIMED" ? (
-                        <Badge
-                          variant="outline"
-                          className="h-5 border-primary/30 bg-primary/10 px-2 py-0 text-[10px] font-medium text-primary"
-                        >
-                          Serving
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="h-5 border-primary/30 bg-primary/10 px-2 py-0 text-[10px] font-medium text-primary"
-                        >
-                          {item.status}
-                        </Badge>
-                      )}
                     </div>
-                  </button>
+                    </button>
+                    {mode === "active" ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="h-7 shrink-0 rounded-lg px-3 text-[11px] font-semibold"
+                        onClick={() => handleMarkAsServed(item.id)}
+                        disabled={busyIds.has(item.id)}
+                      >
+                        {busyIds.has(item.id) ? (
+                          <Loader2 className="size-3.5 animate-spin" />
+                        ) : (
+                          "Done"
+                        )}
+                      </Button>
+                    ) : null}
+                  </div>
                 </li>
               );
             })}
@@ -422,9 +424,9 @@ export default function EmployeeServedHistory({
                     variant="outline"
                     className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/10 h-11 rounded-xl cursor-pointer"
                     onClick={() => requestUnclaim(selectedService.id)}
-                    disabled={loadingId === selectedService.id}
+                    disabled={busyIds.has(selectedService.id)}
                   >
-                    {loadingId === selectedService.id ? (
+                    {busyIds.has(selectedService.id) ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                       <RotateCcw className="mr-2 h-4 w-4" />
@@ -437,9 +439,9 @@ export default function EmployeeServedHistory({
                       handleMarkAsServed(selectedService.id);
                       setSelectedService(null);
                     }}
-                    disabled={loadingId === selectedService.id}
+                    disabled={busyIds.has(selectedService.id)}
                   >
-                    {loadingId === selectedService.id && (
+                    {busyIds.has(selectedService.id) && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     Mark as Served
@@ -451,9 +453,9 @@ export default function EmployeeServedHistory({
                   variant="outline"
                   className="w-full text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-950/30 h-11 rounded-xl cursor-pointer"
                   onClick={() => requestUnserve(selectedService.id)}
-                  disabled={loadingId === selectedService.id}
+                  disabled={busyIds.has(selectedService.id)}
                 >
-                  {loadingId === selectedService.id ? (
+                  {busyIds.has(selectedService.id) ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <RotateCcw className="mr-2 h-4 w-4" />

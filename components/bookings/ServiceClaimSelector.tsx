@@ -53,14 +53,14 @@ export default function ServiceClaimSelector({
   const canClear = claimedCount > 0;
 
   return (
-    <div className="space-y-2">
+    <div className="overflow-hidden rounded-lg border border-border/70 bg-card">
       {showBulkActions && (canClaimAll || canClear) && (
-        <div className="flex items-center justify-end gap-3 text-xs">
+        <div className="flex h-8 items-center justify-end gap-2 border-b border-border/60 bg-muted/25 px-2.5 text-[11px]">
           {canClaimAll && (
             <button
               type="button"
               onClick={handleClaimAll}
-              className="font-semibold text-primary hover:underline"
+              className="rounded px-1.5 py-1 font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Claim all
             </button>
@@ -72,7 +72,7 @@ export default function ServiceClaimSelector({
             <button
               type="button"
               onClick={handleClearAll}
-              className="font-medium text-muted-foreground hover:text-foreground hover:underline"
+              className="rounded px-1.5 py-1 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Clear
             </button>
@@ -80,7 +80,7 @@ export default function ServiceClaimSelector({
         </div>
       )}
 
-      <div className="space-y-1.5">
+      <div className="divide-y divide-border/60">
         {services.map((service) => {
           const isChecked = claimedSet.has(service.uniqueId);
           return (
@@ -88,10 +88,10 @@ export default function ServiceClaimSelector({
               key={service.uniqueId}
               htmlFor={`claim-${service.uniqueId}`}
               className={cn(
-                "flex items-center gap-3 rounded-md border px-3 py-2 cursor-pointer transition-colors select-none",
+                "flex min-h-10 cursor-pointer select-none items-center gap-2.5 px-2.5 py-1.5 transition-colors",
                 isChecked
-                  ? "border-primary/40 bg-primary/[0.06]"
-                  : "border-border/70 bg-card hover:bg-muted/30",
+                  ? "bg-primary/[0.06]"
+                  : "bg-card hover:bg-muted/30",
               )}
             >
               <Checkbox
@@ -104,15 +104,15 @@ export default function ServiceClaimSelector({
               />
               <span
                 className={cn(
-                  "flex-1 text-sm font-medium truncate",
+                  "flex-1 truncate text-[13px] font-medium",
                   isChecked ? "text-primary" : "text-foreground",
                 )}
               >
                 {service.name}
               </span>
-              <span className="shrink-0 text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+              <span className="shrink-0 whitespace-nowrap text-[11px] tabular-nums text-muted-foreground">
                 {"₱"}
-                {service.price.toLocaleString()} · {service.duration || 30}min
+                {service.price.toLocaleString()} · {service.duration || 30}m
               </span>
             </label>
           );

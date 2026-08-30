@@ -9,6 +9,7 @@ import { resolveTenantActorContext } from "@/lib/auth/staff-access";
 import { Prisma } from "@/prisma/generated/prisma/client";
 import { publishEvent } from "@/lib/services/outbox";
 import { deliverOutboxMessageNow } from "@/lib/services/outbox-immediate";
+import { getBookingLifecycleEventType } from "@/lib/services/booking-event-policy";
 import { logAudit } from "@/lib/services/audit";
 import {
   BookingAvailabilityError,
@@ -380,7 +381,9 @@ export async function approveGcashPaymentAction(input: {
         const confirmationEvent = await publishEvent(
           tx as Prisma.TransactionClient,
           {
-            type: "BOOKING_CONFIRMED",
+            type: getBookingLifecycleEventType(
+              "PUBLIC_PAYMENT_OWNER_APPROVED",
+            ),
             aggregateType: "Booking",
             aggregateId: String(payment.booking_id),
             businessId: payment.booking.business_id,
