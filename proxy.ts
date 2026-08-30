@@ -47,9 +47,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api")) {
-    const ip = clientIpFromForwardedFor(
-      request.headers.get("x-forwarded-for"),
-    );
+    const ip = clientIpFromForwardedFor(request.headers.get("x-forwarded-for"));
     const result = await rateLimit(
       `${pathname}:${ip}`,
       getApiRateLimitConfig(pathname),
@@ -80,7 +78,9 @@ export async function proxy(request: NextRequest) {
   const isAppRoute = pathname === "/app" || pathname.startsWith("/app/");
   const isPlatformRoute =
     pathname === "/platform" || pathname.startsWith("/platform/");
-  const requiresToken = pathname === "/" || isAppRoute || isPlatformRoute;
+  const isLoginRoute = pathname === "/login";
+  const requiresToken =
+    pathname === "/" || isLoginRoute || isAppRoute || isPlatformRoute;
 
   const token = requiresToken
     ? await getToken({
@@ -91,6 +91,22 @@ export async function proxy(request: NextRequest) {
   const isAuthenticated = !!token;
   const role = token?.role as string | undefined;
   const isPlatformAdmin = role === "PLATFORM_ADMIN";
+
+  if (isLoginRoute && isAuthenticated) {
+    if (isPlatformAdmin) {
+      return NextResponse.redirect(new URL("/platform", request.url));
+    }
+
+    const businessSlug = token?.businessSlug as string | undefined;
+    if (businessSlug) {
+      const destination = token?.mustChangePassword
+        ? `/app/${businessSlug}/change-password`
+        : `/app/${businessSlug}`;
+      return NextResponse.redirect(new URL(destination, request.url));
+    }
+
+    return NextResponse.redirect(new URL("/", request.url));
+  }
 
   if (isAppRoute) {
     if (!isAuthenticated) {
@@ -111,11 +127,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  if (
-    isAppRoute &&
-    token?.mustChangePassword &&
-    !isPlatformAdmin
-  ) {
+  if (isAppRoute && token?.mustChangePassword && !isPlatformAdmin) {
     const segments = pathname.split("/").filter(Boolean);
     const businessSlug = segments[1];
     if (businessSlug) {
@@ -135,7 +147,9 @@ export async function proxy(request: NextRequest) {
       tokenBusinessSlug &&
       routeBusinessSlug !== tokenBusinessSlug
     ) {
-      return NextResponse.redirect(new URL(`/app/${tokenBusinessSlug}`, request.url));
+      return NextResponse.redirect(
+        new URL(`/app/${tokenBusinessSlug}`, request.url),
+      );
     }
   }
 
@@ -155,5 +169,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/app/:path*", "/platform/:path*", "/api/:path*"],
+  matcher: ["/", "/login", "/app/:path*", "/platform/:path*", "/api/:path*"],
 };

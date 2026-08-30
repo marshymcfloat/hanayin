@@ -1,6 +1,5 @@
 "use client";
 
-import AuthDialog from "@/components/auth/AuthDialog";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -118,18 +117,17 @@ export default function LandingHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <AuthDialog>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "rounded-full text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04] cursor-pointer transition-all",
-                scrolled ? "h-8 px-3 text-sm" : "h-9 px-4 text-sm",
-              )}
-            >
-              Sign in
-            </Button>
-          </AuthDialog>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "rounded-full text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04] cursor-pointer transition-all",
+              scrolled ? "h-8 px-3 text-sm" : "h-9 px-4 text-sm",
+            )}
+          >
+            <Link href="/login">Sign in</Link>
+          </Button>
           <Button
             asChild
             size="sm"

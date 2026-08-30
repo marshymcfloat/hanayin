@@ -10,7 +10,6 @@ import { constructMetadata } from "@/lib/metadata";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import SmoothScroll from "@/components/landing/SmoothScroll";
-import AuthDialog from "@/components/auth/AuthDialog";
 import { Input } from "@/components/ui/input";
 import {
   BUSINESS_STRUCTURE_TEMPLATES,
@@ -181,7 +180,9 @@ export default async function ApplyPage() {
                         aria-hidden
                         className="absolute -left-[27px] top-0.5 inline-flex size-4 items-center justify-center rounded-full border border-black/[0.08] bg-white font-mono text-[8px] font-semibold tracking-[0.05em] text-primary"
                       >
-                        {String(i + 1).padStart(2, "0").slice(-1)}
+                        {String(i + 1)
+                          .padStart(2, "0")
+                          .slice(-1)}
                       </span>
                       <div className="text-sm font-medium tracking-[-0.005em] text-foreground sm:text-base">
                         {step.title}
@@ -196,9 +197,7 @@ export default async function ApplyPage() {
 
               {/* Help nudge */}
               <div className="mt-12 rounded-xl border border-black/[0.06] bg-zinc-50/50 p-4 text-sm">
-                <p className="font-medium text-foreground">
-                  Have questions?
-                </p>
+                <p className="font-medium text-foreground">Have questions?</p>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                   Reach us at{" "}
                   <a
@@ -373,14 +372,12 @@ export default async function ApplyPage() {
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <AuthDialog>
-                  <button
-                    type="button"
-                    className="cursor-pointer font-medium text-foreground underline-offset-4 hover:underline"
-                  >
-                    Sign in
-                  </button>
-                </AuthDialog>
+                <Link
+                  href="/login"
+                  className="font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  Sign in
+                </Link>
               </p>
             </div>
           </div>
