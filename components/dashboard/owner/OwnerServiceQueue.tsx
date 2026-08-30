@@ -63,6 +63,18 @@ type OwnerClaimedQueryResponse =
   | OwnerClaimedResponse
   | { success: boolean; error?: string; data?: OwnerClaimedService[] };
 
+function isScheduleConflictDetails(
+  value: unknown,
+): value is { serviceName: string; scheduledAt: string } {
+  if (!value || typeof value !== "object") return false;
+
+  const details = value as Record<string, unknown>;
+  return (
+    typeof details.serviceName === "string" &&
+    typeof details.scheduledAt === "string"
+  );
+}
+
 export default function OwnerServiceQueue({
   businessSlug,
   pendingServices: initialPending,
@@ -84,17 +96,29 @@ export default function OwnerServiceQueue({
   }>({ id: null, type: null });
   const [isRefreshing, setIsRefreshing] = useState(false);
   // Track IDs being hidden optimistically so background refetches don't flash them back
-  const [hiddenClaimedIds, setHiddenClaimedIds] = useState<Set<number>>(new Set());
-  const [hiddenPendingIds, setHiddenPendingIds] = useState<Set<number>>(new Set());
+  const [hiddenClaimedIds, setHiddenClaimedIds] = useState<Set<number>>(
+    new Set(),
+  );
+  const [hiddenPendingIds, setHiddenPendingIds] = useState<Set<number>>(
+    new Set(),
+  );
 
   const hideClaimedId = (id: number) =>
     setHiddenClaimedIds((prev) => new Set([...prev, id]));
   const revealClaimedId = (id: number) =>
-    setHiddenClaimedIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+    setHiddenClaimedIds((prev) => {
+      const s = new Set(prev);
+      s.delete(id);
+      return s;
+    });
   const hidePendingId = (id: number) =>
     setHiddenPendingIds((prev) => new Set([...prev, id]));
   const revealPendingId = (id: number) =>
-    setHiddenPendingIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+    setHiddenPendingIds((prev) => {
+      const s = new Set(prev);
+      s.delete(id);
+      return s;
+    });
 
   const pendingKey = ["owner-pending-services", businessSlug];
   const claimedKey = ["owner-claimed-services", businessSlug];
@@ -203,10 +227,13 @@ export default function OwnerServiceQueue({
       setPendingCache(previousPending);
       setClaimedCache(previousClaimed);
       if ("code" in result && result.code === "SCHEDULE_CONFLICT") {
-        const description =
-          "conflict" in result && result.conflict
-            ? `You already have ${result.conflict.serviceName} scheduled at ${formatPH(result.conflict.scheduledAt, "h:mm a")}. Finish, unclaim, reschedule, or reassign it first.`
-            : result.error;
+        const conflict =
+          "conflict" in result && isScheduleConflictDetails(result.conflict)
+            ? result.conflict
+            : null;
+        const description = conflict
+          ? `You already have ${conflict.serviceName} scheduled at ${formatPH(conflict.scheduledAt, "h:mm a")}. Finish, unclaim, reschedule, or reassign it first.`
+          : result.error;
         toast.error("Schedule conflict", { description });
         await refreshLists();
       } else {
@@ -318,7 +345,9 @@ export default function OwnerServiceQueue({
       {/* Header */}
       <div className="shrink-0 flex items-center justify-between gap-2 px-4 pt-4 pb-3">
         <div>
-          <p className="text-sm font-bold text-foreground leading-none">Queue</p>
+          <p className="text-sm font-bold text-foreground leading-none">
+            Queue
+          </p>
           <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide font-medium">
             Owner Service Queue
           </p>
@@ -330,7 +359,9 @@ export default function OwnerServiceQueue({
           aria-label="Refresh queue"
           className="h-7 w-7 flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
         >
-          <RefreshCcw className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")} />
+          <RefreshCcw
+            className={cn("h-3.5 w-3.5", isRefreshing && "animate-spin")}
+          />
         </button>
       </div>
 
@@ -436,9 +467,11 @@ export default function OwnerServiceQueue({
                   const isServing =
                     actionState.id === item.id && actionState.type === "serve";
                   const isUnclaiming =
-                    actionState.id === item.id && actionState.type === "unclaim";
+                    actionState.id === item.id &&
+                    actionState.type === "unclaim";
                   const isUnserving =
-                    actionState.id === item.id && actionState.type === "unserve";
+                    actionState.id === item.id &&
+                    actionState.type === "unserve";
                   const isDone = item.status === "COMPLETED";
                   return (
                     <ServiceCard key={item.id}>
@@ -454,7 +487,9 @@ export default function OwnerServiceQueue({
                             {item.service.name}
                           </p>
                           <span className="flex items-center gap-1 text-[10px] text-muted-foreground truncate">
-                            <span className="truncate">{getBookingCustomerName(item.booking)}</span>
+                            <span className="truncate">
+                              {getBookingCustomerName(item.booking)}
+                            </span>
                             <span>·</span>
                             <Badge
                               variant="outline"
