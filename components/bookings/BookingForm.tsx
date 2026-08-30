@@ -122,6 +122,7 @@ import {
   ArrowRight,
   Check,
   Pencil,
+  AlertCircle,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -1388,21 +1389,21 @@ export default function BookingForm({
     createBookingAction(payload as Parameters<typeof createBookingAction>[0]);
   }, [pendingSubmitPayload, createBookingAction]);
 
+  const isGcashConfigured =
+    isEmployee || !!(gcash?.accountName?.trim() && gcash?.mobileNumber?.trim());
   const isSubmitDisabled =
     isPending ||
     isRedirecting ||
-    !form.formState.isValid ||
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
     !hasReviewedDetails ||
-    (!isEmployee && (!gcash?.accountName || !gcash?.mobileNumber));
+    !isGcashConfigured;
   const isSubmissionBlockedBeforeReview =
     isPending ||
     isRedirecting ||
-    !form.formState.isValid ||
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
-    (!isEmployee && (!gcash?.accountName || !gcash?.mobileNumber));
+    !isGcashConfigured;
 
   const isStep1Complete = selectedServices.length > 0;
   const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
@@ -1488,6 +1489,25 @@ export default function BookingForm({
     revealWizardStep,
     wizardSteps.length,
   ]);
+  const handleInvalidSubmit = useCallback(
+    (errors: typeof form.formState.errors) => {
+      const detailsStep = isEmployee ? 2 : 3;
+      const targetStep =
+        errors.services
+          ? isEmployee
+            ? 0
+            : 1
+          : errors.scheduledAt || errors.selectedTime
+            ? isEmployee
+              ? 1
+              : 2
+            : detailsStep;
+
+      revealWizardStep(targetStep);
+      toast.error("Please complete the highlighted booking details.");
+    },
+    [form, isEmployee, revealWizardStep],
+  );
   const selectedEmployeeName = useMemo(
     () =>
       employees.find((employee) => employee.id === selectedEmployeeId)?.name,
@@ -1606,7 +1626,7 @@ export default function BookingForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, handleInvalidSubmit)}
         aria-busy={!isEmployee && (isPending || isRedirecting)}
         className={cn(
           "relative flex flex-col gap-4 lg:flex-row lg:gap-10",
@@ -2685,6 +2705,18 @@ export default function BookingForm({
                 }
                 paymentControls={
                   <div className="space-y-3">
+                    {!isGcashConfigured && (
+                      <div
+                        className="flex gap-2 rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-xs leading-5 text-destructive"
+                        role="alert"
+                      >
+                        <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                        <span>
+                          Online booking is temporarily unavailable because
+                          this salon has not configured its GCash account.
+                        </span>
+                      </div>
+                    )}
                     {isEmployee && (
                       <>
                         <FormField
