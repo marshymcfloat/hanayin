@@ -133,6 +133,12 @@ export async function getPayslipDataAction(employeeId: number) {
         package_id: true,
         package: { select: { name: true } },
         service: { select: { name: true } },
+        booking: {
+          select: {
+            customer_label: true,
+            customer: { select: { name: true } },
+          },
+        },
       },
       orderBy: { completed_at: "asc" },
     });

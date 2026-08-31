@@ -1,367 +1,125 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { AlertCircle, Calendar, ChevronDown, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
-import {
-  createPayslipAction,
-  getPayslipDataAction,
-} from "@/lib/server actions/payslip";
-import { toast } from "sonner";
 import { formatPH } from "@/lib/date-utils";
-import {
-  Loader2,
-  Wallet,
-  Calendar as CalendarIcon,
-  AlertCircle,
-} from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
+import { createPayslipAction, getPayslipDataAction } from "@/lib/server actions/payslip";
 
-interface PayslipGenerationDialogProps {
-  employeeId: number | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
-}
-
+interface Props { employeeId: number | null; open: boolean; onOpenChange: (open: boolean) => void; onSuccess: () => void }
 type PayslipData = {
-  employee: {
-    id: number;
-    name: string;
-    daily_rate: number;
-    commission_percentage: number;
-  };
-  period: {
-    start: Date;
-    end: Date;
-  };
+  employee: { id: number; name: string; daily_rate: number; commission_percentage: number };
+  period: { start: Date; end: Date };
   breakdown: {
-    days_present: number;
-    paid_leave_days: number;
-    attendance_dates: Date[];
-    basic_salary: number;
-    commission_services_count: number;
+    days_present: number; paid_leave_days: number; attendance_dates: Date[]; basic_salary: number;
+    commission_services_count: number; commission_total: number;
     commission_services: Array<{
-      id: number;
-      commission_base: number | null;
-      price: number;
-      package: { name: string } | null;
-      service: { name: string };
+      id: number; commission_base: number | null; price: number; completed_at: Date | null;
+      package: { name: string } | null; service: { name: string };
+      booking: { customer_label: string | null; customer: { name: string } | null };
     }>;
-    commission_total: number;
   };
   total_salary: number;
 };
 type CommissionService = PayslipData["breakdown"]["commission_services"][number];
+const money = (amount: number, decimals = false) => amount.toLocaleString(undefined, { minimumFractionDigits: decimals ? 2 : 0, maximumFractionDigits: 2 });
 
-export function PayslipGenerationDialog({
-  employeeId,
-  open,
-  onOpenChange,
-  onSuccess,
-}: PayslipGenerationDialogProps) {
+export function PayslipGenerationDialog({ employeeId, open, onOpenChange, onSuccess }: Props) {
   const [generating, setGenerating] = useState(false);
   const [deduction, setDeduction] = useState(0);
   const [comment, setComment] = useState("");
-
+  const [showDetails, setShowDetails] = useState(false);
   const { data, isLoading, isFetching, error } = useQuery<PayslipData, Error>({
-    queryKey: ["payslip-data", employeeId],
-    enabled: open && !!employeeId,
-    queryFn: async (): Promise<PayslipData> => {
-      if (!employeeId) {
-        throw new Error("Employee not found");
-      }
-
+    queryKey: ["payslip-data", employeeId], enabled: open && !!employeeId,
+    queryFn: async () => {
+      if (!employeeId) throw new Error("Employee not found");
       const res = await getPayslipDataAction(employeeId);
-      if (!res.success || !("data" in res) || !res.data) {
-        throw new Error(("error" in res && res.error) || "Failed to load data");
-      }
-
+      if (!res.success || !("data" in res) || !res.data) throw new Error(("error" in res && res.error) || "Failed to load data");
       return res.data;
     },
   });
-
-  useEffect(() => {
-    if (!error) return;
-    toast.error(error.message);
-    onOpenChange(false);
-  }, [error, onOpenChange]);
-
-  const loading = isLoading || isFetching;
-
-  const handleDialogOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      setDeduction(0);
-      setComment("");
-    }
-    onOpenChange(nextOpen);
+  useEffect(() => { if (error) { toast.error(error.message); onOpenChange(false); } }, [error, onOpenChange]);
+  const changeOpen = (next: boolean) => {
+    if (!next) { setDeduction(0); setComment(""); setShowDetails(false); }
+    onOpenChange(next);
   };
-
-  const handleGenerate = async () => {
+  const generate = async () => {
     if (!data) return;
-    // Surface the silent cap: server clamps `deduction` to gross to
-    // prevent negative net pay (payslip.ts). Without this warning the
-    // owner thinks the extra carries over to next period -- it doesn't.
-    if (deduction > data.total_salary) {
-      toast.warning(
-        `Deduction (₱${deduction.toLocaleString()}) exceeds gross (₱${data.total_salary.toLocaleString()}). Will be capped at gross; the excess is NOT carried over.`,
-      );
-    }
+    if (deduction > data.total_salary) toast.warning(`Deduction (₱${money(deduction)}) exceeds gross (₱${money(data.total_salary)}). It will be capped at gross; the excess is not carried over.`);
     setGenerating(true);
-    // Server recomputes totals; we only forward the deduction + note.
-    const res = await createPayslipAction({
-      employeeId: data.employee.id,
-      deduction: deduction,
-      comment: comment,
-    });
+    const res = await createPayslipAction({ employeeId: data.employee.id, deduction, comment });
     setGenerating(false);
-
-    if (res.success) {
-      toast.success("Payslip generated successfully");
-      onSuccess();
-      onOpenChange(false);
-    } else {
-      toast.error(res.error);
-    }
+    if (res.success) { toast.success("Payslip generated successfully"); onSuccess(); onOpenChange(false); }
+    else toast.error(res.error);
   };
-
   if (!employeeId) return null;
+  const netPay = Math.max(0, (data?.total_salary ?? 0) - deduction);
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[600px]! max-h-[90vh] flex flex-col p-0 gap-0 rounded-3xl overflow-hidden">
-        <DialogHeader className="px-6 pb-2 pt-6 shrink-0">
-          <DialogTitle className="text-xl font-bold text-foreground">
-            Generate Payslip
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Review salary details and confirm payout generation.
-          </DialogDescription>
+    <Dialog open={open} onOpenChange={changeOpen}>
+      <DialogContent className="max-h-[90vh] gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-[580px]">
+        <DialogHeader className="shrink-0 border-b border-border px-5 py-4 pr-12 text-left">
+          <DialogTitle className="text-lg font-semibold tracking-tight">Generate Payslip</DialogTitle>
+          <DialogDescription className="text-sm">Review earnings and adjustments before payout.</DialogDescription>
         </DialogHeader>
-        <div className="h-px bg-border mx-6 shrink-0" />
-
-        <div className="flex-1 overflow-y-auto p-6 min-h-0">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
-              <p className="text-sm">Calculating payout details...</p>
-            </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5">
+          {isLoading || isFetching ? (
+            <div className="flex flex-col items-center py-16 text-muted-foreground"><Loader2 className="mb-2 h-6 w-6 animate-spin text-primary" /><p className="text-sm">Calculating payout…</p></div>
           ) : data ? (
-            <div className="space-y-4">
-              <div className="bg-card p-4 rounded-xl border border-border space-y-3">
-                <div className="flex justify-between items-center pb-3 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Employee</span>
-                  <span className="font-semibold text-foreground">
-                    {data.employee.name}
-                  </span>
+            <div>
+              <section className="border-b border-border py-4">
+                <div className="flex items-baseline justify-between gap-4"><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Employee</span><span className="text-sm font-semibold">{data.employee.name}</span></div>
+                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground"><Calendar className="h-3.5 w-3.5" aria-hidden="true" /><span>{formatPH(data.period.start, "MMM d, yyyy")}</span><span>—</span><span>{formatPH(data.period.end, "MMM d, yyyy")}</span></div>
+              </section>
+              <section className="border-b border-border py-4">
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Earnings</h3>
+                <div className="space-y-2.5">
+                  <PayRow label="Daily rate" value={`₱${money(data.employee.daily_rate)}`} />
+                  <PayRow label="Paid days" value={`${data.breakdown.days_present + data.breakdown.paid_leave_days}${data.breakdown.paid_leave_days ? ` (${data.breakdown.paid_leave_days} leave)` : ""}`} />
+                  <PayRow label="Basic pay" value={`₱${money(data.breakdown.basic_salary)}`} total />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase font-medium block mb-1">
-                      Period Start
-                    </span>
-                    <div className="flex items-center gap-2 text-sm text-foreground bg-muted/50 px-2 py-1.5 rounded-md border border-border">
-                      <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                      {formatPH(data.period.start, "PPP p")}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase font-medium block mb-1">
-                      Period End
-                    </span>
-                    <div className="flex items-center gap-2 text-sm text-foreground bg-muted/50 px-2 py-1.5 rounded-md border border-border">
-                      <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                      {formatPH(data.period.end, "PPP p")}
-                    </div>
-                  </div>
+                <div className="mt-4 border-t border-border pt-4">
+                  <div className="flex justify-between gap-3"><span className="text-sm font-medium">Commission ({data.employee.commission_percentage}%)</span><span className="text-xs text-muted-foreground">{data.breakdown.commission_services_count} services</span></div>
+                  {data.breakdown.commission_services.length > 0 && <button type="button" aria-expanded={showDetails} onClick={() => setShowDetails(!showDetails)} className="mt-2 flex min-h-11 w-full cursor-pointer items-center justify-between border-y border-border py-2 text-left text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span>{showDetails ? "Hide commission details" : "View commission details"}</span><ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`} /></button>}
+                  {showDetails && <CommissionDetails services={data.breakdown.commission_services} percentage={data.employee.commission_percentage} />}
+                  <div className="mt-3 flex justify-between text-sm tabular-nums"><span className="font-medium">Commission pay</span><span className="font-semibold text-primary">₱{money(data.breakdown.commission_total)}</span></div>
                 </div>
-              </div>
-
-              <div className="bg-card p-4 rounded-xl border border-border space-y-4">
-                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Wallet className="h-4 w-4 text-primary" />
-                  Salary Breakdown
-                </h4>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Daily Rate</span>
-                    <span className="font-mono text-foreground">
-                      ₱{data.employee.daily_rate.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Days Present</span>
-                    <span className="font-mono text-foreground">
-                      x {data.breakdown.days_present}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center bg-muted/50 p-2 rounded-lg border border-border">
-                    <span className="text-sm font-medium text-foreground">
-                      Basic Pay
-                    </span>
-                    <span className="font-bold text-foreground">
-                      ₱{data.breakdown.basic_salary.toLocaleString()}
-                    </span>
-                  </div>
+              </section>
+              <section className="py-4">
+                <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
+                  <div className="space-y-1.5"><Label htmlFor="deduction" className="text-xs text-muted-foreground">Deduction / adjustment</Label><div className="relative"><span className="absolute left-3 top-2 text-sm text-muted-foreground">₱</span><Input id="deduction" type="number" min="0" placeholder="0.00" className="h-9 rounded-md pl-7 tabular-nums" value={deduction || ""} onChange={(e) => setDeduction(Math.max(0, Number(e.target.value)))} /></div></div>
+                  <div className="space-y-1.5"><Label htmlFor="comment" className="text-xs text-muted-foreground">Notes <span className="font-normal">(optional)</span></Label><Textarea id="comment" placeholder="Add a note about this payout" className="min-h-16 resize-none rounded-md" value={comment} onChange={(e) => setComment(e.target.value)} /></div>
                 </div>
-
-                <Separator />
-
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-foreground">
-                      Commission ({data.employee.commission_percentage}%)
-                    </span>
-                    <Badge variant="outline" className="text-[10px] font-normal text-muted-foreground border-border">
-                      {data.breakdown.commission_services_count} services
-                    </Badge>
-                  </div>
-
-                  <div className="bg-muted/30 rounded-lg border border-border max-h-[120px] overflow-y-auto">
-                    {data.breakdown.commission_services.length > 0 ? (
-                      <div className="divide-y divide-border/50">
-                        {data.breakdown.commission_services.map(
-                          (service: CommissionService) => (
-                            <div
-                              key={service.id}
-                              className="px-3 py-2 flex justify-between items-center text-xs"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-foreground truncate max-w-[140px]">
-                                  {service.service.name}
-                                </span>
-                                {service.package && (
-                                  <span className="bg-indigo-50 text-indigo-600 px-1 py-0.5 rounded text-[9px] font-medium border border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-800">
-                                    PKG
-                                  </span>
-                                )}
-                              </div>
-                              <span className="font-mono text-muted-foreground">
-                                ₱
-                                {(
-                                  service.commission_base ?? service.price
-                                ).toLocaleString()}
-                              </span>
-                            </div>
-                          ),
-                        )}
-                      </div>
-                    ) : (
-                      <div className="p-3 text-center text-xs text-muted-foreground italic">
-                        No commission services this period
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-between items-center bg-primary/10 p-2 rounded-lg border border-primary/20">
-                    <span className="text-sm font-medium text-primary">
-                      Commission Pay
-                    </span>
-                    <span className="font-bold text-primary">
-                      ₱{data.breakdown.commission_total.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-card p-4 rounded-xl border border-border space-y-4">
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="deduction"
-                      className="text-xs uppercase text-muted-foreground font-bold"
-                    >
-                      Deduction / Adjustment
-                    </Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-muted-foreground font-mono">
-                        ₱
-                      </span>
-                      <Input
-                        id="deduction"
-                        type="number"
-                        min="0"
-                        placeholder="0.00"
-                        className="pl-7 rounded-xl border-border bg-background"
-                        value={deduction || ""}
-                        onChange={(e) => setDeduction(Number(e.target.value))}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="comment"
-                      className="text-xs uppercase text-muted-foreground font-bold"
-                    >
-                      Notes
-                    </Label>
-                    <Textarea
-                      id="comment"
-                      placeholder="Add any notes about this payslip..."
-                      className="rounded-xl border-border bg-background min-h-[60px] resize-none"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
+              </section>
             </div>
-          ) : (
-            <div className="py-12 text-center">
-              <div className="bg-destructive/10 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                <AlertCircle className="h-6 w-6 text-destructive" />
-              </div>
-              <p className="text-foreground font-medium">Failed to load data</p>
-              <p className="text-muted-foreground text-sm">
-                Please try again later or contact support.
-              </p>
-            </div>
-          )}
+          ) : <div className="py-16 text-center"><AlertCircle className="mx-auto mb-2 h-6 w-6 text-destructive" /><p className="text-sm font-medium">Failed to load payout details</p></div>}
         </div>
-
-        {data && (
-          <div className="px-6 py-4 border-t border-border bg-muted/30 shrink-0">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-sm font-medium text-muted-foreground">Net Pay</span>
-              <span className="text-2xl font-bold text-foreground tracking-tight">
-                ₱{(data.total_salary - deduction).toLocaleString()}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={generating}
-                className="rounded-xl cursor-pointer"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleGenerate}
-                disabled={generating}
-                className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-              >
-                {generating && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Confirm Payout
-              </Button>
-            </div>
-          </div>
-        )}
+        {data && <div className="shrink-0 border-t border-border bg-background px-5 py-4">
+          <div className="mb-3 flex items-end justify-between gap-4"><div><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Net pay</span><p className="text-xs text-muted-foreground">Gross less adjustments</p></div><span className="text-2xl font-semibold tracking-tight tabular-nums">₱{money(netPay)}</span></div>
+          <div className="grid grid-cols-2 gap-3"><Button variant="outline" onClick={() => changeOpen(false)} disabled={generating} className="h-10 cursor-pointer rounded-md">Cancel</Button><Button onClick={generate} disabled={generating} className="h-10 cursor-pointer rounded-md">{generating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirm Payout</Button></div>
+        </div>}
       </DialogContent>
     </Dialog>
   );
+}
+
+function PayRow({ label, value, total = false }: { label: string; value: string; total?: boolean }) {
+  return <div className={`flex justify-between text-sm tabular-nums ${total ? "border-t border-dashed border-border pt-2.5 font-semibold" : ""}`}><span className={total ? "" : "text-muted-foreground"}>{label}</span><span>{value}</span></div>;
+}
+
+function CommissionDetails({ services, percentage }: { services: CommissionService[]; percentage: number }) {
+  return <div className="max-h-48 overflow-y-auto border-b border-border">
+    <div className="sticky top-0 grid grid-cols-[minmax(0,1fr)_auto] gap-3 border-b border-border bg-muted px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"><span>Customer · Service · Date</span><span>Commission</span></div>
+    <div className="divide-y divide-border">{services.map((service) => {
+      const customer = service.booking.customer?.name ?? service.booking.customer_label ?? "Walk-in customer";
+      const commission = ((service.commission_base ?? service.price) * percentage) / 100;
+      return <div key={service.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-2 py-2 text-xs"><div className="min-w-0"><p className="truncate font-medium">{customer}</p><p className="truncate text-muted-foreground">{service.service.name}{service.package ? ` · ${service.package.name}` : ""}{service.completed_at ? ` · ${formatPH(service.completed_at, "MMM d, yyyy")}` : ""}</p></div><span className="font-medium tabular-nums">₱{money(commission, true)}</span></div>;
+    })}</div>
+  </div>;
 }

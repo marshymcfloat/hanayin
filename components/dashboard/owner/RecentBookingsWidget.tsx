@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { formatPH } from "@/lib/date-utils";
+import { formatPH, getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
 import {
   Booking,
   Customer,
@@ -75,31 +75,58 @@ const STATUS_STYLES: Record<BookingPaymentStage, string> = {
   CANCELLED: "bg-red-50 text-red-700 border-red-200",
 };
 
+function getPaymentDeadline(booking: BookingWithDetails) {
+  return booking.hold_expires_at ?? booking.payments?.[0]?.expires_at ?? null;
+}
+
+function getEffectivePaymentStage(
+  booking: BookingWithDetails,
+  currentTime: number,
+): BookingPaymentStage {
+  const stage = deriveBookingPaymentStage(booking);
+  const deadline = getPaymentDeadline(booking);
+
+  if (
+    stage === "AWAITING_PAYMENT" &&
+    deadline &&
+    new Date(deadline).getTime() <= currentTime
+  ) {
+    return "EXPIRED";
+  }
+
+  return stage;
+}
+
+function formatCountdown(deadline: Date | string, currentTime: number) {
+  const remainingSeconds = Math.max(
+    0,
+    Math.ceil((new Date(deadline).getTime() - currentTime) / 1000),
+  );
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 function RecentBookingQuickModal({
   booking,
   businessSlug,
   open,
   onOpenChange,
+  currentTime,
 }: {
   booking: BookingWithDetails | null;
   businessSlug: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  currentTime: number;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [currentTime, setCurrentTime] = useState(() => Date.now());
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setCurrentTime(Date.now()), 30_000);
-    return () => window.clearInterval(timer);
-  }, []);
-
   if (!booking) return null;
 
   const payment = booking.payments?.[0];
-  const stage = deriveBookingPaymentStage(booking);
-  const deadline = booking.hold_expires_at ?? payment?.expires_at ?? null;
+  const stage = getEffectivePaymentStage(booking, currentTime);
+  const deadline = getPaymentDeadline(booking);
   const isUnexpired = !!deadline && new Date(deadline).getTime() > currentTime;
   const canConfirm =
     booking.status === "HOLD" &&
@@ -145,7 +172,9 @@ function RecentBookingQuickModal({
                 STATUS_STYLES[stage],
               )}
             >
-              {BOOKING_PAYMENT_STAGE_LABELS[stage]}
+              {stage === "AWAITING_PAYMENT" && deadline
+                ? `Awaiting payment \u00b7 ${formatCountdown(deadline, currentTime)}`
+                : BOOKING_PAYMENT_STAGE_LABELS[stage]}
             </span>
             <span className="text-xs text-muted-foreground">
               Booking #{booking.id}
@@ -228,10 +257,23 @@ function RecentBookingQuickModal({
             </div>
             {deadline ? (
               <div className="col-span-2 border-t pt-3">
-                <dt className="text-muted-foreground">Review deadline</dt>
+                <dt className="text-muted-foreground">
+                  {stage === "AWAITING_PAYMENT"
+                    ? "Payment deadline"
+                    : "Review deadline"}
+                </dt>
                 <dd className="mt-0.5 font-medium">
                   {formatPH(deadline, "MMM d, h:mm a")}
                 </dd>
+                {stage === "AWAITING_PAYMENT" ? (
+                  <dd
+                    className="mt-1 font-mono font-semibold tabular-nums text-amber-700"
+                    aria-label={`Payment expires in ${formatCountdown(deadline, currentTime)}`}
+                    aria-live="off"
+                  >
+                    Expires in {formatCountdown(deadline, currentTime)}
+                  </dd>
+                ) : null}
               </div>
             ) : null}
           </dl>
@@ -281,13 +323,42 @@ export function RecentBookingsWidget({
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
     null,
   );
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const refreshedExpiredBookings = useRef(new Set<number>());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const newlyExpired = bookings.some((booking) => {
+      if (deriveBookingPaymentStage(booking) !== "AWAITING_PAYMENT") {
+        return false;
+      }
+      const deadline = getPaymentDeadline(booking);
+      if (!deadline || new Date(deadline).getTime() > currentTime) return false;
+      if (refreshedExpiredBookings.current.has(booking.id)) return false;
+      refreshedExpiredBookings.current.add(booking.id);
+      return true;
+    });
+
+    if (newlyExpired) router.refresh();
+  }, [bookings, currentTime, router]);
 
   const refreshBookings = () => {
     startRefreshTransition(() => router.refresh());
   };
   const selectedBooking =
     bookings.find((booking) => booking.id === selectedBookingId) ?? null;
-  const recentBookings = [...bookings]
+  const startOfToday = getStartOfDayPH(new Date(currentTime)).getTime();
+  const endOfToday = getEndOfDayPH(new Date(currentTime)).getTime();
+  const recentBookings = bookings
+    .filter((booking) => {
+      const createdAt = new Date(booking.created_at).getTime();
+      return createdAt >= startOfToday && createdAt <= endOfToday;
+    })
+    .slice()
     .sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
@@ -300,10 +371,16 @@ export function RecentBookingsWidget({
   };
 
   const getStatusStyle = (booking: BookingWithDetails) =>
-    STATUS_STYLES[deriveBookingPaymentStage(booking)];
+    STATUS_STYLES[getEffectivePaymentStage(booking, currentTime)];
 
-  const getStatusLabel = (booking: BookingWithDetails) =>
-    BOOKING_PAYMENT_STAGE_LABELS[deriveBookingPaymentStage(booking)];
+  const getStatusLabel = (booking: BookingWithDetails) => {
+    const stage = getEffectivePaymentStage(booking, currentTime);
+    const deadline = getPaymentDeadline(booking);
+    if (stage === "AWAITING_PAYMENT" && deadline) {
+      return `Awaiting payment \u00b7 ${formatCountdown(deadline, currentTime)}`;
+    }
+    return BOOKING_PAYMENT_STAGE_LABELS[stage];
+  };
 
   // ── Compact strip variant (used inside OwnerDashboard center column) ──
   if (compact) {
@@ -371,7 +448,7 @@ export function RecentBookingsWidget({
                   <div className="flex items-center gap-2 shrink-0">
                     <span
                       className={cn(
-                        "text-[8px] uppercase font-bold tracking-wide px-1.5 py-0.5 rounded border",
+                        "whitespace-nowrap text-[8px] uppercase font-bold tracking-wide px-1.5 py-0.5 rounded border tabular-nums",
                         getStatusStyle(booking),
                       )}
                     >
@@ -391,6 +468,7 @@ export function RecentBookingsWidget({
           businessSlug={businessSlug}
           open={selectedBookingId !== null}
           onOpenChange={(next) => !next && setSelectedBookingId(null)}
+          currentTime={currentTime}
         />
       </>
     );
@@ -473,7 +551,7 @@ export function RecentBookingsWidget({
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span
                       className={cn(
-                        "text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md border",
+                        "whitespace-nowrap text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md border tabular-nums",
                         getStatusStyle(booking),
                       )}
                     >
@@ -503,6 +581,7 @@ export function RecentBookingsWidget({
         businessSlug={businessSlug}
         open={selectedBookingId !== null}
         onOpenChange={(next) => !next && setSelectedBookingId(null)}
+        currentTime={currentTime}
       />
     </>
   );

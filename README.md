@@ -138,6 +138,11 @@ Open `http://localhost:3000`.
 - `GET /api/cron/subscription-dunning`
 - `GET /api/cron/subscription-referral-rewards`
 
+Run `GET /api/cron/expire-holds` every minute with an external scheduler. Use
+the configured `CRON_SECRET` bearer token or `CRON_USER`/`CRON_PASSWORD` basic
+authentication. Public QR payment holds expire after 15 minutes by default;
+set `QR_HOLD_EXPIRY_SECONDS=900` explicitly in production.
+
 Cron auth supports either:
 
 - Bearer token via `CRON_SECRET`

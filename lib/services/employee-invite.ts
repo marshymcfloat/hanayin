@@ -10,16 +10,17 @@ export async function sendEmployeeInviteSms({
   businessName,
   tempPassword,
   expiresAt,
+  loginUrl = `${getSiteUrl()}/login`,
 }: {
   to: string;
   employeeName: string;
   businessName: string;
   tempPassword: string;
   expiresAt: Date;
+  loginUrl?: string;
 }) {
   const expiry = formatPH(expiresAt, "MMM d, h:mm a");
   const firstName = employeeName.trim().split(/\s+/)[0] || employeeName;
-  const loginUrl = `${getSiteUrl()}/login`;
 
   // Keep the complete URL and password. Semaphore can deliver a
   // concatenated SMS when the business name makes this exceed one segment.

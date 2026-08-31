@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RecentBookingsWidget } from "./RecentBookingsWidget";
 import { approveGcashPaymentAction } from "@/lib/server actions/manual-gcash";
 
@@ -14,6 +14,7 @@ vi.mock("@/lib/server actions/manual-gcash", () => ({
 }));
 
 function booking(submittedAt: Date | null = null) {
+  const paymentDeadline = new Date(Date.now() + 15 * 60 * 1000);
   return {
     id: 124,
     status: "HOLD",
@@ -21,9 +22,9 @@ function booking(submittedAt: Date | null = null) {
     grand_total: 1499,
     amount_paid: 0,
     total_discount: 0,
-    created_at: new Date("2026-08-19T08:00:00Z"),
+    created_at: new Date(),
     scheduled_at: new Date("2026-08-19T09:30:00Z"),
-    hold_expires_at: new Date("2099-08-19T10:00:00Z"),
+    hold_expires_at: paymentDeadline,
     customer_label: null,
     customer: { name: "Daniel", phone: "09951804645" },
     vouchers: [],
@@ -35,7 +36,7 @@ function booking(submittedAt: Date | null = null) {
         payer_name: submittedAt ? "Daniel Canoy" : null,
         provider_reference: submittedAt ? "ABC123" : null,
         submitted_at: submittedAt,
-        expires_at: new Date("2099-08-19T12:00:00Z"),
+        expires_at: paymentDeadline,
       },
     ],
     availed_services: [
@@ -55,6 +56,77 @@ describe("RecentBookingsWidget quick modal", () => {
     vi.clearAllMocks();
     vi.mocked(approveGcashPaymentAction).mockResolvedValue({ success: true });
     window.history.replaceState({}, "", "/app/beautyfeel");
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("shows a live countdown for an unsubmitted payment", () => {
+    render(
+      <RecentBookingsWidget bookings={[booking()]} businessSlug="beautyfeel" />,
+    );
+
+    expect(
+      screen.getByText(/awaiting payment · \d{2}:\d{2}/i),
+    ).toBeInTheDocument();
+  });
+
+  it("locally expires an unpaid hold at zero and refreshes once", () => {
+    vi.useFakeTimers();
+    const now = new Date("2026-08-19T08:00:00Z");
+    vi.setSystemTime(now);
+    const expiringBooking = booking();
+    const mutableExpiringBooking = expiringBooking as unknown as {
+      created_at: Date;
+      hold_expires_at: Date;
+    };
+    mutableExpiringBooking.created_at = now;
+    mutableExpiringBooking.hold_expires_at = new Date(now.getTime() + 1_000);
+
+    render(
+      <RecentBookingsWidget
+        bookings={[expiringBooking]}
+        businessSlug="beautyfeel"
+      />,
+    );
+
+    act(() => vi.advanceTimersByTime(1_000));
+
+    expect(screen.getByText("Expired")).toBeInTheDocument();
+    expect(refresh).toHaveBeenCalledTimes(1);
+
+    act(() => vi.advanceTimersByTime(2_000));
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps submitted payments in awaiting verification", () => {
+    render(
+      <RecentBookingsWidget
+        bookings={[booking(new Date())]}
+        businessSlug="beautyfeel"
+      />,
+    );
+
+    expect(screen.getByText("Awaiting verification")).toBeInTheDocument();
+    expect(screen.queryByText(/awaiting payment ·/i)).not.toBeInTheDocument();
+  });
+
+  it("does not show bookings created before today", () => {
+    const yesterday = booking();
+    const mutableYesterday = yesterday as unknown as {
+      created_at: Date;
+    };
+    mutableYesterday.created_at = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    render(
+      <RecentBookingsWidget
+        bookings={[yesterday]}
+        businessSlug="beautyfeel"
+      />,
+    );
+
+    expect(screen.getByText("No bookings today yet.")).toBeInTheDocument();
   });
 
   it("opens in place and confirms an unsubmitted payment with the owner source", async () => {
