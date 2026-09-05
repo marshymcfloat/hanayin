@@ -1,16 +1,16 @@
 import { hash } from "bcryptjs";
 import crypto from "crypto";
-import { Role } from "./generated/prisma/enums";
+import { Role, StaffPermission } from "./generated/prisma/enums";
 import { prisma } from "./prisma";
 import { normalizePhilippinePhone } from "../lib/services/sms-otp";
 import { sendEmployeeInviteSms } from "../lib/services/employee-invite";
+import { TEMP_PASSWORD_TTL_MS } from "../lib/auth/temporary-password";
 
 const PASSWORD = "Ellainepe123";
 const OWNER_CONTACT_NUMBER = "09274603088";
 const EMPLOYEE_LOGIN_URL = "http://serviceflow.store/login";
 const TEMP_PASSWORD_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const TEMP_PASSWORD_LENGTH = 6;
-const TEMP_PASSWORD_TTL_MS = 24 * 60 * 60 * 1000;
 
 function requiredEnv(name: string) {
   const value = process.env[name]?.trim();
@@ -30,57 +30,95 @@ function generateTempPassword() {
 type EmployeeSeed = {
   name: string;
   contactNumber: string;
-  specialty: string;
+  specialties: string[];
+  dailyRate: number;
+  commissionPercentage: number;
 };
 
 const employees: EmployeeSeed[] = [
   {
     name: "Mary",
     contactNumber: "09463821244",
-    specialty: "Nail Care Services",
+    specialties: ["Nail Care Services"],
+    dailyRate: 350,
+    commissionPercentage: 0,
   },
   {
     name: "Rose",
     contactNumber: "09925371019",
-    specialty: "Nail Care Services",
+    specialties: ["Nail Care Services"],
+    dailyRate: 350,
+    commissionPercentage: 0,
   },
   {
     name: "Jhed",
     contactNumber: "09936682729",
-    specialty: "Nail Care Services",
+    specialties: ["Nail Care Services"],
+    dailyRate: 350,
+    commissionPercentage: 0,
   },
   {
     name: "Ritchel",
     contactNumber: "09708209047",
-    specialty: "Nail Care Services",
+    specialties: ["Nail Care Services"],
+    dailyRate: 350,
+    commissionPercentage: 0,
   },
   {
     name: "Cath",
     contactNumber: "09930507919",
-    specialty: "Eyelash/Eyebrow Services",
+    specialties: ["Eyelash/Eyebrow Services"],
+    dailyRate: 350,
+    commissionPercentage: 0,
   },
   {
     name: "Gia",
     contactNumber: "09700459647",
-    specialty: "Eyelash/Eyebrow Services",
+    specialties: ["Eyelash/Eyebrow Services"],
+    dailyRate: 350,
+    commissionPercentage: 0,
   },
   {
     name: "Jeza",
     contactNumber: "09153121711",
-    specialty: "Eyelash/Eyebrow Services",
+    specialties: ["Eyelash/Eyebrow Services"],
+    dailyRate: 350,
+    commissionPercentage: 0,
   },
-  { name: "Myra", contactNumber: "09977127119", specialty: "Massage Therapy" },
-  { name: "Diane", contactNumber: "09166267592", specialty: "Massage Therapy" },
+  {
+    name: "Myra",
+    contactNumber: "09977127119",
+    specialties: ["Massage Therapy", "Waxing/Body Services"],
+    dailyRate: 0,
+    commissionPercentage: 50,
+  },
+  {
+    name: "Diane",
+    contactNumber: "09166267592",
+    specialties: ["Massage Therapy", "Waxing/Body Services"],
+    dailyRate: 0,
+    commissionPercentage: 50,
+  },
   {
     name: "Eunice",
     contactNumber: "09482163046",
-    specialty: "Massage Therapy",
+    specialties: ["Massage Therapy", "Waxing/Body Services"],
+    dailyRate: 0,
+    commissionPercentage: 50,
   },
-  { name: "Rose", contactNumber: "09758477068", specialty: "Massage Therapy" },
+  {
+    name: "Rose",
+    contactNumber: "09758477068",
+    specialties: ["Massage Therapy", "Waxing/Body Services"],
+    dailyRate: 0,
+    commissionPercentage: 50,
+  },
   {
     name: "Stella",
     contactNumber: "09693623016",
-    specialty: "Massage Therapy",
+    specialties: ["Massage Therapy", "Waxing/Body Services"],
+    dailyRate: 0,
+    commissionPercentage: 50,
   },
 ];
 
@@ -313,9 +351,19 @@ async function main() {
         user_id: user.id,
         business_id: business.id,
         salary: 0,
-        daily_rate: 0,
-        commission_percentage: 0,
-        specialties: [employee.specialty.toLowerCase()],
+        daily_rate: employee.dailyRate,
+        commission_percentage: employee.commissionPercentage,
+        permissions: [
+          StaffPermission.BOOKING_CREATE,
+          StaffPermission.BOOKING_MODIFY,
+          StaffPermission.BOOKING_CANCEL,
+          StaffPermission.BOOKING_MARK_NO_SHOW,
+          StaffPermission.BOOKING_ADJUST_PRICE,
+          StaffPermission.PAYMENT_COLLECT,
+          StaffPermission.QUEUE_CLAIM_SELF,
+          StaffPermission.QUEUE_SERVE_SELF,
+        ],
+        specialties: employee.specialties,
       },
     });
     employeeInvites.push({

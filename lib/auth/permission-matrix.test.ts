@@ -82,6 +82,7 @@ const DEFAULT_STAFF_PERMS: ReadonlySet<StaffPermission> = new Set([
   StaffPermission.BOOKING_CANCEL,
   StaffPermission.BOOKING_MARK_NO_SHOW,
   StaffPermission.BOOKING_ADJUST_PRICE,
+  StaffPermission.PAYMENT_COLLECT,
   StaffPermission.QUEUE_CLAIM_SELF,
   StaffPermission.QUEUE_SERVE_SELF,
 ]);
@@ -114,12 +115,9 @@ describe("permission matrix — OWNER actor", () => {
   // Owners pass every permission unconditionally per the
   // hasStaffPermission short-circuit. The test is exhaustive over
   // the enum to lock that contract in.
-  it.each(Object.values(StaffPermission))(
-    "passes %s",
-    (permission) => {
-      expect(hasStaffPermission(ctx, permission)).toBe(true);
-    },
-  );
+  it.each(Object.values(StaffPermission))("passes %s", (permission) => {
+    expect(hasStaffPermission(ctx, permission)).toBe(true);
+  });
 });
 
 // ─── STAFF profile ───────────────────────────────────────────────
@@ -209,11 +207,17 @@ describe("permission matrix — business policy overlays", () => {
       ],
       businessPolicy: { managerCanServe: false },
     });
-    expect(hasStaffPermission(ctx, StaffPermission.QUEUE_CLAIM_SELF)).toBe(false);
-    expect(hasStaffPermission(ctx, StaffPermission.QUEUE_SERVE_SELF)).toBe(false);
+    expect(hasStaffPermission(ctx, StaffPermission.QUEUE_CLAIM_SELF)).toBe(
+      false,
+    );
+    expect(hasStaffPermission(ctx, StaffPermission.QUEUE_SERVE_SELF)).toBe(
+      false,
+    );
     // Override is unaffected — managers can still re-route bookings
     // even when they personally don't serve.
-    expect(hasStaffPermission(ctx, StaffPermission.QUEUE_OVERRIDE_ALL)).toBe(true);
+    expect(hasStaffPermission(ctx, StaffPermission.QUEUE_OVERRIDE_ALL)).toBe(
+      true,
+    );
   });
 
   it("MANAGER.BOOKING_MODIFY is unaffected by managerCanServe", () => {
@@ -245,9 +249,15 @@ describe("permission matrix — non-delegable contracts", () => {
   });
 
   it("SOCIAL_POST_PUBLISH is NOT in any default profile array", () => {
-    expect(DEFAULT_STAFF_PERMS.has(StaffPermission.SOCIAL_POST_PUBLISH)).toBe(false);
-    expect(DEFAULT_MANAGER_PERMS.has(StaffPermission.SOCIAL_POST_PUBLISH)).toBe(false);
-    expect(DEFAULT_CASHIER_PERMS.has(StaffPermission.SOCIAL_POST_PUBLISH)).toBe(false);
+    expect(DEFAULT_STAFF_PERMS.has(StaffPermission.SOCIAL_POST_PUBLISH)).toBe(
+      false,
+    );
+    expect(DEFAULT_MANAGER_PERMS.has(StaffPermission.SOCIAL_POST_PUBLISH)).toBe(
+      false,
+    );
+    expect(DEFAULT_CASHIER_PERMS.has(StaffPermission.SOCIAL_POST_PUBLISH)).toBe(
+      false,
+    );
   });
 
   it("an explicitly-granted SOCIAL_POST_PUBLISH still passes hasStaffPermission", () => {
@@ -257,6 +267,8 @@ describe("permission matrix — non-delegable contracts", () => {
       profile: StaffProfile.MANAGER,
       permissions: [StaffPermission.SOCIAL_POST_PUBLISH],
     });
-    expect(hasStaffPermission(ctx, StaffPermission.SOCIAL_POST_PUBLISH)).toBe(true);
+    expect(hasStaffPermission(ctx, StaffPermission.SOCIAL_POST_PUBLISH)).toBe(
+      true,
+    );
   });
 });

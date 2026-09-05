@@ -66,6 +66,7 @@ const PROFILE_DEFAULT_PERMISSIONS: Record<StaffProfile, StaffPermission[]> = {
     StaffPermission.BOOKING_CANCEL,
     StaffPermission.BOOKING_MARK_NO_SHOW,
     StaffPermission.BOOKING_ADJUST_PRICE,
+    StaffPermission.PAYMENT_COLLECT,
     StaffPermission.QUEUE_CLAIM_SELF,
     StaffPermission.QUEUE_SERVE_SELF,
   ],
@@ -250,14 +251,18 @@ export function EmployeesPageClient({
 }: EmployeesPageClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [profileFilter, setProfileFilter] = useState<"ALL" | StaffProfile>("ALL");
+  const [profileFilter, setProfileFilter] = useState<"ALL" | StaffProfile>(
+    "ALL",
+  );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
+    useState(false);
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithDetails | null>(null);
+  const [selectedEmployee, setSelectedEmployee] =
+    useState<EmployeeWithDetails | null>(null);
   const [formData, setFormData] = useState<EmployeeFormData>(initialFormData);
   const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -387,8 +392,15 @@ export function EmployeesPageClient({
     };
     setIsEditDialogOpen(false);
     startTransition(async () => {
-      addOptimisticUpdate({ type: "update", employeeId: selectedEmployee.id, data: updateData });
-      const result = await updateEmployeeAction(selectedEmployee.id, updateData);
+      addOptimisticUpdate({
+        type: "update",
+        employeeId: selectedEmployee.id,
+        data: updateData,
+      });
+      const result = await updateEmployeeAction(
+        selectedEmployee.id,
+        updateData,
+      );
       if (result.success) {
         toast.success("Employee updated successfully");
         router.refresh();
@@ -425,7 +437,10 @@ export function EmployeesPageClient({
       return;
     }
     setIsLoading(true);
-    const result = await resetEmployeePasswordAction(selectedEmployee.id, newPassword);
+    const result = await resetEmployeePasswordAction(
+      selectedEmployee.id,
+      newPassword,
+    );
     setIsLoading(false);
     if (result.success) {
       toast.success("Password reset successfully");
@@ -486,7 +501,10 @@ export function EmployeesPageClient({
   };
 
   return (
-    <div className="flex flex-col bg-background min-h-screen" data-business-slug={businessSlug}>
+    <div
+      className="flex flex-col bg-background min-h-screen"
+      data-business-slug={businessSlug}
+    >
       {/* HEADER */}
       <div className="border-b border-border bg-card">
         <div className="px-4 sm:px-8 pt-5 pb-4 sm:py-6 max-w-7xl mx-auto w-full">
@@ -495,7 +513,9 @@ export function EmployeesPageClient({
               <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-bold text-foreground leading-tight">Employees</h1>
+              <h1 className="text-lg sm:text-2xl font-bold text-foreground leading-tight">
+                Employees
+              </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Manage your team, their roles, and permissions.
               </p>
@@ -585,7 +605,9 @@ export function EmployeesPageClient({
                 onClick={handleRefresh}
                 aria-label="Refresh"
               >
-                <RefreshCcw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+                <RefreshCcw
+                  className={cn("h-4 w-4", isRefreshing && "animate-spin")}
+                />
               </Button>
             </div>
 
@@ -606,11 +628,19 @@ export function EmployeesPageClient({
                   >
                     {opt.label}
                     {opt.value !== "ALL" && (
-                      <span className={cn(
-                        "ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
-                        active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                      )}>
-                        {optimisticEmployees.filter((e) => e.profile === opt.value).length}
+                      <span
+                        className={cn(
+                          "ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
+                          active
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {
+                          optimisticEmployees.filter(
+                            (e) => e.profile === opt.value,
+                          ).length
+                        }
                       </span>
                     )}
                   </button>
@@ -644,12 +674,19 @@ export function EmployeesPageClient({
                   : "Try a different search term or clear the active filters."}
               </p>
               {employees.length === 0 ? (
-                <Button onClick={() => setIsAddDialogOpen(true)} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
+                <Button
+                  onClick={() => setIsAddDialogOpen(true)}
+                  className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add your first employee
                 </Button>
               ) : (
-                <Button onClick={clearFilters} variant="outline" className="rounded-xl cursor-pointer">
+                <Button
+                  onClick={clearFilters}
+                  variant="outline"
+                  className="rounded-xl cursor-pointer"
+                >
                   Clear filters
                 </Button>
               )}
@@ -724,10 +761,15 @@ export function EmployeesPageClient({
       ) : null}
 
       {/* Reset password */}
-      <Dialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
+      <Dialog
+        open={isResetPasswordDialogOpen}
+        onOpenChange={setIsResetPasswordDialogOpen}
+      >
         <DialogContent className="rounded-2xl sm:rounded-3xl max-w-md p-0 gap-0">
           <DialogHeader className="p-6 pb-3">
-            <DialogTitle className="text-lg font-bold text-foreground">Reset Password</DialogTitle>
+            <DialogTitle className="text-lg font-bold text-foreground">
+              Reset Password
+            </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
               Set a new password for {selectedEmployee?.user.name}.
             </DialogDescription>
@@ -742,13 +784,23 @@ export function EmployeesPageClient({
               onChange={(e) => setNewPassword(e.target.value)}
               className="h-11 rounded-xl"
             />
-            <p className="text-xs text-muted-foreground">Must be at least 6 characters.</p>
+            <p className="text-xs text-muted-foreground">
+              Must be at least 6 characters.
+            </p>
           </div>
           <div className="px-6 py-4 border-t border-border bg-muted/30 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 rounded-b-2xl sm:rounded-b-3xl">
-            <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)} className="rounded-xl cursor-pointer">
+            <Button
+              variant="outline"
+              onClick={() => setIsResetPasswordDialogOpen(false)}
+              className="rounded-xl cursor-pointer"
+            >
               Cancel
             </Button>
-            <Button onClick={handleResetPassword} disabled={isLoading} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
+            <Button
+              onClick={handleResetPassword}
+              disabled={isLoading}
+              className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+            >
               {isLoading ? "Resetting..." : "Reset Password"}
             </Button>
           </div>
@@ -772,10 +824,16 @@ function KpiTile({
   return (
     <div className="shrink-0 sm:shrink min-w-[150px] sm:min-w-0 px-4 sm:px-5 py-2 sm:py-1 first:pl-0 sm:first:pl-0">
       <div className="flex items-center gap-1.5 text-muted-foreground">
-        <span className={cn(tone === "primary" ? "text-primary" : "text-muted-foreground")}>
+        <span
+          className={cn(
+            tone === "primary" ? "text-primary" : "text-muted-foreground",
+          )}
+        >
           {icon}
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-wider">{label}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider">
+          {label}
+        </span>
       </div>
       <div
         className={cn(
@@ -813,18 +871,34 @@ function EmployeeFormDialog({
   return (
     <DialogContent className="sm:max-w-3xl max-h-[92vh] sm:max-h-[90vh] overflow-hidden rounded-t-3xl rounded-b-none sm:rounded-3xl p-0 gap-0 flex flex-col">
       <DialogHeader className="px-5 sm:px-6 pt-5 sm:pt-6 pb-3 shrink-0">
-        <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">{title}</DialogTitle>
-        <DialogDescription className="text-sm text-muted-foreground">{description}</DialogDescription>
+        <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
+          {title}
+        </DialogTitle>
+        <DialogDescription className="text-sm text-muted-foreground">
+          {description}
+        </DialogDescription>
       </DialogHeader>
       <div className="h-px bg-border mx-5 sm:mx-6" />
       <div className="px-5 sm:px-6 py-4 overflow-y-auto flex-1">
-        <EmployeeForm formData={formData} setFormData={setFormData} categories={categories} />
+        <EmployeeForm
+          formData={formData}
+          setFormData={setFormData}
+          categories={categories}
+        />
       </div>
       <div className="px-5 sm:px-6 py-4 border-t border-border bg-muted/30 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-4">
-        <Button variant="outline" onClick={onCancel} className="rounded-xl cursor-pointer">
+        <Button
+          variant="outline"
+          onClick={onCancel}
+          className="rounded-xl cursor-pointer"
+        >
           Cancel
         </Button>
-        <Button onClick={onSubmit} disabled={loading} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
+        <Button
+          onClick={onSubmit}
+          disabled={loading}
+          className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+        >
           {submitLabel}
         </Button>
       </div>
@@ -918,7 +992,9 @@ function EmployeeForm({
             step="0.01"
             placeholder="0.00"
             value={formData.daily_rate}
-            onChange={(e) => setFormData({ ...formData, daily_rate: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, daily_rate: e.target.value })
+            }
             className="h-11 rounded-xl"
           />
         </div>
@@ -933,7 +1009,12 @@ function EmployeeForm({
             step="0.1"
             placeholder="0"
             value={formData.commission_percentage}
-            onChange={(e) => setFormData({ ...formData, commission_percentage: e.target.value })}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                commission_percentage: e.target.value,
+              })
+            }
             className="h-11 rounded-xl"
           />
         </div>
@@ -942,7 +1023,10 @@ function EmployeeForm({
       {/* Profile — segmented track (no nested cards) */}
       <div className="grid gap-2">
         <Label>Staff Profile</Label>
-        <div role="radiogroup" className="inline-flex w-full p-1 rounded-xl bg-muted">
+        <div
+          role="radiogroup"
+          className="inline-flex w-full p-1 rounded-xl bg-muted"
+        >
           {PROFILE_OPTIONS.map((option) => {
             const isActive = formData.profile === option.value;
             const Icon = option.icon;
@@ -967,7 +1051,10 @@ function EmployeeForm({
           })}
         </div>
         <p className="text-xs text-muted-foreground">
-          {PROFILE_OPTIONS.find((opt) => opt.value === formData.profile)?.description}
+          {
+            PROFILE_OPTIONS.find((opt) => opt.value === formData.profile)
+              ?.description
+          }
         </p>
       </div>
 
@@ -1094,7 +1181,9 @@ function EmployeeForm({
                 onClick={() => {
                   const next = isSelected
                     ? formData.recurring_days_off.filter((d) => d !== day)
-                    : [...formData.recurring_days_off, day].sort((a, b) => a - b);
+                    : [...formData.recurring_days_off, day].sort(
+                        (a, b) => a - b,
+                      );
                   setFormData({ ...formData, recurring_days_off: next });
                 }}
                 className={cn(
@@ -1112,8 +1201,8 @@ function EmployeeForm({
           })}
         </div>
         <p className="text-xs text-muted-foreground">
-          Days the employee never works. Customers won&apos;t see slots
-          on these days even if business hours are open.
+          Days the employee never works. Customers won&apos;t see slots on these
+          days even if business hours are open.
         </p>
       </div>
     </div>

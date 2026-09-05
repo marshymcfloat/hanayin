@@ -5,6 +5,7 @@ import { consumeOnboardingLoginToken } from "@/lib/security/onboarding-login-tok
 import bcrypt from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { isSessionUserValid } from "@/lib/auth/session-validity";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -58,7 +59,7 @@ export const authOptions: NextAuthOptions = {
         // "your temporary password expired -- ask your manager to
         // resend the invite" message instead of the same generic
         // "Invalid credentials" the user sees for a wrong password.
-        // Owners hit this when an employee's 24h temp window lapses
+        // Owners hit this when an employee's 3-day temp window lapses
         // before the employee logged in.
         if (
           user.must_change_password &&
@@ -144,6 +145,10 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      // NextAuth rejects the session and clears its cookies on the session endpoint.
+      if (!(await isSessionUserValid(token))) {
+        throw new Error("Session account or workspace no longer exists");
+      }
       if (token) {
         session.user.contactNumber = token.contactNumber as string;
         session.user.name = token.name;

@@ -3,6 +3,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { clientIpFromForwardedFor } from "@/lib/client-ip";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { isSessionUserValid } from "@/lib/auth/session-validity";
 
 function getApiRateLimitConfig(pathname: string) {
   if (pathname.startsWith("/api/auth")) {
@@ -89,6 +90,22 @@ export async function proxy(request: NextRequest) {
       })
     : null;
   const isAuthenticated = !!token;
+  if (token && !(await isSessionUserValid(token))) {
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    // Include chunked cookies and both HTTP and HTTPS NextAuth defaults.
+    for (const { name } of request.cookies.getAll()) {
+      if (/^(?:__Secure-)?next-auth\.session-token(?:\.\d+)?$/.test(name)) {
+        response.cookies.set(name, "", {
+          path: "/",
+          expires: new Date(0),
+          httpOnly: true,
+          sameSite: "lax",
+          secure: name.startsWith("__Secure-"),
+        });
+      }
+    }
+    return response;
+  }
   const role = token?.role as string | undefined;
   const isPlatformAdmin = role === "PLATFORM_ADMIN";
 

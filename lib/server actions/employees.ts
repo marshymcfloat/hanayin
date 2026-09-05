@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/logger";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { requireAuth } from "@/lib/auth/guards";
+import { TEMP_PASSWORD_TTL_MS } from "@/lib/auth/temporary-password";
 import { sanitizeStaffPermissions } from "@/lib/auth/staff-access";
 import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
 import { sendEmployeeInviteSms } from "@/lib/services/employee-invite";
@@ -19,8 +20,8 @@ import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 // + digits), which is hard to read aloud and a chore to type on a mobile
 // keyboard — the channel employees actually use. Now: 6 characters from an
 // alphabet that excludes look-alikes (I/1/L, O/0). Entropy is ~32^6 ≈ 1B,
-// which is fine because the password expires in 24h and the credentials
-// route hashes via bcrypt(12). The owner-facing UI also shows the password
+// with a 3-day expiry. The credentials route hashes via bcrypt(12).
+// The owner-facing UI also shows the password
 // once on create, so shorter helps there too.
 const TEMP_PASSWORD_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const TEMP_PASSWORD_LENGTH = 6;
@@ -30,7 +31,8 @@ function generateTempPassword() {
   for (let i = 0; i < TEMP_PASSWORD_LENGTH; i += 1) {
     // crypto.randomInt is unbiased — using Math.random would skew toward
     // earlier indices because the alphabet length doesn't divide 2^32.
-    output += TEMP_PASSWORD_ALPHABET[crypto.randomInt(TEMP_PASSWORD_ALPHABET.length)];
+    output +=
+      TEMP_PASSWORD_ALPHABET[crypto.randomInt(TEMP_PASSWORD_ALPHABET.length)];
   }
   return output;
 }
@@ -167,7 +169,7 @@ export async function createEmployeeAction(data: {
     const tempPassword = generateTempPassword();
     const hashedPassword = await hash(tempPassword, 12);
     const tempPasswordExpiresAt = new Date(
-      getCurrentDateTimePH().getTime() + 24 * 60 * 60 * 1000,
+      getCurrentDateTimePH().getTime() + TEMP_PASSWORD_TTL_MS,
     );
 
     const result = await prisma.$transaction(
@@ -192,8 +194,10 @@ export async function createEmployeeAction(data: {
             commission_percentage: data.commission_percentage,
             profile,
             permissions,
-            specialties: (data.specialties ?? []).map((s) => s.toLowerCase()),
-            recurring_days_off: sanitizeRecurringDaysOff(data.recurring_days_off),
+            specialties: data.specialties ?? [],
+            recurring_days_off: sanitizeRecurringDaysOff(
+              data.recurring_days_off,
+            ),
           },
           include: {
             user: true,
@@ -273,7 +277,8 @@ export async function updateEmployeeAction(
       if (!/^63\d{10}$/.test(normalizedContact)) {
         return {
           success: false,
-          error: "Enter a valid Philippine mobile number (e.g., 09XX XXX XXXX).",
+          error:
+            "Enter a valid Philippine mobile number (e.g., 09XX XXX XXXX).",
         };
       }
 
@@ -315,13 +320,17 @@ export async function updateEmployeeAction(
             commission_percentage: data.commission_percentage,
           }),
           ...(data.specialties !== undefined && {
-            specialties: data.specialties.map((s) => s.toLowerCase()),
+            specialties: data.specialties,
           }),
           ...(data.recurring_days_off !== undefined && {
-            recurring_days_off: sanitizeRecurringDaysOff(data.recurring_days_off),
+            recurring_days_off: sanitizeRecurringDaysOff(
+              data.recurring_days_off,
+            ),
           }),
           ...(data.profile !== undefined && { profile: nextProfile }),
-          ...(nextPermissions !== undefined && { permissions: nextPermissions }),
+          ...(nextPermissions !== undefined && {
+            permissions: nextPermissions,
+          }),
         },
       });
     });
@@ -333,11 +342,14 @@ export async function updateEmployeeAction(
           trigger: "EMPLOYEE_SPECIALTIES_UPDATED",
         });
       } catch (error) {
-        logger.warn("[BookingConflicts] Failed after employee specialty update", {
-          employeeId,
-          businessSlug,
-          error: error instanceof Error ? error.message : String(error),
-        });
+        logger.warn(
+          "[BookingConflicts] Failed after employee specialty update",
+          {
+            employeeId,
+            businessSlug,
+            error: error instanceof Error ? error.message : String(error),
+          },
+        );
       }
     }
 
@@ -418,12 +430,12 @@ export async function resetEmployeePasswordAction(
     // employee should be able to sign in with it immediately, without
     // being routed through the change-password page. Leaving these
     // flags stale produced a confusing "Invalid credentials" rejection
-    // at login time once the original 24h temp window had elapsed,
+    // at login time once the original 3-day temp window had elapsed,
     // even though the new password was correct: the authorize() guard
     // (lib/next auth/options.ts) treats `must_change_password=true +
     // expired temp_password_expires_at` as an invalid credential.
     // If the owner instead wants to send a fresh temporary password
-    // via SMS (24h forced-change cycle), they should use
+    // via SMS (3-day forced-change cycle), they should use
     // resendEmployeeInviteAction below.
     await prisma.user.update({
       where: { id: employee.user_id },
@@ -442,7 +454,7 @@ export async function resetEmployeePasswordAction(
 }
 
 // Resends the onboarding invite SMS. Rotates the temp password and
-// resets the 24h expiry so the new credential is always fresh. Returns
+// resets the 3-day expiry so the new credential is always fresh. Returns
 // the new plaintext password to the owner as a fallback for when SMS
 // delivery fails -- mirrors the createEmployeeAction contract.
 export async function resendEmployeeInviteAction(employeeId: number) {
@@ -468,7 +480,7 @@ export async function resendEmployeeInviteAction(employeeId: number) {
   const tempPassword = generateTempPassword();
   const hashedPassword = await hash(tempPassword, 12);
   const tempPasswordExpiresAt = new Date(
-    getCurrentDateTimePH().getTime() + 24 * 60 * 60 * 1000,
+    getCurrentDateTimePH().getTime() + TEMP_PASSWORD_TTL_MS,
   );
 
   try {

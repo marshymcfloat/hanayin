@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Role, StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
+import {
+  Role,
+  StaffPermission,
+  StaffProfile,
+} from "@/prisma/generated/prisma/enums";
 
 const requireAuthMock = vi.hoisted(() => vi.fn());
 const prismaMock = vi.hoisted(() => ({
@@ -35,6 +39,7 @@ describe("staff access helpers", () => {
       StaffPermission.BOOKING_CANCEL,
       StaffPermission.BOOKING_MARK_NO_SHOW,
       StaffPermission.BOOKING_ADJUST_PRICE,
+      StaffPermission.PAYMENT_COLLECT,
       StaffPermission.QUEUE_CLAIM_SELF,
       StaffPermission.QUEUE_SERVE_SELF,
     ]);
@@ -88,9 +93,9 @@ describe("staff access helpers", () => {
       },
     };
 
-    expect(hasStaffPermission(staffContext, StaffPermission.BOOKING_CREATE)).toBe(
-      false,
-    );
+    expect(
+      hasStaffPermission(staffContext, StaffPermission.BOOKING_CREATE),
+    ).toBe(false);
 
     const managerContext = {
       ...staffContext,

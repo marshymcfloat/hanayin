@@ -4,6 +4,9 @@ import { NextRequest } from "next/server";
 const getTokenMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next-auth/jwt", () => ({ getToken: getTokenMock }));
+vi.mock("@/lib/auth/session-validity", () => ({
+  isSessionUserValid: vi.fn(async () => true),
+}));
 vi.mock("@/lib/rate-limit", () => ({ rateLimit: vi.fn() }));
 vi.mock("@/lib/client-ip", () => ({
   clientIpFromForwardedFor: vi.fn(() => "127.0.0.1"),
