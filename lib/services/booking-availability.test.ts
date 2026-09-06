@@ -163,6 +163,48 @@ describe("booking-availability workload model", () => {
     expect(slots).toEqual([]);
   });
 
+  it("counts an owner only when the service category is an explicit specialty", async () => {
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      employees: [],
+      owners: [
+        { id: 10, specialties: ["HAIR"], user: { name: "Owner" } },
+        { id: 11, specialties: [], user: { name: "Non-serving owner" } },
+      ],
+    });
+    prismaMock.service.findMany.mockResolvedValue([
+      { id: 9, category: "HAIR", duration: 30 },
+    ]);
+
+    const slots = await computeSlots({
+      businessSlug: "demo-business",
+      date: new Date("2026-02-12T00:00:00+08:00"),
+      services: [{ id: 9, quantity: 1 }],
+      now: new Date("2026-02-12T08:00:00+08:00"),
+    });
+
+    expect(slots.length).toBeGreaterThan(0);
+    expect(slots[0].availableEmployeeCount).toBe(0);
+    expect(slots[0].availableOwnerCount).toBe(1);
+  });
+
+  it("does not treat an owner with no specialties as a provider", async () => {
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({
+      ...baseBusiness,
+      employees: [],
+      owners: [{ id: 11, specialties: [], user: { name: "Owner" } }],
+    });
+
+    const slots = await computeSlots({
+      businessSlug: "demo-business",
+      date: new Date("2026-02-12T00:00:00+08:00"),
+      services: [{ id: 1, quantity: 1 }],
+      now: new Date("2026-02-12T08:00:00+08:00"),
+    });
+
+    expect(slots).toEqual([]);
+  });
+
   it("returns slot just taken when exact slot is no longer available", async () => {
     await expect(
       validateBookingOrThrow({

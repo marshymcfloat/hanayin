@@ -395,6 +395,8 @@ export async function checkCategoryAvailability({
   hasBusinessHours: boolean;
   businessHoursPassed: boolean;
   qualifiedEmployeeCount: number;
+  qualifiedOwnerCount: number;
+  qualifiedProviderCount: number;
   businessHours?: { open_time: string; close_time: string; is_closed: boolean };
 }> {
   const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
@@ -444,11 +446,18 @@ export async function checkCategoryAvailability({
       (employee.specialties.length === 0 ||
         employee.specialties.some((specialty) => specialty.toLowerCase() === normalizedCategory)),
   );
+  const qualifiedOwners = business.owners.filter((owner) =>
+    owner.specialties.some(
+      (specialty) => specialty.toLowerCase() === normalizedCategory,
+    ),
+  );
 
   return {
     hasBusinessHours,
     businessHoursPassed,
     qualifiedEmployeeCount: qualifiedEmployees.length,
+    qualifiedOwnerCount: qualifiedOwners.length,
+    qualifiedProviderCount: qualifiedEmployees.length + qualifiedOwners.length,
     businessHours: businessHours
       ? {
           open_time: businessHours.open_time,

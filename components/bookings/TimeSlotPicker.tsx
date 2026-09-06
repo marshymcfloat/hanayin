@@ -100,7 +100,7 @@ type AvailabilityLevel = "available" | "limited" | "unavailable";
 
 function getAvailabilityLevel(slot: TimeSlot): AvailabilityLevel {
   if (!slot.available) return "unavailable";
-  if (slot.availableEmployeeCount <= 1) return "limited";
+  if (slot.availableEmployeeCount + slot.availableOwnerCount <= 1) return "limited";
   return "available";
 }
 
@@ -204,7 +204,7 @@ function SlotButton({
         <span className="flex shrink-0 items-center gap-1">
           <AvailabilityDot level={level} selected={isSelected} />
           <AvailabilityLabel
-            count={slot.availableEmployeeCount}
+            count={slot.availableEmployeeCount + slot.availableOwnerCount}
             level={level}
             selected={isSelected}
           />

@@ -55,6 +55,8 @@ type CategoryAvailability = {
   hasBusinessHours: boolean;
   businessHoursPassed: boolean;
   qualifiedEmployeeCount: number;
+  qualifiedOwnerCount: number;
+  qualifiedProviderCount: number;
 };
 
 type FormLike = {
@@ -86,7 +88,7 @@ type ServiceRowProps = {
   noStaff: boolean;
   outsideHours: boolean;
   noBusinessHours: boolean;
-  qualifiedEmployeeCount: number;
+  qualifiedProviderCount: number;
   hasSelectedDate: boolean;
   formattedPrice: string;
   discountFinalPrice: number | null;
@@ -103,7 +105,7 @@ const ServiceRow = React.memo(function ServiceRow({
   noStaff,
   outsideHours,
   noBusinessHours,
-  qualifiedEmployeeCount,
+  qualifiedProviderCount,
   hasSelectedDate,
   formattedPrice,
   discountFinalPrice,
@@ -206,11 +208,11 @@ const ServiceRow = React.memo(function ServiceRow({
           </div>
           <span className="mt-0.5 block truncate text-[11px] capitalize leading-4 text-muted-foreground">
             {service.category}
-            {qualifiedEmployeeCount > 0 &&
+            {qualifiedProviderCount > 0 &&
               !outsideHours &&
               !noBusinessHours && (
                 <span className="ml-1.5">
-                  · {qualifiedEmployeeCount} staff available
+                  · {qualifiedProviderCount} providers available
                 </span>
               )}
           </span>
@@ -404,6 +406,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
               hasBusinessHours: true,
               businessHoursPassed: false,
               qualifiedEmployeeCount: 0,
+              qualifiedOwnerCount: 0,
+              qualifiedProviderCount: 0,
             },
           };
         }
@@ -666,7 +670,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       const dataLoaded = !!availability;
                       const noStaff =
                         dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0;
+                        availability?.qualifiedProviderCount === 0;
                       const outsideHours =
                         dataLoaded &&
                         availability?.businessHoursPassed === true;
@@ -678,8 +682,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         noStaff || noBusinessHours || isClosedForSelectedDate;
                       const isDisabled =
                         !!selectedDate && isUnavailable && !isSelected;
-                      const qualifiedEmployeeCount =
-                        availability?.qualifiedEmployeeCount ?? 0;
+                      const qualifiedProviderCount =
+                        availability?.qualifiedProviderCount ?? 0;
                       return (
                         <ServiceRow
                           key={service.id}
@@ -691,7 +695,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           noStaff={noStaff}
                           outsideHours={outsideHours}
                           noBusinessHours={noBusinessHours}
-                          qualifiedEmployeeCount={qualifiedEmployeeCount}
+                          qualifiedProviderCount={qualifiedProviderCount}
                           hasSelectedDate={!!selectedDate}
                           formattedPrice={
                             formattedServicePrices.get(service.id) ??
@@ -710,7 +714,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       const dataLoaded = !!availability;
                       const noStaff =
                         dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0;
+                        availability?.qualifiedProviderCount === 0;
                       const outsideHours =
                         dataLoaded &&
                         availability?.businessHoursPassed === true;

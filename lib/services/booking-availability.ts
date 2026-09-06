@@ -134,10 +134,12 @@ type BookedServiceSegment = {
   end: Date;
   category: string;
   servedByEmployeeId: number | null;
+  servedByOwnerId: number | null;
 };
 
 type SegmentAvailability = {
   availableEmployees: number;
+  availableOwners: number;
   totalAvailable: number;
 };
 
@@ -322,12 +324,15 @@ function normalizeSlotIntervalMinutes(value: number) {
 
 function applyUnassignedLoadToAvailability({
   availableEmployees,
+  availableOwners,
   unassignedCount,
 }: {
   availableEmployees: number;
+  availableOwners: number;
   unassignedCount: number;
 }) {
   let nextEmployees = Math.max(0, availableEmployees);
+  let nextOwners = Math.max(0, availableOwners);
   let remainingUnassigned = Math.max(0, unassignedCount);
 
   if (remainingUnassigned > 0) {
@@ -336,8 +341,14 @@ function applyUnassignedLoadToAvailability({
     remainingUnassigned -= employeeReduction;
   }
 
+  if (remainingUnassigned > 0) {
+    const ownerReduction = Math.min(remainingUnassigned, nextOwners);
+    nextOwners -= ownerReduction;
+  }
+
   return {
     availableEmployees: nextEmployees,
+    availableOwners: nextOwners,
   };
 }
 
@@ -347,22 +358,27 @@ function computeSegmentAvailability({
   end,
   bookedSegments,
   eligibleEmployeeIds,
+  eligibleOwnerIds,
 }: {
   category: string;
   start: Date;
   end: Date;
   bookedSegments: BookedServiceSegment[];
   eligibleEmployeeIds: number[];
+  eligibleOwnerIds: number[];
 }): SegmentAvailability {
-  if (eligibleEmployeeIds.length === 0) {
+  if (eligibleEmployeeIds.length === 0 && eligibleOwnerIds.length === 0) {
     return {
       availableEmployees: 0,
+      availableOwners: 0,
       totalAvailable: 0,
     };
   }
 
   const eligibleEmployeeSet = new Set(eligibleEmployeeIds);
+  const eligibleOwnerSet = new Set(eligibleOwnerIds);
   const busyEmployees = new Set<number>();
+  const busyOwners = new Set<number>();
   let unassignedOverlapCount = 0;
   const normalizedServiceCategory = category.toLowerCase();
 
@@ -378,17 +394,26 @@ function computeSegmentAvailability({
       continue;
     }
 
+    if (segment.servedByOwnerId) {
+      if (eligibleOwnerSet.has(segment.servedByOwnerId)) {
+        busyOwners.add(segment.servedByOwnerId);
+      }
+      continue;
+    }
+
     unassignedOverlapCount += 1;
   }
 
   const adjusted = applyUnassignedLoadToAvailability({
     availableEmployees: eligibleEmployeeIds.length - busyEmployees.size,
+    availableOwners: eligibleOwnerIds.length - busyOwners.size,
     unassignedCount: unassignedOverlapCount,
   });
 
   return {
     availableEmployees: adjusted.availableEmployees,
-    totalAvailable: adjusted.availableEmployees,
+    availableOwners: adjusted.availableOwners,
+    totalAvailable: adjusted.availableEmployees + adjusted.availableOwners,
   };
 }
 
@@ -441,6 +466,7 @@ async function getBookedServiceSegmentsForDay({
         end,
         category: availed.service.category.toLowerCase(),
         servedByEmployeeId: availed.served_by_id,
+        servedByOwnerId: availed.served_by_owner_id,
       });
     }
   }
@@ -842,6 +868,7 @@ export async function computeSlots({
   });
 
   const qualifiedProvidersByCategory = new Map<string, number[]>();
+  const qualifiedOwnersByCategory = new Map<string, number[]>();
   const getQualifiedProviderIds = (category: string) => {
     const key = category.toLowerCase();
     const cached = qualifiedProvidersByCategory.get(key);
@@ -860,6 +887,22 @@ export async function computeSlots({
 
     qualifiedProvidersByCategory.set(key, employeeIds);
     return employeeIds;
+  };
+  const getQualifiedOwnerIds = (category: string) => {
+    const key = category.toLowerCase();
+    const cached = qualifiedOwnersByCategory.get(key);
+    if (cached) return cached;
+
+    // Unlike employees, an empty owner specialty list is not generalist.
+    // Owners become booking providers only through explicit specialties.
+    const ownerIds = business.owners
+      .filter((owner) =>
+        owner.specialties.some((specialty) => specialty.toLowerCase() === key),
+      )
+      .map((owner) => owner.id);
+
+    qualifiedOwnersByCategory.set(key, ownerIds);
+    return ownerIds;
   };
 
   const earliestWindowStart = Math.min(
@@ -890,6 +933,7 @@ export async function computeSlots({
 
     let cursor = new Date(currentSlotStart);
     let availableEmployeeCount = Number.POSITIVE_INFINITY;
+    let availableOwnerCount = Number.POSITIVE_INFINITY;
     let slotFits = true;
 
     for (const service of orderedServices) {
@@ -930,6 +974,7 @@ export async function computeSlots({
         end: serviceEnd,
         bookedSegments,
         eligibleEmployeeIds: qualifiedEmployeeIds,
+        eligibleOwnerIds: getQualifiedOwnerIds(service.category),
       });
 
       if (workloadCapacity.totalAvailable <= 0) {
@@ -941,6 +986,10 @@ export async function computeSlots({
         availableEmployeeCount,
         workloadCapacity.availableEmployees,
       );
+      availableOwnerCount = Math.min(
+        availableOwnerCount,
+        workloadCapacity.availableOwners,
+      );
 
       cursor = serviceEnd;
     }
@@ -950,13 +999,17 @@ export async function computeSlots({
         availableEmployeeCount === Number.POSITIVE_INFINITY
           ? 0
           : Math.max(0, availableEmployeeCount);
+      const normalizedOwnerCount =
+        availableOwnerCount === Number.POSITIVE_INFINITY
+          ? 0
+          : Math.max(0, availableOwnerCount);
 
       slots.push({
         startTime: new Date(currentSlotStart),
         endTime: new Date(cursor),
         available: true,
         availableEmployeeCount: normalizedEmployeeCount,
-        availableOwnerCount: 0,
+        availableOwnerCount: normalizedOwnerCount,
         source: "WORKLOAD",
         confidence: "GUARANTEED",
         attendanceChecked: isSameDay,

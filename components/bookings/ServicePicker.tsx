@@ -53,6 +53,8 @@ type Availability = {
   hasBusinessHours: boolean;
   businessHoursPassed: boolean;
   qualifiedEmployeeCount: number;
+  qualifiedOwnerCount: number;
+  qualifiedProviderCount: number;
 };
 
 type AvailabilityState = {
@@ -73,8 +75,8 @@ function getAvailabilityState(
       disabled: false,
       tone: "default",
       label:
-        availability.qualifiedEmployeeCount > 0
-          ? `${availability.qualifiedEmployeeCount} staff available`
+        availability.qualifiedProviderCount > 0
+          ? `${availability.qualifiedProviderCount} providers available`
           : "Choose a date to check availability",
     };
   }
@@ -85,13 +87,13 @@ function getAvailabilityState(
       label: "Unavailable on selected date",
     };
   }
-  if (availability.qualifiedEmployeeCount === 0) {
-    return { disabled: true, tone: "warning", label: "No available staff" };
+  if (availability.qualifiedProviderCount === 0) {
+    return { disabled: true, tone: "warning", label: "No available providers" };
   }
   return {
     disabled: false,
     tone: "default",
-    label: `${availability.qualifiedEmployeeCount} staff available`,
+    label: `${availability.qualifiedProviderCount} providers available`,
   };
 }
 
@@ -465,7 +467,11 @@ export default function ServicePicker({
         </div>
 
         {mode === "services" && (
-          <div className="flex gap-1 overflow-x-auto border-b px-2 py-1.5">
+          <div
+            className="flex min-w-0 max-w-full touch-pan-x gap-1 overflow-x-auto overscroll-x-contain border-b px-2 py-1.5"
+            onTouchStart={(event) => event.stopPropagation()}
+            onTouchMove={(event) => event.stopPropagation()}
+          >
             {["all", ...categories].map((itemCategory) => (
               <button
                 key={itemCategory}
