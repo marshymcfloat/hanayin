@@ -66,7 +66,7 @@ enum SocialPostRequestStatus {
 
 ## 4. New server actions
 
-All in `lib/server actions/social-post-requests.ts` (new file). Each enforces the matching permission from `docs/role-permissions-matrix.md`.
+All in `features/social/actions/social-post-requests.ts` (new file). Each enforces the matching permission from `docs/role-permissions-matrix.md`.
 
 | Action                                         | Caller permission              | What it does                                                                                                            |
 | ---------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |

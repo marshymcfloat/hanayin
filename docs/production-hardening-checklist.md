@@ -5,22 +5,22 @@ This checklist is ordered for safe rollout. Each PR should be deployable on its 
 ## PR-1: Critical Tenant Security and Access Control
 
 - [x] Enforce tenant ownership in customer mutations.
-  - `lib/server actions/customer.ts`
+  - `features/customers/actions/customer.ts`
 - [x] Enforce tenant ownership in service mutations.
-  - `lib/server actions/services.ts`
+  - `features/catalog/actions/services.ts`
 - [x] Enforce tenant ownership in employee mutations and password reset.
-  - `lib/server actions/employees.ts`
+  - `features/workforce/actions/employees.ts`
 - [x] Enforce tenant ownership in sale-event delete and stricter owner-only mutation policy.
-  - `lib/server actions/sale-event.ts`
+  - `features/catalog/actions/sale-event.ts`
   - `lib/auth/guards.ts` (reuse existing owner guard)
 - [x] Enforce owner access to sale-events page.
   - `app/(private)/app/[businessSlug]/sale-events/page.tsx`
 - [x] Prevent cross-tenant service/package linking in sale-event creation.
-  - `lib/server actions/sale-event.ts`
+  - `features/catalog/actions/sale-event.ts`
 - [x] Remove business-slug trust from customer search and force auth tenant scope.
-  - `lib/server actions/customer.ts`
+  - `features/customers/actions/customer.ts`
 - [x] Add auth and upload validation (type/size) to server upload action.
-  - `lib/server actions/upload.ts`
+  - `features/assets/actions/upload.ts`
 
 ## PR-2: High-Priority Data/Query Scalability
 
@@ -52,12 +52,12 @@ This checklist is ordered for safe rollout. Each PR should be deployable on its 
 - [x] Add cache tagging for tenant business/service/package caches.
   - `lib/data/cached.ts`
 - [x] Add revalidation tag invalidation on relevant write paths.
-  - `lib/server actions/services.ts`
-  - `lib/server actions/packages.ts`
-  - `lib/server actions/business-settings.ts`
-  - `lib/server actions/sale-event.ts`
+  - `features/catalog/actions/services.ts`
+  - `features/catalog/actions/packages.ts`
+  - `features/businesses/actions/business-settings.ts`
+  - `features/catalog/actions/sale-event.ts`
 - [x] Harden auth zod schema (non-empty password and proper register schema constraints).
-  - `lib/zod schemas/auth.ts`
+  - `features/auth/schemas.ts`
 
 ## PR-5: Runtime Security and Request Protection
 
@@ -75,8 +75,8 @@ This checklist is ordered for safe rollout. Each PR should be deployable on its 
 ## PR-6: Booking Flow Efficiency and UX Maintainability
 
 - [x] Remove duplicate pricing/availability compute path from booking create flow.
-  - `lib/server actions/booking.ts`
-  - `lib/services/booking.ts`
+  - `features/bookings/actions/booking.ts`
+  - `features/bookings/services/booking-persistence.ts`
 - [x] Begin decomposition of oversized booking form module.
   - `components/bookings/BookingForm.tsx`
   - `components/bookings/*` (new extracted hooks/components)
@@ -84,12 +84,12 @@ This checklist is ordered for safe rollout. Each PR should be deployable on its 
 ## PR-7: Quality Gates and Test Depth
 
 - [x] Add auth/tenant boundary tests for customer/service/employee/sale-event actions.
-  - `lib/server actions/*.test.ts`
+  - `features/*/actions/*.test.ts`
 - [x] Add outbox concurrency and idempotency tests.
   - `app/api/cron/process-outbox/route.test.ts`
   - `lib/services/outbox.test.ts`
 - [x] Add sale-event integration tests (owner-only, cross-tenant IDs rejected).
-  - `lib/server actions/sale-event.test.ts` (new)
+  - `features/catalog/actions/sale-event.test.ts` (new)
 - [x] Raise coverage thresholds to production bar.
   - `vitest.config.ts`
 - [x] Expand E2E beyond smoke paths.
@@ -130,7 +130,7 @@ Backing docs: `docs/role-permissions-matrix.md`, `docs/booking-editor-design.md`
 ### Verification
 
 - [ ] `lib/auth/permission-matrix.test.ts` — matrix table-driven test passes (new in Wave D).
-- [ ] `lib/services/booking-modify.test.ts` + `lib/server actions/booking-modify.test.ts` pass (helper + action tests).
+- [ ] `features/bookings/services/booking-modify-policy.test.ts` + `features/bookings/actions/booking-modify.test.ts` pass (helper + action tests).
 - [ ] Manual role walkthrough completed against staging following `docs/verification-plan.md` §3.
   - Owner / Manager / Cashier / Staff sign-in.
   - Each role sees the matrix-correct surface and triggers.
@@ -174,9 +174,9 @@ Backing docs: `docs/social-post-request-design.md`, `docs/social-post-request-im
 
 ### Verification
 
-- [ ] `lib/server actions/social-post-requests.test.ts` — 24 backend cases pass (action permissions, rate limits, dedup, state machine).
+- [ ] `features/social/actions/social-post-requests.test.ts` — 24 backend cases pass (action permissions, rate limits, dedup, state machine).
 - [ ] `components/dashboard/social-posts/viewer-context.test.ts` — 6 cases for `deriveSocialViewerContext`.
-- [ ] `lib/features/social-post-requests.test.ts` — 4 cases for the feature flag with parent fallback.
+- [ ] `features/social/social-post-requests.test.ts` — 4 cases for the feature flag with parent fallback.
 - [ ] Manual role walkthrough: staff submits, manager approves, owner publishes, staff sees close-the-loop notification with permalink.
 - [ ] Rate-limit smoke: rapid double-submit triggers `RATE_LIMITED_USER` toast.
 - [ ] Duplicate-detection smoke: submitting the same topic+category twice in 14 days surfaces the `duplicateWarning`.

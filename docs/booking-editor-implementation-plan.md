@@ -10,7 +10,7 @@ The work breaks into five phases. Each phase is self-contained and ships behind 
 Add a single env-var-backed flag, evaluated per-business:
 
 ```ts
-// lib/features/booking-editor.ts (new)
+// features/bookings/booking-editor.ts (new)
 export function isBookingEditorEnabledForBusiness(slug: string): boolean;
 ```
 
@@ -78,10 +78,10 @@ Migration: `prisma/migrations/<ts>_booking_editor_phase1/migration.sql`. Backfil
 | File                                                  | Action |
 | ----------------------------------------------------- | ------ |
 | `lib/auth/staff-access.ts`                            | edit — extend `DEFAULT_PERMISSIONS_BY_PROFILE` per matrix |
-| `lib/services/booking-addons.ts`                      | edit — accept either `BOOKING_CREATE` or `BOOKING_MODIFY` for the add-on path during transition |
-| `lib/server actions/booking-addons.ts`                | edit — same |
-| `lib/server actions/booking-modify.ts`                | new — `removeBookingServiceAction`, `swapBookingServiceAction` |
-| `lib/server actions/booking-modify.test.ts`           | new — permission and state-machine tests |
+| `features/bookings/services/booking-addons.ts`        | edit — accept either `BOOKING_CREATE` or `BOOKING_MODIFY` for the add-on path during transition |
+| `features/bookings/actions/booking-addons.ts`                | edit — same |
+| `features/bookings/actions/booking-modify.ts`                | new — `removeBookingServiceAction`, `swapBookingServiceAction` |
+| `features/bookings/actions/booking-modify.test.ts`           | new — permission and state-machine tests |
 | `lib/services/audit-events.ts`                        | new — typed helpers for the new event payload shapes |
 
 ### UI
@@ -103,9 +103,9 @@ The big surface-area phase. New server actions for every modifying operation in 
 
 | File                                                  | Action                                                                                     |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `lib/server actions/booking-modify.ts`                | edit — add `rescheduleBookingAction`, `reassignBookingStaffAction`, `adjustBookingPriceAction`, `cancelBookingAction`, `addBookingNoteAction` |
-| `lib/server actions/dashboard/owner.ts`               | edit — change `markBookingNoShowAction`'s gate from owner-only to `BOOKING_MARK_NO_SHOW` |
-| `lib/services/booking-modify.ts`                      | new — pure logic: ETA recalc, conflict detection, downstream-queue ripple                  |
+| `features/bookings/actions/booking-modify.ts`                | edit — add `rescheduleBookingAction`, `reassignBookingStaffAction`, `adjustBookingPriceAction`, `cancelBookingAction`, `addBookingNoteAction` |
+| `features/dashboard/actions/owner.ts`               | edit — change `markBookingNoShowAction`'s gate from owner-only to `BOOKING_MARK_NO_SHOW` |
+| `features/bookings/services/booking-modify.ts`        | new — pure logic: ETA recalc, conflict detection, downstream-queue ripple                  |
 | `lib/services/outbox.ts`                              | edit — register the new event types                                                        |
 | `lib/services/outbox-delivery.ts`                     | edit — handlers for reschedule / cancel / price customer messages                          |
 
@@ -193,7 +193,7 @@ Quality bar.
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `app/(private)/app/[businessSlug]/employees/page.tsx`                | edit — add per-row "Permissions" button                                                 |
 | `components/dashboard/owner/employees/EditPermissionsDialog.tsx`     | new — checkboxes for the `StaffPermission` flags (excluding owner-implicit ones), saves to `Employee.permissions` via existing employee update action |
-| `lib/server actions/employees.ts`                                    | edit (or new helper) — `setEmployeePermissionsAction(employeeId, permissions[])`        |
+| `features/workforce/actions/employees.ts`                                    | edit (or new helper) — `setEmployeePermissionsAction(employeeId, permissions[])`        |
 
 Acceptance: owner can grant / revoke each permission per employee; changes take effect on the employee's next page load; audit log records the permission change with `entity_type: "Employee"`.
 
@@ -205,7 +205,7 @@ Block ship until:
 
 - All unit tests green; coverage ≥ existing thresholds.
 - Vitest table-driven test of the booking matrix runs every (role × profile × permission tuple × action) combination from `role-permissions-matrix.md` and asserts the right outcome.
-- Playwright smoke: log in as owner / manager / cashier / staff in turn; the script in `tests/e2e/booking-editor.spec.ts` (new) opens the panel from each role's primary surface, performs the role's primary action, and confirms the audit trail entry appears.
+- Playwright smoke: log in as owner / manager / cashier / staff in turn; the script in `test/e2e/booking-editor.spec.ts` (new) opens the panel from each role's primary surface, performs the role's primary action, and confirms the audit trail entry appears.
 - Manual role walkthrough script signed off (see `verification-plan.md`, task #10).
 - Production-readiness checklist green: error states for every action, loading spinners, empty states, accessibility (Tab order through the panel), telemetry events fired (`booking.modified`, `booking.rescheduled`, etc.).
 - Feature flag verified — turning it off restores legacy owner-only behavior cleanly.

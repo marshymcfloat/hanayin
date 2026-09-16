@@ -1,104 +1,121 @@
 # ServiceFlow
 
-ServiceFlow is a Next.js SaaS platform for service businesses (salons, spas, barbershops) that combines public booking, operations management, attendance/payroll tooling, and payment workflows.
+ServiceFlow is a multi-tenant operations platform for service businesses. It
+combines public booking, customer and catalog management, staffing, attendance,
+payroll, billing, growth workflows, social publishing, and platform
+administration in one Next.js application.
 
-![ServiceFlow Landing](public/ServiceFlow2-logo.png)
+![ServiceFlow logo](public/serviceFlow_logo_no_bg.png)
 
-## What is implemented
+## Capabilities
 
-- Public booking pages per business slug (`/[businessSlug]`)
-- Service and package management
-- Voucher and sale event management
-- Owner and employee dashboards
-- Attendance (clock in/out, leave requests, paid leave tracking)
-- Payroll and payslip workflows
-- Customer records and booking history
-- Cash and QRPH booking/payment paths (PayMongo integration)
-- Email workflows (booking confirmations, reminders, re-engagement, flow reminders)
-- Background cron endpoints for operational jobs
-- Transactional outbox and audit log models
+- Public storefronts and booking flows by business slug.
+- Booking management, services, packages, vouchers, gift cards, and sale events.
+- Customer records, attendance, leave, payroll, payslips, and staff permissions.
+- Owner, employee, cashier-aware, and platform-administrator experiences.
+- Subscription billing, referrals, onboarding applications, and audit history.
+- Growth campaigns, social-post requests, AI-assisted creative generation, and
+  Meta publishing.
+- Email and SMS workflows, reminders, re-engagement, transactional outbox, and
+  authenticated cron jobs.
+- Manual GCash verification and public business QR delivery.
 
-## Tech stack
+## Technology
 
-- Next.js 16 (App Router, Server Components, Route Handlers)
-- TypeScript
-- React 19
-- PostgreSQL
-- Prisma 7 (`@prisma/adapter-pg` + `pg` pool)
-- NextAuth (credentials provider)
-- TanStack Query
-- Tailwind CSS v4 + Radix/shadcn-style components
-- Vitest + Testing Library
-- Sentry
+- Next.js 16 App Router and React 19.
+- TypeScript and Tailwind CSS 4.
+- PostgreSQL and Prisma 7 using `@prisma/adapter-pg`.
+- NextAuth credentials and onboarding magic-link authentication.
+- TanStack Query, Radix UI primitives, and React Hook Form with Zod.
+- Vitest, Testing Library, and Playwright.
+- Sentry and Vercel Analytics.
+- Vercel Blob, Resend, SMS, Meta, Gemini, and OpenAI integrations when
+  configured.
 
-## Quick start
+See [ARCHITECTURE.md](ARCHITECTURE.md) for current boundaries and the target
+feature-first modular-monolith structure. Repository contribution rules are in
+[AGENTS.md](AGENTS.md).
 
-### 1. Prerequisites
+## Local Setup
 
-- Node.js 18+
-- PostgreSQL database
-- npm (lockfile in repo is `package-lock.json`)
+### Prerequisites
 
-### 2. Install dependencies
+- Node.js 22, matching CI.
+- npm and the committed `package-lock.json`.
+- PostgreSQL 16 recommended, matching CI.
+
+### 1. Install dependencies
 
 ```bash
 npm ci
 ```
 
-### 3. Configure environment variables
+### 2. Configure the environment
 
-Create `.env` in the project root.
+Create a local `.env`. Environment files are ignored and must never be
+committed. Do not copy production secrets into local development.
 
-Minimum local setup:
+Minimum application setup:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/serviceflow?schema=public"
-NEXTAUTH_SECRET="replace-me-with-a-long-random-secret"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
+DIRECT_DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
+NEXTAUTH_SECRET="generate-a-long-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-For payment, email, uploads, and cron jobs, also configure:
+`DATABASE_URL` is the application connection. `DIRECT_DATABASE_URL` is used by
+Prisma migrations and database-backed E2E tests and is required when
+`DATABASE_URL` uses Prisma Accelerate.
 
-```env
-PAYMONGO_SECRET_KEY=""
-PAYMONGO_WEBHOOK_SECRET=""
-RESEND_API_KEY=""
-BLOB_READ_WRITE_TOKEN=""
-CRON_USER="admin"
-CRON_PASSWORD=""
-```
+Optional features require additional variables:
 
-Optional:
+| Feature | Variables |
+| --- | --- |
+| Cron authentication | `CRON_SECRET`, or `CRON_USER` and `CRON_PASSWORD` |
+| Email | `RESEND_API_KEY` |
+| SMS | `SEMAPHORE_API`, `SEMAPHORE_SENDER_NAME` |
+| Uploads and generated assets | `BLOB_READ_WRITE_TOKEN` |
+| Meta publishing | `META_APP_ID`, `META_APP_SECRET`, `META_REDIRECT_URI`, `META_GRAPH_API_VERSION`, `SOCIAL_TOKEN_ENCRYPTION_KEY`, `SOCIAL_OAUTH_STATE_SECRET` |
+| Gemini generation | `GEMINI_API_KEY` or `GEMINI_KEY`, `GEMINI_CAPTION_MODEL`, `GEMINI_IMAGE_MODEL`, `GEMINI_REQUEST_TIMEOUT_MS` |
+| OpenAI image generation | `OPENAI_API_KEY` or `OPENAI_KEY`, `OPENAI_IMAGE_MODEL`, `OPENAI_IMAGE_SIZE`, `OPENAI_IMAGE_QUALITY`, `OPENAI_IMAGE_OUTPUT_FORMAT`, `OPENAI_IMAGE_TIMEOUT_MS` |
+| Reference-image discovery | `PEXELS_API_KEY` |
+| Rate limiting | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` |
+| Signed public flows | `BOOKING_SUCCESS_TOKEN_SECRET`, `ONBOARDING_LOGIN_TOKEN_SECRET`, `ONBOARDING_STATUS_TOKEN_SECRET` |
+| Feature rollout | `BOOKING_EDITOR_ENABLED`, `BOOKING_EDITOR_PILOT_SLUGS`, `SOCIAL_POST_REQUESTS_ENABLED`, `SOCIAL_POST_REQUESTS_PILOT_SLUGS`, `SOCIAL_PUBLISHING_ENABLED`, `SOCIAL_PUBLISHING_PILOT_SLUGS` |
+| Billing and trials | `PLATFORM_BILLING_EMAILS`, `DEFAULT_TRIAL_MONTHS`, `SUBSCRIPTION_ENFORCEMENT_MODE` |
+| Runtime tuning | `APP_URL`, `PRISMA_POOL_MAX`, `QR_HOLD_EXPIRY_SECONDS`, `NEXT_PUBLIC_CSP_CONNECT_SRC`, `NEXT_PUBLIC_CSP_FRAME_SRC` |
+| Repository monitoring | `GITHUB_MONITOR_REPO`, `GITHUB_MONITOR_TOKEN` or `GITHUB_TOKEN` |
 
-```env
-APP_URL="http://localhost:3000"
-BOOKING_SUCCESS_TOKEN_SECRET=""
-META_APP_ID=""
-META_APP_SECRET=""
-META_REDIRECT_URI="http://localhost:3000/api/social/meta/callback"
-META_GRAPH_API_VERSION="v22.0"
-GEMINI_KEY=""
-GEMINI_CAPTION_MODEL="gemini-3-flash-preview"
-GEMINI_IMAGE_MODEL="gemini-2.5-flash-image"
-OPENAI_KEY=""
-OPENAI_IMAGE_MODEL="gpt-image-1"
-OPENAI_IMAGE_SIZE="1536x1024"
-OPENAI_IMAGE_QUALITY="high"
-OPENAI_IMAGE_OUTPUT_FORMAT="png"
-SOCIAL_TOKEN_ENCRYPTION_KEY=""
-SOCIAL_OAUTH_STATE_SECRET=""
-SOCIAL_PUBLISHING_ENABLED="false"
-SOCIAL_PUBLISHING_PILOT_SLUGS=""
-```
+Copy [`.env.example`](.env.example) for the complete placeholder-only template.
+Token-specific secrets fall back to `NEXTAUTH_SECRET`, but separate production
+secrets are preferred.
 
-### 4. Run database migrations
+### 3. Apply migrations
+
+For an existing checkout or fresh local database, apply committed migrations:
 
 ```bash
-npx prisma migrate dev
+npx prisma migrate deploy
 ```
 
-### 7. Start development server
+Use the following only when intentionally creating a schema migration against a
+disposable development database:
+
+```bash
+npx prisma migrate dev --name <description>
+```
+
+Optional development seed:
+
+```bash
+npx prisma db seed
+```
+
+Never seed or reset an unknown or shared database.
+
+### 4. Start development
 
 ```bash
 npm run dev
@@ -106,93 +123,134 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-## Scripts
+## Commands
 
-- `npm run dev` - start dev server
-- `npm run build` - production build
-- `npm run start` - run production server
-- `npm run lint` - ESLint
-- `npm run test` - Vitest
-- `npm run typecheck` - TypeScript type check
-- `npm run test:ci` - Vitest with coverage thresholds
-- `npm run test:e2e` - Playwright booking smoke test
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Next.js development server. |
+| `npm run start` | Start an existing production build. |
+| `npm run lint` | Run ESLint. |
+| `npm run typecheck` | Run TypeScript without emitting files. |
+| `npm run check:boundaries` | Reject new UI-to-Prisma and feature-to-route dependency violations. |
+| `npm run test` | Run Vitest in watch mode. |
+| `npm run test:unit` | Run isolated unit and component tests with coverage. |
+| `npm run test:ci` | CI-compatible alias for `npm run test:unit`. |
+| `npm run test:integration` | Run real-PostgreSQL integration tests; requires `DIRECT_DATABASE_URL`. |
+| `npm run test:e2e:core` | Run platform, private-route, and owner-growth Playwright smoke tests. |
+| `npm run test:e2e:db` | Run the database-backed public-booking smoke test; requires direct `E2E_DATABASE_URL` or `DIRECT_DATABASE_URL`. |
+| `npm run test:e2e` | Run core and database E2E suites with the same database guard. |
+| `npm run build:app` | Build the Next.js application without applying migrations. |
+| `npm run build` | Require `DATABASE_URL`, safely deploy migrations, then build the application. |
+| `npm run check` | Run strict lint, typecheck, isolated tests, and the application build. |
+| `npm run check:push` | Compatibility alias for `npm run check`. |
+| `npm run verify:release` | Run lint, typecheck, coverage, all E2E suites, migrations, and the release build. |
 
-## API and operational endpoints
-
-### Public/system routes
-
-- `GET /api/health` - health check JSON
-- `POST /api/upload` - authenticated upload token endpoint
-- `GET /api/paymongo/webhook` - webhook health
-- `POST /api/paymongo/webhook` - PayMongo webhook receiver
-
-### Cron routes (authenticated)
-
-- `GET /api/cron/expire-holds`
-- `GET /api/cron/reminders`
-- `GET /api/cron/re-engagement`
-- `GET /api/cron/flow-reminders`
-- `GET /api/cron/process-outbox`
-- `GET /api/cron/reconcile-payments`
-- `GET /api/cron/subscription-renewals`
-- `GET /api/cron/subscription-dunning`
-- `GET /api/cron/subscription-referral-rewards`
-
-Run `GET /api/cron/expire-holds` every minute with an external scheduler. Use
-the configured `CRON_SECRET` bearer token or `CRON_USER`/`CRON_PASSWORD` basic
-authentication. Public QR payment holds expire after 15 minutes by default;
-set `QR_HOLD_EXPIRY_SECONDS=900` explicitly in production.
-
-Cron auth supports either:
-
-- Bearer token via `CRON_SECRET`
-- HTTP Basic auth via `CRON_USER` (default `admin`) + `CRON_PASSWORD`
-
-Example:
+Playwright uses `http://127.0.0.1:3100` and starts the development server
+automatically. Install Chromium before the first local E2E run:
 
 ```bash
-curl -u "$CRON_USER:$CRON_PASSWORD" http://localhost:3000/api/cron/expire-holds
+npx playwright install chromium
 ```
 
-## Security and platform notes
+See [Test structure and dependencies](docs/testing.md) for suite boundaries,
+database requirements, and external-service policy.
 
-- Route access is enforced in `proxy.ts` (redirects unauthenticated `/app/*` traffic).
-- API rate limiting uses Upstash Redis when configured (`UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`) with local in-memory fallback.
-- Security headers are configured in both `proxy.ts` and `next.config.ts`.
-- Private dashboard pages are marked `noindex`.
+## API and Operational Routes
+
+### Application routes
+
+- `GET /api/health` — application and database health.
+- `POST /api/upload` — authenticated upload-token creation.
+- `GET /api/public/gcash-qr` — public business QR lookup.
+- `GET /api/reports/export` — authenticated report export.
+- `GET /api/social/meta/connect` — begin an authenticated Meta connection.
+- `GET /api/social/meta/callback` — complete the Meta OAuth callback.
+- `/api/auth/[...nextauth]` — NextAuth handlers.
+
+The Sentry example route and page are diagnostics and must not be treated as
+product APIs.
+
+### Authenticated cron routes
+
+- `GET /api/cron/booking-conflicts`
+- `GET /api/cron/expire-holds`
+- `GET /api/cron/flow-reminders`
+- `GET /api/cron/growth-daily`
+- `GET /api/cron/process-outbox`
+- `GET /api/cron/re-engagement`
+- `GET /api/cron/reminders`
+- `GET /api/cron/subscription-dunning`
+- `GET /api/cron/subscription-referral-rewards`
+- `GET /api/cron/subscription-renewals`
+
+Cron authentication accepts either `Authorization: Bearer <CRON_SECRET>` or
+HTTP Basic credentials using `CRON_USER` and `CRON_PASSWORD`. An external
+scheduler owns invocation frequency; `vercel.json` currently defines no Vercel
+cron schedule.
+
+## Security and Tenancy
+
+- `proxy.ts` protects tenant and platform routes and rate-limits API traffic.
+- Server Actions and Route Handlers must repeat authentication and authorization
+  at the server boundary.
+- Tenant-owned operations derive business identity from verified session context
+  and scope persistence by that identity.
+- Staff permissions and subscription read-only state gate protected mutations.
+- API rate limiting uses the configured remote REST store when available and
+  route-specific fallback behavior otherwise.
+- Private dashboard and platform pages are not intended for search indexing.
+- Security headers are configured in `next.config.ts`.
 
 ## Deployment
 
-### Docker
-
-```bash
-docker build -t service-flow .
-docker run -p 3000:3000 --env-file .env service-flow
-```
-
 ### Vercel
 
-- Set the same environment variables in your Vercel project.
-- Configure external scheduler jobs (for example `cron-job.org`) to hit the cron endpoints with `Authorization: Bearer $CRON_SECRET` or HTTP Basic auth. Run `/api/cron/process-outbox` every minute and `/api/cron/reminders` every 5 minutes. Reminder responses report candidate, eligible, skipped, sent, and failed counts. A reminder is eligible only for an accepted booking created at least 1 hour before its appointment and starting within the next 30 minutes. `vercel.json` intentionally remains empty because the external scheduler owns these jobs.
-- Ensure PayMongo webhook points to `/api/paymongo/webhook`.
+1. Configure the required application and integration variables.
+2. Apply production migrations through the release build or a controlled
+   migration step.
+3. Configure an external scheduler for the authenticated cron routes.
+4. Configure Meta callback URLs and other provider callbacks for the production
+   origin.
 
-## Project structure
+### Docker
+
+The repository includes a multi-stage Dockerfile. It currently uses Node 18,
+while CI uses Node 22 and the application depends on Next.js 16. Upgrade the
+Docker base image to Node 22 before treating Docker as a supported production
+path. The image build runs the release build, so database configuration and
+migration connectivity are required during the builder stage.
+
+## Repository Structure
 
 ```text
-app/                    # App Router pages, route handlers, metadata routes
-app/(public)/           # Public business pages and booking flow
-app/(private)/          # Authenticated app dashboard routes
-app/api/                # Health, auth, upload, webhook, cron handlers
-components/             # UI, dashboard, bookings, landing, SEO components
-lib/                    # Business logic, server actions, utilities, services
-prisma/schema.prisma    # Data model
-prisma/migrations/      # Prisma migrations
-prisma/seed.ts          # Development seed script
-prisma/sql/             # Manual SQL hardening scripts
+app/                    Next.js routes, layouts, pages, and Route Handlers
+components/             Shared and feature-specific React components
+features/               Target location for feature-owned domain modules
+hooks/                  Shared React hooks
+lib/                    Shared and transitional services and infrastructure
+prisma/                 Schema, migrations, shared client, generated code, seed
+public/                 Static assets
+scripts/                Environment and migration utility scripts
+test/e2e/               Playwright user-flow tests
+test/integration/       Real-PostgreSQL integration tests
+test/setup.ts           Shared Vitest setup
+docs/                   Plans, runbooks, help content, and ADRs
+design-system/          Brand and social-post visual profiles
+types/                  Cross-cutting TypeScript declarations
 ```
 
-## Current gaps and caveats
+The repository is migrating toward the feature-first structure defined in
+`ARCHITECTURE.md`. Feature-owned action boundaries, validation schemas, rollout
+rules, and tests now live under `features/<domain>/`. Large migrated action
+modules remain candidates for incremental domain-service extraction.
 
-- `app/[businessSlug]/inbox` is currently placeholder UI.
-- No separate `API.md` exists in this repository.
-- No `LICENSE` file currently exists in the repository root.
+## Documentation
+
+- [Architecture](ARCHITECTURE.md)
+- [Ideas backlog](IDEAS.md)
+- [Architecture decisions](docs/decisions/INDEX.md)
+- [Harness-engineering checklist](docs/harness-engineering-todo.md)
+- [Engineering work tracking](docs/work-tracking.md)
+- [Repository structure and ownership](docs/repository-structure.md)
+- [Production hardening checklist](docs/production-hardening-checklist.md)
+- [Verification plan](docs/verification-plan.md)

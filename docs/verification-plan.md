@@ -12,8 +12,8 @@ This is the gate that has to be green before either feature flag flips on for no
 A single Vitest table runs every cell from `role-permissions-matrix.md` for both features. One source of truth, executed end-to-end.
 
 - [ ] `lib/auth/staff-access.test.ts` — extends existing tests with the seven new flags; covers `hasStaffPermission` for every (actorType, profile, permission, business policy) tuple.
-- [ ] `lib/server actions/booking-modify.test.ts` — for each booking action in §3 of the matrix, assert allowed + denied actors.
-- [ ] `lib/server actions/social-post-requests.test.ts` — same for §4 of the matrix.
+- [ ] `features/bookings/actions/booking-modify.test.ts` — for each booking action in §3 of the matrix, assert allowed + denied actors.
+- [ ] `features/social/actions/social-post-requests.test.ts` — same for §4 of the matrix.
 - [ ] `components/permissions/PermissionGate.test.tsx` — render-only coverage of every gating mode.
 
 ### 1.2 State-machine tests
@@ -36,20 +36,20 @@ A single Vitest table runs every cell from `role-permissions-matrix.md` for both
 ### 1.5 Coverage thresholds
 
 - [ ] `npm run test:ci` passes existing thresholds.
-- [ ] New files in `lib/server actions/booking-modify.ts`, `lib/server actions/social-post-requests.ts`, `lib/services/social/post-request.ts`, `components/permissions/`, `components/audit/` all ≥ 90% line coverage.
+- [ ] New files in `features/bookings/actions/booking-modify.ts`, `features/bookings/services/booking-modify.ts`, `features/social/actions/social-post-requests.ts`, `lib/services/social/post-request.ts`, `components/permissions/`, `components/audit/` all ≥ 90% line coverage.
 
 ## 2. End-to-end role walkthrough
 
-A scripted Playwright run that covers each role's primary surface for each feature. Lives in `tests/e2e/`.
+A scripted Playwright run that covers each role's primary surface for each feature. Lives in `test/e2e/`.
 
-### 2.1 Booking editor (`tests/e2e/booking-editor.spec.ts`, new)
+### 2.1 Booking editor (`test/e2e/booking-editor.spec.ts`, new)
 
 - [ ] **Owner** — log in, open `/bookings`, click a row, add a service, reschedule, mark paid, mark no-show, cancel. Confirm every action succeeds and the audit trail shows them in order.
 - [ ] **Manager** — log in, navigate to manager dashboard → Bookings tab, click a row, add a service, reschedule, reassign staff. Confirm "Delete" is not visible. Confirm a scheduled-change SMS was queued in the test outbox.
 - [ ] **Cashier** — log in, land on cashier dashboard, click a booking, record a partial payment, apply a discount with a reason. Confirm "Reschedule" and "Reassign" are not visible.
 - [ ] **Staff** — log in, see "My bookings", click their own claimed booking, add an internal note. Confirm "Add service", "Reschedule", "Cancel" are not visible.
 
-### 2.2 Social post request (`tests/e2e/social-post-request.spec.ts`, new)
+### 2.2 Social post request (`test/e2e/social-post-request.spec.ts`, new)
 
 - [ ] **Manager** submits a request from "Suggest a post". Confirms the request appears in the owner's inbox.
 - [ ] **Owner** approves the request. Confirms a `SocialPost` draft was created with the requester's topic + brief mapped onto the existing organic-post inputs.
@@ -136,4 +136,4 @@ Done once per feature, in staging, before flipping the production flag.
 
 ## Sign-off block
 
-When every box above is ticked, the feature is cleared for general rollout. Add a sign-off note here — engineer, reviewer, date — and only then update the flag rollout in `lib/features/booking-editor.ts` / `lib/features/social-post-requests.ts`.
+When every box above is ticked, the feature is cleared for general rollout. Add a sign-off note here — engineer, reviewer, date — and only then update the flag rollout in `features/bookings/booking-editor.ts` / `features/social/social-post-requests.ts`.

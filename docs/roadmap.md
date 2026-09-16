@@ -40,7 +40,7 @@ Goal: every modifying action in `booking-editor-design.md §4` exists as a serve
 
 | # | Item | Effort | Notes |
 | - | ---- | ------ | ----- |
-| B1 | Refactor `lib/services/booking-addons.ts` so the append helper accepts an external transaction client; build `swapBookingServiceAction` on top | M | Unblocks any future action that wants to share a tx with add-on logic |
+| B1 | Refactor `features/bookings/services/booking-addons.ts` so the append helper accepts an external transaction client; build `swapBookingServiceAction` on top | M | Unblocks any future action that wants to share a tx with add-on logic |
 | B2 | `rescheduleBookingAction` + `RescheduleDialog`. Recomputes `estimated_end`, fires `BOOKING_RESCHEDULED` outbox, customer SMS via existing reminder pipeline | M | |
 | B3 | `reassignBookingStaffAction` + `ReassignStaffDialog`. Permission: `QUEUE_OVERRIDE_ALL`. Reuses queue-claim validation | S | |
 | B4 | `adjustBookingPriceAction` + `AdjustPriceDialog`. Writes to `BookingPriceAdjustment`. Reason required and shown in audit + (eventual) receipt | M | Schema in main |
@@ -70,7 +70,7 @@ Goal: every staff role that has bookings to do can find them and act on them.
 | - | ---- | ------ |
 | D1 | Feature flag `BOOKING_EDITOR_ENABLED` + per-business pilot list helper | XS |
 | D2 | Permission-matrix table-driven test (Vitest, single source of truth) | M |
-| D3 | Playwright `tests/e2e/booking-editor.spec.ts` — owner / manager / cashier / staff walkthrough | M |
+| D3 | Playwright `test/e2e/booking-editor.spec.ts` — owner / manager / cashier / staff walkthrough | M |
 | D4 | Telemetry events `booking.modified.{action}` with `{businessId, actorRole, durationMs}` and dashboard panels | S |
 | D5 | Production permission backfill SQL (already documented in `phase1-migration-runbook.md` §3) — execute alongside `migrate deploy` in prod | XS |
 | D6 | In-app announcement when flag flips on for a tenant + help-center article with the matrix table + per-role screenshots | S |
@@ -101,7 +101,7 @@ Owner-side custom-post creation already works via the existing `createOrganicSoc
 
 | # | Item | Effort |
 | - | ---- | ------ |
-| E1 | `lib/server actions/social-post-requests.ts` with the six actions per `social-post-request-design.md §4` | M |
+| E1 | `features/social/actions/social-post-requests.ts` with the six actions per `social-post-request-design.md §4` | M |
 | E2 | `createOrganicSocialPostAction` accepts optional `sourceRequestId` to atomically link a converted request to its `SocialPost` | XS |
 | E3 | New outbox event types: `SOCIAL_POST_REQUEST_SUBMITTED` / `_APPROVED` / `_REJECTED` / `_PUBLISHED` + delivery handlers | S |
 | E4 | `<SuggestPostDialog>` — staff-facing form (topic, brief, category, tone, attachment, due date) | M |
@@ -118,7 +118,7 @@ Owner-side custom-post creation already works via the existing `createOrganicSoc
 
 | # | Item | Effort |
 | - | ---- | ------ |
-| F1 | Playwright `tests/e2e/social-post-request.spec.ts` — manager submits, owner approves, requester gets close-the-loop | M |
+| F1 | Playwright `test/e2e/social-post-request.spec.ts` — manager submits, owner approves, requester gets close-the-loop | M |
 | F2 | Telemetry: `social.post_request.{action}` with `{businessId, actorRole, durationMs}`. Dashboard panel for daily counts and AI-cost attribution | S |
 | F3 | In-app announcement + help-center article | S |
 | F4 | Production-readiness checklist additions | XS |

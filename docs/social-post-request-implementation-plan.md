@@ -8,7 +8,7 @@ This feature ships in five phases behind the existing `SOCIAL_PUBLISHING_ENABLED
 ## Feature flag
 
 ```ts
-// lib/features/social-post-requests.ts (new)
+// features/social/social-post-requests.ts (new)
 export function isSocialPostRequestsEnabledForBusiness(slug: string): boolean;
 ```
 
@@ -45,9 +45,9 @@ Migration: `prisma/migrations/<ts>_social_post_requests/migration.sql`. Backfill
 | File                                                   | Action                                                                 |
 | ------------------------------------------------------ | ---------------------------------------------------------------------- |
 | `lib/auth/staff-access.ts`                             | edit — extend `DEFAULT_PERMISSIONS_BY_PROFILE` with the three new flags |
-| `lib/server actions/social-post-requests.ts`           | new — six actions per design §4                                        |
-| `lib/server actions/social-post-requests.test.ts`      | new — table-driven permission matrix + state transitions               |
-| `lib/server actions/social.ts`                         | edit — `createOrganicSocialPostAction` accepts an optional `sourceRequestId` so we can wire the request → SocialPost link in one transaction |
+| `features/social/actions/social-post-requests.ts`           | new — six actions per design §4                                        |
+| `features/social/actions/social-post-requests.test.ts`      | new — table-driven permission matrix + state transitions               |
+| `features/social/actions/social.ts`                         | edit — `createOrganicSocialPostAction` accepts an optional `sourceRequestId` so we can wire the request → SocialPost link in one transaction |
 | `lib/services/social/post-request.ts`                  | new — pure helpers: validation, duplicate detection, rate-limit checks |
 
 ### Outbox
@@ -118,7 +118,7 @@ This phase is small because most of it already exists; we're stitching pieces.
 
 | File                                                | Action                                                                                                                                                                                                        |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lib/server actions/social-post-requests.ts`        | edit — `approveSocialPostRequestAction` calls `createOrganicSocialPostAction` with the field mapping in design §7, atomically links `social_post_id` on the request, and writes both audit entries in one tx |
+| `features/social/actions/social-post-requests.ts`        | edit — `approveSocialPostRequestAction` calls `createOrganicSocialPostAction` with the field mapping in design §7, atomically links `social_post_id` on the request, and writes both audit entries in one tx |
 | `lib/services/social/post-request.ts`               | edit — helper `mapRequestToOrganicInput(request) → OrganicPostInput`                                                                                                                                          |
 | `lib/services/outbox-delivery.ts`                   | edit — when a `SocialPost` transitions to `PUBLISHED` and has a linked `SocialPostRequest`, fire `SOCIAL_POST_REQUEST_PUBLISHED` to the requester                                                              |
 | `components/dashboard/social-posts/RequestStatusBadge.tsx` | new — pill colored by status, used in inbox and "My requests"                                                                                                                                                  |
