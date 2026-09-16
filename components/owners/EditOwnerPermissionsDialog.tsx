@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { updateOwnerPermissionsAction } from "@/lib/server actions/owners";
+import { updateOwnerPermissionsAction } from "@/features/workforce/actions/owners";
 
 // Display order. Matches the OwnerPermission enum order in schema.prisma.
 // Sales-only is intentionally placed next to Reports-Full so the

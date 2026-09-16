@@ -16,7 +16,7 @@ vi.mock("next/navigation", () => ({
 
 // Server actions imported by BookingList; mocked so the test never
 // reaches them (it asserts rendering, not mutation behavior).
-vi.mock("@/lib/server actions/dashboard", () => ({
+vi.mock("@/features/dashboard/actions", () => ({
   deleteBookingAction: vi.fn(),
   updateBookingStatusAction: vi.fn(),
 }));
@@ -24,11 +24,11 @@ vi.mock("@/lib/server actions/dashboard", () => ({
 // BookingDetailsDialog (which BookingQuickPanel re-exports) imports
 // other server actions through the dashboard barrel; explicit mocks
 // keep the unit test isolated from those modules.
-vi.mock("@/lib/server actions/dashboard/owner", () => ({
+vi.mock("@/features/dashboard/actions/owner", () => ({
   markBookingNoShowAction: vi.fn(),
 }));
 
-vi.mock("@/lib/server actions/booking-addons", () => ({
+vi.mock("@/features/bookings/actions/booking-addons", () => ({
   addBookingServiceOrCreateFollowUpAction: vi.fn(),
 }));
 

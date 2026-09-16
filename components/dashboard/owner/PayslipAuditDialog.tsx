@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { getEmployeePayslipAuditAction } from "@/lib/server actions/payslip";
+import { getEmployeePayslipAuditAction } from "@/features/payroll/actions/payslip";
 
 type AuditEntry = {
   id: string;

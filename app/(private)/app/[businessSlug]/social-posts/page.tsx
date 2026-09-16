@@ -2,16 +2,16 @@ import { redirect } from "next/navigation";
 
 import { requireTenantAccess } from "@/lib/auth/guards";
 import { resolveTenantActorContext } from "@/lib/auth/staff-access";
-import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
-import { isSocialPostRequestsEnabledForBusiness } from "@/lib/features/social-post-requests";
+import { isSocialPublishingEnabledForBusiness } from "@/features/social/social-publishing";
+import { isSocialPostRequestsEnabledForBusiness } from "@/features/social/social-post-requests";
 import { hasViewerPermission } from "@/lib/auth/viewer-permissions";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
-import { prisma } from "@/prisma/prisma";
+import { getSocialPostsWorkspaceData } from "@/features/social/queries/workspace";
 import { SocialPostsPageClient } from "@/components/dashboard/owner/social-posts/SocialPostsPageClient";
 import { RequestsInbox } from "@/components/dashboard/social-posts/RequestsInbox";
 import { SuggestPostDialog } from "@/components/dashboard/social-posts/SuggestPostDialog";
 import { parseGrowthFlowContext } from "@/components/dashboard/owner/growth/types";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { getBusinessEntitlementsBySlug } from "@/features/billing/plan-entitlements";
 
 export default async function SocialPostsPage({
   params,
@@ -138,58 +138,15 @@ export default async function SocialPostsPage({
     );
   }
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: {
-      id: true,
-      name: true,
-      imageUrl: true,
-      social_posts: {
-        include: {
-          sale_event: {
-            select: {
-              title: true,
-              description: true,
-              discount_type: true,
-              discount_value: true,
-              start_date: true,
-              end_date: true,
-            },
-          },
-          growth_campaigns: {
-            select: { opportunity_snapshot: true },
-            orderBy: { created_at: "desc" },
-            take: 1,
-          },
-          targets: {
-            include: {
-              social_connection: {
-                select: {
-                  platform: true,
-                  display_name: true,
-                },
-              },
-            },
-            orderBy: { created_at: "asc" },
-          },
-        },
-        orderBy: { created_at: "desc" },
-      },
-    },
-  });
-
-  if (!business) {
+  const data = await getSocialPostsWorkspaceData(businessSlug);
+  if (!data) {
     redirect("/app");
   }
 
   // Reusable reference images from the brand-asset library. Owners attach one
   // to an image-generation request for visual consistency / person identity
   // preservation. Scoped to this business; kind=REFERENCE only.
-  const referenceAssets = await prisma.brandAsset.findMany({
-    where: { business_id: business.id, kind: "REFERENCE" },
-    orderBy: { created_at: "desc" },
-    select: { id: true, url: true, alt: true, reference_subject: true },
-  });
+  const { business, referenceAssets } = data;
 
   return (
     <div className="flex flex-col bg-background">

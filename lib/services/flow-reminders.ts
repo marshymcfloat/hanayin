@@ -8,7 +8,7 @@ import {
   getStartOfDayPH,
 } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { getBusinessEntitlementsBySlug } from "@/features/billing/plan-entitlements";
 import { sendSemaphoreSms, truncateSms } from "@/lib/services/sms";
 
 const FLOW_REMINDER_EVENT_TYPE = "FLOW_REMINDER_SENT";

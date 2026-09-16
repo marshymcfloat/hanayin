@@ -1,6 +1,6 @@
 /**
  * Booking-editor telemetry. Single funnel for `booking.modified.*`
- * events fired by the actions in lib/server actions/booking-modify.ts.
+ * events fired by the workflows in features/bookings/services/booking-modify.ts.
  *
  * Default implementation:
  *   - Sentry breadcrumb (if instrumentation is loaded — graceful no-op

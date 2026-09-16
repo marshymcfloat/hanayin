@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Local-only preview files are gitignored, so Tailwind's automatic source
+   detection skips them unless they are registered explicitly. */
+@source "./(private-preview)";
+@source "../components/dashboard/owner-preview";
+
 @custom-variant dark (&:is(.dark *));
 
 @layer base {

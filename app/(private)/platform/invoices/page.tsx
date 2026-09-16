@@ -1,9 +1,9 @@
 import {
   createSubscriptionInvoiceAction,
   markInvoicePaidManuallyAction,
-} from "@/lib/server actions/platform-admin";
+} from "@/features/platform/actions/platform-admin";
 import { redirect } from "next/navigation";
-import { prisma } from "@/prisma/prisma";
+import { getPlatformInvoicesData } from "@/features/platform/queries/invoices";
 import {
   buildPlatformErrorPath,
   type PlatformSearchParams,
@@ -74,24 +74,10 @@ export default async function PlatformInvoicesPage({
   searchParams,
 }: PlatformInvoicesPageProps) {
   const flash = await getPlatformFlashMessage(searchParams);
-  const [invoices, subscriptions] = await Promise.all([
-    prisma.subscriptionInvoice.findMany({
-      include: {
-        business: { select: { name: true, slug: true } },
-        plan: { select: { code: true } },
-      },
-      orderBy: { created_at: "desc" },
-      take: 200,
-    }),
-    prisma.businessSubscription.findMany({
-      include: {
-        business: { select: { name: true } },
-        plan: { select: { code: true } },
-      },
-      orderBy: { updated_at: "desc" },
-      take: 100,
-    }),
-  ]);
+  const data = await getPlatformInvoicesData();
+  if (!data) redirect("/");
+  const { invoices, subscriptions } = data;
+
   async function createInvoiceFormAction(subscriptionId: string) {
     "use server";
     try {

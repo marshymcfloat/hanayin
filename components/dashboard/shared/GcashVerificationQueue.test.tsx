@@ -6,7 +6,7 @@ const routerRefresh = vi.hoisted(() => vi.fn());
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: routerRefresh }),
 }));
-vi.mock("@/lib/server actions/manual-gcash", () => ({
+vi.mock("@/features/payments/actions/manual-gcash", () => ({
   approveGcashPaymentAction: vi.fn(),
   rejectGcashPaymentAction: vi.fn(),
   escalateGcashPaymentAction: vi.fn(),

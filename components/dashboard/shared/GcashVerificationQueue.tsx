@@ -28,7 +28,7 @@ import {
   escalateGcashPaymentAction,
   rejectGcashPaymentAction,
   resolveGcashFollowUpAction,
-} from "@/lib/server actions/manual-gcash";
+} from "@/features/payments/actions/manual-gcash";
 import {
   GCASH_REJECTION_REASONS,
   type GcashFollowUpItem,

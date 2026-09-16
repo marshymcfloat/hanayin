@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Package, RefreshCcw, Filter } from "lucide-react";
-import { deletePackageAction } from "@/lib/server actions/packages";
+import { deletePackageAction } from "@/features/catalog/actions/packages";
 import { toast } from "sonner";
 import { PackageForm } from "./PackageForm";
 import { PackageList } from "./PackageList";

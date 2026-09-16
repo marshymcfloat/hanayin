@@ -1,18 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 const connectionMock = vi.hoisted(() => vi.fn());
-const findManyMock = vi.hoisted(() => vi.fn());
+const listPublicBusinessSitemapEntriesMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/server", () => ({
   connection: connectionMock,
 }));
 
-vi.mock("@/prisma/prisma", () => ({
-  prisma: {
-    business: {
-      findMany: findManyMock,
-    },
-  },
+vi.mock("@/features/businesses/queries/public-sitemap", () => ({
+  listPublicBusinessSitemapEntries: listPublicBusinessSitemapEntriesMock,
 }));
 
 vi.mock("@/lib/site-url", () => ({
@@ -22,19 +18,17 @@ vi.mock("@/lib/site-url", () => ({
 import sitemap from "./sitemap";
 
 describe("sitemap generation", () => {
-  it("excludes facing routes for businesses without website entitlement", async () => {
-    findManyMock.mockResolvedValue([
+  it("adds public business routes and omits reserved slugs", async () => {
+    listPublicBusinessSitemapEntriesMock.mockResolvedValue([
       {
-        slug: "starter-biz",
-        updated_at: new Date("2026-02-15T00:00:00.000Z"),
-        subscriptions: [{ plan: { code: "STARTER_MONTHLY" } }],
-        _count: { services: 1 },
+        slug: "about",
+        updatedAt: new Date("2026-02-15T00:00:00.000Z"),
+        hasServices: true,
       },
       {
         slug: "plus-biz",
-        updated_at: new Date("2026-02-15T00:00:00.000Z"),
-        subscriptions: [{ plan: { code: "PLUS_MONTHLY" } }],
-        _count: { services: 2 },
+        updatedAt: new Date("2026-02-15T00:00:00.000Z"),
+        hasServices: true,
       },
     ]);
 
@@ -43,8 +37,7 @@ describe("sitemap generation", () => {
 
     expect(urls).toContain("https://serviceflow.test/plus-biz");
     expect(urls).toContain("https://serviceflow.test/plus-biz/services");
-    expect(urls).not.toContain("https://serviceflow.test/starter-biz");
-    expect(urls).not.toContain("https://serviceflow.test/starter-biz/services");
+    expect(urls.filter((url) => url === "https://serviceflow.test/about")).toHaveLength(1);
+    expect(urls).not.toContain("https://serviceflow.test/about/services");
   });
 });
-

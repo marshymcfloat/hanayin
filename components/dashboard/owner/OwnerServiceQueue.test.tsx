@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import OwnerServiceQueue from "./OwnerServiceQueue";
 
-// TODO: Mock server actions in "@/lib/server actions/dashboard"
+// TODO: Mock server actions in "@/features/dashboard/actions"
 // for deterministic tests.
 
 describe("OwnerServiceQueue", () => {

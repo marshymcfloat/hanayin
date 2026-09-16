@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 
 import { createReferralLeadAction } from "@/app/actions/referrals";
 import ReferralStatusBanner from "@/components/forms/ReferralStatusBanner";
-import { prisma } from "@/prisma/prisma";
+import { getActiveReferralCode } from "@/features/platform/queries/public-referral";
 
 export const metadata: Metadata = {
   title: "Referral Onboarding",
@@ -36,18 +36,8 @@ async function ReferralLandingContent({
   await connection();
   const { code } = await params;
 
-  const referralCode = await prisma.referralCode.findUnique({
-    where: { code: code.toUpperCase() },
-    include: {
-      business: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-
-  if (!referralCode || !referralCode.is_active) {
+  const referralCode = await getActiveReferralCode(code);
+  if (!referralCode) {
     return (
       <main className="mx-auto max-w-xl p-6">
         <h1 className="text-2xl font-semibold">Referral Link Not Available</h1>

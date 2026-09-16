@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { impersonateBusinessOwnerAction } from "@/lib/server actions/platform-admin";
+import { impersonateBusinessOwnerAction } from "@/features/platform/actions/platform-admin";
 
 /**
  * Owner-impersonation trigger. Lets a platform admin mint a short-lived

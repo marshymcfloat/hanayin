@@ -1,7 +1,7 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 
 export async function POST(request: Request): Promise<NextResponse> {
   const session = await getServerSession(authOptions);

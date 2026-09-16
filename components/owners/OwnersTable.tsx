@@ -16,7 +16,7 @@ import { Edit, Crown, ShieldCheck, Star } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { setPrimaryOwnerAction } from "@/lib/server actions/owners";
+import { setPrimaryOwnerAction } from "@/features/workforce/actions/owners";
 
 type OwnerWithUser = Owner & {
   user: User;

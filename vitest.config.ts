@@ -9,7 +9,7 @@ export default defineConfig({
     exclude: [
       ...configDefaults.exclude,
       "test/e2e/**",
-      "tests/**",
+      "test/integration/**",
       // Stale Claude worktrees contain old copies of the codebase whose imports
       // have since been moved/removed; they would fail with module-resolution
       // errors and pollute the test report. The worktrees keep their own
@@ -28,10 +28,10 @@ export default defineConfig({
         "lib/rate-limit.ts",
         "lib/security/booking-success-token.ts",
         "lib/security/onboarding-status-token.ts",
-        "lib/server actions/booking.ts",
-        "lib/server actions/dashboard/employee.ts",
-        "lib/server actions/subscription-owner.ts",
-        "lib/services/booking-pricing.ts",
+        "features/bookings/actions/booking.ts",
+        "features/dashboard/actions/employee.ts",
+        "features/billing/actions/subscription-owner.ts",
+        "features/bookings/services/booking-pricing.ts",
         "lib/services/outbox.ts",
         "lib/utils/employee-specialties.ts",
         "lib/utils/pricing.ts",

@@ -37,7 +37,7 @@ vi.mock("@/lib/services/reports/queries", () => ({
   getAdvancedReportPayload: mockGetAdvancedReportPayload,
 }));
 
-vi.mock("@/lib/features/plan-entitlements", () => ({
+vi.mock("@/features/billing/plan-entitlements", () => ({
   getBusinessEntitlementsBySlug: mockGetBusinessEntitlementsBySlug,
 }));
 

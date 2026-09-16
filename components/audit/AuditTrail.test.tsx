@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 
 const actionMock = vi.fn();
-vi.mock("./audit-actions", () => ({
+vi.mock("@/features/platform/audit/actions", () => ({
   getEntityAuditHistoryAction: (...args: unknown[]) => actionMock(...args),
 }));
 

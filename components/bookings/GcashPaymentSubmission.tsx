@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { submitGcashPaymentAction } from "@/lib/server actions/manual-gcash";
+import { submitGcashPaymentAction } from "@/features/payments/actions/manual-gcash";
 import { Download } from "lucide-react";
 
 export function GcashPaymentSubmission(props: {

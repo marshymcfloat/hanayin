@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { cookies } from "next/headers";
-import { prisma } from "@/prisma/prisma";
+import { getApplicationStatus } from "@/features/platform/queries/application-status";
 import { verifyOnboardingStatusToken } from "@/lib/security/onboarding-status-token";
 import { createOnboardingLoginToken } from "@/lib/security/onboarding-login-token";
 import { formatBusinessStructureLabel } from "@/lib/business-structure";
@@ -88,34 +88,7 @@ async function ApplyStatusContent({ searchParams }: ApplyStatusPageProps) {
     );
   }
 
-  const application = await prisma.onboardingApplication.findUnique({
-    where: { id: payload.applicationId },
-    select: {
-      id: true,
-      business_name: true,
-      owner_name: true,
-      owner_email: true,
-      status: true,
-      review_notes: true,
-      requested_structure: true,
-      requested_allow_employee_self_booking: true,
-      requested_manager_can_serve: true,
-      created_at: true,
-      reviewed_at: true,
-      converted_business: {
-        select: {
-          name: true,
-          slug: true,
-          // Owner user_id needed to mint a fresh magic-login token if
-          // the original SMS / email link expired (1-hour TTL).
-          owners: {
-            take: 1,
-            select: { user_id: true },
-          },
-        },
-      },
-    },
-  });
+  const application = await getApplicationStatus(payload.applicationId);
 
   if (!application) {
     notFound();

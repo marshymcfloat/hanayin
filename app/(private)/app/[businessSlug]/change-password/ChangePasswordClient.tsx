@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { toast } from "sonner";
 import { Eye, EyeOff, KeyRound, Lock, ShieldCheck } from "lucide-react";
 
-import { changePasswordAction } from "@/lib/server actions/password";
+import { changePasswordAction } from "@/features/auth/actions/password";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

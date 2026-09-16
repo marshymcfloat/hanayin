@@ -1,7 +1,4 @@
-import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
-import { getMonthlyPlannerEvents } from "@/lib/services/growth/monthly-planner";
-import { prisma } from "@/prisma/prisma";
+import { getGrowthPlannerData } from "@/features/growth/queries/planner";
 import { GrowthPlannerPageClient } from "@/components/dashboard/owner/growth/GrowthPlannerPageClient";
 
 export default async function GrowthPlannerPage({
@@ -14,8 +11,8 @@ export default async function GrowthPlannerPage({
   const { businessSlug } = await params;
   const rawSearchParams = await searchParams;
 
-  const auth = await requireOwnerTenantWriteAccess(businessSlug);
-  if (!auth.success) {
+  const data = await getGrowthPlannerData(businessSlug, rawSearchParams);
+  if (!data.success && data.error === "Forbidden") {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold">Access Denied</h1>
@@ -24,8 +21,7 @@ export default async function GrowthPlannerPage({
     );
   }
 
-  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
-  if (!entitlements.growth) {
+  if (!data.success && data.error === "Upgrade required") {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold">Growth Planner</h1>
@@ -36,12 +32,7 @@ export default async function GrowthPlannerPage({
     );
   }
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: { id: true, name: true, slug: true, created_at: true },
-  });
-
-  if (!business) {
+  if (!data.success) {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold">Business not found</h1>
@@ -49,31 +40,13 @@ export default async function GrowthPlannerPage({
     );
   }
 
-  const now = new Date();
-  const yearParam = typeof rawSearchParams.year === "string" ? Number.parseInt(rawSearchParams.year, 10) : NaN;
-  const monthParam = typeof rawSearchParams.month === "string" ? Number.parseInt(rawSearchParams.month, 10) : NaN;
-
-  const year = Number.isFinite(yearParam) && yearParam >= 2020 && yearParam <= 2030 ? yearParam : now.getFullYear();
-  const month = Number.isFinite(monthParam) && monthParam >= 1 && monthParam <= 12 ? monthParam : now.getMonth() + 1;
-
-  const events = await getMonthlyPlannerEvents({
-    businessId: business.id,
-    businessSlug: business.slug,
-    businessCreatedAt: business.created_at,
-    year,
-    month,
-  });
-
   return (
     <GrowthPlannerPageClient
       businessSlug={businessSlug}
-      businessName={business.name}
-      events={events.map((e) => ({
-        ...e,
-        date: e.date.toISOString(),
-      }))}
-      year={year}
-      month={month}
+      businessName={data.businessName}
+      events={data.events}
+      year={data.year}
+      month={data.month}
     />
   );
 }

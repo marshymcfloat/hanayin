@@ -43,7 +43,7 @@ import {
   resendEmployeeInviteAction,
   resetEmployeePasswordAction,
   updateEmployeeAction,
-} from "@/lib/server actions/employees";
+} from "@/features/workforce/actions/employees";
 import { EmployeeList } from "./EmployeeList";
 import { ScheduleEditor } from "@/components/dashboard/owner/ScheduleEditor";
 

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AlertTriangle, ChevronDown, ChevronUp, Loader2, PenLine, Sparkles, Wand2 } from "lucide-react";
-import { getSocialAiStatusAction } from "@/lib/server actions/social-ai-status";
+import { getSocialAiStatusAction } from "@/features/social/actions/social-ai-status";
 import { inferCreativeBrief } from "@/lib/services/social/creative-brief";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,10 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createOrganicSocialPostAction } from "@/lib/server actions/social";
+import { createOrganicSocialPostAction } from "@/features/social/actions/social";
 import { SOCIAL_IMAGE_PROFILE_OPTIONS } from "@/lib/services/social/image-profiles";
 import type { OrganicPostCategory } from "@/lib/services/social/caption-generator";
-import type { CaptionTone } from "@/lib/zod-schemas/growth";
+import type { CaptionTone } from "@/features/growth/schemas";
 
 // Same six options used on the campaign-side dialog. AUTO defers to the
 // engine's default voice; the rest bias the LLM prompt toward a specific

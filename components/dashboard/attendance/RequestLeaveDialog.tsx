@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-import { createLeaveRequest } from "@/app/actions/leave-request";
+import { createLeaveRequest } from "@/features/workforce/actions/leave-request";
 import { toast } from "sonner";
 import { extractClientErrorMessage } from "@/lib/utils/error-message";
 import { LeaveType } from "@/prisma/generated/prisma/enums";
@@ -121,7 +121,8 @@ export function RequestLeaveDialog({
           {leavesThisMonth !== undefined ? (
             <p className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
               <CalendarIcon className="size-3.5" aria-hidden="true" />
-              {leavesThisMonth.toLocaleString()} {leavesThisMonth === 1 ? "request" : "requests"} filed this month
+              {leavesThisMonth.toLocaleString()}{" "}
+              {leavesThisMonth === 1 ? "request" : "requests"} filed this month
             </p>
           ) : null}
         </DialogHeader>

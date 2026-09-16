@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { TimeSlot } from "@/lib/services/booking-availability";
+import type { TimeSlot } from "@/features/bookings/services/booking-availability";
 import { Clock, Sunrise, Sun, Sunset } from "lucide-react";
 
 interface TimeSlotPickerProps {

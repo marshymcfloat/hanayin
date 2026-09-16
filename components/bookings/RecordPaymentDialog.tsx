@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { recordBookingPaymentAction } from "@/lib/server actions/booking-payments";
+import { recordBookingPaymentAction } from "@/features/payments/actions/booking-payments";
 import { formatCurrency } from "@/lib/utils";
 import { PaymentMethod } from "@/prisma/generated/prisma/enums";
 

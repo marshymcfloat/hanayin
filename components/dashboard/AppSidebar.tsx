@@ -1,15 +1,15 @@
 import { getServerSession } from "next-auth";
-import { prisma } from "@/prisma/prisma";
 
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 import { SidebarSkeleton } from "./SidebarSkeleton";
 import { AppSidebarClient } from "./AppSidebarClient";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { getBusinessEntitlementsBySlug } from "@/features/billing/plan-entitlements";
 import {
   hasStaffPermission,
   resolveTenantActorContext,
 } from "@/lib/auth/staff-access";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
+import { getWorkspaceSlugForUser } from "@/features/auth/workspace-navigation";
 
 export async function AppSidebar() {
   const session = await getServerSession(authOptions);
@@ -23,17 +23,7 @@ export async function AppSidebar() {
 
   // Fallback: If slug is missing in session (e.g. old session), try to fetch it
   if (!slug) {
-    const userWithBusiness = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        employee: { include: { business: true } },
-        owner: { include: { business: true } },
-      },
-    });
-
-    slug =
-      userWithBusiness?.employee?.business.slug ??
-      userWithBusiness?.owner?.business.slug;
+    slug = (await getWorkspaceSlugForUser(session.user.id)) ?? undefined;
   }
 
   // Final fallback

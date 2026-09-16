@@ -33,8 +33,8 @@ import { toast } from "sonner";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { GcashQrUpload } from "@/components/business/GcashQrUpload";
 import LocationInputGroup from "@/components/business/LocationInputGroup";
-import { updateBusinessAction } from "@/lib/server actions/business-settings";
-import { disconnectSocialConnectionAction } from "@/lib/server actions/social";
+import { updateBusinessAction } from "@/features/businesses/actions/business-settings";
+import { disconnectSocialConnectionAction } from "@/features/social/actions/social";
 import {
   Loader2,
   Link as LinkIcon,

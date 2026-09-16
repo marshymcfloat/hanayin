@@ -12,7 +12,7 @@
 
 import type { OrganicPostCategory } from "@/lib/services/social/caption-generator";
 import type { SocialImageProfile } from "@/lib/services/social/image-profiles";
-import type { CaptionTone } from "@/lib/zod-schemas/growth";
+import type { CaptionTone } from "@/features/growth/schemas";
 
 export type OrganicPostAction = "CREATED";
 

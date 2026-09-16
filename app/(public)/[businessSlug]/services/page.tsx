@@ -1,4 +1,3 @@
-import { prisma } from "@/prisma/prisma";
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -9,8 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
 import { constructMetadata } from "@/lib/metadata";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { getBusinessEntitlementsBySlug } from "@/features/billing/plan-entitlements";
 import { isValidBusinessSlug } from "@/lib/utils/business-slug";
+import {
+  getPublicBusinessMetadata,
+  getPublicBusinessServices,
+} from "@/features/businesses/public-directory";
 
 interface Props {
   params: Promise<{ businessSlug: string }>;
@@ -24,10 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       noIndex: true,
     });
   }
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: { name: true, slug: true, description: true, imageUrl: true },
-  });
+  const business = await getPublicBusinessMetadata(businessSlug);
 
   if (!business) {
     return constructMetadata({
@@ -69,24 +69,16 @@ async function BusinessServicesContent({ params }: Props) {
     notFound();
   }
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: { id: true, name: true, slug: true },
-  });
-
-  if (!business) {
+  const catalog = await getPublicBusinessServices(businessSlug);
+  if (!catalog) {
     notFound();
   }
+  const { business, services } = catalog;
 
   const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
   if (!entitlements.website) {
     redirect(`/${businessSlug}/booking`);
   }
-
-  const services = await prisma.service.findMany({
-    where: { business_id: business.id },
-    orderBy: [{ category: "asc" }, { price: "asc" }],
-  });
 
   if (isBeautyFeelSlug(business.slug)) {
     return <BeautyFeelServices business={business} services={services} />;

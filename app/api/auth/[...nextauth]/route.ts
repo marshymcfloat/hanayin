@@ -1,4 +1,4 @@
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 import NextAuth from "next-auth/next";
 
 // Under `cacheComponents: true`, dynamic-ness is implicit: this handler

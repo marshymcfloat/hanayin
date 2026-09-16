@@ -1,9 +1,8 @@
-import { updateSubscriptionPlanAction } from "@/lib/server actions/platform-admin";
+import { updateSubscriptionPlanAction } from "@/features/platform/actions/platform-admin";
 import { SUBSCRIPTION_PLAN_CODES } from "@/features/billing/subscription-service";
-import { ensureDefaultPlans } from "@/features/billing/subscription-service";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
-import { prisma } from "@/prisma/prisma";
+import { getPlatformPlansData } from "@/features/platform/queries/plans";
 import {
   buildPlatformErrorPath,
   type PlatformSearchParams,
@@ -38,33 +37,10 @@ export default async function PlatformPlansPage({
   searchParams,
 }: PlatformPlansPageProps) {
   await connection();
-  await ensureDefaultPlans();
   const flash = await getPlatformFlashMessage(searchParams);
-  const [plans, legacyOrInactiveAssignments] = await Promise.all([
-    prisma.subscriptionPlan.findMany({
-      orderBy: [{ is_active: "desc" }, { code: "asc" }],
-    }),
-    prisma.businessSubscription.count({
-      where: {
-        OR: [
-          {
-            plan: {
-              code: { notIn: [...SUBSCRIPTION_PLAN_CODES] },
-            },
-          },
-          {
-            plan: {
-              is_active: false,
-            },
-          },
-        ],
-      },
-    }),
-  ]);
-
-  const activePlans = plans.filter((plan) => plan.is_active).length;
-  const monthlyPlans = plans.filter((plan) => plan.billing_interval === "MONTHLY").length;
-  const inactivePlans = plans.filter((plan) => !plan.is_active).length;
+  const data = await getPlatformPlansData();
+  if (!data) redirect("/");
+  const { plans, legacyOrInactiveAssignments, activePlans, monthlyPlans, inactivePlans } = data;
 
   return (
     <div className="space-y-6">

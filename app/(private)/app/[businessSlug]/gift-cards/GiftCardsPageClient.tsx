@@ -32,7 +32,7 @@ import {
   deleteGiftCardAction,
   generateGiftCardCodeAction,
   updateGiftCardAction,
-} from "@/lib/server actions/gift-cards";
+} from "@/features/gift-cards/actions/gift-cards";
 import {
   GiftCardForm,
   type GiftCardFormValues,

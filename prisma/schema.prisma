@@ -1487,7 +1487,7 @@ model AvailedService {
   // overlapping rows per served_by_id / served_by_owner_id when
   // status <> 'CANCELLED' and cancelled_at IS NULL. Prisma cannot
   // model EXCLUDE constraints — see the migration for definition.
-  // Application code in lib/services/booking.ts catches the
+  // Application code in features/bookings/services/booking-persistence.ts catches the
   // resulting 23P01 error and surfaces SLOT_JUST_TAKEN.
 
   @@index([served_by_owner_id, status])
@@ -1871,7 +1871,7 @@ model SocialPostRequest {
   // can iterate categories in code without migrations.
   category             String
   // Same rationale: validated against captionToneSchema in
-  // lib/zod-schemas/growth.ts. Null means "let the owner decide".
+  // features/growth/schemas.ts. Null means "let the owner decide".
   desired_tone         String?
   attachment_url       String?
   due_date             DateTime?

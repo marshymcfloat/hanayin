@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { cancelBookingAction } from "@/lib/server actions/booking-modify";
+import { cancelBookingAction } from "@/features/bookings/actions/booking-modify";
 
 const MAX_REASON_LENGTH = 500;
 

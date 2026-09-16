@@ -46,8 +46,8 @@ import {
 import {
   updateAttendanceStatus,
   previewAttendanceImpactAction,
-  type AttendanceImpactBooking,
-} from "@/app/actions/attendance";
+} from "@/features/workforce/actions/attendance-admin";
+import type { AttendanceImpactBooking } from "@/features/workforce/types/attendance";
 
 import { EmployeeAttendanceHistoryDialog } from "./EmployeeAttendanceHistoryDialog";
 import { AttendanceImpactDialog } from "./AttendanceImpactDialog";
@@ -186,7 +186,10 @@ export function DailyAttendanceTab({
     // Run the preview before mutating. If zero bookings would be
     // affected, apply silently â€” no point in a confirmation dialog
     // that says "0 bookings will be affected".
-    const preview = await previewAttendanceImpactAction(employeeId, currentDate);
+    const preview = await previewAttendanceImpactAction(
+      employeeId,
+      currentDate,
+    );
     if (!preview.success) {
       // Fall through to normal apply path â€” failing the preview should
       // not block the manager from doing their job.
@@ -211,7 +214,10 @@ export function DailyAttendanceTab({
     if (!pendingImpact) return;
     setImpactApplying(true);
     try {
-      await applyStatusChange(pendingImpact.employeeId, pendingImpact.newStatus);
+      await applyStatusChange(
+        pendingImpact.employeeId,
+        pendingImpact.newStatus,
+      );
     } finally {
       setImpactApplying(false);
       setPendingImpact(null);
@@ -264,7 +270,9 @@ export function DailyAttendanceTab({
 
       <AttendanceImpactDialog
         open={!!pendingImpact}
-        onOpenChange={(open) => !open && !impactApplying && setPendingImpact(null)}
+        onOpenChange={(open) =>
+          !open && !impactApplying && setPendingImpact(null)
+        }
         employeeName={pendingImpact?.employeeName ?? ""}
         newStatusLabel={statusVerb(pendingImpact?.newStatus)}
         bookings={pendingImpact?.bookings ?? []}
@@ -350,11 +358,31 @@ export function DailyAttendanceTab({
       </div>
 
       <div className="grid gap-3 md:grid-cols-5">
-        <SummaryCard title="Present" count={summary.PRESENT} indicatorColor="bg-emerald-500" />
-        <SummaryCard title="Late" count={summary.LATE} indicatorColor="bg-amber-500" />
-        <SummaryCard title="Absent" count={summary.ABSENT} indicatorColor="bg-rose-500" />
-        <SummaryCard title="On Leave" count={summary.LEAVE} indicatorColor="bg-blue-500" />
-        <SummaryCard title="Off" count={summary.OFF} indicatorColor="bg-muted-foreground" />
+        <SummaryCard
+          title="Present"
+          count={summary.PRESENT}
+          indicatorColor="bg-emerald-500"
+        />
+        <SummaryCard
+          title="Late"
+          count={summary.LATE}
+          indicatorColor="bg-amber-500"
+        />
+        <SummaryCard
+          title="Absent"
+          count={summary.ABSENT}
+          indicatorColor="bg-rose-500"
+        />
+        <SummaryCard
+          title="On Leave"
+          count={summary.LEAVE}
+          indicatorColor="bg-blue-500"
+        />
+        <SummaryCard
+          title="Off"
+          count={summary.OFF}
+          indicatorColor="bg-muted-foreground"
+        />
       </div>
 
       {/* Mobile Card View */}
@@ -362,8 +390,12 @@ export function DailyAttendanceTab({
         {optimisticData.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-2xl border border-border">
             <User className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-foreground">No employees found</h3>
-            <p className="text-muted-foreground">Try selecting a different date or refreshing.</p>
+            <h3 className="text-lg font-semibold text-foreground">
+              No employees found
+            </h3>
+            <p className="text-muted-foreground">
+              Try selecting a different date or refreshing.
+            </p>
           </div>
         ) : (
           optimisticData.map(({ employee, attendance }) => (
@@ -376,7 +408,9 @@ export function DailyAttendanceTab({
                   className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={() => setSelectedEmployee(employee)}
                 >
-                  <Avatar className={`${getAvatarColor(employee.user.name)} h-10 w-10 text-white shadow-sm`}>
+                  <Avatar
+                    className={`${getAvatarColor(employee.user.name)} h-10 w-10 text-white shadow-sm`}
+                  >
                     <AvatarFallback className="bg-transparent font-medium">
                       {getInitials(employee.user.name)}
                     </AvatarFallback>
@@ -389,11 +423,16 @@ export function DailyAttendanceTab({
                 </div>
               </div>
 
-              <div className="pl-[52px] -mt-2 mb-2" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="pl-[52px] -mt-2 mb-2"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Select
                   defaultValue={attendance?.status || "ABSENT"}
                   value={attendance?.status || "ABSENT"}
-                  onValueChange={(val) => handleStatusChange(employee.id, val as AttendanceStatus)}
+                  onValueChange={(val) =>
+                    handleStatusChange(employee.id, val as AttendanceStatus)
+                  }
                 >
                   <SelectTrigger className="h-7 w-[110px] text-xs rounded-lg border-border bg-background">
                     <SelectValue />
@@ -414,7 +453,9 @@ export function DailyAttendanceTab({
                     <Clock className="h-3 w-3" /> Time In
                   </span>
                   <span className="text-sm font-medium text-foreground">
-                    {attendance?.time_in ? format(new Date(attendance.time_in), "hh:mm a") : "-"}
+                    {attendance?.time_in
+                      ? format(new Date(attendance.time_in), "hh:mm a")
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -422,7 +463,9 @@ export function DailyAttendanceTab({
                     <Clock className="h-3 w-3" /> Time Out
                   </span>
                   <span className="text-sm font-medium text-foreground">
-                    {attendance?.time_out ? format(new Date(attendance.time_out), "hh:mm a") : "-"}
+                    {attendance?.time_out
+                      ? format(new Date(attendance.time_out), "hh:mm a")
+                      : "-"}
                   </span>
                 </div>
               </div>
@@ -436,16 +479,27 @@ export function DailyAttendanceTab({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border bg-muted/50">
-              <TableHead className="pl-6 h-11 font-semibold text-muted-foreground">Employee</TableHead>
-              <TableHead className="h-11 font-semibold text-muted-foreground">Time In</TableHead>
-              <TableHead className="h-11 font-semibold text-muted-foreground">Time Out</TableHead>
-              <TableHead className="h-11 font-semibold text-muted-foreground w-[200px]">Status</TableHead>
+              <TableHead className="pl-6 h-11 font-semibold text-muted-foreground">
+                Employee
+              </TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">
+                Time In
+              </TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground">
+                Time Out
+              </TableHead>
+              <TableHead className="h-11 font-semibold text-muted-foreground w-[200px]">
+                Status
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {optimisticData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={4}
+                  className="h-24 text-center text-muted-foreground"
+                >
                   No employees found.
                 </TableCell>
               </TableRow>
@@ -460,7 +514,9 @@ export function DailyAttendanceTab({
                     onClick={() => setSelectedEmployee(employee)}
                   >
                     <div className="flex items-center gap-3">
-                      <Avatar className={`${getAvatarColor(employee.user.name)} h-9 w-9 text-white shadow-sm`}>
+                      <Avatar
+                        className={`${getAvatarColor(employee.user.name)} h-9 w-9 text-white shadow-sm`}
+                      >
                         <AvatarFallback className="bg-transparent font-medium">
                           {getInitials(employee.user.name)}
                         </AvatarFallback>
@@ -492,7 +548,9 @@ export function DailyAttendanceTab({
                     <Select
                       defaultValue={attendance?.status || "ABSENT"}
                       value={attendance?.status || "ABSENT"}
-                      onValueChange={(val) => handleStatusChange(employee.id, val as AttendanceStatus)}
+                      onValueChange={(val) =>
+                        handleStatusChange(employee.id, val as AttendanceStatus)
+                      }
                     >
                       <SelectTrigger className="w-[140px] rounded-xl border-border">
                         <SelectValue />
@@ -528,7 +586,9 @@ function SummaryCard({
   return (
     <div className="bg-card rounded-2xl border border-border p-4 hover:border-primary/20 transition-colors duration-200">
       <div className="flex items-center gap-2 mb-2">
-        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${indicatorColor}`} />
+        <div
+          className={`w-1.5 h-1.5 rounded-full shrink-0 ${indicatorColor}`}
+        />
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {title}
         </span>

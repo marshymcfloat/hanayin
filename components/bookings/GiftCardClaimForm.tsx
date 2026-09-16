@@ -14,12 +14,12 @@ import { Separator } from "@/components/ui/separator";
 import { SegmentedToggle } from "@/components/ui/segmented-toggle";
 import DatePicker from "@/components/bookings/DatePicker";
 import TimeSlotPicker from "@/components/bookings/TimeSlotPicker";
-import { getAvailableSlots } from "@/lib/server actions/availability";
+import { getAvailableSlots } from "@/features/bookings/actions/availability";
 import {
   claimGiftCardBookingAction,
   previewGiftCardClaimAction,
   type GiftCardClaimPreviewData,
-} from "@/lib/server actions/gift-cards";
+} from "@/features/gift-cards/actions/gift-cards";
 
 interface GiftCardClaimFormProps {
   businessSlug: string;

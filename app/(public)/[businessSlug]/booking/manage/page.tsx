@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { ShieldAlert } from "lucide-react";
-import { getBookingForManageAction } from "@/lib/server actions/booking-self-serve";
+import { getBookingForManageAction } from "@/features/bookings/actions/booking-self-serve";
 import { ManageBookingClient } from "@/components/bookings/manage/ManageBookingClient";
 
 type ManageSearchParams = {

@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import {
   deleteBrandAssetAction,
   uploadBrandAssetAction,
-} from "@/lib/server actions/brand-assets";
+} from "@/features/assets/actions/brand-assets";
 
 type Asset = {
   id: string;

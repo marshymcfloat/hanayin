@@ -4,7 +4,7 @@
 } from "@/lib/services/social/caption-generator";
 import type { CaptionStyle, CaptionVariant, GeneratedOffer } from "@/lib/services/growth/types";
 import type { CampaignCreativeContext } from "@/lib/services/growth/creative-context";
-import type { CaptionTone } from "@/lib/zod-schemas/growth";
+import type { CaptionTone } from "@/features/growth/schemas";
 
 const STYLE_ORDER: CaptionStyle[] = [
   "INFORMATIVE",

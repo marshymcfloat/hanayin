@@ -18,7 +18,7 @@ import {
   type EmployeeScheduleRow,
   getEmployeeScheduleAction,
   upsertEmployeeScheduleAction,
-} from "@/lib/server actions/employees";
+} from "@/features/workforce/actions/employees";
 
 const DAY_LABELS = [
   "Sunday",

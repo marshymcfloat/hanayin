@@ -9,7 +9,7 @@ import {
   markServiceServedAction,
   unclaimServiceAction,
   unserveServiceAction,
-} from "@/lib/server actions/dashboard";
+} from "@/features/dashboard/actions";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import {

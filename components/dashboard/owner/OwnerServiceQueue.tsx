@@ -25,7 +25,7 @@ import {
   markServiceServedAsOwnerAction,
   unclaimServiceAsOwnerAction,
   unserveServiceAsOwnerAction,
-} from "@/lib/server actions/dashboard";
+} from "@/features/dashboard/actions";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export type OwnerPendingService = {

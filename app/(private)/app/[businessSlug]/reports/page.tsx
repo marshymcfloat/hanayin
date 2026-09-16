@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 import {
   buildReportQueryString,
   parseReportDateRange,
@@ -20,8 +19,7 @@ import {
 } from "@/lib/services/reports/date-range";
 import { ReportsTabContent } from "@/components/dashboard/reports/ReportsTabContent";
 import { ReportsTabSkeleton } from "@/components/dashboard/reports/ReportsTabSkeleton";
-import { requireTenantAccess } from "@/lib/auth/guards";
-import { prisma } from "@/prisma/prisma";
+import { getReportsWorkspaceData } from "@/features/reports/queries/workspace";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReportDateRange, ReportTab } from "@/lib/types/reports";
@@ -93,18 +91,9 @@ export default async function ReportsPage({
 }) {
   const [{ businessSlug }, rawSearchParams] = await Promise.all([params, searchParams]);
 
-  const auth = await requireTenantAccess(businessSlug);
-  if (!auth.success) redirect("/");
-  if (auth.session.user.role !== "OWNER") redirect(`/app/${businessSlug}`);
-
-  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
-  if (!entitlements.reportsCore) redirect(`/app/${businessSlug}`);
-
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: { id: true, name: true },
-  });
-  if (!business) redirect(`/app/${businessSlug}`);
+  const data = await getReportsWorkspaceData(businessSlug);
+  if (!data.success) redirect(data.error === "Unauthorized" ? "/" : `/app/${businessSlug}`);
+  const { business } = data;
 
   const tab = parseReportTab(getSingleParam(rawSearchParams.tab));
   const range = parseReportDateRange({
@@ -152,7 +141,7 @@ export default async function ReportsPage({
             <div className="flex items-center gap-1.5 min-w-max">
               {TAB_META.map((item) => {
                 const isActive = tab === item.id;
-                const isBlocked = item.advanced && !entitlements.reportsAdvanced;
+                const isBlocked = item.advanced && !data.reportsAdvanced;
                 const Icon = item.icon;
                 return (
                   <Link
@@ -247,8 +236,8 @@ export default async function ReportsPage({
               tab={tab}
               range={range}
               businessId={business.id}
-              actorId={auth.session.user.id}
-              advancedEnabled={entitlements.reportsAdvanced}
+              actorId={data.actorId}
+              advancedEnabled={data.reportsAdvanced}
             />
           </Suspense>
 

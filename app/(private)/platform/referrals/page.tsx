@@ -2,9 +2,9 @@ import {
   rejectReferralAttributionAction,
   runReferralRewardQualificationAction,
   updateReferralLeadStatusAction,
-} from "@/lib/server actions/platform-admin";
+} from "@/features/platform/actions/platform-admin";
 import { redirect } from "next/navigation";
-import { prisma } from "@/prisma/prisma";
+import { getPlatformReferralsData } from "@/features/platform/queries/referrals";
 import {
   buildPlatformErrorPath,
   type PlatformSearchParams,
@@ -37,34 +37,9 @@ export default async function PlatformReferralsPage({
   searchParams,
 }: PlatformReferralsPageProps) {
   const flash = await getPlatformFlashMessage(searchParams);
-  const [referralCodes, leads, attributions] = await Promise.all([
-    prisma.referralCode.findMany({
-      include: {
-        business: { select: { name: true, slug: true } },
-      },
-      orderBy: { created_at: "desc" },
-      take: 200,
-    }),
-    prisma.referralLead.findMany({
-      include: {
-        referral_code: {
-          include: {
-            business: { select: { name: true } },
-          },
-        },
-      },
-      orderBy: { created_at: "desc" },
-      take: 200,
-    }),
-    prisma.referralAttribution.findMany({
-      include: {
-        referrer_business: { select: { name: true } },
-        referred_business: { select: { name: true } },
-      },
-      orderBy: { created_at: "desc" },
-      take: 200,
-    }),
-  ]);
+  const data = await getPlatformReferralsData();
+  if (!data) redirect("/");
+  const { referralCodes, leads, attributions, pendingAttributions, qualifiedAttributions, newLeads } = data;
 
   async function runQualificationFormAction() {
     "use server";
@@ -152,9 +127,6 @@ export default async function PlatformReferralsPage({
     }
   }
 
-  const pendingAttributions = attributions.filter((item) => item.status === "PENDING").length;
-  const qualifiedAttributions = attributions.filter((item) => item.status === "QUALIFIED").length;
-  const newLeads = leads.filter((lead) => lead.status === "NEW").length;
 
   return (
     <div className="space-y-6">

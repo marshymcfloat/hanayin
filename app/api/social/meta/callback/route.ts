@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
-import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { isSocialPublishingEnabledForBusiness } from "@/features/social/social-publishing";
+import { getBusinessEntitlementsBySlug } from "@/features/billing/plan-entitlements";
 import {
   exchangeCodeForMetaUserToken,
   getManagedMetaPages,

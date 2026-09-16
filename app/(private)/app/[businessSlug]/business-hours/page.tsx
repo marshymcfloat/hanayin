@@ -3,8 +3,8 @@ import { Loader2 } from "lucide-react";
 import {
   getBusinessHours,
   getServiceCategories,
-} from "@/lib/server actions/business-hours";
-import { getBookingPolicy } from "@/lib/server actions/booking-policy";
+} from "@/features/businesses/actions/business-hours";
+import { getBookingPolicy } from "@/features/bookings/actions/booking-policy";
 import { BusinessHoursClient } from "./BusinessHoursClient";
 
 export default async function BusinessHoursPage({

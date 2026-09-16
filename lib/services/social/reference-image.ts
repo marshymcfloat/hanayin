@@ -17,7 +17,7 @@ export type ReferenceImageFetch =
  * `inlineData.data` expects and the shape we wrap into an OpenAI edit Blob.
  *
  * Re-uses the same size/type budget as the upload path
- * (lib/server actions/brand-assets.ts) so we never feed the model an asset
+ * (features/assets/actions/brand-assets.ts) so we never feed the model an asset
  * the library itself would have rejected.
  */
 export async function fetchReferenceImageBytes(

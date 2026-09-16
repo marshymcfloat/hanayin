@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatPH } from "@/lib/date-utils";
-import { createPayslipAction, getPayslipDataAction } from "@/lib/server actions/payslip";
+import { createPayslipAction, getPayslipDataAction } from "@/features/payroll/actions/payslip";
 
 interface Props { employeeId: number | null; open: boolean; onOpenChange: (open: boolean) => void; onSuccess: () => void }
 type PayslipData = {

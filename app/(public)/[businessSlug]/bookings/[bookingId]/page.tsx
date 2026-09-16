@@ -12,7 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { CheckCircle2, XCircle, Calendar, Clock } from "lucide-react";
-import { prisma } from "@/prisma/prisma";
+import { getPublicBookingDetails } from "@/features/bookings/queries/public-details";
 import type { Metadata } from "next";
 import { verifyBookingSuccessToken } from "@/lib/security/booking-success-token";
 import { getBookingPaymentDisplay } from "@/lib/utils/booking-payment-display";
@@ -64,20 +64,8 @@ export default async function BookingPage({
     return notFound();
   }
 
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-    include: {
-      business: true,
-      availed_services: {
-        include: {
-          service: true,
-        },
-      },
-      customer: true,
-    },
-  });
-
-  if (!booking || booking.business.slug !== businessSlug) {
+  const booking = await getPublicBookingDetails(businessSlug, id);
+  if (!booking) {
     return notFound();
   }
 

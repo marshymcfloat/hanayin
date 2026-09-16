@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RecentBookingsWidget } from "./RecentBookingsWidget";
-import { approveGcashPaymentAction } from "@/lib/server actions/manual-gcash";
+import { approveGcashPaymentAction } from "@/features/payments/actions/manual-gcash";
 
 const refresh = vi.hoisted(() => vi.fn());
 
@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh }),
 }));
 
-vi.mock("@/lib/server actions/manual-gcash", () => ({
+vi.mock("@/features/payments/actions/manual-gcash", () => ({
   approveGcashPaymentAction: vi.fn(),
 }));
 

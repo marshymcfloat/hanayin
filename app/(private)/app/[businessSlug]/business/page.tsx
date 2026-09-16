@@ -1,9 +1,7 @@
-import { prisma } from "@/prisma/prisma";
+import { getBusinessSettingsData } from "@/features/businesses/queries/settings";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { BusinessSettingsForm } from "./BusinessSettingsForm";
 import { BrandLibrarySection } from "@/components/business/BrandLibrarySection";
-import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
 
 export default async function BusinessSettingsPage({
   params,
@@ -11,22 +9,8 @@ export default async function BusinessSettingsPage({
   params: Promise<{ businessSlug: string }>;
 }) {
   const { businessSlug } = await params;
-  const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
-  const socialEntitled = entitlements.social;
-  const socialPublishingEnabled =
-    socialEntitled && isSocialPublishingEnabledForBusiness(businessSlug);
-
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    include: {
-      growth_settings: true,
-      social_connections: {
-        orderBy: { platform: "asc" },
-      },
-    },
-  });
-
-  if (!business) {
+  const data = await getBusinessSettingsData(businessSlug);
+  if (!data) {
     return <div>Business not found</div>;
   }
 
@@ -34,20 +18,7 @@ export default async function BusinessSettingsPage({
   // hero, AI reference photos). Listed only for owner-managed kinds
   // so the page stays focused; service/employee thumbnails live on
   // their own admin pages.
-  const brandAssets = await prisma.brandAsset.findMany({
-    where: {
-      business_id: business.id,
-      kind: { in: ["LOGO", "HERO", "REFERENCE"] },
-    },
-    orderBy: [{ kind: "asc" }, { created_at: "desc" }],
-    select: {
-      id: true,
-      kind: true,
-      reference_subject: true,
-      url: true,
-      alt: true,
-    },
-  });
+  const { business, brandAssets, socialEntitled, socialPublishingEnabled } = data;
 
   return (
     <div className="flex flex-col p-4 md:p-8 bg-background min-h-screen">

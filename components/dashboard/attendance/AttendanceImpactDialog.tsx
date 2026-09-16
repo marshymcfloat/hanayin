@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { AlertTriangle, Clock, Phone, Loader2 } from "lucide-react";
-import type { AttendanceImpactBooking } from "@/app/actions/attendance";
+import type { AttendanceImpactBooking } from "@/features/workforce/types/attendance";
 import { cn, formatCurrency } from "@/lib/utils";
 
 /**
@@ -62,13 +62,20 @@ export function AttendanceImpactDialog({
                 Attendance change
               </p>
               <AlertDialogTitle className="text-base font-semibold tracking-[-0.01em] sm:text-[17px]">
-                {count} booking{count === 1 ? "" : "s"} will lose their assigned staff
+                {count} booking{count === 1 ? "" : "s"} will lose their assigned
+                staff
               </AlertDialogTitle>
               <AlertDialogDescription className="text-sm text-muted-foreground">
-                Marking <span className="font-medium text-foreground">{employeeName}</span> as{" "}
-                <span className="font-medium text-foreground">{newStatusLabel}</span> will unassign
-                them from these bookings. They&apos;ll fall back to any-available staff or need
-                manual reassignment.
+                Marking{" "}
+                <span className="font-medium text-foreground">
+                  {employeeName}
+                </span>{" "}
+                as{" "}
+                <span className="font-medium text-foreground">
+                  {newStatusLabel}
+                </span>{" "}
+                will unassign them from these bookings. They&apos;ll fall back
+                to any-available staff or need manual reassignment.
               </AlertDialogDescription>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { ShieldCheck, LayoutDashboard } from "lucide-react";
 import type { Metadata } from "next";
 
 import { PlatformSignOutButton } from "@/components/auth/PlatformSignOutButton";
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 import { PlatformNav, type PlatformNavItem } from "./_components/platform-nav";
 import {
   PlatformShellSkeleton,

@@ -31,9 +31,9 @@ import {
   DiscountType,
   SocialPlatform,
 } from "@/prisma/generated/prisma/enums";
-import { createSaleEvent } from "@/lib/server actions/sale-event";
-import { generateSocialCaptionAction } from "@/lib/server actions/social";
-import { uploadImageAction } from "@/lib/server actions/upload";
+import { createSaleEvent } from "@/features/catalog/actions/sale-event";
+import { generateSocialCaptionAction } from "@/features/social/actions/social";
+import { uploadImageAction } from "@/features/assets/actions/upload";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {

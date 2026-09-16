@@ -25,7 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { updateLeaveRequestStatus } from "@/app/actions/leave-request";
+import { updateLeaveRequestStatus } from "@/features/workforce/actions/leave-request";
 import { toast } from "sonner";
 import { extractClientErrorMessage } from "@/lib/utils/error-message";
 import { Switch } from "@/components/ui/switch";

@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import {
   createPackageAction,
   updatePackageAction,
-} from "@/lib/server actions/packages";
+} from "@/features/catalog/actions/packages";
 import { Search } from "lucide-react";
 
 type ServicePackageWithItems = ServicePackage & {

@@ -25,11 +25,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { addBookingNoteAction } from "@/lib/server actions/booking-modify";
+import { addBookingNoteAction } from "@/features/bookings/actions/booking-modify";
 import {
   listBookingNotesAction,
   type BookingNoteEntry,
-} from "@/lib/server actions/booking-notes-list";
+} from "@/features/bookings/actions/booking-notes-list";
 
 const MAX_BODY_LENGTH = 2000;
 

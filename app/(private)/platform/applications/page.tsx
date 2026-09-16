@@ -1,15 +1,6 @@
-import { updateOnboardingApplicationStatusAction } from "@/lib/server actions/platform-admin";
-import {
-  DEFAULT_SUBSCRIPTION_PLAN_CODE,
-  SUBSCRIPTION_PLAN_CODES,
-  ensureDefaultPlans,
-} from "@/features/billing/subscription-service";
+import { updateOnboardingApplicationStatusAction } from "@/features/platform/actions/platform-admin";
+import { getPlatformApplicationsData } from "@/features/platform/queries/applications";
 import { connection } from "next/server";
-import {
-  isPrismaAccelerateResourceLimitError,
-  prisma,
-  supportsOnboardingApplicationModel,
-} from "@/prisma/prisma";
 import { redirect } from "next/navigation";
 import {
   buildPlatformErrorPath,
@@ -77,11 +68,9 @@ export default async function PlatformApplicationsPage({
   searchParams,
 }: PlatformApplicationsPageProps) {
   await connection();
-  await ensureDefaultPlans();
   const flash = await getPlatformFlashMessage(searchParams);
-
-  const hasOnboardingModel = supportsOnboardingApplicationModel();
-  if (!hasOnboardingModel) {
+  const data = await getPlatformApplicationsData();
+  if (!data.success && data.error === "Model unavailable") {
     return (
       <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm text-amber-800">
         Onboarding applications are unavailable in this runtime. Restart the dev server after
@@ -90,46 +79,8 @@ export default async function PlatformApplicationsPage({
     );
   }
 
-  const applicationsQuery = prisma.onboardingApplication.findMany({
-    include: {
-      referral_code: { select: { code: true } },
-      converted_business: { select: { name: true, slug: true } },
-      reviewed_by_user: { select: { name: true, contact_number: true } },
-    },
-    orderBy: { created_at: "desc" },
-    take: 250,
-  });
-  type ApplicationRow = Awaited<typeof applicationsQuery>[number];
-
-  const [applicationQueryResult, catalogPlans] = await Promise.all([
-    applicationsQuery
-      .then((applications) => ({
-        applications,
-        limitedByAccelerate: false as const,
-      }))
-      .catch((error) => {
-        if (isPrismaAccelerateResourceLimitError(error)) {
-          return {
-            applications: [] as ApplicationRow[],
-            limitedByAccelerate: true as const,
-          };
-        }
-        throw error;
-      }),
-    prisma.subscriptionPlan.findMany({
-      where: {
-        code: { in: [...SUBSCRIPTION_PLAN_CODES] },
-        is_active: true,
-      },
-      select: { code: true, name: true, price_amount: true },
-      orderBy: [{ price_amount: "asc" }, { code: "asc" }],
-    }),
-  ]);
-  const applications = applicationQueryResult.applications;
-  const defaultAssignablePlanCode =
-    catalogPlans.find((plan) => plan.code === DEFAULT_SUBSCRIPTION_PLAN_CODE)?.code ??
-    catalogPlans[0]?.code ??
-    DEFAULT_SUBSCRIPTION_PLAN_CODE;
+  if (!data.success) redirect("/");
+  const { applications, limitedByAccelerate, catalogPlans, defaultAssignablePlanCode } = data;
 
   async function markContactedFormAction(applicationId: string) {
     "use server";
@@ -228,7 +179,7 @@ export default async function PlatformApplicationsPage({
         description="Review every inbound request, move qualified leads through approval, and convert them into paying businesses."
       />
       {flash ? <PlatformFlashNotice flash={flash} /> : null}
-      {applicationQueryResult.limitedByAccelerate ? (
+      {limitedByAccelerate ? (
         <article className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           Applications are temporarily unavailable because Prisma Accelerate is rate-limiting
           requests. Retry in a minute.
@@ -377,7 +328,7 @@ export default async function PlatformApplicationsPage({
               {applications.length === 0 ? (
                 <tr>
                   <td colSpan={7} className={`${platformTableCellClass} py-6 text-center text-[var(--pf-muted)]`}>
-                    {applicationQueryResult.limitedByAccelerate
+                    {limitedByAccelerate
                       ? "Unable to load applications right now."
                       : "No onboarding applications found."}
                   </td>

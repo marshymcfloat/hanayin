@@ -31,7 +31,7 @@ import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import {
   getBookingDetailAction,
   type BookingDetailPayload,
-} from "@/lib/server actions/booking-detail";
+} from "@/features/bookings/actions/booking-detail";
 
 export type LazyBookingQuickPanelProps = {
   bookingId: number | null;

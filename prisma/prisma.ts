@@ -37,8 +37,6 @@ function isAccelerateConnectionString(url: string) {
   return url.startsWith("prisma+postgres://");
 }
 
-let hasWarnedAboutInvalidDirectUrl = false;
-
 function resolveConnectionConfig(): PrismaConnectionConfig {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
@@ -50,24 +48,10 @@ function resolveConnectionConfig(): PrismaConnectionConfig {
     return { mode: "adapter", connectionString: getSafeConnectionString(databaseUrl) };
   }
 
-  const directDatabaseUrl = process.env.DIRECT_DATABASE_URL?.trim();
-  if (directDatabaseUrl) {
-    if (isAccelerateConnectionString(directDatabaseUrl)) {
-      if (!hasWarnedAboutInvalidDirectUrl) {
-        hasWarnedAboutInvalidDirectUrl = true;
-        console.warn(
-          "[prisma] DIRECT_DATABASE_URL is an Accelerate URL (prisma+postgres://). Ignoring it and using Prisma Accelerate from DATABASE_URL.",
-        );
-      }
-      return { mode: "accelerate", accelerateUrl: databaseUrl };
-    }
-
-    return {
-      mode: "adapter",
-      connectionString: getSafeConnectionString(directDatabaseUrl),
-    };
-  }
-
+  // Runtime traffic follows DATABASE_URL. DIRECT_DATABASE_URL is reserved for
+  // Prisma CLI, migrations, and database integration tests via prisma.config.ts.
+  // Preferring it here makes an optional maintenance connection capable of
+  // taking down the application even when the Accelerate endpoint is healthy.
   return { mode: "accelerate", accelerateUrl: databaseUrl };
 }
 

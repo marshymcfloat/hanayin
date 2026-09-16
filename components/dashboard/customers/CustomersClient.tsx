@@ -53,7 +53,7 @@ import {
   deleteCustomer,
   getCustomerHistory,
   type CustomerHistoryData,
-} from "@/lib/server actions/customer";
+} from "@/features/customers/actions/customer";
 import { toast } from "sonner";
 import {
   DropdownMenu,

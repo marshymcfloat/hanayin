@@ -32,7 +32,7 @@ import {
   listSocialPostRequestsAction,
   rejectSocialPostRequestAction,
   type SocialPostRequestSummary,
-} from "@/lib/server actions/social-post-requests";
+} from "@/features/social/actions/social-post-requests";
 import { cn } from "@/lib/utils";
 
 type Tab = "PENDING" | "APPROVED" | "REJECTED";

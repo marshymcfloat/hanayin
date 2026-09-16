@@ -1,8 +1,7 @@
 import { MetadataRoute } from "next";
 import { connection } from "next/server";
-import { prisma } from "@/prisma/prisma";
+import { listPublicBusinessSitemapEntries } from "@/features/businesses/queries/public-sitemap";
 import { getSiteUrl } from "@/lib/site-url";
-import { resolveEntitlements } from "@/lib/features/plan-entitlements";
 import { seoLandingPages } from "@/lib/seo-landing-pages";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -57,42 +56,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.78,
   }));
 
-  const publicBusinessRoutes = await prisma.business.findMany({
-    select: {
-      slug: true,
-      updated_at: true,
-      subscriptions: {
-        take: 1,
-        orderBy: { created_at: "desc" },
-        select: {
-          plan: {
-            select: {
-              code: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          services: true,
-        },
-      },
-    },
-    orderBy: {
-      updated_at: "desc",
-    },
-  });
+  const publicBusinessRoutes = await listPublicBusinessSitemapEntries();
 
   const dynamicRoutes = publicBusinessRoutes
     .filter((business) => !reservedSlugs.has(business.slug.toLowerCase()))
-    .filter((business) => {
-      const planCode = business.subscriptions[0]?.plan.code;
-      return resolveEntitlements(planCode).website;
-    })
     .flatMap((business) => {
-      const lastBusinessUpdate = business.updated_at
-        .toISOString()
-        .split("T")[0];
+      const lastBusinessUpdate = business.updatedAt.toISOString().split("T")[0];
       const businessRoutes: MetadataRoute.Sitemap = [
         {
           url: `${baseUrl}/${business.slug}`,
@@ -102,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       ];
 
-      if (business._count.services > 0) {
+      if (business.hasServices) {
         businessRoutes.push({
           url: `${baseUrl}/${business.slug}/services`,
           lastModified: lastBusinessUpdate,

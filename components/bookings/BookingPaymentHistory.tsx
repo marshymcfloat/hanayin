@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { formatPH } from "@/lib/date-utils";
-import { voidBookingPaymentAction } from "@/lib/server actions/booking-payments";
+import { voidBookingPaymentAction } from "@/features/payments/actions/booking-payments";
 import { formatCurrency } from "@/lib/utils";
 import type { BookingPayment } from "@/prisma/generated/prisma/client";
 

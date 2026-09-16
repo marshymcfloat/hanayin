@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { updateOwnerSpecialties } from "@/lib/server actions/dashboard/queries";
+import { updateOwnerSpecialties } from "@/features/dashboard/actions/queries";
 
 type OwnerWithUser = Owner & {
   user: User;

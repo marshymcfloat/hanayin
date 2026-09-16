@@ -1,4 +1,3 @@
-import { prisma } from "@/prisma/prisma";
 import Link from "next/link";
 import { ArrowRight, MapPin, Search } from "lucide-react";
 import Image from "next/image";
@@ -10,6 +9,7 @@ import { itemListSchema } from "@/lib/json-ld";
 import LandingHeader from "@/components/landing/LandingHeader";
 import LandingFooter from "@/components/landing/LandingFooter";
 import SmoothScroll from "@/components/landing/SmoothScroll";
+import { listPublicDirectoryBusinesses } from "@/features/businesses/public-directory";
 
 export const metadata = constructMetadata({
   title: "Explore Businesses | ServiceFlow",
@@ -139,24 +139,7 @@ export default function ExplorePage() {
 async function BusinessList() {
   await connection();
 
-  const businesses = await prisma.business.findMany({
-    where: {
-      subscriptions: {
-        some: {
-          status: { notIn: ["SUSPENDED", "CANCELED"] },
-        },
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      initials: true,
-      imageUrl: true,
-      description: true,
-    },
-    orderBy: { name: "asc" },
-  });
+  const businesses = await listPublicDirectoryBusinesses();
 
   if (businesses.length === 0) {
     return <EmptyState />;

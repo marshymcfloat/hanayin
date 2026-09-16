@@ -42,7 +42,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { approveGcashPaymentAction } from "@/lib/server actions/manual-gcash";
+import { approveGcashPaymentAction } from "@/features/payments/actions/manual-gcash";
 
 type BookingWithDetails = Booking & {
   // customer can be null on anonymous walk-ins. The widget falls back to the

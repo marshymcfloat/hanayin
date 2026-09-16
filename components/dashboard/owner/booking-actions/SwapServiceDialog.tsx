@@ -37,7 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { swapBookingServiceAction } from "@/lib/server actions/booking-modify";
+import { swapBookingServiceAction } from "@/features/bookings/actions/booking-modify";
 
 const formatCurrency = (amount: number) =>
   `PHP ${amount.toLocaleString(undefined, {

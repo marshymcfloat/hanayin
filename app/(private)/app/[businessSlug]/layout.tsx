@@ -8,9 +8,9 @@ import { Sparkles } from "lucide-react";
 import { SidebarSkeleton } from "@/components/dashboard/SidebarSkeleton";
 import React from "react";
 import { Metadata } from "next";
-import { prisma } from "@/prisma/prisma";
+import { getWorkspaceMetadataName } from "@/features/auth/queries/workspace";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 import { notFound, redirect } from "next/navigation";
 
 import { connection } from "next/server";
@@ -46,13 +46,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: { name: true },
-  });
+  const businessName = await getWorkspaceMetadataName(businessSlug);
 
   return {
-    title: business?.name || "Dashboard",
+    title: businessName || "Dashboard",
     robots: {
       index: false,
       follow: false,

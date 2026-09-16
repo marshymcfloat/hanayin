@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { ArrowRight, Check } from "lucide-react";
 
-import { createOnboardingApplicationAction } from "@/app/actions/onboarding-applications";
+import { createOnboardingApplicationAction } from "@/features/platform/onboarding/actions/applications";
 import ApplyStatusBanner from "@/components/forms/ApplyStatusBanner";
 import { constructMetadata } from "@/lib/metadata";
 import LandingHeader from "@/components/landing/LandingHeader";

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { CreateSaleEventDialog } from "./CreateSaleEventDialog";
 import { SaleEventList, type SaleEvent } from "./SaleEventList";
-import { deleteSaleEvent } from "@/lib/server actions/sale-event";
+import { deleteSaleEvent } from "@/features/catalog/actions/sale-event";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Megaphone, Percent, RefreshCcw, Sparkles } from "lucide-react";

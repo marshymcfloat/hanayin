@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { convertOnboardingApplicationToBusinessAction } from "@/lib/server actions/platform-admin";
+import { convertOnboardingApplicationToBusinessAction } from "@/features/platform/actions/platform-admin";
 
 /**
  * ConvertApplicationDialog — replaces the old 7-input inline form on

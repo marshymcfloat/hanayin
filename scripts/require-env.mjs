@@ -1,10 +1,30 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const requiredKeys = process.argv.slice(2);
+const args = process.argv.slice(2);
+let commandName = "this command";
+let anyOf = false;
+let directPostgres = false;
+const requiredKeys = [];
+
+for (let index = 0; index < args.length; index += 1) {
+  const argument = args[index];
+  if (argument === "--command") {
+    commandName = args[index + 1] || commandName;
+    index += 1;
+  } else if (argument === "--any") {
+    anyOf = true;
+  } else if (argument === "--direct-postgres") {
+    directPostgres = true;
+  } else {
+    requiredKeys.push(argument);
+  }
+}
 
 if (requiredKeys.length === 0) {
-  console.error("Usage: node scripts/require-env.mjs <ENV_KEY> [ENV_KEY...]");
+  console.error(
+    "Usage: node scripts/require-env.mjs [--command NAME] [--any] [--direct-postgres] <ENV_KEY> [ENV_KEY...]",
+  );
   process.exit(1);
 }
 
@@ -30,37 +50,50 @@ function loadDotEnvFile(filePath) {
   }
 }
 
-loadDotEnvFile(path.resolve(process.cwd(), ".env"));
 loadDotEnvFile(path.resolve(process.cwd(), ".env.local"));
+loadDotEnvFile(path.resolve(process.cwd(), ".env"));
 
-const missing = requiredKeys.filter((key) => {
-  const value = process.env[key];
-  return typeof value !== "string" || value.trim().length === 0;
-});
+const valueFor = (key) => String(process.env[key] || "").trim();
+const configuredKeys = requiredKeys.filter((key) => valueFor(key));
+const missing = anyOf
+  ? configuredKeys.length === 0
+    ? requiredKeys
+    : []
+  : requiredKeys.filter((key) => !valueFor(key));
 
 if (missing.length > 0) {
+  const requirement = anyOf
+    ? `one of ${requiredKeys.join(", ")}`
+    : missing.join(", ");
+  console.error(`Cannot run ${commandName}: missing ${requirement}.`);
   console.error(
-    `Missing required environment variable(s): ${missing.join(", ")}`,
+    "Add the value to .env.local (preferred) or .env. Start from .env.example; never commit credentials.",
   );
+  if (directPostgres) {
+    console.error(
+      "Use an isolated, migrated test database URL beginning with postgresql:// or postgres://.",
+    );
+  }
   process.exit(1);
 }
 
-const directDbKeys = ["DIRECT_DATABASE_URL", "E2E_DATABASE_URL"];
-for (const key of requiredKeys) {
-  if (!directDbKeys.includes(key)) continue;
-  const value = String(process.env[key] || "").trim();
-  const normalized =
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-      ? value.slice(1, -1)
-      : value;
-
-  if (normalized.startsWith("prisma+postgres://")) {
+if (directPostgres) {
+  const keysToValidate = anyOf ? configuredKeys.slice(0, 1) : configuredKeys;
+  const invalidKeys = keysToValidate.filter((key) => {
+    const value = valueFor(key);
+    return !value.startsWith("postgresql://") && !value.startsWith("postgres://");
+  });
+  if (invalidKeys.length > 0) {
     console.error(
-      `${key} must be a direct postgres connection string (postgresql://...), not prisma+postgres://`,
+      `Cannot run ${commandName}: ${invalidKeys.join(", ")} must use postgresql:// or postgres:// (Prisma Accelerate URLs are not direct database connections).`,
+    );
+    console.error(
+      "Point the variable at an isolated, migrated PostgreSQL test database.",
     );
     process.exit(1);
   }
 }
 
-console.log(`Environment check passed: ${requiredKeys.join(", ")}`);
+console.log(
+  `Environment check passed for ${commandName}: ${configuredKeys.join(", ")}`,
+);

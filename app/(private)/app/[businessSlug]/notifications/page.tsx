@@ -1,5 +1,5 @@
 import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
-import { getNotificationHistoryAction } from "@/lib/server actions/notifications";
+import { getNotificationHistoryAction } from "@/features/notifications/actions/notifications";
 import { NotificationsPageClient } from "@/components/dashboard/owner/notifications/NotificationsPageClient";
 
 export default async function NotificationsPage({

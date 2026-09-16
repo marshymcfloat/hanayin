@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { setEmployeePermissionsAction } from "@/lib/server actions/employee-permissions";
+import { setEmployeePermissionsAction } from "@/features/workforce/actions/employee-permissions";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
 
 /**

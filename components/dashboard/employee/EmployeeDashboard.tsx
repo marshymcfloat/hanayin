@@ -38,7 +38,7 @@ import {
   markServiceServedAction,
   unclaimServiceAction,
   unserveServiceAction,
-} from "@/lib/server actions/dashboard";
+} from "@/features/dashboard/actions";
 import { formatPH } from "@/lib/date-utils";
 import { getApplicableDiscount } from "@/lib/utils/pricing";
 import {

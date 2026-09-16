@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { createExpense } from "@/lib/server actions/expenses";
+import { createExpense } from "@/features/payroll/actions/expenses";
 import { EXPENSE_CATEGORY_LABELS } from "@/lib/expenses/constants";
 import type { ExpenseView } from "@/lib/expenses/constants";
 import { ExpenseCategory } from "@/prisma/generated/prisma/enums";

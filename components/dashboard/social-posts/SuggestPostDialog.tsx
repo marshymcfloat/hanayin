@@ -37,7 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { submitSocialPostRequestAction } from "@/lib/server actions/social-post-requests";
+import { submitSocialPostRequestAction } from "@/features/social/actions/social-post-requests";
 
 const TOPIC_MAX = 140;
 const BRIEF_MAX = 600;

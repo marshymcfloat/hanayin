@@ -1,4 +1,3 @@
-import { prisma } from "@/prisma/prisma";
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
@@ -13,21 +12,21 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Suspense } from "react";
 import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
-import { toAbsoluteUrl } from "@/lib/site-url";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { getBusinessEntitlementsBySlug } from "@/features/billing/plan-entitlements";
+import {
+  buildLocalBusinessJsonLd,
+  getPublicBusinessMetadata,
+  getPublicBusinessProfile,
+} from "@/features/businesses/public-directory";
 
 interface Props {
   params: Promise<{
     businessSlug: string;
   }>;
 }
-
 const getBusinessMetadata = unstable_cache(
   async (slug: string) => {
-    return prisma.business.findUnique({
-      where: { slug },
-      select: { name: true, slug: true, description: true, imageUrl: true },
-    });
+    return getPublicBusinessMetadata(slug);
   },
   ["business-metadata"],
   { revalidate: 60 },
@@ -72,86 +71,30 @@ export default function FacingWebsitePage({ params }: Props) {
     </Suspense>
   );
 }
-
 async function FacingWebsiteContent({ params }: Props) {
   await connection();
   const { businessSlug } = await params;
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      imageUrl: true,
-      latitude: true,
-      longitude: true,
-      business_hours: true,
-    },
-  });
-
-  if (!business) {
+  const profile = await getPublicBusinessProfile(businessSlug);
+  if (!profile) {
     notFound();
   }
+  const { business, services, saleEvents } = profile;
 
   const entitlements = await getBusinessEntitlementsBySlug(businessSlug);
   if (!entitlements.website) {
     redirect(`/${businessSlug}/booking`);
   }
 
-  const now = new Date();
-  const [services, saleEvents] = await Promise.all([
-    prisma.service.findMany({
-      where: { business_id: business.id },
-      orderBy: [{ category: "asc" }, { price: "asc" }],
-    }),
-    prisma.saleEvent.findMany({
-      where: {
-        business_id: business.id,
-        start_date: { lte: now },
-        end_date: { gte: now },
-      },
-      orderBy: { start_date: "desc" },
-      take: 4,
-    }),
-  ]);
-
-  const generalHours = business.business_hours.filter(
-    (hour) => hour.category === "GENERAL",
+  const isBeautyFeel = isBeautyFeelSlug(business.slug);
+  const jsonLd = buildLocalBusinessJsonLd(
+    business,
+    isBeautyFeel
+      ? beautyFeelContent.socials.map((social) => social.href)
+      : undefined,
   );
-  const hoursForSchema = generalHours.length
-    ? generalHours
-    : business.business_hours;
 
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: business.name,
-    url: toAbsoluteUrl(`/${business.slug}`),
-    image:
-      business.imageUrl ||
-      toAbsoluteUrl("/og-image.png"),
-    priceRange: "PHP",
-    description: business.description || undefined,
-    openingHoursSpecification: hoursForSchema.map((hour) => ({
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: dayOfWeekLabel(hour.day_of_week),
-      opens: hour.open_time,
-      closes: hour.close_time,
-    })),
-  };
-
-  if (business.latitude && business.longitude) {
-    jsonLd.geo = {
-      "@type": "GeoCoordinates",
-      latitude: business.latitude,
-      longitude: business.longitude,
-    };
-  }
-
-  if (isBeautyFeelSlug(business.slug)) {
-    jsonLd.sameAs = beautyFeelContent.socials.map((social) => social.href);
+  if (isBeautyFeel) {
     return (
       <>
         <Script
@@ -185,16 +128,4 @@ async function FacingWebsiteContent({ params }: Props) {
       </div>
     </div>
   );
-}
-
-function dayOfWeekLabel(index: number) {
-  return [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ][index];
 }

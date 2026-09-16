@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { deleteVoucherAction } from "@/lib/server actions/vouchers";
+import { deleteVoucherAction } from "@/features/catalog/actions/vouchers";
 import { extractClientErrorMessage } from "@/lib/utils/error-message";
 import { VoucherForm } from "./VoucherForm";
 import { VoucherList } from "./VoucherList";

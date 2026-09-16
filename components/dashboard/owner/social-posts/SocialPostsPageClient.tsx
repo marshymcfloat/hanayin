@@ -33,8 +33,8 @@ import {
   regenerateSocialPostCaptionAction,
   retrySocialPostTargetAction,
   updateSocialPostDraftAction,
-} from "@/lib/server actions/social";
-import { uploadBrandAssetAction } from "@/lib/server actions/brand-assets";
+} from "@/features/social/actions/social";
+import { uploadBrandAssetAction } from "@/features/assets/actions/brand-assets";
 import { cn } from "@/lib/utils";
 import {
   DiscountType,

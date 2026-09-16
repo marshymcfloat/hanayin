@@ -1,4 +1,4 @@
-import { prisma } from "@/prisma/prisma";
+import { getPlatformAuditData } from "@/features/platform/queries/audit";
 import { connection } from "next/server";
 import {
   PlatformMetricCard,
@@ -15,20 +15,9 @@ import {
 export default async function PlatformAuditPage() {
   await connection();
 
-  const logs = await prisma.platformActionLog.findMany({
-    include: {
-      business: { select: { name: true } },
-      actor_user: { select: { contact_number: true, name: true } },
-    },
-    orderBy: { created_at: "desc" },
-    take: 300,
-  });
-
-  const uniqueActionTypes = new Set(logs.map((log) => log.action)).size;
-  const systemActions = logs.filter(
-    (log) => !log.actor_user && !log.actor_identifier,
-  ).length;
-  const userActions = logs.length - systemActions;
+  const data = await getPlatformAuditData();
+  if (!data) return null;
+  const { logs, uniqueActionTypes, systemActions, userActions } = data;
 
   return (
     <div className="space-y-6">

@@ -21,7 +21,7 @@ import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import {
   getEntityAuditHistoryAction,
   type AuditEntry,
-} from "./audit-actions";
+} from "@/features/platform/audit/actions";
 
 export type AuditTrailProps = {
   entityType: string;

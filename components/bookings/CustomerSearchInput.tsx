@@ -5,7 +5,7 @@ import {
   InputGroupInput,
 } from "../ui/input-group";
 import { Search } from "lucide-react";
-import { searchCustomer } from "@/lib/server actions/customer";
+import { searchCustomer } from "@/features/customers/actions/customer";
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { useDebounce } from "@/hooks/use-debounce";

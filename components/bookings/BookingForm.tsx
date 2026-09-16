@@ -3,14 +3,14 @@
 import {
   createBooking,
   CreateBookingResult,
-} from "@/lib/server actions/booking";
+} from "@/features/bookings/actions/booking";
 import {
   getAvailableSlots,
   getAlternativeSlots,
   getAvailableProviders,
   getDayCapacityRange,
-} from "@/lib/server actions/availability";
-import { getBookingPolicy } from "@/lib/server actions/booking-policy";
+} from "@/features/bookings/actions/availability";
+import { getBookingPolicy } from "@/features/bookings/actions/booking-policy";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import type {
@@ -25,13 +25,13 @@ import {
   PaymentMethod,
   PaymentType,
   StaffSelectionMode,
-} from "@/lib/zod schemas/bookings";
+} from "@/features/bookings/schemas";
 import { toast } from "sonner";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { verifyVoucherAction } from "@/lib/server actions/vouchers";
-import { findDuplicateCustomerForBooking } from "@/lib/server actions/customer";
+import { verifyVoucherAction } from "@/features/catalog/actions/vouchers";
+import { findDuplicateCustomerForBooking } from "@/features/customers/actions/customer";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,7 +43,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 
-import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
+import { getActiveSaleEvents } from "@/features/catalog/actions/sale-event";
 import {
   calculateBookingTotal,
   getApplicableDiscount,
@@ -98,13 +98,13 @@ interface BookingFormProps {
 import {
   getCustomerPendingFlows,
   PendingFlow,
-} from "@/lib/server actions/flow-actions";
+} from "@/features/catalog/actions/flow-actions";
 import {
   resolveCustomerTrust,
   requestBookingOtp,
   verifyBookingOtp,
   type CustomerTrust,
-} from "@/lib/server actions/booking-otp";
+} from "@/features/bookings/actions/booking-otp";
 import { format } from "date-fns";
 import {
   Sparkles,

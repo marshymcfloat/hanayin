@@ -40,7 +40,7 @@ import {
   getApplicableDiscount,
   type SaleEventForPricing,
 } from "@/lib/utils/pricing";
-import { checkCategoryAvailability } from "@/lib/server actions/availability";
+import { checkCategoryAvailability } from "@/features/bookings/actions/availability";
 
 type SelectedServiceItem = Service & {
   quantity?: number;

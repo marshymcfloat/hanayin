@@ -7,7 +7,7 @@ const { markServedMock, unclaimMock, unserveMock } = vi.hoisted(() => ({
   unserveMock: vi.fn(),
 }));
 
-vi.mock("@/lib/server actions/dashboard", () => ({
+vi.mock("@/features/dashboard/actions", () => ({
   markServiceServedAction: markServedMock,
   unclaimServiceAction: unclaimMock,
   unserveServiceAction: unserveMock,

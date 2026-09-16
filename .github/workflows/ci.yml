@@ -55,17 +55,11 @@ jobs:
       - name: Apply migrations
         run: npx prisma migrate deploy
 
-      - name: Lint
-        run: npm run lint -- --max-warnings=0
+      - name: Repository checks
+        run: npm run check
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Unit and integration tests with coverage
-        run: npm run test:ci
-
-      - name: Production build
-        run: npm run build:app
+      - name: PostgreSQL integration tests
+        run: npm run test:integration
 
   e2e_smoke:
     runs-on: ubuntu-latest

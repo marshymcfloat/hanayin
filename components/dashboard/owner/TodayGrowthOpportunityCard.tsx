@@ -15,7 +15,7 @@ import {
   getTodayGrowthOpportunitiesAction,
   refreshGrowthContextAction,
   refreshGrowthOpportunitiesAction,
-} from "@/lib/server actions/growth";
+} from "@/features/growth/actions/growth";
 import type { OpportunityView } from "@/lib/services/growth/types";
 import { isDiscountOffer } from "@/lib/services/growth/types";
 import { buildGrowthFlowQuery } from "./growth/types";

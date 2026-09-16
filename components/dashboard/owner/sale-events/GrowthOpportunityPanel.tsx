@@ -10,7 +10,7 @@ import {
   getTodayGrowthOpportunitiesAction,
   refreshGrowthContextAction,
   refreshGrowthOpportunitiesAction,
-} from "@/lib/server actions/growth";
+} from "@/features/growth/actions/growth";
 import type { OpportunityView } from "@/lib/services/growth/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ import {
   SOCIAL_IMAGE_PROFILE_OPTIONS,
   type SocialImageProfile,
 } from "@/lib/services/social/image-profiles";
-import type { CaptionTone } from "@/lib/zod-schemas/growth";
+import type { CaptionTone } from "@/features/growth/schemas";
 import type { OpportunityTypeLiteral } from "@/lib/services/growth/types";
 
 type ServiceOption = { id: number; name: string; category: string };

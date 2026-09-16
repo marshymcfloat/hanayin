@@ -56,9 +56,9 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { RecordPaymentDialog } from "@/components/bookings/RecordPaymentDialog";
 import { BookingPaymentHistory } from "@/components/bookings/BookingPaymentHistory";
-import { markBookingNoShowAction } from "@/lib/server actions/dashboard/owner";
-import { addBookingServiceOrCreateFollowUpAction } from "@/lib/server actions/booking-addons";
-import { removeBookingServiceAction } from "@/lib/server actions/booking-modify";
+import { markBookingNoShowAction } from "@/features/dashboard/actions/owner";
+import { addBookingServiceOrCreateFollowUpAction } from "@/features/bookings/actions/booking-addons";
+import { removeBookingServiceAction } from "@/features/bookings/actions/booking-modify";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import { AuditTrail } from "@/components/audit/AuditTrail";
 import { RescheduleDialog } from "@/components/dashboard/owner/booking-actions/RescheduleDialog";
@@ -71,7 +71,7 @@ import {
   AvailedServiceStatus,
   PaymentStatus,
 } from "@/prisma/generated/prisma/enums";
-import { approveGcashPaymentAction } from "@/lib/server actions/manual-gcash";
+import { approveGcashPaymentAction } from "@/features/payments/actions/manual-gcash";
 
 type BookingWithDetails = Booking & {
   customer: Customer | null;
@@ -274,7 +274,7 @@ export function BookingDetailsDialog({
 
   if (!booking) return null;
 
-  // Mirrors checkAvailedServiceRemovable in lib/services/booking-modify.ts.
+  // Mirrors checkAvailedServiceRemovable in the booking modification policy.
   // Re-implemented in the client purely to decide whether to render the
   // Remove control for a line — the server action remains the security
   // boundary, this is just UX. Keep these rules in sync with the helper.

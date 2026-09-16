@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Employee, EmployeeAttendance } from "@/prisma/generated/prisma/client";
-import { getEmployeeAttendanceHistory } from "@/app/actions/attendance";
+import { getEmployeeAttendanceHistory } from "@/features/workforce/actions/attendance-admin";
 import { format, isSameDay } from "date-fns";
 import { Loader2, Clock, Calendar as CalendarIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";

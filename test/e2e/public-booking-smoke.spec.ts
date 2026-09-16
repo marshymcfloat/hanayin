@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import "dotenv/config";
 import { Client } from "pg";
+import { createSharedWorkflowFactory } from "../factories/shared-workflows";
 
 const dbConnectionString =
   process.env.E2E_DATABASE_URL ||
@@ -10,9 +11,10 @@ const hasDatabase = Boolean(dbConnectionString);
 const usesAccelerateProtocol = Boolean(
   dbConnectionString?.startsWith("prisma+postgres://"),
 );
-const businessSlug = `e2e-booking-${Date.now()}`;
-const businessName = "E2E Booking Salon";
-const businessId = `e2e_${Date.now()}`;
+const seed = createSharedWorkflowFactory({
+  namespace: "e2e-public-booking",
+}).sharedWorkflowSeed();
+const { id: businessId, slug: businessSlug, name: businessName } = seed.business;
 let dbClient: Client | null = null;
 
 test.describe("Public booking smoke", () => {
@@ -46,6 +48,9 @@ test.describe("Public booking smoke", () => {
       );
     }
 
+    await dbClient.query(`DELETE FROM "Business" WHERE "id" = $1`, [
+      businessId,
+    ]);
     await dbClient.query(
       `INSERT INTO "Business" ("id", "name", "slug", "initials", "description", "created_at", "updated_at")
        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
@@ -53,15 +58,21 @@ test.describe("Public booking smoke", () => {
         businessId,
         businessName,
         businessSlug,
-        "E2",
-        "Deterministic smoke-test business",
+        seed.business.initials,
+        seed.business.description,
       ],
     );
 
     await dbClient.query(
       `INSERT INTO "Service" ("name", "category", "price", "duration", "business_id", "created_at", "updated_at")
        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
-      ["E2E Signature Service", "GENERAL", 799, 45, businessId],
+      [
+        seed.service.name,
+        seed.service.category,
+        seed.service.price,
+        seed.service.duration,
+        businessId,
+      ],
     );
   });
 

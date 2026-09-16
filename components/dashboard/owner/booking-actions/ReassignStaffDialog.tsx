@@ -38,8 +38,8 @@ import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import {
   listBusinessEmployeesAction,
   type EmployeeListEntry,
-} from "@/lib/server actions/employees-list";
-import { reassignBookingStaffAction } from "@/lib/server actions/booking-modify";
+} from "@/features/workforce/actions/employees-list";
+import { reassignBookingStaffAction } from "@/features/bookings/actions/booking-modify";
 
 export type ReassignStaffDialogProps = {
   availedServiceId: number;

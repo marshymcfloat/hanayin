@@ -12,7 +12,7 @@ import type {
 } from "@/prisma/generated/prisma/client";
 import type { Control } from "react-hook-form";
 import { useWatch } from "react-hook-form";
-import { checkCategoryAvailability } from "@/lib/server actions/availability";
+import { checkCategoryAvailability } from "@/features/bookings/actions/availability";
 import {
   getApplicableDiscount,
   type SaleEventForPricing,

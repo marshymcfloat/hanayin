@@ -15,8 +15,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { cancelSocialPostRequestAction } from "@/lib/server actions/social-post-requests";
-import type { SocialPostRequestSummary } from "@/lib/server actions/social-post-requests";
+import { cancelSocialPostRequestAction } from "@/features/social/actions/social-post-requests";
+import type { SocialPostRequestSummary } from "@/features/social/actions/social-post-requests";
 import { SuggestPostDialog } from "@/components/dashboard/social-posts/SuggestPostDialog";
 import { cn } from "@/lib/utils";
 

@@ -1,5 +1,5 @@
-import { authOptions } from "@/lib/next auth/options";
-import { getBusinessEntitlementsBySlug } from "@/lib/features/plan-entitlements";
+import { authOptions } from "@/features/auth/auth-options";
+import { getBusinessEntitlementsBySlug } from "@/features/billing/plan-entitlements";
 import { serializeReportCsv } from "@/lib/services/reports/csv";
 import { parseReportDateRange } from "@/lib/services/reports/date-range";
 import { getAdvancedReportPayload, getCoreReportPayload } from "@/lib/services/reports/queries";

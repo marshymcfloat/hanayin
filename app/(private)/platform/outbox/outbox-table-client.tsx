@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   retryOutboxMessageAction,
   skipOutboxMessageAction,
-} from "@/lib/server actions/platform-admin";
+} from "@/features/platform/actions/platform-admin";
 import {
   PlatformStatusBadge,
   formatPlatformDateTime,

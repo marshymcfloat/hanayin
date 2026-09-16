@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   searchCustomer,
   type CustomerSearchHit,
-} from "@/lib/server actions/customer";
+} from "@/features/customers/actions/customer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,

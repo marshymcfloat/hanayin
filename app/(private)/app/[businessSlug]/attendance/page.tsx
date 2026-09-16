@@ -1,15 +1,13 @@
 import { notFound, redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
 import { Role } from "@/prisma/generated/prisma/enums";
 import { OwnerAttendanceClient } from "@/components/dashboard/attendance/OwnerAttendanceClient";
 import { EmployeeLeaveClient } from "@/components/dashboard/attendance/EmployeeLeaveClient";
 import {
   getLeaveRequests,
   getUserLeaveRequests,
-} from "@/app/actions/leave-request";
-import { getDailyAttendance } from "@/app/actions/attendance";
-import { prisma } from "@/prisma/prisma";
+} from "@/features/workforce/queries/leave-request";
+import { getDailyAttendance } from "@/features/workforce/actions/attendance-admin";
+import { getAttendanceWorkspaceContext } from "@/features/workforce/queries/attendance";
 
 export default async function AttendancePage({
   params,
@@ -20,45 +18,31 @@ export default async function AttendancePage({
 }) {
   const { businessSlug } = await params;
   const { date: dateParam } = await searchParams;
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    redirect("/auth/login");
-  }
-
-  // Verify access to this business
-  if (session.user.businessSlug !== businessSlug) {
-    // Or handle if they are owner of multiple? But schema implies 1:1 or specific relation.
-    // For now strict check.
-    redirect("/app");
-  }
-
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-  });
-
-  if (!business) {
+  const contextResult = await getAttendanceWorkspaceContext(businessSlug);
+  if (!contextResult.success) {
+    if (contextResult.error === "Unauthorized") redirect("/auth/login");
+    if (contextResult.error === "Forbidden") redirect("/app");
     notFound();
   }
-
-  const role = session.user.role;
+  const context = contextResult.data;
+  const role = context.role;
 
   if (role === Role.OWNER) {
-    const requestsResult = await getLeaveRequests(business.id);
+    const requestsResult = await getLeaveRequests(context.businessId);
     const requests = requestsResult.success ? requestsResult.data || [] : [];
 
     // Parse date or default to today
     const date = dateParam ? new Date(dateParam) : new Date();
     // Validate date?
 
-    const attendanceResult = await getDailyAttendance(business.id, date);
+    const attendanceResult = await getDailyAttendance(context.businessId, date);
     const dailyAttendance = attendanceResult.success
       ? attendanceResult.data || []
       : [];
 
     return (
       <OwnerAttendanceClient
-        businessId={business.id}
+        businessId={context.businessId}
         businessSlug={businessSlug}
         leaveRequests={requests}
         initialDailyAttendance={dailyAttendance}
@@ -66,21 +50,17 @@ export default async function AttendancePage({
       />
     );
   } else if (role === Role.EMPLOYEE) {
-    const employee = await prisma.employee.findUnique({
-      where: { user_id: session.user.id },
-    });
-
-    if (!employee) {
+    if (!context.employeeId) {
       return <div>Employee profile not found.</div>;
     }
 
-    const requestsResult = await getUserLeaveRequests(employee.id);
+    const requestsResult = await getUserLeaveRequests(context.employeeId);
     const requests = requestsResult.success ? requestsResult.data || [] : [];
 
     return (
       <EmployeeLeaveClient
-        employeeId={employee.id}
-        businessId={business.id}
+        employeeId={context.employeeId}
+        businessId={context.businessId}
         businessSlug={businessSlug}
         requests={requests}
       />

@@ -44,7 +44,7 @@ import {
 import {
   deleteBookingAction,
   updateBookingStatusAction,
-} from "@/lib/server actions/dashboard";
+} from "@/features/dashboard/actions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {

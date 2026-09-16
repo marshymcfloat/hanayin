@@ -6,7 +6,7 @@
  */
 
 import type { OpportunityTypeLiteral } from "@/lib/services/growth/types";
-import type { CaptionTone } from "@/lib/zod-schemas/growth";
+import type { CaptionTone } from "@/features/growth/schemas";
 import type { SocialImageProfile } from "@/lib/services/social/image-profiles";
 import {
   DEFAULT_SOCIAL_IMAGE_PROFILE,

@@ -35,7 +35,7 @@ vi.mock("@/prisma/prisma", () => ({
   prisma: prismaMock,
 }));
 
-vi.mock("@/lib/features/plan-entitlements", () => ({
+vi.mock("@/features/billing/plan-entitlements", () => ({
   getBusinessEntitlementsBySlug: getBusinessEntitlementsBySlugMock,
 }));
 

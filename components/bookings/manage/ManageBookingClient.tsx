@@ -37,12 +37,12 @@ import TimeSlotPicker from "@/components/bookings/TimeSlotPicker";
 import {
   getAvailableSlots,
   getDayCapacityRange,
-} from "@/lib/server actions/availability";
+} from "@/features/bookings/actions/availability";
 import {
   cancelBookingByCustomerAction,
   rescheduleBookingByCustomerAction,
   type BookingForManage,
-} from "@/lib/server actions/booking-self-serve";
+} from "@/features/bookings/actions/booking-self-serve";
 import { cn, formatCurrency } from "@/lib/utils";
 
 interface ManageBookingClientProps {

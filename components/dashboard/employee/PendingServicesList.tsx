@@ -23,7 +23,7 @@ import {
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { claimServiceAction, getPendingServicesAction } from "@/lib/server actions/dashboard";
+import { claimServiceAction, getPendingServicesAction } from "@/features/dashboard/actions";
 import {
   getEmployeeSpecialtySet,
   isCategoryAllowedForEmployee,

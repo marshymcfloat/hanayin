@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { adjustBookingPriceAction } from "@/lib/server actions/booking-modify";
+import { adjustBookingPriceAction } from "@/features/bookings/actions/booking-modify";
 
 const MAX_REASON_LENGTH = 500;
 

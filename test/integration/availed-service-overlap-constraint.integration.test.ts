@@ -19,6 +19,7 @@ import {
   it,
 } from "vitest";
 import { Client } from "pg";
+import { createSharedWorkflowFactory } from "../factories/shared-workflows";
 
 const dbConnectionString =
   process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
@@ -33,6 +34,9 @@ let userId = "";
 let employeeId = 0;
 let serviceId = 0;
 let bookingId = 0;
+const seed = createSharedWorkflowFactory({
+  namespace: "integration-availed-service-overlap",
+}).sharedWorkflowSeed();
 
 const isoOffset = (date: Date) => date.toISOString().replace("Z", "+00:00");
 
@@ -62,37 +66,33 @@ describe.skipIf(!hasDb)(
     });
 
     afterAll(async () => {
+      if (client) {
+        await client.query(`DELETE FROM "Business" WHERE id = $1`, [businessId]);
+        await client.query(`DELETE FROM "User" WHERE id = $1`, [userId]);
+      }
       await client?.end().catch(() => {});
     });
 
     beforeEach(async () => {
       if (!client) throw new Error("DB client not connected");
-      // Use a unique-per-run business slug + user contact_number to
-      // avoid cross-test interference. Cleanup happens in reverse FK
-      // order. Wrapping in a transaction would roll back the constraint
-      // INSERT we want to verify, so we cleanup manually instead.
-      const ts = Date.now();
-      businessId = `excl_test_biz_${ts}`;
-      userId = `excl_test_user_${ts}`;
+      // Fixed factory records plus cleanup make reruns reproducible and
+      // recover safely from a prior interrupted run.
+      businessId = seed.business.id;
+      userId = seed.employee.id;
 
       // Cleanup any prior leftovers from a crashed run.
-      await client.query(`DELETE FROM "AvailedService" WHERE booking_id IN (SELECT id FROM "Booking" WHERE business_id LIKE 'excl_test_biz_%')`);
-      await client.query(`DELETE FROM "Booking" WHERE business_id LIKE 'excl_test_biz_%'`);
-      await client.query(`DELETE FROM "Service" WHERE business_id LIKE 'excl_test_biz_%'`);
-      await client.query(`DELETE FROM "Employee" WHERE business_id LIKE 'excl_test_biz_%'`);
-      await client.query(`DELETE FROM "Owner" WHERE business_id LIKE 'excl_test_biz_%'`);
-      await client.query(`DELETE FROM "Business" WHERE id LIKE 'excl_test_biz_%'`);
-      await client.query(`DELETE FROM "User" WHERE id LIKE 'excl_test_user_%'`);
+      await client.query(`DELETE FROM "Business" WHERE id = $1`, [businessId]);
+      await client.query(`DELETE FROM "User" WHERE id = $1`, [userId]);
 
       await client.query(
         `INSERT INTO "User" (id, name, hashed_password, role, contact_number, updated_at)
          VALUES ($1, 'Excl Test User', 'x', 'EMPLOYEE', $2, NOW())`,
-        [userId, `excl-${ts}`],
+        [userId, seed.employee.contactNumber],
       );
       await client.query(
         `INSERT INTO "Business" (id, name, slug, initials, updated_at)
          VALUES ($1, 'Excl Test', $2, 'EX', NOW())`,
-        [businessId, `excl-test-${ts}`],
+        [businessId, seed.business.slug],
       );
       const empResult = await client.query(
         `INSERT INTO "Employee" (user_id, salary, business_id)

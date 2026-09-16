@@ -1,6 +1,6 @@
-import { prisma } from "@/prisma/prisma";
 import { notFound } from "next/navigation";
 import { CustomersClient } from "@/components/dashboard/customers/CustomersClient";
+import { getCustomersWorkspaceData } from "@/features/customers/queries/workspace";
 
 export default async function CustomersPage({
   params,
@@ -9,24 +9,7 @@ export default async function CustomersPage({
 }) {
   const { businessSlug } = await params;
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-  });
-
-  if (!business) {
-    notFound();
-  }
-
-  // Fetch customers
-  // In a real app we might want pagination here, but for now fetch all (or limit to recently active)
-  const customers = await prisma.customer.findMany({
-    where: {
-      business_id: business.id,
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
-
-  return <CustomersClient customers={customers} businessSlug={businessSlug} />;
+  const data = await getCustomersWorkspaceData(businessSlug);
+  if (!data.success) notFound();
+  return <CustomersClient customers={data.customers} businessSlug={businessSlug} />;
 }

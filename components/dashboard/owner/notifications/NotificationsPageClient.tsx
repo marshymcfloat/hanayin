@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { NotificationRecord } from "@/lib/server actions/notifications";
+import type { NotificationRecord } from "@/features/notifications/actions/notifications";
 
 type SerializedNotification = Omit<NotificationRecord, "sentAt"> & { sentAt: string };
 

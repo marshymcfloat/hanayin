@@ -29,8 +29,8 @@ import {
 import {
   updateBusinessHours,
   BusinessHourInput,
-} from "@/lib/server actions/business-hours";
-import { updateBookingPolicy } from "@/lib/server actions/booking-policy";
+} from "@/features/businesses/actions/business-hours";
+import { updateBookingPolicy } from "@/features/bookings/actions/booking-policy";
 import { BookingPolicy } from "@/lib/types/booking-policy";
 
 const DAYS = [

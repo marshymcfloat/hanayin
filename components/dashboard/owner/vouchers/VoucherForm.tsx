@@ -38,7 +38,7 @@ import { cn } from "@/lib/utils";
 import {
   createVoucherAction,
   generateVoucherCodeAction,
-} from "@/lib/server actions/vouchers";
+} from "@/features/catalog/actions/vouchers";
 
 const formSchema = z.object({
   suffix: z.string().min(4, "Code must be at least 4 characters").max(20),

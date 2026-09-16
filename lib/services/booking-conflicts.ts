@@ -2,7 +2,7 @@ import { getCurrentDateTimePH, getStartOfDayPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/prisma";
 import type { Prisma, PrismaClient } from "@/prisma/generated/prisma/client";
-import { computeSlots } from "./booking-availability";
+import { computeSlots } from "@/features/bookings/services/booking-availability";
 import { getBookingPolicyByBusinessId } from "./booking-policy";
 
 type ConflictDbClient = PrismaClient | Prisma.TransactionClient;

@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { Banknote, ReceiptText, Wallet } from "lucide-react";
 import {
   getEmployeeTodayBookingsAction,
-} from "@/lib/server actions/dashboard";
+} from "@/features/dashboard/actions";
 import { RecordPaymentDialog } from "@/components/bookings/RecordPaymentDialog";
 import { cn } from "@/lib/utils";
 import {

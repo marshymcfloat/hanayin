@@ -14,7 +14,7 @@ import {
   clockInAction,
   clockOutAction,
   getMonthlyAttendanceAction,
-} from "@/lib/server actions/attendance";
+} from "@/features/workforce/actions/attendance";
 import type { EmployeeAttendance } from "@/prisma/generated/prisma/client";
 import AttendanceCalendar from "./AttendanceCalendar";
 import { motion, AnimatePresence } from "motion/react";

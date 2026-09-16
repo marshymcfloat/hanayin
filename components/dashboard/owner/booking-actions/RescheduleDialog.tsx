@@ -29,7 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
-import { rescheduleBookingAction } from "@/lib/server actions/booking-modify";
+import { rescheduleBookingAction } from "@/features/bookings/actions/booking-modify";
 
 export type RescheduleDialogProps = {
   bookingId: number;

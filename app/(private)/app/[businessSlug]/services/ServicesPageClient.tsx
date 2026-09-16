@@ -25,7 +25,7 @@ import {
   createServiceAction,
   updateServiceAction,
   deleteServiceAction,
-} from "@/lib/server actions/services";
+} from "@/features/catalog/actions/services";
 import { toast } from "sonner";
 import { ServiceList } from "./ServiceList";
 import { ServiceForm, ServiceFormData, ServiceFlowData } from "./ServiceForm";

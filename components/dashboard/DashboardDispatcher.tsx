@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 import EmployeeDashboardDataContainer from "@/components/dashboard/employee/EmployeeDashboardDataContainer";
 import OwnerDashboardDataContainer from "@/components/dashboard/owner/OwnerDashboardDataContainer";
 import { LoaderCircle } from "lucide-react";

@@ -10,7 +10,7 @@
 
 import type { OfferTypeLiteral } from "@/lib/services/growth/types";
 import type { SocialImageProfile } from "@/lib/services/social/image-profiles";
-import type { CaptionTone } from "@/lib/zod-schemas/growth";
+import type { CaptionTone } from "@/features/growth/schemas";
 
 export type GrowthCampaignAction = "GENERATED";
 

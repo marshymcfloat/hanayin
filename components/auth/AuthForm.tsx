@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { loginSchema, LoginSchemaType } from "@/lib/zod schemas/auth";
+import { loginSchema, LoginSchemaType } from "@/features/auth/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";

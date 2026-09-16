@@ -1,5 +1,5 @@
 import { getServerSession, Session } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 import { Role } from "@/prisma/generated/prisma/enums";
 import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/billing/subscription-service";
 

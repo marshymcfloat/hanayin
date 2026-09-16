@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { authOptions } from "@/features/auth/auth-options";
 import { redirect } from "next/navigation";
 import ChangePasswordClient from "./ChangePasswordClient";
 
