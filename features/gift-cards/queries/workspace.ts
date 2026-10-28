@@ -1,6 +1,7 @@
 import { getGiftCardsAction } from "@/features/gift-cards/actions/gift-cards";
 import { requireTenantAccess } from "@/lib/auth/guards";
 import { prisma } from "@/prisma/prisma";
+import { giftablePackageWhere } from "@/features/catalog/giftable-packages";
 
 export async function getGiftCardsWorkspaceData(businessSlug: string) {
   const auth = await requireTenantAccess(businessSlug);
@@ -18,7 +19,7 @@ export async function getGiftCardsWorkspaceData(businessSlug: string) {
       orderBy: { name: "asc" },
     }),
     prisma.servicePackage.findMany({
-      where: { business_id: business.id },
+      where: { business_id: business.id, ...giftablePackageWhere },
       select: { id: true, name: true, category: true },
       orderBy: { name: "asc" },
     }),

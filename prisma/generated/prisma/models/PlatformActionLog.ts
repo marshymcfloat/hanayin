@@ -182,7 +182,7 @@ export type PlatformActionLogGroupByOutputType = {
   _max: PlatformActionLogMaxAggregateOutputType | null
 }
 
-type GetPlatformActionLogGroupByPayload<T extends PlatformActionLogGroupByArgs> = Prisma.PrismaPromise<
+export type GetPlatformActionLogGroupByPayload<T extends PlatformActionLogGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PlatformActionLogGroupByOutputType, T['by']> &
       {
@@ -1400,6 +1400,11 @@ export type PlatformActionLogFindManyArgs<ExtArgs extends runtime.Types.Extensio
    * Skip the first `n` PlatformActionLogs.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PlatformActionLogs.
+   */
   distinct?: Prisma.PlatformActionLogScalarFieldEnum | Prisma.PlatformActionLogScalarFieldEnum[]
 }
 

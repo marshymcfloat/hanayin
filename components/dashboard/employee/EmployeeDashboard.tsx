@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
@@ -18,6 +17,7 @@ import ManagerQueueBoard, {
 } from "../manager/ManagerQueueBoard";
 import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
 import { RequestLeaveDialog } from "../attendance/RequestLeaveDialog";
+import { getMyLeaveRequestsAction } from "@/features/workforce/actions/leave-request";
 import {
   type LeaveRequest,
   type Service,
@@ -34,30 +34,27 @@ import {
 } from "@/lib/utils/employee-specialties";
 import {
   claimServiceAction,
-  getEmployeeServiceWorkAction,
   markServiceServedAction,
   unclaimServiceAction,
   unserveServiceAction,
 } from "@/features/dashboard/actions";
-import { formatPH } from "@/lib/date-utils";
 import { getApplicableDiscount } from "@/lib/utils/pricing";
 import {
-  restoreServiceWorkItem,
-  transitionServiceWork,
   type EmployeeServiceWorkData,
   type EmployeeServiceWorkItem,
-  type ServiceWorkTransition,
 } from "./service-work-state";
+import { useStaffServiceWork } from "./useStaffServiceWork";
+import { useManagerServiceCoordinator } from "@/components/dashboard/manager/useManagerServiceCoordinator";
 
 import { EmployeePortalShell } from "./portal/EmployeePortalShell";
 import { GreetingStrip } from "./portal/GreetingStrip";
 import { HeroKpiGrid } from "./portal/HeroKpiGrid";
 import { AccountDropdown } from "./portal/AccountDropdown";
 import {
-  PortalCard,
-  PortalCardBody,
-  PortalCardHeader,
-} from "./portal/PortalCard";
+  StaffPortalCard as PortalCard,
+  StaffPortalCardBody as PortalCardBody,
+  StaffPortalCardHeader as PortalCardHeader,
+} from "./portal/StaffPortalCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,7 +78,7 @@ function WorkspaceRefreshButton({
       type="button"
       variant="outline"
       size="icon"
-      className="size-11 rounded-full"
+      className="size-11 rounded-full border-[#E7E9E4] bg-white text-[#20211F] hover:bg-[#EFF9E8]"
       aria-label={pending ? "Refreshing service work" : "Refresh service work"}
       title={pending ? "Refreshing service work" : "Refresh service work"}
       disabled={pending}
@@ -187,16 +184,7 @@ export default function EmployeeDashboard({
   leaveRequests: LeaveRequest[];
 }) {
   const [serviceWorkTab, setServiceWorkTab] = useState("in-progress");
-  const [pendingActionIds, setPendingActionIds] = useState<Set<number>>(
-    () => new Set(),
-  );
-  const pendingActionIdsRef = useRef(new Set<number>());
   const queryClient = useQueryClient();
-  const serviceWorkQueryKey = [
-    "employee-service-work",
-    businessSlug,
-    currentEmployeeId,
-  ] as const;
   const initialServiceWork = useMemo<EmployeeServiceWorkData>(
     () => ({
       pending: pendingServices,
@@ -205,94 +193,33 @@ export default function EmployeeDashboard({
     }),
     [pendingServices, activeServices, completedServices],
   );
-  const {
-    data: serviceWork = initialServiceWork,
-    isFetching,
-    refetch,
-  } = useQuery({
-    queryKey: serviceWorkQueryKey,
-    queryFn: async () => {
-      const result = await getEmployeeServiceWorkAction();
-      if (!result.success || !("data" in result)) {
-        throw new Error(result.error || "Unable to refresh service work.");
-      }
-      return result.data as EmployeeServiceWorkData;
-    },
-    initialData: initialServiceWork,
-    refetchInterval: pendingActionIds.size > 0 ? false : 5_000,
+  const managerCoordinator = useManagerServiceCoordinator({
+    businessSlug,
+    employeeId: currentEmployeeId,
+    initialOwn: initialServiceWork,
+    initialBoard: { services: managerQueueServices, employees: managerQueueEmployees },
   });
-
-  const setActionPending = (serviceId: number, pending: boolean) => {
-    if (pending) pendingActionIdsRef.current.add(serviceId);
-    else pendingActionIdsRef.current.delete(serviceId);
-    setPendingActionIds(new Set(pendingActionIdsRef.current));
-  };
-
-  const runServiceWorkAction = async ({
-    service,
-    transition,
-    execute,
-    errorTitle,
-    patch,
-  }: {
-    service: EmployeeServiceWorkItem;
-    transition: ServiceWorkTransition;
-    execute: () => Promise<{
-      success: boolean;
-      error?: string;
-      code?: string;
-      conflict?: { serviceName: string; scheduledAt: string };
-    }>;
-    errorTitle: string;
-    patch?: Partial<EmployeeServiceWorkItem>;
-  }) => {
-    if (pendingActionIdsRef.current.has(service.id)) return;
-    setActionPending(service.id, true);
-    await queryClient.cancelQueries({ queryKey: serviceWorkQueryKey });
-    const snapshot =
-      queryClient.getQueryData<EmployeeServiceWorkData>(serviceWorkQueryKey) ??
-      initialServiceWork;
-    queryClient.setQueryData<EmployeeServiceWorkData>(
-      serviceWorkQueryKey,
-      transitionServiceWork(snapshot, service.id, transition, {
-        updated_at: new Date(),
-        ...patch,
-      }),
-    );
-
-    try {
-      const result = await execute();
-      if (!result.success) {
-        queryClient.setQueryData<EmployeeServiceWorkData>(
-          serviceWorkQueryKey,
-          (current) =>
-            restoreServiceWorkItem(current ?? snapshot, snapshot, service.id),
-        );
-        if (result.code === "SCHEDULE_CONFLICT") {
-          const description = result.conflict
-            ? `You already have ${result.conflict.serviceName} scheduled at ${formatPH(result.conflict.scheduledAt, "h:mm a")}. Finish, unclaim, reschedule, or reassign it first.`
-            : result.error;
-          toast.error("Schedule conflict", { description });
-        } else {
-          toast.error(errorTitle, {
-            description: result.error || "Please try again.",
-          });
-        }
+  const { serviceWork, isFetching, refetch, pendingActionIds, runServiceWorkAction } =
+    useStaffServiceWork({
+      businessSlug,
+      employeeId: currentEmployeeId,
+      initialData: initialServiceWork,
+      managerCoordinator: capabilities.canQueueOverride ? managerCoordinator : undefined,
+    });
+  const leaveQueryKey = ["employee-leave-requests", businessSlug, currentEmployeeId] as const;
+  const { data: currentLeaveRequests = leaveRequests } = useQuery({
+    queryKey: leaveQueryKey,
+    queryFn: async () => {
+      const result = await getMyLeaveRequestsAction(currentEmployeeId);
+      if (!result.success || !("data" in result)) {
+        throw new Error(result.error || "Unable to refresh leave requests.");
       }
-    } catch {
-      queryClient.setQueryData<EmployeeServiceWorkData>(
-        serviceWorkQueryKey,
-        (current) =>
-          restoreServiceWorkItem(current ?? snapshot, snapshot, service.id),
-      );
-      toast.error(errorTitle, {
-        description: "Something went wrong. Please try again.",
-      });
-    } finally {
-      setActionPending(service.id, false);
-      await queryClient.invalidateQueries({ queryKey: serviceWorkQueryKey });
-    }
-  };
+      return result.data;
+    },
+    initialData: leaveRequests,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+  });
 
   const handleClaim = async (service: EmployeeServiceWorkItem) => {
     const discount = getApplicableDiscount(
@@ -427,6 +354,7 @@ export default function EmployeeDashboard({
     <>
       {capabilities.canCreateBooking ? (
         <BookingDialog
+          presentation="staff"
           services={services}
           packages={packages}
           categories={categories}
@@ -434,7 +362,7 @@ export default function EmployeeDashboard({
           allowServiceClaim={capabilities.canClaimQueue}
         />
       ) : null}
-      <GiftCardClaimDialog businessSlug={businessSlug} />
+      <GiftCardClaimDialog businessSlug={businessSlug} presentation="staff" />
       <AccountDropdown
         businessSlug={businessSlug}
         canSubmitSocialPost={capabilities.canSubmitSocialPost}
@@ -461,26 +389,29 @@ export default function EmployeeDashboard({
         />
       }
     >
-      <PortalCard className="md:col-span-2 xl:col-span-12">
+      <PortalCard className="md:col-span-2 xl:col-span-4">
         <PortalCardHeader
           eyebrow="Attendance"
           title="Today's shift"
           icon={Clock}
-          count={leaveRequests.length || undefined}
+          count={currentLeaveRequests.length || undefined}
           action={
             <RequestLeaveDialog
               employeeId={currentEmployeeId}
               businessId={businessId}
               businessSlug={businessSlug}
-              leavesThisMonth={leaveRequests.length}
+              leavesThisMonth={currentLeaveRequests.length}
+              onSuccess={() => void queryClient.invalidateQueries({ queryKey: leaveQueryKey })}
               trigger={
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-9 rounded-lg px-2.5 text-xs font-medium shadow-none"
+                  aria-label="Request leave"
+                  title="Request leave"
+                  className="size-11 shrink-0 rounded-full border-[#E7E9E4] bg-white p-0 text-xs font-semibold text-[#20211F] shadow-none hover:bg-[#EFF9E8] sm:w-auto sm:px-3"
                 >
-                  <CalendarPlus className="mr-1.5 size-3.5" />
-                  Request leave
+                  <CalendarPlus className="size-4 sm:mr-1.5 sm:size-3.5" aria-hidden="true" />
+                  <span className="sr-only sm:not-sr-only">Request leave</span>
                 </Button>
               }
             />
@@ -489,8 +420,8 @@ export default function EmployeeDashboard({
         <PortalCardBody>
           <div
             className={
-              leaveRequests.length > 0
-                ? "grid gap-4 lg:grid-cols-2 lg:divide-x lg:divide-border"
+              currentLeaveRequests.length > 0
+                ? "grid gap-4 lg:grid-cols-2 lg:divide-x lg:divide-[#E7E9E4] xl:grid-cols-1 xl:divide-x-0 xl:divide-y"
                 : "grid"
             }
           >
@@ -508,8 +439,8 @@ export default function EmployeeDashboard({
                 compact
               />
             </section>
-            {leaveRequests.length > 0 ? (
-              <section aria-labelledby="leave-heading" className="lg:pl-6">
+            {currentLeaveRequests.length > 0 ? (
+              <section aria-labelledby="leave-heading" className="lg:pl-6 xl:pl-0 xl:pt-4">
                 <h3
                   id="leave-heading"
                   className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
@@ -520,7 +451,7 @@ export default function EmployeeDashboard({
                   employeeId={currentEmployeeId}
                   businessId={businessId}
                   businessSlug={businessSlug}
-                  requests={leaveRequests}
+                  requests={currentLeaveRequests}
                   compact
                   showRequestAction={false}
                 />
@@ -530,7 +461,7 @@ export default function EmployeeDashboard({
         </PortalCardBody>
       </PortalCard>
 
-      <PortalCard className="max-h-[34rem] overflow-hidden md:col-span-2 xl:col-span-12">
+      <PortalCard className="max-h-[40rem] overflow-hidden md:col-span-2 xl:col-span-8">
         <PortalCardHeader
           eyebrow="Operations"
           title="Service work"
@@ -545,32 +476,32 @@ export default function EmployeeDashboard({
         />
         <PortalCardBody className="min-h-0 overflow-hidden">
           <Tabs value={serviceWorkTab} onValueChange={setServiceWorkTab}>
-            <TabsList className="grid h-9 w-full grid-cols-3 rounded-lg p-0.5">
+            <TabsList className="grid min-h-[52px] w-full grid-cols-3 rounded-2xl bg-[#F5F6F3] p-1 group-data-[orientation=horizontal]/tabs:h-auto">
               <TabsTrigger
                 value="in-progress"
-                className="h-8 min-h-0 gap-1.5 rounded-md py-0 text-xs shadow-none data-[state=active]:shadow-sm"
+                className="min-h-11 gap-1.5 rounded-xl py-0 text-xs font-semibold text-[#696C67] shadow-none data-[state=active]:bg-[#20211F] data-[state=active]:text-white data-[state=active]:shadow-none"
               >
                 In Progress
                 {visibleActiveServices.length > 0 ? (
-                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-primary-foreground tabular-nums">
+                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[#B9F379] px-1 text-[9px] font-bold leading-none text-[#20211F] tabular-nums">
                     {visibleActiveServices.length}
                   </span>
                 ) : null}
               </TabsTrigger>
               <TabsTrigger
                 value="available"
-                className="h-8 min-h-0 gap-1.5 rounded-md py-0 text-xs shadow-none data-[state=active]:shadow-sm"
+                className="min-h-11 gap-1.5 rounded-xl py-0 text-xs font-semibold text-[#696C67] shadow-none data-[state=active]:bg-[#20211F] data-[state=active]:text-white data-[state=active]:shadow-none"
               >
                 Available
                 {showQueueSection && visiblePendingServices.length > 0 ? (
-                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-primary-foreground tabular-nums">
+                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[#B9F379] px-1 text-[9px] font-bold leading-none text-[#20211F] tabular-nums">
                     {visiblePendingServices.length}
                   </span>
                 ) : null}
               </TabsTrigger>
               <TabsTrigger
                 value="history"
-                className="h-8 min-h-0 rounded-md py-0 text-xs shadow-none data-[state=active]:shadow-sm"
+                className="min-h-11 rounded-xl py-0 text-xs font-semibold text-[#696C67] shadow-none data-[state=active]:bg-[#20211F] data-[state=active]:text-white data-[state=active]:shadow-none"
               >
                 History
               </TabsTrigger>
@@ -642,7 +573,7 @@ export default function EmployeeDashboard({
       </PortalCard>
 
       {showPaymentsSection && unsettledPaymentCount > 0 ? (
-        <PortalCard className="md:col-span-2 xl:col-span-12">
+        <PortalCard className="md:col-span-2 xl:col-span-8">
           <PortalCardHeader
             eyebrow="Payments"
             title="Collect balances"
@@ -665,7 +596,9 @@ export default function EmployeeDashboard({
           <PortalCardHeader eyebrow="Override" title="Floor queue" />
           <PortalCardBody>
             <ManagerQueueBoard
+              managerCoordinator={managerCoordinator}
               businessSlug={businessSlug}
+              currentEmployeeId={currentEmployeeId}
               initialServices={managerQueueServices}
               initialEmployees={managerQueueEmployees}
             />

@@ -2,7 +2,7 @@
 
 Status: unapproved idea backlog
 
-Last updated: 2026-09-06
+Last updated: 2026-09-26
 
 ## How to Use This File
 
@@ -10,6 +10,12 @@ This file captures possibilities, not commitments. An idea must be researched,
 validated, prioritized, and moved into a scoped design or implementation plan
 before development begins. Architectural changes also require an Architecture
 Decision Record.
+
+Ideas do not authorize implementation. Promotion to planned work requires the
+task contract in `docs/harness-engineering.md`, an owner, acceptance criteria,
+explicit exclusions, verification requirements, and links to affected
+architecture or product-design documents. Active delivery status belongs in
+Linear; this file keeps the durable opportunity and validation record.
 
 Use these statuses:
 
@@ -29,6 +35,7 @@ Use these statuses:
 | IDEA-003 | Premium, reliable social-image generation | Exploring | Multi-provider generator, image profiles, overlays, and reference assets |
 | IDEA-004 | Meta customer-conversation assistant | Idea | Meta connection, publishing, and OAuth flow |
 | IDEA-005 | Quality, security, and performance program | Idea | CI, Vitest, Playwright, Sentry, and production checklists |
+| IDEA-006 | Reliability and background-work infrastructure | Parked | PostgreSQL outbox, external cron, optional Upstash rate limiting, and Sentry |
 
 ## IDEA-001 — Owner Dashboard and Product-Wide Redesign
 
@@ -293,6 +300,44 @@ translated into risk-based coverage and explicit service targets.
 - Excessive E2E coverage can be slow and brittle; layer selection must follow
   risk rather than test count.
 
+## IDEA-006 — Reliability and Background-Work Infrastructure
+
+**Status:** Parked
+
+### Opportunity
+
+Improve reliability and response time as production load grows. ServiceFlow
+already has PostgreSQL transactions, an outbox processed by external cron,
+optional Upstash Redis rate limiting, Next.js caching, and Sentry. Measure
+their behavior before committing to another service.
+
+### Future Evaluation Order
+
+1. Establish production baselines for p95 route latency, slow queries,
+   database connections, cron last-success time, outbox age, and terminal
+   delivery failures. Verify database backups and practice a restore.
+2. Review outbox claims for overlapping delivery, recoverable leases, provider
+   idempotency, and alerts. Confirm the external scheduler invokes every
+   required job; `vercel.json` currently defines no Vercel cron schedules.
+3. If traffic spans multiple instances, strengthen the existing Redis-backed
+   rate limiter with bounded timeouts and explicit failure policy. Add caching
+   only for measured hot reads with clear invalidation rules.
+4. If slow AI generation or growing job backlogs warrant asynchronous work,
+   compare Vercel Queues for Vercel deployment, BullMQ plus a dedicated worker
+   for persistent Node deployment, and a PostgreSQL-backed queue. Keep the
+   transactional outbox and idempotent consumers regardless of queue choice.
+5. Consider Supabase as a PostgreSQL host only if the current provider falls
+   short on backups, recovery, pooling, or operations. Evaluate Prisma
+   connection modes, migration process, tenant isolation, and Data API/RLS
+   exposure before moving data. RabbitMQ is a later option if independently
+   deployed services need broker routing and acknowledgements.
+
+### Promotion Trigger
+
+Revisit when production metrics show a specific latency, delivery, recovery,
+or scaling problem. Record the baseline, target, deployment model, operating
+cost, rollback plan, and a scoped architecture decision before scheduling work.
+
 ## Promotion Checklist
 
 Before changing an idea to **Planned**:
@@ -304,3 +349,5 @@ Before changing an idea to **Planned**:
 - [ ] Complete privacy, security, accessibility, and legal review where relevant.
 - [ ] Create a decision record for architectural or provider commitments.
 - [ ] Create a separate design and implementation plan with acceptance criteria.
+- [ ] Define required unit, database, browser, build, and operational evidence.
+- [ ] Record explicit exclusions and the rollback or disablement strategy.

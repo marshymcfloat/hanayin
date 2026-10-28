@@ -10,11 +10,12 @@ export const createLeaveRequestSchema = z.object({
   reason: z.string().min(1, "Reason is required"),
   type: z.nativeEnum(LeaveType),
   businessSlug: z.string().min(1),
+  benefit_code: z.enum(["DISCRETIONARY", "SIL", "MATERNITY", "PATERNITY", "SOLO_PARENT", "VAWC", "SPECIAL_WOMEN"]).optional(),
 });
 
 export const updateLeaveRequestStatusSchema = z.object({
   requestId: z.number().int().positive(),
-  status: z.nativeEnum(LeaveRequestStatus),
+  status: z.enum([LeaveRequestStatus.APPROVED, LeaveRequestStatus.REJECTED]),
   adminComment: z.string().optional(),
   isPaid: z.boolean().optional(),
 });

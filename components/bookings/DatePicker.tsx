@@ -11,6 +11,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import ownerStyles from "./OwnerBookingForm.module.css";
+import { useOptionalViewer } from "@/lib/auth/viewer-context";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 interface DatePickerProps {
   value?: Date;
@@ -28,6 +31,8 @@ interface DatePickerProps {
   triggerLabel?: React.ReactNode;
   triggerClassName?: string;
   triggerAriaLabel?: string;
+  presentation?: "default" | "owner";
+  active?: boolean;
 }
 
 function dateKey(d: Date): string {
@@ -63,8 +68,15 @@ export default React.memo(function DatePicker({
   triggerLabel,
   triggerClassName,
   triggerAriaLabel,
+  presentation = "default",
+  active = true,
 }: DatePickerProps) {
+  const owner = presentation === "owner";
+  const staffDialogTheme = useOptionalViewer()?.actorType === "EMPLOYEE" ? staffTheme.workspace : "";
   const [open, setOpen] = React.useState(false);
+  React.useEffect(() => {
+    if (!active) setOpen(false);
+  }, [active]);
   const minStart = new Date(minDate);
   minStart.setHours(0, 0, 0, 0);
   const maxEnd = maxDate ? new Date(maxDate) : undefined;
@@ -112,6 +124,7 @@ export default React.memo(function DatePicker({
           className={cn(
             "w-full justify-start text-left font-normal",
             !value && "text-muted-foreground",
+            owner && "min-h-14 rounded-[14px] border-[#DDE0D9] bg-white px-4 text-[#20211F] hover:border-[#72CF35] hover:bg-[#FAFBF8] focus-visible:ring-[#72CF35]",
             triggerClassName,
           )}
         >
@@ -120,7 +133,7 @@ export default React.memo(function DatePicker({
             (value ? format(value, "EEEE, MMMM d, yyyy") : placeholder)}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent data-owner-booking-calendar={owner ? "" : undefined} className={cn("w-auto p-0", owner && ownerStyles.form, owner && "rounded-[18px] border-[#E7E9E4] p-2 shadow-[0_20px_50px_rgba(23,24,23,0.16)]", staffDialogTheme)} align="start">
         <Calendar
           mode="single"
           selected={value}

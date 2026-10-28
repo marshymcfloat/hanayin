@@ -156,10 +156,21 @@ export function BusinessHoursClient({
   const saveChanges = async () => {
     setIsSaving(true);
     try {
-      await Promise.all([
+      const results = await Promise.allSettled([
         updateBusinessHours(businessSlug, hours),
         updateBookingPolicy(businessSlug, policy),
       ]);
+      const failures = results.flatMap(result =>
+        result.status === "rejected"
+          ? [extractClientErrorMessage(result.reason, "Failed to save changes")]
+          : result.value.success ? [] : [result.value.error],
+      );
+      if (failures.length > 0) {
+        const saved = results.some(result => result.status === "fulfilled" && result.value.success);
+        toast.error(`${saved ? "Some changes were saved. " : ""}${failures.join(" ")}`);
+        if (saved) router.refresh();
+        return;
+      }
       toast.success("Business hours and booking policy saved");
       router.refresh();
     } catch (err) {

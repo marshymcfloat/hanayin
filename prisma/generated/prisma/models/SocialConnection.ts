@@ -210,7 +210,7 @@ export type SocialConnectionGroupByOutputType = {
   _max: SocialConnectionMaxAggregateOutputType | null
 }
 
-type GetSocialConnectionGroupByPayload<T extends SocialConnectionGroupByArgs> = Prisma.PrismaPromise<
+export type GetSocialConnectionGroupByPayload<T extends SocialConnectionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SocialConnectionGroupByOutputType, T['by']> &
       {
@@ -561,10 +561,6 @@ export type SocialConnectionCreatescopesInput = {
 
 export type EnumSocialPlatformFieldUpdateOperationsInput = {
   set?: $Enums.SocialPlatform
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type SocialConnectionUpdatescopesInput = {
@@ -1576,6 +1572,11 @@ export type SocialConnectionFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` SocialConnections.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SocialConnections.
+   */
   distinct?: Prisma.SocialConnectionScalarFieldEnum | Prisma.SocialConnectionScalarFieldEnum[]
 }
 

@@ -197,7 +197,7 @@ export type PackageItemGroupByOutputType = {
   _max: PackageItemMaxAggregateOutputType | null
 }
 
-type GetPackageItemGroupByPayload<T extends PackageItemGroupByArgs> = Prisma.PrismaPromise<
+export type GetPackageItemGroupByPayload<T extends PackageItemGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PackageItemGroupByOutputType, T['by']> &
       {
@@ -1262,6 +1262,11 @@ export type PackageItemFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` PackageItems.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PackageItems.
+   */
   distinct?: Prisma.PackageItemScalarFieldEnum | Prisma.PackageItemScalarFieldEnum[]
 }
 

@@ -1,6 +1,7 @@
 // Colocated action regression test.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBooking } from "./booking";
+vi.mock("server-only", () => ({}));
 
 const prismaMock = vi.hoisted(() => ({
   business: {
@@ -12,6 +13,8 @@ const staffAccessMock = vi.hoisted(() => ({
   resolveTenantActorContext: vi.fn(),
   hasStaffPermission: vi.fn(),
 }));
+const otpMock = vi.hoisted(() => ({ resolveCustomerTrust: vi.fn() }));
+vi.mock("@/features/bookings/services/booking-otp", () => otpMock);
 
 vi.mock("@/prisma/prisma", () => ({
   prisma: prismaMock,
@@ -106,8 +109,16 @@ describe("createBooking Server Action", () => {
     } as never);
 
     mockedGetServerSession.mockResolvedValue({
-      user: { id: "owner_1", role: "OWNER" },
+      user: { id: "owner_1", role: "OWNER", businessSlug: "demo-business" },
     } as never);
+    staffAccessMock.resolveTenantActorContext.mockResolvedValue({
+      success: true,
+      actorType: "OWNER",
+      businessId: "biz_1",
+      businessSlug: "demo-business",
+      ownerId: 1,
+      userId: "owner_1",
+    });
     mockedRateLimit.mockResolvedValue({
       success: true,
       limit: 8,
@@ -125,6 +136,7 @@ describe("createBooking Server Action", () => {
     });
     mockedValidateBookingOrThrow.mockResolvedValue(undefined);
     staffAccessMock.hasStaffPermission.mockReturnValue(true);
+    otpMock.resolveCustomerTrust.mockResolvedValue({ tier: "NEW", requiresOtp: true });
   });
 
   afterEach(() => {
@@ -148,6 +160,22 @@ describe("createBooking Server Action", () => {
     expect(mockedRevalidatePath).not.toHaveBeenCalled();
   });
 
+  it("rejects a revoked owner before reading the writable tenant or creating a booking", async () => {
+    staffAccessMock.resolveTenantActorContext.mockResolvedValue({ success: false });
+    const result = await createBooking({
+      customerName: "John Doe",
+      businessSlug: "demo-business",
+      scheduledAt: mockDate,
+      paymentMethod: "CASH",
+      paymentType: "FULL",
+      services: [{ id: 1, quantity: 1 }],
+    });
+    expect(result).toEqual({ type: "error", code: "BOOKING_FAILED" });
+    expect(staffAccessMock.resolveTenantActorContext).toHaveBeenCalledWith("demo-business", "owner_1");
+    expect(mockedBusinessFindUnique).not.toHaveBeenCalled();
+    expect(mockedCreateBookingInDb).not.toHaveBeenCalled();
+  });
+
   it("should create a CASH booking successfully", async () => {
     const mockBusiness = {
       id: "biz_1",
@@ -157,6 +185,7 @@ describe("createBooking Server Action", () => {
     };
 
     mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      appliedOffers: [], packageSnapshots: [], quoteFingerprint: "a".repeat(64), voucherOutcome: "NONE",
       business: mockBusiness,
       services: [
         {
@@ -221,6 +250,7 @@ describe("createBooking Server Action", () => {
 
   it("automatically bypasses capacity for an owner-created walk-in", async () => {
     mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      appliedOffers: [], packageSnapshots: [], quoteFingerprint: "a".repeat(64), voucherOutcome: "NONE",
       business: {
         id: "biz_1",
         slug: "demo-business",
@@ -343,6 +373,7 @@ describe("createBooking Server Action", () => {
     };
 
     mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      appliedOffers: [], packageSnapshots: [], quoteFingerprint: "a".repeat(64), voucherOutcome: "NONE",
       business: mockBusiness,
       services: [
         {
@@ -435,6 +466,7 @@ describe("createBooking Server Action", () => {
   });
 
   it("should return a client-safe error if business is not found", async () => {
+    mockedGetServerSession.mockResolvedValueOnce(null);
     mockedBusinessFindUnique.mockResolvedValueOnce(null);
 
     await expect(
@@ -466,5 +498,33 @@ describe("createBooking Server Action", () => {
         services: [{ id: 1, quantity: 1 }],
       }),
     ).resolves.toEqual({ type: "error", code: "BOOKING_FAILED" });
+  });
+
+  it("requires signed ownership proof, not just a public verification ID", async () => {
+    mockedGetServerSession.mockResolvedValue(null);
+    await expect(createBooking({
+      customerName: "Customer", businessSlug: "demo-business", scheduledAt: mockDate,
+      paymentMethod: "ONLINE", paymentType: "DOWNPAYMENT", phone: "09171234567",
+      otpVerificationId: 7, services: [{ id: 1, quantity: 1 }],
+    })).resolves.toEqual({ type: "error", code: "OTP_REQUIRED" });
+    expect(mockedCreateBookingInDb).not.toHaveBeenCalled();
+    expect(mockedRevalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("passes public signed proof through the workflow to transactional persistence", async () => {
+    mockedGetServerSession.mockResolvedValue(null);
+    mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      services: [], estimatedEnd: mockDate, voucher: null, voucherDiscount: 0,
+    } as never);
+    mockedCreateBookingInDb.mockResolvedValue({ id: 123 } as never);
+    await expect(createBooking({
+      customerName: "Customer", businessSlug: "demo-business", scheduledAt: mockDate,
+      paymentMethod: "ONLINE", paymentType: "DOWNPAYMENT", phone: "09171234567",
+      otpVerificationId: 7, otpVerificationToken: "opaque-signed-proof",
+      services: [{ id: 1, quantity: 1 }],
+    })).resolves.toMatchObject({ type: "internal", url: expect.stringContaining("/booking/success?bookingId=123&token=") });
+    expect(mockedCreateBookingInDb).toHaveBeenCalledWith(expect.objectContaining({
+      isPublicBooking: true, otpVerificationId: 7, otpVerificationToken: "opaque-signed-proof",
+    }));
   });
 });

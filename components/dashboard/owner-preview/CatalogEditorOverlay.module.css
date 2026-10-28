@@ -1,0 +1,36 @@
+.backdrop {
+  background: rgb(23 24 22 / 55%);
+  backdrop-filter: blur(4px);
+  will-change: opacity, backdrop-filter;
+}
+
+.panel {
+  height: calc(100dvh - 0.75rem);
+  max-height: calc(100dvh - 0.75rem);
+  will-change: transform, opacity;
+}
+
+.footer {
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .panel {
+    inset-block: 0.375rem !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: 0.375rem !important;
+    width: min(620px, 92vw) !important;
+    height: auto;
+    max-height: none;
+    border-radius: 28px 0 0 28px;
+    box-shadow: -24px 0 70px rgb(23 24 23 / 18%);
+  }
+
+  .bookingPanel {
+    width: min(1080px, 94vw) !important;
+  }
+
+  .footer {
+    padding-bottom: 1rem;
+  }
+}

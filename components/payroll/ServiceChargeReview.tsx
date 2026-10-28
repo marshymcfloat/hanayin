@@ -1,0 +1,35 @@
+"use client";
+import { toast } from "sonner";
+import { useState, type FormEvent } from "react";
+import { getServiceChargeRosterAction, previewServiceChargeAction, recordServiceChargeAction } from "@/features/payroll/actions/service-charge";
+import type { ServiceChargeInput } from "@/features/payroll/v2/service-charge-calculation";
+import { useCommandKeys } from "@/components/payroll/useCommandKeys";
+import { PayrollScroll } from "@/components/payroll/PayrollScroll";
+import styles from "@/components/payroll/payroll.module.css";
+
+type Roster = Extract<Awaited<ReturnType<typeof getServiceChargeRosterAction>>, { success: true }>["data"];
+type Preview = Extract<Awaited<ReturnType<typeof previewServiceChargeAction>>, { success: true }>["data"];
+export function ServiceChargeReview({ busy = false, onChanged }: { busy?: boolean; onChanged: () => void }) {
+  const [from, setFrom] = useState(""); const [to, setTo] = useState("");
+  const [roster, setRoster] = useState<Roster>([]); const [eligibility, setEligibility] = useState<Record<number, boolean>>({});
+  const [pending, setPending] = useState(false); const [message, setMessage] = useState("");
+  const [review, setReview] = useState<{ input: ServiceChargeInput; result: Preview } | null>(null); const command = useCommandKeys();
+  async function load() {
+    setPending(true); setMessage(""); setReview(null);
+    try { const result = await getServiceChargeRosterAction({ from, to }); if (result.success) { setRoster(result.data); setEligibility({}); if (!result.data.length) setMessage("No employees were found for this collection period."); } else setMessage(result.error); }
+    catch { setMessage("The employee list could not be loaded."); } finally { setPending(false); }
+  }
+  async function preview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); const form = new FormData(event.currentTarget); setPending(true); setMessage(""); setReview(null);
+    if (roster.some(entry => eligibility[entry.employeeId] === undefined)) { setPending(false); setMessage("Verify eligibility for every employee before reviewing the distribution."); return; }
+    const input: ServiceChargeInput = { from, to, reference: String(form.get("reference")), amount: String(form.get("amount")), collectionEvidence: String(form.get("collectionEvidence")), externalWorkersPresent: form.get("employeesOnly") !== "on", roster: roster.map(entry => ({ employeeId: entry.employeeId, eligible: eligibility[entry.employeeId], evidence: String(form.get("evidence-" + entry.employeeId)) })) };
+    try { const result = await previewServiceChargeAction(input); if (result.success) setReview({ input, result: result.data }); else setMessage(result.error); }
+    catch { setMessage("The distribution preview could not be confirmed."); } finally { setPending(false); }
+  }
+  async function record() {
+    if (!review) return; setPending(true); setMessage("");
+    try { const result = await recordServiceChargeAction(command("SERVICE_CHARGE_DISTRIBUTION", { ...review.input, expectedHash: review.result.expectedHash, expectedRevision: review.result.expectedRevision })); if (result.success) { setReview(null); setRoster([]); setMessage("Service-charge earnings recorded. Prepare or recalculate the eligible payroll period to review and publish them."); toast.success("Service-charge earnings recorded."); onChanged(); } else { setMessage(result.error); toast.error(result.error); } }
+    catch { setMessage("Recording was not confirmed. Retry this reviewed distribution."); toast.error("Recording was not confirmed. Retry this reviewed distribution."); } finally { setPending(false); }
+  }
+  return <section className={styles.panel}><h3>Distribute service charges</h3><p className={styles.help}>Distribute a verified collection pool using confirmed worked time. Employee app roles do not determine legal eligibility. Resolve contractor or other unsupported coverage cases through independent review first.</p><div className={styles.fields}><label>Collection period start<input type="date" value={from} onChange={event => { setFrom(event.target.value); setRoster([]); setReview(null); }} /></label><label>Collection period end<input type="date" value={to} onChange={event => { setTo(event.target.value); setRoster([]); setReview(null); }} /></label></div><button className={styles.secondary} type="button" disabled={busy || pending || !from || !to} onClick={() => void load()}>Load period employees</button>{message && <p role="status" className={styles.notice}>{message}</p>}{roster.length > 0 && <form onSubmit={preview} onChange={() => setReview(null)}><div className={styles.fields}><label>Unique collection reference<input name="reference" minLength={3} maxLength={200} required placeholder="Invoice pool reference" /></label><label>Collected amount<input name="amount" inputMode="decimal" required placeholder="0.00" /></label><label>Verified collection evidence reference<input name="collectionEvidence" minLength={10} maxLength={1000} required /></label></div><PayrollScroll label="Service-charge employee eligibility" className="max-h-80"><table className={styles.table}><thead><tr><th>Employee</th><th>Eligibility review</th><th>Evidence reference</th></tr></thead><tbody>{roster.map(entry => <tr key={entry.employeeId}><td>{entry.name}<p className={styles.help}>{entry.confirmedSessions} confirmed sessions{entry.missingEmploymentDate ? " · employment date missing" : ""}</p></td><td><div className={styles.choices}><label className={styles.choice + " min-h-11"}><input type="radio" name={"eligible-" + entry.employeeId} checked={eligibility[entry.employeeId] === true} onChange={() => setEligibility(value => ({ ...value, [entry.employeeId]: true }))} /> Eligible</label><label className={styles.choice + " min-h-11"}><input type="radio" name={"eligible-" + entry.employeeId} checked={eligibility[entry.employeeId] === false} onChange={() => setEligibility(value => ({ ...value, [entry.employeeId]: false }))} /> Excluded</label></div></td><td><input aria-label={entry.name + " service-charge eligibility evidence"} name={"evidence-" + entry.employeeId} required minLength={10} maxLength={1000} /></td></tr>)}</tbody></table></PayrollScroll><label className={styles.choice + " min-h-11"}><input type="checkbox" name="employeesOnly" required /> I verified every covered worker is represented in this employee registry.</label><button className={styles.primary} type="submit" disabled={busy || pending}>Review complete distribution</button></form>}{review && <div className={styles.notice}><p>Pool ₱{review.result.total} · {review.result.allocations.length} recipients</p><ul>{review.result.allocations.map(entry => <li key={entry.employeeId}>{entry.name}: ₱{entry.amount}</li>)}</ul><p className={styles.help}>These earnings enter payroll separately from basic salary and are not used to satisfy minimum wage.</p><button className={styles.primary} type="button" disabled={busy || pending} onClick={() => void record()}>Confirm distribution</button></div>}</section>;
+}

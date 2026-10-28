@@ -1,52 +1,36 @@
 "use server";
 
-// Feature-owned Server Action boundary.
-
-import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
-import { requireTenantWriteAccess } from "@/lib/auth/guards";
-import {
-  BookingPolicy,
-  normalizeBookingPolicy,
-  normalizeBookingPublicPaymentType,
-} from "@/lib/types/booking-policy";
-import { getBookingPolicyByBusinessSlug } from "@/lib/services/booking-policy";
+import { requireOwnerPermission } from "@/lib/auth/owner-access";
+import type { BookingPolicy } from "@/lib/types/booking-policy";
+import { businessSlugSchema } from "@/lib/validation/business-slug";
+import { bookingPolicyInputSchema } from "@/features/bookings/booking-policy-schemas";
+import { readPublicBookingPolicy } from "@/features/bookings/queries/booking-policy";
+import { saveBookingPolicy } from "@/features/bookings/services/booking-policy";
+import { OwnerPermission } from "@/prisma/generated/prisma/enums";
 
-export async function getBookingPolicy(
-  businessSlug: string,
-): Promise<BookingPolicy> {
-  return getBookingPolicyByBusinessSlug(prisma, businessSlug);
+export async function getBookingPolicy(businessSlug: string): Promise<BookingPolicy> {
+  const slug = businessSlugSchema.safeParse(businessSlug);
+  if (!slug.success) throw new Error("Invalid input");
+  try { return await readPublicBookingPolicy(slug.data); }
+  catch { throw new Error("Unable to load booking policy."); }
 }
 
-export async function updateBookingPolicy(
-  businessSlug: string,
-  input: Partial<BookingPolicy>,
-) {
-  const auth = await requireTenantWriteAccess(businessSlug);
-  if (!auth.success) return auth;
-
-  const normalized = normalizeBookingPolicy(input);
-  await prisma.business.update({
-    where: { slug: businessSlug },
-    data: {
-      booking_horizon_days: normalized.bookingHorizonDays,
-      booking_min_lead_minutes: normalized.minLeadMinutes,
-      booking_slot_interval_minutes: normalized.slotIntervalMinutes,
-      same_day_attendance_strict_minutes:
-        normalized.sameDayAttendanceStrictMinutes,
-      public_allow_full_payment: normalized.allowPublicFullPayment,
-      public_allow_downpayment: normalized.allowPublicDownpayment,
-      public_default_payment_type: normalizeBookingPublicPaymentType(
-        normalized.defaultPublicPaymentType,
-      ),
-      downpayment_percentage: normalized.downpaymentPercentage,
-      booking_v2_enabled: normalized.bookingV2Enabled,
-    },
-  });
-
-  revalidatePath(`/app/${businessSlug}`);
-  revalidatePath(`/app/${businessSlug}/business-hours`);
-  revalidatePath(`/${businessSlug}/booking`);
-
-  return { success: true };
+export async function updateBookingPolicy(businessSlug: string, input: unknown): Promise<
+  { success: true } | { success: false; error: string }
+> {
+  const slug = businessSlugSchema.safeParse(businessSlug);
+  const validation = bookingPolicyInputSchema.safeParse(input);
+  if (!slug.success || !validation.success) return { success: false, error: "Invalid input" };
+  try {
+    const access = await requireOwnerPermission(slug.data, OwnerPermission.SETTINGS_MANAGE);
+    if (!access.success) return access;
+    const result = await saveBookingPolicy(access.context, validation.data);
+    if (result.success) {
+      revalidatePath(`/app/${access.context.businessSlug}`);
+      revalidatePath(`/app/${access.context.businessSlug}/business-hours`);
+      revalidatePath(`/${access.context.businessSlug}/booking`);
+    }
+    return result;
+  } catch { return { success: false, error: "Unable to update booking policy." }; }
 }

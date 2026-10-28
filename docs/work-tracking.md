@@ -68,6 +68,21 @@ pass, evidence is linked, and durable documentation is updated where necessary.
   migration, or destructive work without explicit acceptance criteria and
   required human review.
 
+## Multiple Codex Tasks
+
+Keep one implementation coordinator responsible for shared configuration,
+documentation, verification and issue reconciliation. Give each editing agent
+an explicit, non-overlapping module scope. A separate task may perform read-only
+audits of the current checkout, but must not run builds/tests that compete for
+generated output or mutate files while implementation is active.
+
+Parallel editing in another task requires a separate worktree, a verified
+baseline and an explicit integration owner. The default branch may not contain
+current uncommitted work; select a working-tree snapshot only when requested and
+safe. Worktree isolation does not isolate databases, provider accounts or
+secrets. Never use shared development/staging databases destructively. Run the
+app build and standalone typecheck sequentially to avoid generated-type races.
+
 ## Issue Template
 
 ```markdown

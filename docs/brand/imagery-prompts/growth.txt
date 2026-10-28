@@ -1,0 +1,18 @@
+Use case: ui-mockup.
+Asset type: generated Hanaylo product feature visual for a modern SaaS landing page.
+Input image 1 is an ACTUAL screenshot of the product, with an expanded "Growth opportunity" card located at middle right. Extract and faithfully recompose ONLY this actual card as a refined standalone landscape 3:2 image. Input image 2 is the newly generated Hanaylo dashboard and is a supporting color/typography/polish reference only.
+Create one straight-on crisp white rounded UI card nearly filling the canvas, with a 32px pale lavender outer surround, clean subtle border and restrained shadow. Large readable modern sans serif type. Composition should comfortably use the landscape space, show all the actual content, and preserve the original content order: title, confidence/reason row, occupancy notice, two-column details, action row. No photography, no hardware, no perspective, no decorative objects, no external headline.
+Rebrand the lime color in the actual card to violet #6940D6 with pale lavender #EEE8FC fills, charcoal #23212A text, soft near-white supporting surfaces, white main card. Header at top left has the existing simple upward-trending chart icon, title and subtitle. The confidence pill is violet on lavender and sits beside the reason statement. The occupancy notice is muted and visually secondary. The two real detail fields sit in a single rounded two-column panel. Bottom contains a wide charcoal pill button with small megaphone icon and the existing separate round expand/collapse control with an up chevron.
+Render these strings EXACTLY, no misspelling:
+"Growth opportunity"
+"Business growth signal"
+"82%"
+"A quieter afternoon can make room for a promotion."
+"Occupancy unavailable"
+"No occupancy estimate is available for this opportunity."
+"Best window"
+"2:00 PM–5:00 PM"
+"Recommended offer"
+"Percentage discount"
+"Create offer"
+Invariants: preserve the actual fields, reason, confidence, time window, recommendation, occupancy-unavailable state, and action; improve readability and spacing only. Do not invent a forecast, revenue estimate, customer count, social post editor, calendar, automation control, success state, or extra metric. Do not add any logos or unrelated surrounding dashboard content. Result is an enlarged polished representation of the exact existing Growth opportunity card.

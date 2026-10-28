@@ -1,4 +1,5 @@
 "use client";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -52,6 +53,7 @@ const formSchema = z.object({
   }),
   reason: z.string().min(3, "Reason must be at least 3 characters"),
   type: z.nativeEnum(LeaveType),
+  benefitCode: z.enum(["DISCRETIONARY", "SIL", "MATERNITY", "PATERNITY", "SOLO_PARENT", "VAWC", "SPECIAL_WOMEN"]),
 });
 
 interface RequestLeaveDialogProps {
@@ -78,6 +80,7 @@ export function RequestLeaveDialog({
     defaultValues: {
       reason: "",
       type: LeaveType.VACATION,
+      benefitCode: "DISCRETIONARY",
     },
   });
 
@@ -90,6 +93,7 @@ export function RequestLeaveDialog({
         end_date: values.dateRange.to,
         reason: values.reason,
         type: values.type,
+        benefit_code: values.benefitCode,
         businessSlug: businessSlug, // Passed slug
       });
 
@@ -102,7 +106,6 @@ export function RequestLeaveDialog({
         toast.error(result.error || "Failed to submit request");
       }
     } catch (error) {
-      console.error(error);
       toast.error(extractClientErrorMessage(error, "Failed to submit request"));
     }
   };
@@ -112,7 +115,7 @@ export function RequestLeaveDialog({
       <DialogTrigger asChild>
         {trigger ?? <Button>Request Leave</Button>}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className={`${staffTheme.workspace} sm:max-w-[425px]`}>
         <DialogHeader>
           <DialogTitle>Request Leave</DialogTitle>
           <DialogDescription>
@@ -128,6 +131,7 @@ export function RequestLeaveDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField control={form.control} name="benefitCode" render={({ field }) => <FormItem><FormLabel>Benefit to use</FormLabel><Select value={field.value} onValueChange={field.onChange}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent className={staffTheme.workspace}>{[["DISCRETIONARY", "Owner-approved paid or unpaid leave"], ["SIL", "Service incentive leave"], ["MATERNITY", "Maternity benefit"], ["PATERNITY", "Paternity leave"], ["SOLO_PARENT", "Solo-parent leave"], ["VAWC", "VAWC leave"], ["SPECIAL_WOMEN", "Special leave for women"]].map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>} />
             <FormField
               control={form.control}
               name="type"
@@ -143,7 +147,7 @@ export function RequestLeaveDialog({
                         <SelectValue placeholder="Select a leave type" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className={staffTheme.workspace}>
                       {Object.values(LeaveType).map((type) => (
                         <SelectItem key={type} value={type}>
                           {type.charAt(0) + type.slice(1).toLowerCase()}
@@ -188,7 +192,7 @@ export function RequestLeaveDialog({
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className={`${staffTheme.workspace} w-auto p-0`} align="start">
                       <Calendar
                         mode="range"
                         selected={field.value}
@@ -222,7 +226,7 @@ export function RequestLeaveDialog({
               )}
             />
             <DialogFooter>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button type="submit" className="min-h-11" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}

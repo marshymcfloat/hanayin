@@ -1,4 +1,5 @@
 "use client";
+import { useBookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 
 /**
  * RescheduleDialog — open from the booking panel to move an ACCEPTED
@@ -37,6 +38,7 @@ export type RescheduleDialogProps = {
   currentScheduledAt: string | null;
   /** Optional override for the trigger; defaults to a "Reschedule" button. */
   trigger?: React.ReactNode;
+  onChanged?: () => void;
 };
 
 /** Convert an ISO string to the value format <input type="datetime-local"> expects. */
@@ -55,8 +57,10 @@ export function RescheduleDialog({
   bookingId,
   currentScheduledAt,
   trigger,
+  onChanged,
 }: RescheduleDialogProps) {
   const router = useRouter();
+  const staffDialogTheme = useBookingDialogTheme();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(toLocalInputValue(currentScheduledAt));
   const [submitting, setSubmitting] = useState(false);
@@ -85,7 +89,8 @@ export function RescheduleDialog({
       }
       toast.success("Booking rescheduled");
       setOpen(false);
-      router.refresh();
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       showActionErrorToast(msg, { action: "reschedule this booking" });
@@ -109,7 +114,7 @@ export function RescheduleDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-3xl">
+      <DialogContent className={`rounded-3xl ${staffDialogTheme}`}>
         <DialogHeader>
           <DialogTitle>Reschedule booking</DialogTitle>
           <DialogDescription>

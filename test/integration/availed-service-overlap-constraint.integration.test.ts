@@ -5,8 +5,8 @@
  * for the booking double-book race; this test verifies it actually
  * fires under direct INSERT load (which unit-test mocks can't cover).
  *
- * Skips when no DIRECT_DATABASE_URL — local dev runs without it pass
- * cleanly, CI runs against the postgres:16 service in `.github/workflows/ci.yml`
+ * Requires explicit disposable TEST_DATABASE_URL configuration. CI runs
+ * against the postgres:16 service in `.github/workflows/ci.yml`
  * (job: `quality`). Lives under test/integration/ rather than alongside
  * the unit tests so it doesn't run on `vitest watch` by accident.
  */
@@ -19,14 +19,10 @@ import {
   it,
 } from "vitest";
 import { Client } from "pg";
+import { requireTestDatabase } from "../../scripts/test-database-target.mjs";
 import { createSharedWorkflowFactory } from "../factories/shared-workflows";
 
-const dbConnectionString =
-  process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
-const hasDb = Boolean(
-  dbConnectionString &&
-    !dbConnectionString.startsWith("prisma+postgres://"),
-);
+const dbConnectionString = requireTestDatabase();
 
 let client: Client | null = null;
 let businessId = "";
@@ -40,7 +36,7 @@ const seed = createSharedWorkflowFactory({
 
 const isoOffset = (date: Date) => date.toISOString().replace("Z", "+00:00");
 
-describe.skipIf(!hasDb)(
+describe(
   "AvailedService EXCLUDE constraint (integration)",
   () => {
     beforeAll(async () => {

@@ -17,7 +17,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Employee, User, Payslip } from "@/prisma/generated/prisma/client";
+import type { Employee, Payslip } from "@/prisma/generated/prisma/client";
+import type { PublicUser } from "@/lib/auth/public-user";
 import { formatPH } from "@/lib/date-utils";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -26,7 +27,7 @@ import { useRouter } from "next/navigation";
 
 // Define the type matching what we fetch in OwnerDashboardDataContainer
 type EmployeeWithDetails = Employee & {
-  user: User;
+  user: PublicUser;
   payslips: Payslip[];
 };
 

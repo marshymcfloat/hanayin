@@ -6,6 +6,9 @@ const getEmployeeAttendanceHistoryForTenantMock = vi.hoisted(() => vi.fn());
 const previewTenantAttendanceImpactMock = vi.hoisted(() => vi.fn());
 const updateTenantAttendanceStatusMock = vi.hoisted(() => vi.fn());
 const revalidatePathMock = vi.hoisted(() => vi.fn());
+const updateTagMock = vi.hoisted(() => vi.fn());
+const workforceOwnerMock = vi.hoisted(() => vi.fn());
+vi.mock("@/features/workforce/workforce-access", () => ({ currentWorkforceOwner: workforceOwnerMock }));
 
 vi.mock("@/lib/auth/guards", () => ({ requireAuth: requireAuthMock }));
 vi.mock("@/features/workforce/queries/attendance-admin", () => ({
@@ -17,7 +20,7 @@ vi.mock("@/features/workforce/services/attendance-admin", () => ({
   previewTenantAttendanceImpact: previewTenantAttendanceImpactMock,
   updateTenantAttendanceStatus: updateTenantAttendanceStatusMock,
 }));
-vi.mock("next/cache", () => ({ revalidatePath: revalidatePathMock }));
+vi.mock("next/cache", () => ({ revalidatePath: revalidatePathMock, updateTag: updateTagMock }));
 
 import {
   getDailyAttendance,
@@ -28,10 +31,11 @@ import {
 describe("attendance admin action boundary", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    workforceOwnerMock.mockResolvedValue({ id: 1, business_id: "biz-a" });
     requireAuthMock.mockResolvedValue({
       success: true,
       businessSlug: "tenant-a",
-      session: { user: { role: "OWNER" } },
+      session: { user: { id: "owner-a", role: "OWNER" } },
     });
   });
 
@@ -94,9 +98,11 @@ describe("attendance admin action boundary", () => {
 
     await updateAttendanceStatus(7, new Date(), "ABSENT");
     expect(revalidatePathMock).not.toHaveBeenCalled();
+    expect(updateTagMock).not.toHaveBeenCalled();
 
     updateTenantAttendanceStatusMock.mockResolvedValue({ success: true });
     await updateAttendanceStatus(7, new Date(), "PRESENT");
     expect(revalidatePathMock).toHaveBeenCalledWith("/", "layout");
+    expect(updateTagMock).toHaveBeenCalledWith("attendance-history-tenant-a");
   });
 });

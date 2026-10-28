@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   MapPin,
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 import {
   clockInAction,
   clockOutAction,
+  checkAttendanceStatusAction,
   getMonthlyAttendanceAction,
 } from "@/features/workforce/actions/attendance";
 import type { EmployeeAttendance } from "@/prisma/generated/prisma/client";
@@ -38,36 +40,76 @@ export default function AttendanceCard({
   className,
 }: AttendanceCardProps & { className?: string }) {
   const [loading, setLoading] = useState(false);
+  const loadingRef = useRef(false);
+  const queryClient = useQueryClient();
+  const initialDayKey = useRef(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Manila" }));
+  const [dayKey, setDayKey] = useState(initialDayKey.current);
   const [showCalendar, setShowCalendar] = useState(false);
   const [monthlyAttendance, setMonthlyAttendance] = useState<
     EmployeeAttendance[]
   >([]);
   const [calendarDate, setCalendarDate] = useState(new Date());
 
-  const isClockedIn = !!todayAttendance?.time_in && !todayAttendance.time_out;
-  const isClockedOut = !!todayAttendance?.time_out;
+  const attendanceQueryKey = ["staff-attendance", businessSlug, employeeId, dayKey] as const;
+  const { data: confirmedAttendance = null } = useQuery({
+    queryKey: attendanceQueryKey,
+    queryFn: async () => {
+      const result = await checkAttendanceStatusAction(employeeId);
+      if (!result.success) throw new Error(result.error || "Unable to check attendance.");
+      return result.data
+        ? { time_in: result.data.time_in, time_out: result.data.time_out }
+        : null;
+    },
+    initialData: dayKey === initialDayKey.current ? todayAttendance : undefined,
+    refetchInterval: loading ? false : 30_000,
+  });
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setDayKey(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Manila" }));
+    }, 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const isClockedIn = !!confirmedAttendance?.time_in && !confirmedAttendance.time_out;
+  const isClockedOut = !!confirmedAttendance?.time_out;
+
+  const beginClockAction = () => {
+    if (loadingRef.current) return false;
+    loadingRef.current = true;
+    setLoading(true);
+    return true;
+  };
+  const finishClockAction = () => {
+    loadingRef.current = false;
+    setLoading(false);
+  };
 
   useEffect(() => {
     const fetchAttendance = async () => {
-      const result = await getMonthlyAttendanceAction(
-        employeeId,
-        calendarDate.getFullYear(),
-        calendarDate.getMonth(),
-      );
-      if (result.success && result.data) {
-        setMonthlyAttendance(result.data);
+      try {
+        const result = await getMonthlyAttendanceAction(
+          employeeId,
+          calendarDate.getFullYear(),
+          calendarDate.getMonth(),
+        );
+        if (result.success && result.data) {
+          setMonthlyAttendance(result.data);
+        }
+      } catch {
+        toast.error("Unable to load attendance history. Please try again.");
       }
     };
 
     if (!compact) fetchAttendance();
-  }, [compact, employeeId, calendarDate, todayAttendance]);
+  }, [compact, employeeId, calendarDate, confirmedAttendance]);
 
   const handleClockIn = async () => {
-    setLoading(true);
+    if (!beginClockAction()) return;
 
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
-      setLoading(false);
+      finishClockAction();
       return;
     }
 
@@ -77,22 +119,30 @@ export default function AttendanceCard({
       maximumAge: 0,
     };
 
-    navigator.geolocation.getCurrentPosition(
+    try {
+      navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
-        const result = await clockInAction(
-          employeeId,
-          latitude,
-          longitude,
-          businessSlug,
-        );
-
-        if (result.success) {
-          toast.success("Clocked in successfully!");
-        } else {
-          toast.error(result.error);
+        try {
+          await queryClient.cancelQueries({ queryKey: attendanceQueryKey });
+          const { latitude, longitude } = position.coords;
+          const result = await clockInAction(employeeId, latitude, longitude, businessSlug);
+          if (result.success) {
+            queryClient.setQueryData(attendanceQueryKey, {
+              time_in: result.data.time_in,
+              time_out: result.data.time_out,
+            });
+            toast.success("Clocked in successfully!");
+          } else {
+            toast.error(result.error);
+          }
+        } catch {
+          toast.error("Unable to start shift. Please try again.");
+        } finally {
+          finishClockAction();
+          void queryClient.invalidateQueries({ queryKey: attendanceQueryKey }).catch(() => {
+            toast.error("Unable to refresh attendance. Please retry.");
+          });
         }
-        setLoading(false);
       },
       (error) => {
         console.error("Geolocation error:", error);
@@ -111,35 +161,48 @@ export default function AttendanceCard({
             break;
         }
         toast.error(errorMessage);
-        setLoading(false);
+        finishClockAction();
       },
       options,
-    );
+      );
+    } catch {
+      toast.error("Unable to request your location. Please try again.");
+      finishClockAction();
+    }
   };
 
   const handleClockOut = async () => {
-    setLoading(true);
+    if (!beginClockAction()) return;
 
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
-      setLoading(false);
+      finishClockAction();
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
+    try {
+      navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
-        const result = await clockOutAction(
-          employeeId,
-          coords.latitude,
-          coords.longitude,
-          businessSlug,
-        );
-        if (result.success) {
-          toast.success("Clocked out successfully!");
-        } else {
-          toast.error(result.error);
+        try {
+          await queryClient.cancelQueries({ queryKey: attendanceQueryKey });
+          const result = await clockOutAction(employeeId, coords.latitude, coords.longitude, businessSlug);
+          if (result.success) {
+            queryClient.setQueryData(attendanceQueryKey, {
+              time_in: result.data.time_in,
+              time_out: result.data.time_out,
+            });
+            toast.success("Clocked out successfully!");
+          } else {
+            toast.error(result.error);
+          }
+        } catch {
+          toast.error("Unable to end shift. Please try again.");
+        } finally {
+          finishClockAction();
+          void queryClient.invalidateQueries({ queryKey: attendanceQueryKey }).catch(() => {
+            toast.error("Unable to refresh attendance. Please retry.");
+          });
         }
-        setLoading(false);
       },
       (error) => {
         console.error("Geolocation error:", error);
@@ -148,10 +211,14 @@ export default function AttendanceCard({
             ? "Location permission denied. Enable it to end your shift."
             : "Unable to verify your workplace location.",
         );
-        setLoading(false);
+        finishClockAction();
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
-    );
+      );
+    } catch {
+      toast.error("Unable to request your location. Please try again.");
+      finishClockAction();
+    }
   };
 
   const today = new Date();
@@ -194,10 +261,10 @@ export default function AttendanceCard({
             Shift completed
           </p>
         )}
-        {isClockedIn && todayAttendance?.time_in ? (
+        {isClockedIn && confirmedAttendance?.time_in ? (
           <p className="text-center text-xs text-muted-foreground">
             Started{" "}
-            {new Date(todayAttendance.time_in).toLocaleTimeString("en-US", {
+            {new Date(confirmedAttendance.time_in).toLocaleTimeString("en-US", {
               hour: "2-digit",
               minute: "2-digit",
             })}
@@ -236,10 +303,10 @@ export default function AttendanceCard({
                 </span>
                 <span className="text-xs font-semibold text-primary">
                   Clocked in
-                  {todayAttendance?.time_in && (
+                  {confirmedAttendance?.time_in && (
                     <span className="font-medium text-muted-foreground ml-1">
                       ·{" "}
-                      {new Date(todayAttendance.time_in).toLocaleTimeString(
+                      {new Date(confirmedAttendance.time_in).toLocaleTimeString(
                         "en-US",
                         { hour: "2-digit", minute: "2-digit" },
                       )}
@@ -262,7 +329,7 @@ export default function AttendanceCard({
           onClick={() => setShowCalendar(!showCalendar)}
           aria-label={showCalendar ? "Hide calendar" : "Show calendar"}
           className={cn(
-            "h-9 w-9 rounded-full inline-flex items-center justify-center transition-colors shrink-0 cursor-pointer",
+            "size-11 rounded-full inline-flex items-center justify-center transition-colors shrink-0 cursor-pointer",
             showCalendar
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground",

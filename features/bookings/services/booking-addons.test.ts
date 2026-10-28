@@ -43,6 +43,9 @@ async function getMode(booking: unknown): Promise<AddOnMutationMode> {
 }
 
 describe("resolveAddOnMutationMode", () => {
+  it("returns BOOKING_NOT_FOUND follow-up reason for missing tenant booking", async () => {
+    await expect(resolveAddOnMutationMode(1, createActorContext(), createDbWithBooking(null))).resolves.toEqual({ mode: "FOLLOW_UP", reason: "BOOKING_NOT_FOUND" });
+  });
   it("returns APPEND when booking is untouched", async () => {
     const mode = await getMode({
       id: 1,

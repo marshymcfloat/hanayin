@@ -1,4 +1,10 @@
+import "server-only";
+import { createHash } from "node:crypto";
+import { BookingQuoteChangedError, toBookingQuote } from "@/features/bookings/booking-quote";
+import { assertBookingOfferCapacity } from "@/features/bookings/services/booking-offer-capacity";
+
 import { prisma } from "@/prisma/prisma";
+import { consumeOtpVerification } from "@/features/bookings/services/booking-otp";
 import { publishEvent } from "@/lib/services/outbox";
 import { getBookingLifecycleEventType } from "./booking-event-policy";
 import { PaymentStatus, Prisma } from "@/prisma/generated/prisma/client";
@@ -24,6 +30,7 @@ import {
 import { isAvailedServiceOverlapViolation } from "./availed-service-overlap";
 
 export type BookingServiceParams = {
+  expectedQuoteFingerprint?: string; requestKey?: string; requestScope?: string;
   businessSlug: string;
   customerId?: string;
   customerName: string;
@@ -44,6 +51,8 @@ export type BookingServiceParams = {
   paymentType: "FULL" | "DOWNPAYMENT";
   email?: string;
   phone?: string;
+  otpVerificationId?: number;
+  otpVerificationToken?: string;
   voucherCode?: string;
   totalDiscount?: number;
   isPublicBooking?: boolean;
@@ -101,6 +110,11 @@ const resolvePaymentStatus = (
   return PaymentStatus.UNPAID;
 };
 
+export type BookingPersistenceTransactionHooks = {
+  beforeCreate?: (tx: Prisma.TransactionClient) => Promise<void>;
+  afterCreate?: (tx: Prisma.TransactionClient, booking: { id: number }) => Promise<void>;
+};
+
 export async function createBookingInDb({
   businessSlug,
   customerId,
@@ -114,6 +128,8 @@ export async function createBookingInDb({
   paymentType,
   email,
   phone,
+  otpVerificationId,
+  otpVerificationToken,
   voucherCode,
   isPublicBooking = false,
   isWalkIn = false,
@@ -122,7 +138,9 @@ export async function createBookingInDb({
   staffSelectionMode = "ANY_AVAILABLE",
   allowWalkInCapacityBypass = false,
   pricingSnapshot,
-}: BookingServiceParams) {
+  expectedQuoteFingerprint, requestKey, requestScope,
+}: BookingServiceParams, hooks?: BookingPersistenceTransactionHooks) {
+  const requestHash = createHash("sha256").update(JSON.stringify({ businessSlug, customerId, customerName, services, scheduledAt, employeeId, currentEmployeeId, paymentMethod, paymentType, email, phone, voucherCode, isPublicBooking, isAnonymousWalkIn, forceCreateCustomer, expectedQuoteFingerprint })).digest("hex");
   // Anonymous walk-ins are a staff-only path. Public bookings always require a
   // tracked customer (verified by phone OTP).
   const anonymous = isAnonymousWalkIn && !isPublicBooking;
@@ -135,6 +153,14 @@ export async function createBookingInDb({
     try {
       return await prisma.$transaction(
         async (tx) => {
+          await hooks?.beforeCreate?.(tx);
+          if (requestKey && requestScope) {
+            const existing = await tx.booking.findFirst({ where: { business: { slug: businessSlug }, request_key: requestKey, request_scope: requestScope } });
+            if (existing) {
+              if (existing.request_payload_hash !== requestHash) throw new Error("BOOKING_REQUEST_CHANGED");
+              return existing;
+            }
+          }
           const pricing =
             pricingSnapshot ??
             (await buildBookingPricingSnapshot({
@@ -147,6 +173,14 @@ export async function createBookingInDb({
               voucherCode,
             }));
           const { business } = pricing;
+          const hasNewOffers = pricing.appliedOffers?.some(offer => offer.conditional) || pricing.packageSnapshots?.some(pkg => Array.isArray(pkg.choices) && pkg.choices.length);
+          if (expectedQuoteFingerprint && expectedQuoteFingerprint !== pricing.quoteFingerprint || hasNewOffers && !expectedQuoteFingerprint) throw new BookingQuoteChangedError(toBookingQuote(pricing));
+          if (pricing.appliedOffers?.length) await assertBookingOfferCapacity(tx, business.id, pricing.appliedOffers.map(offer => offer.id));
+          if (isPublicBooking) {
+            if (!phone || !otpVerificationId || !otpVerificationToken) throw new Error("OTP_REQUIRED");
+            const valid = await consumeOtpVerification(tx, otpVerificationId, phone, business.id, otpVerificationToken);
+            if (!valid) throw new Error("OTP_INVALID_OR_EXPIRED");
+          }
           if (
             isPublicBooking &&
             (!business.gcash_account_name?.trim() ||
@@ -197,8 +231,10 @@ export async function createBookingInDb({
             // written with customer_id=null and customer_label=customerName.
           } else if (finalCustomerId) {
             const existingCustomer = await tx.customer.findUnique({
-              where: { id: finalCustomerId },
+              where: { id: finalCustomerId, business_id: business.id },
             });
+
+            if (!existingCustomer) throw new Error("CUSTOMER_NOT_FOUND");
 
             if (existingCustomer) {
               const shouldUpdateEmail =
@@ -208,7 +244,7 @@ export async function createBookingInDb({
 
               if (shouldUpdateEmail || shouldUpdatePhone) {
                 await tx.customer.update({
-                  where: { id: existingCustomer.id },
+                  where: { id: existingCustomer.id, business_id: business.id },
                   data: {
                     ...(shouldUpdateEmail ? { email: normalizedEmail } : {}),
                     ...(shouldUpdatePhone ? { phone: normalizedPhone } : {}),
@@ -270,7 +306,7 @@ export async function createBookingInDb({
 
           // Check sale event slot limit inside transaction for atomicity
           const appliedSaleEventId = pricing.appliedSaleEventId ?? null;
-          if (appliedSaleEventId) {
+          if (appliedSaleEventId && !pricing.appliedOffers?.length) {
             await checkSaleEventSlotLimit({
               saleEventId: appliedSaleEventId,
               db: tx,
@@ -304,6 +340,9 @@ export async function createBookingInDb({
               is_anonymous_walk_in: anonymous,
               customer_label: anonymous ? customerName : null,
               grand_total: grandTotal,
+              ...(requestKey && requestScope ? { request_key: requestKey, request_scope: requestScope, request_payload_hash: requestHash } : {}),
+              ...(pricing.quoteFingerprint ? { pricing_snapshot: JSON.parse(JSON.stringify({ version: 1, quoteFingerprint: pricing.quoteFingerprint, services: pricing.services, packages: pricing.packageSnapshots, offers: pricing.appliedOffers, voucherOutcome: pricing.voucherOutcome, voucher: pricing.voucher, grandTotal })) } : {}),
+              ...(pricing.appliedOffers?.length ? { offer_applications: { create: pricing.appliedOffers.map(offer => ({ sale_event_id: offer.id, snapshot: offer })) } } : {}),
               total_discount: finalVoucherDiscount,
               payment_method: paymentMethod,
               status: isPublicBooking ? "HOLD" : "ACCEPTED",
@@ -359,7 +398,7 @@ export async function createBookingInDb({
                     discount,
                     discount_reason: discountReason,
                     final_price: finalPrice,
-                    commission_base: service.commissionBase || finalPrice,
+                    commission_base: service.commissionBase ?? finalPrice,
                     served_by_id: serverId,
                     served_by_type: serverId ? "EMPLOYEE" : null,
                     status,
@@ -367,6 +406,7 @@ export async function createBookingInDb({
                     scheduled_at: serviceStart,
                     estimated_end: serviceEnd,
                     package_id: service.packageId,
+                    ...(service.selectionKey ? { selection_key: service.selectionKey, package_instance_id: service.packageInstanceId, package_choice_id: service.packageChoiceId, pricing_snapshot: JSON.parse(JSON.stringify(service)) } : {}),
                   };
                 }),
               },
@@ -427,14 +467,18 @@ export async function createBookingInDb({
             },
           });
 
+          await hooks?.afterCreate?.(tx, booking);
           return booking;
         },
-        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          ...(hooks ? { maxWait: 5_000, timeout: 10_000 } : {}),
+        },
       );
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2034" &&
+        (error.code === "P2034" || error.code === "P2002" && Boolean(requestKey)) &&
         attempt < maxRetries - 1
       ) {
         attempt += 1;

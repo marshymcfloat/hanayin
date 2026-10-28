@@ -11,6 +11,11 @@ import {
   type GiftCardClaimPreviewData,
   type GiftCardWriteInput,
 } from "@/features/gift-cards/services/gift-cards";
+import {
+  giftCardIdSchema,
+  giftCardListSchema,
+  giftCardWriteSchema,
+} from "@/features/gift-cards/gift-card-schemas";
 
 export type { GiftCardClaimPreviewData } from "@/features/gift-cards/services/gift-cards";
 
@@ -35,7 +40,9 @@ export async function claimGiftCardBookingAction(input: {
 }
 
 export async function getGiftCardsAction(businessSlug: string) {
-  return getGiftCards(businessSlug);
+  const parsed = giftCardListSchema.safeParse(businessSlug);
+  if (!parsed.success) return { success: false as const, error: "Invalid business slug" };
+  return getGiftCards(parsed.data);
 }
 
 export async function generateGiftCardCodeAction() {
@@ -43,16 +50,23 @@ export async function generateGiftCardCodeAction() {
 }
 
 export async function createGiftCardAction(input: GiftCardWriteInput) {
-  return createGiftCard(input);
+  const parsed = giftCardWriteSchema.safeParse(input);
+  if (!parsed.success) return { success: false as const, error: "Invalid gift card input" };
+  return createGiftCard(parsed.data);
 }
 
 export async function updateGiftCardAction(
   giftCardId: number,
   input: GiftCardWriteInput,
 ) {
-  return updateGiftCard(giftCardId, input);
+  const parsedId = giftCardIdSchema.safeParse(giftCardId);
+  const parsed = giftCardWriteSchema.safeParse(input);
+  if (!parsedId.success || !parsed.success) return { success: false as const, error: "Invalid gift card input" };
+  return updateGiftCard(parsedId.data, parsed.data);
 }
 
 export async function deleteGiftCardAction(giftCardId: number) {
-  return deleteGiftCard(giftCardId);
+  const parsed = giftCardIdSchema.safeParse(giftCardId);
+  if (!parsed.success) return { success: false as const, error: "Invalid gift card input" };
+  return deleteGiftCard(parsed.data);
 }

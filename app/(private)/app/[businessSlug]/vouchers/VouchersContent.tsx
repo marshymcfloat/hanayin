@@ -2,10 +2,11 @@ import { VoucherManagementClient } from "@/components/dashboard/owner/vouchers/V
 import { getVouchersWorkspaceData } from "@/features/catalog/queries/vouchers";
 
 interface VouchersContentProps {
-  businessSlug: string;
+  params: Promise<{ businessSlug: string }>;
 }
 
-export async function VouchersContent({ businessSlug }: VouchersContentProps) {
+export async function VouchersContent({ params }: VouchersContentProps) {
+  const { businessSlug } = await params;
   const data = await getVouchersWorkspaceData(businessSlug);
 
   return (

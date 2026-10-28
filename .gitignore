@@ -64,11 +64,47 @@ node_modules/
 qa-screenshots/
 .playwright-cli/
 
-# Experimental owner dashboard preview
-/app/(private-preview)/
-/components/dashboard/owner-preview/
+# Historical owner-preview ignore rules. The complete workspace is unignored
+# below now that its backend-connected routes and sample previews share a shell.
+/app/(private-preview)/*
+!/app/(private-preview)/owner-dashboard-preview/
+/app/(private-preview)/owner-dashboard-preview/*
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/
+/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/*
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/services/
+/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/services/*
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/services/page.tsx
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/packages/
+/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/packages/*
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/packages/page.tsx
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/vouchers/
+/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/vouchers/*
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/vouchers/page.tsx
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/gift-cards/
+/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/gift-cards/*
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/gift-cards/page.tsx
+/components/dashboard/owner-preview/*
+!/components/dashboard/owner-preview/access.ts
+!/components/dashboard/owner-preview/access.test.ts
+!/components/dashboard/owner-preview/OwnerCatalogPreviewShared.tsx
+!/components/dashboard/owner-preview/OwnerCatalogPreviewSkeleton.tsx
+!/components/dashboard/owner-preview/OwnerCatalogPreviews.test.tsx
+!/components/dashboard/owner-preview/OwnerDashboardPreview.tsx
+!/components/dashboard/owner-preview/OwnerGiftCardsPreview.tsx
+!/components/dashboard/owner-preview/OwnerPackagesPreview.tsx
+!/components/dashboard/owner-preview/OwnerServicesPreview.tsx
+!/components/dashboard/owner-preview/OwnerVouchersPreview.tsx
+# The owner preview workspace now includes shared, backend-connected routes.
+# Keep its source and focused tests visible to Git.
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/*.tsx
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/*/
+!/app/(private-preview)/owner-dashboard-preview/[[]businessSlug]/*/page.tsx
+!/components/dashboard/owner-preview/*.ts
+!/components/dashboard/owner-preview/*.tsx
+!/components/dashboard/owner-preview/*.css
 /app/(public)/[[]businessSlug]/booking-experiment/
 /components/bookings/experimental/
 /DESIGN.md
 /reference-dashboard.jpg
 /scripts/refero.design 3a5e86cf-ca8b-45e5-a77b-688489dc80d9.jpg
+.cache/payroll/

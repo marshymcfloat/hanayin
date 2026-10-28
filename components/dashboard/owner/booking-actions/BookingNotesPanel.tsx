@@ -40,12 +40,14 @@ export type BookingNotesPanelProps = {
    * BOOKING_MODIFY). When false the visibility toggle is hidden and
    * all notes default to INTERNAL.
    */
-  canAddCustomerVisible: boolean;
+canAddCustomerVisible: boolean;
+  onChanged?: () => void;
 };
 
 export function BookingNotesPanel({
   bookingId,
-  canAddCustomerVisible,
+canAddCustomerVisible,
+  onChanged,
 }: BookingNotesPanelProps) {
   const router = useRouter();
   const [state, setState] = useState<
@@ -102,7 +104,8 @@ export function BookingNotesPanel({
       setBody("");
       setVisibility("INTERNAL");
       await refresh();
-      router.refresh();
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       showActionErrorToast(msg, { action: "add this note" });

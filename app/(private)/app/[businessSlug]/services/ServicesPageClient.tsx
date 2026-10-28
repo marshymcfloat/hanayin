@@ -29,6 +29,8 @@ import {
 import { toast } from "sonner";
 import { ServiceList } from "./ServiceList";
 import { ServiceForm, ServiceFormData, ServiceFlowData } from "./ServiceForm";
+import { useOptionalViewer } from "@/lib/auth/viewer-context";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 type ServiceWithFlows = Service & {
   flow_triggers?: Array<{
@@ -75,6 +77,7 @@ export function ServicesPageClient({
   categories,
   businessSlug,
 }: ServicesPageClientProps) {
+  const staffDialogTheme = useOptionalViewer()?.actorType === "EMPLOYEE" ? staffTheme.workspace : "";
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
@@ -292,7 +295,7 @@ export function ServicesPageClient({
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add Service</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[550px] rounded-2xl p-0 gap-0 overflow-hidden">
+            <DialogContent className={`${staffDialogTheme} sm:max-w-[550px] rounded-2xl p-0 gap-0 overflow-hidden`}>
               <DialogHeader className="p-6 pb-2">
                 <DialogTitle className="text-xl font-bold text-foreground">
                   Add New Service
@@ -358,7 +361,7 @@ export function ServicesPageClient({
                       </span>
                     </div>
                   </SelectTrigger>
-                  <SelectContent position="popper" className="rounded-xl">
+                  <SelectContent position="popper" className={`${staffDialogTheme} rounded-xl`}>
                     <SelectItem value="ALL" className="cursor-pointer">All Categories</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat} value={cat} className="cursor-pointer">
@@ -421,7 +424,7 @@ export function ServicesPageClient({
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[550px] rounded-2xl p-0 gap-0 overflow-hidden">
+        <DialogContent className={`${staffDialogTheme} sm:max-w-[550px] rounded-2xl p-0 gap-0 overflow-hidden`}>
           <DialogHeader className="p-6 pb-2">
             <DialogTitle className="text-xl font-bold text-foreground">
               Edit Service

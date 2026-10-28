@@ -34,7 +34,9 @@ administration in one Next.js application.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for current boundaries and the target
 feature-first modular-monolith structure. Repository contribution rules are in
-[AGENTS.md](AGENTS.md).
+[AGENTS.md](AGENTS.md). Frontend, backend, and verification work must also follow
+[FRONTEND.md](FRONTEND.md), [BACKEND.md](BACKEND.md), and the
+[harness-engineering workflow](docs/harness-engineering.md).
 
 ## Local Setup
 
@@ -65,9 +67,14 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-`DATABASE_URL` is the application connection. `DIRECT_DATABASE_URL` is used by
-Prisma migrations and database-backed E2E tests and is required when
-`DATABASE_URL` uses Prisma Accelerate.
+In local development, the application and Prisma CLI use
+`DIRECT_DATABASE_URL`, which must target the dedicated development database.
+Production application traffic uses `DATABASE_URL`. Production migration jobs
+must provide a production-scoped `DIRECT_DATABASE_URL` explicitly.
+
+Prisma CLI commands fail closed when `DIRECT_DATABASE_URL` is missing; they
+never fall back to `DATABASE_URL`. Confirm the target before running destructive
+commands such as `prisma migrate reset`.
 
 Optional features require additional variables:
 
@@ -140,7 +147,7 @@ Open `http://localhost:3000`.
 | `npm run test:e2e:db` | Run the database-backed public-booking smoke test; requires direct `E2E_DATABASE_URL` or `DIRECT_DATABASE_URL`. |
 | `npm run test:e2e` | Run core and database E2E suites with the same database guard. |
 | `npm run build:app` | Build the Next.js application without applying migrations. |
-| `npm run build` | Require `DATABASE_URL`, safely deploy migrations, then build the application. |
+| `npm run build` | Require `DATABASE_URL` and a direct `DIRECT_DATABASE_URL`, safely deploy migrations, then build the application. |
 | `npm run check` | Run strict lint, typecheck, isolated tests, and the application build. |
 | `npm run check:push` | Compatibility alias for `npm run check`. |
 | `npm run verify:release` | Run lint, typecheck, coverage, all E2E suites, migrations, and the release build. |
@@ -246,10 +253,15 @@ modules remain candidates for incremental domain-service extraction.
 
 ## Documentation
 
+- [Repository and agent rules](AGENTS.md)
 - [Architecture](ARCHITECTURE.md)
+- [Frontend engineering](FRONTEND.md)
+- [Backend engineering](BACKEND.md)
+- [Harness engineering workflow](docs/harness-engineering.md)
+- [Test structure and evidence](docs/testing.md)
 - [Ideas backlog](IDEAS.md)
 - [Architecture decisions](docs/decisions/INDEX.md)
-- [Harness-engineering checklist](docs/harness-engineering-todo.md)
+- [Harness-engineering history](docs/harness-engineering-todo.md)
 - [Engineering work tracking](docs/work-tracking.md)
 - [Repository structure and ownership](docs/repository-structure.md)
 - [Production hardening checklist](docs/production-hardening-checklist.md)

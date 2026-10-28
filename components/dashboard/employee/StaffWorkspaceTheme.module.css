@@ -1,0 +1,29 @@
+.workspace {
+  --radius: 1rem;
+  --background: #f5f6f3;
+  --foreground: #20211f;
+  --card: #ffffff;
+  --card-foreground: #20211f;
+  --popover: #ffffff;
+  --popover-foreground: #20211f;
+  --primary: #20211f;
+  --primary-foreground: #ffffff;
+  --secondary: #eff9e8;
+  --secondary-foreground: #20211f;
+  --muted: #f5f6f3;
+  --muted-foreground: #696c67;
+  --accent: #eff9e8;
+  --accent-foreground: #20211f;
+  --destructive: #c74248;
+  --border: #e7e9e4;
+  --input: #e7e9e4;
+  --ring: #72cf35;
+  --sidebar: #171817;
+  --sidebar-foreground: #f5f6f3;
+  --sidebar-primary: #b9f379;
+  --sidebar-primary-foreground: #171817;
+  --sidebar-accent: #30322f;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #343633;
+  --sidebar-ring: #b9f379;
+}

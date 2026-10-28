@@ -1,5 +1,5 @@
+import "server-only";
 import {
-  AttendanceStatus,
   LeaveRequestStatus,
   Role,
 } from "@/prisma/generated/prisma/enums";
@@ -8,6 +8,9 @@ import { getStartOfDayPH } from "@/lib/date-utils";
 import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
 import { logger } from "@/lib/logger";
 import type { CreateLeaveRequestInput } from "@/features/workforce/schemas/leave-request";
+import { currentWorkforceOwner } from "@/features/workforce/workforce-access";
+import { logAudit } from "@/lib/services/audit";
+import { allocateApprovedLeave } from "./leave-allocation";
 
 type TenantActor = {
   businessSlug: string;
@@ -19,6 +22,7 @@ export async function createTenantLeaveRequest(
   data: CreateLeaveRequestInput,
   actor: TenantActor,
 ) {
+  if (actor.role === Role.OWNER && !await currentWorkforceOwner(actor.businessSlug, actor.userId)) return { success: false as const, error: "Forbidden" };
   const employee = await prisma.employee.findFirst({
     where: {
       id: data.employee_id,
@@ -56,7 +60,7 @@ export async function createTenantLeaveRequest(
     where: {
       employee_id: employee.id,
       business_id: employee.business_id,
-      status: { not: LeaveRequestStatus.REJECTED },
+      status: { not: LeaveRequestStatus.REJECTED }, cancelled_at: null,
       OR: [
         {
           start_date: { lte: endDatePH },
@@ -80,6 +84,7 @@ export async function createTenantLeaveRequest(
       end_date: endDatePH,
       reason: data.reason,
       type: data.type,
+      benefit_code: data.benefit_code ?? "DISCRETIONARY",
     },
   });
   return { success: true as const };
@@ -89,17 +94,19 @@ export async function cancelTenantLeaveRequest(
   requestId: number,
   actor: TenantActor,
 ) {
+  if (actor.role === Role.OWNER && !await currentWorkforceOwner(actor.businessSlug, actor.userId)) return { success: false as const, error: "Forbidden" };
   const leaveRequest = await prisma.leaveRequest.findFirst({
     where: {
       id: requestId,
       business: { slug: actor.businessSlug },
       ...(actor.role === Role.EMPLOYEE
-        ? { employee: { user_id: actor.userId } }
+        ? { employee: { user_id: actor.userId, archived_at: null, user: { role: "EMPLOYEE" } } }
         : {}),
     },
     select: {
       id: true,
       status: true,
+      benefit_code: true,
     },
   });
   if (!leaveRequest || actor.role === Role.PLATFORM_ADMIN) {
@@ -112,7 +119,8 @@ export async function cancelTenantLeaveRequest(
     };
   }
 
-  await prisma.leaveRequest.delete({ where: { id: leaveRequest.id } });
+  const cancelled = await prisma.leaveRequest.updateMany({ where: { id: leaveRequest.id, status: "PENDING", cancelled_at: null, business: { slug: actor.businessSlug } }, data: { cancelled_at: new Date(), revision: { increment: 1 } } });
+  if (cancelled.count !== 1) return { success: false as const, error: "Leave request changed. Refresh and try again." };
   return { success: true as const };
 }
 
@@ -136,6 +144,7 @@ export async function updateTenantLeaveRequestStatus(
       start_date: true,
       end_date: true,
       status: true,
+      benefit_code: true,
     },
   });
   if (!leaveRequest) {
@@ -149,49 +158,25 @@ export async function updateTenantLeaveRequestStatus(
   }
 
   await prisma.$transaction(async (tx) => {
-    await tx.leaveRequest.update({
-      where: { id: leaveRequest.id },
+    const owner = await currentWorkforceOwner(actor.businessSlug, actor.userId, tx);
+    if (!owner || owner.business_id !== leaveRequest.business_id) throw new Error("Forbidden");
+    const employee = await tx.employee.findFirst({ where: { id: leaveRequest.employee_id, business_id: owner.business_id, archived_at: null }, include: { schedule: true, business: { select: { formal_schedule_enabled: true, business_hours: true } } } });
+    if (!employee) throw new Error("Employee not found");
+    const updated = await tx.leaveRequest.updateMany({
+      where: { id: leaveRequest.id, business_id: owner.business_id, status: "PENDING", cancelled_at: null },
       data: {
         status,
         admin_comment: adminComment,
         is_paid: isPaid ?? false,
+        revision: { increment: 1 },
       },
     });
+    if (updated.count !== 1) throw new Error("Leave request changed. Refresh and try again.");
+    await logAudit(tx, { entityType: "LeaveRequest", entityId: String(leaveRequest.id), action: "UPDATED", actorId: actor.userId, businessId: owner.business_id, changes: { after: { status, is_paid: isPaid ?? false } } });
 
     if (status !== LeaveRequestStatus.APPROVED) return;
-
-    let date = getStartOfDayPH(leaveRequest.start_date);
-    const endDate = getStartOfDayPH(leaveRequest.end_date);
-    while (date <= endDate) {
-      const attendanceDate = new Date(date);
-      const existing = await tx.employeeAttendance.findFirst({
-        where: {
-          employee_id: leaveRequest.employee_id,
-          date: attendanceDate,
-        },
-      });
-      if (existing) {
-        await tx.employeeAttendance.update({
-          where: { id: existing.id },
-          data: {
-            status: AttendanceStatus.LEAVE,
-            is_paid_leave: isPaid ?? false,
-          },
-        });
-      } else {
-        await tx.employeeAttendance.create({
-          data: {
-            employee_id: leaveRequest.employee_id,
-            date: attendanceDate,
-            status: AttendanceStatus.LEAVE,
-            is_paid_leave: isPaid ?? false,
-          },
-        });
-      }
-      date.setDate(date.getDate() + 1);
-      date = getStartOfDayPH(date);
-    }
-  });
+    await allocateApprovedLeave(tx, { ...leaveRequest, benefit_code: leaveRequest.benefit_code ?? "DISCRETIONARY" }, isPaid ?? false);
+  }, { isolationLevel: "Serializable" });
 
   if (status === LeaveRequestStatus.APPROVED) {
     try {

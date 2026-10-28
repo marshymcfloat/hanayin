@@ -33,6 +33,9 @@ export type AvailedServiceAvgAggregateOutputType = {
   discount: number | null
   final_price: number | null
   commission_base: number | null
+  payroll_commission_rate: runtime.Decimal | null
+  payroll_commission_base: runtime.Decimal | null
+  payroll_revision: number | null
   booking_id: number | null
   service_id: number | null
   package_id: number | null
@@ -48,6 +51,9 @@ export type AvailedServiceSumAggregateOutputType = {
   discount: number | null
   final_price: number | null
   commission_base: number | null
+  payroll_commission_rate: runtime.Decimal | null
+  payroll_commission_base: runtime.Decimal | null
+  payroll_revision: number | null
   booking_id: number | null
   service_id: number | null
   package_id: number | null
@@ -58,12 +64,21 @@ export type AvailedServiceSumAggregateOutputType = {
 
 export type AvailedServiceMinAggregateOutputType = {
   id: number | null
+  selection_key: string | null
+  package_instance_id: string | null
+  package_choice_id: string | null
   price: number | null
   estimated_cost: number | null
   discount: number | null
   discount_reason: string | null
   final_price: number | null
   commission_base: number | null
+  payroll_commission_rate: runtime.Decimal | null
+  payroll_commission_base: runtime.Decimal | null
+  payroll_commission_basis: string | null
+  payroll_agreement_id: string | null
+  payroll_payable_at: Date | null
+  payroll_revision: number | null
   status: $Enums.AvailedServiceStatus | null
   claimed_at: Date | null
   served_at: Date | null
@@ -84,12 +99,21 @@ export type AvailedServiceMinAggregateOutputType = {
 
 export type AvailedServiceMaxAggregateOutputType = {
   id: number | null
+  selection_key: string | null
+  package_instance_id: string | null
+  package_choice_id: string | null
   price: number | null
   estimated_cost: number | null
   discount: number | null
   discount_reason: string | null
   final_price: number | null
   commission_base: number | null
+  payroll_commission_rate: runtime.Decimal | null
+  payroll_commission_base: runtime.Decimal | null
+  payroll_commission_basis: string | null
+  payroll_agreement_id: string | null
+  payroll_payable_at: Date | null
+  payroll_revision: number | null
   status: $Enums.AvailedServiceStatus | null
   claimed_at: Date | null
   served_at: Date | null
@@ -110,12 +134,22 @@ export type AvailedServiceMaxAggregateOutputType = {
 
 export type AvailedServiceCountAggregateOutputType = {
   id: number
+  selection_key: number
+  package_instance_id: number
+  package_choice_id: number
+  pricing_snapshot: number
   price: number
   estimated_cost: number
   discount: number
   discount_reason: number
   final_price: number
   commission_base: number
+  payroll_commission_rate: number
+  payroll_commission_base: number
+  payroll_commission_basis: number
+  payroll_agreement_id: number
+  payroll_payable_at: number
+  payroll_revision: number
   status: number
   claimed_at: number
   served_at: number
@@ -143,6 +177,9 @@ export type AvailedServiceAvgAggregateInputType = {
   discount?: true
   final_price?: true
   commission_base?: true
+  payroll_commission_rate?: true
+  payroll_commission_base?: true
+  payroll_revision?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -158,6 +195,9 @@ export type AvailedServiceSumAggregateInputType = {
   discount?: true
   final_price?: true
   commission_base?: true
+  payroll_commission_rate?: true
+  payroll_commission_base?: true
+  payroll_revision?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -168,12 +208,21 @@ export type AvailedServiceSumAggregateInputType = {
 
 export type AvailedServiceMinAggregateInputType = {
   id?: true
+  selection_key?: true
+  package_instance_id?: true
+  package_choice_id?: true
   price?: true
   estimated_cost?: true
   discount?: true
   discount_reason?: true
   final_price?: true
   commission_base?: true
+  payroll_commission_rate?: true
+  payroll_commission_base?: true
+  payroll_commission_basis?: true
+  payroll_agreement_id?: true
+  payroll_payable_at?: true
+  payroll_revision?: true
   status?: true
   claimed_at?: true
   served_at?: true
@@ -194,12 +243,21 @@ export type AvailedServiceMinAggregateInputType = {
 
 export type AvailedServiceMaxAggregateInputType = {
   id?: true
+  selection_key?: true
+  package_instance_id?: true
+  package_choice_id?: true
   price?: true
   estimated_cost?: true
   discount?: true
   discount_reason?: true
   final_price?: true
   commission_base?: true
+  payroll_commission_rate?: true
+  payroll_commission_base?: true
+  payroll_commission_basis?: true
+  payroll_agreement_id?: true
+  payroll_payable_at?: true
+  payroll_revision?: true
   status?: true
   claimed_at?: true
   served_at?: true
@@ -220,12 +278,22 @@ export type AvailedServiceMaxAggregateInputType = {
 
 export type AvailedServiceCountAggregateInputType = {
   id?: true
+  selection_key?: true
+  package_instance_id?: true
+  package_choice_id?: true
+  pricing_snapshot?: true
   price?: true
   estimated_cost?: true
   discount?: true
   discount_reason?: true
   final_price?: true
   commission_base?: true
+  payroll_commission_rate?: true
+  payroll_commission_base?: true
+  payroll_commission_basis?: true
+  payroll_agreement_id?: true
+  payroll_payable_at?: true
+  payroll_revision?: true
   status?: true
   claimed_at?: true
   served_at?: true
@@ -333,12 +401,22 @@ export type AvailedServiceGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 
 export type AvailedServiceGroupByOutputType = {
   id: number
+  selection_key: string | null
+  package_instance_id: string | null
+  package_choice_id: string | null
+  pricing_snapshot: runtime.JsonValue | null
   price: number
   estimated_cost: number
   discount: number
   discount_reason: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate: runtime.Decimal | null
+  payroll_commission_base: runtime.Decimal | null
+  payroll_commission_basis: string | null
+  payroll_agreement_id: string | null
+  payroll_payable_at: Date | null
+  payroll_revision: number
   status: $Enums.AvailedServiceStatus
   claimed_at: Date | null
   served_at: Date | null
@@ -362,7 +440,7 @@ export type AvailedServiceGroupByOutputType = {
   _max: AvailedServiceMaxAggregateOutputType | null
 }
 
-type GetAvailedServiceGroupByPayload<T extends AvailedServiceGroupByArgs> = Prisma.PrismaPromise<
+export type GetAvailedServiceGroupByPayload<T extends AvailedServiceGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AvailedServiceGroupByOutputType, T['by']> &
       {
@@ -382,12 +460,22 @@ export type AvailedServiceWhereInput = {
   OR?: Prisma.AvailedServiceWhereInput[]
   NOT?: Prisma.AvailedServiceWhereInput | Prisma.AvailedServiceWhereInput[]
   id?: Prisma.IntFilter<"AvailedService"> | number
+  selection_key?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  package_instance_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  package_choice_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableFilter<"AvailedService">
   price?: Prisma.FloatFilter<"AvailedService"> | number
   estimated_cost?: Prisma.FloatFilter<"AvailedService"> | number
   discount?: Prisma.FloatFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatFilter<"AvailedService"> | number
+  payroll_commission_rate?: Prisma.DecimalNullableFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.DecimalNullableFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  payroll_agreement_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  payroll_payable_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  payroll_revision?: Prisma.IntFilter<"AvailedService"> | number
   status?: Prisma.EnumAvailedServiceStatusFilter<"AvailedService"> | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
@@ -415,12 +503,22 @@ export type AvailedServiceWhereInput = {
 
 export type AvailedServiceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  selection_key?: Prisma.SortOrderInput | Prisma.SortOrder
+  package_instance_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  package_choice_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricing_snapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  payroll_commission_rate?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_commission_base?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_commission_basis?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_agreement_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_payable_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_revision?: Prisma.SortOrder
   status?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   served_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -451,12 +549,22 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AvailedServiceWhereInput | Prisma.AvailedServiceWhereInput[]
   OR?: Prisma.AvailedServiceWhereInput[]
   NOT?: Prisma.AvailedServiceWhereInput | Prisma.AvailedServiceWhereInput[]
+  selection_key?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  package_instance_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  package_choice_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableFilter<"AvailedService">
   price?: Prisma.FloatFilter<"AvailedService"> | number
   estimated_cost?: Prisma.FloatFilter<"AvailedService"> | number
   discount?: Prisma.FloatFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatFilter<"AvailedService"> | number
+  payroll_commission_rate?: Prisma.DecimalNullableFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.DecimalNullableFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  payroll_agreement_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  payroll_payable_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  payroll_revision?: Prisma.IntFilter<"AvailedService"> | number
   status?: Prisma.EnumAvailedServiceStatusFilter<"AvailedService"> | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
@@ -484,12 +592,22 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
 
 export type AvailedServiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  selection_key?: Prisma.SortOrderInput | Prisma.SortOrder
+  package_instance_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  package_choice_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricing_snapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  payroll_commission_rate?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_commission_base?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_commission_basis?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_agreement_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_payable_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  payroll_revision?: Prisma.SortOrder
   status?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   served_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -518,12 +636,22 @@ export type AvailedServiceScalarWhereWithAggregatesInput = {
   OR?: Prisma.AvailedServiceScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AvailedServiceScalarWhereWithAggregatesInput | Prisma.AvailedServiceScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"AvailedService"> | number
+  selection_key?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
+  package_instance_id?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
+  package_choice_id?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableWithAggregatesFilter<"AvailedService">
   price?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
   estimated_cost?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
   discount?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
+  payroll_commission_rate?: Prisma.DecimalNullableWithAggregatesFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.DecimalNullableWithAggregatesFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
+  payroll_agreement_id?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
+  payroll_payable_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
+  payroll_revision?: Prisma.IntWithAggregatesFilter<"AvailedService"> | number
   status?: Prisma.EnumAvailedServiceStatusWithAggregatesFilter<"AvailedService"> | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
@@ -543,12 +671,22 @@ export type AvailedServiceScalarWhereWithAggregatesInput = {
 }
 
 export type AvailedServiceCreateInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -570,12 +708,22 @@ export type AvailedServiceCreateInput = {
 
 export type AvailedServiceUncheckedCreateInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -596,12 +744,22 @@ export type AvailedServiceUncheckedCreateInput = {
 }
 
 export type AvailedServiceUpdateInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -623,12 +781,22 @@ export type AvailedServiceUpdateInput = {
 
 export type AvailedServiceUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -650,12 +818,22 @@ export type AvailedServiceUncheckedUpdateInput = {
 
 export type AvailedServiceCreateManyInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -675,12 +853,22 @@ export type AvailedServiceCreateManyInput = {
 }
 
 export type AvailedServiceUpdateManyMutationInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -695,12 +883,22 @@ export type AvailedServiceUpdateManyMutationInput = {
 
 export type AvailedServiceUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -731,12 +929,22 @@ export type AvailedServiceOrderByRelationAggregateInput = {
 
 export type AvailedServiceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  selection_key?: Prisma.SortOrder
+  package_instance_id?: Prisma.SortOrder
+  package_choice_id?: Prisma.SortOrder
+  pricing_snapshot?: Prisma.SortOrder
   price?: Prisma.SortOrder
   estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  payroll_commission_rate?: Prisma.SortOrder
+  payroll_commission_base?: Prisma.SortOrder
+  payroll_commission_basis?: Prisma.SortOrder
+  payroll_agreement_id?: Prisma.SortOrder
+  payroll_payable_at?: Prisma.SortOrder
+  payroll_revision?: Prisma.SortOrder
   status?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrder
   served_at?: Prisma.SortOrder
@@ -762,6 +970,9 @@ export type AvailedServiceAvgOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  payroll_commission_rate?: Prisma.SortOrder
+  payroll_commission_base?: Prisma.SortOrder
+  payroll_revision?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -772,12 +983,21 @@ export type AvailedServiceAvgOrderByAggregateInput = {
 
 export type AvailedServiceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  selection_key?: Prisma.SortOrder
+  package_instance_id?: Prisma.SortOrder
+  package_choice_id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  payroll_commission_rate?: Prisma.SortOrder
+  payroll_commission_base?: Prisma.SortOrder
+  payroll_commission_basis?: Prisma.SortOrder
+  payroll_agreement_id?: Prisma.SortOrder
+  payroll_payable_at?: Prisma.SortOrder
+  payroll_revision?: Prisma.SortOrder
   status?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrder
   served_at?: Prisma.SortOrder
@@ -798,12 +1018,21 @@ export type AvailedServiceMaxOrderByAggregateInput = {
 
 export type AvailedServiceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  selection_key?: Prisma.SortOrder
+  package_instance_id?: Prisma.SortOrder
+  package_choice_id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   estimated_cost?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  payroll_commission_rate?: Prisma.SortOrder
+  payroll_commission_base?: Prisma.SortOrder
+  payroll_commission_basis?: Prisma.SortOrder
+  payroll_agreement_id?: Prisma.SortOrder
+  payroll_payable_at?: Prisma.SortOrder
+  payroll_revision?: Prisma.SortOrder
   status?: Prisma.SortOrder
   claimed_at?: Prisma.SortOrder
   served_at?: Prisma.SortOrder
@@ -829,6 +1058,9 @@ export type AvailedServiceSumOrderByAggregateInput = {
   discount?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  payroll_commission_rate?: Prisma.SortOrder
+  payroll_commission_base?: Prisma.SortOrder
+  payroll_revision?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -1094,6 +1326,14 @@ export type AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput = {
   deleteMany?: Prisma.AvailedServiceScalarWhereInput | Prisma.AvailedServiceScalarWhereInput[]
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type EnumAvailedServiceStatusFieldUpdateOperationsInput = {
   set?: $Enums.AvailedServiceStatus
 }
@@ -1119,12 +1359,22 @@ export type AvailedServiceUpdateOneWithoutPrice_adjustmentsNestedInput = {
 }
 
 export type AvailedServiceCreateWithoutServed_byInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1145,12 +1395,22 @@ export type AvailedServiceCreateWithoutServed_byInput = {
 
 export type AvailedServiceUncheckedCreateWithoutServed_byInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1200,12 +1460,22 @@ export type AvailedServiceScalarWhereInput = {
   OR?: Prisma.AvailedServiceScalarWhereInput[]
   NOT?: Prisma.AvailedServiceScalarWhereInput | Prisma.AvailedServiceScalarWhereInput[]
   id?: Prisma.IntFilter<"AvailedService"> | number
+  selection_key?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  package_instance_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  package_choice_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableFilter<"AvailedService">
   price?: Prisma.FloatFilter<"AvailedService"> | number
   estimated_cost?: Prisma.FloatFilter<"AvailedService"> | number
   discount?: Prisma.FloatFilter<"AvailedService"> | number
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatFilter<"AvailedService"> | number
+  payroll_commission_rate?: Prisma.DecimalNullableFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.DecimalNullableFilter<"AvailedService"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  payroll_agreement_id?: Prisma.StringNullableFilter<"AvailedService"> | string | null
+  payroll_payable_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  payroll_revision?: Prisma.IntFilter<"AvailedService"> | number
   status?: Prisma.EnumAvailedServiceStatusFilter<"AvailedService"> | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
@@ -1225,12 +1495,22 @@ export type AvailedServiceScalarWhereInput = {
 }
 
 export type AvailedServiceCreateWithoutPaid_in_payslipInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1251,12 +1531,22 @@ export type AvailedServiceCreateWithoutPaid_in_payslipInput = {
 
 export type AvailedServiceUncheckedCreateWithoutPaid_in_payslipInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1302,12 +1592,22 @@ export type AvailedServiceUpdateManyWithWhereWithoutPaid_in_payslipInput = {
 }
 
 export type AvailedServiceCreateWithoutServed_by_ownerInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1328,12 +1628,22 @@ export type AvailedServiceCreateWithoutServed_by_ownerInput = {
 
 export type AvailedServiceUncheckedCreateWithoutServed_by_ownerInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1379,12 +1689,22 @@ export type AvailedServiceUpdateManyWithWhereWithoutServed_by_ownerInput = {
 }
 
 export type AvailedServiceCreateWithoutServiceInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1405,12 +1725,22 @@ export type AvailedServiceCreateWithoutServiceInput = {
 
 export type AvailedServiceUncheckedCreateWithoutServiceInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1456,12 +1786,22 @@ export type AvailedServiceUpdateManyWithWhereWithoutServiceInput = {
 }
 
 export type AvailedServiceCreateWithoutPackageInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1482,12 +1822,22 @@ export type AvailedServiceCreateWithoutPackageInput = {
 
 export type AvailedServiceUncheckedCreateWithoutPackageInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1533,12 +1883,22 @@ export type AvailedServiceUpdateManyWithWhereWithoutPackageInput = {
 }
 
 export type AvailedServiceCreateWithoutBookingInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1559,12 +1919,22 @@ export type AvailedServiceCreateWithoutBookingInput = {
 
 export type AvailedServiceUncheckedCreateWithoutBookingInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1610,12 +1980,22 @@ export type AvailedServiceUpdateManyWithWhereWithoutBookingInput = {
 }
 
 export type AvailedServiceCreateWithoutPrice_adjustmentsInput = {
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1636,12 +2016,22 @@ export type AvailedServiceCreateWithoutPrice_adjustmentsInput = {
 
 export type AvailedServiceUncheckedCreateWithoutPrice_adjustmentsInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1677,12 +2067,22 @@ export type AvailedServiceUpdateToOneWithWhereWithoutPrice_adjustmentsInput = {
 }
 
 export type AvailedServiceUpdateWithoutPrice_adjustmentsInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1703,12 +2103,22 @@ export type AvailedServiceUpdateWithoutPrice_adjustmentsInput = {
 
 export type AvailedServiceUncheckedUpdateWithoutPrice_adjustmentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1729,12 +2139,22 @@ export type AvailedServiceUncheckedUpdateWithoutPrice_adjustmentsInput = {
 
 export type AvailedServiceCreateManyServed_byInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1753,12 +2173,22 @@ export type AvailedServiceCreateManyServed_byInput = {
 }
 
 export type AvailedServiceUpdateWithoutServed_byInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1779,12 +2209,22 @@ export type AvailedServiceUpdateWithoutServed_byInput = {
 
 export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1805,12 +2245,22 @@ export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
 
 export type AvailedServiceUncheckedUpdateManyWithoutServed_byInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1830,12 +2280,22 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_byInput = {
 
 export type AvailedServiceCreateManyPaid_in_payslipInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1854,12 +2314,22 @@ export type AvailedServiceCreateManyPaid_in_payslipInput = {
 }
 
 export type AvailedServiceUpdateWithoutPaid_in_payslipInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1880,12 +2350,22 @@ export type AvailedServiceUpdateWithoutPaid_in_payslipInput = {
 
 export type AvailedServiceUncheckedUpdateWithoutPaid_in_payslipInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1906,12 +2386,22 @@ export type AvailedServiceUncheckedUpdateWithoutPaid_in_payslipInput = {
 
 export type AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1931,12 +2421,22 @@ export type AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipInput = {
 
 export type AvailedServiceCreateManyServed_by_ownerInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -1955,12 +2455,22 @@ export type AvailedServiceCreateManyServed_by_ownerInput = {
 }
 
 export type AvailedServiceUpdateWithoutServed_by_ownerInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1981,12 +2491,22 @@ export type AvailedServiceUpdateWithoutServed_by_ownerInput = {
 
 export type AvailedServiceUncheckedUpdateWithoutServed_by_ownerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2007,12 +2527,22 @@ export type AvailedServiceUncheckedUpdateWithoutServed_by_ownerInput = {
 
 export type AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2032,12 +2562,22 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerInput = {
 
 export type AvailedServiceCreateManyServiceInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -2056,12 +2596,22 @@ export type AvailedServiceCreateManyServiceInput = {
 }
 
 export type AvailedServiceUpdateWithoutServiceInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2082,12 +2632,22 @@ export type AvailedServiceUpdateWithoutServiceInput = {
 
 export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2108,12 +2668,22 @@ export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
 
 export type AvailedServiceUncheckedUpdateManyWithoutServiceInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2133,12 +2703,22 @@ export type AvailedServiceUncheckedUpdateManyWithoutServiceInput = {
 
 export type AvailedServiceCreateManyPackageInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -2157,12 +2737,22 @@ export type AvailedServiceCreateManyPackageInput = {
 }
 
 export type AvailedServiceUpdateWithoutPackageInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2183,12 +2773,22 @@ export type AvailedServiceUpdateWithoutPackageInput = {
 
 export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2209,12 +2809,22 @@ export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
 
 export type AvailedServiceUncheckedUpdateManyWithoutPackageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2234,12 +2844,22 @@ export type AvailedServiceUncheckedUpdateManyWithoutPackageInput = {
 
 export type AvailedServiceCreateManyBookingInput = {
   id?: number
+  selection_key?: string | null
+  package_instance_id?: string | null
+  package_choice_id?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price: number
   estimated_cost?: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  payroll_commission_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: string | null
+  payroll_agreement_id?: string | null
+  payroll_payable_at?: Date | string | null
+  payroll_revision?: number
   status?: $Enums.AvailedServiceStatus
   claimed_at?: Date | string | null
   served_at?: Date | string | null
@@ -2258,12 +2878,22 @@ export type AvailedServiceCreateManyBookingInput = {
 }
 
 export type AvailedServiceUpdateWithoutBookingInput = {
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2284,12 +2914,22 @@ export type AvailedServiceUpdateWithoutBookingInput = {
 
 export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2310,12 +2950,22 @@ export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
 
 export type AvailedServiceUncheckedUpdateManyWithoutBookingInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  selection_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_instance_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  package_choice_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   price?: Prisma.FloatFieldUpdateOperationsInput | number
   estimated_cost?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  payroll_commission_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_base?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  payroll_commission_basis?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_agreement_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payroll_payable_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payroll_revision?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2366,12 +3016,22 @@ export type AvailedServiceCountOutputTypeCountPrice_adjustmentsArgs<ExtArgs exte
 
 export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  selection_key?: boolean
+  package_instance_id?: boolean
+  package_choice_id?: boolean
+  pricing_snapshot?: boolean
   price?: boolean
   estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  payroll_commission_rate?: boolean
+  payroll_commission_base?: boolean
+  payroll_commission_basis?: boolean
+  payroll_agreement_id?: boolean
+  payroll_payable_at?: boolean
+  payroll_revision?: boolean
   status?: boolean
   claimed_at?: boolean
   served_at?: boolean
@@ -2400,12 +3060,22 @@ export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  selection_key?: boolean
+  package_instance_id?: boolean
+  package_choice_id?: boolean
+  pricing_snapshot?: boolean
   price?: boolean
   estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  payroll_commission_rate?: boolean
+  payroll_commission_base?: boolean
+  payroll_commission_basis?: boolean
+  payroll_agreement_id?: boolean
+  payroll_payable_at?: boolean
+  payroll_revision?: boolean
   status?: boolean
   claimed_at?: boolean
   served_at?: boolean
@@ -2432,12 +3102,22 @@ export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Type
 
 export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  selection_key?: boolean
+  package_instance_id?: boolean
+  package_choice_id?: boolean
+  pricing_snapshot?: boolean
   price?: boolean
   estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  payroll_commission_rate?: boolean
+  payroll_commission_base?: boolean
+  payroll_commission_basis?: boolean
+  payroll_agreement_id?: boolean
+  payroll_payable_at?: boolean
+  payroll_revision?: boolean
   status?: boolean
   claimed_at?: boolean
   served_at?: boolean
@@ -2464,12 +3144,22 @@ export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
 
 export type AvailedServiceSelectScalar = {
   id?: boolean
+  selection_key?: boolean
+  package_instance_id?: boolean
+  package_choice_id?: boolean
+  pricing_snapshot?: boolean
   price?: boolean
   estimated_cost?: boolean
   discount?: boolean
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  payroll_commission_rate?: boolean
+  payroll_commission_base?: boolean
+  payroll_commission_basis?: boolean
+  payroll_agreement_id?: boolean
+  payroll_payable_at?: boolean
+  payroll_revision?: boolean
   status?: boolean
   claimed_at?: boolean
   served_at?: boolean
@@ -2488,7 +3178,7 @@ export type AvailedServiceSelectScalar = {
   updated_at?: boolean
 }
 
-export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "estimated_cost" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "cancelled_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "served_by_owner_id" | "served_by_type" | "scheduled_at" | "estimated_end" | "paid_in_payslip_id" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
+export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "selection_key" | "package_instance_id" | "package_choice_id" | "pricing_snapshot" | "price" | "estimated_cost" | "discount" | "discount_reason" | "final_price" | "commission_base" | "payroll_commission_rate" | "payroll_commission_base" | "payroll_commission_basis" | "payroll_agreement_id" | "payroll_payable_at" | "payroll_revision" | "status" | "claimed_at" | "served_at" | "completed_at" | "cancelled_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "served_by_owner_id" | "served_by_type" | "scheduled_at" | "estimated_end" | "paid_in_payslip_id" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
 export type AvailedServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
@@ -2529,12 +3219,22 @@ export type $AvailedServicePayload<ExtArgs extends runtime.Types.Extensions.Inte
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    selection_key: string | null
+    package_instance_id: string | null
+    package_choice_id: string | null
+    pricing_snapshot: runtime.JsonValue | null
     price: number
     estimated_cost: number
     discount: number
     discount_reason: string | null
     final_price: number
     commission_base: number
+    payroll_commission_rate: runtime.Decimal | null
+    payroll_commission_base: runtime.Decimal | null
+    payroll_commission_basis: string | null
+    payroll_agreement_id: string | null
+    payroll_payable_at: Date | null
+    payroll_revision: number
     status: $Enums.AvailedServiceStatus
     claimed_at: Date | null
     served_at: Date | null
@@ -2982,12 +3682,22 @@ export interface Prisma__AvailedServiceClient<T, Null = never, ExtArgs extends r
  */
 export interface AvailedServiceFieldRefs {
   readonly id: Prisma.FieldRef<"AvailedService", 'Int'>
+  readonly selection_key: Prisma.FieldRef<"AvailedService", 'String'>
+  readonly package_instance_id: Prisma.FieldRef<"AvailedService", 'String'>
+  readonly package_choice_id: Prisma.FieldRef<"AvailedService", 'String'>
+  readonly pricing_snapshot: Prisma.FieldRef<"AvailedService", 'Json'>
   readonly price: Prisma.FieldRef<"AvailedService", 'Float'>
   readonly estimated_cost: Prisma.FieldRef<"AvailedService", 'Float'>
   readonly discount: Prisma.FieldRef<"AvailedService", 'Float'>
   readonly discount_reason: Prisma.FieldRef<"AvailedService", 'String'>
   readonly final_price: Prisma.FieldRef<"AvailedService", 'Float'>
   readonly commission_base: Prisma.FieldRef<"AvailedService", 'Float'>
+  readonly payroll_commission_rate: Prisma.FieldRef<"AvailedService", 'Decimal'>
+  readonly payroll_commission_base: Prisma.FieldRef<"AvailedService", 'Decimal'>
+  readonly payroll_commission_basis: Prisma.FieldRef<"AvailedService", 'String'>
+  readonly payroll_agreement_id: Prisma.FieldRef<"AvailedService", 'String'>
+  readonly payroll_payable_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
+  readonly payroll_revision: Prisma.FieldRef<"AvailedService", 'Int'>
   readonly status: Prisma.FieldRef<"AvailedService", 'AvailedServiceStatus'>
   readonly claimed_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
   readonly served_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
@@ -3200,6 +3910,11 @@ export type AvailedServiceFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` AvailedServices.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of AvailedServices.
+   */
   distinct?: Prisma.AvailedServiceScalarFieldEnum | Prisma.AvailedServiceScalarFieldEnum[]
 }
 

@@ -11,7 +11,9 @@ import { voidBookingPaymentAction } from "@/features/payments/actions/booking-pa
 import { formatCurrency } from "@/lib/utils";
 import type { BookingPayment } from "@/prisma/generated/prisma/client";
 
-function PaymentRow({ payment, canVoid }: { payment: BookingPayment; canVoid: boolean }) {
+type PaymentHistoryEntry = Pick<BookingPayment, "id" | "status" | "amount_principal" | "payment_method" | "paid_at" | "provider_reference" | "void_reason">;
+
+function PaymentRow({ payment, canVoid, onChanged }: { payment: PaymentHistoryEntry; canVoid: boolean; onChanged?: () => void }) {
   const router = useRouter();
   const [reason, setReason] = useState("");
   const [pending, startTransition] = useTransition();
@@ -22,7 +24,8 @@ function PaymentRow({ payment, canVoid }: { payment: BookingPayment; canVoid: bo
       return;
     }
     toast.success("Payment voided and booking balance recalculated.");
-    router.refresh();
+    if (onChanged) onChanged();
+    else router.refresh();
   });
   return <li className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
     <div className="min-w-0 text-sm">
@@ -34,8 +37,8 @@ function PaymentRow({ payment, canVoid }: { payment: BookingPayment; canVoid: bo
   </li>;
 }
 
-export function BookingPaymentHistory({ payments, canVoid }: { payments: BookingPayment[]; canVoid: boolean }) {
+export function BookingPaymentHistory({ payments, canVoid, onChanged }: { payments: PaymentHistoryEntry[]; canVoid: boolean; onChanged?: () => void }) {
   const ledger = payments.filter((payment) => payment.status === "SUCCEEDED" || payment.status === "CANCELED");
   if (!ledger.length) return null;
-  return <section className="space-y-2"><h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Payment history</h3><ul className="divide-y rounded-2xl border px-4">{ledger.map((payment) => <PaymentRow key={payment.id} payment={payment} canVoid={canVoid} />)}</ul></section>;
+  return <section className="space-y-2"><h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Payment history</h3><ul className="divide-y rounded-2xl border px-4">{ledger.map((payment) => <PaymentRow key={payment.id} payment={payment} canVoid={canVoid} onChanged={onChanged} />)}</ul></section>;
 }

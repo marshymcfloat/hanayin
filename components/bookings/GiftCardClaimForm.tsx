@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ export default function GiftCardClaimForm({
   mode = "public",
   onSuccess,
 }: GiftCardClaimFormProps) {
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -153,8 +155,8 @@ export default function GiftCardClaimForm({
         return;
       }
 
-      const successUrl = `/${businessSlug}/booking/success?bookingId=${result.data.bookingId}&token=${encodeURIComponent(result.data.successToken)}`;
-      window.location.href = successUrl;
+      const successUrl = `/${encodeURIComponent(businessSlug)}/booking/success?bookingId=${result.data.bookingId}&token=${encodeURIComponent(result.data.successToken)}`;
+      router.push(successUrl);
     },
     onError: () => {
       toast.error("Unable to claim gift card.");

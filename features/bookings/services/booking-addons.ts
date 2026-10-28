@@ -1,3 +1,5 @@
+import "server-only";
+
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { type TenantActorContext } from "@/lib/auth/staff-access";
 import {
@@ -17,6 +19,9 @@ import {
   buildBookingPricingSnapshot,
 } from "@/features/bookings/services/booking-pricing";
 import { checkSaleEventSlotLimit } from "@/features/bookings/services/booking-availability";
+import { recheckBookingAddOnAccess } from "@/features/bookings/booking-addon-access";
+import { bookingAddOnSchema } from "@/features/bookings/booking-addon-schemas";
+import { BookingAddOnError } from "@/features/bookings/booking-addon-errors";
 
 export type AddOnMutationMode = "APPEND" | "FOLLOW_UP";
 
@@ -80,6 +85,31 @@ function expandServiceSelections(
   });
 }
 
+async function assertAddOnReferences(
+  db: BookingAddonDbClient,
+  businessId: string,
+  services: Array<{ id: number; packageId?: number | null }>,
+) {
+  const serviceIds = Array.from(new Set(services.map((service) => service.id)));
+  const packageIds = Array.from(new Set(services.flatMap((service) => service.packageId == null ? [] : [service.packageId])));
+  const selectedServices = await db.service.findMany({
+    where: { id: { in: serviceIds }, business_id: businessId }, select: { id: true },
+  });
+  if (selectedServices.length !== serviceIds.length) throw new BookingAddOnError("One or more selected services are invalid");
+  if (packageIds.length > 0) {
+    const packages = await db.servicePackage.findMany({
+      where: { id: { in: packageIds }, business_id: businessId }, select: { id: true },
+    });
+    if (packages.length !== packageIds.length) throw new BookingAddOnError("One or more selected packages are invalid");
+  }
+}
+
+function assertAddOnInput(params: { bookingId: number; services: AddOnServiceInput[]; currentEmployeeId?: number }) {
+  if (!bookingAddOnSchema.safeParse({ ...params, initiatorEmployeeId: params.currentEmployeeId }).success) {
+    throw new BookingAddOnError("Invalid input");
+  }
+}
+
 function resolveModeFromSnapshot(
   booking: BookingStateSnapshot | null,
 ): AddOnModeResolution {
@@ -116,6 +146,7 @@ export async function resolveAddOnMutationMode(
   const booking = await db.booking.findFirst({
     where: {
       id: bookingId,
+      business_id: actorContext.businessId,
       business: {
         slug: actorContext.businessSlug,
       },
@@ -162,6 +193,8 @@ export async function appendServicesToUntouchedBookingInTx(
     currentEmployeeId?: number;
   },
 ) {
+  assertAddOnInput(params);
+  await recheckBookingAddOnAccess(tx, params.actorContext, params.currentEmployeeId);
   const expandedServices = expandServiceSelections(params.services);
 
   if (expandedServices.length === 0) {
@@ -173,6 +206,7 @@ export async function appendServicesToUntouchedBookingInTx(
   const booking = await tx.booking.findFirst({
         where: {
           id: params.bookingId,
+          business_id: params.actorContext.businessId,
           business: {
             slug: params.actorContext.businessSlug,
           },
@@ -187,6 +221,7 @@ export async function appendServicesToUntouchedBookingInTx(
           payment_method: true,
           grand_total: true,
           total_discount: true,
+          pricing_snapshot: true,
           scheduled_at: true,
           estimated_end: true,
           availed_services: {
@@ -204,13 +239,20 @@ export async function appendServicesToUntouchedBookingInTx(
         },
       });
 
+      if (!booking) throw new BookingAddOnError("Booking not found");
+      if (booking.pricing_snapshot) throw new BookingAddOnError("Use Review services & offers to change this booking.");
+      if (booking.customer_id) {
+        const customer = await tx.customer.findFirst({ where: { id: booking.customer_id, business_id: params.actorContext.businessId }, select: { id: true } });
+        if (!customer) throw new BookingAddOnError("Customer not found");
+      }
+      await assertAddOnReferences(tx, params.actorContext.businessId, [
+        ...params.services,
+        ...booking.availed_services.map((item) => ({ id: item.service_id, packageId: item.package_id })),
+      ]);
+
       const modeResolution = resolveModeFromSnapshot(booking);
       if (modeResolution.mode !== "APPEND") {
         throw new BookingAddOnStateRaceError();
-      }
-
-      if (!booking) {
-        throw new Error("Booking not found");
       }
 
       const aggregateMap = new Map<string, BookingServiceInput>();
@@ -310,7 +352,7 @@ export async function appendServicesToUntouchedBookingInTx(
             canonical.discountReason ||
             (canonical.discount > 0 ? "PACKAGE_OR_MANUAL" : null),
           final_price: canonical.price,
-          commission_base: canonical.commissionBase || canonical.price,
+          commission_base: canonical.commissionBase ?? canonical.price,
           status: isClaimed ? AvailedServiceStatus.CLAIMED : AvailedServiceStatus.PENDING,
           claimed_at: isClaimed ? now : null,
           served_by_id: isClaimed ? params.currentEmployeeId : null,
@@ -335,6 +377,7 @@ export async function appendServicesToUntouchedBookingInTx(
       await tx.booking.update({
         where: {
           id: booking.id,
+          business_id: params.actorContext.businessId,
         },
         data: {
           grand_total: nextGrandTotal,
@@ -398,6 +441,8 @@ export async function appendServicesToUntouchedBooking(params: {
     async (tx) => appendServicesToUntouchedBookingInTx(tx, params),
     {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      maxWait: 5_000,
+      timeout: 10_000,
     },
   );
 }
@@ -409,6 +454,7 @@ export async function createFollowUpAddOnBooking(params: {
   currentEmployeeId?: number;
   staffSelectionMode?: "ANY_AVAILABLE" | "PREFER_SELECTED" | "REQUIRE_SELECTED";
 }) {
+  assertAddOnInput(params);
   const expandedServices = expandServiceSelections(params.services);
 
   if (expandedServices.length === 0) {
@@ -418,6 +464,7 @@ export async function createFollowUpAddOnBooking(params: {
   const parentBooking = await prisma.booking.findFirst({
     where: {
       id: params.bookingId,
+      business_id: params.actorContext.businessId,
       business: {
         slug: params.actorContext.businessSlug,
       },
@@ -428,6 +475,8 @@ export async function createFollowUpAddOnBooking(params: {
       customer_id: true,
       customer: {
         select: {
+          id: true,
+          business_id: true,
           name: true,
           email: true,
           phone: true,
@@ -437,19 +486,23 @@ export async function createFollowUpAddOnBooking(params: {
   });
 
   if (!parentBooking) {
-    throw new Error("Booking not found");
+    throw new BookingAddOnError("Booking not found");
   }
 
   // Follow-up bookings inherit the parent's customer profile. Anonymous
   // walk-ins have no profile to inherit — the staff would have to recreate
   // the customer record manually, which defeats the "follow-up" affordance.
   if (!parentBooking.customer || !parentBooking.customer_id) {
-    throw new Error(
+    throw new BookingAddOnError(
       "Cannot create a follow-up for an anonymous walk-in booking. Create a new booking instead.",
     );
   }
 
   const parentCustomer = parentBooking.customer;
+  if (parentCustomer.business_id !== params.actorContext.businessId || parentCustomer.id !== parentBooking.customer_id) {
+    throw new BookingAddOnError("Customer not found");
+  }
+  const actorMeta = getActorAuditMetadata(params.actorContext);
   const followUp = await createBookingInDb({
     businessSlug: params.actorContext.businessSlug,
     customerId: parentBooking.customer_id,
@@ -466,11 +519,25 @@ export async function createFollowUpAddOnBooking(params: {
     isPublicBooking: false,
     isWalkIn: true,
     staffSelectionMode: params.staffSelectionMode || "ANY_AVAILABLE",
-  });
-
-  const actorMeta = getActorAuditMetadata(params.actorContext);
-
-  await prisma.$transaction(async (tx) => {
+  }, {
+    beforeCreate: async (tx) => {
+      await recheckBookingAddOnAccess(tx, params.actorContext, params.currentEmployeeId);
+      const currentParent = await tx.booking.findFirst({
+        where: {
+          id: parentBooking.id, business_id: params.actorContext.businessId,
+          business: { slug: params.actorContext.businessSlug },
+          customer_id: parentCustomer.id,
+          customer: {
+            id: parentCustomer.id, business_id: params.actorContext.businessId,
+            name: parentCustomer.name, email: parentCustomer.email, phone: parentCustomer.phone,
+          },
+        },
+        select: { id: true },
+      });
+      if (!currentParent) throw new BookingAddOnError("Booking customer changed. Refresh and try again.");
+      await assertAddOnReferences(tx, params.actorContext.businessId, params.services);
+    },
+    afterCreate: async (tx, committedBooking) => {
     await logAudit(tx, {
       entityType: "Booking",
       entityId: String(parentBooking.id),
@@ -484,14 +551,14 @@ export async function createFollowUpAddOnBooking(params: {
         },
         after: {
           mode: "FOLLOW_UP_CREATED",
-          followUpBookingId: followUp.id,
+          followUpBookingId: committedBooking.id,
         },
       },
     });
 
     await logAudit(tx, {
       entityType: "Booking",
-      entityId: String(followUp.id),
+      entityId: String(committedBooking.id),
       action: "CREATED",
       actorId: actorMeta.actorId,
       actorType: actorMeta.actorType,
@@ -503,6 +570,7 @@ export async function createFollowUpAddOnBooking(params: {
         },
       },
     });
+    },
   });
 
   return {

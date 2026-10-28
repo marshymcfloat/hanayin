@@ -5,12 +5,13 @@ import { CalendarDays } from "lucide-react";
 import { DailyAttendanceTab } from "./DailyAttendanceTab";
 import { LeaveRequestsTab } from "./LeaveRequestsTab";
 import { Prisma } from "@/prisma/generated/prisma/client";
+import { publicUserSelect } from "@/lib/auth/public-user";
 
 type LeaveRequestWithEmployee = Prisma.LeaveRequestGetPayload<{
   include: {
     employee: {
       include: {
-        user: true;
+        user: { select: typeof publicUserSelect };
       };
     };
   };

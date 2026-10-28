@@ -1,0 +1,38 @@
+.logo {
+  position: relative;
+  display: block;
+  width: 142px;
+  aspect-ratio: 1912 / 525;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Frame the transparent source's artwork without changing the approved asset. */
+.logo img {
+  position: absolute;
+  width: 113.598%;
+  max-width: none;
+  height: auto;
+  left: -7.479%;
+  top: -19.619%;
+}
+
+.footer {
+  width: 220px;
+}
+
+.footer img {
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 520px) {
+  .logo:not(.footer) {
+    width: 120px;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo:not(.footer) {
+    width: 108px;
+  }
+}

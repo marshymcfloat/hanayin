@@ -25,10 +25,7 @@ import type {
   Booking,
   BookingStatus,
   Customer,
-  Employee,
-  Owner,
   Service,
-  User,
   Voucher,
 } from "@/prisma/generated/prisma/client";
 
@@ -37,8 +34,8 @@ type BookingWithDetails = Booking & {
   vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
-    served_by: (Employee & { user: User }) | null;
-    served_by_owner: (Owner & { user: User }) | null;
+    served_by: { id: number; user: { name: string } } | null;
+    served_by_owner: { id: number; user: { name: string } } | null;
   })[];
 };
 

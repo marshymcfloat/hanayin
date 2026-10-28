@@ -3,6 +3,7 @@ import "dotenv/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Prisma, PrismaClient } from "./generated/prisma/client";
+import { getRuntimeDatabaseUrl } from "./runtime-database-url";
 
 function getSafeConnectionString(databaseUrl: string) {
   let parsedUrl: URL;
@@ -38,20 +39,15 @@ function isAccelerateConnectionString(url: string) {
 }
 
 function resolveConnectionConfig(): PrismaConnectionConfig {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is not set.");
-  }
+  const databaseUrl = getRuntimeDatabaseUrl(process.env);
 
   const usesAccelerateProtocol = isAccelerateConnectionString(databaseUrl);
   if (!usesAccelerateProtocol) {
     return { mode: "adapter", connectionString: getSafeConnectionString(databaseUrl) };
   }
 
-  // Runtime traffic follows DATABASE_URL. DIRECT_DATABASE_URL is reserved for
-  // Prisma CLI, migrations, and database integration tests via prisma.config.ts.
-  // Preferring it here makes an optional maintenance connection capable of
-  // taking down the application even when the Accelerate endpoint is healthy.
+  // Local development uses its dedicated direct Prisma database. Other
+  // environments, including production and tests, continue to use DATABASE_URL.
   return { mode: "accelerate", accelerateUrl: databaseUrl };
 }
 
@@ -137,10 +133,12 @@ const POOL_MAX =
 
 function createPrismaClient() {
   const connectionConfig = resolveConnectionConfig();
+  const omit = { availedService: { payroll_commission_rate: true, payroll_commission_base: true, payroll_commission_basis: true, payroll_agreement_id: true } } as const;
   const client =
     connectionConfig.mode === "accelerate"
-      ? new PrismaClient({ accelerateUrl: connectionConfig.accelerateUrl })
+      ? new PrismaClient({ accelerateUrl: connectionConfig.accelerateUrl, omit })
       : new PrismaClient({
+          omit,
           adapter: new PrismaPg(
             new Pool({
               connectionString: connectionConfig.connectionString,

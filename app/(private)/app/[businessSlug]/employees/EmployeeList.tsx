@@ -1,3 +1,5 @@
+import type { EmployeesWorkspaceEmployee } from "@/features/workforce/queries/employees";
+import { PeoplePayrollSetup } from "@/components/payroll/PeoplePayrollSetup";
 import {
   Table,
   TableBody,
@@ -43,27 +45,16 @@ import {
 } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { formatPH } from "@/lib/date-utils";
-import {
-  Employee,
-  User as PrismaUser,
-  EmployeeAttendance,
-  Payslip,
-} from "@/prisma/generated/prisma/client";
 import { EditPermissionsDialog } from "@/components/dashboard/owner/employees/EditPermissionsDialog";
 
-type EmployeeWithDetails = Employee & {
-  user: PrismaUser;
-  attendance: EmployeeAttendance[];
-  payslips: Payslip[];
-  _count: {
-    served_services: number;
-  };
-};
+type EmployeeWithDetails = EmployeesWorkspaceEmployee;
 
 interface EmployeeListProps {
   employees: EmployeeWithDetails[];
   /** Required so EditPermissionsDialog can scope its server-side update. */
   businessSlug: string;
+  canAccessPayroll: boolean;
+  showLegacyCompensation: boolean;
   onEdit: (employee: EmployeeWithDetails) => void;
   onDelete: (id: number) => void;
   onResetPassword: (employee: EmployeeWithDetails) => void;
@@ -120,6 +111,8 @@ function getProfileBadgeClass(profile: string) {
 export function EmployeeList({
   employees,
   businessSlug,
+  canAccessPayroll,
+  showLegacyCompensation,
   onEdit,
   onDelete,
   onResetPassword,
@@ -177,11 +170,11 @@ export function EmployeeList({
               </div>
 
               {/* Stats — flat 2x2 grid with hairline dividers (no nested cards) */}
-              <div className="px-4 grid grid-cols-2 border-t border-border divide-x divide-border">
+              {showLegacyCompensation && <div className="px-4 grid grid-cols-2 border-t border-border divide-x divide-border">
                 <Stat
                   icon={<Wallet className="h-3.5 w-3.5" />}
                   label="Daily rate"
-                  value={formatCurrency(employee.daily_rate)}
+                  value={formatCurrency(employee.daily_rate ?? 0)}
                   className="pr-3 py-3"
                 />
                 <Stat
@@ -191,7 +184,7 @@ export function EmployeeList({
                   tone="primary"
                   className="pl-3 py-3"
                 />
-              </div>
+              </div>}
               <div className="px-4 grid grid-cols-2 border-t border-border divide-x divide-border">
                 <Stat
                   icon={<Briefcase className="h-3.5 w-3.5" />}
@@ -199,7 +192,7 @@ export function EmployeeList({
                   value={employee._count.served_services.toLocaleString()}
                   className="pr-3 py-3"
                 />
-                <Stat
+                {showLegacyCompensation && <Stat
                   icon={<Calendar className="h-3.5 w-3.5" />}
                   label="Last payout"
                   value={
@@ -208,9 +201,10 @@ export function EmployeeList({
                       : "—"
                   }
                   className="pl-3 py-3"
-                />
+                />}
               </div>
 
+              {canAccessPayroll && <div className="px-4 py-3"><PeoplePayrollSetup employeeId={employee.id} employeeName={employee.user.name} payrollHref={"/app/" + businessSlug + "/payroll"} /></div>}
               {/* Action row — persistent, no hidden dropdown for primary actions */}
               <div className="grid grid-cols-3 border-t border-border bg-muted/30">
                 <ActionCell
@@ -253,21 +247,21 @@ export function EmployeeList({
               <TableHead className="w-[300px] font-semibold text-muted-foreground pl-6 h-12 text-xs uppercase tracking-wider">
                 Employee
               </TableHead>
-              <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
+              {showLegacyCompensation && <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
                 Daily Rate
-              </TableHead>
-              <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
+              </TableHead>}
+              {showLegacyCompensation && <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
                 Commission
-              </TableHead>
+              </TableHead>}
               <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
                 Profile
               </TableHead>
               <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
                 Services
               </TableHead>
-              <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
+              {showLegacyCompensation && <TableHead className="font-semibold text-muted-foreground h-12 text-xs uppercase tracking-wider">
                 Last Payout
-              </TableHead>
+              </TableHead>}
               <TableHead className="text-right w-[80px] font-semibold text-muted-foreground pr-6 h-12 text-xs uppercase tracking-wider">
                 Actions
               </TableHead>
@@ -301,20 +295,21 @@ export function EmployeeList({
                         <span className="text-xs text-muted-foreground truncate">
                           {employee.user.contact_number}
                         </span>
+                        {canAccessPayroll && <PeoplePayrollSetup employeeId={employee.id} employeeName={employee.user.name} payrollHref={"/app/" + businessSlug + "/payroll"} />}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 font-medium text-foreground tabular-nums">
-                    {formatCurrency(employee.daily_rate)}
-                  </TableCell>
-                  <TableCell className="py-4">
+                  {showLegacyCompensation && <TableCell className="py-4 font-medium text-foreground tabular-nums">
+                    {formatCurrency(employee.daily_rate ?? 0)}
+                  </TableCell>}
+                  {showLegacyCompensation && <TableCell className="py-4">
                     <Badge
                       variant="secondary"
                       className="border-primary/30 bg-primary/10 text-primary tabular-nums"
                     >
                       {employee.commission_percentage}%
                     </Badge>
-                  </TableCell>
+                  </TableCell>}
                   <TableCell className="py-4">
                     <Badge
                       variant="outline"
@@ -336,7 +331,7 @@ export function EmployeeList({
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4">
+                  {showLegacyCompensation && <TableCell className="py-4">
                     {lastPayslip ? (
                       <div className="flex flex-col gap-0.5">
                         <span className="text-sm font-medium text-foreground">
@@ -351,7 +346,7 @@ export function EmployeeList({
                         Never
                       </span>
                     )}
-                  </TableCell>
+                  </TableCell>}
                   <TableCell className="text-right pr-6 py-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -418,16 +413,16 @@ export function EmployeeList({
                               className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Delete Employee
+                              Archive Employee
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
                           <AlertDialogContent className="rounded-2xl">
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Employee</AlertDialogTitle>
+                              <AlertDialogTitle>Archive Employee</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete &quot;
+                                Are you sure you want to archive &quot;
                                 {employee.user.name}&quot;? Their attendance and
-                                payslip history will also be deleted.
+                                payslip history will be preserved.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -438,7 +433,7 @@ export function EmployeeList({
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
                                 onClick={() => onDelete(employee.id)}
                               >
-                                Delete
+                                Archive
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -536,10 +531,10 @@ function DeleteAction({
       </AlertDialogTrigger>
       <AlertDialogContent className="rounded-2xl">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Employee</AlertDialogTitle>
+          <AlertDialogTitle>Archive Employee</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete &quot;{employeeName}&quot;? Their
-            attendance and payslip history will also be deleted.
+            Are you sure you want to archive &quot;{employeeName}&quot;? Their
+            attendance and payslip history will be preserved.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -548,7 +543,7 @@ function DeleteAction({
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
             onClick={onDelete}
           >
-            Delete
+            Archive
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

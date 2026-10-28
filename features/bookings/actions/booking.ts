@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createHash } from "node:crypto";
+import { BookingQuoteChangedError, type BookingQuote } from "@/features/bookings/booking-quote";
 import { headers } from "next/headers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/features/auth/auth-options";
@@ -13,10 +15,7 @@ import {
   requireWritableBookingTenant,
 } from "@/features/bookings/services/booking-create";
 import { BookingAvailabilityError } from "@/features/bookings/services/booking-availability";
-import {
-  consumeOtpVerification,
-  resolveCustomerTrust,
-} from "@/features/bookings/actions/booking-otp";
+import { resolveCustomerTrust } from "@/features/bookings/services/booking-otp";
 import {
   hasStaffPermission,
   resolveTenantActorContext,
@@ -36,7 +35,7 @@ import { StaffPermission } from "@/prisma/generated/prisma/enums";
 export type CreateBookingResult =
   | { type: "redirect"; url: string; warnings?: string[] }
   | { type: "internal"; url: string; warnings?: string[] }
-  | { type: "error"; code: string };
+  | { type: "error"; code: string; quote?: BookingQuote };
 
 const CLIENT_SAFE_BOOKING_ERRORS = new Set([
   "OTP_REQUIRED",
@@ -101,6 +100,18 @@ export async function createBooking(
     }
 
     let verifiedCurrentEmployeeId: number | undefined;
+    if (session?.user?.role === "OWNER") {
+      if (session.user.businessSlug !== input.businessSlug) {
+        throw new Error("Forbidden");
+      }
+      const actorContext = await resolveTenantActorContext(
+        input.businessSlug,
+        session.user.id,
+      );
+      if (!actorContext.success || actorContext.actorType !== "OWNER") {
+        throw new Error("Unauthorized");
+      }
+    }
     if (session?.user?.role === "EMPLOYEE") {
       const actorContext = await resolveTenantActorContext(
         input.businessSlug,
@@ -163,18 +174,10 @@ export async function createBooking(
       if (trust.tier === "RESTRICTED") {
         throw new Error("CUSTOMER_RESTRICTED");
       }
-      if (!input.otpVerificationId) {
+      if (!input.otpVerificationId || !input.otpVerificationToken) {
         throw new Error("OTP_REQUIRED");
       }
 
-      const valid = await consumeOtpVerification(
-        input.otpVerificationId,
-        input.phone,
-        tenant.businessId,
-      );
-      if (!valid) {
-        throw new Error("OTP_INVALID_OR_EXPIRED");
-      }
     }
 
     const outcome = await createBookingWorkflow(
@@ -190,6 +193,7 @@ export async function createBooking(
         businessId: tenant.businessId,
         isPublicBooking: publicBooking,
         allowWalkInCapacityBypass: walkInCapacityBypassAllowed,
+        requestScope: createHash("sha256").update(session ? `user:${session.user.id}` : `public:${input.phone}:${input.otpVerificationId}:${input.otpVerificationToken}`).digest("hex"),
       },
     );
 
@@ -211,6 +215,7 @@ export async function createBooking(
       warnings: outcome.warnings.length > 0 ? outcome.warnings : undefined,
     };
   } catch (error) {
+    if (error instanceof BookingQuoteChangedError) return { type: "error", code: "QUOTE_CHANGED", quote: error.quote };
     if (error instanceof BookingAvailabilityError) {
       logger.warn("[BookingSubmit] Rejected", {
         businessSlug: input.businessSlug,

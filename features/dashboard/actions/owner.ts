@@ -2,388 +2,81 @@
 
 // Feature-owned Server Action boundary.
 
-import { prisma } from "@/prisma/prisma";
 import {
-  AvailedServiceStatus,
   BookingStatus,
-  PaymentStatus,
-  ServiceProviderType,
+  StaffPermission,
 } from "@/prisma/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
-import { getActiveSaleEvents } from "@/features/catalog/actions/sale-event";
-import { getApplicableDiscount } from "@/lib/utils/pricing";
-import { getCurrentDateTimePH } from "@/lib/date-utils";
-import { promoteBookingToCompletedIfEligible } from "@/lib/services/booking-status";
-import {
-  serviceIdSchema,
-  updateBookingStatusSchema,
-  bookingIdSchema,
-} from "@/features/dashboard/schemas";
-import {
-  findAvailedServiceScheduleConflict,
-  isAvailedServiceOverlapViolation,
-  scheduleConflictResult,
-} from "@/features/bookings/services/availed-service-overlap";
+import { hasStaffPermission, resolveTenantActorContext } from "@/lib/auth/staff-access";
+import { ownerQueueServiceIdSchema } from "@/features/dashboard/owner-queue-schemas";
+import { claimOwnerService, unclaimOwnerService } from "@/features/dashboard/services/owner-queue-claims";
+import { serveOwnerService, undoOwnerServiceServing } from "@/features/dashboard/services/owner-queue-serving";
+import { bookingNoShowIdSchema } from "@/features/bookings/booking-no-show-schemas";
+import { markBookingNoShow } from "@/features/bookings/services/booking-no-show";
+import { updateBookingStatusSchema } from "@/features/bookings/booking-status-schemas";
+import { completeBookingManually } from "@/features/bookings/services/booking-status";
+import { bookingDeletionIdSchema } from "@/features/bookings/booking-deletion-schemas";
+import { deleteBookingPermanently } from "@/features/bookings/services/booking-deletion";
 
 export async function claimServiceAsOwnerAction(serviceId: number) {
-  const validation = serviceIdSchema.safeParse({ serviceId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid input" };
-  }
-
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
-  const { businessSlug, session } = auth;
-
-  if (session?.user?.role !== "OWNER") {
-    return { success: false, error: "Unauthorized" };
-  }
-
+  const validation = ownerQueueServiceIdSchema.safeParse({ serviceId });
+  if (!validation.success) return { success: false, error: "Invalid input" };
   try {
-    const owner = await prisma.owner.findFirst({
-      where: {
-        user_id: session.user.id,
-        business: { slug: businessSlug },
-      },
-      select: { id: true },
-    });
-
-    if (!owner) {
-      return { success: false, error: "Owner not found" };
-    }
-
-    // Fetch service details for discount calculation
-    const serviceToClaim = await prisma.availedService.findUnique({
-      where: { id: serviceId },
-      select: {
-        price: true,
-        service_id: true,
-        package_id: true,
-      },
-    });
-
-    if (!serviceToClaim) {
-      return { success: false, error: "Service not found." };
-    }
-
-    const scheduleConflict = await findAvailedServiceScheduleConflict({
-      businessSlug,
-      serviceId,
-      providerType: "OWNER",
-      providerId: owner.id,
-    });
-    if (scheduleConflict) {
-      return scheduleConflictResult(scheduleConflict);
-    }
-
-    const saleEventsResult = await getActiveSaleEvents(businessSlug);
-    const saleEvents =
-      (saleEventsResult.success && saleEventsResult.data) || [];
-
-    const discountInfo = getApplicableDiscount(
-      serviceToClaim.service_id,
-      serviceToClaim.package_id ?? undefined,
-      serviceToClaim.price,
-      saleEvents,
-    );
-
-    const updateData = {
-      status: AvailedServiceStatus.CLAIMED,
-      served_by_owner_id: owner.id,
-      served_by_id: null,
-      served_by_type: ServiceProviderType.OWNER,
-      claimed_at: getCurrentDateTimePH(),
-      ...(discountInfo
-        ? {
-            final_price: discountInfo.finalPrice,
-            discount: discountInfo.discount,
-            discount_reason: discountInfo.reason,
-            commission_base: discountInfo.finalPrice,
-          }
-        : {
-            final_price: serviceToClaim.price,
-            discount: 0,
-            discount_reason: null,
-            commission_base: serviceToClaim.price,
-          }),
-    };
-
-    const result = await prisma.availedService.updateMany({
-      where: {
-        id: serviceId,
-        status: AvailedServiceStatus.PENDING,
-        booking: {
-          business: { slug: businessSlug },
-          status: BookingStatus.ACCEPTED,
-        },
-      },
-      data: updateData,
-    });
-
-    if (result.count === 0) {
-      return { success: false, error: "Service already claimed or not found." };
-    }
-
-    revalidatePath(`/app/${businessSlug}`);
-    return { success: true };
-  } catch (error) {
-    const e = error as { code?: string };
-    if (e.code === "P2025") {
-      return { success: false, error: "Service already claimed or not found." };
-    }
-    if (isAvailedServiceOverlapViolation(error)) {
-      const owner = await prisma.owner.findFirst({
-        where: { user_id: session.user.id, business: { slug: businessSlug } },
-        select: { id: true },
-      }).catch(() => null);
-      const conflict = owner
-        ? await findAvailedServiceScheduleConflict({
-            businessSlug,
-            serviceId,
-            providerType: "OWNER",
-            providerId: owner.id,
-          }).catch(() => null)
-        : null;
-      return scheduleConflictResult(conflict);
-    }
-    console.error("Error claiming service as owner:", error);
-    return { success: false, error: "Unable to claim service." };
-  }
+    const auth = await requireAuth({ write: true });
+    if (!auth.success) return auth;
+    if (auth.session.user.role !== "OWNER") return { success: false, error: "Unauthorized" };
+    const context = await resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+    if (!context.success || context.actorType !== "OWNER") return { success: false, error: "Owner not found" };
+    const result = await claimOwnerService(context, validation.data.serviceId);
+    if (result.success) { try { revalidatePath(`/app/${context.businessSlug}`); } catch { /* The write already committed. */ } }
+    return result;
+  } catch { return { success: false, error: "Unable to claim service." }; }
 }
 
 export async function unclaimServiceAsOwnerAction(serviceId: number) {
-  const validation = serviceIdSchema.safeParse({ serviceId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid input" };
-  }
-
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
-  const { businessSlug, session } = auth;
-
-  if (session?.user?.role !== "OWNER") {
-    return { success: false, error: "Unauthorized" };
-  }
-
+  const validation = ownerQueueServiceIdSchema.safeParse({ serviceId });
+  if (!validation.success) return { success: false, error: "Invalid input" };
   try {
-    const owner = await prisma.owner.findFirst({
-      where: {
-        user_id: session.user.id,
-        business: { slug: businessSlug },
-      },
-      select: { id: true },
-    });
-
-    if (!owner) {
-      return { success: false, error: "Owner not found" };
-    }
-
-    // Get original price via findUnique before updateMany
-    const service = await prisma.availedService.findUnique({
-      where: { id: serviceId },
-      select: { price: true },
-    });
-
-    if (!service) {
-      return { success: false, error: "Service not found." };
-    }
-
-    const result = await prisma.availedService.updateMany({
-      where: {
-        id: serviceId,
-        served_by_owner_id: owner.id,
-        booking: { business: { slug: businessSlug } },
-      },
-      data: {
-        status: AvailedServiceStatus.PENDING,
-        served_by_owner_id: null,
-        served_by_type: null,
-        claimed_at: null,
-        final_price: service.price,
-        discount: 0,
-        discount_reason: null,
-        commission_base: service.price,
-      },
-    });
-
-    if (result.count === 0) {
-      return { success: false, error: "Unable to unclaim service." };
-    }
-
-    revalidatePath(`/app/${businessSlug}`);
-    return { success: true };
-  } catch (error) {
-    const e = error as { code?: string };
-    if (e.code === "P2025") {
-      return { success: false, error: "Unable to unclaim service." };
-    }
-    console.error("Error unclaiming service as owner:", error);
-    return { success: false, error: "Unable to unclaim service." };
-  }
+    const auth = await requireAuth({ write: true });
+    if (!auth.success) return auth;
+    if (auth.session.user.role !== "OWNER") return { success: false, error: "Unauthorized" };
+    const context = await resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+    if (!context.success || context.actorType !== "OWNER") return { success: false, error: "Owner not found" };
+    const result = await unclaimOwnerService(context, validation.data.serviceId);
+    if (result.success) { try { revalidatePath(`/app/${context.businessSlug}`); } catch { /* The write already committed. */ } }
+    return result;
+  } catch { return { success: false, error: "Unable to unclaim service." }; }
 }
 
 export async function markServiceServedAsOwnerAction(serviceId: number) {
-  const validation = serviceIdSchema.safeParse({ serviceId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid input" };
-  }
-
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
-  const { businessSlug, session } = auth;
-
-  if (session?.user?.role !== "OWNER") {
-    return { success: false, error: "Unauthorized" };
-  }
-
+  const validation = ownerQueueServiceIdSchema.safeParse({ serviceId });
+  if (!validation.success) return { success: false, error: "Invalid input" };
   try {
-    const owner = await prisma.owner.findFirst({
-      where: {
-        user_id: session.user.id,
-        business: { slug: businessSlug },
-      },
-      select: { id: true },
-    });
-
-    if (!owner) {
-      return { success: false, error: "Owner not found" };
-    }
-
-    const result = await prisma.$transaction(async (tx) => {
-      const service = await tx.availedService.findUnique({
-        where: {
-          id: serviceId,
-        },
-        select: {
-          booking_id: true,
-          served_by_owner_id: true,
-          booking: { select: { status: true } },
-        },
-      });
-
-      if (!service || service.served_by_owner_id !== owner.id) {
-        throw new Error("Service not found or not claimed by owner");
-      }
-      if (service.booking.status !== BookingStatus.ACCEPTED) {
-        throw new Error(
-          "Booking must be confirmed before services can be served",
-        );
-      }
-      const nowPH = getCurrentDateTimePH();
-
-      const changed = await tx.availedService.updateMany({
-        where: {
-          id: serviceId,
-          booking: {
-            business: { slug: businessSlug },
-            status: BookingStatus.ACCEPTED,
-          },
-        },
-        data: {
-          status: AvailedServiceStatus.COMPLETED,
-          served_at: nowPH,
-          completed_at: nowPH,
-        },
-      });
-      if (changed.count !== 1) {
-        throw new Error("Unable to mark service as served");
-      }
-
-      const updatedService = await tx.availedService.findUnique({
-        where: { id: serviceId },
-      });
-      if (!updatedService) throw new Error("Service not found");
-
-      await promoteBookingToCompletedIfEligible(tx, service.booking_id);
-
-      return updatedService;
-    });
-
-    revalidatePath(`/app/${businessSlug}`);
-    return { success: true, data: result };
-  } catch (error) {
-    const e = error as { code?: string };
-    if (e.code === "P2025") {
-      return { success: false, error: "Unable to mark as served." };
-    }
-    console.error("Error marking service as served (owner):", error);
-    return { success: false, error: "Unable to mark as served." };
-  }
+    const auth = await requireAuth({ write: true });
+    if (!auth.success) return auth;
+    if (auth.session.user.role !== "OWNER") return { success: false, error: "Unauthorized" };
+    const context = await resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+    if (!context.success || context.actorType !== "OWNER") return { success: false, error: "Owner not found" };
+    const result = await serveOwnerService(context, validation.data.serviceId);
+    if (result.success) { try { revalidatePath(`/app/${context.businessSlug}`); } catch { /* The write already committed. */ } }
+    return result;
+  } catch { return { success: false, error: "Unable to mark as served." }; }
 }
 
 export async function unserveServiceAsOwnerAction(serviceId: number) {
-  const validation = serviceIdSchema.safeParse({ serviceId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid input" };
-  }
-
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
-  const { businessSlug, session } = auth;
-
-  if (session?.user?.role !== "OWNER") {
-    return { success: false, error: "Unauthorized" };
-  }
-
+  const validation = ownerQueueServiceIdSchema.safeParse({ serviceId });
+  if (!validation.success) return { success: false, error: "Invalid input" };
   try {
-    const owner = await prisma.owner.findFirst({
-      where: {
-        user_id: session.user.id,
-        business: { slug: businessSlug },
-      },
-      select: { id: true },
-    });
-
-    if (!owner) {
-      return { success: false, error: "Owner not found" };
-    }
-
-    const result = await prisma.$transaction(async (tx) => {
-      const service = await tx.availedService.findUnique({
-        where: {
-          id: serviceId,
-        },
-        select: {
-          booking_id: true,
-          served_by_owner_id: true,
-          booking: { select: { status: true } },
-        },
-      });
-
-      if (!service || service.served_by_owner_id !== owner.id) {
-        throw new Error("Service not found or not served by owner");
-      }
-
-      const updatedService = await tx.availedService.update({
-        where: { id: serviceId },
-        data: {
-          status: AvailedServiceStatus.CLAIMED,
-          served_at: null,
-          completed_at: null,
-        },
-      });
-
-      if (service.booking.status === BookingStatus.COMPLETED) {
-        await tx.booking.update({
-          where: { id: service.booking_id },
-          data: { status: BookingStatus.ACCEPTED },
-        });
-      }
-
-      return updatedService;
-    });
-
-    revalidatePath(`/app/${businessSlug}`);
-    return { success: true, data: result };
-  } catch (error) {
-    const e = error as { code?: string };
-    if (e.code === "P2025") {
-      return { success: false, error: "Unable to unserve." };
-    }
-    console.error("Error unserving service (owner):", error);
-    return { success: false, error: "Unable to unserve." };
-  }
+    const auth = await requireAuth({ write: true });
+    if (!auth.success) return auth;
+    if (auth.session.user.role !== "OWNER") return { success: false, error: "Unauthorized" };
+    const context = await resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+    if (!context.success || context.actorType !== "OWNER") return { success: false, error: "Owner not found" };
+    const result = await undoOwnerServiceServing(context, validation.data.serviceId);
+    if (result.success) { try { revalidatePath(`/app/${context.businessSlug}`); } catch { /* The write already committed. */ } }
+    return result;
+  } catch { return { success: false, error: "Unable to unserve." }; }
 }
 
 export async function updateBookingStatusAction(
@@ -395,165 +88,53 @@ export async function updateBookingStatusAction(
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
-  const { businessSlug } = auth;
-
-  try {
-    if (status === BookingStatus.COMPLETED) {
-      const booking = await prisma.booking.findFirst({
-        where: {
-          id: bookingId,
-          business: { slug: businessSlug },
-        },
-        select: {
-          payment_status: true,
-        },
-      });
-
-      if (!booking) {
-        return { success: false, error: "Booking not found." };
-      }
-
-      if (booking.payment_status !== PaymentStatus.PAID) {
-        return {
-          success: false,
-          error: "Booking cannot be completed until payment is fully settled.",
-        };
-      }
-    }
-
-    await prisma.booking.update({
-      where: {
-        id: bookingId,
-        business: { slug: businessSlug },
-      },
-      data: { status },
-    });
-    revalidatePath(`/app/${businessSlug}`);
-    return { success: true };
-  } catch (error) {
-    const e = error as { code?: string };
-    if (e.code === "P2025") {
-      return { success: false, error: "Failed to update status." };
-    }
-    return { success: false, error: "Failed to update status" };
+  if (validation.data.status === BookingStatus.CANCELLED) {
+    return { success: false, error: "Use the cancellation workflow and provide a reason." };
   }
+
+  if (validation.data.status !== BookingStatus.COMPLETED) return { success: false, error: "Unsupported manual status transition." };
+  try {
+    const auth = await requireAuth({ write: true });
+    if (!auth.success) return auth;
+    const context = await resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+    if (!context.success) return { success: false, error: context.error === "Unauthorized" ? "Unauthorized" : "Forbidden" };
+    if (!hasStaffPermission(context, StaffPermission.BOOKING_MODIFY)) return { success: false, error: "Forbidden" };
+    const result = await completeBookingManually(context, validation.data.bookingId);
+    if (result.success) { try { revalidatePath(`/app/${context.businessSlug}`); } catch { /* The write already committed. */ } }
+    return result;
+  } catch { return { success: false, error: "Failed to update status" }; }
 }
 
 export async function markBookingNoShowAction(bookingId: number) {
-  const validation = bookingIdSchema.safeParse({ bookingId });
-  if (!validation.success) {
-    return { success: false, error: "Invalid input" };
-  }
-
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
-  const { businessSlug } = auth;
-
-  // Per docs/role-permissions-matrix.md: BOOKING_MARK_NO_SHOW gates this
-  // action. Owners short-circuit via hasStaffPermission. Lazy-importing
-  // resolveTenantActorContext / hasStaffPermission keeps the existing
-  // call sites that rely on this module's surface area (and its bigger
-  // imports) unaffected.
-  const { resolveTenantActorContext, hasStaffPermission } =
-    await import("@/lib/auth/staff-access");
-  const { StaffPermission } = await import("@/prisma/generated/prisma/enums");
-  const actorContext = await resolveTenantActorContext(
-    businessSlug,
-    auth.session.user.id,
-  );
-  if (!actorContext.success) {
-    return { success: false, error: actorContext.error };
-  }
-  if (!hasStaffPermission(actorContext, StaffPermission.BOOKING_MARK_NO_SHOW)) {
-    return { success: false, error: "Forbidden" };
-  }
-
+  const validation = bookingNoShowIdSchema.safeParse(bookingId);
+  if (!validation.success) return { success: false, error: "Invalid input" };
   try {
-    const booking = await prisma.booking.findFirst({
-      where: { id: bookingId, business: { slug: businessSlug } },
-      select: { id: true, status: true, customer_id: true },
-    });
-
-    if (!booking) return { success: false, error: "Booking not found." };
-    if (booking.status === BookingStatus.CANCELLED) {
-      return { success: false, error: "Booking is already cancelled." };
-    }
-    if (booking.status === BookingStatus.COMPLETED) {
-      return {
-        success: false,
-        error: "Cannot mark a completed booking as no-show.",
-      };
-    }
-
-    // Anonymous walk-ins have no Customer to track no-shows against — only
-    // cancel the booking.
-    if (!booking.customer_id) {
-      await prisma.booking.update({
-        where: { id: bookingId },
-        data: { status: BookingStatus.CANCELLED },
-      });
-      revalidatePath(`/app/${businessSlug}`);
-      return { success: true };
-    }
-
-    const linkedCustomerId = booking.customer_id;
-    await prisma.$transaction(async (tx) => {
-      await tx.booking.update({
-        where: { id: bookingId },
-        data: { status: BookingStatus.CANCELLED },
-      });
-
-      const customer = await tx.customer.update({
-        where: { id: linkedCustomerId },
-        data: { no_show_count: { increment: 1 }, last_no_show_at: new Date() },
-        select: { no_show_count: true },
-      });
-
-      if (customer.no_show_count >= 2) {
-        await tx.customer.update({
-          where: { id: linkedCustomerId },
-          data: { trust_tier: "RESTRICTED" },
-        });
-      }
-    });
-
-    revalidatePath(`/app/${businessSlug}`);
-    return { success: true };
-  } catch {
-    return { success: false, error: "Failed to mark as no-show." };
-  }
+    const auth = await requireAuth({ write: true });
+    if (!auth.success) return auth;
+    const context = await resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+    if (!context.success) return { success: false, error: context.error === "Unauthorized" ? "Unauthorized" : "Forbidden" };
+    if (!hasStaffPermission(context, StaffPermission.BOOKING_MARK_NO_SHOW)) return { success: false, error: "Forbidden" };
+    const result = await markBookingNoShow(context, validation.data);
+    if (result.success) { try { revalidatePath(`/app/${context.businessSlug}`); } catch { /* The write already committed. */ } }
+    return result;
+  } catch { return { success: false, error: "Failed to mark as no-show." }; }
 }
 
 export async function deleteBookingAction(bookingId: number) {
-  const validation = bookingIdSchema.safeParse({ bookingId });
+  const validation = bookingDeletionIdSchema.safeParse(bookingId);
   if (!validation.success) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
-  const { session } = auth;
-
-  if (session?.user?.role !== "OWNER") {
-    return { success: false, error: "Unauthorized" };
-  }
-
   try {
-    await prisma.booking.delete({
-      where: {
-        id: bookingId,
-        business: { slug: auth.businessSlug },
-      },
-    });
-    revalidatePath(`/app/${auth.businessSlug}`);
-    return { success: true };
-  } catch (error) {
-    const e = error as { code?: string };
-    if (e.code === "P2025") {
-      return { success: false, error: "Failed to delete." };
-    }
-    return { success: false, error: "Failed to delete" };
-  }
+    const auth = await requireAuth({ write: true });
+    if (!auth.success) return auth;
+    if (auth.session.user.role !== "OWNER") return { success: false, error: "Unauthorized" };
+    const context = await resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+    if (!context.success) return { success: false, error: context.error === "Unauthorized" ? "Unauthorized" : "Forbidden" };
+    if (context.actorType !== "OWNER") return { success: false, error: "Unauthorized" };
+    const result = await deleteBookingPermanently(context, validation.data);
+    if (result.success) { try { revalidatePath(`/app/${context.businessSlug}`); } catch { /* The deletion already committed. */ } }
+    return result;
+  } catch { return { success: false, error: "Failed to delete" }; }
 }

@@ -69,6 +69,7 @@ export async function submitGcashPayment(input: {
 export async function approveGcashPayment(input: {
   paymentId: number;
   businessSlug: string;
+  businessId: string;
   actorUserId: string;
   source: "CUSTOMER_SUBMITTED" | "OWNER_VERIFIED_WITHOUT_SUBMISSION";
   attestation: {
@@ -87,7 +88,11 @@ export async function approveGcashPayment(input: {
           status: "PENDING",
           submitted_at:
             input.source === "CUSTOMER_SUBMITTED" ? { not: null } : null,
-          booking: { business: { slug: input.businessSlug }, status: "HOLD" },
+          booking: {
+            business_id: input.businessId,
+            business: { slug: input.businessSlug },
+            status: "HOLD",
+          },
         },
         include: {
           booking: {
@@ -111,6 +116,7 @@ export async function approveGcashPayment(input: {
       const locked = await tx.booking.updateMany({
         where: {
           id: payment.booking_id,
+          business_id: input.businessId,
           status: "HOLD",
           hold_expires_at: { gt: input.now },
         },
@@ -153,7 +159,12 @@ export async function approveGcashPayment(input: {
       });
 
       const changed = await tx.bookingPayment.updateMany({
-        where: { id: payment.id, status: "PENDING", verified_at: null },
+        where: {
+          id: payment.id,
+          status: "PENDING",
+          verified_at: null,
+          booking: { business_id: input.businessId },
+        },
         data: {
           status: "SUCCEEDED",
           paid_at: input.now,
@@ -163,7 +174,11 @@ export async function approveGcashPayment(input: {
       });
       if (changed.count !== 1) throw new Error("NOT_REVIEWABLE");
       const accepted = await tx.booking.updateMany({
-        where: { id: payment.booking_id, status: "CANCELLED" },
+        where: {
+          id: payment.booking_id,
+          business_id: input.businessId,
+          status: "CANCELLED",
+        },
         data: {
           status: "ACCEPTED",
           payment_status: "PARTIALLY_PAID",
@@ -255,7 +270,12 @@ export async function rejectGcashPayment(input: {
       });
       if (cancelled.count !== 1) throw new Error("NOT_REVIEWABLE");
       const changed = await tx.bookingPayment.updateMany({
-        where: { id: payment.id, status: "PENDING", verified_at: null },
+        where: {
+          id: payment.id,
+          status: "PENDING",
+          verified_at: null,
+          booking: { business_id: input.businessId },
+        },
         data: {
           status: "FAILED",
           verified_at: input.now,

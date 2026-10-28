@@ -1,0 +1,33 @@
+import { describe, expect, it } from "vitest";
+import { parseBusinessSettings } from "@/features/businesses/business-settings-schemas";
+function form() { const data = new FormData(); data.set("name", "Fixture Business"); data.set("initials", "fb"); return data; }
+describe("business settings input boundary", () => {
+  it.each([null, undefined, {}, "form", []])("rejects non-FormData %j", input => { expect(parseBusinessSettings(input).success).toBe(false); });
+  it.each([
+    ["name", ""], ["name", "   "], ["name", "x".repeat(201)], ["initials", ""], ["initials", "x".repeat(21)], ["description", "x".repeat(10001)],
+    ["gcashAccountName", "x".repeat(201)], ["gcashInstructions", "x".repeat(10001)], ["gcashMobileNumber", "123"], ["gcashMobileNumber", "x".repeat(51)],
+    ["latitude", "91"], ["latitude", "-91"], ["latitude", "14junk"], ["latitude", "NaN"], ["latitude", "Infinity"], ["latitude", "   "],
+    ["longitude", "181"], ["longitude", "-181"], ["longitude", "x".repeat(101)], ["growthBusinessType", "OTHER"],
+    ["growthMaxDiscountPercent", "NaN"], ["growthMaxDiscountPercent", "Infinity"], ["growthMaxDiscountPercent", "30garbage"], ["growthMaxDiscountPercent", "0x10"], ["growthMaxDiscountPercent", "   "], ["growthMaxDiscountPercent", "x".repeat(101)], ["latitude", "0x10"],
+    ["timezone", "x".repeat(101)], ["structure", "x".repeat(101)], ["growthToneProfile", "x".repeat(101)],
+    ["existingImageUrl", "javascript:alert(1)"], ["existingImageUrl", "http://fixture.invalid/image.png"], ["existingGcashQrImageUrl", "not a URL"],
+    ["existingImageUrl", "https://fixture.invalid/" + "x".repeat(2048)], ["allowEmployeeSelfBooking", "x".repeat(21)], ["managerCanServe", "x".repeat(21)], ["formalScheduleEnabled", "x".repeat(21)], ["growthEnableStudentPromo", "x".repeat(21)], ["growthAvoidCheapWording", "x".repeat(21)], ["growthWeatherHooksEnabled", "x".repeat(21)],
+  ])("rejects malformed/oversized %s", (key, value) => { const data = form(); data.set(key, value); expect(parseBusinessSettings(data).success).toBe(false); });
+  it.each(["name", "initials", "description", "gcashAccountName", "gcashMobileNumber", "gcashInstructions", "existingImageUrl", "latitude", "structure", "growthToneProfile", "allowEmployeeSelfBooking", "timezone", "growthBusinessType"])("rejects a File masquerading as %s", key => { const data = form(); data.set(key, new File(["synthetic"], "field.txt")); expect(parseBusinessSettings(data).success).toBe(false); });
+  it.each(["imageFile", "gcashQrImageFile"])("rejects non-file and unsupported/oversized file %s", key => {
+    const data = form(); data.set(key, "string"); expect(parseBusinessSettings(data).success).toBe(false);
+    data.set(key, new File(["synthetic"], "script.svg", { type: "image/svg+xml" })); expect(parseBusinessSettings(data).success).toBe(false);
+    data.set(key, new File([new Uint8Array(8 * 1024 * 1024 + 1)], "large.png", { type: "image/png" })); expect(parseBusinessSettings(data).success).toBe(false);
+  });
+  it("keeps empty upload placeholders absent", () => { const data = form(); data.set("imageFile", new File([], "empty.png")); data.set("gcashQrImageFile", ""); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { imageFile: null, gcashQrImageFile: null } }); });
+  it.each(["image/jpeg", "image/png", "image/webp", "image/gif"])("accepts bounded shared business image type %s", mime => { const data = form(); data.set("imageFile", new File(["synthetic"], "unsafe/filename", { type: mime })); expect(parseBusinessSettings(data).success).toBe(true); });
+  it.each(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"])("accepts supported QR type %s for later content validation", mime => { const data = form(); data.set("gcashQrImageFile", new File(["synthetic"], "qr", { type: mime })); expect(parseBusinessSettings(data).success).toBe(true); });
+  it.each(["SALON", "SPA", "CLINIC", "BARBERSHOP"])("accepts supported growth type %s", value => { const data = form(); data.set("growthBusinessType", value); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { growthBusinessType: value } }); });
+  it.each([["", 20], ["0", 20], ["-2", 1], ["1", 1], ["20.5", 20.5], ["120", 80]])("retains growth discount %s -> %s", (raw, expected) => { const data = form(); data.set("growthMaxDiscountPercent", raw as string); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { growthMaxDiscountPercent: expected } }); });
+  it.each([["OWNER_EMPLOYEE_SELF_SERVICE", true, true], ["MANAGER_LED", false, true], ["CASHIER_LED", false, false], ["MANAGER_CASHIER", false, true], ["unknown", true, true]])("retains template defaults %s", (structure, booking, manager) => { const data = form(); data.set("structure", structure as string); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { allowEmployeeSelfBooking: booking, managerCanServe: manager } }); });
+  it.each(["true", "TRUE", "on", "false", ""])("retains distinct structure and promo boolean conventions %s", raw => { const data = form(); data.set("allowEmployeeSelfBooking", raw); data.set("formalScheduleEnabled", raw); data.set("growthEnableStudentPromo", raw); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { allowEmployeeSelfBooking: raw.toLowerCase() === "true", formalScheduleEnabled: raw.toLowerCase() === "true", growthEnableStudentPromo: raw === "on" } }); });
+  it.each(["", "Invalid/Zone"])("preserves legacy timezone fallback %s", raw => { const data = form(); data.set("timezone", raw); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { timezone: "Asia/Manila" } }); });
+  it.each(["09171234567", "+639171234567", " 0917 123 4567 "])("retains GCash accepted phone %s", raw => { const data = form(); data.set("gcashMobileNumber", raw); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { gcashMobileNumber: raw.replace(/\s+/g, "") } }); });
+  it("ignores client identity and unknown scalar fields", () => { const data = form(); data.set("business_id", "foreign"); data.set("user_id", "foreign"); data.set("slug", "foreign"); const parsed = parseBusinessSettings(data); expect(parsed.success).toBe(true); if (parsed.success) { expect(parsed.data).not.toHaveProperty("business_id"); expect(parsed.data).not.toHaveProperty("user_id"); expect(parsed.data).not.toHaveProperty("slug"); } });
+  it("accepts coordinate edge and zero without false nulls", () => { const data = form(); data.set("latitude", "0"); data.set("longitude", "-180"); expect(parseBusinessSettings(data)).toMatchObject({ success: true, data: { latitude: 0, longitude: -180 } }); });
+});

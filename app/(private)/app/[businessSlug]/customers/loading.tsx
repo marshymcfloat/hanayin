@@ -1,6 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
 
 export default function Loading() {
+  return <OwnerRouteLoading section="customers" staffFallback={<StaffLoading />} />;
+}
+
+function StaffLoading() {
   return (
     <div className="flex flex-col p-4 md:p-8 bg-background min-h-screen">
       <section className="flex-1 flex flex-col w-full max-w-7xl mx-auto space-y-6">

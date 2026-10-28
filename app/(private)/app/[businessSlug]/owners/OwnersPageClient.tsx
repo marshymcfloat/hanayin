@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Owner, User } from "@/prisma/generated/prisma/client";
+import type { Owner } from "@/prisma/generated/prisma/client";
+import type { PublicUser } from "@/lib/auth/public-user";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, RefreshCcw, Crown } from "lucide-react";
@@ -11,7 +12,7 @@ import { EditOwnerPermissionsDialog } from "@/components/owners/EditOwnerPermiss
 import { OwnersTable } from "@/components/owners/OwnersTable";
 
 type OwnerWithUser = Owner & {
-  user: User;
+  user: PublicUser;
 };
 
 interface OwnersPageClientProps {

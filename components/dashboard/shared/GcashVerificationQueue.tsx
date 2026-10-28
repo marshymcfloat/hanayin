@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowRight, ShieldCheck } from "lucide-react";
@@ -35,9 +35,15 @@ import {
   type GcashResolutionOutcome,
   type GcashVerificationItem,
 } from "@/lib/types/manual-gcash";
+import type {
+  OwnerGcashFollowUpItem,
+  OwnerGcashVerificationItem,
+} from "@/features/payments/types/owner-gcash-review";
 import { cn, formatCurrency } from "@/lib/utils";
 
 type ReviewMode = "verify" | "reject" | "escalate" | null;
+type VerificationQueueItem = GcashVerificationItem | OwnerGcashVerificationItem;
+type FollowUpQueueItem = GcashFollowUpItem | OwnerGcashFollowUpItem;
 
 function dateTime(value: Date | string | null) {
   return value
@@ -53,15 +59,20 @@ export function GcashVerificationQueue({
   items,
   compact = false,
   total = items.length,
+  onSuccess,
+  themeClassName = "",
 }: {
   businessSlug: string;
-  items: GcashVerificationItem[];
+  items: VerificationQueueItem[];
   compact?: boolean;
   total?: number;
+  onSuccess?: () => void;
+  themeClassName?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [selected, setSelected] = useState<GcashVerificationItem | null>(null);
+  const submissionLock = useRef(false);
+  const [selected, setSelected] = useState<VerificationQueueItem | null>(null);
   const [mode, setMode] = useState<ReviewMode>(null);
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
@@ -75,7 +86,7 @@ export function GcashVerificationQueue({
     if (!pending) reset();
   };
   const open = (
-    item: GcashVerificationItem,
+    item: VerificationQueueItem,
     nextMode: Exclude<ReviewMode, null>,
   ) => {
     setSelected(item);
@@ -83,8 +94,10 @@ export function GcashVerificationQueue({
   };
 
   const submit = () => {
-    if (!selected || !mode) return;
+    if (!selected || !mode || submissionLock.current) return;
+    submissionLock.current = true;
     startTransition(async () => {
+      try {
       const result =
         mode === "verify"
           ? await approveGcashPaymentAction({
@@ -122,7 +135,13 @@ export function GcashVerificationQueue({
             : "Payment moved to needs resolution.",
       );
       reset();
-      router.refresh();
+      if (onSuccess) onSuccess();
+      else router.refresh();
+      } catch {
+        toast.error("Could not confirm the payment action. Check its status before retrying.");
+      } finally {
+        submissionLock.current = false;
+      }
     });
   };
 
@@ -257,7 +276,7 @@ export function GcashVerificationQueue({
         open={Boolean(mode && selected)}
         onOpenChange={(next) => !next && close()}
       >
-        <DialogContent className="max-w-lg rounded-3xl">
+        <DialogContent className={cn("max-w-lg rounded-3xl", themeClassName)}>
           <DialogHeader>
             <DialogTitle>
               {mode === "verify"
@@ -299,7 +318,7 @@ export function GcashVerificationQueue({
                   <SelectTrigger id="rejection-reason">
                     <SelectValue placeholder="Select a reason" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={themeClassName}>
                     {GCASH_REJECTION_REASONS.map((item) => (
                       <SelectItem key={item} value={item}>
                         {item}
@@ -369,14 +388,19 @@ export function GcashFollowUpQueue({
   businessSlug,
   items,
   compact = false,
+  onSuccess,
+  themeClassName = "",
 }: {
   businessSlug: string;
-  items: GcashFollowUpItem[];
+  items: FollowUpQueueItem[];
   compact?: boolean;
+  onSuccess?: () => void;
+  themeClassName?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [selected, setSelected] = useState<GcashFollowUpItem | null>(null);
+  const submissionLock = useRef(false);
+  const [selected, setSelected] = useState<FollowUpQueueItem | null>(null);
   const [outcome, setOutcome] = useState<GcashResolutionOutcome | "">("");
   const [note, setNote] = useState("");
   if (!items.length) return null;
@@ -438,7 +462,7 @@ export function GcashFollowUpQueue({
           if (!next && !pending) setSelected(null);
         }}
       >
-        <DialogContent className="max-w-md rounded-3xl">
+        <DialogContent className={cn("max-w-md rounded-3xl", themeClassName)}>
           <DialogHeader>
             <DialogTitle>Resolve payment follow-up</DialogTitle>
             <DialogDescription>
@@ -457,7 +481,7 @@ export function GcashFollowUpQueue({
               <SelectTrigger id="resolution-outcome">
                 <SelectValue placeholder="Select outcome" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={themeClassName}>
                 <SelectItem value="NO_PAYMENT_FOUND">
                   No payment found
                 </SelectItem>
@@ -488,6 +512,9 @@ export function GcashFollowUpQueue({
               onClick={() =>
                 selected &&
                 startTransition(async () => {
+                  if (submissionLock.current) return;
+                  submissionLock.current = true;
+                  try {
                   const result = await resolveGcashFollowUpAction({
                     paymentId: selected.id,
                     businessSlug,
@@ -502,7 +529,13 @@ export function GcashFollowUpQueue({
                   setSelected(null);
                   setOutcome("");
                   setNote("");
-                  router.refresh();
+                  if (onSuccess) onSuccess();
+                  else router.refresh();
+                  } catch {
+                    toast.error("Could not confirm the resolution. Check its status before retrying.");
+                  } finally {
+                    submissionLock.current = false;
+                  }
                 })
               }
             >

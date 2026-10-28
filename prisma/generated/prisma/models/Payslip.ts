@@ -232,7 +232,7 @@ export type PayslipGroupByOutputType = {
   _max: PayslipMaxAggregateOutputType | null
 }
 
-type GetPayslipGroupByPayload<T extends PayslipGroupByArgs> = Prisma.PrismaPromise<
+export type GetPayslipGroupByPayload<T extends PayslipGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PayslipGroupByOutputType, T['by']> &
       {
@@ -263,6 +263,7 @@ export type PayslipWhereInput = {
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   attendance_records?: Prisma.EmployeeAttendanceListRelationFilter
   availed_services?: Prisma.AvailedServiceListRelationFilter
+  leave_allocations?: Prisma.LeaveAllocationListRelationFilter
 }
 
 export type PayslipOrderByWithRelationInput = {
@@ -278,6 +279,7 @@ export type PayslipOrderByWithRelationInput = {
   employee?: Prisma.EmployeeOrderByWithRelationInput
   attendance_records?: Prisma.EmployeeAttendanceOrderByRelationAggregateInput
   availed_services?: Prisma.AvailedServiceOrderByRelationAggregateInput
+  leave_allocations?: Prisma.LeaveAllocationOrderByRelationAggregateInput
 }
 
 export type PayslipWhereUniqueInput = Prisma.AtLeast<{
@@ -297,6 +299,7 @@ export type PayslipWhereUniqueInput = Prisma.AtLeast<{
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   attendance_records?: Prisma.EmployeeAttendanceListRelationFilter
   availed_services?: Prisma.AvailedServiceListRelationFilter
+  leave_allocations?: Prisma.LeaveAllocationListRelationFilter
 }, "id" | "employee_id_starting_date_ending_date">
 
 export type PayslipOrderByWithAggregationInput = {
@@ -342,6 +345,7 @@ export type PayslipCreateInput = {
   employee: Prisma.EmployeeCreateNestedOneWithoutPayslipsInput
   attendance_records?: Prisma.EmployeeAttendanceCreateNestedManyWithoutPaid_in_payslipInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipUncheckedCreateInput = {
@@ -356,6 +360,7 @@ export type PayslipUncheckedCreateInput = {
   total_salary: number
   attendance_records?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipUpdateInput = {
@@ -369,6 +374,7 @@ export type PayslipUpdateInput = {
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPayslipsNestedInput
   attendance_records?: Prisma.EmployeeAttendanceUpdateManyWithoutPaid_in_payslipNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipUncheckedUpdateInput = {
@@ -383,6 +389,7 @@ export type PayslipUncheckedUpdateInput = {
   total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
   attendance_records?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipCreateManyInput = {
@@ -568,6 +575,22 @@ export type PayslipUpdateOneWithoutAvailed_servicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PayslipUpdateToOneWithWhereWithoutAvailed_servicesInput, Prisma.PayslipUpdateWithoutAvailed_servicesInput>, Prisma.PayslipUncheckedUpdateWithoutAvailed_servicesInput>
 }
 
+export type PayslipCreateNestedOneWithoutLeave_allocationsInput = {
+  create?: Prisma.XOR<Prisma.PayslipCreateWithoutLeave_allocationsInput, Prisma.PayslipUncheckedCreateWithoutLeave_allocationsInput>
+  connectOrCreate?: Prisma.PayslipCreateOrConnectWithoutLeave_allocationsInput
+  connect?: Prisma.PayslipWhereUniqueInput
+}
+
+export type PayslipUpdateOneWithoutLeave_allocationsNestedInput = {
+  create?: Prisma.XOR<Prisma.PayslipCreateWithoutLeave_allocationsInput, Prisma.PayslipUncheckedCreateWithoutLeave_allocationsInput>
+  connectOrCreate?: Prisma.PayslipCreateOrConnectWithoutLeave_allocationsInput
+  upsert?: Prisma.PayslipUpsertWithoutLeave_allocationsInput
+  disconnect?: Prisma.PayslipWhereInput | boolean
+  delete?: Prisma.PayslipWhereInput | boolean
+  connect?: Prisma.PayslipWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PayslipUpdateToOneWithWhereWithoutLeave_allocationsInput, Prisma.PayslipUpdateWithoutLeave_allocationsInput>, Prisma.PayslipUncheckedUpdateWithoutLeave_allocationsInput>
+}
+
 export type PayslipCreateWithoutEmployeeInput = {
   starting_date: Date | string
   ending_date: Date | string
@@ -578,6 +601,7 @@ export type PayslipCreateWithoutEmployeeInput = {
   total_salary: number
   attendance_records?: Prisma.EmployeeAttendanceCreateNestedManyWithoutPaid_in_payslipInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipUncheckedCreateWithoutEmployeeInput = {
@@ -591,6 +615,7 @@ export type PayslipUncheckedCreateWithoutEmployeeInput = {
   total_salary: number
   attendance_records?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipCreateOrConnectWithoutEmployeeInput = {
@@ -644,6 +669,7 @@ export type PayslipCreateWithoutAttendance_recordsInput = {
   total_salary: number
   employee: Prisma.EmployeeCreateNestedOneWithoutPayslipsInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipUncheckedCreateWithoutAttendance_recordsInput = {
@@ -657,6 +683,7 @@ export type PayslipUncheckedCreateWithoutAttendance_recordsInput = {
   status?: $Enums.PayslipStatus
   total_salary: number
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipCreateOrConnectWithoutAttendance_recordsInput = {
@@ -685,6 +712,7 @@ export type PayslipUpdateWithoutAttendance_recordsInput = {
   total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPayslipsNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipUncheckedUpdateWithoutAttendance_recordsInput = {
@@ -698,6 +726,7 @@ export type PayslipUncheckedUpdateWithoutAttendance_recordsInput = {
   status?: Prisma.EnumPayslipStatusFieldUpdateOperationsInput | $Enums.PayslipStatus
   total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipCreateWithoutAvailed_servicesInput = {
@@ -710,6 +739,7 @@ export type PayslipCreateWithoutAvailed_servicesInput = {
   total_salary: number
   employee: Prisma.EmployeeCreateNestedOneWithoutPayslipsInput
   attendance_records?: Prisma.EmployeeAttendanceCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipUncheckedCreateWithoutAvailed_servicesInput = {
@@ -723,6 +753,7 @@ export type PayslipUncheckedCreateWithoutAvailed_servicesInput = {
   status?: $Enums.PayslipStatus
   total_salary: number
   attendance_records?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutPaid_in_payslipInput
 }
 
 export type PayslipCreateOrConnectWithoutAvailed_servicesInput = {
@@ -751,6 +782,7 @@ export type PayslipUpdateWithoutAvailed_servicesInput = {
   total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPayslipsNestedInput
   attendance_records?: Prisma.EmployeeAttendanceUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipUncheckedUpdateWithoutAvailed_servicesInput = {
@@ -764,6 +796,77 @@ export type PayslipUncheckedUpdateWithoutAvailed_servicesInput = {
   status?: Prisma.EnumPayslipStatusFieldUpdateOperationsInput | $Enums.PayslipStatus
   total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
   attendance_records?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
+}
+
+export type PayslipCreateWithoutLeave_allocationsInput = {
+  starting_date: Date | string
+  ending_date: Date | string
+  released_at?: Date | string | null
+  comment?: string | null
+  deduction?: number
+  status?: $Enums.PayslipStatus
+  total_salary: number
+  employee: Prisma.EmployeeCreateNestedOneWithoutPayslipsInput
+  attendance_records?: Prisma.EmployeeAttendanceCreateNestedManyWithoutPaid_in_payslipInput
+  availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPaid_in_payslipInput
+}
+
+export type PayslipUncheckedCreateWithoutLeave_allocationsInput = {
+  id?: number
+  employee_id: number
+  starting_date: Date | string
+  ending_date: Date | string
+  released_at?: Date | string | null
+  comment?: string | null
+  deduction?: number
+  status?: $Enums.PayslipStatus
+  total_salary: number
+  attendance_records?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
+  availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPaid_in_payslipInput
+}
+
+export type PayslipCreateOrConnectWithoutLeave_allocationsInput = {
+  where: Prisma.PayslipWhereUniqueInput
+  create: Prisma.XOR<Prisma.PayslipCreateWithoutLeave_allocationsInput, Prisma.PayslipUncheckedCreateWithoutLeave_allocationsInput>
+}
+
+export type PayslipUpsertWithoutLeave_allocationsInput = {
+  update: Prisma.XOR<Prisma.PayslipUpdateWithoutLeave_allocationsInput, Prisma.PayslipUncheckedUpdateWithoutLeave_allocationsInput>
+  create: Prisma.XOR<Prisma.PayslipCreateWithoutLeave_allocationsInput, Prisma.PayslipUncheckedCreateWithoutLeave_allocationsInput>
+  where?: Prisma.PayslipWhereInput
+}
+
+export type PayslipUpdateToOneWithWhereWithoutLeave_allocationsInput = {
+  where?: Prisma.PayslipWhereInput
+  data: Prisma.XOR<Prisma.PayslipUpdateWithoutLeave_allocationsInput, Prisma.PayslipUncheckedUpdateWithoutLeave_allocationsInput>
+}
+
+export type PayslipUpdateWithoutLeave_allocationsInput = {
+  starting_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ending_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  released_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deduction?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumPayslipStatusFieldUpdateOperationsInput | $Enums.PayslipStatus
+  total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPayslipsNestedInput
+  attendance_records?: Prisma.EmployeeAttendanceUpdateManyWithoutPaid_in_payslipNestedInput
+  availed_services?: Prisma.AvailedServiceUpdateManyWithoutPaid_in_payslipNestedInput
+}
+
+export type PayslipUncheckedUpdateWithoutLeave_allocationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  starting_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ending_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  released_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deduction?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumPayslipStatusFieldUpdateOperationsInput | $Enums.PayslipStatus
+  total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  attendance_records?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
+  availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipCreateManyEmployeeInput = {
@@ -787,6 +890,7 @@ export type PayslipUpdateWithoutEmployeeInput = {
   total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
   attendance_records?: Prisma.EmployeeAttendanceUpdateManyWithoutPaid_in_payslipNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipUncheckedUpdateWithoutEmployeeInput = {
@@ -800,6 +904,7 @@ export type PayslipUncheckedUpdateWithoutEmployeeInput = {
   total_salary?: Prisma.FloatFieldUpdateOperationsInput | number
   attendance_records?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutPaid_in_payslipNestedInput
 }
 
 export type PayslipUncheckedUpdateManyWithoutEmployeeInput = {
@@ -821,11 +926,13 @@ export type PayslipUncheckedUpdateManyWithoutEmployeeInput = {
 export type PayslipCountOutputType = {
   attendance_records: number
   availed_services: number
+  leave_allocations: number
 }
 
 export type PayslipCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   attendance_records?: boolean | PayslipCountOutputTypeCountAttendance_recordsArgs
   availed_services?: boolean | PayslipCountOutputTypeCountAvailed_servicesArgs
+  leave_allocations?: boolean | PayslipCountOutputTypeCountLeave_allocationsArgs
 }
 
 /**
@@ -852,6 +959,13 @@ export type PayslipCountOutputTypeCountAvailed_servicesArgs<ExtArgs extends runt
   where?: Prisma.AvailedServiceWhereInput
 }
 
+/**
+ * PayslipCountOutputType without action
+ */
+export type PayslipCountOutputTypeCountLeave_allocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeaveAllocationWhereInput
+}
+
 
 export type PayslipSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -866,6 +980,7 @@ export type PayslipSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   attendance_records?: boolean | Prisma.Payslip$attendance_recordsArgs<ExtArgs>
   availed_services?: boolean | Prisma.Payslip$availed_servicesArgs<ExtArgs>
+  leave_allocations?: boolean | Prisma.Payslip$leave_allocationsArgs<ExtArgs>
   _count?: boolean | Prisma.PayslipCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payslip"]>
 
@@ -912,6 +1027,7 @@ export type PayslipInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   attendance_records?: boolean | Prisma.Payslip$attendance_recordsArgs<ExtArgs>
   availed_services?: boolean | Prisma.Payslip$availed_servicesArgs<ExtArgs>
+  leave_allocations?: boolean | Prisma.Payslip$leave_allocationsArgs<ExtArgs>
   _count?: boolean | Prisma.PayslipCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PayslipIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -927,6 +1043,7 @@ export type $PayslipPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     employee: Prisma.$EmployeePayload<ExtArgs>
     attendance_records: Prisma.$EmployeeAttendancePayload<ExtArgs>[]
     availed_services: Prisma.$AvailedServicePayload<ExtArgs>[]
+    leave_allocations: Prisma.$LeaveAllocationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1335,6 +1452,7 @@ export interface Prisma__PayslipClient<T, Null = never, ExtArgs extends runtime.
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   attendance_records<T extends Prisma.Payslip$attendance_recordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payslip$attendance_recordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   availed_services<T extends Prisma.Payslip$availed_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payslip$availed_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailedServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leave_allocations<T extends Prisma.Payslip$leave_allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payslip$leave_allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1569,6 +1687,11 @@ export type PayslipFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Skip the first `n` Payslips.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Payslips.
+   */
   distinct?: Prisma.PayslipScalarFieldEnum | Prisma.PayslipScalarFieldEnum[]
 }
 
@@ -1814,6 +1937,30 @@ export type Payslip$availed_servicesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.AvailedServiceScalarFieldEnum | Prisma.AvailedServiceScalarFieldEnum[]
+}
+
+/**
+ * Payslip.leave_allocations
+ */
+export type Payslip$leave_allocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeaveAllocation
+   */
+  select?: Prisma.LeaveAllocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeaveAllocation
+   */
+  omit?: Prisma.LeaveAllocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeaveAllocationInclude<ExtArgs> | null
+  where?: Prisma.LeaveAllocationWhereInput
+  orderBy?: Prisma.LeaveAllocationOrderByWithRelationInput | Prisma.LeaveAllocationOrderByWithRelationInput[]
+  cursor?: Prisma.LeaveAllocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeaveAllocationScalarFieldEnum | Prisma.LeaveAllocationScalarFieldEnum[]
 }
 
 /**

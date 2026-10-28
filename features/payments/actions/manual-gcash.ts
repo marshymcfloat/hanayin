@@ -142,10 +142,15 @@ export async function approveGcashPaymentAction(rawInput: {
   try {
     const outboxMessageId = await approveGcashPayment({
       ...parsed.data,
+      businessId: auth.actor.businessId,
       actorUserId: auth.userId,
       now: new Date(),
     });
-    await deliverOutboxMessageNow(outboxMessageId);
+    try {
+      await deliverOutboxMessageNow(outboxMessageId);
+    } catch (error) {
+      console.error("GCash confirmation delivery failed:", error);
+    }
     refreshBookingDashboards(parsed.data.businessSlug);
     return { success: true as const };
   } catch (error) {

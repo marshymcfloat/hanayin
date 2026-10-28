@@ -35,6 +35,7 @@ const platformNav: PlatformNavItem[] = [
   { href: "/platform/invoices", label: "Invoices", icon: "invoices" },
   { href: "/platform/referrals", label: "Referrals", icon: "referrals" },
   { href: "/platform/audit", label: "Audit", icon: "audit" },
+  { href: "/platform/payroll-rules", label: "Payroll rules", icon: "audit" },
 ];
 
 export default function PlatformLayout({

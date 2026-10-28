@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const conflictMock = vi.hoisted(() => vi.fn());
 const prismaMock = vi.hoisted(() => ({
   employee: { findFirst: vi.fn() },
-  employeeAttendance: { upsert: vi.fn() },
+  owner: { findFirst: vi.fn() },
+  employeeAttendance: { upsert: vi.fn(), findUnique: vi.fn() },
+  payrollEarning: { findFirst: vi.fn() },
+  attendanceRevision: { create: vi.fn() },
+  $transaction: vi.fn(),
   availedService: { findMany: vi.fn() },
 }));
 
@@ -24,6 +28,8 @@ describe("attendance admin service", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     conflictMock.mockResolvedValue(undefined);
+    prismaMock.owner.findFirst.mockResolvedValue({ id: 1, business_id: "biz-a" });
+    prismaMock.$transaction.mockImplementation(callback => callback(prismaMock));
   });
 
   it("scopes employee mutation lookup to the authenticated tenant", async () => {
@@ -35,6 +41,7 @@ describe("attendance admin service", () => {
         9,
         new Date("2026-09-16T00:00:00.000Z"),
         "ABSENT",
+        "owner-a",
       ),
     ).resolves.toEqual({ success: false, error: "Unauthorized" });
     expect(prismaMock.employee.findFirst).toHaveBeenCalledWith({
@@ -57,6 +64,7 @@ describe("attendance admin service", () => {
         9,
         new Date("2026-09-16T00:00:00.000Z"),
         "ABSENT",
+        "owner-a",
       ),
     ).resolves.toEqual({
       success: false,

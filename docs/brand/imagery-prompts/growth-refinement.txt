@@ -1,0 +1,13 @@
+Edit the supplied generated Hanaylo Growth opportunity product card with ONE targeted change: completely remove the large middle notice containing "Occupancy unavailable" and "No occupancy estimate is available for this opportunity." Do not replace it with any occupancy claim, number, visualization, or new field. This is a marketing crop focused on the useful actual product fields.
+Rebalance the vertical spacing of the remaining content into a clean landscape 3:2 composition. Keep the same crisp, straight-on white rounded card, pale lavender surround, violet #6940D6 accent, charcoal type and button, actual upward trend icon, and minimalist border/shadow. Use comfortably generous space without a large empty gap where the notice was removed.
+Preserve EVERY other field, string, icon, and content relationship exactly:
+"Growth opportunity"
+"Business growth signal"
+"82%"
+"A quieter afternoon can make room for a promotion."
+"Best window"
+"2:00 PM–5:00 PM"
+"Recommended offer"
+"Percentage discount"
+"Create offer"
+Keep the confidence badge beside the reason, the two actual details side by side in their rounded panel, and the bottom wide Create offer button with megaphone icon and separate round up-chevron control. No other text changes, no invented content, no logo, no photography, no device hardware, no perspective, no new modules. Output one refined 3:2 image, ideally 1536x1024.

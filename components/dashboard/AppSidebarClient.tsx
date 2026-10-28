@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/collapsible";
 import { SidebarUserFooter } from "./SidebarUserFooter";
 import { cn } from "@/lib/utils";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 type NavItem = {
   title: string;
@@ -152,11 +153,6 @@ export function AppSidebarClient({
           },
         ] satisfies NavItem[])
       : []),
-    ...(entitlements.reportsCore
-      ? ([
-          { title: "Reports", url: `/app/${slug}/reports`, icon: BarChart3 },
-        ] satisfies NavItem[])
-      : []),
   ];
 
   const navGroups: NavGroup[] = [
@@ -172,13 +168,13 @@ export function AppSidebarClient({
             icon: Users,
             items: [
               {
-                title: "Employees",
+                title: "People",
                 url: `/app/${slug}/employees`,
                 icon: UserCircle,
               },
               { title: "Owners", url: `/app/${slug}/owners`, icon: Crown },
               {
-                title: "Attendance",
+                title: "Time & Leave",
                 url: `/app/${slug}/attendance`,
                 icon: ClipboardList,
               },
@@ -186,7 +182,7 @@ export function AppSidebarClient({
             ],
           },
         ] satisfies NavGroup[])
-      : []),
+      : [{ title: "My Pay", icon: Wallet, items: [{ title: "My Pay", url: `/app/${slug}/my-pay`, icon: Wallet }] }]),
     {
       title: "Customers",
       icon: Calendar,
@@ -217,7 +213,7 @@ export function AppSidebarClient({
     items.some((item) => isActive(item.url));
 
   return (
-      <Sidebar className="overflow-x-hidden z-30 border-r border-sidebar-border">
+      <Sidebar className="overflow-x-hidden z-30 border-r border-sidebar-border" mobileClassName={isOwner ? undefined : staffTheme.workspace}>
         {/* ── Logo ──────────────────────────────────── */}
         <SidebarHeader className="px-4 py-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
@@ -244,7 +240,8 @@ export function AppSidebarClient({
                   asChild
                   isActive={isActive(dashboardItem.url)}
                   className={cn(
-                    "relative h-9 rounded-xl px-3 transition-all duration-200 cursor-pointer",
+                    "relative rounded-xl px-3 transition-all duration-200 cursor-pointer",
+                    isOwner ? "h-9" : "min-h-11",
                     isActive(dashboardItem.url)
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-sm"
                       : "text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
@@ -283,7 +280,8 @@ export function AppSidebarClient({
                     {/* Group trigger */}
                     <CollapsibleTrigger
                       className={cn(
-                        "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 transition-all duration-250 cursor-pointer",
+                        "flex w-full items-center gap-2.5 rounded-xl px-3 transition-all duration-250 cursor-pointer",
+                        isOwner ? "py-2.5" : "min-h-11 py-2.5",
                         "[&[data-state=open]_.chevron]:rotate-90",
                         groupActive
                           ? "text-sidebar-foreground hover:bg-sidebar-accent/60"
@@ -321,7 +319,8 @@ export function AppSidebarClient({
                                   asChild
                                   isActive={isActive(item.url)}
                                   className={cn(
-                                    "relative h-8 rounded-xl px-3 transition-all duration-200 cursor-pointer",
+                                    "relative rounded-xl px-3 transition-all duration-200 cursor-pointer",
+                                    isOwner ? "h-8" : "min-h-11",
                                     isActive(item.url)
                                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-sm"
                                       : "text-sidebar-foreground/55 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
@@ -394,7 +393,7 @@ export function AppSidebarClient({
         </SidebarContent>
 
         <SidebarFooter className="border-t border-sidebar-border p-3">
-          <SidebarUserFooter user={user} businessSlug={slug} />
+          <SidebarUserFooter user={user} businessSlug={slug} staffPresentation={!isOwner} />
         </SidebarFooter>
       </Sidebar>
   );

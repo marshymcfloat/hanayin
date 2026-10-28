@@ -1,4 +1,5 @@
 "use client";
+import { useBookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 
 /**
  * ReassignStaffDialog — per-service-line trigger that lets a manager
@@ -50,7 +51,8 @@ export type ReassignStaffDialogProps = {
   /** Currently-assigned employeeId — filtered out of the picker. */
   currentEmployeeId?: number | null;
   /** Optional override for the trigger element. */
-  trigger?: React.ReactNode;
+trigger?: React.ReactNode;
+  onChanged?: () => void;
 };
 
 export function ReassignStaffDialog({
@@ -58,9 +60,11 @@ export function ReassignStaffDialog({
   serviceName,
   currentEmployeeName,
   currentEmployeeId,
-  trigger,
+trigger,
+  onChanged,
 }: ReassignStaffDialogProps) {
   const router = useRouter();
+  const staffDialogTheme = useBookingDialogTheme();
   const [open, setOpen] = useState(false);
   const [loadState, setLoadState] = useState<
     | { kind: "idle" }
@@ -130,7 +134,8 @@ export function ReassignStaffDialog({
       }
       toast.success("Service reassigned");
       setOpen(false);
-      router.refresh();
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       showActionErrorToast(msg, { action: "reassign this service" });
@@ -154,7 +159,7 @@ export function ReassignStaffDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-3xl">
+      <DialogContent className={`rounded-3xl ${staffDialogTheme}`}>
         <DialogHeader>
           <DialogTitle>Reassign &ldquo;{serviceName}&rdquo;</DialogTitle>
           <DialogDescription>
@@ -190,7 +195,7 @@ export function ReassignStaffDialog({
                 <SelectTrigger id="reassign-employee" className="rounded-xl">
                   <SelectValue placeholder="Pick a staff member" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectContent className={`rounded-xl ${staffDialogTheme}`}>
                   {pickerOptions.map((employee) => (
                     <SelectItem key={employee.id} value={String(employee.id)}>
                       {employee.name}

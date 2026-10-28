@@ -1,39 +1,19 @@
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
 import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
-import {
-  getBusinessHours,
-  getServiceCategories,
-} from "@/features/businesses/actions/business-hours";
-import { getBookingPolicy } from "@/features/bookings/actions/booking-policy";
-import { BusinessHoursClient } from "./BusinessHoursClient";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/auth/auth-options";
+import type { ComponentProps } from "react";
+import LegacyPage from "./LegacyPage";
+import PreviewPage from "@/app/(private-preview)/owner-dashboard-preview/[businessSlug]/business-hours/page";
 
-export default async function BusinessHoursPage({
-  params,
-}: {
-  params: Promise<{ businessSlug: string }>;
-}) {
-  const { businessSlug } = await params;
+type Props = ComponentProps<typeof LegacyPage>;
 
-  const [hours, categories, bookingPolicy] = await Promise.all([
-    getBusinessHours(businessSlug),
-    getServiceCategories(businessSlug),
-    getBookingPolicy(businessSlug),
-  ]);
+export default function Page(props: Props) {
+  return <Suspense fallback={<OwnerRouteLoading section="business hours" />}><PageContent {...props} /></Suspense>;
+}
 
-  return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-        </div>
-      }
-    >
-      <BusinessHoursClient
-        initialHours={hours}
-        categories={categories}
-        initialPolicy={bookingPolicy}
-        businessSlug={businessSlug}
-      />
-    </Suspense>
-  );
+async function PageContent(props: Props) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "OWNER") return <PreviewPage />;
+  return <LegacyPage {...props} />;
 }

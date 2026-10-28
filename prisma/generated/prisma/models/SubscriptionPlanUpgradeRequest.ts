@@ -214,7 +214,7 @@ export type SubscriptionPlanUpgradeRequestGroupByOutputType = {
   _max: SubscriptionPlanUpgradeRequestMaxAggregateOutputType | null
 }
 
-type GetSubscriptionPlanUpgradeRequestGroupByPayload<T extends SubscriptionPlanUpgradeRequestGroupByArgs> = Prisma.PrismaPromise<
+export type GetSubscriptionPlanUpgradeRequestGroupByPayload<T extends SubscriptionPlanUpgradeRequestGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SubscriptionPlanUpgradeRequestGroupByOutputType, T['by']> &
       {
@@ -2246,6 +2246,11 @@ export type SubscriptionPlanUpgradeRequestFindManyArgs<ExtArgs extends runtime.T
    * Skip the first `n` SubscriptionPlanUpgradeRequests.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SubscriptionPlanUpgradeRequests.
+   */
   distinct?: Prisma.SubscriptionPlanUpgradeRequestScalarFieldEnum | Prisma.SubscriptionPlanUpgradeRequestScalarFieldEnum[]
 }
 

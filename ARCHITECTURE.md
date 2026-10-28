@@ -2,7 +2,7 @@
 
 Status: living document
 
-Last verified: 2026-09-16
+Last verified: 2026-09-23
 
 Audience: engineers and coding agents working in this repository
 
@@ -82,6 +82,21 @@ The main user-facing surfaces are:
 - Route Handlers under `/api` for authentication, health, upload, report export,
   public QR data, social connection callbacks, and cron execution.
 
+## Rendering and Streaming — Current
+
+Cache Components are enabled. Next.js prerenders the reusable route shell and
+streams request-time work behind React Suspense boundaries. Runtime inputs such
+as `params`, `searchParams`, `cookies()`, and `headers()` must be read by a
+component inside the boundary that represents their loading state. Awaiting a
+runtime input in a page before returning `<Suspense>` leaves the read outside the
+boundary and blocks prerendering.
+
+The target pattern keeps stable navigation, headings, and other useful shell
+content outside a narrow boundary while the request-dependent child renders a
+visible, layout-stable fallback. Shared layouts and wrappers affect multiple
+routes and therefore require sibling-route browser checks. The normative rules
+and browser verification loop are in [`FRONTEND.md`](FRONTEND.md).
+
 ## Request and Security Boundaries — Current
 
 `proxy.ts` is the first application boundary for matched routes. It protects
@@ -130,6 +145,10 @@ Supporting invariants are documented in
 [`docs/tenant-isolation.md`](docs/tenant-isolation.md),
 [`docs/authorization.md`](docs/authorization.md), and
 [`docs/integration-inventory.md`](docs/integration-inventory.md).
+
+Implementation rules are summarized in [`BACKEND.md`](BACKEND.md). The
+repository-wide discovery, change, verification, and evidence workflow is in
+[`docs/harness-engineering.md`](docs/harness-engineering.md).
 
 Public actions do not have an authenticated tenant session. They must instead
 resolve the business from validated public identifiers and apply the public-flow
@@ -191,6 +210,16 @@ The transactional outbox separates committing business events from delivery.
 Immediate delivery may be attempted, but failed work remains persisted for the
 normal cron processor to retry. Handlers must be safe under retries and avoid
 duplicating externally visible effects.
+
+Customer messaging has a separate tenant-owned encrypted conversation and job
+graph in `features/social/customer-messaging`, not Social posts or the generic
+outbox. Its signed Messenger intake and authenticated worker are default off.
+Individual leases, revision/consent/human-control checks and expiry cleanup
+precede processing; uncertain sends are quarantined, never blindly retried.
+Publishing tokens/connection status do not establish messaging readiness. A
+reviewed channel-verification writer and provider pilot remain prerequisites.
+See [ADR-0002](docs/decisions/0002-guarded-social-conversation-assistant.md) and
+the [inbox runbook](docs/social-conversation-assistant.md).
 
 Integration boundaries currently include:
 
@@ -289,6 +318,8 @@ The accepted feature-first ownership and dependency decision is recorded in
 [`docs/decisions/0001-feature-first-modular-monolith.md`](docs/decisions/0001-feature-first-modular-monolith.md).
 
 ## Verification Expectations
+
+Payroll and workforce financial ownership, immutable publication, separate payment settlement, and additive business cutover follow [ADR 0003](docs/decisions/0003-immutable-payroll-and-workforce-ledger.md). Effective compensation, source earnings, statutory calculations, statements, and payments belong to payroll; actual work, attendance review, schedules, and leave evidence belong to workforce. See [Payroll operations](docs/payroll-operations.md) for certification, migration, and recovery invariants.
 
 Architecture changes must follow `AGENTS.md`. At minimum, application changes
 run lint, typecheck, and focused tests. Routing or production-boundary changes

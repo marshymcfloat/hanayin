@@ -1,4 +1,8 @@
 "use client";
+import { useBookingQuote } from "@/components/bookings/useBookingQuote";
+import { BookingQuoteContext } from "@/components/bookings/BookingQuoteContext";
+import { bookingSelections, bookingSelectionUnit } from "@/features/bookings/booking-selection";
+import { quoteBookingAction } from "@/features/bookings/actions/booking-quote";
 
 import {
   createBooking,
@@ -72,12 +76,21 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
+import ownerStyles from "./OwnerBookingForm.module.css";
+import redesignStyles from "@/components/bookings/design-study/live-booking-sheet.module.css";
+import designStyles from "@/components/bookings/design-study/booking-design-experiment.module.css";
+import { OwnerBookingCatalogSkeleton } from "@/components/bookings/OwnerBookingFormLoading";
+import { useOptionalViewer } from "@/lib/auth/viewer-context";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 export type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
 };
 
 interface BookingFormProps {
+  businessSlug?: string;
+  bookingDesign?: "owner" | "redesign";
+  onBookingStepChange?: (step: number) => void;
   services: Service[];
   packages?: PackageWithItems[];
   categories: string[];
@@ -86,7 +99,12 @@ interface BookingFormProps {
   currentEmployeeId?: number;
   isModal?: boolean;
   mobileActionBarMode?: "auto" | "fixed" | "sticky";
+  presentation?: "default" | "owner";
   onSuccess?: () => void;
+  onOwnerSubmit?: (payload: Parameters<typeof createBooking>[0]) => void;
+  ownerSubmissionPending?: boolean;
+  ownerFormOpen?: boolean;
+  catalogPending?: boolean;
   gcash?: {
     accountName: string | null;
     mobileNumber: string | null;
@@ -95,16 +113,14 @@ interface BookingFormProps {
   };
 }
 
-import {
-  getCustomerPendingFlows,
-  PendingFlow,
-} from "@/features/catalog/actions/flow-actions";
+import { getCustomerPendingFlows } from "@/features/catalog/actions/flow-actions";
+import type { PendingFlow } from "@/features/catalog/pending-flow-types";
 import {
   resolveCustomerTrust,
   requestBookingOtp,
   verifyBookingOtp,
-  type CustomerTrust,
 } from "@/features/bookings/actions/booking-otp";
+import type { CustomerTrust } from "@/features/bookings/otp-types";
 import { format } from "date-fns";
 import {
   Sparkles,
@@ -135,6 +151,7 @@ import {
 } from "./booking-form-helpers";
 
 type SelectedService = {
+  packageInstanceId?: string; packageChoiceId?: string; selectionKey?: string;
   id: number;
   name: string;
   price: number;
@@ -181,6 +198,7 @@ function StepHeader({
   icon: Icon,
   count,
   showDivider = true,
+  owner = false,
 }: {
   step: number;
   eyebrow: string;
@@ -189,24 +207,23 @@ function StepHeader({
   count?: number;
   /** Hide for the first step where the divider would sit at the top of the card. */
   showDivider?: boolean;
+  owner?: boolean;
 }) {
   return (
-    <div className="space-y-3">
-      {showDivider ? <div className="h-px bg-black/[0.06]" /> : null}
+    <div className={cn("space-y-3", owner && "mb-2")}>
+      {showDivider && !owner ? <div className="h-px bg-black/[0.06]" /> : null}
       <div className="flex items-start gap-3">
-        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+        <span className={cn("grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15", owner && "size-11 rounded-[14px] bg-[#EFF9E8] text-[#315E18] ring-0")}>
           <Icon className="size-4" />
         </span>
         <div className="min-w-0 leading-tight">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Step {step} · {eyebrow}
-          </p>
+          {!owner && <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Step {step} · {eyebrow}</p>}
           <div className="mt-0.5 flex items-center gap-2">
-            <h3 className="text-base font-semibold tracking-[-0.01em] text-foreground sm:text-[17px]">
+            <h3 className={cn("text-base font-semibold tracking-[-0.01em] text-foreground sm:text-[17px]", owner && "text-lg font-bold tracking-[-0.025em] sm:text-xl")}>
               {title}
             </h3>
             {count != null ? (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold tabular-nums text-primary ring-1 ring-inset ring-primary/15">
+              <span className={cn("rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold tabular-nums text-primary ring-1 ring-inset ring-primary/15", owner && "bg-[#EFF9E8] text-[#315E18] ring-0")}>
                 {count}
               </span>
             ) : null}
@@ -218,6 +235,9 @@ function StepHeader({
 }
 
 export default function BookingForm({
+  businessSlug: providedBusinessSlug,
+  bookingDesign = "owner",
+  onBookingStepChange,
   services,
   packages = [],
   categories,
@@ -226,9 +246,35 @@ export default function BookingForm({
   currentEmployeeId,
   isModal = false,
   mobileActionBarMode = "auto",
+  presentation = "default",
   onSuccess,
+  onOwnerSubmit,
+  ownerSubmissionPending = false,
+  ownerFormOpen = true,
+  catalogPending = false,
   gcash,
 }: BookingFormProps) {
+  const owner = presentation === "owner";
+  const redesign = owner && bookingDesign === "redesign";
+  const redesignFormRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const root = redesignFormRef.current;
+    if (!redesign || !root) return;
+    const timers = new Map<HTMLElement, ReturnType<typeof setTimeout>>();
+    const onScroll = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.dataset.scrolling !== "true") target.dataset.scrolling = "true";
+      clearTimeout(timers.get(target));
+      timers.set(target, setTimeout(() => { delete target.dataset.scrolling; timers.delete(target); }, 800));
+    };
+    root.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      root.removeEventListener("scroll", onScroll, true);
+      timers.forEach((timer, target) => { clearTimeout(timer); delete target.dataset.scrolling; });
+    };
+  }, [redesign]);
+  const staffDialogTheme = useOptionalViewer()?.actorType === "EMPLOYEE" ? staffTheme.workspace : "";
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -253,7 +299,7 @@ export default function BookingForm({
   });
 
   const params = useParams<{ businessSlug: string }>();
-  const businessSlug = params.businessSlug;
+  const businessSlug = providedBusinessSlug ?? params.businessSlug;
   const canceled = searchParams.get("canceled");
 
   const { data: saleEventsResult } = useQuery({
@@ -349,8 +395,27 @@ export default function BookingForm({
     unknown
   > | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+  const duplicateLookupRef = useRef(false);
+  const duplicateAttemptRef = useRef(0);
+  const ownerFormOpenRef = useRef(ownerFormOpen);
+  ownerFormOpenRef.current = ownerFormOpen;
+  useEffect(() => {
+    if (!ownerFormOpen) {
+      duplicateAttemptRef.current += 1;
+      duplicateLookupRef.current = false;
+      setIsCheckingDuplicate(false);
+      setPendingDuplicate(null);
+      setPendingSubmitPayload(null);
+    }
+  }, [ownerFormOpen]);
+  useEffect(() => () => {
+    ownerFormOpenRef.current = false;
+    duplicateAttemptRef.current += 1;
+  }, []);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [activeWizardStep, setActiveWizardStep] = useState(0);
+  useEffect(() => { onBookingStepChange?.(activeWizardStep); }, [activeWizardStep, onBookingStepChange]);
+  const selectionSheetActive = redesign && activeWizardStep === 0;
 
   const revealWizardStep = useCallback((step: number, targetId?: string) => {
     setActiveWizardStep(step);
@@ -381,6 +446,7 @@ export default function BookingForm({
   const [otpVerificationId, setOtpVerificationId] = useState<
     number | undefined
   >(undefined);
+  const [otpVerificationToken, setOtpVerificationToken] = useState<string | undefined>(undefined);
   const [isCheckingTrust, setIsCheckingTrust] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -402,7 +468,7 @@ export default function BookingForm({
     return () => clearInterval(timer);
   }, [otpCooldown]);
 
-  const isOtpVerified = !!otpVerificationId;
+  const isOtpVerified = !!otpVerificationId && !!otpVerificationToken;
   // Public users must complete OTP before the rest of the form unlocks
   const isPublicVerified = isEmployee || isOtpVerified;
 
@@ -413,6 +479,7 @@ export default function BookingForm({
     setOtpTier(null);
     setOtpSent(false);
     setOtpVerificationId(undefined);
+    setOtpVerificationToken(undefined);
     setOtpCode("");
     try {
       const result = await resolveCustomerTrust(otpPhone.trim(), businessSlug);
@@ -456,8 +523,9 @@ export default function BookingForm({
         otpCode.trim(),
         businessSlug,
       );
-      if (result.success && result.verificationId) {
+      if (result.success && result.verificationId && result.verificationToken) {
         setOtpVerificationId(result.verificationId);
+        setOtpVerificationToken(result.verificationToken);
         setOtpTier(result.customerTier ?? "NEW");
         form.setValue("phone", otpPhone.trim(), { shouldValidate: true });
         let prefilled = false;
@@ -743,26 +811,33 @@ export default function BookingForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [total, businessSlug]);
 
+  const quoteDate = useMemo(() => effectiveIsWalkIn ? roundUpToInterval(new Date(), bookingPolicy?.slotIntervalMinutes ?? 30) : selectedTime ?? selectedDate ?? new Date(), [effectiveIsWalkIn, bookingPolicy?.slotIntervalMinutes, selectedTime, selectedDate]);
+  const quotedSelections = useMemo(() => bookingSelections(selectedServices), [selectedServices]);
+  const liveQuote = useBookingQuote({ businessSlug: businessSlug ?? "", scheduledAt: quoteDate, services: quotedSelections, paymentMethod, paymentType, voucherCode: appliedVoucher?.code });
+  const requestRef = useRef<{ payload: string; key: string } | null>(null);
+  const [quoteChecking, setQuoteChecking] = useState(false);
+  const quoteLock = useRef(false);
   const finalTotal = useMemo(() => {
+    if (liveQuote.data) return liveQuote.data.grandTotal;
     if (appliedVoucher) {
       return Math.max(0, total - appliedVoucher.discountAmount);
     }
     return total;
-  }, [total, appliedVoucher]);
+  }, [total, appliedVoucher, liveQuote.data]);
 
-  const voucherDiscountAmount = appliedVoucher?.discountAmount ?? 0;
+  const voucherDiscountAmount = liveQuote.data?.voucherDiscount ?? appliedVoucher?.discountAmount ?? 0;
 
   const finalAmountToPay = useMemo(() => {
     return calculateBookingTotal({
-      subtotal: total,
-      voucherDiscount: voucherDiscountAmount,
+      subtotal: finalTotal,
+      voucherDiscount: 0,
       paymentMethod: "CASH",
       paymentType,
       downpaymentPercentage: isEmployee
         ? (bookingPolicy?.downpaymentPercentage ?? 50)
         : 20,
     });
-  }, [total, voucherDiscountAmount, paymentType, isEmployee, bookingPolicy]);
+  }, [finalTotal, paymentType, isEmployee, bookingPolicy]);
 
   const totalDuration = useMemo(() => {
     return selectedServices.reduce((total, s) => {
@@ -1017,6 +1092,10 @@ export default function BookingForm({
       // not turn them into opaque production 500 responses. Re-throw locally
       // to retain the form's existing per-code recovery behavior.
       if (result.type === "error") {
+        if (result.code === "QUOTE_CHANGED") {
+          if (result.quote) queryClient.setQueryData(liveQuote.key, result.quote);
+          else void liveQuote.refetch();
+        }
         throw new Error(result.code);
       }
       return result;
@@ -1079,6 +1158,7 @@ export default function BookingForm({
       const code = error instanceof Error ? error.message : "";
       if (code === "OTP_REQUIRED" || code === "OTP_INVALID_OR_EXPIRED") {
         setOtpVerificationId(undefined);
+        setOtpVerificationToken(undefined);
         setOtpTier("NEW");
         toast.error("Verification expired. Please re-verify your number.");
         return;
@@ -1181,6 +1261,7 @@ export default function BookingForm({
         });
         return;
       }
+      if (code === "QUOTE_CHANGED") { toast.info("Prices or offer availability changed. Review the refreshed total before confirming."); return; }
       // Free-form server errors get surfaced as-is so the operator
       // sees the actual reason ("Invalid or expired voucher code",
       // "Minimum spend of 500 required to use this voucher", etc.)
@@ -1198,6 +1279,26 @@ export default function BookingForm({
       toast.error(fallbackMessage);
     },
   });
+
+  const dispatchBooking = useCallback(async (payload: Parameters<typeof createBooking>[0]) => {
+    if (quoteLock.current) return;
+    quoteLock.current = true; setQuoteChecking(true);
+    try {
+      const result = await quoteBookingAction(payload);
+      if (!result.success) { toast.error(result.error); return; }
+      if (!liveQuote.data || result.quote.fingerprint !== liveQuote.data.fingerprint) {
+        queryClient.setQueryData(liveQuote.key, result.quote);
+        toast.info("Prices were refreshed. Review the total and confirm again.");
+        return;
+      }
+      if (result.quote.voucherOutcome === "BETTER_OFFER") toast.info("A better offer was applied. Your voucher has not been used.");
+      const reviewed = { ...payload, expectedQuoteFingerprint: result.quote.fingerprint };
+      const payloadKey = JSON.stringify(reviewed);
+      if (requestRef.current?.payload !== payloadKey) requestRef.current = { payload: payloadKey, key: crypto.randomUUID() };
+      const confirmed = { ...reviewed, requestKey: requestRef.current.key };
+      if (owner && onOwnerSubmit) onOwnerSubmit(confirmed); else createBookingAction(confirmed);
+    } finally { quoteLock.current = false; setQuoteChecking(false); }
+  }, [owner, onOwnerSubmit, createBookingAction, liveQuote.data, liveQuote.key, queryClient]);
 
   const onSubmit = useCallback(
     (formData: unknown) => {
@@ -1217,11 +1318,16 @@ export default function BookingForm({
         toast.error("Business info missing. Please refresh the page.");
         return;
       }
+      if (owner && (catalogPending || ownerSubmissionPending || duplicateLookupRef.current || !ownerFormOpenRef.current)) return;
+      if (owner && onOwnerSubmit && !hasReviewedDetails) {
+        guideToReviewConfirmation();
+        return;
+      }
 
       // Log removed for privacy
 
       // Persist an exact slot time for scheduled bookings.
-      const scheduledAt = effectiveIsWalkIn ? new Date() : data.selectedTime;
+      const scheduledAt = effectiveIsWalkIn ? quoteDate : data.selectedTime;
       if (!scheduledAt) {
         toast.error("Please select a date and time.");
         return;
@@ -1233,12 +1339,11 @@ export default function BookingForm({
           )
         : scheduledAt;
 
-      const flatServicesPayload = data.services.flatMap((s: SelectedService) =>
+      const flatServicesPayload = data.services.flatMap((s: SelectedService, index: number) =>
         Array.from({ length: s.quantity || 1 }).map((_, i) => {
           const uniqueId = buildServiceClaimUniqueId(s, i);
           return {
-            id: s.id,
-            quantity: 1,
+            ...bookingSelectionUnit(s, index, i),
             claimedByCurrentEmployee:
               claimStepEnabled && claimedUniqueIds.includes(uniqueId),
             packageId: s.packageId,
@@ -1274,6 +1379,7 @@ export default function BookingForm({
         forceCreateCustomer,
         staffSelectionMode: computedStaffSelectionMode,
         otpVerificationId: isEmployee ? undefined : otpVerificationId,
+        otpVerificationToken: isEmployee ? undefined : otpVerificationToken,
       } as const;
 
       // Staff "new customer" path: pre-flight duplicate check. If a record
@@ -1290,6 +1396,8 @@ export default function BookingForm({
           (data.phone && data.phone.trim().length > 0));
 
       if (shouldCheckDuplicate) {
+        const duplicateAttempt = ++duplicateAttemptRef.current;
+        if (owner) duplicateLookupRef.current = true;
         setIsCheckingDuplicate(true);
         findDuplicateCustomerForBooking({
           name: capitalizedCustomerName,
@@ -1297,7 +1405,13 @@ export default function BookingForm({
           phone: data.phone?.trim() || undefined,
         })
           .then((result) => {
+            if (owner && (duplicateAttempt !== duplicateAttemptRef.current || !ownerFormOpenRef.current)) return;
+            duplicateLookupRef.current = false;
             setIsCheckingDuplicate(false);
+            if (owner && !result.success) {
+              toast.error("Could not check for an existing customer. Please try again.");
+              return;
+            }
             if (result.success && result.data) {
               // Pause submission, show the dialog. Stash the payload so we
               // can re-fire it after staff resolves the dialog.
@@ -1306,34 +1420,48 @@ export default function BookingForm({
               return;
             }
             // No duplicate (or lookup failed) — proceed.
-            createBookingAction(submitPayload);
+            dispatchBooking(submitPayload);
           })
           .catch(() => {
+            if (owner && (duplicateAttempt !== duplicateAttemptRef.current || !ownerFormOpenRef.current)) return;
+            duplicateLookupRef.current = false;
             setIsCheckingDuplicate(false);
+            if (owner) {
+              if (ownerFormOpenRef.current) toast.error("Could not check for an existing customer. Please try again.");
+              return;
+            }
             // Don't block the booking on a dedup-check failure — the server
             // will fall through to its own silent-link logic which is the
             // pre-existing behavior.
-            createBookingAction(submitPayload);
+            dispatchBooking(submitPayload);
           });
         return;
       }
 
-      createBookingAction(submitPayload);
+      dispatchBooking(submitPayload);
     },
     [
       businessSlug,
       effectiveIsWalkIn,
+      quoteDate,
       isEmployee,
       claimStepEnabled,
       claimedUniqueIds,
       currentEmployeeId,
-      createBookingAction,
+      dispatchBooking,
+      owner,
+      ownerSubmissionPending,
+      catalogPending,
+      onOwnerSubmit,
+      hasReviewedDetails,
+      guideToReviewConfirmation,
       appliedVoucher,
       bookingPolicy?.slotIntervalMinutes,
       selectedEmployeeId,
       requireSelectedStaff,
       otpPhone,
       otpVerificationId,
+      otpVerificationToken,
       pickerValue,
       forceCreateCustomer,
     ],
@@ -1366,12 +1494,12 @@ export default function BookingForm({
         phone: pendingDuplicate.phone,
       },
     });
-    createBookingAction(payload as Parameters<typeof createBookingAction>[0]);
+    dispatchBooking(payload as Parameters<typeof createBooking>[0]);
   }, [
     pendingDuplicate,
     pendingSubmitPayload,
     handlePickerChange,
-    createBookingAction,
+    dispatchBooking,
   ]);
 
   /**
@@ -1386,20 +1514,20 @@ export default function BookingForm({
     setForceCreateCustomer(true);
     setPendingDuplicate(null);
     setPendingSubmitPayload(null);
-    createBookingAction(payload as Parameters<typeof createBookingAction>[0]);
-  }, [pendingSubmitPayload, createBookingAction]);
+    dispatchBooking(payload as Parameters<typeof createBooking>[0]);
+  }, [pendingSubmitPayload, dispatchBooking]);
 
   const isGcashConfigured =
     isEmployee || !!(gcash?.accountName?.trim() && gcash?.mobileNumber?.trim());
   const isSubmitDisabled =
-    isPending ||
+    quoteChecking || isPending || ownerSubmissionPending || (owner && catalogPending) ||
     isRedirecting ||
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
     !hasReviewedDetails ||
     !isGcashConfigured;
   const isSubmissionBlockedBeforeReview =
-    isPending ||
+    quoteChecking || isPending || ownerSubmissionPending || (owner && catalogPending) ||
     isRedirecting ||
     (!selectedTime && !effectiveIsWalkIn) ||
     selectedServices.length === 0 ||
@@ -1465,7 +1593,7 @@ export default function BookingForm({
     ],
   );
   const isLastWizardStep = activeWizardStep === wizardSteps.length - 1;
-  const canContinueWizard = wizardStepComplete[activeWizardStep] ?? false;
+  const canContinueWizard = !quoteChecking && !(owner && catalogPending) && (wizardStepComplete[activeWizardStep] ?? false);
   const goToNextWizardStep = useCallback(async () => {
     if (!canContinueWizard) {
       if (activeWizardStep === (isEmployee ? 2 : 3)) {
@@ -1590,10 +1718,10 @@ export default function BookingForm({
       },
       {
         value: "ONLINE" as const,
-        label: "Paid Online (GCash / Maya)",
+        label: owner ? "Online" : "Paid Online (GCash / Maya)",
       },
     ];
-  }, [isEmployee]);
+  }, [isEmployee, owner]);
 
   const paymentTypeOptions = useMemo(() => {
     if (isEmployee) {
@@ -1624,17 +1752,23 @@ export default function BookingForm({
   }, [bookingPolicy, form, isEmployee]);
 
   return (
-    <Form {...form}>
+    <BookingQuoteContext.Provider value={liveQuote.data}><Form {...form}>
       <form
+        ref={redesignFormRef}
+        data-selection-sheet={selectionSheetActive || undefined}
         onSubmit={form.handleSubmit(onSubmit, handleInvalidSubmit)}
         aria-busy={!isEmployee && (isPending || isRedirecting)}
         className={cn(
           "relative flex flex-col gap-4 lg:flex-row lg:gap-10",
+          owner && ownerStyles.form,
+          redesign && redesignStyles.form,
+          owner && "gap-4 lg:gap-6",
           usesFixedMobileActionBar
             ? "pb-[calc(10rem+env(safe-area-inset-bottom))] sm:pb-[calc(11rem+env(safe-area-inset-bottom))] lg:pb-0"
             : "pb-0",
         )}
       >
+        {selectedServices.length > 0 && <div className="col-span-full rounded-xl border border-[#E6DCF3] bg-[#FAF7FD] px-4 py-3 text-xs leading-5" role="status" aria-live="polite">{quoteChecking || liveQuote.isFetching ? "Confirming current prices…" : liveQuote.isError ? <><span>Prices could not be confirmed.</span> <button type="button" className="underline" onClick={() => { void liveQuote.refetch(); }}>Try again</button></> : liveQuote.data?.voucherOutcome === "BETTER_OFFER" ? "A better offer was applied. Your voucher has not been used." : liveQuote.data?.offers.length ? `Applied: ${liveQuote.data.offers.map(offer => offer.title).join(", ")}.` : "Prices are checked again before confirmation."}</div>}
         {!isEmployee && (isPending || isRedirecting) && (
           <div
             className="fixed inset-0 z-[100] grid place-items-center bg-background/90 px-6 backdrop-blur-sm"
@@ -1665,7 +1799,12 @@ export default function BookingForm({
             </div>
           </div>
         )}
-        <div className={cn("min-w-0 flex flex-1 flex-col gap-4 pb-2 sm:gap-6 sm:pb-4")}>
+        {selectionSheetActive && <div className={redesignStyles.selectionSurface}>
+          <ServicePicker redesign presentation="owner" form={form} services={services} packages={packages} categories={categories} saleEvents={saleEvents} businessSlug={businessSlug!} selectedDate={selectedDate} disabled={catalogPending || ownerSubmissionPending}
+            selectionSheet={{ total: finalTotal, canContinue: canContinueWizard, onContinue: goToNextWizardStep }} />
+          {catalogPending && <p className={redesignStyles.catalogLoading} role="status">Loading service catalog…</p>}
+        </div>}
+        <div className={cn("min-w-0 flex flex-1 flex-col gap-4 pb-2 sm:gap-6 sm:pb-4", owner && "gap-4 sm:gap-5")} style={selectionSheetActive ? { display: "none" } : undefined}>
           {/* Hidden Fields & Identification */}
           <FormField
             control={form.control}
@@ -1677,11 +1816,12 @@ export default function BookingForm({
 
           <div
             id="booking-wizard-progress"
-            className="order-0 sticky top-[calc(var(--bf-header-h,0px)+0.5rem)] z-20 -mx-1 rounded-xl border border-primary/15 bg-background/95 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85"
+            data-redesign-progress={redesign || undefined}
+            className={cn("order-0 sticky top-[calc(var(--bf-header-h,0px)+0.5rem)] z-20 -mx-1 rounded-xl border border-primary/15 bg-background/95 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85", owner && "top-0 mx-0 rounded-[16px] border-[#E7E9E4] bg-[#FAFBF8] px-2 py-1.5 shadow-none backdrop-blur-none supports-[backdrop-filter]:bg-[#FAFBF8] sm:px-3 sm:py-2")}
           >
-            <div className="mb-1 flex min-h-6 items-center justify-between gap-3 px-1">
-              <p className="min-w-0 truncate text-xs font-semibold text-foreground">
-                <span className="mr-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-primary">
+            {!owner && <div className="mb-1 flex min-h-6 items-center justify-between gap-3 px-1">
+              <p className={cn("min-w-0 truncate text-xs font-semibold text-foreground", owner && "text-sm text-[#20211F]")}>
+                <span className={cn("mr-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-primary", owner && "text-[#4D8F24]")}>
                   Step {activeWizardStep + 1}/{wizardSteps.length}
                 </span>
                 {wizardSteps[activeWizardStep].hint}
@@ -1692,7 +1832,7 @@ export default function BookingForm({
                 )}
                 %
               </span>
-            </div>
+            </div>}
             <div
               className="grid gap-1.5"
               style={{
@@ -1705,7 +1845,8 @@ export default function BookingForm({
                 const completed =
                   wizardStepComplete[index] && index < activeWizardStep;
                 const accessible =
-                  index <= activeWizardStep || wizardStepComplete[index - 1];
+                  !(owner && catalogPending) &&
+                  (index <= activeWizardStep || wizardStepComplete[index - 1]);
                 return (
                   <button
                     key={item.label}
@@ -1725,22 +1866,23 @@ export default function BookingForm({
                     }
                     className={cn(
                       "group min-h-11 min-w-0 cursor-pointer rounded-lg px-0.5 py-1 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed",
-                      index === activeWizardStep && "bg-primary/8",
+                      owner && "flex min-h-12 flex-col items-center justify-center py-0.5",
+                      index === activeWizardStep && (owner ? "bg-[#EFF9E8]" : "bg-primary/8"),
                     )}
                   >
                     <span
                       className={cn(
                         "mx-auto mb-0.5 flex size-5 items-center justify-center rounded-full border text-[10px] font-bold transition-colors",
                         index === activeWizardStep
-                          ? "border-primary bg-primary text-primary-foreground"
+                          ? owner ? "border-[#20211F] bg-[#20211F] text-[#B9F379]" : "border-primary bg-primary text-primary-foreground"
                           : completed
-                            ? "border-primary bg-primary/10 text-primary"
+                            ? owner ? "border-[#72CF35] bg-[#EFF9E8] text-[#315E18]" : "border-primary bg-primary/10 text-primary"
                             : "border-border bg-background text-muted-foreground",
                       )}
                     >
                       {completed ? <Check className="size-3" /> : index + 1}
                     </span>
-                    <span className="block truncate text-[9px] font-semibold leading-3 text-muted-foreground sm:text-[10px]">
+                    <span className={cn("block truncate text-[9px] font-semibold leading-3 text-muted-foreground sm:text-[10px]", owner && "text-[#343633]")}>
                       {item.label}
                     </span>
                   </button>
@@ -1749,9 +1891,9 @@ export default function BookingForm({
             </div>
           </div>
 
-          {activeWizardStep > 0 && (
+          {activeWizardStep > 0 && (!owner || !isLastWizardStep) && (
             <div
-              className="order-[1] space-y-2"
+              className={cn("order-[1] space-y-2", owner && "flex flex-col gap-x-4 gap-y-0 space-y-0 border-b border-[#E7E9E4] px-1 sm:flex-row")}
               aria-label="Completed booking steps"
             >
               {wizardSteps.slice(0, activeWizardStep).map((step, index) => (
@@ -1759,16 +1901,16 @@ export default function BookingForm({
                   key={step.label}
                   type="button"
                   onClick={() => revealWizardStep(index)}
-                  className="group flex min-h-11 w-full cursor-pointer items-center gap-3 border-b border-border/60 px-1 py-2.5 text-left transition-colors hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  className={cn("group flex min-h-11 w-full cursor-pointer items-center gap-3 border-b border-border/60 px-1 py-2.5 text-left transition-colors hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", owner && "min-w-0 flex-1 border-0 px-0 focus-visible:ring-[#72CF35] sm:w-auto")}
                 >
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <span className={cn("flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary", owner && "size-5 bg-[#EFF9E8] text-[#315E18]")}>
                     <Check className="size-3.5" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                       {step.label}
                     </span>
-                    <span className="block truncate text-sm font-medium text-foreground">
+                    <span className={cn("block truncate text-sm font-medium text-foreground", owner && "text-xs text-[#343633] sm:max-w-40")}>
                       {wizardStepSummaries[index]}
                     </span>
                   </span>
@@ -1851,6 +1993,7 @@ export default function BookingForm({
                       onClick={() => {
                         setOtpTier(null);
                         setOtpVerificationId(undefined);
+                        setOtpVerificationToken(undefined);
                         setOtpSent(false);
                         setOtpCode("");
                         setOtpError(null);
@@ -2021,7 +2164,7 @@ export default function BookingForm({
                 activeWizardStep !== (isEmployee ? 2 : 3) && "hidden",
               )}
             >
-              <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+              {owner ? <StepHeader step={3} eyebrow="Who" title="Customer details" icon={User2} owner /> : <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 shrink-0">
                   <span className="text-xs font-bold text-primary">
                     {isEmployee ? 3 : 4}
@@ -2035,16 +2178,17 @@ export default function BookingForm({
                     Auto-filled
                   </span>
                 )}
-              </div>
+              </div>}
 
               {isEmployee ? (
                 // Staff path: single CustomerPicker handles all three modes
                 // (existing / new / anonymous walk-in). The picker writes back
                 // into form fields via handlePickerChange so submission stays
                 // unchanged downstream.
-                <div className="space-y-2">
-                  <FormLabel>Customer</FormLabel>
+                <div className={cn("space-y-2", owner && "rounded-[20px] border border-[#E7E9E4] bg-[#FAFBF8] p-3 sm:p-5")}>
+                  <FormLabel className={cn(owner && "text-xs font-bold uppercase tracking-[0.1em] text-[#696C67]")}>Customer</FormLabel>
                   <CustomerPicker
+                    presentation={presentation}
                     businessSlug={businessSlug!}
                     value={pickerValue}
                     onChange={handlePickerChange}
@@ -2293,12 +2437,13 @@ export default function BookingForm({
               !canAccessStep2 && "pointer-events-none opacity-50",
             )}
           >
-            <div className="space-y-4">
+            <div className={cn("space-y-4", owner && "rounded-[20px] border border-[#E7E9E4] bg-[#FAFBF8] p-3 sm:p-5")}>
               <StepHeader
                 step={isEmployee ? 2 : 3}
                 eyebrow="When"
                 title="Choose date and time"
                 icon={CalendarCheck}
+                owner={owner}
               />
 
               {!canAccessStep2 && (
@@ -2314,7 +2459,7 @@ export default function BookingForm({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormControl>
-                        <div className="space-y-2">
+                        <div className={cn("space-y-2", owner && "space-y-3")}>
                           {(() => {
                             const today = new Date();
                             const tomorrow = new Date(today);
@@ -2329,6 +2474,8 @@ export default function BookingForm({
 
                             return (
                               <DatePicker
+                                active={!owner || ownerFormOpen}
+                                presentation={presentation}
                                 value={field.value as Date | undefined}
                                 onChange={(date: Date | undefined) => {
                                   if (effectiveIsWalkIn) handleWalkInToggle();
@@ -2350,8 +2497,9 @@ export default function BookingForm({
                                 }
                                 triggerClassName={cn(
                                   "h-11 text-sm",
+                                  owner && "h-14 text-sm font-semibold",
                                   isCustomDate &&
-                                    "border-primary bg-primary/[0.06] text-primary hover:bg-primary/10 hover:text-primary",
+                                    (owner ? "border-[#72CF35] bg-[#EFF9E8] text-[#20211F] hover:bg-[#E4F5D8]" : "border-primary bg-primary/[0.06] text-primary hover:bg-primary/10 hover:text-primary"),
                                 )}
                               />
                             );
@@ -2359,6 +2507,7 @@ export default function BookingForm({
                           <div
                             className={cn(
                               "grid overflow-hidden rounded-lg border border-border/60 bg-muted/40 p-0.5",
+                              owner && "gap-1.5 rounded-[14px] border-0 bg-[#F1F2EF] p-1.5",
                               isEmployee
                                 ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
                                 : "grid-cols-2",
@@ -2386,8 +2535,9 @@ export default function BookingForm({
                                   aria-pressed={!!isSelected}
                                   className={cn(
                                     "h-9 rounded-md px-2 text-xs font-medium shadow-none sm:text-sm",
+                                    owner && "h-11 rounded-[10px] font-semibold focus-visible:ring-[#72CF35]",
                                     isSelected
-                                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                                      ? owner ? "bg-[#20211F] text-white hover:bg-[#343633] hover:text-white" : "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
                                       : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
                                   )}
                                   onClick={() => {
@@ -2404,8 +2554,9 @@ export default function BookingForm({
                               <label
                                 className={cn(
                                   "ml-0.5 flex h-9 cursor-pointer items-center gap-2 border-l border-border/70 px-2.5 transition-colors",
+                                  owner && "h-11 rounded-[10px] border-l-0 px-2 text-xs font-semibold",
                                   effectiveIsWalkIn
-                                    ? "bg-primary/[0.08] text-primary"
+                                    ? owner ? "bg-[#20211F] text-white" : "bg-primary/[0.08] text-primary"
                                     : "text-muted-foreground hover:bg-background/70 hover:text-foreground",
                                 )}
                               >
@@ -2446,22 +2597,24 @@ export default function BookingForm({
               activeWizardStep !== (isEmployee ? 0 : 1) && "hidden",
             )}
           >
-            <StepHeader
+            {redesign ? <div className={redesignStyles.intro}><h3>Choose services</h3><p>Select treatments for this appointment.</p></div> : <StepHeader
               step={isEmployee ? 1 : 2}
               eyebrow="What"
               title="Choose services"
               icon={Sparkles}
               count={selectedServices.length || undefined}
               showDivider={false}
-            />
-
+              owner={owner}
+            />}
             <FormField
               control={form.control}
               name="services"
               render={() => (
                 <FormItem>
                   <FormControl>
-                    <ServicePicker
+                    {selectionSheetActive ? <span /> : owner && catalogPending ? <OwnerBookingCatalogSkeleton /> : <ServicePicker
+                      redesign={redesign}
+                      presentation={presentation}
                       form={form}
                       services={services}
                       packages={packages}
@@ -2469,12 +2622,18 @@ export default function BookingForm({
                       saleEvents={saleEvents}
                       businessSlug={businessSlug!}
                       selectedDate={selectedDate}
-                    />
+                    />}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {owner && selectedServices.length > 0 && (
+              <section aria-label="Selected treatments" className="space-y-2 border-t border-[#E7E9E4] pt-3 lg:hidden">
+                <div className="flex items-baseline justify-between gap-3"><h4 className="text-sm font-bold text-[#20211F]">Selected treatments</h4><span className="font-mono text-xs text-[#696C67]">{totalSelectedServiceUnits} units</span></div>
+                <SelectedServiceList form={form} services={selectedServices} presentation="owner" />
+              </section>
+            )}
           </div>
 
           {canAccessStep3 && !effectiveIsWalkIn && selectedDate && (
@@ -2496,16 +2655,16 @@ export default function BookingForm({
                   activeWizardStep !== (isEmployee ? 1 : 2) && "hidden",
                 )}
               >
-                <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-5">
+                <div className={cn("flex items-center justify-between gap-3 border-t border-border/60 pt-5", owner && "border-[#E7E9E4]")}>
                   <div className="flex items-center gap-2">
-                    <Clock className="size-4 text-primary" />
-                    <h3 className="font-semibold text-foreground">
+                    <Clock className={cn("size-4 text-primary", owner && "text-[#315E18]")} />
+                    <h3 className={cn("font-semibold text-foreground", owner && "text-[#20211F]")}>
                       Available times
                     </h3>
                   </div>
                   <Badge
                     variant="secondary"
-                    className="bg-primary/10 text-primary"
+                    className={cn("bg-primary/10 text-primary", owner && "bg-[#EFF9E8] text-[#315E18]")}
                   >
                     {timeSlots.filter((slot) => slot.available).length} open
                   </Badge>
@@ -2521,6 +2680,7 @@ export default function BookingForm({
                       </FormLabel>
                       <FormControl>
                         <TimeSlotPicker
+                          presentation={presentation}
                           slots={timeSlots}
                           alternativeSlots={alternativeSlots}
                           value={field.value}
@@ -2619,17 +2779,18 @@ export default function BookingForm({
               <div
                 className={cn(
                   "order-40 space-y-2 py-1 animate-in fade-in duration-200 sm:py-2",
+                  owner && "order-[55]",
                   activeWizardStep !== (isEmployee ? 2 : 3) && "hidden",
                 )}
               >
-                <div className="flex items-center justify-between gap-2">
+                <div className={cn("flex items-center justify-between gap-2", owner && "border-t border-[#E7E9E4] pt-5")}>
                   <div className="flex items-center gap-2">
-                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <div className={cn("flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10", owner && "size-9 rounded-xl bg-[#EFF9E8]")}>
                       <span className="text-[11px] font-bold text-primary">
                         {isEmployee ? 3 : 4}
                       </span>
                     </div>
-                    <h3 className="text-base font-semibold tracking-tight">
+                    <h3 className={cn("text-base font-semibold tracking-tight", owner && "text-[#20211F]")}>
                       Claim Services
                     </h3>
                   </div>
@@ -2645,6 +2806,7 @@ export default function BookingForm({
                 </div>
 
                 <ServiceClaimSelector
+                  presentation={presentation}
                   services={selectedServices.flatMap((s) =>
                     Array.from({
                       length: Math.floor(Number(s.quantity) || 1),
@@ -2672,6 +2834,7 @@ export default function BookingForm({
               )}
             >
               <BookingCheckoutReview
+                presentation={presentation}
                 key={activeWizardStep}
                 serviceCount={totalSelectedServiceUnits}
                 schedule={scheduleSummary}
@@ -2701,7 +2864,7 @@ export default function BookingForm({
                   )
                 }
                 servicesContent={
-                  <SelectedServiceList form={form} services={selectedServices} />
+                  <SelectedServiceList form={form} services={selectedServices} presentation={presentation} />
                 }
                 paymentControls={
                   <div className="space-y-3">
@@ -2730,6 +2893,7 @@ export default function BookingForm({
                               <FormControl>
                                 <SegmentedToggle options={paymentMethodOptions} value={field.value} onChange={field.onChange} className="w-full" />
                               </FormControl>
+                              {owner && <p className="text-[11px] text-[#696C67]">Online payments use GCash or Maya.</p>}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -2983,7 +3147,7 @@ export default function BookingForm({
             </div>
           )}
 
-          <div className="order-[70] hidden items-end justify-between gap-3 border-t border-border/70 pt-5 lg:flex">
+          <div className={cn("order-[70] hidden items-end justify-between gap-3 border-t border-border/70 pt-5 lg:flex", owner && "sticky bottom-0 z-20 -mx-1 border-[#E7E9E4] bg-white/95 px-1 pb-2 backdrop-blur") }>
             <Button
               type="button"
               variant="ghost"
@@ -2996,7 +3160,7 @@ export default function BookingForm({
               <ArrowLeft className="mr-2 size-4" />
               Back
             </Button>
-            {!isLastWizardStep && (
+            {!isLastWizardStep && !redesign && (
               <div className="text-right">
                 {!canContinueWizard && (
                   <p
@@ -3017,7 +3181,7 @@ export default function BookingForm({
                   size="lg"
                   onClick={goToNextWizardStep}
                   disabled={!canContinueWizard}
-                  className="h-11 min-w-32 cursor-pointer shadow-sm"
+                  className={cn("h-11 min-w-32 cursor-pointer shadow-sm", owner && "min-w-40 rounded-full bg-[#20211F] text-white shadow-none hover:bg-[#343633] focus-visible:ring-3 focus-visible:ring-[#72CF35]")}
                 >
                   Continue
                   <ArrowRight className="ml-2 size-4" />
@@ -3027,7 +3191,45 @@ export default function BookingForm({
           </div>
         </div>
 
-        {!isLastWizardStep && (
+        {selectionSheetActive ? null : redesign && !isLastWizardStep ? (
+          <aside aria-label="Booking summary" className={redesignStyles.summary}>
+            <div className={designStyles.summaryTop}>
+              <div><h2>Your selection</h2><p>Everything for this visit.</p></div>
+              <Image src="/hanaylo/hero-nail-polish-v1.png" width={1254} height={1254} sizes="95px" alt="" aria-hidden="true" className={designStyles.polish} />
+            </div>
+            <div className={redesignStyles.summaryBody}>
+              <div className={designStyles.summaryLabel}><span>Treatments</span><span>{totalSelectedServiceUnits} items</span></div>
+              <div className={redesignStyles.selected}>
+                {selectedServices.length ? <SelectedServiceList form={form} services={selectedServices} presentation="owner" /> : <div className={designStyles.empty}><Sparkles size={25} aria-hidden="true" /><h3>No services selected</h3><p>Add a treatment to begin.</p></div>}
+              </div>
+              <div className={designStyles.nextDetails}>
+                <div><span><Calendar size={15} aria-hidden="true" /> Schedule</span><small>{scheduleSummary}</small></div>
+                <div><span><User2 size={15} aria-hidden="true" /> Customer</span><small>{pickerValue?.mode === "anonymous" ? pickerValue.label || "Anonymous walk-in" : customerNameValue || "Add later"}</small></div>
+              </div>
+              {voucherDiscountAmount > 0 && <p>Voucher discount: ₱{voucherDiscountAmount.toLocaleString()}</p>}
+              <div className={designStyles.total}><div><span>Estimated total</span><small>{totalSelectedServiceUnits} items selected</small></div><strong>₱{finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+              <button type="button" className={designStyles.continue} disabled={!canContinueWizard} onClick={goToNextWizardStep}>Continue to {wizardSteps[activeWizardStep + 1].label.toLowerCase()} <ArrowRight size={18} aria-hidden="true" /></button>
+            </div>
+          </aside>
+        ) : owner && !isLastWizardStep && (
+          <aside aria-label="Booking summary" className="hidden min-w-0 lg:block lg:w-[272px] lg:shrink-0 xl:w-[300px]">
+            <div className="sticky top-3 overflow-hidden rounded-[20px] border border-[#DDE2D7] bg-[#F7F8F4] shadow-[0_10px_28px_rgba(32,33,31,0.06)]">
+              <div className="flex items-center gap-2.5 bg-[#20211F] px-3.5 py-3 text-white"><span className="grid size-8 place-items-center rounded-lg bg-[#B9F379] text-[#20211F]"><Sparkles className="size-4" aria-hidden="true" /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/60">In progress</p><h3 className="text-base font-bold tracking-[-0.025em]">Booking summary</h3></div></div>
+              <div className="space-y-3 p-3">
+                <section>
+                  <div className="mb-1.5 flex items-center justify-between gap-2"><p className="flex items-center gap-1.5 text-xs font-bold text-[#343633]"><Sparkles className="size-3.5 text-[#4D842D]" aria-hidden="true" />Treatments</p><span className="font-mono text-[11px] text-[#696C67]">{totalSelectedServiceUnits} units</span></div>
+                  {selectedServices.length ? <div className="max-h-[min(42dvh,380px)] space-y-1.5 overflow-y-auto pr-0.5"><SelectedServiceList form={form} services={selectedServices} presentation="owner" /></div> : <p className="rounded-xl border border-dashed border-[#DDE0D9] bg-white px-3 py-3 text-xs text-[#81847E]">Choose a treatment to begin.</p>}
+                </section>
+                <section className="border-t border-[#E1E5DC] pt-2.5"><p className="flex items-center gap-1.5 text-xs font-bold text-[#343633]"><Calendar className="size-3.5 text-[#4D842D]" aria-hidden="true" />Schedule</p><p className="mt-1 break-words text-xs text-[#5E625B]">{scheduleSummary}</p></section>
+                <section className="border-t border-[#E1E5DC] pt-2.5"><p className="flex items-center gap-1.5 text-xs font-bold text-[#343633]"><User2 className="size-3.5 text-[#4D842D]" aria-hidden="true" />Customer</p><p className="mt-1 break-words text-xs text-[#5E625B]">{pickerValue?.mode === "anonymous" ? pickerValue.label || "Anonymous walk-in" : customerNameValue || "Add customer details"}</p></section>
+                {voucherDiscountAmount > 0 && <div className="flex items-center justify-between gap-2 border-t border-[#E1E5DC] pt-2.5 text-xs text-[#315E18]"><span className="flex items-center gap-1.5"><Ticket className="size-3.5" aria-hidden="true" />Voucher discount</span><span className="font-mono tabular-nums">−₱{voucherDiscountAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>}
+              </div>
+              <div className="flex items-baseline justify-between gap-2 border-t border-[#D5E5C9] bg-[#EEF7E7] px-3.5 py-3 text-[#20211F]"><span className="text-xs font-semibold">Estimated total</span><strong className="font-mono text-lg tabular-nums">₱{finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+            </div>
+          </aside>
+        )}
+
+        {!owner && !isLastWizardStep && (
         <aside className="w-full lg:w-[320px] lg:shrink-0 xl:w-[360px]" aria-label="Booking summary">
           <div className="lg:sticky lg:top-[calc(var(--bf-header-h,0px)+1rem)] lg:self-start">
             <div className="border-y border-border/70 bg-transparent lg:flex lg:max-h-[calc(100dvh-var(--bf-header-h,0px)-2rem)] lg:flex-col lg:overflow-hidden lg:rounded-2xl lg:border lg:bg-card lg:shadow-sm">
@@ -3336,8 +3538,10 @@ export default function BookingForm({
         )}
 
         <div
+          style={selectionSheetActive ? { display: "none" } : undefined}
           className={cn(
             "z-40 border-t bg-background/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm supports-[backdrop-filter]:bg-background/80 lg:hidden",
+            owner && "-mx-5 rounded-t-[18px] border-[#E7E9E4] bg-[#FAFBF8] px-5 pt-2 supports-[backdrop-filter]:bg-[#FAFBF8] md:-mx-6 md:px-6",
             usesFixedMobileActionBar
               ? "fixed inset-x-0 bottom-0"
               : "sticky bottom-0",
@@ -3353,19 +3557,25 @@ export default function BookingForm({
                   setActiveWizardStep((step) => Math.max(0, step - 1))
                 }
                 aria-label="Go to previous booking step"
-                className="size-11 shrink-0"
+                className={cn("size-11 shrink-0", owner && "rounded-full border-[#DDE0D9] bg-white focus-visible:ring-[#72CF35]")}
               >
                 <ArrowLeft className="size-4" />
               </Button>
             )}
-            <div className="min-w-0">
+            <div className={cn("min-w-0", owner && "flex-1")}>
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                {isLastWizardStep
+                {owner && !isLastWizardStep
+                  ? `${totalSelectedServiceUnits} treatment unit${totalSelectedServiceUnits === 1 ? "" : "s"}`
+                  : owner && isLastWizardStep
+                  ? `${totalSelectedServiceUnits} treatment unit${totalSelectedServiceUnits === 1 ? "" : "s"} · Due now`
+                  : isLastWizardStep
                   ? "Due Now"
                   : `Step ${activeWizardStep + 1} of ${wizardSteps.length}`}
               </p>
-              <p className="truncate text-base font-bold tabular-nums text-primary">
-                {isLastWizardStep
+              <p className={cn("truncate text-base font-bold tabular-nums text-primary", owner && "text-[#20211F]")}>
+                {owner && !isLastWizardStep
+                  ? `₱${finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : isLastWizardStep
                   ? `₱${totalWithFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                   : wizardSteps[activeWizardStep].label}
               </p>
@@ -3380,7 +3590,7 @@ export default function BookingForm({
                   hasReviewedDetails ? undefined : guideToReviewConfirmation
                 }
                 size="lg"
-                className="h-11 flex-1 font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]"
+                className={cn("h-11 flex-1 font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]", owner && "rounded-full bg-[#20211F] text-white shadow-none hover:bg-[#343633] focus-visible:ring-3 focus-visible:ring-[#72CF35]")}
               >
                 {isPending || isCheckingDuplicate
                   ? "Processing..."
@@ -3396,7 +3606,7 @@ export default function BookingForm({
                 size="lg"
                 onClick={goToNextWizardStep}
                 disabled={!canContinueWizard}
-                className="h-11 flex-1 font-semibold"
+                className={cn("h-11 flex-1 font-semibold", owner && "min-w-28 flex-none rounded-full bg-[#20211F] text-white hover:bg-[#343633] focus-visible:ring-3 focus-visible:ring-[#72CF35]")}
               >
                 Continue
                 <ArrowRight className="ml-2 size-4" />
@@ -3417,7 +3627,7 @@ export default function BookingForm({
           }
         }}
       >
-        <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogContent className={cn("sm:max-w-md", owner && ownerStyles.form, owner && "rounded-[20px] border-[#E7E9E4] bg-white p-5 shadow-[0_24px_70px_rgba(23,24,23,0.2)] sm:p-6", staffDialogTheme)}>
           <AlertDialogHeader>
             <AlertDialogTitle>Possible duplicate customer</AlertDialogTitle>
             <AlertDialogDescription asChild>
@@ -3476,6 +3686,6 @@ export default function BookingForm({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Form>
+    </Form></BookingQuoteContext.Provider>
   );
 }

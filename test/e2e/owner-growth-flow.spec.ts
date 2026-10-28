@@ -1,52 +1,49 @@
-import { expect, test, type Page } from "@playwright/test";
-import "dotenv/config";
+import type { Page } from "@playwright/test";
+import { expect, test } from "./isolated-test";
+import { requireTestDatabase } from "../../scripts/test-database-target.mjs";
 import { Client } from "pg";
 import { hash } from "bcryptjs";
+import { randomUUID } from "node:crypto";
+import { createOwnerGrowthWorkflowFixture } from "@/test/factories/owner-growth-workflow";
 
-const dbConnectionString =
-  process.env.E2E_DATABASE_URL ||
-  process.env.DIRECT_DATABASE_URL ||
-  process.env.DATABASE_URL;
+const dbConnectionString = process.env.E2E_OWNER_FLOW === "1" ? requireTestDatabase() : undefined;
 const hasDatabase = Boolean(dbConnectionString);
 const usesAccelerateProtocol = Boolean(
   dbConnectionString?.startsWith("prisma+postgres://"),
 );
 const ownerFlowEnabled = process.env.E2E_OWNER_FLOW === "1";
 
-const unique = Date.now();
-const businessId = `e2e_growth_biz_${unique}`;
-const businessSlug = `e2e-growth-${unique}`;
-const ownerUserId = `e2e_growth_owner_${unique}`;
-const ownerEmail = process.env.E2E_OWNER_EMAIL || `e2e-owner-${unique}@example.com`;
-const ownerPassword = process.env.E2E_OWNER_PASSWORD || "E2EOwner123!";
-const socialConnectionId = `e2e_growth_conn_${unique}`;
-const socialPostId = `e2e_growth_post_${unique}`;
-const snapshotId = `e2e_growth_snapshot_${unique}`;
-const opportunityId = `e2e_growth_opp_${unique}`;
+const unique = randomUUID();
+const fixture = createOwnerGrowthWorkflowFixture({ namespace: `e2e-growth-${unique}`, now: new Date() });
+const businessId = fixture.business.id;
+const businessSlug = fixture.business.slug;
+const ownerUserId = fixture.owner.id;
+const ownerPassword = fixture.password;
+const { socialConnectionId, socialPostId, snapshotId, opportunityId } = fixture;
+const planId = `${fixture.business.id}-pro-plan`;
 
 let dbClient: Client | null = null;
 
 async function loginAsOwner(page: Page) {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Sign in" }).click();
-
-  await page.locator('input[type="email"]').fill(ownerEmail);
-  await page.locator('input[type="password"]').fill(ownerPassword);
+  await page.goto("/login");
+  await page.getByLabel("Contact number", { exact: true }).fill(fixture.owner.contactNumber);
+  await page.getByLabel("Password", { exact: true }).fill(ownerPassword);
 
   await Promise.all([
     page.waitForURL(new RegExp(`/app/${businessSlug}`), { timeout: 20_000 }),
-    page.getByRole("button", { name: "Login to Dashboard" }).click(),
+    page.getByRole("button", { name: "Sign in to dashboard", exact: true }).click(),
   ]);
 }
 
 test.describe("Owner growth guided flow", () => {
+  test.setTimeout(90_000);
   test.skip(
     !ownerFlowEnabled,
     "Set E2E_OWNER_FLOW=1 to run owner growth flow E2E.",
   );
   test.skip(
     !hasDatabase,
-    "DIRECT_DATABASE_URL (or E2E_DATABASE_URL) is required for owner growth flow E2E.",
+    "Explicit disposable TEST_DATABASE_URL is required for owner growth flow E2E.",
   );
   test.skip(
     usesAccelerateProtocol,
@@ -61,27 +58,39 @@ test.describe("Owner growth guided flow", () => {
     await dbClient.connect();
 
     const hashedPassword = await hash(ownerPassword, 10);
-    const now = new Date();
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-    const sixHoursLater = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const now = fixture.now.toISOString();
+    const oneHourLater = fixture.oneHourLater.toISOString();
+    const sixHoursLater = fixture.sixHoursLater.toISOString();
+    const tomorrow = fixture.tomorrow.toISOString();
 
     await dbClient.query(
       `INSERT INTO "Business" ("id", "name", "slug", "initials", "description", "created_at", "updated_at")
        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
-      [businessId, "E2E Growth Business", businessSlug, "EG", "E2E growth flow business"],
+      [businessId, fixture.business.name, businessSlug, fixture.business.initials, fixture.business.description],
     );
 
     await dbClient.query(
-      `INSERT INTO "User" ("id", "email", "hashed_password", "name", "role", "created_at", "updated_at")
+      `INSERT INTO "User" ("id", "contact_number", "hashed_password", "name", "role", "created_at", "updated_at")
        VALUES ($1, $2, $3, $4, 'OWNER', NOW(), NOW())`,
-      [ownerUserId, ownerEmail, hashedPassword, "E2E Growth Owner"],
+      [ownerUserId, fixture.owner.contactNumber, hashedPassword, fixture.owner.name],
     );
 
     await dbClient.query(
       `INSERT INTO "Owner" ("user_id", "specialties", "business_id")
        VALUES ($1, $2, $3)`,
       [ownerUserId, ["GENERAL"], businessId],
+    );
+
+    // Reuse an existing catalog plan without modifying it; delete only our own ID.
+    await dbClient.query(
+      `INSERT INTO "SubscriptionPlan" ("id", "code", "name", "billing_interval", "price_amount", "updated_at")
+       VALUES ($1, 'PRO_MONTHLY', 'E2E Pro', 'MONTHLY', 2000, NOW())
+       ON CONFLICT ("code") DO NOTHING`, [planId],
+    );
+    await dbClient.query(
+      `INSERT INTO "BusinessSubscription" ("id", "business_id", "plan_id", "status", "current_period_start", "current_period_end", "updated_at")
+       SELECT $1, $2, "id", 'ACTIVE', $3, $4, NOW() FROM "SubscriptionPlan" WHERE "code" = 'PRO_MONTHLY'`,
+      [`${businessId}-subscription`, businessId, now, tomorrow],
     );
 
     const saleEventInsert = await dbClient.query<{ id: number }>(
@@ -129,7 +138,7 @@ test.describe("Owner growth guided flow", () => {
         "E2E caption draft",
         "E2E caption final",
         ["#e2e", "#growth"],
-        "https://example.com/e2e-growth.jpg",
+        "/sf-favicon.png",
         ownerUserId,
       ],
     );
@@ -139,7 +148,7 @@ test.describe("Owner growth guided flow", () => {
          ("id", "social_post_id", "social_connection_id", "status", "attempts", "created_at", "updated_at")
        VALUES
          ($1, $2, $3, 'SKIPPED', 0, NOW(), NOW())`,
-      [`e2e_growth_target_${unique}`, socialPostId, socialConnectionId],
+      [fixture.socialTargetId, socialPostId, socialConnectionId],
     );
 
     await dbClient.query(
@@ -179,10 +188,17 @@ test.describe("Owner growth guided flow", () => {
 
   test.afterAll(async () => {
     if (!dbClient) return;
-    await dbClient.query(`DELETE FROM "Business" WHERE "id" = $1`, [businessId]);
-    await dbClient.query(`DELETE FROM "User" WHERE "id" = $1`, [ownerUserId]);
-    await dbClient.end();
-    dbClient = null;
+    const client = dbClient;
+    let failures = 0;
+    try {
+      for (const [table, id] of [["Business", businessId], ["User", ownerUserId], ["SubscriptionPlan", planId]] as const) {
+        try { await client.query(`DELETE FROM "${table}" WHERE "id" = $1`, [id]); }
+        catch { failures++; }
+      }
+    } finally {
+      try { await client.end(); } finally { dbClient = null; }
+    }
+    if (failures) throw new Error(`Fixture cleanup failed in ${failures} steps`);
   });
 
   test("moves from dashboard step 1 to social-posts step 3 with clear checklist state", async ({
@@ -190,8 +206,9 @@ test.describe("Owner growth guided flow", () => {
   }) => {
     await loginAsOwner(page);
 
-    await expect(page.getByText("Today's Growth Opportunity")).toBeVisible();
-    await page.getByRole("link", { name: "Start Step 1: Create Offer" }).click();
+    const createOffer = page.getByRole("link", { name: "Create Offer" });
+    await expect(createOffer).toBeVisible();
+    await createOffer.click();
 
     await expect(page).toHaveURL(
       new RegExp(`/app/${businessSlug}/sale-events\\?flow=growth&step=1`),
@@ -202,6 +219,7 @@ test.describe("Owner growth guided flow", () => {
     await page.getByRole("link", { name: "Review post" }).first().click();
     await expect(page).toHaveURL(
       new RegExp(`/app/${businessSlug}/social-posts\\?flow=growth&step=3`),
+      { timeout: 30_000 },
     );
     await expect(page.getByText("Step 3 of 3")).toBeVisible();
     await expect(

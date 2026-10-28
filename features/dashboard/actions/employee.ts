@@ -11,6 +11,7 @@ import {
   getEmployeeTodayBookings,
   getManagerQueueBoard,
 } from "@/features/dashboard/queries/employee-actions";
+import { getEmployeeDashboardMembership } from "@/features/dashboard/queries/employee-membership";
 import {
   claimServiceSchema,
   markServedSchema,
@@ -23,7 +24,6 @@ import {
   type TenantActorContext,
 } from "@/lib/auth/staff-access";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
-import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
 
 type StaffContext = Extract<TenantActorContext, { success: true }>;
@@ -163,19 +163,20 @@ async function requireEmployeeAuth(options?: {
     return { success: false, error: "Forbidden" };
   }
 
-  const employee = await prisma.employee.findUnique({
-    where: { id: context.employeeId },
-    select: { id: true, specialties: true },
-  });
-  if (!employee) return { success: false, error: "Unauthorized" };
+  try {
+    const employee = await getEmployeeDashboardMembership(context);
+    if (!employee) return { success: false, error: "Unauthorized" };
 
-  return {
-    success: true,
-    businessSlug,
-    employeeId: employee.id,
-    specialties: employee.specialties ?? [],
-    context,
-  };
+    return {
+      success: true,
+      businessSlug,
+      employeeId: employee.id,
+      specialties: employee.specialties ?? [],
+      context,
+    };
+  } catch {
+    return { success: false, error: "Unable to verify employee access." };
+  }
 }
 
 export async function getEmployeeTodayBookingsAction() {

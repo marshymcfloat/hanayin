@@ -34,6 +34,7 @@ import { getServerSession } from "next-auth";
 import { resolveTenantActorContext } from "@/lib/auth/staff-access";
 import { validateBookingOrThrow } from "@/features/bookings/services/booking-availability";
 import { publishEvent } from "@/lib/services/outbox";
+import { deliverOutboxMessageNow } from "@/lib/services/outbox-immediate";
 import {
   approveGcashPaymentAction,
   escalateGcashPaymentAction,
@@ -168,6 +169,45 @@ describe("manual GCash payment submission", () => {
     expect(prismaMock.$transaction).not.toHaveBeenCalled();
   });
 
+  it("denies every owner review mutation when tenant resolution fails", async () => {
+    vi.mocked(resolveTenantActorContext).mockResolvedValue({
+      success: false,
+      error: "Unauthorized",
+    });
+
+    const results = await Promise.all([
+      approveGcashPaymentAction({
+        paymentId: 9,
+        businessSlug: "other-salon",
+        source: "CUSTOMER_SUBMITTED",
+        attestation: {
+          transactionFound: true,
+          recipientMatched: true,
+          amountMatched: true,
+          detailsReviewed: true,
+        },
+      }),
+      rejectGcashPaymentAction({
+        paymentId: 9,
+        businessSlug: "other-salon",
+        reason: "Payment not found",
+      }),
+      escalateGcashPaymentAction({
+        paymentId: 9,
+        businessSlug: "other-salon",
+        reason: "Needs review",
+      }),
+      resolveGcashFollowUpAction({
+        paymentId: 9,
+        businessSlug: "other-salon",
+        outcome: "NO_PAYMENT_FOUND",
+      }),
+    ]);
+
+    expect(results).toEqual(Array(4).fill({ success: false, error: "Unauthorized" }));
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
   it("requires every owner verification attestation", async () => {
     const result = await approveGcashPaymentAction({
       paymentId: 9,
@@ -226,7 +266,24 @@ describe("manual GCash payment submission", () => {
 
     expect(result).toEqual({ success: true });
     expect(validateBookingOrThrow).toHaveBeenCalled();
+    expect(txMock.bookingPayment.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          booking: expect.objectContaining({ business_id: "biz" }),
+        }),
+      }),
+    );
+    expect(txMock.bookingPayment.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          booking: { business_id: "biz" },
+        }),
+      }),
+    );
     expect(txMock.booking.updateMany).toHaveBeenCalledTimes(2);
+    for (const [input] of txMock.booking.updateMany.mock.calls) {
+      expect(input.where.business_id).toBe("biz");
+    }
     expect(publishEvent).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -234,6 +291,51 @@ describe("manual GCash payment submission", () => {
         dedupeKey: "BOOKING_CONFIRMED:Booking:4",
       }),
     );
+  });
+
+  it("reports committed approval when immediate notification delivery fails", async () => {
+    txMock.bookingPayment.findFirst.mockResolvedValue({
+      id: 9,
+      booking_id: 4,
+      status: "PENDING",
+      amount_principal: 200,
+      expires_at: new Date(Date.now() + 60_000),
+      booking: {
+        id: 4,
+        status: "HOLD",
+        business_id: "biz",
+        grand_total: 1000,
+        scheduled_at: new Date(Date.now() + 86_400_000),
+        created_at: new Date(),
+        estimated_end: new Date(Date.now() + 90_000_000),
+        customer: { name: "Ana", email: null },
+        business: { slug: "salon" },
+        availed_services: [
+          { service_id: 2, served_by_id: null, service: { id: 2 } },
+        ],
+      },
+    });
+    vi.mocked(deliverOutboxMessageNow).mockRejectedValueOnce(new Error("delivery unavailable"));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const result = await approveGcashPaymentAction({
+        paymentId: 9,
+        businessSlug: "salon",
+        source: "CUSTOMER_SUBMITTED",
+        attestation: {
+          transactionFound: true,
+          recipientMatched: true,
+          amountMatched: true,
+          detailsReviewed: true,
+        },
+      });
+      expect(result).toEqual({ success: true });
+      expect(txMock.bookingPayment.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ status: "SUCCEEDED" }) }),
+      );
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it("allows an owner to verify an unsubmitted payment before hold expiry", async () => {
@@ -321,6 +423,36 @@ describe("manual GCash payment submission", () => {
     expect(publishEvent).not.toHaveBeenCalled();
   });
 
+  it("does not approve a payment outside the verified tenant", async () => {
+    txMock.bookingPayment.findFirst.mockResolvedValue(null);
+
+    const result = await approveGcashPaymentAction({
+      paymentId: 9,
+      businessSlug: "salon",
+      source: "CUSTOMER_SUBMITTED",
+      attestation: {
+        transactionFound: true,
+        recipientMatched: true,
+        amountMatched: true,
+        detailsReviewed: true,
+      },
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Payment is no longer available for approval.",
+    });
+    expect(txMock.bookingPayment.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          booking: expect.objectContaining({ business_id: "biz" }),
+        }),
+      }),
+    );
+    expect(txMock.booking.updateMany).not.toHaveBeenCalled();
+    expect(publishEvent).not.toHaveBeenCalled();
+  });
+
   it("rejects a payment atomically within the verified tenant", async () => {
     txMock.bookingPayment.findFirst.mockResolvedValue({
       id: 9,
@@ -349,6 +481,11 @@ describe("manual GCash payment submission", () => {
     expect(txMock.booking.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ business_id: "biz" }),
+      }),
+    );
+    expect(txMock.bookingPayment.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ booking: { business_id: "biz" } }),
       }),
     );
     expect(publishEvent).toHaveBeenCalledWith(

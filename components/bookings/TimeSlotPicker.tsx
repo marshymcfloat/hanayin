@@ -31,6 +31,7 @@ interface TimeSlotPickerProps {
    * value so callers that haven't been migrated keep working.
    */
   timezone?: string;
+  presentation?: "default" | "owner";
 }
 
 const DEFAULT_TIMEZONE = "Asia/Manila";
@@ -168,11 +169,13 @@ function SlotButton({
   isSelected,
   onChange,
   timezone,
+  owner,
 }: {
   slot: TimeSlot;
   isSelected: boolean;
   onChange: (time: Date) => void;
   timezone: string;
+  owner: boolean;
 }) {
   const level = getAvailabilityLevel(slot);
 
@@ -190,6 +193,9 @@ function SlotButton({
           ? "bg-primary text-primary-foreground border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_28px_-16px_color-mix(in_oklch,var(--primary)_60%,transparent)]"
           : "bg-card border-black/[0.06] hover:border-primary/40 hover:bg-primary/[0.03]",
         !isSelected && level === "limited" && "border-amber-400/40 hover:border-amber-400/70",
+        owner && "min-h-14 rounded-[14px] border-[#DDE0D9] bg-white px-3.5 shadow-none focus-visible:ring-3 focus-visible:ring-[#72CF35]",
+        owner && isSelected && "border-[#20211F] bg-[#20211F] text-white hover:bg-[#343633]",
+        owner && !isSelected && "hover:border-[#72CF35] hover:bg-[#F8F9F6]",
       )}
     >
       <span
@@ -221,6 +227,7 @@ function PeriodGroup({
   onChange,
   timezone,
   showPeriodCount,
+  owner,
 }: {
   period: SlotPeriod;
   slots: TimeSlot[];
@@ -228,16 +235,17 @@ function PeriodGroup({
   onChange: (time: Date) => void;
   timezone: string;
   showPeriodCount: boolean;
+  owner: boolean;
 }) {
   const { label, hours, Icon } = PERIOD_CONFIG[period];
   const availableCount = slots.filter((s) => s.available).length;
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", owner && "space-y-3 rounded-[18px] border border-[#E7E9E4] bg-[#FAFBF8] p-3 sm:p-4")}>
       {/* Period header — mirrors PortalCardHeader recipe (icon chip + eyebrow + count pill).
           Kept flat (no extra card chrome) since this lives inside a PortalCard already. */}
       <div className="flex min-h-7 items-center gap-2">
-        <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground ring-1 ring-inset ring-border">
+        <span className={cn("grid size-6 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground ring-1 ring-inset ring-border", owner && "size-9 rounded-xl bg-[#EFF9E8] text-[#315E18] ring-0")}>
           <Icon className="size-3" />
         </span>
         <div className="flex min-w-0 items-baseline gap-2 leading-tight">
@@ -275,6 +283,7 @@ function PeriodGroup({
             isSelected={!!value && slot.startTime.getTime() === value.getTime()}
             onChange={onChange}
             timezone={timezone}
+            owner={owner}
           />
         ))}
       </div>
@@ -293,7 +302,9 @@ export default React.memo(function TimeSlotPicker({
   alternativeSlots = [],
   isPublic = false,
   timezone = DEFAULT_TIMEZONE,
+  presentation = "default",
 }: TimeSlotPickerProps) {
+  const owner = presentation === "owner";
   // Group slots by period
   const grouped = useMemo(() => {
     const groups: Record<SlotPeriod, TimeSlot[]> = {
@@ -398,6 +409,7 @@ export default React.memo(function TimeSlotPicker({
           onChange={onChange}
           timezone={timezone}
           showPeriodCount={!isPublic}
+          owner={owner}
         />
       ))}
     </div>

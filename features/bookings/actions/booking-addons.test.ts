@@ -170,4 +170,28 @@ describe("addBookingServiceOrCreateFollowUpAction", () => {
     expect(result).toEqual({ mode: "APPENDED", bookingId: 1 });
     expect(mocks.appendServicesToUntouchedBooking).toHaveBeenCalled();
   });
+
+  it.each(["APPEND", "FOLLOW_UP"])("keeps committed %s success despite both cache failures", async (mode) => {
+    mocks.resolveAddOnMutationMode.mockResolvedValue({ mode });
+    mocks.revalidatePath.mockImplementation(() => { throw new BookingAddOnStateRaceError(); });
+    const result = await addBookingServiceOrCreateFollowUpAction({ bookingId: 1, services: [{ id: 99, quantity: 1 }] });
+    expect(result.mode).toBe(mode === "APPEND" ? "APPENDED" : "FOLLOW_UP_CREATED");
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
+    expect(mocks.appendServicesToUntouchedBooking).toHaveBeenCalledTimes(mode === "APPEND" ? 1 : 0);
+    expect(mocks.createFollowUpAddOnBooking).toHaveBeenCalledTimes(mode === "FOLLOW_UP" ? 1 : 0);
+  });
+  it("rejects invalid input before authentication", async () => {
+    await expect(addBookingServiceOrCreateFollowUpAction({ bookingId: 2_147_483_648, services: [{ id: 99, quantity: 1 }] })).rejects.toThrow("Invalid input");
+    expect(mocks.requireAuth).not.toHaveBeenCalled();
+  });
+  it("does not fall back on arbitrary append failure and hides raw details", async () => {
+    mocks.appendServicesToUntouchedBooking.mockRejectedValue(new Error("SQL password secret"));
+    await expect(addBookingServiceOrCreateFollowUpAction({ bookingId: 1, services: [{ id: 99, quantity: 1 }] })).rejects.toThrow("Unable to add booking services");
+    expect(mocks.createFollowUpAddOnBooking).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+  it("rejects staff spoofed initiator before mode lookup", async () => {
+    await expect(addBookingServiceOrCreateFollowUpAction({ bookingId: 1, services: [{ id: 99, quantity: 1 }], initiatorEmployeeId: 12 })).rejects.toThrow("Forbidden");
+    expect(mocks.resolveAddOnMutationMode).not.toHaveBeenCalled();
+  });
 });

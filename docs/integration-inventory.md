@@ -1,6 +1,6 @@
 # External Integration Inventory
 
-Last inventoried: 2026-09-07
+Last inventoried: 2026-09-18
 
 No integration may receive production credentials from tests. Provider calls
 must occur outside database transactions, use bounded timeouts where supported,
@@ -15,7 +15,7 @@ effects.
 | Storage | Vercel Blob | `app/api/upload/route.ts`, `features/assets/actions/`, business/social asset actions | Upload/delete errors return safe action failures; database records should only reference successful uploads | No general automatic retry; orphan cleanup is operational debt; deletes must be idempotent |
 | Social | Meta Graph API and OAuth | `lib/services/social/meta-client.ts`, `deliver-social-target.ts`, `app/api/social/meta/*` | OAuth/publish errors persist on connection/post target without exposing tokens | Target attempts/status plus outbox claim semantics; remote post IDs/permalinks provide idempotency evidence |
 | AI content/images | Gemini and OpenAI Images | `lib/services/social/gemini-client.ts`, `openai-image-client.ts`, caption/promo-image services | Explicit timeout/configuration errors; caption/image workflows may use deterministic rescue/fallback behavior | User-initiated retry; no blind background retry for costly generation; generated assets persist only after success |
-| Reference discovery | Pexels | `features/social/actions/reference-candidates.ts` | Fetch failure returns safe action error | Manual retry; provider/source uniqueness prevents duplicate candidates |
+| Reference discovery | Pexels | `features/social/services/reference-candidate-provider.ts`, `reference-candidates.ts` | Validated provider responses; trusted HTTPS image host, no redirects, streamed size/time bounds; safe failures | Manual retry; provider/source uniqueness and transaction-bound pending approval/tenant deduplication |
 | Rate limiting | Upstash REST with in-memory fallback | `lib/rate-limit.ts` | Route-specific fail-open/fail-closed policy must be explicit; network error logged safely | Request can retry after window; pipeline request has no business side effect |
 | Scheduling | External HTTP scheduler | `app/api/cron/**/route.ts` | Cron auth failure rejects; handlers return bounded counts/errors | Jobs query eligible state and use claims/dedupe/outbox state; overlapping invocation must be safe |
 | Monitoring | Sentry plus structured logger and Vercel Analytics | `sentry.*.config.ts`, `instrumentation*.ts`, `lib/telemetry/` | Monitoring failure must not fail business operations | Telemetry is best effort; scrub secrets/PII and use stable event names |
@@ -37,6 +37,28 @@ owns cadence; handlers must be re-entrant and batch-bounded.
    delivers, then records success or a safe error.
 5. Terminal failures remain visible in platform operations; replay is an
    explicit audited action.
+
+## Remaining Worker and Download Boundaries
+
+- Outbox attempt-count compare-and-set is not an exclusive delivery lease.
+  A later overlapping worker can observe the incremented attempt while the
+  earlier delivery is still running. Stable outbox IDs must reach provider
+  idempotency boundaries where supported; an expiring claim/recovery design
+  needs isolated SQL concurrency tests before changing worker semantics.
+- Booking-conflict cron repeatedly selects the oldest 60 enabled businesses
+  without a cursor. A bounded fair scan must eventually cover later tenants.
+- Subscription-renewal chunks discard `Promise.allSettled` rejections. Partial
+  failures need explicit safe counts/logging and an operationally visible
+  outcome; this is not permission to blindly retry financial writes.
+- Public GCash QR download validates a trusted Blob host and rejects redirects,
+  but buffers the response before checking its actual 2MB size. A missing or
+  inaccurate Content-Length requires a streamed byte budget, not a post-buffer
+  limit. This finding does not establish an arbitrary-host SSRF bypass.
+
+These are existing implementation debts, not guarantees repaired by the action
+extractions. Track scoped remediation and verification in Linear. Keep handler
+workflow extraction separate from schema/lease, fairness or financial-retry
+policy changes.
 
 ## Highest-Priority Debt
 

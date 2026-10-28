@@ -1,4 +1,8 @@
 import "@testing-library/jest-dom/vitest";
+import { vi } from "vitest";
+
+// Preserve server-only production boundaries while unit tests run in jsdom.
+vi.mock("server-only", () => ({}));
 
 // jsdom doesn't ship IntersectionObserver. motion/react uses it for
 // `whileInView` viewport detection on marketing-page components, so any

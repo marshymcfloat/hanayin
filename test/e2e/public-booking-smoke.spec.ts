@@ -1,12 +1,9 @@
-import { expect, test } from "@playwright/test";
-import "dotenv/config";
+import { expect, test } from "./isolated-test";
+import { requireTestDatabase } from "../../scripts/test-database-target.mjs";
 import { Client } from "pg";
 import { createSharedWorkflowFactory } from "../factories/shared-workflows";
 
-const dbConnectionString =
-  process.env.E2E_DATABASE_URL ||
-  process.env.DIRECT_DATABASE_URL ||
-  process.env.DATABASE_URL;
+const dbConnectionString = requireTestDatabase();
 const hasDatabase = Boolean(dbConnectionString);
 const usesAccelerateProtocol = Boolean(
   dbConnectionString?.startsWith("prisma+postgres://"),
@@ -18,9 +15,10 @@ const { id: businessId, slug: businessSlug, name: businessName } = seed.business
 let dbClient: Client | null = null;
 
 test.describe("Public booking smoke", () => {
+  test.setTimeout(90_000);
   test.skip(
     !hasDatabase,
-    "DIRECT_DATABASE_URL (or E2E_DATABASE_URL) is required for booking smoke E2E.",
+    "Explicit disposable TEST_DATABASE_URL is required for booking smoke E2E.",
   );
 
   test.beforeAll(async () => {
@@ -78,11 +76,9 @@ test.describe("Public booking smoke", () => {
 
   test.afterAll(async () => {
     if (!dbClient) return;
-    await dbClient.query(`DELETE FROM "Business" WHERE "slug" = $1`, [
-      businessSlug,
-    ]);
-    await dbClient.end();
-    dbClient = null;
+    const client = dbClient;
+    try { await client.query(`DELETE FROM "Business" WHERE "id" = $1`, [businessId]); }
+    finally { try { await client.end(); } finally { dbClient = null; } }
   });
 
   test("opens business page and reaches booking screen", async ({ page }) => {

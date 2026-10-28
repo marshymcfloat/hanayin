@@ -28,18 +28,21 @@ export type AggregateServicePackage = {
 
 export type ServicePackageAvgAggregateOutputType = {
   id: number | null
+  revision: number | null
   price: number | null
   duration: number | null
 }
 
 export type ServicePackageSumAggregateOutputType = {
   id: number | null
+  revision: number | null
   price: number | null
   duration: number | null
 }
 
 export type ServicePackageMinAggregateOutputType = {
   id: number | null
+  revision: number | null
   name: string | null
   description: string | null
   price: number | null
@@ -52,6 +55,7 @@ export type ServicePackageMinAggregateOutputType = {
 
 export type ServicePackageMaxAggregateOutputType = {
   id: number | null
+  revision: number | null
   name: string | null
   description: string | null
   price: number | null
@@ -64,6 +68,8 @@ export type ServicePackageMaxAggregateOutputType = {
 
 export type ServicePackageCountAggregateOutputType = {
   id: number
+  revision: number
+  choices: number
   name: number
   description: number
   price: number
@@ -78,18 +84,21 @@ export type ServicePackageCountAggregateOutputType = {
 
 export type ServicePackageAvgAggregateInputType = {
   id?: true
+  revision?: true
   price?: true
   duration?: true
 }
 
 export type ServicePackageSumAggregateInputType = {
   id?: true
+  revision?: true
   price?: true
   duration?: true
 }
 
 export type ServicePackageMinAggregateInputType = {
   id?: true
+  revision?: true
   name?: true
   description?: true
   price?: true
@@ -102,6 +111,7 @@ export type ServicePackageMinAggregateInputType = {
 
 export type ServicePackageMaxAggregateInputType = {
   id?: true
+  revision?: true
   name?: true
   description?: true
   price?: true
@@ -114,6 +124,8 @@ export type ServicePackageMaxAggregateInputType = {
 
 export type ServicePackageCountAggregateInputType = {
   id?: true
+  revision?: true
+  choices?: true
   name?: true
   description?: true
   price?: true
@@ -213,6 +225,8 @@ export type ServicePackageGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 
 export type ServicePackageGroupByOutputType = {
   id: number
+  revision: number
+  choices: runtime.JsonValue | null
   name: string
   description: string | null
   price: number
@@ -228,7 +242,7 @@ export type ServicePackageGroupByOutputType = {
   _max: ServicePackageMaxAggregateOutputType | null
 }
 
-type GetServicePackageGroupByPayload<T extends ServicePackageGroupByArgs> = Prisma.PrismaPromise<
+export type GetServicePackageGroupByPayload<T extends ServicePackageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ServicePackageGroupByOutputType, T['by']> &
       {
@@ -248,6 +262,8 @@ export type ServicePackageWhereInput = {
   OR?: Prisma.ServicePackageWhereInput[]
   NOT?: Prisma.ServicePackageWhereInput | Prisma.ServicePackageWhereInput[]
   id?: Prisma.IntFilter<"ServicePackage"> | number
+  revision?: Prisma.IntFilter<"ServicePackage"> | number
+  choices?: Prisma.JsonNullableFilter<"ServicePackage">
   name?: Prisma.StringFilter<"ServicePackage"> | string
   description?: Prisma.StringNullableFilter<"ServicePackage"> | string | null
   price?: Prisma.FloatFilter<"ServicePackage"> | number
@@ -265,6 +281,8 @@ export type ServicePackageWhereInput = {
 
 export type ServicePackageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  choices?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -285,6 +303,8 @@ export type ServicePackageWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ServicePackageWhereInput | Prisma.ServicePackageWhereInput[]
   OR?: Prisma.ServicePackageWhereInput[]
   NOT?: Prisma.ServicePackageWhereInput | Prisma.ServicePackageWhereInput[]
+  revision?: Prisma.IntFilter<"ServicePackage"> | number
+  choices?: Prisma.JsonNullableFilter<"ServicePackage">
   name?: Prisma.StringFilter<"ServicePackage"> | string
   description?: Prisma.StringNullableFilter<"ServicePackage"> | string | null
   price?: Prisma.FloatFilter<"ServicePackage"> | number
@@ -302,6 +322,8 @@ export type ServicePackageWhereUniqueInput = Prisma.AtLeast<{
 
 export type ServicePackageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  choices?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -322,6 +344,8 @@ export type ServicePackageScalarWhereWithAggregatesInput = {
   OR?: Prisma.ServicePackageScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ServicePackageScalarWhereWithAggregatesInput | Prisma.ServicePackageScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"ServicePackage"> | number
+  revision?: Prisma.IntWithAggregatesFilter<"ServicePackage"> | number
+  choices?: Prisma.JsonNullableWithAggregatesFilter<"ServicePackage">
   name?: Prisma.StringWithAggregatesFilter<"ServicePackage"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"ServicePackage"> | string | null
   price?: Prisma.FloatWithAggregatesFilter<"ServicePackage"> | number
@@ -333,6 +357,8 @@ export type ServicePackageScalarWhereWithAggregatesInput = {
 }
 
 export type ServicePackageCreateInput = {
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -349,6 +375,8 @@ export type ServicePackageCreateInput = {
 
 export type ServicePackageUncheckedCreateInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -364,6 +392,8 @@ export type ServicePackageUncheckedCreateInput = {
 }
 
 export type ServicePackageUpdateInput = {
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -380,6 +410,8 @@ export type ServicePackageUpdateInput = {
 
 export type ServicePackageUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -396,6 +428,8 @@ export type ServicePackageUncheckedUpdateInput = {
 
 export type ServicePackageCreateManyInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -407,6 +441,8 @@ export type ServicePackageCreateManyInput = {
 }
 
 export type ServicePackageUpdateManyMutationInput = {
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -418,6 +454,8 @@ export type ServicePackageUpdateManyMutationInput = {
 
 export type ServicePackageUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -440,6 +478,8 @@ export type ServicePackageOrderByRelationAggregateInput = {
 
 export type ServicePackageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  choices?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -452,12 +492,14 @@ export type ServicePackageCountOrderByAggregateInput = {
 
 export type ServicePackageAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   price?: Prisma.SortOrder
   duration?: Prisma.SortOrder
 }
 
 export type ServicePackageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -470,6 +512,7 @@ export type ServicePackageMaxOrderByAggregateInput = {
 
 export type ServicePackageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -482,6 +525,7 @@ export type ServicePackageMinOrderByAggregateInput = {
 
 export type ServicePackageSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
   price?: Prisma.SortOrder
   duration?: Prisma.SortOrder
 }
@@ -621,6 +665,8 @@ export type ServicePackageUpdateOneWithoutAvailed_servicesNestedInput = {
 }
 
 export type ServicePackageCreateWithoutBusinessInput = {
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -636,6 +682,8 @@ export type ServicePackageCreateWithoutBusinessInput = {
 
 export type ServicePackageUncheckedCreateWithoutBusinessInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -680,6 +728,8 @@ export type ServicePackageScalarWhereInput = {
   OR?: Prisma.ServicePackageScalarWhereInput[]
   NOT?: Prisma.ServicePackageScalarWhereInput | Prisma.ServicePackageScalarWhereInput[]
   id?: Prisma.IntFilter<"ServicePackage"> | number
+  revision?: Prisma.IntFilter<"ServicePackage"> | number
+  choices?: Prisma.JsonNullableFilter<"ServicePackage">
   name?: Prisma.StringFilter<"ServicePackage"> | string
   description?: Prisma.StringNullableFilter<"ServicePackage"> | string | null
   price?: Prisma.FloatFilter<"ServicePackage"> | number
@@ -691,6 +741,8 @@ export type ServicePackageScalarWhereInput = {
 }
 
 export type ServicePackageCreateWithoutSale_eventsInput = {
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -706,6 +758,8 @@ export type ServicePackageCreateWithoutSale_eventsInput = {
 
 export type ServicePackageUncheckedCreateWithoutSale_eventsInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -741,6 +795,8 @@ export type ServicePackageUpdateManyWithWhereWithoutSale_eventsInput = {
 }
 
 export type ServicePackageCreateWithoutItemsInput = {
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -756,6 +812,8 @@ export type ServicePackageCreateWithoutItemsInput = {
 
 export type ServicePackageUncheckedCreateWithoutItemsInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -786,6 +844,8 @@ export type ServicePackageUpdateToOneWithWhereWithoutItemsInput = {
 }
 
 export type ServicePackageUpdateWithoutItemsInput = {
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -801,6 +861,8 @@ export type ServicePackageUpdateWithoutItemsInput = {
 
 export type ServicePackageUncheckedUpdateWithoutItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -815,6 +877,8 @@ export type ServicePackageUncheckedUpdateWithoutItemsInput = {
 }
 
 export type ServicePackageCreateWithoutGift_card_itemsInput = {
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -830,6 +894,8 @@ export type ServicePackageCreateWithoutGift_card_itemsInput = {
 
 export type ServicePackageUncheckedCreateWithoutGift_card_itemsInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -860,6 +926,8 @@ export type ServicePackageUpdateToOneWithWhereWithoutGift_card_itemsInput = {
 }
 
 export type ServicePackageUpdateWithoutGift_card_itemsInput = {
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -875,6 +943,8 @@ export type ServicePackageUpdateWithoutGift_card_itemsInput = {
 
 export type ServicePackageUncheckedUpdateWithoutGift_card_itemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -889,6 +959,8 @@ export type ServicePackageUncheckedUpdateWithoutGift_card_itemsInput = {
 }
 
 export type ServicePackageCreateWithoutAvailed_servicesInput = {
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -904,6 +976,8 @@ export type ServicePackageCreateWithoutAvailed_servicesInput = {
 
 export type ServicePackageUncheckedCreateWithoutAvailed_servicesInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -934,6 +1008,8 @@ export type ServicePackageUpdateToOneWithWhereWithoutAvailed_servicesInput = {
 }
 
 export type ServicePackageUpdateWithoutAvailed_servicesInput = {
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -949,6 +1025,8 @@ export type ServicePackageUpdateWithoutAvailed_servicesInput = {
 
 export type ServicePackageUncheckedUpdateWithoutAvailed_servicesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -964,6 +1042,8 @@ export type ServicePackageUncheckedUpdateWithoutAvailed_servicesInput = {
 
 export type ServicePackageCreateManyBusinessInput = {
   id?: number
+  revision?: number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name: string
   description?: string | null
   price: number
@@ -974,6 +1054,8 @@ export type ServicePackageCreateManyBusinessInput = {
 }
 
 export type ServicePackageUpdateWithoutBusinessInput = {
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -989,6 +1071,8 @@ export type ServicePackageUpdateWithoutBusinessInput = {
 
 export type ServicePackageUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1004,6 +1088,8 @@ export type ServicePackageUncheckedUpdateWithoutBusinessInput = {
 
 export type ServicePackageUncheckedUpdateManyWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1014,6 +1100,8 @@ export type ServicePackageUncheckedUpdateManyWithoutBusinessInput = {
 }
 
 export type ServicePackageUpdateWithoutSale_eventsInput = {
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1029,6 +1117,8 @@ export type ServicePackageUpdateWithoutSale_eventsInput = {
 
 export type ServicePackageUncheckedUpdateWithoutSale_eventsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1044,6 +1134,8 @@ export type ServicePackageUncheckedUpdateWithoutSale_eventsInput = {
 
 export type ServicePackageUncheckedUpdateManyWithoutSale_eventsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  choices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1114,6 +1206,8 @@ export type ServicePackageCountOutputTypeCountGift_card_itemsArgs<ExtArgs extend
 
 export type ServicePackageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  revision?: boolean
+  choices?: boolean
   name?: boolean
   description?: boolean
   price?: boolean
@@ -1132,6 +1226,8 @@ export type ServicePackageSelect<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type ServicePackageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  revision?: boolean
+  choices?: boolean
   name?: boolean
   description?: boolean
   price?: boolean
@@ -1145,6 +1241,8 @@ export type ServicePackageSelectCreateManyAndReturn<ExtArgs extends runtime.Type
 
 export type ServicePackageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  revision?: boolean
+  choices?: boolean
   name?: boolean
   description?: boolean
   price?: boolean
@@ -1158,6 +1256,8 @@ export type ServicePackageSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
 
 export type ServicePackageSelectScalar = {
   id?: boolean
+  revision?: boolean
+  choices?: boolean
   name?: boolean
   description?: boolean
   price?: boolean
@@ -1168,7 +1268,7 @@ export type ServicePackageSelectScalar = {
   updated_at?: boolean
 }
 
-export type ServicePackageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "price" | "duration" | "category" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["servicePackage"]>
+export type ServicePackageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "revision" | "choices" | "name" | "description" | "price" | "duration" | "category" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["servicePackage"]>
 export type ServicePackageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   items?: boolean | Prisma.ServicePackage$itemsArgs<ExtArgs>
@@ -1195,6 +1295,8 @@ export type $ServicePackagePayload<ExtArgs extends runtime.Types.Extensions.Inte
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    revision: number
+    choices: runtime.JsonValue | null
     name: string
     description: string | null
     price: number
@@ -1632,6 +1734,8 @@ export interface Prisma__ServicePackageClient<T, Null = never, ExtArgs extends r
  */
 export interface ServicePackageFieldRefs {
   readonly id: Prisma.FieldRef<"ServicePackage", 'Int'>
+  readonly revision: Prisma.FieldRef<"ServicePackage", 'Int'>
+  readonly choices: Prisma.FieldRef<"ServicePackage", 'Json'>
   readonly name: Prisma.FieldRef<"ServicePackage", 'String'>
   readonly description: Prisma.FieldRef<"ServicePackage", 'String'>
   readonly price: Prisma.FieldRef<"ServicePackage", 'Float'>
@@ -1836,6 +1940,11 @@ export type ServicePackageFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` ServicePackages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ServicePackages.
+   */
   distinct?: Prisma.ServicePackageScalarFieldEnum | Prisma.ServicePackageScalarFieldEnum[]
 }
 

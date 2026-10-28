@@ -252,7 +252,7 @@ export type BusinessGrowthSettingsGroupByOutputType = {
   _max: BusinessGrowthSettingsMaxAggregateOutputType | null
 }
 
-type GetBusinessGrowthSettingsGroupByPayload<T extends BusinessGrowthSettingsGroupByArgs> = Prisma.PrismaPromise<
+export type GetBusinessGrowthSettingsGroupByPayload<T extends BusinessGrowthSettingsGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BusinessGrowthSettingsGroupByOutputType, T['by']> &
       {
@@ -1391,6 +1391,11 @@ export type BusinessGrowthSettingsFindManyArgs<ExtArgs extends runtime.Types.Ext
    * Skip the first `n` BusinessGrowthSettings.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of BusinessGrowthSettings.
+   */
   distinct?: Prisma.BusinessGrowthSettingsScalarFieldEnum | Prisma.BusinessGrowthSettingsScalarFieldEnum[]
 }
 

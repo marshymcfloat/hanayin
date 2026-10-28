@@ -1,0 +1,13 @@
+Use case: ui-mockup.
+Asset type: raster product image for Hanaylo SaaS landing page, landscape 3:2, ideally 1536x1024.
+Input images are screenshots of our ACTUAL local payroll workspace populated with synthetic sample data. Image 1 is the upper workspace/table; image 2 includes actual recorded payslip history. Create a polished straight-on screenshot-like product crop preserving actual content and table structure. Prioritize Employee pay settings and Recent paid payslips; remove left sidebar, outer page navigation, excess page copy, Payslip actions, disabled export/release buttons to simplify the crop. No perspective/device.
+Composition: a readable compact Payroll header with small 'Sample data', then two compact metric summaries, main Employee pay settings table with all FOUR original sample rows, then Recent paid payslips list with the THREE paid records. Fill the 3:2 canvas with tiny outer margin, efficient row spacing and a clear hierarchy. White panels, near-white lavender background, dark ink typography, thin lavender-gray rules, subtle violet/lavender accents instead of lime green. Crisp legible modern sans serif, aligned numbers. No decorative empty space.
+Required header exact text: 'Payroll' and understated 'Sample data'. Metrics: 'Net paid this month' / '₱10,450' / 'October 2026'; 'Paid payslips' / '3'. Main heading 'Employee pay settings'; columns exactly 'Employee', 'Daily rate', 'Commission rate', 'Last paid'.
+Rows exactly:
+'Mira Reyes' ('Staff'), '₱500', '20%', '₱2,620' with 'Oct 5, 2026'.
+'Jules Santos' ('Staff'), '₱600', '15%', '₱3,330' with 'Oct 5, 2026'.
+'Andrea Lim' ('Manager'), '₱900', '10%', '₱4,500' with 'Oct 5, 2026'.
+'Nico Cruz' ('Cashier'), '₱500', '0%', 'No paid payslip'.
+Use understated initial avatars for those rows like actual source, not photos.
+Lower section heading 'Recent paid payslips'; three clean compact records: 'Mira Reyes' / '₱2,620' / 'Paid'; 'Jules Santos' / '₱3,330' / 'Paid'; 'Andrea Lim' / '₱4,500' / 'Paid'. A shared small label may say 'Paid Oct 5, 2026 · Period Oct 1–5, 2026' so the rows stay legible.
+Preserve pay amounts and semantics precisely. ₱10,450 is recorded net paid total, not commissions due. Do not create an editor, payout flow, bank or transfer buttons, transaction timeline, automation claim, payment integration, graphs, external landing-page copy, or badges suggesting any extra capability. Do not add a fifth employee. Do not omit or change sample values. Use white UI with subtle violet/lavender highlights only, no green.

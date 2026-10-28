@@ -1,5 +1,7 @@
+import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.stubGlobal("React", React);
 
 const { markServedMock, unclaimMock, unserveMock } = vi.hoisted(() => ({
   markServedMock: vi.fn(),

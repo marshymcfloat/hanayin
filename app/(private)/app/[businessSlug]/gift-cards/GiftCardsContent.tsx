@@ -3,10 +3,11 @@ import { getGiftCardsWorkspaceData } from "@/features/gift-cards/queries/workspa
 import { GiftCardsPageClient } from "./GiftCardsPageClient";
 
 interface GiftCardsContentProps {
-  businessSlug: string;
+  params: Promise<{ businessSlug: string }>;
 }
 
-export async function GiftCardsContent({ businessSlug }: GiftCardsContentProps) {
+export async function GiftCardsContent({ params }: GiftCardsContentProps) {
+  const { businessSlug } = await params;
   const data = await getGiftCardsWorkspaceData(businessSlug);
   if (!data.success) redirect(data.error === "Unauthorized" ? "/auth/login" : "/");
 

@@ -25,10 +25,7 @@ import { cn, formatCurrency } from "@/lib/utils";
 export interface GreetingStripProps {
   /** Display name of the signed-in employee. */
   name: string | null | undefined;
-  /** Reserved for future use. Currently unused — the role pill was
-   *  removed to keep the greeting visually quiet. Kept in the prop
-   *  list so call sites don't have to change when we re-introduce
-   *  it (or another role badge) later. */
+  /** Visible workspace label for staff, cashier, or manager. */
   roleLabel?: string;
   /** Optional secondary line (e.g. business name). Collapsed in compact mode. */
   subline?: React.ReactNode;
@@ -49,7 +46,7 @@ const SPRING = { duration: 0.32, ease: [0.16, 1, 0.3, 1] } as const;
 
 export function GreetingStrip({
   name,
-  roleLabel: _roleLabel,
+  roleLabel,
   subline,
   salaryEstimate,
   actions,
@@ -98,8 +95,8 @@ export function GreetingStrip({
       className={cn(
         "sticky top-0 z-30 transition-[background-color,backdrop-filter,border-color] duration-300",
         compact
-          ? "border-b border-black/[0.06] bg-background/85 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent",
+          ? "border-b border-[#E7E9E4] bg-[#F5F6F3]/95 backdrop-blur-md"
+          : "border-b border-[#E7E9E4] bg-[#F5F6F3]",
       )}
     >
       <motion.div
@@ -109,7 +106,7 @@ export function GreetingStrip({
             : { paddingTop: targets.outerPaddingY, paddingBottom: targets.outerPaddingY }
         }
         transition={SPRING}
-        className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8"
+        className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8"
         style={
           reduced
             ? {
@@ -121,13 +118,13 @@ export function GreetingStrip({
       >
         {/* Two top-level flex items: the greeting block and the
             action row (salary left + buttons right). flex-wrap pushes
-            the action row to a new line on narrow screens, so the
-            greeting never truncates. The action row stays a single
-            unit at every breakpoint so the salary pill is always
+            the action row to a new line on narrow screens. The greeting
+            can shrink within the viewport when a name is long. The action
+            row stays a single unit at every breakpoint so the salary pill is always
             visible alongside the buttons — never gets clipped or
             truncated. */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-3 sm:gap-x-4">
-          <div className="flex grow items-center gap-3 sm:gap-4">
+          <div className="flex min-w-0 basis-full grow items-center gap-3 sm:basis-auto sm:gap-4">
             <motion.div
               animate={
                 reduced
@@ -142,18 +139,21 @@ export function GreetingStrip({
                   : undefined
               }
             >
-              <Avatar className="size-full ring-1 ring-inset ring-primary/15">
-                <AvatarFallback className="bg-primary text-sm font-semibold text-primary-foreground">
+              <Avatar className="size-full ring-1 ring-inset ring-[#DDE7D4]">
+                <AvatarFallback className="bg-[#B9F379] text-sm font-bold text-[#20211F]">
                   {pickInitials(name)}
                 </AvatarFallback>
               </Avatar>
             </motion.div>
 
-            <div className="min-w-0 leading-tight">
+            <div className="min-w-0 flex-1 leading-tight">
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#696C67]">
+                {roleLabel ?? "Staff workspace"}
+              </p>
               <motion.h1
                 animate={reduced ? undefined : { fontSize: targets.headlineSize }}
                 transition={SPRING}
-                className="truncate font-semibold tracking-[-0.01em] text-foreground"
+                className="truncate font-bold tracking-[-0.035em] text-[#20211F]"
                 style={
                   reduced ? { fontSize: targets.headlineSize } : undefined
                 }
@@ -180,7 +180,7 @@ export function GreetingStrip({
                       reduced ? undefined : { opacity: 0, height: 0, marginTop: 0 }
                     }
                     transition={SPRING}
-                    className="overflow-hidden truncate text-xs text-muted-foreground sm:text-sm"
+                    className="overflow-hidden truncate text-xs text-[#696C67] sm:text-sm"
                   >
                     {subline}
                   </motion.p>
@@ -240,13 +240,13 @@ function SalaryPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full bg-primary/10 ring-1 ring-inset ring-primary/15 transition-[padding] duration-300",
+        "inline-flex items-center rounded-full bg-[#EFF9E8] ring-1 ring-inset ring-[#DDE7D4] transition-[padding] duration-300",
         compact ? "px-2.5 py-1" : "px-3 py-1.5",
       )}
     >
       <span
         className={cn(
-          "font-semibold tabular-nums leading-none text-primary transition-[font-size] duration-300",
+          "font-mono font-semibold tabular-nums leading-none text-[#20211F] transition-[font-size] duration-300",
           compact ? "text-xs" : "text-xs sm:text-sm",
         )}
       >

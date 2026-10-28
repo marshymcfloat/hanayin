@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Owner, User } from "@/prisma/generated/prisma/client";
+import type { Owner } from "@/prisma/generated/prisma/client";
+import type { PublicUser } from "@/lib/auth/public-user";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,7 @@ import { toast } from "sonner";
 import { updateOwnerSpecialties } from "@/features/dashboard/actions/queries";
 
 type OwnerWithUser = Owner & {
-  user: User;
+  user: PublicUser;
 };
 
 interface EditOwnerSpecialtiesDialogProps {

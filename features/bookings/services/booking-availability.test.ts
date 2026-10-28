@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   computeSlots,
+  listAlternativeSlots,
   resolveStaffSelectionOrThrow,
   validateBookingOrThrow,
-} from "./booking-availability";
+} from "@/features/bookings/services/booking-availability";
 import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 
 const prismaMock = vi.hoisted(() => ({
@@ -99,6 +100,58 @@ describe("booking-availability workload model", () => {
     expect(slots[0].source).toBe("WORKLOAD");
     expect(slots[0].confidence).toBe("GUARANTEED");
     expect(slots[0].availableOwnerCount).toBe(0);
+  });
+
+  it("preserves default alternative count and strictly later chronological slots", async () => {
+    const scheduledAt = new Date("2026-02-12T09:00:00+08:00");
+    const alternatives = await listAlternativeSlots({ businessSlug: "demo-business", scheduledAt, services: [{ id: 1 }] });
+    expect(alternatives).toHaveLength(6);
+    expect(alternatives[0].startTime).toEqual(new Date("2026-02-12T09:30:00+08:00"));
+    expect(alternatives.every(slot => slot.startTime > scheduledAt)).toBe(true);
+    expect(alternatives.map(slot => slot.startTime.getTime())).toEqual([...alternatives].map(slot => slot.startTime.getTime()).sort((a, b) => a - b));
+    expect(cachedMock.getCachedBusinessWithHoursAndEmployees).toHaveBeenCalledTimes(1);
+    expect(policyMock.getBookingPolicyByBusinessSlug).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves late-day alternatives across days and explicit result limits", async () => {
+    const alternatives = await listAlternativeSlots({ businessSlug: "demo-business", scheduledAt: new Date("2026-02-12T17:30:00+08:00"), services: [{ id: 1 }], limit: 2 });
+    expect(alternatives.map(slot => slot.startTime)).toEqual([new Date("2026-02-13T09:00:00+08:00"), new Date("2026-02-13T09:30:00+08:00")]);
+  });
+
+  it("retains empty alternatives beyond the policy horizon without day queries", async () => {
+    expect(await listAlternativeSlots({ businessSlug: "demo-business", scheduledAt: new Date("2026-03-01T09:00:00+08:00"), services: [{ id: 1 }] })).toEqual([]);
+    expect(prismaMock.service.findMany).not.toHaveBeenCalled();
+  });
+
+  it("retains booking rejection and populated alternatives for an unavailable exact slot", async () => {
+    await expect(validateBookingOrThrow({ businessSlug: "demo-business", scheduledAt: new Date("2026-02-12T09:15:00+08:00"), services: [{ id: 1 }], paymentType: "FULL", isPublicBooking: true, now: new Date("2026-02-12T08:00:00+08:00") })).rejects.toMatchObject({ code: "SLOT_JUST_TAKEN", alternatives: expect.arrayContaining([expect.objectContaining({ startTime: new Date("2026-02-12T09:30:00+08:00") })]) });
+  });
+
+  it("bounds actual engine day queries to 90 for an empty large horizon", async () => {
+    policyMock.getBookingPolicyByBusinessSlug.mockResolvedValue({ bookingHorizonDays: 100_000, bookingV2Enabled: true, minLeadMinutes: 30, slotIntervalMinutes: 30 });
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({ ...baseBusiness, business_hours: [] });
+    expect(await listAlternativeSlots({ businessSlug: "demo-business", scheduledAt: new Date("2026-02-12T09:00:00+08:00"), services: [{ id: 1 }] })).toEqual([]);
+    expect(prismaMock.service.findMany).toHaveBeenCalledTimes(90);
+    expect(cachedMock.getCachedBusinessWithHoursAndEmployees).toHaveBeenCalledTimes(1);
+    expect(policyMock.getBookingPolicyByBusinessSlug).toHaveBeenCalledTimes(1);
+  });
+
+  it("still searches far-future dates inside the stored horizon", async () => {
+    policyMock.getBookingPolicyByBusinessSlug.mockResolvedValue({ bookingHorizonDays: 1000, bookingV2Enabled: true, minLeadMinutes: 30, slotIntervalMinutes: 30 });
+    cachedMock.getCachedBusinessWithHoursAndEmployees.mockResolvedValue({ ...baseBusiness, business_hours: Array.from({ length: 7 }, (_, day_of_week) => ({ day_of_week, category: "GENERAL", open_time: "09:00", close_time: "18:00", is_closed: false })) });
+    const scheduledAt = new Date(new Date("2026-02-12T09:00:00+08:00").getTime() + 500 * 86400000);
+    const result = await listAlternativeSlots({ businessSlug: "demo-business", scheduledAt, services: [{ id: 1 }], limit: 1 });
+    expect(result).toHaveLength(1);
+    expect(result[0].startTime.getTime()).toBe(scheduledAt.getTime() + 30 * 60000);
+    expect(prismaMock.service.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["NO_CAPACITY_FOR_SELECTED_SERVICES", "SLOT_JUST_TAKEN"])("keeps %s rejection when bounded alternatives are empty", async code => {
+    policyMock.getBookingPolicyByBusinessSlug.mockResolvedValue({ bookingHorizonDays: 100_000, bookingV2Enabled: true, minLeadMinutes: 30, slotIntervalMinutes: 30 });
+    prismaMock.service.findMany.mockResolvedValue([]);
+    if (code === "SLOT_JUST_TAKEN") prismaMock.service.findMany.mockResolvedValueOnce([{ id: 1, category: "GENERAL", duration: 30 }]);
+    await expect(validateBookingOrThrow({ businessSlug: "demo-business", scheduledAt: new Date("2026-02-12T09:15:00+08:00"), services: [{ id: 1 }], paymentType: "FULL", isPublicBooking: false, now: new Date("2026-02-12T08:00:00+08:00") })).rejects.toMatchObject({ code, alternatives: [] });
+    expect(prismaMock.service.findMany).toHaveBeenCalledTimes(91);
   });
 
   it("consumes capacity for overlapping unassigned segments", async () => {

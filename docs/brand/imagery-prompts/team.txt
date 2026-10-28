@@ -1,0 +1,15 @@
+Use case: ui-mockup.
+Asset type: polished product-detail graphic for Hanaylo landing page, landscape 3:2.
+Reference role: attached screenshot is a CONTENT AND LAYOUT REFERENCE from the actual application with fictional sample data. Extract and faithfully restyle ONLY its "Team directory" section; omit app sidebar, Employees page header, overview statistic cards, and Nico Cruz's fourth row.
+Primary request: flat straight-on high-resolution screenshot-like white team directory panel filling almost entire landscape 3:2 canvas. Tiny pale lavender outer margin, white UI surface, rounded corners, no device, no perspective or photographic background.
+Preserve actual card structure: at panel top left title "Team directory" and small unobtrusive "Sample data". Top right search input with search icon and placeholder "Search team"; immediately below search, four role filter pills reading "All roles", "Manager", "Staff", "Cashier". "All roles" selected in dark graphite. Three horizontal employee record rows separated by hairlines. Each employee row starts with a small square initials avatar with subtly rounded corners, employee name, and role chip. Beneath name on left a small "SERVICE SPECIALTIES" label and outlined pill tags. On the right of each same row, "REGULAR DAYS OFF" label and corresponding day.
+Text exactly:
+Title "Team directory".
+Search placeholder "Search team".
+Filters "All roles", "Manager", "Staff", "Cashier".
+Row 1: initials "MR", name "Mira Reyes", role "STAFF", specialty tags "Haircut" and "Hair styling", regular day off "Sunday".
+Row 2: initials "JS", name "Jules Santos", role "STAFF", specialty tag "Scalp treatment", regular day off "Friday".
+Row 3: initials "AL", name "Andrea Lim", role "MANAGER", specialty tags "Haircut" and "Hair styling", regular day off "Monday".
+Label under title "Sample data".
+Visual treatment: white and clean neutral SaaS UI; dark graphite crisp sans-serif text; restrained violet/pale lavender initials and filter accents replacing lime; subdued gray secondary labels; consistent comfortable spacing; fine light gray separators. Square initials avatars retained, not people photos. Excellent legibility at reduced size.
+Constraints: retain actual directory structure and roles/specialties/days-off relationships. Do not add contacts, email addresses, statistics, performance ratings, status claims, invented buttons, photos, or any other employee. No spelling errors. No fake customer endorsement.

@@ -13,11 +13,19 @@ const mocks = vi.hoisted(() => ({
   transaction: vi.fn(),
   conflicts: vi.fn(),
   warn: vi.fn(),
+  ownerFind: vi.fn(),
+  allocationCreate: vi.fn(),
+  earningFind: vi.fn(),
+  audit: vi.fn(),
 }));
 
 vi.mock("@/prisma/prisma", () => {
   const tx = {
-    leaveRequest: { update: mocks.leaveUpdate },
+    owner: { findFirst: mocks.ownerFind },
+    employee: { findFirst: mocks.employeeFind },
+    leaveRequest: { updateMany: mocks.leaveUpdate },
+    leaveAllocation: { create: mocks.allocationCreate },
+    payrollEarning: { findFirst: mocks.earningFind },
     employeeAttendance: {
       findFirst: mocks.attendanceFind,
       create: mocks.attendanceCreate,
@@ -44,6 +52,7 @@ vi.mock("@/lib/services/booking-conflicts", () => ({
   detectAndEmitFutureBookingConflicts: mocks.conflicts,
 }));
 vi.mock("@/lib/logger", () => ({ logger: { warn: mocks.warn } }));
+vi.mock("@/lib/services/audit", () => ({ logAudit: mocks.audit }));
 
 import {
   cancelTenantLeaveRequest,
@@ -71,7 +80,8 @@ describe("leave request tenant service", () => {
     mocks.leaveFindMany.mockResolvedValue([]);
     mocks.leaveCreate.mockResolvedValue({ id: 10 });
     mocks.leaveDelete.mockResolvedValue({ id: 10 });
-    mocks.leaveUpdate.mockResolvedValue({ id: 10 });
+    mocks.leaveUpdate.mockResolvedValue({ count: 1 });
+    mocks.ownerFind.mockResolvedValue({ id: 1, business_id: "business-1" });
     mocks.attendanceFind.mockResolvedValue(null);
     mocks.attendanceCreate.mockResolvedValue({ id: 20 });
     mocks.conflicts.mockResolvedValue(undefined);
@@ -142,14 +152,15 @@ describe("leave request tenant service", () => {
         where: expect.objectContaining({
           id: 10,
           business: { slug: "tenant-a" },
-          employee: { user_id: "employee-user-1" },
+          employee: { user_id: "employee-user-1", archived_at: null, user: { role: "EMPLOYEE" } },
         }),
       }),
     );
     expect(mocks.leaveDelete).not.toHaveBeenCalled();
   });
 
-  it("atomically approves a pending request and creates leave attendance", async () => {
+  it("atomically approves scheduled leave allocations without creating future payable attendance", async () => {
+    mocks.employeeFind.mockResolvedValue({ id: 7, business_id: "business-1", schedule: [], recurring_days_off: [], business: { formal_schedule_enabled: false, business_hours: [{ day_of_week: 4, is_closed: false }, { day_of_week: 5, is_closed: false }] } });
     mocks.leaveFind.mockResolvedValue({
       id: 10,
       employee_id: 7,
@@ -170,14 +181,16 @@ describe("leave request tenant service", () => {
     expect(result).toEqual({ success: true });
     expect(mocks.transaction).toHaveBeenCalledOnce();
     expect(mocks.leaveUpdate).toHaveBeenCalledWith({
-      where: { id: 10 },
+      where: { id: 10, business_id: "business-1", status: "PENDING", cancelled_at: null },
       data: {
         status: "APPROVED",
         admin_comment: "Approved",
         is_paid: true,
+        revision: { increment: 1 },
       },
     });
-    expect(mocks.attendanceCreate).toHaveBeenCalledTimes(2);
+    expect(mocks.attendanceCreate).not.toHaveBeenCalled();
+    expect(mocks.allocationCreate).toHaveBeenCalledTimes(2);
     expect(mocks.conflicts).toHaveBeenCalledWith({
       businessId: "business-1",
       changedDate: new Date("2026-10-01T00:00:00.000Z"),

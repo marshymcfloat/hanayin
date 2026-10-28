@@ -1,5 +1,7 @@
 // Colocated action regression test.
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as queueServices from "@/features/dashboard/services/employee-queue";
+import { revalidatePath } from "next/cache";
 
 const requireAuthMock = vi.hoisted(() => vi.fn());
 const resolveTenantActorContextMock = vi.hoisted(() => vi.fn());
@@ -14,6 +16,7 @@ const prismaMock = vi.hoisted(() => ({
     updateMany: vi.fn(),
   },
   employee: {
+    findMany: vi.fn(),
     findFirst: vi.fn(),
     findUnique: vi.fn(),
     update: vi.fn(),
@@ -56,6 +59,8 @@ import {
   getEmployeeTodayBookingsAction,
   markServiceServedAction,
   unclaimServiceAction,
+  unserveServiceAction,
+  getManagerQueueBoardAction,
 } from "./employee";
 import {
   AvailedServiceStatus,
@@ -66,6 +71,9 @@ import { getActiveSaleEvents } from "@/features/catalog/actions/sale-event";
 import { getApplicableDiscount } from "@/lib/utils/pricing";
 
 describe("Employee Dashboard Actions", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
   beforeEach(() => {
     vi.resetAllMocks();
     vi.mocked(getActiveSaleEvents).mockResolvedValue({
@@ -211,8 +219,60 @@ describe("Employee Dashboard Actions", () => {
   });
 
   describe("getEmployeeServiceWorkAction", () => {
+    it("returns a safe error when the work query fails", async () => {
+      prismaMock.employee.findFirst.mockResolvedValue({ id: 101, specialties: [] });
+      prismaMock.availedService.findMany.mockRejectedValue(new Error("Database unavailable"));
+      vi.spyOn(console, "error").mockImplementation(() => {});
+
+      expect(await getEmployeeServiceWorkAction()).toEqual({
+        success: false, error: "Unable to refresh service work.",
+      });
+    });
+    it("scopes membership to the verified employee, tenant, and user", async () => {
+      prismaMock.employee.findFirst.mockResolvedValue(null);
+
+      expect(await getEmployeeServiceWorkAction()).toEqual({
+        success: false,
+        error: "Unauthorized",
+      });
+      expect(prismaMock.employee.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: 101,
+          business_id: "biz-1",
+          user_id: "employee-user-1",
+        },
+        select: { id: true, specialties: true },
+      });
+      expect(prismaMock.availedService.findMany).not.toHaveBeenCalled();
+    });
+
+    it("returns a safe failure when membership lookup fails", async () => {
+      const databaseError = new Error("private database details");
+      prismaMock.employee.findFirst.mockRejectedValue(databaseError);
+      prismaMock.employee.findUnique.mockRejectedValue(databaseError);
+
+      expect(await getEmployeeServiceWorkAction()).toEqual({
+        success: false,
+        error: "Unable to verify employee access.",
+      });
+      expect(prismaMock.availedService.findMany).not.toHaveBeenCalled();
+    });
+
+    it("does not query membership before authentication", async () => {
+      requireAuthMock.mockResolvedValue({ success: false, error: "Unauthorized" });
+
+      expect(await getEmployeeServiceWorkAction()).toEqual({
+        success: false,
+        error: "Unauthorized",
+      });
+      expect(resolveTenantActorContextMock).not.toHaveBeenCalled();
+      expect(prismaMock.employee.findFirst).not.toHaveBeenCalled();
+      expect(prismaMock.employee.findUnique).not.toHaveBeenCalled();
+      expect(prismaMock.availedService.findMany).not.toHaveBeenCalled();
+    });
+
     it("returns pending, active, and completed lists from one refresh", async () => {
-      prismaMock.employee.findUnique.mockResolvedValue({
+      prismaMock.employee.findFirst.mockResolvedValue({
         id: 101,
         specialties: ["Nails"],
       });
@@ -258,6 +318,26 @@ describe("Employee Dashboard Actions", () => {
   });
 
   describe("markServiceServedAction", () => {
+    it("rejects invalid identifiers before authentication", async () => {
+      expect(await markServiceServedAction(-1, 101)).toEqual({ success: false, error: "Invalid input" });
+      expect(requireAuthMock).not.toHaveBeenCalled();
+    });
+
+    it("denies failed authentication before invoking the serve use case", async () => {
+      requireAuthMock.mockResolvedValue({ success: false, error: "Unauthorized" });
+      const serve = vi.spyOn(queueServices, "markEmployeeServiceServed");
+
+      expect(await markServiceServedAction(1, 101)).toEqual({ success: false, error: "Unauthorized" });
+      expect(serve).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
+
+    it("invalidates only after a successful serve use case", async () => {
+      vi.spyOn(queueServices, "markEmployeeServiceServed").mockResolvedValue({ success: true } as never);
+
+      expect(await markServiceServedAction(1, 101)).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith("/app/test-business");
+    });
     it("rejects serving a service from an unconfirmed hold", async () => {
       prismaMock.availedService.findFirst.mockResolvedValue({
         commission_base: 100,
@@ -278,6 +358,31 @@ describe("Employee Dashboard Actions", () => {
   });
 
   describe("employee payment actions", () => {
+    it("returns no bookings when the read model fails", async () => {
+      prismaMock.employee.findFirst.mockResolvedValue({ id: 101, specialties: [] });
+      prismaMock.booking.findMany.mockRejectedValue(new Error("Database unavailable"));
+      vi.spyOn(console, "error").mockImplementation(() => {});
+
+      expect(await getEmployeeTodayBookingsAction()).toEqual([]);
+    });
+    it("checks payment permission before employee or booking reads", async () => {
+      hasStaffPermissionMock.mockReturnValue(false);
+
+      expect(await getEmployeeTodayBookingsAction()).toEqual([]);
+      expect(prismaMock.employee.findFirst).not.toHaveBeenCalled();
+      expect(prismaMock.employee.findUnique).not.toHaveBeenCalled();
+      expect(prismaMock.booking.findMany).not.toHaveBeenCalled();
+    });
+
+    it("returns no bookings when membership lookup fails", async () => {
+      const databaseError = new Error("private database details");
+      prismaMock.employee.findFirst.mockRejectedValue(databaseError);
+      prismaMock.employee.findUnique.mockRejectedValue(databaseError);
+
+      expect(await getEmployeeTodayBookingsAction()).toEqual([]);
+      expect(prismaMock.booking.findMany).not.toHaveBeenCalled();
+    });
+
     it("returns empty array when actor context is non-employee", async () => {
       resolveTenantActorContextMock.mockResolvedValue({
         success: true,
@@ -304,7 +409,7 @@ describe("Employee Dashboard Actions", () => {
     });
 
     it("returns today bookings for authorized employee", async () => {
-      prismaMock.employee.findUnique.mockResolvedValue({
+      prismaMock.employee.findFirst.mockResolvedValue({
         id: 101,
         specialties: [],
       });
@@ -337,5 +442,59 @@ describe("Employee Dashboard Actions", () => {
       expect(prismaMock.booking.findMany).toHaveBeenCalled();
     });
 
+  });
+
+  describe("manager queue adapter", () => {
+    it("denies missing tenant membership before queue reads", async () => {
+      resolveTenantActorContextMock.mockResolvedValue({ success: false, error: "Forbidden" });
+      expect(await getManagerQueueBoardAction()).toEqual({ success: false, error: "Forbidden" });
+      expect(prismaMock.availedService.findMany).not.toHaveBeenCalled();
+    });
+
+    it("denies missing queue override permission before reads", async () => {
+      hasStaffPermissionMock.mockReturnValue(false);
+      expect(await getManagerQueueBoardAction()).toEqual({ success: false, error: "Forbidden" });
+      expect(prismaMock.availedService.findMany).not.toHaveBeenCalled();
+      expect(prismaMock.employee.findMany).not.toHaveBeenCalled();
+    });
+
+    it("returns the feature-owned queue board", async () => {
+      prismaMock.availedService.findMany.mockResolvedValue([]);
+      prismaMock.employee.findMany.mockResolvedValue([]);
+      expect(await getManagerQueueBoardAction()).toEqual({ success: true, data: { services: [], employees: [] } });
+    });
+
+    it("returns a safe error when the feature query fails", async () => {
+      prismaMock.availedService.findMany.mockRejectedValue(new Error("Database unavailable"));
+      prismaMock.employee.findMany.mockResolvedValue([]);
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      expect(await getManagerQueueBoardAction()).toEqual({ success: false, error: "Failed to fetch manager queue board." });
+    });
+  });
+
+  describe("unserve adapter", () => {
+    it("validates before authentication", async () => {
+      expect(await unserveServiceAction(-1)).toEqual({ success: false, error: "Invalid input" });
+      expect(requireAuthMock).not.toHaveBeenCalled();
+    });
+
+    it("denies failed authentication before the use case", async () => {
+      requireAuthMock.mockResolvedValue({ success: false, error: "Unauthorized" });
+      const unserve = vi.spyOn(queueServices, "unserveEmployeeService");
+      expect(await unserveServiceAction(1)).toEqual({ success: false, error: "Unauthorized" });
+      expect(unserve).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
+
+    it("invalidates only a successful use case", async () => {
+      const unserve = vi.spyOn(queueServices, "unserveEmployeeService");
+      unserve.mockResolvedValueOnce({ success: true } as never);
+      expect(await unserveServiceAction(1)).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith("/app/test-business");
+      vi.mocked(revalidatePath).mockClear();
+      unserve.mockResolvedValueOnce({ success: false, error: "Forbidden" } as never);
+      expect(await unserveServiceAction(1)).toEqual({ success: false, error: "Forbidden" });
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
   });
 });

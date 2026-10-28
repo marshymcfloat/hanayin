@@ -5,9 +5,11 @@ const mocks = vi.hoisted(() => ({
   businessFind: vi.fn(),
   employeeFind: vi.fn(),
   leaveFindMany: vi.fn(),
+  workforce: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/guards", () => ({ requireAuth: mocks.auth }));
+vi.mock("@/features/workforce/workforce-access", () => ({ currentWorkforceOwner: mocks.workforce }));
 vi.mock("@/prisma/prisma", () => ({
   prisma: {
     business: { findFirst: mocks.businessFind },
@@ -57,14 +59,21 @@ describe("leave request query boundaries", () => {
     expect(mocks.employeeFind).toHaveBeenCalledWith({
       where: {
         id: 7,
+        archived_at: null,
         business: { slug: "tenant-a" },
         user_id: "employee-user-1",
       },
       select: { id: true, business_id: true },
     });
     expect(mocks.leaveFindMany).toHaveBeenCalledWith({
-      where: { employee_id: 7, business_id: "business-1" },
+      where: { employee_id: 7, business_id: "business-1", cancelled_at: null },
       orderBy: { created_at: "desc" },
     });
+  });
+  it("requires current workforce permission for an owner reading employee history", async () => {
+    mocks.auth.mockResolvedValue({ success: true, businessSlug: "tenant-a", session: { user: { id: "owner", role: "OWNER" } } });
+    mocks.workforce.mockResolvedValue(null);
+    expect(await getUserLeaveRequests(7)).toEqual({ success: false, error: "Forbidden" });
+    expect(mocks.employeeFind).not.toHaveBeenCalled();
   });
 });

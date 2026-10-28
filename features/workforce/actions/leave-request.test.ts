@@ -6,10 +6,13 @@ const mocks = vi.hoisted(() => ({
   create: vi.fn(),
   update: vi.fn(),
   revalidate: vi.fn(),
+  updateTag: vi.fn(),
+  ownerFindFirst: vi.fn(),
 }));
 
 vi.mock("@/lib/auth/guards", () => ({ requireAuth: mocks.auth }));
-vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidate }));
+vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidate, updateTag: mocks.updateTag }));
+vi.mock("@/prisma/prisma", () => ({ prisma: { owner: { findFirst: mocks.ownerFindFirst } } }));
 vi.mock("@/features/workforce/services/leave-request", () => ({
   cancelTenantLeaveRequest: mocks.cancel,
   createTenantLeaveRequest: mocks.create,
@@ -43,6 +46,7 @@ describe("leave request action boundaries", () => {
     mocks.create.mockResolvedValue({ success: true });
     mocks.cancel.mockResolvedValue({ success: true });
     mocks.update.mockResolvedValue({ success: true });
+    mocks.ownerFindFirst.mockResolvedValue({ id: 1 });
   });
 
   it("stops before validation and persistence when authentication fails", async () => {
@@ -88,6 +92,31 @@ describe("leave request action boundaries", () => {
 
     expect(result).toEqual({ success: false, error: "Forbidden" });
     expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.updateTag).not.toHaveBeenCalled();
+  });
+
+  it("forbids a stale owner session before approving leave", async () => {
+    mocks.auth.mockResolvedValue({
+      success: true,
+      businessSlug: "tenant-a",
+      session: { user: { id: "owner-1", role: "OWNER" } },
+    });
+    mocks.ownerFindFirst.mockResolvedValue(null);
+
+    await expect(updateLeaveRequestStatus(10, "APPROVED")).resolves.toEqual({
+      success: false,
+      error: "Forbidden",
+    });
+    expect(mocks.ownerFindFirst).toHaveBeenCalledWith({
+      where: {
+        user_id: "owner-1",
+        business: { slug: "tenant-a" },
+        user: { role: "OWNER" },
+        permissions: { has: "WORKFORCE_MANAGE" },
+      },
+      select: { id: true, business_id: true },
+    });
+    expect(mocks.update).not.toHaveBeenCalled();
   });
 
   it("passes verified actor context to mutations and revalidates", async () => {
@@ -115,5 +144,13 @@ describe("leave request action boundaries", () => {
       role: "OWNER",
     });
     expect(mocks.revalidate).toHaveBeenCalledWith("/app/tenant-a/attendance");
+    expect(mocks.updateTag).toHaveBeenCalledWith("attendance-history-tenant-a");
+  });
+
+  it("preserves history cache when the leave decision fails", async () => {
+    mocks.auth.mockResolvedValue({ success: true, businessSlug: "tenant-a", session: { user: { id: "owner-1", role: "OWNER" } } });
+    mocks.update.mockResolvedValue({ success: false, error: "Request unavailable" });
+    expect(await updateLeaveRequestStatus(10, "APPROVED")).toEqual({ success: false, error: "Request unavailable" });
+    expect(mocks.updateTag).not.toHaveBeenCalled();
   });
 });

@@ -1,13 +1,8 @@
 "use client";
+import type { EmployeesWorkspaceEmployee } from "@/features/workforce/queries/employees";
 
 import { useMemo, useOptimistic, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Employee,
-  EmployeeAttendance,
-  Payslip,
-  User,
-} from "@/prisma/generated/prisma/client";
 import { StaffPermission, StaffProfile } from "@/prisma/generated/prisma/enums";
 import {
   Search,
@@ -47,14 +42,7 @@ import {
 import { EmployeeList } from "./EmployeeList";
 import { ScheduleEditor } from "@/components/dashboard/owner/ScheduleEditor";
 
-type EmployeeWithDetails = Employee & {
-  user: User;
-  attendance: EmployeeAttendance[];
-  payslips: Payslip[];
-  _count: {
-    served_services: number;
-  };
-};
+type EmployeeWithDetails = EmployeesWorkspaceEmployee;
 
 // Mirror of DEFAULT_PERMISSIONS_BY_PROFILE in lib/auth/staff-access.ts.
 // Keep these in lockstep with the backend defaults and
@@ -201,6 +189,8 @@ interface EmployeesPageClientProps {
   employees: EmployeeWithDetails[];
   businessSlug: string;
   categories: string[];
+  canAccessPayroll: boolean;
+  canManageCompensation: boolean;
 }
 
 interface EmployeeFormData {
@@ -233,8 +223,8 @@ type OptimisticAction =
       data: {
         name: string;
         contact_number: string;
-        daily_rate: number;
-        commission_percentage: number;
+        daily_rate?: number;
+        commission_percentage?: number;
         profile: StaffProfile;
         permissions: StaffPermission[];
         specialties: string[];
@@ -248,6 +238,8 @@ export function EmployeesPageClient({
   employees,
   businessSlug,
   categories,
+  canAccessPayroll,
+  canManageCompensation,
 }: EmployeesPageClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -277,8 +269,8 @@ export function EmployeesPageClient({
             emp.id === action.employeeId
               ? {
                   ...emp,
-                  daily_rate: action.data.daily_rate,
-                  commission_percentage: action.data.commission_percentage,
+                  daily_rate: action.data.daily_rate ?? emp.daily_rate,
+                  commission_percentage: action.data.commission_percentage ?? emp.commission_percentage,
                   profile: action.data.profile,
                   permissions: action.data.permissions,
                   specialties: action.data.specialties,
@@ -328,7 +320,7 @@ export function EmployeesPageClient({
         ? 0
         : Math.round(
             (optimisticEmployees.reduce(
-              (sum, emp) => sum + emp.commission_percentage,
+              (sum, emp) => sum + (emp.commission_percentage ?? 0),
               0,
             ) /
               total) *
@@ -353,8 +345,8 @@ export function EmployeesPageClient({
     const result = await createEmployeeAction({
       name: formData.name,
       contact_number: formData.contact_number,
-      daily_rate: parseFloat(formData.daily_rate) || 0,
-      commission_percentage: parseFloat(formData.commission_percentage) || 0,
+      daily_rate: canManageCompensation ? parseFloat(formData.daily_rate) || 0 : 0,
+      commission_percentage: canManageCompensation ? parseFloat(formData.commission_percentage) || 0 : 0,
       profile: formData.profile,
       permissions: formData.permissions,
       specialties: formData.specialties,
@@ -383,8 +375,7 @@ export function EmployeesPageClient({
     const updateData = {
       name: formData.name,
       contact_number: formData.contact_number,
-      daily_rate: parseFloat(formData.daily_rate) || 0,
-      commission_percentage: parseFloat(formData.commission_percentage) || 0,
+      ...(canManageCompensation ? { daily_rate: parseFloat(formData.daily_rate) || 0, commission_percentage: parseFloat(formData.commission_percentage) || 0 } : {}),
       profile: formData.profile,
       permissions: formData.permissions,
       specialties: formData.specialties,
@@ -418,10 +409,10 @@ export function EmployeesPageClient({
       addOptimisticUpdate({ type: "delete", employeeId });
       const result = await deleteEmployeeAction(employeeId);
       if (result.success) {
-        toast.success("Employee deleted successfully");
+        toast.success("Employee archived successfully");
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to delete employee");
+        toast.error(result.error || "Failed to archive employee");
         router.refresh();
       }
     });
@@ -457,8 +448,8 @@ export function EmployeesPageClient({
     setFormData({
       name: employee.user.name,
       contact_number: employee.user.contact_number,
-      daily_rate: employee.daily_rate.toString(),
-      commission_percentage: employee.commission_percentage.toString(),
+      daily_rate: employee.daily_rate?.toString() ?? "",
+      commission_percentage: employee.commission_percentage?.toString() ?? "",
       profile: employee.profile ?? StaffProfile.STAFF,
       permissions:
         employee.permissions && employee.permissions.length > 0
@@ -538,6 +529,7 @@ export function EmployeesPageClient({
                   onSubmit={handleAddEmployee}
                   submitLabel={isLoading ? "Creating..." : "Create Employee"}
                   loading={isLoading}
+                  canManageCompensation={canManageCompensation}
                 />
               </Dialog>
             </div>
@@ -562,11 +554,11 @@ export function EmployeesPageClient({
                 label="Services served"
                 value={stats.servicesServed.toLocaleString()}
               />
-              <KpiTile
+              {canManageCompensation && <KpiTile
                 icon={<Percent className="h-4 w-4" />}
                 label="Avg commission"
                 value={`${stats.avgCommission}%`}
-              />
+              />}
             </div>
           </div>
         </div>
@@ -695,6 +687,8 @@ export function EmployeesPageClient({
             <EmployeeList
               employees={filteredEmployees}
               businessSlug={businessSlug}
+              canAccessPayroll={canAccessPayroll}
+              showLegacyCompensation={canManageCompensation}
               onEdit={openEditDialog}
               onDelete={handleDeleteEmployee}
               onResetPassword={openResetPasswordDialog}
@@ -727,6 +721,7 @@ export function EmployeesPageClient({
               onSubmit={handleAddEmployee}
               submitLabel={isLoading ? "Creating..." : "Create Employee"}
               loading={isLoading}
+                  canManageCompensation={canManageCompensation}
             />
           </Dialog>
         </div>
@@ -736,7 +731,7 @@ export function EmployeesPageClient({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <EmployeeFormDialog
           title="Edit Employee"
-          description="Update profile, rate, and permissions."
+          description={canManageCompensation ? "Update profile, legacy rate, and permissions." : "Update employee profile and permissions. Compensation uses payroll setup."}
           formData={formData}
           setFormData={setFormData}
           categories={categories}
@@ -744,6 +739,7 @@ export function EmployeesPageClient({
           onSubmit={handleEditEmployee}
           submitLabel={isLoading ? "Saving..." : "Save Changes"}
           loading={isLoading}
+                  canManageCompensation={canManageCompensation}
         />
       </Dialog>
 
@@ -857,6 +853,7 @@ function EmployeeFormDialog({
   onSubmit,
   submitLabel,
   loading,
+  canManageCompensation,
 }: {
   title: string;
   description: string;
@@ -867,6 +864,7 @@ function EmployeeFormDialog({
   onSubmit: () => void;
   submitLabel: string;
   loading: boolean;
+  canManageCompensation: boolean;
 }) {
   return (
     <DialogContent className="sm:max-w-3xl max-h-[92vh] sm:max-h-[90vh] overflow-hidden rounded-t-3xl rounded-b-none sm:rounded-3xl p-0 gap-0 flex flex-col">
@@ -884,6 +882,7 @@ function EmployeeFormDialog({
           formData={formData}
           setFormData={setFormData}
           categories={categories}
+          canManageCompensation={canManageCompensation}
         />
       </div>
       <div className="px-5 sm:px-6 py-4 border-t border-border bg-muted/30 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-4">
@@ -910,10 +909,12 @@ function EmployeeForm({
   formData,
   setFormData,
   categories,
+  canManageCompensation,
 }: {
   formData: EmployeeFormData;
   setFormData: (data: EmployeeFormData) => void;
   categories: string[];
+  canManageCompensation: boolean;
 }) {
   const isGeneralist = formData.specialties.length === 0;
 
@@ -981,7 +982,7 @@ function EmployeeForm({
       </div>
 
       {/* Compensation */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      {canManageCompensation && <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
           <Label htmlFor="daily_rate">Daily Rate (PHP)</Label>
           <Input
@@ -1018,7 +1019,7 @@ function EmployeeForm({
             className="h-11 rounded-xl"
           />
         </div>
-      </div>
+      </div>}
 
       {/* Profile — segmented track (no nested cards) */}
       <div className="grid gap-2">

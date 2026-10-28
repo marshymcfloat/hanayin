@@ -186,7 +186,7 @@ export type GiftCardPackageGroupByOutputType = {
   _max: GiftCardPackageMaxAggregateOutputType | null
 }
 
-type GetGiftCardPackageGroupByPayload<T extends GiftCardPackageGroupByArgs> = Prisma.PrismaPromise<
+export type GetGiftCardPackageGroupByPayload<T extends GiftCardPackageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<GiftCardPackageGroupByOutputType, T['by']> &
       {
@@ -1216,6 +1216,11 @@ export type GiftCardPackageFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` GiftCardPackages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of GiftCardPackages.
+   */
   distinct?: Prisma.GiftCardPackageScalarFieldEnum | Prisma.GiftCardPackageScalarFieldEnum[]
 }
 

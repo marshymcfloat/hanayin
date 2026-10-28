@@ -231,7 +231,7 @@ export type SubscriptionCreditLedgerGroupByOutputType = {
   _max: SubscriptionCreditLedgerMaxAggregateOutputType | null
 }
 
-type GetSubscriptionCreditLedgerGroupByPayload<T extends SubscriptionCreditLedgerGroupByArgs> = Prisma.PrismaPromise<
+export type GetSubscriptionCreditLedgerGroupByPayload<T extends SubscriptionCreditLedgerGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SubscriptionCreditLedgerGroupByOutputType, T['by']> &
       {
@@ -1609,6 +1609,11 @@ export type SubscriptionCreditLedgerFindManyArgs<ExtArgs extends runtime.Types.E
    * Skip the first `n` SubscriptionCreditLedgers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SubscriptionCreditLedgers.
+   */
   distinct?: Prisma.SubscriptionCreditLedgerScalarFieldEnum | Prisma.SubscriptionCreditLedgerScalarFieldEnum[]
 }
 

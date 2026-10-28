@@ -50,6 +50,9 @@ export type BookingSumAggregateOutputType = {
 
 export type BookingMinAggregateOutputType = {
   id: number | null
+  request_key: string | null
+  request_scope: string | null
+  request_payload_hash: string | null
   status: $Enums.BookingStatus | null
   customer_id: string | null
   is_anonymous_walk_in: boolean | null
@@ -92,6 +95,9 @@ export type BookingMinAggregateOutputType = {
 
 export type BookingMaxAggregateOutputType = {
   id: number | null
+  request_key: string | null
+  request_scope: string | null
+  request_payload_hash: string | null
   status: $Enums.BookingStatus | null
   customer_id: string | null
   is_anonymous_walk_in: boolean | null
@@ -134,6 +140,10 @@ export type BookingMaxAggregateOutputType = {
 
 export type BookingCountAggregateOutputType = {
   id: number
+  request_key: number
+  request_scope: number
+  request_payload_hash: number
+  pricing_snapshot: number
   status: number
   customer_id: number
   is_anonymous_walk_in: number
@@ -200,6 +210,9 @@ export type BookingSumAggregateInputType = {
 
 export type BookingMinAggregateInputType = {
   id?: true
+  request_key?: true
+  request_scope?: true
+  request_payload_hash?: true
   status?: true
   customer_id?: true
   is_anonymous_walk_in?: true
@@ -242,6 +255,9 @@ export type BookingMinAggregateInputType = {
 
 export type BookingMaxAggregateInputType = {
   id?: true
+  request_key?: true
+  request_scope?: true
+  request_payload_hash?: true
   status?: true
   customer_id?: true
   is_anonymous_walk_in?: true
@@ -284,6 +300,10 @@ export type BookingMaxAggregateInputType = {
 
 export type BookingCountAggregateInputType = {
   id?: true
+  request_key?: true
+  request_scope?: true
+  request_payload_hash?: true
+  pricing_snapshot?: true
   status?: true
   customer_id?: true
   is_anonymous_walk_in?: true
@@ -413,6 +433,10 @@ export type BookingGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type BookingGroupByOutputType = {
   id: number
+  request_key: string | null
+  request_scope: string | null
+  request_payload_hash: string | null
+  pricing_snapshot: runtime.JsonValue | null
   status: $Enums.BookingStatus
   customer_id: string | null
   is_anonymous_walk_in: boolean
@@ -458,7 +482,7 @@ export type BookingGroupByOutputType = {
   _max: BookingMaxAggregateOutputType | null
 }
 
-type GetBookingGroupByPayload<T extends BookingGroupByArgs> = Prisma.PrismaPromise<
+export type GetBookingGroupByPayload<T extends BookingGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BookingGroupByOutputType, T['by']> &
       {
@@ -478,6 +502,10 @@ export type BookingWhereInput = {
   OR?: Prisma.BookingWhereInput[]
   NOT?: Prisma.BookingWhereInput | Prisma.BookingWhereInput[]
   id?: Prisma.IntFilter<"Booking"> | number
+  request_key?: Prisma.StringNullableFilter<"Booking"> | string | null
+  request_scope?: Prisma.StringNullableFilter<"Booking"> | string | null
+  request_payload_hash?: Prisma.StringNullableFilter<"Booking"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableFilter<"Booking">
   status?: Prisma.EnumBookingStatusFilter<"Booking"> | $Enums.BookingStatus
   customer_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   is_anonymous_walk_in?: Prisma.BoolFilter<"Booking"> | boolean
@@ -516,6 +544,8 @@ export type BookingWhereInput = {
   is_demo?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationListRelationFilter
+  change_commands?: Prisma.BookingChangeCommandListRelationFilter
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   vouchers?: Prisma.VoucherListRelationFilter
@@ -529,6 +559,10 @@ export type BookingWhereInput = {
 
 export type BookingOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  request_key?: Prisma.SortOrderInput | Prisma.SortOrder
+  request_scope?: Prisma.SortOrderInput | Prisma.SortOrder
+  request_payload_hash?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricing_snapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
   is_anonymous_walk_in?: Prisma.SortOrder
@@ -567,6 +601,8 @@ export type BookingOrderByWithRelationInput = {
   is_demo?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
+  offer_applications?: Prisma.BookingOfferApplicationOrderByRelationAggregateInput
+  change_commands?: Prisma.BookingChangeCommandOrderByRelationAggregateInput
   customer?: Prisma.CustomerOrderByWithRelationInput
   business?: Prisma.BusinessOrderByWithRelationInput
   vouchers?: Prisma.VoucherOrderByRelationAggregateInput
@@ -580,9 +616,14 @@ export type BookingOrderByWithRelationInput = {
 
 export type BookingWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  business_id_request_scope_request_key?: Prisma.BookingBusiness_idRequest_scopeRequest_keyCompoundUniqueInput
   AND?: Prisma.BookingWhereInput | Prisma.BookingWhereInput[]
   OR?: Prisma.BookingWhereInput[]
   NOT?: Prisma.BookingWhereInput | Prisma.BookingWhereInput[]
+  request_key?: Prisma.StringNullableFilter<"Booking"> | string | null
+  request_scope?: Prisma.StringNullableFilter<"Booking"> | string | null
+  request_payload_hash?: Prisma.StringNullableFilter<"Booking"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableFilter<"Booking">
   status?: Prisma.EnumBookingStatusFilter<"Booking"> | $Enums.BookingStatus
   customer_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   is_anonymous_walk_in?: Prisma.BoolFilter<"Booking"> | boolean
@@ -621,6 +662,8 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   is_demo?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationListRelationFilter
+  change_commands?: Prisma.BookingChangeCommandListRelationFilter
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   vouchers?: Prisma.VoucherListRelationFilter
@@ -630,10 +673,14 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   cancelled_by?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   notes?: Prisma.BookingNoteListRelationFilter
   price_adjustments?: Prisma.BookingPriceAdjustmentListRelationFilter
-}, "id">
+}, "id" | "business_id_request_scope_request_key">
 
 export type BookingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  request_key?: Prisma.SortOrderInput | Prisma.SortOrder
+  request_scope?: Prisma.SortOrderInput | Prisma.SortOrder
+  request_payload_hash?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricing_snapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
   is_anonymous_walk_in?: Prisma.SortOrder
@@ -684,6 +731,10 @@ export type BookingScalarWhereWithAggregatesInput = {
   OR?: Prisma.BookingScalarWhereWithAggregatesInput[]
   NOT?: Prisma.BookingScalarWhereWithAggregatesInput | Prisma.BookingScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Booking"> | number
+  request_key?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  request_scope?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  request_payload_hash?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableWithAggregatesFilter<"Booking">
   status?: Prisma.EnumBookingStatusWithAggregatesFilter<"Booking"> | $Enums.BookingStatus
   customer_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   is_anonymous_walk_in?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
@@ -725,6 +776,10 @@ export type BookingScalarWhereWithAggregatesInput = {
 }
 
 export type BookingCreateInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -759,6 +814,8 @@ export type BookingCreateInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
@@ -772,6 +829,10 @@ export type BookingCreateInput = {
 
 export type BookingUncheckedCreateInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -810,6 +871,8 @@ export type BookingUncheckedCreateInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
@@ -818,6 +881,10 @@ export type BookingUncheckedCreateInput = {
 }
 
 export type BookingUpdateInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -852,6 +919,8 @@ export type BookingUpdateInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
@@ -865,6 +934,10 @@ export type BookingUpdateInput = {
 
 export type BookingUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -903,6 +976,8 @@ export type BookingUncheckedUpdateInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
@@ -912,6 +987,10 @@ export type BookingUncheckedUpdateInput = {
 
 export type BookingCreateManyInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -953,6 +1032,10 @@ export type BookingCreateManyInput = {
 }
 
 export type BookingUpdateManyMutationInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -991,6 +1074,10 @@ export type BookingUpdateManyMutationInput = {
 
 export type BookingUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1041,8 +1128,18 @@ export type BookingOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type BookingBusiness_idRequest_scopeRequest_keyCompoundUniqueInput = {
+  business_id: string
+  request_scope: string
+  request_key: string
+}
+
 export type BookingCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  request_key?: Prisma.SortOrder
+  request_scope?: Prisma.SortOrder
+  request_payload_hash?: Prisma.SortOrder
+  pricing_snapshot?: Prisma.SortOrder
   status?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   is_anonymous_walk_in?: Prisma.SortOrder
@@ -1096,6 +1193,9 @@ export type BookingAvgOrderByAggregateInput = {
 
 export type BookingMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  request_key?: Prisma.SortOrder
+  request_scope?: Prisma.SortOrder
+  request_payload_hash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   is_anonymous_walk_in?: Prisma.SortOrder
@@ -1138,6 +1238,9 @@ export type BookingMaxOrderByAggregateInput = {
 
 export type BookingMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  request_key?: Prisma.SortOrder
+  request_scope?: Prisma.SortOrder
+  request_payload_hash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
   is_anonymous_walk_in?: Prisma.SortOrder
@@ -1427,6 +1530,34 @@ export type BookingUpdateOneRequiredWithoutAvailed_servicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BookingUpdateToOneWithWhereWithoutAvailed_servicesInput, Prisma.BookingUpdateWithoutAvailed_servicesInput>, Prisma.BookingUncheckedUpdateWithoutAvailed_servicesInput>
 }
 
+export type BookingCreateNestedOneWithoutOffer_applicationsInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutOffer_applicationsInput, Prisma.BookingUncheckedCreateWithoutOffer_applicationsInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutOffer_applicationsInput
+  connect?: Prisma.BookingWhereUniqueInput
+}
+
+export type BookingUpdateOneRequiredWithoutOffer_applicationsNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutOffer_applicationsInput, Prisma.BookingUncheckedCreateWithoutOffer_applicationsInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutOffer_applicationsInput
+  upsert?: Prisma.BookingUpsertWithoutOffer_applicationsInput
+  connect?: Prisma.BookingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BookingUpdateToOneWithWhereWithoutOffer_applicationsInput, Prisma.BookingUpdateWithoutOffer_applicationsInput>, Prisma.BookingUncheckedUpdateWithoutOffer_applicationsInput>
+}
+
+export type BookingCreateNestedOneWithoutChange_commandsInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutChange_commandsInput, Prisma.BookingUncheckedCreateWithoutChange_commandsInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutChange_commandsInput
+  connect?: Prisma.BookingWhereUniqueInput
+}
+
+export type BookingUpdateOneRequiredWithoutChange_commandsNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutChange_commandsInput, Prisma.BookingUncheckedCreateWithoutChange_commandsInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutChange_commandsInput
+  upsert?: Prisma.BookingUpsertWithoutChange_commandsInput
+  connect?: Prisma.BookingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BookingUpdateToOneWithWhereWithoutChange_commandsInput, Prisma.BookingUpdateWithoutChange_commandsInput>, Prisma.BookingUncheckedUpdateWithoutChange_commandsInput>
+}
+
 export type BookingCreateNestedOneWithoutNotesInput = {
   create?: Prisma.XOR<Prisma.BookingCreateWithoutNotesInput, Prisma.BookingUncheckedCreateWithoutNotesInput>
   connectOrCreate?: Prisma.BookingCreateOrConnectWithoutNotesInput
@@ -1456,6 +1587,10 @@ export type BookingUpdateOneRequiredWithoutPrice_adjustmentsNestedInput = {
 }
 
 export type BookingCreateWithoutBusinessInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -1490,6 +1625,8 @@ export type BookingCreateWithoutBusinessInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
@@ -1502,6 +1639,10 @@ export type BookingCreateWithoutBusinessInput = {
 
 export type BookingUncheckedCreateWithoutBusinessInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -1539,6 +1680,8 @@ export type BookingUncheckedCreateWithoutBusinessInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
@@ -1577,6 +1720,10 @@ export type BookingScalarWhereInput = {
   OR?: Prisma.BookingScalarWhereInput[]
   NOT?: Prisma.BookingScalarWhereInput | Prisma.BookingScalarWhereInput[]
   id?: Prisma.IntFilter<"Booking"> | number
+  request_key?: Prisma.StringNullableFilter<"Booking"> | string | null
+  request_scope?: Prisma.StringNullableFilter<"Booking"> | string | null
+  request_payload_hash?: Prisma.StringNullableFilter<"Booking"> | string | null
+  pricing_snapshot?: Prisma.JsonNullableFilter<"Booking">
   status?: Prisma.EnumBookingStatusFilter<"Booking"> | $Enums.BookingStatus
   customer_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   is_anonymous_walk_in?: Prisma.BoolFilter<"Booking"> | boolean
@@ -1618,6 +1765,10 @@ export type BookingScalarWhereInput = {
 }
 
 export type BookingCreateWithoutSale_eventInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -1652,6 +1803,8 @@ export type BookingCreateWithoutSale_eventInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
@@ -1664,6 +1817,10 @@ export type BookingCreateWithoutSale_eventInput = {
 
 export type BookingUncheckedCreateWithoutSale_eventInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -1701,6 +1858,8 @@ export type BookingUncheckedCreateWithoutSale_eventInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
@@ -1735,6 +1894,10 @@ export type BookingUpdateManyWithWhereWithoutSale_eventInput = {
 }
 
 export type BookingCreateWithoutCancelled_byInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -1769,6 +1932,8 @@ export type BookingCreateWithoutCancelled_byInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
@@ -1781,6 +1946,10 @@ export type BookingCreateWithoutCancelled_byInput = {
 
 export type BookingUncheckedCreateWithoutCancelled_byInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -1818,6 +1987,8 @@ export type BookingUncheckedCreateWithoutCancelled_byInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
@@ -1852,6 +2023,10 @@ export type BookingUpdateManyWithWhereWithoutCancelled_byInput = {
 }
 
 export type BookingCreateWithoutCustomerInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -1886,6 +2061,8 @@ export type BookingCreateWithoutCustomerInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
@@ -1898,6 +2075,10 @@ export type BookingCreateWithoutCustomerInput = {
 
 export type BookingUncheckedCreateWithoutCustomerInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -1935,6 +2116,8 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
@@ -1969,6 +2152,10 @@ export type BookingUpdateManyWithWhereWithoutCustomerInput = {
 }
 
 export type BookingCreateWithoutPaymentsInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -2003,6 +2190,8 @@ export type BookingCreateWithoutPaymentsInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
@@ -2015,6 +2204,10 @@ export type BookingCreateWithoutPaymentsInput = {
 
 export type BookingUncheckedCreateWithoutPaymentsInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -2053,6 +2246,8 @@ export type BookingUncheckedCreateWithoutPaymentsInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   notes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutBookingInput
@@ -2076,6 +2271,10 @@ export type BookingUpdateToOneWithWhereWithoutPaymentsInput = {
 }
 
 export type BookingUpdateWithoutPaymentsInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2110,6 +2309,8 @@ export type BookingUpdateWithoutPaymentsInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
@@ -2122,6 +2323,10 @@ export type BookingUpdateWithoutPaymentsInput = {
 
 export type BookingUncheckedUpdateWithoutPaymentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2160,6 +2365,8 @@ export type BookingUncheckedUpdateWithoutPaymentsInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   notes?: Prisma.BookingNoteUncheckedUpdateManyWithoutBookingNestedInput
@@ -2167,6 +2374,10 @@ export type BookingUncheckedUpdateWithoutPaymentsInput = {
 }
 
 export type BookingCreateWithoutVouchersInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -2201,6 +2412,8 @@ export type BookingCreateWithoutVouchersInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
@@ -2213,6 +2426,10 @@ export type BookingCreateWithoutVouchersInput = {
 
 export type BookingUncheckedCreateWithoutVouchersInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -2251,6 +2468,8 @@ export type BookingUncheckedCreateWithoutVouchersInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
   notes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutBookingInput
@@ -2274,6 +2493,10 @@ export type BookingUpdateToOneWithWhereWithoutVouchersInput = {
 }
 
 export type BookingUpdateWithoutVouchersInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2308,6 +2531,8 @@ export type BookingUpdateWithoutVouchersInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
@@ -2320,6 +2545,10 @@ export type BookingUpdateWithoutVouchersInput = {
 
 export type BookingUncheckedUpdateWithoutVouchersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2358,6 +2587,8 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
   notes?: Prisma.BookingNoteUncheckedUpdateManyWithoutBookingNestedInput
@@ -2365,6 +2596,10 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
 }
 
 export type BookingCreateWithoutAvailed_servicesInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -2399,6 +2634,8 @@ export type BookingCreateWithoutAvailed_servicesInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
@@ -2411,6 +2648,10 @@ export type BookingCreateWithoutAvailed_servicesInput = {
 
 export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -2449,6 +2690,8 @@ export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
   notes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutBookingInput
@@ -2472,6 +2715,10 @@ export type BookingUpdateToOneWithWhereWithoutAvailed_servicesInput = {
 }
 
 export type BookingUpdateWithoutAvailed_servicesInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2506,6 +2753,8 @@ export type BookingUpdateWithoutAvailed_servicesInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
@@ -2518,6 +2767,10 @@ export type BookingUpdateWithoutAvailed_servicesInput = {
 
 export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2556,13 +2809,19 @@ export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
   notes?: Prisma.BookingNoteUncheckedUpdateManyWithoutBookingNestedInput
   price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutBookingNestedInput
 }
 
-export type BookingCreateWithoutNotesInput = {
+export type BookingCreateWithoutOffer_applicationsInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -2597,6 +2856,7 @@ export type BookingCreateWithoutNotesInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
@@ -2604,11 +2864,16 @@ export type BookingCreateWithoutNotesInput = {
   payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
   sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
   cancelled_by?: Prisma.UserCreateNestedOneWithoutCancelled_bookingsInput
+  notes?: Prisma.BookingNoteCreateNestedManyWithoutBookingInput
   price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutBookingInput
 }
 
-export type BookingUncheckedCreateWithoutNotesInput = {
+export type BookingUncheckedCreateWithoutOffer_applicationsInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -2647,6 +2912,452 @@ export type BookingUncheckedCreateWithoutNotesInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
+  availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
+  payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
+  notes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutBookingInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutBookingInput
+}
+
+export type BookingCreateOrConnectWithoutOffer_applicationsInput = {
+  where: Prisma.BookingWhereUniqueInput
+  create: Prisma.XOR<Prisma.BookingCreateWithoutOffer_applicationsInput, Prisma.BookingUncheckedCreateWithoutOffer_applicationsInput>
+}
+
+export type BookingUpsertWithoutOffer_applicationsInput = {
+  update: Prisma.XOR<Prisma.BookingUpdateWithoutOffer_applicationsInput, Prisma.BookingUncheckedUpdateWithoutOffer_applicationsInput>
+  create: Prisma.XOR<Prisma.BookingCreateWithoutOffer_applicationsInput, Prisma.BookingUncheckedCreateWithoutOffer_applicationsInput>
+  where?: Prisma.BookingWhereInput
+}
+
+export type BookingUpdateToOneWithWhereWithoutOffer_applicationsInput = {
+  where?: Prisma.BookingWhereInput
+  data: Prisma.XOR<Prisma.BookingUpdateWithoutOffer_applicationsInput, Prisma.BookingUncheckedUpdateWithoutOffer_applicationsInput>
+}
+
+export type BookingUpdateWithoutOffer_applicationsInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
+  is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
+  grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
+  total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  downpayment_status?: Prisma.NullableEnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus | null
+  downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reminder_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
+  availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
+  payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
+  cancelled_by?: Prisma.UserUpdateOneWithoutCancelled_bookingsNestedInput
+  notes?: Prisma.BookingNoteUpdateManyWithoutBookingNestedInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutBookingNestedInput
+}
+
+export type BookingUncheckedUpdateWithoutOffer_applicationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
+  customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
+  grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
+  total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  downpayment_status?: Prisma.NullableEnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus | null
+  downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reminder_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
+  availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
+  payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
+  notes?: Prisma.BookingNoteUncheckedUpdateManyWithoutBookingNestedInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutBookingNestedInput
+}
+
+export type BookingCreateWithoutChange_commandsInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.BookingStatus
+  is_anonymous_walk_in?: boolean
+  customer_label?: string | null
+  payment_method?: $Enums.PaymentMethod
+  payment_status?: $Enums.PaymentStatus
+  amount_paid?: number
+  grand_total: number
+  total_discount: number
+  downpayment?: number | null
+  downpayment_status?: $Enums.BookingStatus | null
+  downpayment_date?: Date | string | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  reminder_sent?: boolean
+  reminder_sent_at?: Date | string | null
+  reminder_message_id?: string | null
+  reminder_last_error?: string | null
+  reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
+  hold_expires_at?: Date | string | null
+  capacity_override_applied?: boolean
+  capacity_override_reason?: string | null
+  capacity_override_note?: string | null
+  cancelled_at?: Date | string | null
+  cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
+  business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
+  availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
+  payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
+  cancelled_by?: Prisma.UserCreateNestedOneWithoutCancelled_bookingsInput
+  notes?: Prisma.BookingNoteCreateNestedManyWithoutBookingInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutBookingInput
+}
+
+export type BookingUncheckedCreateWithoutChange_commandsInput = {
+  id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.BookingStatus
+  customer_id?: string | null
+  is_anonymous_walk_in?: boolean
+  customer_label?: string | null
+  business_id: string
+  payment_method?: $Enums.PaymentMethod
+  payment_status?: $Enums.PaymentStatus
+  amount_paid?: number
+  grand_total: number
+  total_discount: number
+  downpayment?: number | null
+  downpayment_status?: $Enums.BookingStatus | null
+  downpayment_date?: Date | string | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  reminder_sent?: boolean
+  reminder_sent_at?: Date | string | null
+  reminder_message_id?: string | null
+  reminder_last_error?: string | null
+  reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
+  hold_expires_at?: Date | string | null
+  capacity_override_applied?: boolean
+  capacity_override_reason?: string | null
+  capacity_override_note?: string | null
+  sale_event_id?: number | null
+  cancelled_at?: Date | string | null
+  cancelled_by_id?: string | null
+  cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
+  availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
+  payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
+  notes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutBookingInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedCreateNestedManyWithoutBookingInput
+}
+
+export type BookingCreateOrConnectWithoutChange_commandsInput = {
+  where: Prisma.BookingWhereUniqueInput
+  create: Prisma.XOR<Prisma.BookingCreateWithoutChange_commandsInput, Prisma.BookingUncheckedCreateWithoutChange_commandsInput>
+}
+
+export type BookingUpsertWithoutChange_commandsInput = {
+  update: Prisma.XOR<Prisma.BookingUpdateWithoutChange_commandsInput, Prisma.BookingUncheckedUpdateWithoutChange_commandsInput>
+  create: Prisma.XOR<Prisma.BookingCreateWithoutChange_commandsInput, Prisma.BookingUncheckedCreateWithoutChange_commandsInput>
+  where?: Prisma.BookingWhereInput
+}
+
+export type BookingUpdateToOneWithWhereWithoutChange_commandsInput = {
+  where?: Prisma.BookingWhereInput
+  data: Prisma.XOR<Prisma.BookingUpdateWithoutChange_commandsInput, Prisma.BookingUncheckedUpdateWithoutChange_commandsInput>
+}
+
+export type BookingUpdateWithoutChange_commandsInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
+  is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
+  grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
+  total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  downpayment_status?: Prisma.NullableEnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus | null
+  downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reminder_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
+  availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
+  payments?: Prisma.BookingPaymentUpdateManyWithoutBookingNestedInput
+  sale_event?: Prisma.SaleEventUpdateOneWithoutBookingsNestedInput
+  cancelled_by?: Prisma.UserUpdateOneWithoutCancelled_bookingsNestedInput
+  notes?: Prisma.BookingNoteUpdateManyWithoutBookingNestedInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentUpdateManyWithoutBookingNestedInput
+}
+
+export type BookingUncheckedUpdateWithoutChange_commandsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
+  customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  payment_status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  amount_paid?: Prisma.FloatFieldUpdateOperationsInput | number
+  grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
+  total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  downpayment_status?: Prisma.NullableEnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus | null
+  downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reminder_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reminder_attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  confirmation_sms_attempted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_sent_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  confirmation_sms_message_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  confirmation_sms_last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hold_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  capacity_override_applied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capacity_override_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity_override_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sale_event_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_by_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelled_by_customer?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rescheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reschedule_count?: Prisma.IntFieldUpdateOperationsInput | number
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
+  availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
+  payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
+  notes?: Prisma.BookingNoteUncheckedUpdateManyWithoutBookingNestedInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentUncheckedUpdateManyWithoutBookingNestedInput
+}
+
+export type BookingCreateWithoutNotesInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.BookingStatus
+  is_anonymous_walk_in?: boolean
+  customer_label?: string | null
+  payment_method?: $Enums.PaymentMethod
+  payment_status?: $Enums.PaymentStatus
+  amount_paid?: number
+  grand_total: number
+  total_discount: number
+  downpayment?: number | null
+  downpayment_status?: $Enums.BookingStatus | null
+  downpayment_date?: Date | string | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  reminder_sent?: boolean
+  reminder_sent_at?: Date | string | null
+  reminder_message_id?: string | null
+  reminder_last_error?: string | null
+  reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
+  hold_expires_at?: Date | string | null
+  capacity_override_applied?: boolean
+  capacity_override_reason?: string | null
+  capacity_override_note?: string | null
+  cancelled_at?: Date | string | null
+  cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
+  business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
+  availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutBookingInput
+  payments?: Prisma.BookingPaymentCreateNestedManyWithoutBookingInput
+  sale_event?: Prisma.SaleEventCreateNestedOneWithoutBookingsInput
+  cancelled_by?: Prisma.UserCreateNestedOneWithoutCancelled_bookingsInput
+  price_adjustments?: Prisma.BookingPriceAdjustmentCreateNestedManyWithoutBookingInput
+}
+
+export type BookingUncheckedCreateWithoutNotesInput = {
+  id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.BookingStatus
+  customer_id?: string | null
+  is_anonymous_walk_in?: boolean
+  customer_label?: string | null
+  business_id: string
+  payment_method?: $Enums.PaymentMethod
+  payment_status?: $Enums.PaymentStatus
+  amount_paid?: number
+  grand_total: number
+  total_discount: number
+  downpayment?: number | null
+  downpayment_status?: $Enums.BookingStatus | null
+  downpayment_date?: Date | string | null
+  scheduled_at?: Date | string | null
+  estimated_end?: Date | string | null
+  reminder_sent?: boolean
+  reminder_sent_at?: Date | string | null
+  reminder_message_id?: string | null
+  reminder_last_error?: string | null
+  reminder_attempts?: number
+  confirmation_sms_attempted_at?: Date | string | null
+  confirmation_sms_sent_at?: Date | string | null
+  confirmation_sms_message_id?: string | null
+  confirmation_sms_last_error?: string | null
+  hold_expires_at?: Date | string | null
+  capacity_override_applied?: boolean
+  capacity_override_reason?: string | null
+  capacity_override_note?: string | null
+  sale_event_id?: number | null
+  cancelled_at?: Date | string | null
+  cancelled_by_id?: string | null
+  cancellation_reason?: string | null
+  cancelled_by_customer?: boolean
+  rescheduled_at?: Date | string | null
+  reschedule_count?: number
+  is_demo?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
@@ -2670,6 +3381,10 @@ export type BookingUpdateToOneWithWhereWithoutNotesInput = {
 }
 
 export type BookingUpdateWithoutNotesInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2704,6 +3419,8 @@ export type BookingUpdateWithoutNotesInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
@@ -2716,6 +3433,10 @@ export type BookingUpdateWithoutNotesInput = {
 
 export type BookingUncheckedUpdateWithoutNotesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2754,6 +3475,8 @@ export type BookingUncheckedUpdateWithoutNotesInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
@@ -2761,6 +3484,10 @@ export type BookingUncheckedUpdateWithoutNotesInput = {
 }
 
 export type BookingCreateWithoutPrice_adjustmentsInput = {
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -2795,6 +3522,8 @@ export type BookingCreateWithoutPrice_adjustmentsInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandCreateNestedManyWithoutBookingInput
   customer?: Prisma.CustomerCreateNestedOneWithoutBookingsInput
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutUsed_byInput
@@ -2807,6 +3536,10 @@ export type BookingCreateWithoutPrice_adjustmentsInput = {
 
 export type BookingUncheckedCreateWithoutPrice_adjustmentsInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -2845,6 +3578,8 @@ export type BookingUncheckedCreateWithoutPrice_adjustmentsInput = {
   is_demo?: boolean
   created_at?: Date | string
   updated_at?: Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedCreateNestedManyWithoutBookingInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedCreateNestedManyWithoutBookingInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
   payments?: Prisma.BookingPaymentUncheckedCreateNestedManyWithoutBookingInput
@@ -2868,6 +3603,10 @@ export type BookingUpdateToOneWithWhereWithoutPrice_adjustmentsInput = {
 }
 
 export type BookingUpdateWithoutPrice_adjustmentsInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2902,6 +3641,8 @@ export type BookingUpdateWithoutPrice_adjustmentsInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
@@ -2914,6 +3655,10 @@ export type BookingUpdateWithoutPrice_adjustmentsInput = {
 
 export type BookingUncheckedUpdateWithoutPrice_adjustmentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2952,6 +3697,8 @@ export type BookingUncheckedUpdateWithoutPrice_adjustmentsInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
@@ -2960,6 +3707,10 @@ export type BookingUncheckedUpdateWithoutPrice_adjustmentsInput = {
 
 export type BookingCreateManyBusinessInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -3000,6 +3751,10 @@ export type BookingCreateManyBusinessInput = {
 }
 
 export type BookingUpdateWithoutBusinessInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3034,6 +3789,8 @@ export type BookingUpdateWithoutBusinessInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
@@ -3046,6 +3803,10 @@ export type BookingUpdateWithoutBusinessInput = {
 
 export type BookingUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3083,6 +3844,8 @@ export type BookingUncheckedUpdateWithoutBusinessInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
@@ -3092,6 +3855,10 @@ export type BookingUncheckedUpdateWithoutBusinessInput = {
 
 export type BookingUncheckedUpdateManyWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3133,6 +3900,10 @@ export type BookingUncheckedUpdateManyWithoutBusinessInput = {
 
 export type BookingCreateManySale_eventInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -3173,6 +3944,10 @@ export type BookingCreateManySale_eventInput = {
 }
 
 export type BookingUpdateWithoutSale_eventInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3207,6 +3982,8 @@ export type BookingUpdateWithoutSale_eventInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
@@ -3219,6 +3996,10 @@ export type BookingUpdateWithoutSale_eventInput = {
 
 export type BookingUncheckedUpdateWithoutSale_eventInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3256,6 +4037,8 @@ export type BookingUncheckedUpdateWithoutSale_eventInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
@@ -3265,6 +4048,10 @@ export type BookingUncheckedUpdateWithoutSale_eventInput = {
 
 export type BookingUncheckedUpdateManyWithoutSale_eventInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3306,6 +4093,10 @@ export type BookingUncheckedUpdateManyWithoutSale_eventInput = {
 
 export type BookingCreateManyCancelled_byInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   customer_id?: string | null
   is_anonymous_walk_in?: boolean
@@ -3346,6 +4137,10 @@ export type BookingCreateManyCancelled_byInput = {
 }
 
 export type BookingUpdateWithoutCancelled_byInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3380,6 +4175,8 @@ export type BookingUpdateWithoutCancelled_byInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   customer?: Prisma.CustomerUpdateOneWithoutBookingsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
@@ -3392,6 +4189,10 @@ export type BookingUpdateWithoutCancelled_byInput = {
 
 export type BookingUncheckedUpdateWithoutCancelled_byInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3429,6 +4230,8 @@ export type BookingUncheckedUpdateWithoutCancelled_byInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
@@ -3438,6 +4241,10 @@ export type BookingUncheckedUpdateWithoutCancelled_byInput = {
 
 export type BookingUncheckedUpdateManyWithoutCancelled_byInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3479,6 +4286,10 @@ export type BookingUncheckedUpdateManyWithoutCancelled_byInput = {
 
 export type BookingCreateManyCustomerInput = {
   id?: number
+  request_key?: string | null
+  request_scope?: string | null
+  request_payload_hash?: string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.BookingStatus
   is_anonymous_walk_in?: boolean
   customer_label?: string | null
@@ -3519,6 +4330,10 @@ export type BookingCreateManyCustomerInput = {
 }
 
 export type BookingUpdateWithoutCustomerInput = {
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3553,6 +4368,8 @@ export type BookingUpdateWithoutCustomerInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUpdateManyWithoutBookingNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutBookingNestedInput
@@ -3565,6 +4382,10 @@ export type BookingUpdateWithoutCustomerInput = {
 
 export type BookingUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3602,6 +4423,8 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  offer_applications?: Prisma.BookingOfferApplicationUncheckedUpdateManyWithoutBookingNestedInput
+  change_commands?: Prisma.BookingChangeCommandUncheckedUpdateManyWithoutBookingNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
   payments?: Prisma.BookingPaymentUncheckedUpdateManyWithoutBookingNestedInput
@@ -3611,6 +4434,10 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
 
 export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  request_key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_scope?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  request_payload_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricing_snapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   is_anonymous_walk_in?: Prisma.BoolFieldUpdateOperationsInput | boolean
   customer_label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3656,6 +4483,8 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
  */
 
 export type BookingCountOutputType = {
+  offer_applications: number
+  change_commands: number
   vouchers: number
   availed_services: number
   payments: number
@@ -3664,6 +4493,8 @@ export type BookingCountOutputType = {
 }
 
 export type BookingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  offer_applications?: boolean | BookingCountOutputTypeCountOffer_applicationsArgs
+  change_commands?: boolean | BookingCountOutputTypeCountChange_commandsArgs
   vouchers?: boolean | BookingCountOutputTypeCountVouchersArgs
   availed_services?: boolean | BookingCountOutputTypeCountAvailed_servicesArgs
   payments?: boolean | BookingCountOutputTypeCountPaymentsArgs
@@ -3679,6 +4510,20 @@ export type BookingCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Select specific fields to fetch from the BookingCountOutputType
    */
   select?: Prisma.BookingCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * BookingCountOutputType without action
+ */
+export type BookingCountOutputTypeCountOffer_applicationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingOfferApplicationWhereInput
+}
+
+/**
+ * BookingCountOutputType without action
+ */
+export type BookingCountOutputTypeCountChange_commandsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingChangeCommandWhereInput
 }
 
 /**
@@ -3719,6 +4564,10 @@ export type BookingCountOutputTypeCountPrice_adjustmentsArgs<ExtArgs extends run
 
 export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  request_key?: boolean
+  request_scope?: boolean
+  request_payload_hash?: boolean
+  pricing_snapshot?: boolean
   status?: boolean
   customer_id?: boolean
   is_anonymous_walk_in?: boolean
@@ -3757,6 +4606,8 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   is_demo?: boolean
   created_at?: boolean
   updated_at?: boolean
+  offer_applications?: boolean | Prisma.Booking$offer_applicationsArgs<ExtArgs>
+  change_commands?: boolean | Prisma.Booking$change_commandsArgs<ExtArgs>
   customer?: boolean | Prisma.Booking$customerArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   vouchers?: boolean | Prisma.Booking$vouchersArgs<ExtArgs>
@@ -3771,6 +4622,10 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 
 export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  request_key?: boolean
+  request_scope?: boolean
+  request_payload_hash?: boolean
+  pricing_snapshot?: boolean
   status?: boolean
   customer_id?: boolean
   is_anonymous_walk_in?: boolean
@@ -3817,6 +4672,10 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  request_key?: boolean
+  request_scope?: boolean
+  request_payload_hash?: boolean
+  pricing_snapshot?: boolean
   status?: boolean
   customer_id?: boolean
   is_anonymous_walk_in?: boolean
@@ -3863,6 +4722,10 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type BookingSelectScalar = {
   id?: boolean
+  request_key?: boolean
+  request_scope?: boolean
+  request_payload_hash?: boolean
+  pricing_snapshot?: boolean
   status?: boolean
   customer_id?: boolean
   is_anonymous_walk_in?: boolean
@@ -3903,8 +4766,10 @@ export type BookingSelectScalar = {
   updated_at?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "is_anonymous_walk_in" | "customer_label" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "reminder_sent_at" | "reminder_message_id" | "reminder_last_error" | "reminder_attempts" | "confirmation_sms_attempted_at" | "confirmation_sms_sent_at" | "confirmation_sms_message_id" | "confirmation_sms_last_error" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "sale_event_id" | "cancelled_at" | "cancelled_by_id" | "cancellation_reason" | "cancelled_by_customer" | "rescheduled_at" | "reschedule_count" | "is_demo" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "request_key" | "request_scope" | "request_payload_hash" | "pricing_snapshot" | "status" | "customer_id" | "is_anonymous_walk_in" | "customer_label" | "business_id" | "payment_method" | "payment_status" | "amount_paid" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "reminder_sent_at" | "reminder_message_id" | "reminder_last_error" | "reminder_attempts" | "confirmation_sms_attempted_at" | "confirmation_sms_sent_at" | "confirmation_sms_message_id" | "confirmation_sms_last_error" | "hold_expires_at" | "capacity_override_applied" | "capacity_override_reason" | "capacity_override_note" | "sale_event_id" | "cancelled_at" | "cancelled_by_id" | "cancellation_reason" | "cancelled_by_customer" | "rescheduled_at" | "reschedule_count" | "is_demo" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  offer_applications?: boolean | Prisma.Booking$offer_applicationsArgs<ExtArgs>
+  change_commands?: boolean | Prisma.Booking$change_commandsArgs<ExtArgs>
   customer?: boolean | Prisma.Booking$customerArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   vouchers?: boolean | Prisma.Booking$vouchersArgs<ExtArgs>
@@ -3932,6 +4797,8 @@ export type BookingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Booking"
   objects: {
+    offer_applications: Prisma.$BookingOfferApplicationPayload<ExtArgs>[]
+    change_commands: Prisma.$BookingChangeCommandPayload<ExtArgs>[]
     customer: Prisma.$CustomerPayload<ExtArgs> | null
     business: Prisma.$BusinessPayload<ExtArgs>
     vouchers: Prisma.$VoucherPayload<ExtArgs>[]
@@ -3944,6 +4811,10 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    request_key: string | null
+    request_scope: string | null
+    request_payload_hash: string | null
+    pricing_snapshot: runtime.JsonValue | null
     status: $Enums.BookingStatus
     customer_id: string | null
     is_anonymous_walk_in: boolean
@@ -4376,6 +5247,8 @@ readonly fields: BookingFieldRefs;
  */
 export interface Prisma__BookingClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  offer_applications<T extends Prisma.Booking$offer_applicationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$offer_applicationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingOfferApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  change_commands<T extends Prisma.Booking$change_commandsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$change_commandsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingChangeCommandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   customer<T extends Prisma.Booking$customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$customerArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   vouchers<T extends Prisma.Booking$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4415,6 +5288,10 @@ export interface Prisma__BookingClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface BookingFieldRefs {
   readonly id: Prisma.FieldRef<"Booking", 'Int'>
+  readonly request_key: Prisma.FieldRef<"Booking", 'String'>
+  readonly request_scope: Prisma.FieldRef<"Booking", 'String'>
+  readonly request_payload_hash: Prisma.FieldRef<"Booking", 'String'>
+  readonly pricing_snapshot: Prisma.FieldRef<"Booking", 'Json'>
   readonly status: Prisma.FieldRef<"Booking", 'BookingStatus'>
   readonly customer_id: Prisma.FieldRef<"Booking", 'String'>
   readonly is_anonymous_walk_in: Prisma.FieldRef<"Booking", 'Boolean'>
@@ -4649,6 +5526,11 @@ export type BookingFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Skip the first `n` Bookings.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Bookings.
+   */
   distinct?: Prisma.BookingScalarFieldEnum | Prisma.BookingScalarFieldEnum[]
 }
 
@@ -4846,6 +5728,54 @@ export type BookingDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Bookings to delete.
    */
   limit?: number
+}
+
+/**
+ * Booking.offer_applications
+ */
+export type Booking$offer_applicationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BookingOfferApplication
+   */
+  select?: Prisma.BookingOfferApplicationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BookingOfferApplication
+   */
+  omit?: Prisma.BookingOfferApplicationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingOfferApplicationInclude<ExtArgs> | null
+  where?: Prisma.BookingOfferApplicationWhereInput
+  orderBy?: Prisma.BookingOfferApplicationOrderByWithRelationInput | Prisma.BookingOfferApplicationOrderByWithRelationInput[]
+  cursor?: Prisma.BookingOfferApplicationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingOfferApplicationScalarFieldEnum | Prisma.BookingOfferApplicationScalarFieldEnum[]
+}
+
+/**
+ * Booking.change_commands
+ */
+export type Booking$change_commandsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BookingChangeCommand
+   */
+  select?: Prisma.BookingChangeCommandSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BookingChangeCommand
+   */
+  omit?: Prisma.BookingChangeCommandOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingChangeCommandInclude<ExtArgs> | null
+  where?: Prisma.BookingChangeCommandWhereInput
+  orderBy?: Prisma.BookingChangeCommandOrderByWithRelationInput | Prisma.BookingChangeCommandOrderByWithRelationInput[]
+  cursor?: Prisma.BookingChangeCommandWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingChangeCommandScalarFieldEnum | Prisma.BookingChangeCommandScalarFieldEnum[]
 }
 
 /**

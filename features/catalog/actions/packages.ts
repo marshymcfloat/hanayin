@@ -1,236 +1,69 @@
 "use server";
 
-// Feature-owned Server Action boundary.
-
-import { prisma } from "@/prisma/prisma";
-import { revalidatePath, revalidateTag } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
-import { tenantCacheTags } from "@/lib/data/cached";
 import { requireStaffPermission } from "@/lib/auth/staff-access";
+import { tenantCacheTags } from "@/lib/data/cached";
+import { createPackageSchema, packageDetailsSchema, packageIdSchema, type CreatePackageInput, type PackageDetails } from "@/features/catalog/package-schemas";
+import { createCatalogPackage, replaceCatalogPackage, deleteCatalogPackage } from "@/features/catalog/services/package-administration";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
+import { revalidatePath, revalidateTag } from "next/cache";
 
-interface PackageItemInput {
-  serviceId: number;
-  customPrice: number;
-}
-
-interface CreatePackageParams {
-  name: string;
-  description?: string;
-  price: number;
-  duration?: number;
-  category: string;
-  businessSlug: string;
-  items: PackageItemInput[];
-}
-
-interface UpdatePackageParams {
-  name: string;
-  description?: string;
-  price: number;
-  duration?: number;
-  category: string;
-  items: PackageItemInput[];
-}
-
-async function hasInvalidPackageItems(
-  businessId: string,
-  items: PackageItemInput[],
-) {
-  if (items.length === 0) return false;
-
-  const uniqueServiceIds = Array.from(
-    new Set(items.map((item) => item.serviceId)),
-  );
-
-  const count = await prisma.service.count({
-    where: {
-      business_id: businessId,
-      id: {
-        in: uniqueServiceIds,
-      },
-    },
-  });
-
-  return count !== uniqueServiceIds.length;
-}
-
-export async function createPackageAction(params: CreatePackageParams) {
-  const sessionAuth = await requireAuth();
-  if (!sessionAuth.success) return sessionAuth;
-  const auth = await requireStaffPermission(
-    sessionAuth.businessSlug,
-    StaffPermission.CATALOG_MANAGE,
-    { write: true },
-  );
-  if (!auth.success) return auth;
-  const { businessSlug } = auth.context;
-
-  if (params.businessSlug !== businessSlug) {
-    return {
-      success: false,
-      error: "Unauthorized operation for this business.",
-    };
+function invalidatePackages(slug: string, businessId: string) {
+  for (const path of [
+    `/app/${slug}/packages`,
+    `/owner-dashboard-preview/${slug}/packages`,
+  ]) {
+    try { revalidatePath(path); } catch { /* Persistence already committed. */ }
   }
+  try { revalidateTag(tenantCacheTags.packagesByBusiness(businessId), "max"); } catch { /* Persistence already committed. */ }
+}
 
+export async function createPackageAction(params: CreatePackageInput) {
+  const parsed = createPackageSchema.safeParse(params);
+  if (!parsed.success) return { success: false as const, error: "Invalid input" };
   try {
-    const business = await prisma.business.findUnique({
-      where: { slug: params.businessSlug },
-      select: { id: true, slug: true },
-    });
-
-    if (!business) {
-      return { success: false, error: "Business not found" };
+    const sessionAuth = await requireAuth();
+    if (!sessionAuth.success) return sessionAuth;
+    const auth = await requireStaffPermission(sessionAuth.businessSlug, StaffPermission.CATALOG_MANAGE, { write: true });
+    if (!auth.success) return auth;
+    if (parsed.data.businessSlug !== auth.context.businessSlug) return { success: false as const, error: "Unauthorized operation for this business." };
+    const result = await createCatalogPackage(auth.context, parsed.data);
+    if (result.success) {
+      invalidatePackages(auth.context.businessSlug, auth.context.businessId);
     }
-
-    if (await hasInvalidPackageItems(business.id, params.items)) {
-      return {
-        success: false,
-        error: "One or more package services are invalid for this business.",
-      };
-    }
-
-    const { items, businessSlug, ...packageData } = params;
-
-    const newPackage = await prisma.servicePackage.create({
-      data: {
-        ...packageData,
-        business_id: business.id,
-        items: {
-          create: items.map((item) => ({
-            service_id: item.serviceId,
-            custom_price: item.customPrice,
-          })),
-        },
-      },
-    });
-
-    revalidatePath(`/app/${businessSlug}/packages`);
-    revalidateTag(tenantCacheTags.packagesByBusiness(business.id), "max");
-    return { success: true, data: newPackage };
-  } catch (error) {
-    console.error("Error creating package:", error);
-    return { success: false, error: "Failed to create package" };
-  }
+    return result;
+  } catch { return { success: false as const, error: "Failed to create package" }; }
 }
 
-export async function updatePackageAction(
-  packageId: number,
-  params: UpdatePackageParams,
-) {
-  const sessionAuth = await requireAuth();
-  if (!sessionAuth.success) return sessionAuth;
-  const auth = await requireStaffPermission(
-    sessionAuth.businessSlug,
-    StaffPermission.CATALOG_MANAGE,
-    { write: true },
-  );
-  if (!auth.success) return auth;
-  const { businessSlug } = auth.context;
-
+export async function updatePackageAction(packageId: number, params: PackageDetails) {
+  const id = packageIdSchema.safeParse(packageId);
+  const parsed = packageDetailsSchema.safeParse(params);
+  if (!id.success || !parsed.success) return { success: false as const, error: "Invalid input" };
   try {
-    const existingPackage = await prisma.servicePackage.findUnique({
-      where: { id: packageId },
-      select: { business: { select: { id: true, slug: true } } },
-    });
-
-    if (!existingPackage || existingPackage.business.slug !== businessSlug) {
-      return { success: false, error: "Package not found or unauthorized" };
+    const sessionAuth = await requireAuth();
+    if (!sessionAuth.success) return sessionAuth;
+    const auth = await requireStaffPermission(sessionAuth.businessSlug, StaffPermission.CATALOG_MANAGE, { write: true });
+    if (!auth.success) return auth;
+    const result = await replaceCatalogPackage(auth.context, id.data, parsed.data);
+    if (result.success) {
+      invalidatePackages(auth.context.businessSlug, auth.context.businessId);
     }
-
-    const { items, ...packageData } = params;
-
-    if (
-      await hasInvalidPackageItems(
-        existingPackage.business.id,
-        items,
-      )
-    ) {
-      return {
-        success: false,
-        error: "One or more package services are invalid for this business.",
-      };
-    }
-
-    const updatedPackage = await prisma.$transaction(async (tx) => {
-      const pkg = await tx.servicePackage.update({
-        where: { id: packageId },
-        data: packageData,
-        include: {
-          business: {
-            select: { id: true, slug: true },
-          },
-        },
-      });
-
-      await tx.packageItem.deleteMany({
-        where: { package_id: packageId },
-      });
-
-      if (items.length > 0) {
-        await tx.packageItem.createMany({
-          data: items.map((item) => ({
-            package_id: packageId,
-            service_id: item.serviceId,
-            custom_price: item.customPrice,
-          })),
-        });
-      }
-
-      return pkg;
-    });
-
-    revalidatePath(`/app/${updatedPackage.business.slug}/packages`);
-    revalidateTag(
-      tenantCacheTags.packagesByBusiness(updatedPackage.business.id),
-      "max",
-    );
-    return { success: true, data: updatedPackage };
-  } catch (error) {
-    console.error("Error updating package:", error);
-    return { success: false, error: "Failed to update package" };
-  }
+    return result;
+  } catch { return { success: false as const, error: "Failed to update package" }; }
 }
 
 export async function deletePackageAction(packageId: number) {
-  const sessionAuth = await requireAuth();
-  if (!sessionAuth.success) return sessionAuth;
-  const auth = await requireStaffPermission(
-    sessionAuth.businessSlug,
-    StaffPermission.CATALOG_MANAGE,
-    { write: true },
-  );
-  if (!auth.success) return auth;
-  const { businessSlug } = auth.context;
-
+  const id = packageIdSchema.safeParse(packageId);
+  if (!id.success) return { success: false as const, error: "Invalid input" };
   try {
-    // Verify ownership
-    const existingPackage = await prisma.servicePackage.findUnique({
-      where: { id: packageId },
-      select: { business: { select: { slug: true } } },
-    });
-
-    if (!existingPackage || existingPackage.business.slug !== businessSlug) {
-      return { success: false, error: "Package not found or unauthorized" };
+    const sessionAuth = await requireAuth();
+    if (!sessionAuth.success) return sessionAuth;
+    const auth = await requireStaffPermission(sessionAuth.businessSlug, StaffPermission.CATALOG_MANAGE, { write: true });
+    if (!auth.success) return auth;
+    const result = await deleteCatalogPackage(auth.context, id.data);
+    if (result.success) {
+      invalidatePackages(auth.context.businessSlug, auth.context.businessId);
     }
-
-    const deletedPackage = await prisma.servicePackage.delete({
-      where: { id: packageId },
-      include: {
-        business: {
-          select: { id: true, slug: true },
-        },
-      },
-    });
-
-    revalidatePath(`/app/${deletedPackage.business.slug}/packages`);
-    revalidateTag(
-      tenantCacheTags.packagesByBusiness(deletedPackage.business.id),
-      "max",
-    );
-    return { success: true, data: deletedPackage };
-  } catch (error) {
-    console.error("Error deleting package:", error);
-    return { success: false, error: "Failed to delete package" };
-  }
+    return result;
+  } catch { return { success: false as const, error: "Failed to delete package" }; }
 }

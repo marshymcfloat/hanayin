@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   LogOut,
   ShieldCheck,
@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BookingDialog } from "@/components/dashboard/owner/BookingDialog";
 import { GiftCardClaimDialog } from "@/components/dashboard/shared/GiftCardClaimDialog";
 import { StatPill } from "@/components/dashboard/shared/StatPill";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 import AttendanceCard from "@/components/dashboard/employee/AttendanceCard";
 import EmployeePaymentsQueue, {
   type EmployeePaymentBooking,
@@ -35,6 +36,11 @@ import PendingServicesList, {
 import EmployeeServedHistory, {
   type ServedService,
 } from "@/components/dashboard/employee/EmployeeServedHistory";
+import { useStaffServiceWork } from "@/components/dashboard/employee/useStaffServiceWork";
+import type { EmployeeServiceWorkData, EmployeeServiceWorkItem } from "@/components/dashboard/employee/service-work-state";
+import { claimServiceAction, markServiceServedAction, unclaimServiceAction, unserveServiceAction } from "@/features/dashboard/actions";
+import { getApplicableDiscount } from "@/lib/utils/pricing";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   type EmployeeDashboardCapabilities,
   type TodayAttendance,
@@ -43,6 +49,7 @@ import ManagerQueueBoard, {
   type ManagerQueueEmployee,
   type ManagerQueueService,
 } from "@/components/dashboard/manager/ManagerQueueBoard";
+import { useManagerServiceCoordinator } from "@/components/dashboard/manager/useManagerServiceCoordinator";
 import { ManagerBookingsDialog } from "@/components/dashboard/manager/ManagerBookingsDialog";
 import { EmployeeLeaveClient } from "@/components/dashboard/attendance/EmployeeLeaveClient";
 import type { PackageWithItems } from "@/components/bookings/BookingForm";
@@ -56,11 +63,8 @@ import type {
   AvailedService,
   Booking,
   Customer,
-  Employee,
   LeaveRequest,
-  Owner,
   Service,
-  User,
   Voucher,
 } from "@/prisma/generated/prisma/client";
 
@@ -69,8 +73,8 @@ type BookingWithDetails = Booking & {
   vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
-    served_by: (Employee & { user: User }) | null;
-    served_by_owner: (Owner & { user: User }) | null;
+    served_by: { id: number; user: { name: string } } | null;
+    served_by_owner: { id: number; user: { name: string } } | null;
   })[];
 };
 
@@ -121,6 +125,53 @@ export default function ManagerDashboard({
   saleEvents: SaleEventForPricing[];
   leaveRequests: LeaveRequest[];
 }) {
+  const [boardServices, setBoardServices] = useState(managerQueueServices);
+  const onBoardServicesChange = useCallback((next: ManagerQueueService[]) => setBoardServices(next), []);
+  const initialServiceWork = useMemo<EmployeeServiceWorkData>(() => ({
+    pending: pendingServices,
+    active: servedHistory.filter((item) => item.status === "CLAIMED" || item.status === "SERVING"),
+    completed: servedHistory.filter((item) => item.status === "COMPLETED"),
+  }), [pendingServices, servedHistory]);
+  const managerCoordinator = useManagerServiceCoordinator({
+    businessSlug,
+    employeeId: currentEmployeeId,
+    initialOwn: initialServiceWork,
+    initialBoard: { services: managerQueueServices, employees: managerQueueEmployees },
+  });
+  const { serviceWork, pendingActionIds, runServiceWorkAction } = useStaffServiceWork({
+    businessSlug,
+    employeeId: currentEmployeeId,
+    initialData: initialServiceWork,
+    managerCoordinator,
+  });
+
+  const handleClaim = async (service: EmployeeServiceWorkItem) => {
+    const discount = getApplicableDiscount(service.service.id, service.package_id ?? undefined, service.price, saleEvents);
+    await runServiceWorkAction({
+      service,
+      transition: "claim",
+      execute: () => claimServiceAction(service.id, currentEmployeeId),
+      errorTitle: "Unable to claim service",
+      patch: {
+        final_price: discount?.finalPrice ?? service.price,
+        discount: discount?.discount ?? 0,
+        discount_reason: discount?.reason ?? null,
+      },
+    });
+  };
+  const handleComplete = (service: EmployeeServiceWorkItem) => runServiceWorkAction({
+    service, transition: "complete", execute: () => markServiceServedAction(service.id, currentEmployeeId),
+    errorTitle: "Unable to mark service as served",
+  });
+  const handleUnclaim = (service: EmployeeServiceWorkItem) => runServiceWorkAction({
+    service, transition: "unclaim", execute: () => unclaimServiceAction(service.id),
+    errorTitle: "Unable to unclaim service",
+    patch: { final_price: service.price, discount: 0, discount_reason: null },
+  });
+  const handleUnserve = (service: EmployeeServiceWorkItem) => runServiceWorkAction({
+    service, transition: "unserve", execute: () => unserveServiceAction(service.id),
+    errorTitle: "Unable to undo completed service",
+  });
   const employeeSpecialtySet = useMemo(
     () => getEmployeeSpecialtySet(currentEmployeeSpecialties),
     [currentEmployeeSpecialties],
@@ -128,18 +179,24 @@ export default function ManagerDashboard({
 
   const visiblePendingServices = useMemo(
     () =>
-      pendingServices.filter((item) =>
+      serviceWork.pending.filter((item) =>
         isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
       ),
-    [pendingServices, employeeSpecialtySet],
+    [serviceWork.pending, employeeSpecialtySet],
   );
 
-  const visibleServedHistory = useMemo(
+  const visibleActiveServices = useMemo(
     () =>
-      servedHistory.filter((item) =>
+      serviceWork.active.filter((item) =>
         isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
       ),
-    [servedHistory, employeeSpecialtySet],
+    [serviceWork.active, employeeSpecialtySet],
+  );
+  const visibleServedHistory = useMemo(
+    () => serviceWork.completed.filter((item) =>
+      isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
+    ),
+    [serviceWork.completed, employeeSpecialtySet],
   );
 
   const visibleTodayBookings = useMemo(
@@ -154,7 +211,7 @@ export default function ManagerDashboard({
   );
 
   const queueSummary = useMemo(() => {
-    return managerQueueServices.reduce(
+    return boardServices.reduce(
       (summary, service) => {
         if (service.status === "PENDING") summary.pending += 1;
         if (service.status === "CLAIMED" || service.status === "SERVING") {
@@ -164,7 +221,7 @@ export default function ManagerDashboard({
       },
       { pending: 0, active: 0 },
     );
-  }, [managerQueueServices]);
+  }, [boardServices]);
 
   const unsettledBookings = useMemo(
     () =>
@@ -186,42 +243,21 @@ export default function ManagerDashboard({
   }, [visibleServedHistory]);
 
   return (
-    <div className="flex flex-col h-full bg-background overflow-hidden">
+    <div className="min-h-full bg-[#F5F6F3] pb-10 text-[#20211F]">
 
       {/* ── Top Bar ─────────────────────────── */}
-      <header className="shrink-0 bg-card border-b border-border px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <header className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-4 px-4 pb-5 pt-6 sm:px-6 lg:px-8 lg:pt-8">
         <div className="flex items-center gap-3 min-w-0">
           <div className="min-w-0">
-            <p className="text-sm font-bold text-foreground truncate leading-none">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#696C67]">
+              Manager workspace
+            </p>
+            <h1 className="mt-1 truncate text-3xl font-bold tracking-[-0.04em] text-[#20211F] sm:text-4xl">
+              Floor operations
+            </h1>
+            <p className="mt-1 truncate text-sm text-[#696C67]">
               {businessName}
             </p>
-            <p className="text-[10px] text-primary font-semibold uppercase tracking-widest mt-0.5">
-              Manager Operations
-            </p>
-          </div>
-        </div>
-
-        {/* Stat pills – desktop only, inline in header */}
-        <div className="hidden xl:flex items-center gap-2 flex-1 justify-center max-w-2xl">
-          <div className="flex items-center gap-1.5 bg-primary/8 rounded-xl px-3 py-1.5">
-            <ListTodo className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-bold text-primary tabular-nums">{queueSummary.pending}</span>
-            <span className="text-[10px] text-primary/60 font-medium">Pending</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
-            <Activity className="h-3.5 w-3.5 text-foreground/50" />
-            <span className="text-xs font-bold text-foreground tabular-nums">{queueSummary.active}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Active</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
-            <CalendarCheck className="h-3.5 w-3.5 text-foreground/50" />
-            <span className="text-xs font-bold text-foreground tabular-nums">{unsettledBookings}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Unsettled</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-1.5">
-            <UserIcon className="h-3.5 w-3.5 text-foreground/50" />
-            <span className="text-xs font-bold text-foreground tabular-nums">{servedTodayCount}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Served</span>
           </div>
         </div>
 
@@ -238,6 +274,7 @@ export default function ManagerDashboard({
           />
           {capabilities.canCreateBooking ? (
             <BookingDialog
+              presentation="staff"
               services={services}
               packages={packages}
               categories={categories}
@@ -245,24 +282,25 @@ export default function ManagerDashboard({
               allowServiceClaim={capabilities.canClaimQueue}
             />
           ) : null}
-          <GiftCardClaimDialog businessSlug={businessSlug} />
+          <GiftCardClaimDialog businessSlug={businessSlug} presentation="staff" />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full ring-1 ring-border hover:bg-muted transition-all"
+                className="size-11 rounded-full border border-[#E7E9E4] bg-white p-0 text-[#20211F] hover:bg-[#EFF9E8] focus-visible:ring-[#72CF35]"
+                aria-label="Account menu"
               >
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+                <Avatar className="size-10">
+                  <AvatarFallback className="bg-[#20211F] text-xs font-medium text-white">
                     <UserIcon className="h-3.5 w-3.5" />
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 rounded-xl">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className={`${staffTheme.workspace} w-56 rounded-2xl border-[#E7E9E4] bg-white p-1.5 text-[#20211F] shadow-[0_18px_45px_rgba(32,33,31,0.15)]`}>
+              <DropdownMenuLabel className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#696C67]">My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {/* Manager has full sidebar nav so we don't duplicate
                   Bookings / Services / etc. here. The one entry that
@@ -271,7 +309,7 @@ export default function ManagerDashboard({
                   links to the team inbox, which is a different
                   destination. */}
               {capabilities.canSubmitSocialPost ? (
-                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                <DropdownMenuItem asChild className="min-h-11 cursor-pointer rounded-lg focus:bg-[#EFF9E8]">
                   <Link
                     href={`/app/${businessSlug}/social-posts/my-requests`}
                   >
@@ -283,7 +321,7 @@ export default function ManagerDashboard({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer rounded-lg"
+                className="min-h-11 cursor-pointer rounded-lg text-[#C74248] focus:bg-[#FFF0F0] focus:text-[#C74248]"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
@@ -293,9 +331,9 @@ export default function ManagerDashboard({
         </div>
       </header>
 
-      {/* ── Stat pills — mobile/tablet only ── */}
-      <div className="xl:hidden shrink-0 px-4 pt-3 pb-0">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      {/* ── Work summary ── */}
+      <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
           <StatPill icon={ListTodo} label="Pending Queue" value={queueSummary.pending} accent />
           <StatPill icon={Activity} label="Active Queue" value={queueSummary.active} />
           <StatPill icon={CalendarCheck} label="Unsettled" value={unsettledBookings} />
@@ -303,48 +341,52 @@ export default function ManagerDashboard({
         </div>
       </div>
 
-      {/* ── Main 3-column grid ─────────────── */}
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <div className="h-full grid grid-cols-1 lg:grid-cols-12 gap-0">
+      {/* ── Operational workspaces ─────────────── */}
+      <div className="mx-auto w-full max-w-[1440px] px-4 pt-5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-4 lg:gap-5 xl:grid-cols-12">
 
           {/* ── LEFT: Attendance + Leave ─── */}
-          <div className="lg:col-span-3 flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-y-auto no-scrollbar">
-            <div className="p-4 sm:p-5 border-b border-border">
+          <div className="flex min-w-0 flex-col gap-4 lg:gap-5 xl:col-span-4">
+            <section className="rounded-[28px] border border-[#E7E9E4] bg-white p-5 shadow-[0_18px_45px_rgba(32,33,31,0.045)] sm:p-6">
+              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.16em] text-[#696C67]">Today&apos;s shift</p>
               <AttendanceCard
                 employeeId={currentEmployeeId}
                 businessSlug={businessSlug}
                 todayAttendance={todayAttendance ?? null}
               />
-            </div>
-            <div className="p-4 sm:p-5">
+            </section>
+            <section className="rounded-[28px] border border-[#E7E9E4] bg-white p-5 shadow-[0_18px_45px_rgba(32,33,31,0.045)] sm:p-6">
               <EmployeeLeaveClient
                 employeeId={currentEmployeeId}
                 businessId={businessId}
                 businessSlug={businessSlug}
                 requests={leaveRequests}
               />
-            </div>
+            </section>
           </div>
 
           {/* ── CENTER: Team Queue Board ─── */}
-          <div className="lg:col-span-6 flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-hidden">
-            <div className="shrink-0 px-4 sm:px-5 pt-4 pb-2 flex items-center gap-2 border-b border-border">
-              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-              <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+          <section className="flex min-w-0 flex-col overflow-hidden rounded-[28px] border border-[#E7E9E4] bg-white shadow-[0_18px_45px_rgba(32,33,31,0.045)] xl:col-span-8">
+            <div className="flex items-center gap-3 border-b border-[#E7E9E4] px-5 py-5 sm:px-6">
+              <span className="grid size-10 place-items-center rounded-[14px] bg-[#B9F379] text-[#20211F]"><ShieldCheck className="size-4" aria-hidden="true" /></span>
+              <p className="text-base font-bold tracking-[-0.025em] text-[#20211F]">
                 Team Queue Control
               </p>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 sm:p-5">
+            <div className="min-h-[20rem] p-4 sm:p-6">
               {capabilities.canQueueOverride ? (
                 <ManagerQueueBoard
+                  managerCoordinator={managerCoordinator}
                   businessSlug={businessSlug}
+                  currentEmployeeId={currentEmployeeId}
                   initialServices={managerQueueServices}
                   initialEmployees={managerQueueEmployees}
+                  onBoardServicesChange={onBoardServicesChange}
                 />
               ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-sm text-muted-foreground text-center">
+                <div className="flex min-h-[20rem] items-center justify-center">
+                  <p className="text-center text-sm text-[#696C67]">
                     Queue override is not enabled for your profile.
                   </p>
                 </div>
@@ -353,7 +395,7 @@ export default function ManagerDashboard({
 
             {/* Payments queue (cashier capability) */}
             {capabilities.canCollectPayment ? (
-              <div className="shrink-0 border-t border-border p-4 sm:p-5">
+              <div className="border-t border-[#E7E9E4] p-4 sm:p-6">
                 <EmployeePaymentsQueue
                   businessSlug={businessSlug}
                   bookings={visibleTodayBookings}
@@ -361,22 +403,22 @@ export default function ManagerDashboard({
                 />
               </div>
             ) : null}
-          </div>
+          </section>
 
           {/* ── RIGHT: My Queue + Served History ── */}
-          <div className="lg:col-span-3 flex flex-col overflow-hidden">
+          <div className="grid min-w-0 gap-4 md:grid-cols-2 lg:gap-5 xl:col-span-12">
 
             {/* My Claimable Queue */}
-            <div className="flex-1 min-h-0 flex flex-col border-b border-border overflow-hidden">
-              <div className="shrink-0 px-4 sm:px-5 pt-4 pb-2 flex items-center justify-between">
-                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+            <section className="flex min-h-[18rem] min-w-0 flex-col overflow-hidden rounded-[28px] border border-[#E7E9E4] bg-white shadow-[0_18px_45px_rgba(32,33,31,0.045)]">
+              <div className="flex items-center justify-between border-b border-[#E7E9E4] px-5 py-4 sm:px-6">
+                <h2 className="text-base font-bold tracking-[-0.025em] text-[#20211F]">
                   My Queue
-                </p>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground tabular-nums">
+                </h2>
+                <span className="rounded-full bg-[#EFF9E8] px-2.5 py-1 text-[10px] font-bold tabular-nums text-[#20211F]">
                   {visiblePendingServices.length}
                 </span>
               </div>
-              <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+              <div className="min-h-0 flex-1 overflow-y-auto">
                 {capabilities.canClaimQueue ? (
                   <PendingServicesList
                     services={visiblePendingServices}
@@ -385,44 +427,71 @@ export default function ManagerDashboard({
                     employeeSpecialties={currentEmployeeSpecialties}
                     saleEvents={saleEvents}
                     canClaimServices={capabilities.canClaimQueue}
+                    showRefresh={false}
+                    onClaim={handleClaim}
+                    pendingActionIds={pendingActionIds}
                   />
                 ) : (
-                  <div className="px-4 py-6">
-                    <p className="text-xs text-muted-foreground">
+                  <div className="px-5 py-6">
+                    <p className="text-sm text-[#696C67]">
                       Queue claiming is disabled for your manager policy.
                     </p>
                   </div>
                 )}
               </div>
-            </div>
+            </section>
 
             {/* My Served History */}
-            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-              <div className="shrink-0 px-4 sm:px-5 pt-4 pb-2 flex items-center justify-between">
-                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
-                  Served History
-                </p>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground tabular-nums">
-                  {visibleServedHistory.length}
+            <section className="flex min-h-[18rem] min-w-0 flex-col overflow-hidden rounded-[28px] border border-[#E7E9E4] bg-white shadow-[0_18px_45px_rgba(32,33,31,0.045)]">
+              <div className="flex items-center justify-between border-b border-[#E7E9E4] px-5 py-4 sm:px-6">
+                <h2 className="text-base font-bold tracking-[-0.025em] text-[#20211F]">
+                  My Services
+                </h2>
+                <span className="rounded-full bg-[#EFF9E8] px-2.5 py-1 text-[10px] font-bold tabular-nums text-[#20211F]">
+                  {visibleActiveServices.length + visibleServedHistory.length}
                 </span>
               </div>
-              <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+              <div className="min-h-0 flex-1 overflow-y-auto">
                 {capabilities.canServeQueue ? (
-                  <EmployeeServedHistory
-                    services={visibleServedHistory}
-                    employeeSpecialties={currentEmployeeSpecialties}
-                    currentEmployeeId={currentEmployeeId}
-                    currentEmployeeCommission={currentEmployeeCommission}
-                  />
+                  <Tabs defaultValue="active" className="px-3 pb-3">
+                    <TabsList className="grid min-h-11 w-full grid-cols-2 rounded-xl bg-[#F5F6F3] p-1">
+                      <TabsTrigger value="active" className="min-h-11 rounded-lg text-xs">In progress</TabsTrigger>
+                      <TabsTrigger value="history" className="min-h-11 rounded-lg text-xs">History</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="active" className="mt-2 max-h-[24rem] overflow-y-auto">
+                      <EmployeeServedHistory
+                        mode="active"
+                        services={visibleActiveServices}
+                        employeeSpecialties={currentEmployeeSpecialties}
+                        currentEmployeeCommission={currentEmployeeCommission}
+                        onMarkServed={handleComplete}
+                        onUnclaim={handleUnclaim}
+                        onUnserve={handleUnserve}
+                        pendingActionIds={pendingActionIds}
+                      />
+                    </TabsContent>
+                    <TabsContent value="history" className="mt-2 max-h-[24rem] overflow-y-auto">
+                      <EmployeeServedHistory
+                        mode="history"
+                        services={visibleServedHistory}
+                        employeeSpecialties={currentEmployeeSpecialties}
+                        currentEmployeeCommission={currentEmployeeCommission}
+                        onMarkServed={handleComplete}
+                        onUnclaim={handleUnclaim}
+                        onUnserve={handleUnserve}
+                        pendingActionIds={pendingActionIds}
+                      />
+                    </TabsContent>
+                  </Tabs>
                 ) : (
-                  <div className="px-4 py-6">
-                    <p className="text-xs text-muted-foreground">
+                  <div className="px-5 py-6">
+                    <p className="text-sm text-[#696C67]">
                       Service completion actions are disabled for your manager policy.
                     </p>
                   </div>
                 )}
               </div>
-            </div>
+            </section>
 
           </div>
 

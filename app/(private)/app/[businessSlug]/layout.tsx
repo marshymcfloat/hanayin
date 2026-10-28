@@ -21,6 +21,11 @@ import {
   resolveTenantActorContext,
 } from "@/lib/auth/staff-access";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
+import { getVerifiedOwnerPreviewBusinessName } from "@/features/businesses/queries/owner-preview";
+import { OwnerPreviewLayoutShell } from "@/components/dashboard/owner-preview/OwnerPreviewLayoutShell";
+import { OwnerPreviewQueryProvider } from "@/components/dashboard/owner-preview/OwnerPreviewQueryProvider";
+import { OwnerWorkspaceBaseProvider } from "@/components/dashboard/owner-preview/owner-preview-routing";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 import {
   ViewerContextProvider,
   type ViewerContextValue,
@@ -135,10 +140,32 @@ async function AppLayoutContent({
           employeeId: actorContext.employeeId,
         };
 
+  if (actorContext.actorType === "OWNER") {
+    const business = await getVerifiedOwnerPreviewBusinessName(actorContext);
+    if (!business) redirect("/");
+    const identity = {
+      userId: actorContext.userId,
+      businessId: actorContext.businessId,
+      businessSlug: actorContext.businessSlug,
+      businessName: business.name,
+      ownerName: session.user.name || "Owner",
+    };
+    return <ViewerContextProvider value={viewerValue}>
+      <OwnerWorkspaceBaseProvider basePath="/app">
+        <OwnerPreviewQueryProvider key={`${identity.userId}:${identity.businessId}:${identity.businessSlug}`} identity={identity}>
+          <OwnerPreviewLayoutShell businessSlug={businessSlug}>
+            {showReadOnlyBanner && <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800 md:pl-[128px]">{readOnlyMessage}</div>}
+            {children}{modal}
+          </OwnerPreviewLayoutShell>
+        </OwnerPreviewQueryProvider>
+      </OwnerWorkspaceBaseProvider>
+    </ViewerContextProvider>;
+  }
+
   if (isFrontdeskShell) {
     return (
       <ViewerContextProvider value={viewerValue}>
-        <div className="bg-background min-h-screen ">
+        <div className={`${staffTheme.workspace} min-h-screen bg-background`}>
           {showReadOnlyBanner ? (
             <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
               {readOnlyMessage}
@@ -153,14 +180,14 @@ async function AppLayoutContent({
 
   return (
     <ViewerContextProvider value={viewerValue}>
-      <div className="bg-background">
+      <div className={`${staffTheme.workspace} min-h-screen bg-background`}>
         <SidebarProvider>
           <React.Suspense fallback={<SidebarSkeleton />}>
             <AppSidebar />
           </React.Suspense>
           <SidebarInset>
             <header className="flex h-14 items-center gap-3 border-b border-border bg-white px-4 md:hidden sticky top-0 z-30">
-              <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors" />
+              <SidebarTrigger className="size-11 rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" />
               <div className="flex items-center gap-2 min-w-0">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm shadow-primary/30">
                   <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
@@ -173,7 +200,7 @@ async function AppLayoutContent({
                 {readOnlyMessage}
               </div>
             ) : null}
-            <div className="flex-1 min-h-0 overflow-hidden">
+            <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
               {children}
               {modal}
             </div>

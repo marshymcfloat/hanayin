@@ -1,4 +1,5 @@
 "use client";
+import { useBookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 
 /**
  * SwapServiceDialog — per-service-line trigger that replaces the line
@@ -46,6 +47,7 @@ const formatCurrency = (amount: number) =>
   })}`;
 
 export type SwapServiceDialogProps = {
+  onReview?: () => void;
   bookingId: number;
   availedServiceId: number;
   /** Display name of the line being swapped, for header copy. */
@@ -60,7 +62,8 @@ export type SwapServiceDialogProps = {
     price: number;
   }>;
   /** Optional override for the trigger element. */
-  trigger?: React.ReactNode;
+trigger?: React.ReactNode;
+  onChanged?: () => void;
 };
 
 export function SwapServiceDialog({
@@ -69,9 +72,12 @@ export function SwapServiceDialog({
   currentServiceName,
   currentServiceId,
   servicesCatalog,
-  trigger,
+trigger,
+  onChanged,
+  onReview,
 }: SwapServiceDialogProps) {
   const router = useRouter();
+  const staffDialogTheme = useBookingDialogTheme();
   const [open, setOpen] = useState(false);
   const [pickedServiceId, setPickedServiceId] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
@@ -95,12 +101,14 @@ export function SwapServiceDialog({
         newServiceId: Number.parseInt(pickedServiceId, 10),
       });
       if (!result.success) {
+        if (result.error === "Use Review services & offers to change this booking." && onReview) { setOpen(false); onReview(); return; }
         showActionErrorToast(result.error, { action: "swap this service" });
         return;
       }
       toast.success("Service swapped");
       setOpen(false);
-      router.refresh();
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       showActionErrorToast(msg, { action: "swap this service" });
@@ -124,7 +132,7 @@ export function SwapServiceDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-3xl">
+      <DialogContent className={`rounded-3xl ${staffDialogTheme}`}>
         <DialogHeader>
           <DialogTitle>Swap &ldquo;{currentServiceName}&rdquo;</DialogTitle>
           <DialogDescription>
@@ -149,7 +157,7 @@ export function SwapServiceDialog({
                 <SelectTrigger id="swap-service" className="rounded-xl">
                   <SelectValue placeholder="Pick a replacement service" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectContent className={`rounded-xl ${staffDialogTheme}`}>
                   {options.map((service) => (
                     <SelectItem key={service.id} value={String(service.id)}>
                       {service.name}

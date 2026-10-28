@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { AvailedServiceStatus } from "@/prisma/generated/prisma/enums";
 import { formatPH } from "@/lib/date-utils";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 // Duplicate types to avoid circular dependency with ManagerQueueBoard
 export type QueueService = {
@@ -118,7 +119,7 @@ export function ManagerQueueCard({
   return (
     <Card
       className={cn(
-        "group relative overflow-hidden transition-all duration-200 hover:shadow-md border-black/[0.06]",
+        "group relative overflow-hidden rounded-2xl border-[#E7E9E4] bg-white transition-shadow hover:shadow-[0_12px_30px_rgba(32,33,31,0.08)]",
         isBusy && "opacity-70 pointer-events-none",
       )}
     >
@@ -128,9 +129,9 @@ export function ManagerQueueCard({
         </div>
       )}
 
-      <CardHeader className="p-4 pb-3">
+      <CardHeader className="px-3 pb-2 pt-3 sm:px-4 sm:pt-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1.5">
+          <div className="min-w-0 space-y-1">
             <Badge
               variant="outline"
               className={cn(
@@ -152,8 +153,8 @@ export function ManagerQueueCard({
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 pt-0 space-y-4">
-        <div className="flex flex-col gap-2">
+      <CardContent className="space-y-2 px-3 pb-3 pt-0 sm:px-4">
+        <div className="flex flex-col gap-1.5">
           <div className="flex items-center text-xs text-muted-foreground">
             <User className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             <span className="font-medium text-foreground/80 truncate max-w-[150px]">
@@ -188,10 +189,10 @@ export function ManagerQueueCard({
             onValueChange={(value) => onAssignChange(service.id, Number(value))}
             disabled={isBusy}
           >
-            <SelectTrigger className="h-9 w-full bg-foreground/[0.02] border-black/[0.08]">
+            <SelectTrigger className="min-h-11 w-full border-[#E7E9E4] bg-white">
               <SelectValue placeholder="Select employee" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={staffTheme.workspace}>
               {employees.map((employee) => (
                 <SelectItem key={employee.id} value={employee.id.toString()}>
                   {employee.user.name}
@@ -202,11 +203,11 @@ export function ManagerQueueCard({
         </div>
       </CardContent>
 
-      <CardFooter className="p-3 bg-foreground/[0.02] border-t border-black/[0.06] flex gap-2">
+      <CardFooter className="flex gap-2 border-t border-[#E7E9E4] bg-[#F5F6F3] p-2.5 sm:p-3">
         {isPending ? (
           <Button
             size="sm"
-            className="w-full h-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-medium shadow-none"
+            className="min-h-11 w-full rounded-full bg-[#20211F] text-xs font-medium text-white shadow-none hover:bg-[#30322F]"
             onClick={() => onAssign(service)}
             disabled={!assigneeId || isBusy}
           >
@@ -218,15 +219,15 @@ export function ManagerQueueCard({
             <Button
               size="sm"
               variant="outline"
-              className="w-full h-8 rounded-full border-black/[0.08] bg-card hover:bg-primary/[0.04] hover:text-primary hover:border-primary/30 text-xs"
+              className="min-h-11 w-full rounded-full border-[#E7E9E4] bg-white text-xs hover:border-[#72CF35] hover:bg-[#EFF9E8]"
               onClick={() => onRevert(service)}
               disabled={isBusy}
             >
-              {isServing ? "Undo Serve" : "Unclaim"}
+              {isServing ? "Return to queue" : "Unclaim"}
             </Button>
             <Button
               size="sm"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-none h-8 text-xs font-medium"
+              className="min-h-11 w-full rounded-full bg-[#20211F] text-xs font-medium text-white shadow-none hover:bg-[#30322F]"
               onClick={() => onServe(service)}
               disabled={!assigneeId || isBusy}
             >

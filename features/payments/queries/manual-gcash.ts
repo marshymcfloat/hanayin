@@ -3,6 +3,7 @@ import type {
   GcashFollowUpItem,
   GcashVerificationItem,
 } from "@/lib/types/manual-gcash";
+import type { OwnerGcashReviewQueue } from "@/features/payments/types/owner-gcash-review";
 
 export async function getGcashVerificationQueue(input: {
   businessId: string;
@@ -26,12 +27,23 @@ export async function getGcashVerificationQueue(input: {
         submitted_at: { not: null },
         booking: { business_id: business.id, status: "HOLD" },
       },
-      include: {
+      select: {
+        id: true,
+        amount_principal: true,
+        payer_name: true,
+        provider_reference: true,
+        submitted_at: true,
+        expires_at: true,
+        escalated_at: true,
+        escalation_reason: true,
         booking: {
-          include: {
+          select: {
+            id: true,
+            scheduled_at: true,
+            customer_label: true,
             customer: { select: { name: true, phone: true } },
             availed_services: {
-              include: { service: { select: { name: true } } },
+              select: { service: { select: { name: true } } },
             },
           },
         },
@@ -44,9 +56,21 @@ export async function getGcashVerificationQueue(input: {
         resolution_resolved_at: null,
         booking: { business_id: business.id },
       },
-      include: {
+      select: {
+        id: true,
+        amount_principal: true,
+        payer_name: true,
+        provider_reference: true,
+        submitted_at: true,
+        follow_up_required_at: true,
+        escalation_reason: true,
         booking: {
-          include: { customer: { select: { name: true, phone: true } } },
+          select: {
+            id: true,
+            scheduled_at: true,
+            customer_label: true,
+            customer: { select: { name: true, phone: true } },
+          },
         },
       },
       orderBy: { follow_up_required_at: "asc" },
@@ -112,4 +136,31 @@ export async function getGcashVerificationQueue(input: {
   });
 
   return { verificationItems, followUpItems };
+}
+
+export async function getOwnerGcashReviewQueue(input: {
+  businessId: string;
+}): Promise<OwnerGcashReviewQueue> {
+  const queue = await getGcashVerificationQueue(input);
+  return {
+    verificationItems: queue.verificationItems.map((item) => ({
+      ...item,
+      submittedAt: item.submittedAt.toISOString(),
+      expiresAt: item.expiresAt.toISOString(),
+      escalatedAt: item.escalatedAt?.toISOString() ?? null,
+      booking: {
+        ...item.booking,
+        scheduledAt: item.booking.scheduledAt?.toISOString() ?? null,
+      },
+    })),
+    followUpItems: queue.followUpItems.map((item) => ({
+      ...item,
+      submittedAt: item.submittedAt?.toISOString() ?? null,
+      followUpRequiredAt: item.followUpRequiredAt.toISOString(),
+      booking: {
+        ...item.booking,
+        scheduledAt: item.booking.scheduledAt?.toISOString() ?? null,
+      },
+    })),
+  };
 }

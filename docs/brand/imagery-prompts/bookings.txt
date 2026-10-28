@@ -1,0 +1,16 @@
+Use case: ui-mockup.
+Asset type: polished product-detail graphic for Hanaylo landing page, landscape 3:2.
+Reference role: attached screenshot is a CONTENT AND LAYOUT REFERENCE from the actual application using fictional sample data. Extract and faithfully restyle ONLY the tall "Today's bookings" panel at the right of the screenshot; do not reproduce the dashboard around it.
+Primary request: a flat, straight-on high-resolution screenshot-like white bookings card filling almost the entire landscape 3:2 canvas, with tiny 24px outer margin in very pale lavender. No perspective, no device, no photographic background.
+Preserve real structure: top calendar icon, small "3 today" pill at top right; heading "Today's bookings"; muted subtitle "Next appointments across the team"; three generous stacked booking rows. Each row has an initials avatar at left, name and service beneath, time and status chip beneath the service, and a small right chevron at far right. Hairline dividers between rows. A full-width dark charcoal button at bottom says "View full schedule" with small right chevron.
+Text exactly, do not invent additional data:
+Title: "Today's bookings"
+Subtitle: "Next appointments across the team"
+Top right: "3 today"
+Row 1: initials "AR", name "Alex Reyes", service "Cut & style", time "10:00 AM", status "CONFIRMED".
+Row 2: initials "SD", name "Sam Dela Cruz", service "Scalp treatment", time "11:00 AM", status "IN SERVICE".
+Row 3: initials "JL", name "Jamie Lim", service "Cut & finish", time "1:30 PM", status "PENDING".
+Bottom button: "View full schedule".
+Small unobtrusive label at bottom edge: "Sample data".
+Visual treatment: clean modern SaaS UI, readable sharp sans-serif typography, dark graphite text, white background, muted gray supporting text, soft violet/lavender icon/avatar accents replacing source lime. Confirmed neutral gray chip, in-service pale lavender/violet chip, pending restrained pale amber chip. Gentle 20px corner radius. Excellent hierarchy, consistent spacing and alignment. No heavy shadows, no extra decoration.
+Constraints: faithful actual list-panel structure, not a staff-column calendar; do not add appointment dates, staff assignments, invented controls, claims, logos, photos, or any dashboard metrics. Every word must be spelled accurately and sharply legible.

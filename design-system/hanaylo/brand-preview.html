@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%2324262b'/%3E%3Cpath d='M6 9h20M12 16h14M9 23h17' stroke='%23f26b3a' stroke-width='4'/%3E%3C/svg%3E">
+  <title>Hanaylo — Brand & landing concept</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --orange:#f26b3a; --ink:#24262b; --paper:#f7f4ef; --blue:#dce8f5; --muted:#5c6068; --rust:#ad3715; --line:#cfcbc5; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:Manrope,Arial,sans-serif; font-size:16px; line-height:1.6; }
+    a { color:inherit; text-decoration:none; }
+    button { font:inherit; color:inherit; cursor:pointer; }
+    button,a { -webkit-tap-highlight-color:transparent; }
+    :focus-visible { outline:3px solid var(--ink); outline-offset:5px; }
+    .dark :focus-visible { outline-color:var(--paper); }
+    [hidden] { display:none !important; }
+    .wrap { width:min(1240px,calc(100% - 96px)); margin-inline:auto; }
+    .dark { background:var(--ink); color:var(--paper); }
+    .concept-note { padding:9px 24px; background:var(--blue); text-align:center; font-size:11px; font-weight:600; letter-spacing:.02em; }
+    .concept-note span { margin-inline:10px; }
+    .skip { position:absolute; left:12px; top:-80px; padding:12px; background:var(--paper); color:var(--ink); z-index:10; }
+    .skip:focus { top:12px; }
+    header { display:flex; align-items:center; justify-content:space-between; min-height:106px; gap:24px; border-bottom:1px solid #505157; }
+    .logo { display:inline-flex; align-items:center; gap:12px; font-size:31px; font-weight:800; letter-spacing:-1.4px; line-height:1; min-height:44px; }
+    .mark { display:grid; align-content:center; width:27px; height:31px; gap:4px; }
+    .mark i { display:block; width:27px; height:5px; border-radius:1px; background:var(--orange); }
+    .mark i:nth-child(2) { width:19px; margin-left:8px; }
+    .mark i:nth-child(3) { width:23px; margin-left:4px; }
+    nav { display:flex; align-items:center; gap:26px; font-size:12px; font-weight:600; }
+    nav a { display:inline-flex; align-items:center; min-height:44px; }
+    nav a:hover { color:var(--orange); }
+    .nav-cta { border:1px solid #8b8d93; padding:0 17px; border-radius:5px; }
+    .hero { display:grid; grid-template-columns:1.05fr 1fr; align-items:center; gap:64px; padding:83px 0 75px; }
+    .eyebrow { display:flex; align-items:center; gap:11px; font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; margin:0 0 24px; }
+    .eyebrow:before { content:""; width:7px; height:7px; background:var(--orange); flex-shrink:0; }
+    h1 { font-size:clamp(48px,5.25vw,76px); line-height:1.04; letter-spacing:-.065em; font-weight:500; margin:0 0 28px; }
+    h1 span { display:block; }
+    h1 em { color:var(--orange); font-style:normal; }
+    .intro { max-width:465px; margin:0 0 30px; color:#d0d0d2; font-size:15px; line-height:1.8; }
+    .actions { display:flex; flex-wrap:wrap; align-items:center; gap:22px; }
+    .button { min-height:48px; padding:12px 20px; display:inline-flex; align-items:center; justify-content:center; gap:24px; border:0; background:var(--orange); color:var(--ink); border-radius:5px; font-size:12px; font-weight:800; transition:transform .18s; }
+    .button:hover { transform:translateY(-2px); }
+    .text-link { display:inline-flex; align-items:center; min-height:44px; gap:8px; font-size:12px; font-weight:600; text-decoration:underline; text-underline-offset:5px; }
+    .hero-small { font-size:11px; color:#b9bbc1; margin-top:23px; }
+    .service-stage { min-width:0; position:relative; padding-top:14px; }
+    .stage-heading { display:flex; justify-content:space-between; align-items:center; gap:15px; color:#c6c7cc; font-size:10px; text-transform:uppercase; letter-spacing:.13em; margin:0 0 16px; }
+    .stage-heading span:last-child { color:var(--orange); }
+    .record { color:var(--ink); background:var(--paper); border-radius:10px; padding:25px 27px 20px; box-shadow:0 20px 60px #0002; }
+    .record-top { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:20px; gap:16px; }
+    .record-title { font-size:13px; font-weight:800; }
+    .record-id { font-variant-numeric:tabular-nums; font-size:10px; color:var(--muted); }
+    .record-body { padding:24px 0; display:flex; gap:20px; align-items:flex-start; }
+    .clock-tile { padding:11px 10px; border:1px solid #85817d; border-radius:6px; font-size:17px; line-height:1.1; font-variant-numeric:tabular-nums; font-weight:700; text-align:center; min-width:65px; }
+    .clock-tile span { display:block; font-size:9px; font-weight:500; margin-top:5px; }
+    .service-name { font-size:21px; margin:0 0 5px; letter-spacing:-.04em; font-weight:600; }
+    .subtle { font-size:11px; color:var(--muted); }
+    .detail-line { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 0; border-top:1px solid var(--line); font-size:12px; }
+    .detail-line>span:first-child { color:var(--muted); }
+    .person { display:flex; align-items:center; gap:8px; font-weight:600; }
+    .avatar { width:25px; height:25px; display:grid; place-items:center; background:var(--blue); border-radius:50%; font-size:9px; font-weight:800; }
+    .status { background:var(--blue); border-radius:3px; padding:3px 8px; font-size:10px; font-weight:600; }
+    .commission { background:var(--orange); color:var(--ink); margin:16px 0 0 42px; padding:22px 24px; border-radius:7px; display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .commission strong { font-size:37px; font-weight:600; letter-spacing:-.07em; font-variant-numeric:tabular-nums; line-height:1; }
+    .commission p { margin:0; font-size:11px; font-weight:700; }
+    .commission small { font-size:10px; }
+    .connector { position:absolute; bottom:42px; left:10px; width:25px; height:32px; border-bottom:1px solid #8b8d93; border-left:1px solid #8b8d93; }
+    .record-caption { color:#b9bbc1; font-size:10px; text-align:right; margin:13px 0 0; }
+    .hero-footer { border-top:1px solid #505157; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; padding:22px 0; font-size:10px; color:#c6c7cc; }
+    .hero-footer b { color:var(--paper); font-weight:600; }
+    .hero-footer .separators { display:flex; gap:30px; }
+    section { scroll-margin-top:30px; }
+    .fit { padding:91px 0 92px; display:grid; grid-template-columns:1fr 1fr; gap:105px; }
+    h2 { font-size:clamp(31px,3.1vw,45px); line-height:1.14; letter-spacing:-.05em; font-weight:500; margin:0 0 22px; }
+    .body-copy { font-size:14px; line-height:1.9; color:var(--muted); max-width:520px; margin:0; }
+    .fit-list { list-style:none; margin:0; padding:0; }
+    .fit-list li { display:grid; grid-template-columns:38px 1fr; gap:15px; padding:19px 0; border-bottom:1px solid var(--line); }
+    .fit-list li:first-child { padding-top:0; }
+    .fit-list .num { color:var(--rust); font-size:12px; padding-top:3px; }
+    .fit-list h3 { font-size:17px; font-weight:600; letter-spacing:-.02em; margin:0 0 4px; }
+    .fit-list p { font-size:12px; color:var(--muted); margin:0; }
+    .workflow { background:var(--blue); padding:76px 0 80px; }
+    .section-intro { display:flex; align-items:flex-end; justify-content:space-between; gap:45px; margin-bottom:37px; }
+    .section-intro h2 { max-width:530px; margin-bottom:0; }
+    .section-intro .body-copy { max-width:330px; font-size:12px; padding-bottom:4px; }
+    .workflow-shell { background:var(--paper); border:1px solid #939ba6; border-radius:10px; overflow:hidden; }
+    .workflow-label { display:flex; justify-content:space-between; gap:16px; padding:18px 26px; border-bottom:1px solid var(--line); font-size:10px; text-transform:uppercase; font-weight:600; letter-spacing:.09em; }
+    .workflow-content { display:grid; grid-template-columns:240px 1fr; }
+    .step-tabs { padding:16px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:5px; }
+    .step-tabs button { border:0; background:transparent; border-radius:4px; display:flex; align-items:center; gap:13px; text-align:left; font-size:12px; min-height:57px; padding:11px 13px; transition:background .18s; }
+    .step-tabs button:hover { background:#e9e5df; }
+    .step-tabs button[aria-selected="true"] { background:var(--ink); color:var(--paper); }
+    .step-tabs button[aria-selected="true"]:focus-visible { outline-color:var(--ink); outline-offset:2px; }
+    .step-num { display:grid; place-items:center; width:25px; height:25px; border:1px solid #73767e; border-radius:3px; font-size:10px; flex-shrink:0; }
+    [aria-selected="true"] .step-num { background:var(--orange); color:var(--ink); border-color:var(--orange); }
+    .step-panel { padding:32px 36px; display:grid; grid-template-columns:1fr 235px; gap:36px; align-items:center; min-height:312px; }
+    .step-panel h3 { font-size:24px; font-weight:500; line-height:1.25; letter-spacing:-.04em; margin:12px 0; }
+    .step-panel p { font-size:12px; color:var(--muted); margin:0; line-height:1.9; }
+    .step-kicker { font-size:10px; color:var(--rust); text-transform:uppercase; font-weight:700; letter-spacing:.1em; }
+    .mini-ledger { border-top:3px solid var(--orange); background:#ebe7e1; padding:18px 18px 13px; }
+    .mini-ledger h4 { margin:0 0 13px; font-size:12px; font-weight:700; }
+    .mini-ledger dl { margin:0; font-size:11px; }
+    .mini-ledger dl>div { display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid #c0bcb6; }
+    .mini-ledger dt { color:var(--muted); }
+    .mini-ledger dd { margin:0; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; }
+    .workflow-footnote { margin:18px 0 0; font-size:10px; color:#4a535e; line-height:1.8; }
+    .growth { display:grid; grid-template-columns:1fr 1.2fr; gap:100px; padding:90px 0; }
+    .growth-rows { border-top:1px solid var(--line); }
+    .growth-row { display:grid; grid-template-columns:160px 1fr; gap:24px; padding:24px 0; border-bottom:1px solid var(--line); }
+    .growth-row h3 { font-size:13px; margin:0; font-weight:700; }
+    .growth-row p { font-size:12px; color:var(--muted); margin:0; line-height:1.8; }
+    .identity { border-top:1px solid var(--line); padding:58px 0 68px; }
+    .identity-grid { display:grid; grid-template-columns:1fr 1.15fr; gap:100px; }
+    .identity h2 { margin-bottom:15px; }
+    .palette { display:grid; grid-template-columns:1.2fr 1.2fr 1fr 1fr; border:1px solid #85817d; border-radius:6px; overflow:hidden; }
+    .swatch { display:flex; flex-direction:column; justify-content:space-between; gap:44px; min-height:170px; padding:18px 15px; }
+    .swatch b { font-size:11px; font-weight:700; }
+    .swatch span { font-size:10px; font-variant-numeric:tabular-nums; }
+    .swatch.orange { background:var(--orange); }
+    .swatch.ink { background:var(--ink); color:var(--paper); }
+    .swatch.paper { background:var(--paper); }
+    .swatch.blue { background:var(--blue); }
+    .type-line { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:20px 0 0; font-size:11px; color:var(--muted); }
+    .type-line strong { font-size:23px; letter-spacing:-.05em; font-weight:500; color:var(--ink); }
+    .closing { padding:45px 0 38px; }
+    .closing-inner { display:flex; align-items:center; justify-content:space-between; gap:30px; }
+    .closing h2 { margin:0; font-size:36px; }
+    .closing .eyebrow { color:#b9bbc1; margin-bottom:17px; }
+    .closing-bottom { border-top:1px solid #505157; display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-top:36px; padding-top:23px; font-size:10px; color:#b9bbc1; }
+    .closing-bottom a { text-decoration:underline; text-underline-offset:4px; min-height:44px; display:inline-flex; align-items:center; }
+    .closing-bottom p { margin:0; display:flex; align-items:center; }
+    @media(min-width:1550px) { .hero { padding-block:100px; } }
+    @media(max-width:1100px) { .wrap { width:calc(100% - 64px); } .hero { gap:35px; } h1 { font-size:60px; } .record { padding:22px; } .fit,.growth,.identity-grid { gap:50px; } .step-panel { grid-template-columns:1fr; gap:20px; } .mini-ledger dl { display:flex; flex-wrap:wrap; column-gap:20px; } .mini-ledger dl>div { flex:1 1 80px; } }
+    @media(max-width:800px) { header { min-height:88px; } nav { gap:18px; } nav a:first-child { display:none; } .hero { grid-template-columns:1fr; padding:55px 0 44px; gap:45px; } h1 { max-width:650px; font-size:clamp(48px,9vw,70px); } h1 span { display:inline; } h1 em { display:block; } .intro { max-width:600px; } .service-stage { width:min(520px,100%); margin:auto; } .fit { gap:38px; padding-block:66px; } .workflow-content { grid-template-columns:200px 1fr; } .section-intro { display:block; } .section-intro .body-copy { margin-top:20px; max-width:500px; } .step-panel { padding:26px; } .growth { grid-template-columns:1fr; gap:30px; padding-block:64px; } .identity-grid { grid-template-columns:1fr; gap:30px; } .identity { padding-top:48px; } }
+    @media(max-width:570px) { .wrap { width:calc(100% - 40px); } .concept-note { font-size:9px; padding:8px 15px; } .concept-note span { display:none; } header { gap:12px; min-height:78px; } .logo { font-size:27px; gap:9px; } .mark { transform:scale(.88); transform-origin:left center; margin-right:-3px; } nav { gap:0; } nav a:not(.nav-cta) { display:none; } .nav-cta { padding-inline:12px; font-size:10px; } .hero { padding-top:43px; gap:32px; } h1 { font-size:clamp(42px,11vw,61px); margin-bottom:22px; } .eyebrow { font-size:9px; letter-spacing:.09em; margin-bottom:20px; gap:9px; } .intro { font-size:13px; line-height:1.8; } .actions { gap:11px 18px; } .button { padding-inline:15px; font-size:11px; gap:15px; } .text-link { font-size:11px; } .hero-small { font-size:10px; } .record { padding:20px; } .service-name { font-size:20px; } .record-body { gap:15px; } .commission { margin-left:26px; padding:20px; } .commission strong { font-size:32px; } .connector { width:15px; left:6px; } .stage-heading { font-size:8px; letter-spacing:.07em; } .hero-footer { font-size:9px; } .hero-footer .separators { gap:20px; } .fit { grid-template-columns:1fr; gap:28px; padding:53px 0; } h2 { font-size:33px; } .body-copy { font-size:13px; } .fit-list h3 { font-size:15px; } .workflow { padding-block:52px; } .workflow-content { grid-template-columns:1fr; } .workflow-label { font-size:8px; padding:15px; letter-spacing:.03em; } .step-tabs { flex-direction:row; border-right:0; border-bottom:1px solid var(--line); padding:9px; gap:4px; } .step-tabs button { flex:1; min-height:62px; padding:9px 4px; gap:5px; flex-direction:column; justify-content:center; text-align:center; font-size:9px; } .step-num { width:20px; height:20px; font-size:9px; } .step-panel { padding:24px 20px; min-height:362px; gap:22px; } .step-panel h3 { font-size:23px; } .mini-ledger dl { display:block; } .mini-ledger dl>div { padding-block:8px; } .growth { padding:53px 0; } .growth-row { grid-template-columns:1fr; gap:7px; padding-block:19px; } .palette { grid-template-columns:1fr 1fr; } .swatch { min-height:120px; gap:32px; } .type-line { font-size:10px; } .closing-inner { align-items:flex-start; flex-direction:column; gap:23px; } .closing h2 { font-size:34px; } .closing-bottom { margin-top:25px; } }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none !important; animation:none !important; } }
+    @media print { .concept-note { display:block; } nav,.actions,.closing .button { display:none; } .wrap { width:100%; } body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } .hero,.fit,.growth { padding-block:35px; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="concept-note">HANAYLO / BRAND & LANDING CONCEPT <span>—</span> Illustrative data. No live account or payment actions.</div>
+  <div class="dark" id="top">
+    <header class="wrap">
+      <a href="#top" class="logo" aria-label="Hanaylo concept home"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>hanaylo</a>
+      <nav aria-label="Concept navigation"><a href="#workflow">The workflow</a><a href="#fit">Who it's for</a><a href="#identity" class="nav-cta">Brand direction <span aria-hidden="true">&nbsp;↗</span></a></nav>
+    </header>
+  </div>
+  <main id="main">
+    <div class="dark">
+      <div class="wrap hero">
+        <div>
+          <p class="eyebrow">Business management for service teams</p>
+          <h1><span>Bookings, staff,</span> <span>and commissions.</span> <em>In order.</em></h1>
+          <p class="intro">Manage appointments and walk-ins, keep service work assigned, and calculate staff commissions and daily pay—all in one place.</p>
+          <div class="actions"><a href="#workflow" class="button">Explore the workflow <span aria-hidden="true">↗</span></a><a href="#fit" class="text-link">Find your fit <span aria-hidden="true">→</span></a></div>
+          <p class="hero-small">Built around the way Philippine service teams work.</p>
+        </div>
+        <div class="service-stage" aria-label="Illustrative record of a completed and paid service">
+          <p class="stage-heading"><span>One service. Connected records.</span><span>Illustrative example</span></p>
+          <div class="record">
+            <div class="record-top"><span class="record-title">Today's service</span><span class="record-id">#HN–0142</span></div>
+            <div class="record-body"><div class="clock-tile">11:00<span>AM</span></div><div><p class="service-name">Cut & style</p><span class="subtle">Alex R. · 45 minutes · ₱600</span></div></div>
+            <div class="detail-line"><span>Assigned to</span><span class="person"><span class="avatar" aria-hidden="true">MR</span>Mira Reyes</span></div>
+            <div class="detail-line"><span>Service</span><span class="status">Completed</span></div>
+            <div class="detail-line"><span>Payment recorded</span><strong>₱600 · Paid</strong></div>
+          </div>
+          <span class="connector" aria-hidden="true"></span>
+          <div class="commission"><div><p>Mira's service commission</p><small>₱600 commission base × 20%</small></div><strong>₱120</strong></div>
+          <p class="record-caption">A workflow illustration, not a product screenshot.</p>
+        </div>
+      </div>
+      <div class="wrap hero-footer"><b>The work. The team. The earnings.</b><div class="separators"><span>Appointments & walk-ins</span><span>Daily pay & commissions</span></div></div>
+    </div>
+  <section class="wrap fit" id="fit" aria-labelledby="fit-heading">
+    <div><p class="eyebrow">A way of working</p><h2 id="fit-heading">Your customers book.<br>Your team delivers.</h2><p class="body-copy">Hanaylo brings the work and the earnings together. For salons, barbershops, spas, studios, and other teams built around staff-delivered services.</p></div>
+    <ol class="fit-list">
+      <li><span class="num">01</span><div><h3>A service to book</h3><p>Appointments and walk-ins, organized around your service menu.</p></div></li>
+      <li><span class="num">02</span><div><h3>A person to do the work</h3><p>Know who's assigned, what's underway, and what's complete.</p></div></li>
+      <li><span class="num">03</span><div><h3>Earnings to account for</h3><p>Calculate staff commissions, daily pay, or both.</p></div></li>
+    </ol>
+  </section>
+  <section class="workflow" id="workflow" aria-labelledby="workflow-heading">
+    <div class="wrap">
+      <div class="section-intro"><div><p class="eyebrow">The connected workday</p><h2 id="workflow-heading">Follow the service.<br>See where it connects.</h2></div><p class="body-copy">Explore a sample service from the booking record to the earnings review. Each step keeps the person and the work in view.</p></div>
+      <div class="workflow-shell">
+        <div class="workflow-label"><span>Cut & style / Alex R.</span><span>Interactive illustration · Sample data</span></div>
+        <div class="workflow-content">
+          <div class="step-tabs" role="tablist" aria-label="Service workflow" aria-orientation="vertical">
+            <button id="tab-book" role="tab" aria-selected="true" aria-controls="step-panel" data-step="0"><span class="step-num" aria-hidden="true">01</span>Book</button>
+            <button id="tab-assign" role="tab" aria-selected="false" aria-controls="step-panel" tabindex="-1" data-step="1"><span class="step-num" aria-hidden="true">02</span>Assign</button>
+            <button id="tab-complete" role="tab" aria-selected="false" aria-controls="step-panel" tabindex="-1" data-step="2"><span class="step-num" aria-hidden="true">03</span>Complete</button>
+            <button id="tab-earnings" role="tab" aria-selected="false" aria-controls="step-panel" tabindex="-1" data-step="3"><span class="step-num" aria-hidden="true">04</span>Earnings</button>
+          </div>
+          <div class="step-panel" id="step-panel" role="tabpanel" aria-labelledby="tab-book" tabindex="0">
+            <div><span class="step-kicker" id="step-kicker">01 / Organize the day</span><h3 id="step-title">A service enters the day.</h3><p id="step-body">An appointment or walk-in becomes a booking record with a service, customer and time. The team's work starts in one shared place.</p></div>
+            <div class="mini-ledger"><h4 id="ledger-title">Booking record</h4><dl><div><dt id="label-one">Service</dt><dd id="value-one">Cut & style</dd></div><div><dt id="label-two">Time</dt><dd id="value-two">11:00 AM</dd></div><div><dt id="label-three">Price</dt><dd id="value-three">₱600</dd></div></dl></div>
+          </div>
+        </div>
+      </div>
+      <p class="workflow-footnote">Payment may be recorded before or after service. Completed services on fully paid bookings can be included in a payslip. Payslip recording does not transfer money.</p>
+    </div>
+  </section>
+  <section class="wrap growth" aria-labelledby="growth-heading">
+    <div><p class="eyebrow">Support for what comes next</p><h2 id="growth-heading">Keep the next<br>visit in sight.</h2><p class="body-copy">Start with the business you run every day. Then use its context to support repeat visits and your next promotion.</p></div>
+    <div class="growth-rows"><div class="growth-row"><h3>Stay in touch</h3><p>Reminders and follow-ups help you keep the conversation going with customers.</p></div><div class="growth-row"><h3>Spot an opportunity</h3><p>Use quiet periods and upcoming events as starting points for promotion ideas.</p></div><div class="growth-row"><h3>Show up consistently</h3><p>Create social content to support your services, offers and business story.</p></div><p class="subtle">Availability depends on the plan and configured integrations.</p></div>
+  </section>
+  <section class="identity wrap" id="identity" aria-labelledby="identity-heading">
+    <div class="identity-grid"><div><p class="eyebrow">The Hanaylo identity</p><h2 id="identity-heading">Warm. Precise.<br>Recognizably in order.</h2><p class="body-copy">Persimmon creates a clear point of focus. Graphite grounds the information. Warm paper and pale blue give the work space to breathe.</p></div><div><div class="palette" aria-label="Selected brand palette"><div class="swatch orange"><b>Persimmon</b><span>#F26B3A</span></div><div class="swatch ink"><b>Graphite</b><span>#24262B</span></div><div class="swatch paper"><b>Warm paper</b><span>#F7F4EF</span></div><div class="swatch blue"><b>Pale blue</b><span>#DCE8F5</span></div></div><div class="type-line"><strong>hanaylo / Aa 0123</strong><span>Manrope · Aligned rows · Clear numbers</span></div></div></div>
+  </section>
+  </main>
+  <footer class="dark closing"><div class="wrap"><div class="closing-inner"><div><p class="eyebrow">Hanaylo</p><h2>Your business, in order.</h2></div><a href="#top" class="button">Back to the concept <span aria-hidden="true">↑</span></a></div><div class="closing-bottom"><p>Brand direction / October 2026 · Prototype only</p><p>Identity brief: docs/brand/hanaylo-identity.md</p></div></div></footer>
+  <script>
+    const steps = [
+      { kicker:'01 / Organize the day', title:'A service enters the day.', body:"An appointment or walk-in becomes a booking record with a service, customer and time. The team's work starts in one shared place.", ledger:'Booking record', rows:[['Service','Cut & style'],['Time','11:00 AM'],['Price','₱600']] },
+      { kicker:'02 / Put a name to the work', title:'The right person is in view.', body:'Assign the service to a staff member. Availability considers their specialties, schedule and existing work, so the booking stays connected to the person delivering it.', ledger:'Staff assignment', rows:[['Staff','Mira Reyes'],['Service','Cut & style'],['Commission rate','20%']] },
+      { kicker:'03 / Record the service', title:'The work becomes a record.', body:'When Mira completes the service, its status is updated and commission is credited. Payment is a separate record; completion does not collect money from the customer.', ledger:'Completed service', rows:[['Service','Completed'],['Commission','₱120'],['Payment','Awaiting payment']] },
+      { kicker:'04 / Review staff earnings', title:'See the work behind the pay.', body:'Once the booking is fully paid, this completed service can be included in a payslip. Review commissions with any eligible daily pay, then prepare and record the payslip.', ledger:'Eligible service earnings', rows:[['Payment','₱600 · Paid'],['Commission','₱120'],['Payout transfer','Handled separately']] }
+    ];
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const tablist = document.querySelector('[role="tablist"]');
+    const panel = document.getElementById('step-panel');
+    function selectStep(index, focus = false) {
+      const step = steps[index];
+      tabs.forEach((tab,i) => { tab.setAttribute('aria-selected', String(i === index)); tab.tabIndex = i === index ? 0 : -1; });
+      panel.setAttribute('aria-labelledby', tabs[index].id);
+      document.getElementById('step-kicker').textContent = step.kicker;
+      document.getElementById('step-title').textContent = step.title;
+      document.getElementById('step-body').textContent = step.body;
+      document.getElementById('ledger-title').textContent = step.ledger;
+      ['one','two','three'].forEach((key,i) => { document.getElementById('label-' + key).textContent = step.rows[i][0]; document.getElementById('value-' + key).textContent = step.rows[i][1]; });
+      if (focus) tabs[index].focus();
+    }
+    tabs.forEach((tab,index) => {
+      tab.addEventListener('click', () => selectStep(index));
+      tab.addEventListener('keydown', event => {
+        const vertical = tablist.getAttribute('aria-orientation') === 'vertical';
+        const forward = vertical ? 'ArrowDown' : 'ArrowRight';
+        const back = vertical ? 'ArrowUp' : 'ArrowLeft';
+        if (![forward,back,'Home','End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? 3 : (index + (event.key === forward ? 1 : 3)) % 4;
+        selectStep(next, true);
+      });
+    });
+    const mobileTabs = window.matchMedia('(max-width:570px)');
+    function setOrientation() { tablist.setAttribute('aria-orientation', mobileTabs.matches ? 'horizontal' : 'vertical'); }
+    mobileTabs.addEventListener('change', setOrientation);
+    setOrientation();
+  </script>
+</body>
+</html>

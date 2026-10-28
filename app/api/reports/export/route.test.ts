@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockGetServerSession,
-  mockBusinessFindUnique,
+  mockResolveTenantActorContext,
   mockGetCoreReportPayload,
   mockGetAdvancedReportPayload,
   mockGetBusinessEntitlementsBySlug,
@@ -11,7 +11,7 @@ const {
   mockRecordReportTelemetry,
 } = vi.hoisted(() => ({
   mockGetServerSession: vi.fn(),
-  mockBusinessFindUnique: vi.fn(),
+  mockResolveTenantActorContext: vi.fn(),
   mockGetCoreReportPayload: vi.fn(),
   mockGetAdvancedReportPayload: vi.fn(),
   mockGetBusinessEntitlementsBySlug: vi.fn(),
@@ -24,12 +24,8 @@ vi.mock("next-auth", () => ({
   getServerSession: mockGetServerSession,
 }));
 
-vi.mock("@/prisma/prisma", () => ({
-  prisma: {
-    business: {
-      findUnique: mockBusinessFindUnique,
-    },
-  },
+vi.mock("@/lib/auth/staff-access", () => ({
+  resolveTenantActorContext: mockResolveTenantActorContext,
 }));
 
 vi.mock("@/lib/services/reports/queries", () => ({
@@ -58,7 +54,7 @@ import { GET } from "./route";
 describe("reports export route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockBusinessFindUnique.mockResolvedValue({ id: "biz_1" });
+    mockResolveTenantActorContext.mockResolvedValue({ success: true, actorType: "OWNER", userId: "owner_1", businessId: "biz_1", businessSlug: "beautyfeel" });
     mockGetCoreReportPayload.mockResolvedValue({ fake: "payload" });
     mockGetAdvancedReportPayload.mockResolvedValue({ fake: "payload" });
     mockGetBusinessEntitlementsBySlug.mockResolvedValue({
@@ -103,6 +99,28 @@ describe("reports export route", () => {
       new Request("http://localhost/api/reports/export?businessSlug=beautyfeel&tab=overview"),
     );
     expect(response.status).toBe(403);
+    expect(mockResolveTenantActorContext).not.toHaveBeenCalled();
+  });
+
+  it("denies a revoked owner before reading or exporting report data", async () => {
+    mockGetServerSession.mockResolvedValue({ user: { id: "owner_1", role: "OWNER", businessSlug: "beautyfeel" } });
+    mockResolveTenantActorContext.mockResolvedValue({ success: false, error: "Forbidden" });
+
+    const response = await GET(new Request("http://localhost/api/reports/export?businessSlug=beautyfeel&tab=overview"));
+    expect(response.status).toBe(403);
+    expect(mockResolveTenantActorContext).toHaveBeenCalledWith("beautyfeel", "owner_1");
+    expect(mockGetCoreReportPayload).not.toHaveBeenCalled();
+    expect(mockGetAdvancedReportPayload).not.toHaveBeenCalled();
+    expect(mockRecordReportTelemetry).not.toHaveBeenCalled();
+  });
+
+  it("denies a stored employee role despite an owner session", async () => {
+    mockGetServerSession.mockResolvedValue({ user: { id: "owner_1", role: "OWNER", businessSlug: "beautyfeel" } });
+    mockResolveTenantActorContext.mockResolvedValue({ success: true, actorType: "EMPLOYEE", businessId: "biz_1" });
+
+    const response = await GET(new Request("http://localhost/api/reports/export?businessSlug=beautyfeel&tab=overview"));
+    expect(response.status).toBe(403);
+    expect(mockGetCoreReportPayload).not.toHaveBeenCalled();
   });
 
   it("returns csv export for valid owner request", async () => {
@@ -162,6 +180,8 @@ describe("reports export route", () => {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
     expect(response.headers.get("content-disposition")).toContain("beautyfeel-customers");
+    expect(response.headers.get("content-disposition")).toContain(".xlsx\"");
+    expect(Buffer.from(await response.arrayBuffer())).toEqual(Buffer.from("xlsx-binary"));
     expect(mockSerializeReportXlsx).toHaveBeenCalledWith("customers", { fake: "payload" });
     expect(mockSerializeReportCsv).not.toHaveBeenCalled();
     expect(mockRecordReportTelemetry).toHaveBeenCalledWith(

@@ -55,7 +55,7 @@ export async function getEmployeeAttendanceHistoryForTenant(
     ["attendance-history"],
     {
       revalidate: 60 * 60,
-      tags: [`attendance-${employeeId}`],
+      tags: [`attendance-${employeeId}`, `attendance-history-${businessSlug}`],
     },
   );
 

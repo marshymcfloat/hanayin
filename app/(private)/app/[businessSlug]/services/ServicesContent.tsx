@@ -3,10 +3,11 @@ import { ServicesPageClient } from "./ServicesPageClient";
 import { getServicesWorkspaceData } from "@/features/catalog/queries/services";
 
 interface ServicesContentProps {
-  businessSlug: string;
+  params: Promise<{ businessSlug: string }>;
 }
 
-export async function ServicesContent({ businessSlug }: ServicesContentProps) {
+export async function ServicesContent({ params }: ServicesContentProps) {
+  const { businessSlug } = await params;
   const data = await getServicesWorkspaceData(businessSlug);
   if (!data.success) {
     if (data.error === "Unauthorized") {

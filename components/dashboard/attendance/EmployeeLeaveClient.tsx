@@ -1,4 +1,5 @@
 "use client";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 import { LeaveRequest } from "@/prisma/generated/prisma/client";
 import { RequestLeaveDialog } from "./RequestLeaveDialog";
@@ -13,10 +14,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { cancelLeaveRequest } from "@/features/workforce/actions/leave-request";
+import { cancelLeaveRequest, getMyLeaveRequestsAction } from "@/features/workforce/actions/leave-request";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { extractClientErrorMessage } from "@/lib/utils/error-message";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { CalendarPlus, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import {
   Dialog,
@@ -51,11 +53,31 @@ export function EmployeeLeaveClient({
   employeeId,
   businessId,
   businessSlug,
-  requests,
+  requests: initialRequests,
   compact = false,
   showRequestAction = true,
 }: EmployeeLeaveClientProps) {
-  const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [cancellingIds, setCancellingIds] = useState<Set<number>>(() => new Set());
+  const cancellingIdsRef = useRef(new Set<number>());
+  const queryClient = useQueryClient();
+  const queryKey = ["employee-leave-requests", businessSlug, employeeId] as const;
+  const { data: requests = initialRequests } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const result = await getMyLeaveRequestsAction(employeeId);
+      if (!result.success || !("data" in result)) {
+        throw new Error(result.error || "Unable to refresh leave requests.");
+      }
+      return result.data.filter((request) => !cancellingIdsRef.current.has(request.id));
+    },
+    initialData: initialRequests,
+    refetchInterval: cancellingIds.size === 0 ? 30_000 : false,
+  });
+  const refreshRequests = () => {
+    void queryClient.invalidateQueries({ queryKey }).catch(() => {
+      toast.error("Unable to refresh leave requests. Please retry.");
+    });
+  };
 
   const counts = useMemo(() => {
     const pending = requests.filter((r) => r.status === "PENDING").length;
@@ -81,18 +103,42 @@ export function EmployeeLeaveClient({
   };
 
   const handleCancel = async (id: number) => {
+    if (cancellingIdsRef.current.has(id)) return;
+    cancellingIdsRef.current.add(id);
+    setCancellingIds(new Set(cancellingIdsRef.current));
+    let snapshot: LeaveRequest | undefined;
+    let snapshotIndex = -1;
+    const restore = (request: LeaveRequest, index: number) => {
+      queryClient.setQueryData<LeaveRequest[]>(queryKey, (current) => {
+        const next = [...(current ?? [])];
+        if (!next.some((row) => row.id === request.id)) {
+          next.splice(Math.min(Math.max(index, 0), next.length), 0, request);
+        }
+        return next;
+      });
+    };
     try {
-      setCancellingId(id);
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<LeaveRequest[]>(queryKey) ?? initialRequests;
+      snapshotIndex = previous.findIndex((request) => request.id === id);
+      snapshot = previous[snapshotIndex];
+      queryClient.setQueryData<LeaveRequest[]>(queryKey, (current) =>
+        current?.filter((request) => request.id !== id),
+      );
       const result = await cancelLeaveRequest(id);
       if (result.success) {
         toast.success("Leave request cancelled");
       } else {
+        if (snapshot) restore(snapshot, snapshotIndex);
         toast.error(result.error || "Failed to cancel request");
       }
     } catch (err) {
+      if (snapshot) restore(snapshot, snapshotIndex);
       toast.error(extractClientErrorMessage(err, "Failed to cancel request"));
     } finally {
-      setCancellingId(null);
+      cancellingIdsRef.current.delete(id);
+      setCancellingIds(new Set(cancellingIdsRef.current));
+      refreshRequests();
     }
   };
 
@@ -185,7 +231,7 @@ export function EmployeeLeaveClient({
           </DialogTrigger>
         </div>
       )}
-      <DialogContent className="max-w-[95vw] md:max-w-5xl! h-[80vh] flex flex-col p-0 rounded-3xl gap-0 overflow-hidden">
+      <DialogContent className={`${staffTheme.workspace} max-w-[95vw] md:max-w-5xl! h-[80vh] flex flex-col p-0 rounded-3xl gap-0 overflow-hidden`}>
         <DialogHeader className="px-6 pb-2 pt-6 shrink-0">
           <DialogTitle className="text-xl font-bold text-foreground">
             Leave Requests
@@ -202,6 +248,7 @@ export function EmployeeLeaveClient({
               employeeId={employeeId}
               businessId={businessId}
               businessSlug={businessSlug}
+              onSuccess={refreshRequests}
             />
           </div>
 
@@ -308,17 +355,17 @@ export function EmployeeLeaveClient({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-                                  disabled={cancellingId === request.id}
+                                  className="min-h-11 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                                  disabled={cancellingIds.has(request.id)}
                                 >
-                                  {cancellingId === request.id ? (
+                                  {cancellingIds.has(request.id) ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                   ) : (
                                     "Cancel"
                                   )}
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent className="rounded-2xl">
+                              <AlertDialogContent className={`${staffTheme.workspace} rounded-2xl`}>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
                                     Cancel Leave Request
@@ -329,12 +376,12 @@ export function EmployeeLeaveClient({
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel className="rounded-xl">
+                                  <AlertDialogCancel className="min-h-11 rounded-xl">
                                     Keep Request
                                   </AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => handleCancel(request.id)}
-                                    className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    className="min-h-11 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                   >
                                     Yes, Cancel Request
                                   </AlertDialogAction>

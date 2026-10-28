@@ -3,10 +3,11 @@ import { PackagesPageClient } from "./PackagesPageClient";
 import { getPackagesWorkspaceData } from "@/features/catalog/queries/packages";
 
 interface PackagesContentProps {
-  businessSlug: string;
+  params: Promise<{ businessSlug: string }>;
 }
 
-export async function PackagesContent({ businessSlug }: PackagesContentProps) {
+export async function PackagesContent({ params }: PackagesContentProps) {
+  const { businessSlug } = await params;
   const data = await getPackagesWorkspaceData(businessSlug);
   if (!data.success) {
     if (data.error === "Unauthorized") {

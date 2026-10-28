@@ -5,13 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   Booking,
   Customer,
-  BookingStatus,
   AvailedService,
   Service,
-  Employee,
-  User,
   Voucher,
-  Owner,
   BookingPayment,
 } from "@/prisma/generated/prisma/client";
 import { Input } from "@/components/ui/input";
@@ -41,10 +37,8 @@ import {
   Calendar,
   ArrowRight,
 } from "lucide-react";
-import {
-  deleteBookingAction,
-  updateBookingStatusAction,
-} from "@/features/dashboard/actions";
+import { deleteBookingAction } from "@/features/dashboard/actions";
+import { CancelBookingDialog } from "@/components/dashboard/owner/booking-actions/CancelBookingDialog";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,6 +57,7 @@ import {
   deriveBookingViewerContext,
 } from "@/components/bookings/BookingQuickPanel";
 import { useViewer } from "@/lib/auth/viewer-context";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 import { cn } from "@/lib/utils";
 import {
   BOOKING_PAYMENT_STAGE_LABELS,
@@ -84,8 +79,8 @@ type BookingWithDetails = Booking & {
   payments?: BookingPayment[];
   availed_services: (AvailedService & {
     service: Service;
-    served_by: (Employee & { user: User }) | null;
-    served_by_owner: (Owner & { user: User }) | null;
+    served_by: { id: number; user: { name: string } } | null;
+    served_by_owner: { id: number; user: { name: string } } | null;
   })[];
 };
 
@@ -124,6 +119,7 @@ export function BookingList({
 }) {
   const router = useRouter();
   const viewer = useViewer();
+  const staffDialogTheme = viewer.actorType === "EMPLOYEE" ? staffTheme.workspace : "";
   // Derive the booking-panel's permission flags from the shared viewer
   // context. Owners get every flag automatically; staff/manager/cashier
   // get the matrix-defined subset. Computed once per viewer object —
@@ -141,6 +137,8 @@ export function BookingList({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [cancelBooking, setCancelBooking] = useState<BookingWithDetails | null>(null);
+  const cancelReturnFocus = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const timer = window.setInterval(() => setCurrentTime(Date.now()), 30_000);
@@ -211,16 +209,6 @@ export function BookingList({
     refreshTimer.current = setTimeout(() => setIsRefreshing(false), 1200);
   };
 
-  const handleStatusUpdate = async (id: number, status: BookingStatus) => {
-    const res = await updateBookingStatusAction(id, status);
-    if (res.success) {
-      toast.success(`Booking ${status.toLowerCase()} successfully`);
-      router.refresh();
-    } else {
-      toast.error(res.error);
-    }
-  };
-
   const handleDelete = async (id: number) => {
     const res = await deleteBookingAction(id);
     if (res.success) {
@@ -244,12 +232,14 @@ export function BookingList({
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent/30 rounded-lg cursor-pointer"
           onClick={(e) => e.stopPropagation()}
+          onFocus={(e) => { cancelReturnFocus.current = e.currentTarget; }}
           aria-label={`Open actions for booking ${booking.id}`}
         >
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[180px] rounded-xl">
+      <DropdownMenuContent align="end" className={cn("w-[180px] rounded-xl", staffDialogTheme)}
+        onCloseAutoFocus={(event) => { if (cancelBooking) event.preventDefault(); }}>
         <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider">
           Actions
         </DropdownMenuLabel>
@@ -271,10 +261,10 @@ export function BookingList({
               Check GCash
             </DropdownMenuItem>
           )}
-        {booking.status === "ACCEPTED" && (
+        {viewerContext.canCancel && booking.status === "ACCEPTED" && !booking.cancelled_at && (
           <DropdownMenuItem
             className="text-destructive focus:text-destructive focus:bg-destructive/10 rounded-lg cursor-pointer"
-            onClick={() => handleStatusUpdate(booking.id, "CANCELLED")}
+            onSelect={() => setCancelBooking(booking)}
           >
             Cancel Booking
           </DropdownMenuItem>
@@ -291,7 +281,7 @@ export function BookingList({
               </AlertDialogTrigger>
               <AlertDialogContent
                 onClick={(e) => e.stopPropagation()}
-                className="rounded-2xl"
+                className={cn("rounded-2xl", staffDialogTheme)}
               >
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Booking?</AlertDialogTitle>
@@ -324,6 +314,19 @@ export function BookingList({
 
   return (
     <>
+      {viewerContext.canCancel && cancelBooking && (
+        <CancelBookingDialog
+          bookingId={cancelBooking.id}
+          customerLabel={getBookingCustomerName(cancelBooking)}
+          open
+          onOpenChange={(open) => { if (!open) setCancelBooking(null); }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            setCancelBooking(null);
+            cancelReturnFocus.current?.focus();
+          }}
+        />
+      )}
       <div className={cn("flex flex-col bg-background", className)}>
         <div className="border-b border-border bg-card">
           <div className="px-4 sm:px-8 py-5 sm:py-6 max-w-7xl mx-auto w-full">
@@ -362,7 +365,7 @@ export function BookingList({
                 <SelectTrigger className="w-[140px] h-9 rounded-xl border-border bg-background">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="rounded-xl">
+                <SelectContent position="popper" className={cn("rounded-xl", staffDialogTheme)}>
                   <SelectItem value="ALL">All Status</SelectItem>
                   <SelectItem value="AWAITING_PAYMENT">
                     Awaiting payment

@@ -96,6 +96,11 @@ async function runUpstashRateLimit(
   const count = Number(payload?.[0]?.result);
   const ttl = Number(payload?.[2]?.result);
 
+  if (!Array.isArray(payload) || payload.some((entry) => entry?.error) ||
+      !Number.isFinite(count) || count < 1 || !Number.isFinite(ttl) || ttl <= 0) {
+    throw new Error("Invalid rate-limit store response");
+  }
+
   const safeCount = Number.isFinite(count) && count > 0 ? count : 1;
   const safeTtl =
     Number.isFinite(ttl) && ttl > 0 ? ttl : config.windowMs;

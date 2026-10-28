@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 import { SECURITY_HEADERS } from "./lib/security/headers";
 
@@ -8,10 +8,8 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "9mb",
     },
   },
-  // Required by `"use cache"` directives in lib/data/cached.ts. NextAuth's
-  // catch-all route handler explicitly opts out via `dynamic = "force-dynamic"`
-  // so it doesn't get prerender-cached. Other routes that need uncached
-  // behavior should add the same opt-out.
+  // Required by `"use cache"` directives in lib/data/cached.ts. Request-time
+  // routes must access a runtime API or await connection() before side effects.
   cacheComponents: true,
   // Native modules: Turbopack can't statically resolve their platform-specific
   // binaries (e.g. @resvg/resvg-js-win32-x64-msvc). Listing them here keeps
@@ -92,6 +90,6 @@ const sentryOptions = {
   },
 };
 
-export default process.env.NODE_ENV === "development"
+export default process.env.NODE_ENV === "development" || process.env.TEST_DATABASE_DISPOSABLE === "1"
   ? nextConfig
   : withSentryConfig(nextConfig, sentryOptions);

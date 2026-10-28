@@ -1,4 +1,4 @@
-import sharp from "sharp";
+import sharp, { type Metadata } from "sharp";
 import jsQR from "jsqr";
 
 const MAX_QR_UPLOAD_BYTES = 8 * 1024 * 1024;
@@ -24,7 +24,7 @@ export async function extractQrCodePng(file: File): Promise<Buffer> {
   }
 
   const source = Buffer.from(await file.arrayBuffer());
-  let metadata: sharp.Metadata;
+  let metadata: Metadata;
   try {
     metadata = await sharp(source, {
       failOn: "error",

@@ -43,6 +43,41 @@ export type SaleEvent = Prisma.SaleEventModel
  */
 export type SocialConnection = Prisma.SocialConnectionModel
 /**
+ * Model MessengerChannel
+ * 
+ */
+export type MessengerChannel = Prisma.MessengerChannelModel
+/**
+ * Model CustomerMessagingSettings
+ * 
+ */
+export type CustomerMessagingSettings = Prisma.CustomerMessagingSettingsModel
+/**
+ * Model CustomerConversation
+ * 
+ */
+export type CustomerConversation = Prisma.CustomerConversationModel
+/**
+ * Model CustomerMessage
+ * 
+ */
+export type CustomerMessage = Prisma.CustomerMessageModel
+/**
+ * Model CustomerMessagingReceipt
+ * 
+ */
+export type CustomerMessagingReceipt = Prisma.CustomerMessagingReceiptModel
+/**
+ * Model CustomerMessagingSuppression
+ * 
+ */
+export type CustomerMessagingSuppression = Prisma.CustomerMessagingSuppressionModel
+/**
+ * Model CustomerMessagingJob
+ * 
+ */
+export type CustomerMessagingJob = Prisma.CustomerMessagingJobModel
+/**
  * Model SocialPost
  * 
  */
@@ -219,6 +254,16 @@ export type GiftCardPackage = Prisma.GiftCardPackageModel
  */
 export type AvailedService = Prisma.AvailedServiceModel
 /**
+ * Model BookingOfferApplication
+ * 
+ */
+export type BookingOfferApplication = Prisma.BookingOfferApplicationModel
+/**
+ * Model BookingChangeCommand
+ * 
+ */
+export type BookingChangeCommand = Prisma.BookingChangeCommandModel
+/**
  * Model ServiceFlow
  * 
  */
@@ -263,6 +308,111 @@ export type SeasonalCalendar = Prisma.SeasonalCalendarModel
  * 
  */
 export type OutboxMessage = Prisma.OutboxMessageModel
+/**
+ * Model PayrollSettings
+ * 
+ */
+export type PayrollSettings = Prisma.PayrollSettingsModel
+/**
+ * Model PayrollRulePackage
+ * 
+ */
+export type PayrollRulePackage = Prisma.PayrollRulePackageModel
+/**
+ * Model CompensationAgreement
+ * 
+ */
+export type CompensationAgreement = Prisma.CompensationAgreementModel
+/**
+ * Model EmployeePayrollProfile
+ * 
+ */
+export type EmployeePayrollProfile = Prisma.EmployeePayrollProfileModel
+/**
+ * Model WorkforceSession
+ * 
+ */
+export type WorkforceSession = Prisma.WorkforceSessionModel
+/**
+ * Model AttendanceRevision
+ * 
+ */
+export type AttendanceRevision = Prisma.AttendanceRevisionModel
+/**
+ * Model AttendanceCorrectionRequest
+ * 
+ */
+export type AttendanceCorrectionRequest = Prisma.AttendanceCorrectionRequestModel
+/**
+ * Model LeaveEntitlement
+ * 
+ */
+export type LeaveEntitlement = Prisma.LeaveEntitlementModel
+/**
+ * Model PayrollServiceChargePool
+ * 
+ */
+export type PayrollServiceChargePool = Prisma.PayrollServiceChargePoolModel
+/**
+ * Model LeaveAllocation
+ * 
+ */
+export type LeaveAllocation = Prisma.LeaveAllocationModel
+/**
+ * Model PayrollEarning
+ * 
+ */
+export type PayrollEarning = Prisma.PayrollEarningModel
+/**
+ * Model PayrollRun
+ * 
+ */
+export type PayrollRun = Prisma.PayrollRunModel
+/**
+ * Model PayrollStatement
+ * 
+ */
+export type PayrollStatement = Prisma.PayrollStatementModel
+/**
+ * Model PayrollStatementLine
+ * 
+ */
+export type PayrollStatementLine = Prisma.PayrollStatementLineModel
+/**
+ * Model PayrollAssessment
+ * 
+ */
+export type PayrollAssessment = Prisma.PayrollAssessmentModel
+/**
+ * Model PayrollPayment
+ * 
+ */
+export type PayrollPayment = Prisma.PayrollPaymentModel
+/**
+ * Model PayrollPaymentAllocation
+ * 
+ */
+export type PayrollPaymentAllocation = Prisma.PayrollPaymentAllocationModel
+/**
+ * Model PayrollPaymentReconciliation
+ * 
+ */
+export type PayrollPaymentReconciliation = Prisma.PayrollPaymentReconciliationModel
+/**
+ * Model PayrollAdjustment
+ * 
+ */
+export type PayrollAdjustment = Prisma.PayrollAdjustmentModel
+/**
+ * Model PayrollCommand
+ * 
+ */
+export type PayrollCommand = Prisma.PayrollCommandModel
+/**
+ * Model PayrollNotification
+ * 
+ */
+export type PayrollNotification = Prisma.PayrollNotificationModel
 /**
  * Model BookingNote
  * 

@@ -98,6 +98,7 @@ export function EditOwnerPermissionsDialog({
   currentPermissions,
   open,
   onOpenChange,
+  onSuccess,
 }: {
   ownerId: number;
   ownerName: string;
@@ -105,6 +106,7 @@ export function EditOwnerPermissionsDialog({
   currentPermissions: string[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [selected, setSelected] = React.useState<Set<string>>(
@@ -149,6 +151,7 @@ export function EditOwnerPermissionsDialog({
       if (result.success) {
         toast.success("Permissions updated");
         onOpenChange(false);
+        onSuccess?.();
         router.refresh();
       } else {
         toast.error(result.error || "Failed to update");

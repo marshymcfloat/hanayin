@@ -1,7 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
 
 export default function Loading() {
+  return <OwnerRouteLoading section="business hours" staffFallback={<StaffLoading />} />;
+}
+
+function StaffLoading() {
   return (
     <div className="flex flex-col p-4 md:p-8 bg-background min-h-screen">
       <section className="flex-1 flex flex-col max-w-4xl mx-auto w-full space-y-8">

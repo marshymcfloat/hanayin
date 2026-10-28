@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { recordBookingPaymentAction } from "@/features/payments/actions/booking-payments";
 import { formatCurrency } from "@/lib/utils";
 import { PaymentMethod } from "@/prisma/generated/prisma/enums";
+import { useBookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 
 const METHODS = [
   [PaymentMethod.CASH, "Cash"],
@@ -31,6 +32,7 @@ export function RecordPaymentDialog(props: {
   onRecorded?: () => void | Promise<void>;
 }) {
   const router = useRouter();
+  const staffDialogTheme = useBookingDialogTheme();
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -78,7 +80,7 @@ export function RecordPaymentDialog(props: {
     setOpen(false);
     reset();
     await props.onRecorded?.();
-    router.refresh();
+    if (!props.onRecorded) router.refresh();
   });
 
   return (
@@ -90,7 +92,7 @@ export function RecordPaymentDialog(props: {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-3xl sm:max-w-md">
+      <DialogContent className={`${staffDialogTheme} rounded-3xl sm:max-w-md`}>
         <DialogHeader>
           <DialogTitle>{confirming ? "Confirm payment" : "Record payment"}</DialogTitle>
           <DialogDescription>
@@ -113,7 +115,7 @@ export function RecordPaymentDialog(props: {
               <div><span className="block text-xs text-muted-foreground">Remaining</span><strong>{formatCurrency(remaining)}</strong></div>
             </div>
             <div className="space-y-2"><Label htmlFor={`payment-amount-${props.bookingId}`}>Amount received</Label><Input id={`payment-amount-${props.bookingId}`} type="number" min="0.01" max={remaining} step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} /></div>
-            <div className="space-y-2"><Label htmlFor={`payment-method-${props.bookingId}`}>Payment method</Label><Select value={method} onValueChange={(value) => setMethod(value as (typeof METHODS)[number][0])}><SelectTrigger id={`payment-method-${props.bookingId}`} className="min-h-11"><SelectValue /></SelectTrigger><SelectContent>{METHODS.map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-2"><Label htmlFor={`payment-method-${props.bookingId}`}>Payment method</Label><Select value={method} onValueChange={(value) => setMethod(value as (typeof METHODS)[number][0])}><SelectTrigger id={`payment-method-${props.bookingId}`} className="min-h-11"><SelectValue /></SelectTrigger><SelectContent className={staffDialogTheme}>{METHODS.map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor={`payment-reference-${props.bookingId}`}>Reference {method === PaymentMethod.GCASH ? "(required)" : "(optional)"}</Label><Input id={`payment-reference-${props.bookingId}`} maxLength={100} value={reference} onChange={(event) => setReference(event.target.value)} /></div>
             <div className="space-y-2"><Label htmlFor={`payment-note-${props.bookingId}`}>Note (optional)</Label><Textarea id={`payment-note-${props.bookingId}`} maxLength={500} value={note} onChange={(event) => setNote(event.target.value)} /></div>
             {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}

@@ -87,7 +87,8 @@ export const OwnerPermission = {
   STAFF_MANAGE: 'STAFF_MANAGE',
   SETTINGS_MANAGE: 'SETTINGS_MANAGE',
   CATALOG_MANAGE: 'CATALOG_MANAGE',
-  PAYROLL_MANAGE: 'PAYROLL_MANAGE'
+  PAYROLL_MANAGE: 'PAYROLL_MANAGE',
+  WORKFORCE_MANAGE: 'WORKFORCE_MANAGE'
 } as const
 
 export type OwnerPermission = (typeof OwnerPermission)[keyof typeof OwnerPermission]
@@ -350,6 +351,47 @@ export const LeaveType = {
 export type LeaveType = (typeof LeaveType)[keyof typeof LeaveType]
 
 
+export const CustomerMessagingMode = {
+  OFF: 'OFF',
+  SUGGEST: 'SUGGEST',
+  AUTO: 'AUTO'
+} as const
+
+export type CustomerMessagingMode = (typeof CustomerMessagingMode)[keyof typeof CustomerMessagingMode]
+
+
+export const CustomerMessagingLanguage = {
+  EN: 'EN',
+  FIL: 'FIL',
+  TAGLISH: 'TAGLISH',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type CustomerMessagingLanguage = (typeof CustomerMessagingLanguage)[keyof typeof CustomerMessagingLanguage]
+
+
+export const CustomerMessageDirection = {
+  INBOUND: 'INBOUND',
+  OUTBOUND: 'OUTBOUND'
+} as const
+
+export type CustomerMessageDirection = (typeof CustomerMessageDirection)[keyof typeof CustomerMessageDirection]
+
+
+export const CustomerMessagingJobStatus = {
+  PENDING: 'PENDING',
+  CLAIMED: 'CLAIMED',
+  SUGGESTED: 'SUGGESTED',
+  SENDING: 'SENDING',
+  CONFIRMED: 'CONFIRMED',
+  FAILED: 'FAILED',
+  UNKNOWN: 'UNKNOWN',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type CustomerMessagingJobStatus = (typeof CustomerMessagingJobStatus)[keyof typeof CustomerMessagingJobStatus]
+
+
 export const ReferenceCandidateStatus = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
@@ -464,6 +506,51 @@ export const CommissionCalculationBasis = {
 } as const
 
 export type CommissionCalculationBasis = (typeof CommissionCalculationBasis)[keyof typeof CommissionCalculationBasis]
+
+
+export const PayrollMode = {
+  LEGACY: 'LEGACY',
+  SHADOW: 'SHADOW',
+  ACTIVE: 'ACTIVE'
+} as const
+
+export type PayrollMode = (typeof PayrollMode)[keyof typeof PayrollMode]
+
+
+export const PayrollCalculationPolicy = {
+  SIMPLE: 'SIMPLE',
+  GOVERNMENT: 'GOVERNMENT'
+} as const
+
+export type PayrollCalculationPolicy = (typeof PayrollCalculationPolicy)[keyof typeof PayrollCalculationPolicy]
+
+
+export const PayrollPayBasis = {
+  DAILY: 'DAILY',
+  MONTHLY: 'MONTHLY',
+  HOURLY: 'HOURLY'
+} as const
+
+export type PayrollPayBasis = (typeof PayrollPayBasis)[keyof typeof PayrollPayBasis]
+
+
+export const PayrollStatementStatus = {
+  DRAFT: 'DRAFT',
+  APPROVED: 'APPROVED',
+  PUBLISHED: 'PUBLISHED',
+  VOID: 'VOID'
+} as const
+
+export type PayrollStatementStatus = (typeof PayrollStatementStatus)[keyof typeof PayrollStatementStatus]
+
+
+export const PayrollPaymentState = {
+  UNPAID: 'UNPAID',
+  PARTIAL: 'PARTIAL',
+  PAID: 'PAID'
+} as const
+
+export type PayrollPaymentState = (typeof PayrollPaymentState)[keyof typeof PayrollPaymentState]
 
 
 export const BookingNoteVisibility = {

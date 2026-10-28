@@ -54,5 +54,7 @@ must not be edited or committed as source.
 - QA owns test-harness conventions; feature owners remain responsible for tests
   covering their behavior.
 - Repository maintainers own cross-cutting documentation and structural policy.
+- Root `FRONTEND.md` and `BACKEND.md` are normative implementation guides;
+  `docs/harness-engineering.md` defines the cross-cutting work and evidence loop.
 - When a directory changes purpose, update this inventory, `ARCHITECTURE.md`,
   and relevant `AGENTS.md` instructions in the same change.

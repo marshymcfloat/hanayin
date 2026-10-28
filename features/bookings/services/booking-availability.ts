@@ -6,6 +6,7 @@ import { prisma } from "@/prisma/prisma";
 import type { Prisma, PrismaClient } from "@/prisma/generated/prisma/client";
 import { getBookingPolicyByBusinessSlug } from "@/lib/services/booking-policy";
 import type { BookingPolicy } from "@/lib/types/booking-policy";
+import { searchAlternativeSlots } from "@/features/bookings/services/alternative-slot-search";
 
 const MANILA_TIME_ZONE = "Asia/Manila";
 
@@ -258,6 +259,7 @@ async function getAbsentEmployeeIdsForDate(
       where: {
         employee: { business_id: businessId },
         status: "APPROVED",
+        cancelled_at: null,
         start_date: { lte: dateOnly },
         end_date: { gte: dateOnly },
       },
@@ -422,14 +424,17 @@ async function getBookedServiceSegmentsForDay({
   businessId,
   dayStart,
   dayEnd,
+  excludeBookingId,
 }: {
   db: AvailabilityDbClient;
   businessId: string;
   dayStart: Date;
   dayEnd: Date;
+  excludeBookingId?: number;
 }) {
   const existingBookings = await db.booking.findMany({
     where: {
+      ...(excludeBookingId === undefined ? {} : { id: { not: excludeBookingId } }),
       business_id: businessId,
       scheduled_at: {
         gte: dayStart,
@@ -763,6 +768,7 @@ export async function computeSlots({
   db = prisma,
   preloadedBusiness,
   preloadedPolicy,
+  excludeBookingId,
 }: {
   businessSlug: string;
   date: Date;
@@ -773,6 +779,7 @@ export async function computeSlots({
   db?: AvailabilityDbClient;
   preloadedBusiness?: BusinessContext;
   preloadedPolicy?: BookingPolicy;
+  excludeBookingId?: number;
 }): Promise<TimeSlot[]> {
   if (!services || services.length === 0) return [];
 
@@ -865,6 +872,7 @@ export async function computeSlots({
     businessId: business.id,
     dayStart,
     dayEnd,
+    excludeBookingId,
   });
 
   const qualifiedProvidersByCategory = new Map<string, number[]>();
@@ -1043,33 +1051,22 @@ export async function listAlternativeSlots({
   ]);
   const now = getCurrentDateTimePH();
   const startDiff = Math.max(0, getHorizonDayDiff(scheduledAt, now));
-  const collected: TimeSlot[] = [];
-
-  for (let dayOffset = startDiff; dayOffset < policy.bookingHorizonDays; dayOffset++) {
-    const targetDay = new Date(
-      getPHDayBounds(now).dayStart.getTime() + dayOffset * 24 * 60 * 60 * 1000,
-    );
-    const daySlots = await computeSlots({
+  const todayStart = getPHDayBounds(now).dayStart.getTime();
+  return searchAlternativeSlots({
+    scheduledAt,
+    startDiff,
+    bookingHorizonDays: policy.bookingHorizonDays,
+    limit,
+    computeDay: dayOffset => computeSlots({
       businessSlug,
-      date: targetDay,
+      date: new Date(todayStart + dayOffset * 86400000),
       services,
       db,
       now,
       preloadedBusiness: business,
       preloadedPolicy: policy,
-    });
-
-    const filtered = dayOffset === startDiff
-      ? daySlots.filter((slot) => slot.startTime.getTime() > scheduledAt.getTime())
-      : daySlots;
-
-    collected.push(...filtered);
-    if (collected.length >= limit) {
-      return collected.slice(0, limit);
-    }
-  }
-
-  return collected.slice(0, limit);
+    }),
+  });
 }
 
 export async function validateBookingOrThrow({
@@ -1084,6 +1081,7 @@ export async function validateBookingOrThrow({
   allowWalkInCapacityBypass = false,
   now = getCurrentDateTimePH(),
   db = prisma,
+  excludeBookingId,
 }: {
   businessSlug: string;
   scheduledAt: Date;
@@ -1096,6 +1094,7 @@ export async function validateBookingOrThrow({
   allowWalkInCapacityBypass?: boolean;
   now?: Date;
   db?: AvailabilityDbClient;
+  excludeBookingId?: number;
 }) {
   const policy = await getBookingPolicyByBusinessSlug(db, businessSlug);
   if (!isWalkIn) {
@@ -1127,6 +1126,7 @@ export async function validateBookingOrThrow({
       services,
       slotIntervalMinutes: policy.slotIntervalMinutes,
       ignoreMinLead: isWalkIn,
+      excludeBookingId,
       now,
       db,
     });

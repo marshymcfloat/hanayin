@@ -10,6 +10,9 @@ const serviceSchema = z.object({
   duration: z.number().nullable().optional(),
   claimedByCurrentEmployee: z.boolean().optional(),
   packageId: z.number().optional(),
+  packageInstanceId: z.string().regex(/^[a-zA-Z0-9_-]{1,100}$/).optional(),
+  packageChoiceId: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/).optional(),
+  selectionKey: z.string().max(160).optional(),
   discount: z.number().optional(),
   discountReason: z.string().nullable().optional(),
   slotsRemaining: z.number().nullable().optional(),
@@ -95,15 +98,20 @@ export const createBookingSchema = z
     },
   );
 
-const bookingCreationServiceSchema = z.object({
+export const bookingCreationServiceSchema = z.object({
   id: z.number().int().positive(),
   quantity: z.number().int().min(1),
   claimedByCurrentEmployee: z.boolean().optional(),
   packageId: z.number().int().positive().optional(),
+  packageInstanceId: z.string().regex(/^[a-zA-Z0-9_-]{1,100}$/).optional(),
+  packageChoiceId: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/).optional(),
+  selectionKey: z.string().max(160).optional(),
 });
 
 export const createBookingActionSchema = z
   .object({
+    expectedQuoteFingerprint: z.string().regex(/^[a-f0-9]{64}$/).optional(),
+    requestKey: z.string().uuid().optional(),
     customerId: z.string().trim().min(1).optional(),
     customerName: z.string().trim().max(120),
     businessSlug: z.string().trim().min(1).max(100),
@@ -129,6 +137,7 @@ export const createBookingActionSchema = z
     isWalkIn: z.boolean().optional(),
     staffSelectionMode: staffSelectionModeEnum.optional(),
     otpVerificationId: z.number().int().positive().optional(),
+    otpVerificationToken: z.string().trim().min(1).max(1024).optional(),
     isAnonymousWalkIn: z.boolean().optional(),
     forceCreateCustomer: z.boolean().optional(),
   })

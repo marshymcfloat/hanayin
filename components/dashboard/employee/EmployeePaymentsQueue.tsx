@@ -1,4 +1,5 @@
 "use client";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -161,7 +162,7 @@ export default function EmployeePaymentsQueue({
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 shrink-0 rounded-full border-black/[0.08] px-3 text-xs font-medium hover:bg-primary/[0.04] hover:text-primary hover:border-primary/30 cursor-pointer"
+            className="min-h-11 shrink-0 rounded-full border-[#E7E9E4] px-3 text-xs font-medium hover:border-[#72CF35] hover:bg-[#EFF9E8] cursor-pointer"
             onClick={() => setSelectedBooking(booking)}
           >
             <ReceiptText className="mr-1.5 size-3.5" />
@@ -364,7 +365,7 @@ export default function EmployeePaymentsQueue({
         open={Boolean(selectedBooking)}
         onOpenChange={(open) => !open && setSelectedBooking(null)}
       >
-        <DialogContent className="sm:max-w-lg rounded-t-3xl rounded-b-none sm:rounded-3xl">
+        <DialogContent className={`${staffTheme.workspace} sm:max-w-lg rounded-t-3xl rounded-b-none sm:rounded-3xl`}>
           <DialogHeader className="space-y-2">
             <DialogTitle className="text-lg font-semibold tracking-[-0.01em]">
               {selectedBooking

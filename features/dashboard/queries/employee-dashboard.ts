@@ -1,4 +1,5 @@
 import { prisma } from "@/prisma/prisma";
+import { currentPayEstimate } from "@/features/payroll/public";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/features/auth/auth-options";
 import { getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
@@ -358,8 +359,8 @@ export async function getEmployeeDashboardData({
             availed_services: {
               include: {
                 service: true,
-                served_by: { include: { user: true } },
-                served_by_owner: { include: { user: true } },
+                served_by: { select: { id: true, user: { select: { name: true } } } },
+                served_by_owner: { select: { id: true, user: { select: { name: true } } } },
               },
             },
           },
@@ -426,7 +427,8 @@ export async function getEmployeeDashboardData({
     return acc + (base * (employee.commission_percentage || 0)) / 100;
   }, 0);
 
-  const totalEstimatedSalary = attendanceSalary + totalCommissions;
+  const ledgerEstimate = await currentPayEstimate({ businessSlug, userId: session.user.id });
+  const totalEstimatedSalary = ledgerEstimate ? Number(ledgerEstimate.gross) : attendanceSalary + totalCommissions;
 
   return { business, employee, employeeProfile, activeServices, completedServices, pendingServices, managerQueueServices, managerQueueEmployees, totalEstimatedSalary, capabilities, todayAttendance, todayBookings, managerBookings, servedHistory, services, packages, categories, saleEvents };
 }

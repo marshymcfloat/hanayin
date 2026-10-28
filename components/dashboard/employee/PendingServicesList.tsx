@@ -1,4 +1,5 @@
 "use client";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 import { formatPH } from "@/lib/date-utils";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -242,7 +243,7 @@ export default function PendingServicesList({
         open={!!selectedService}
         onOpenChange={(open) => !open && setSelectedService(null)}
       >
-        <DialogContent className="gap-0 overflow-hidden rounded-2xl border-primary/15 p-0 shadow-2xl sm:max-w-sm">
+        <DialogContent className={`${staffTheme.workspace} gap-0 overflow-hidden rounded-2xl border-primary/15 p-0 shadow-2xl sm:max-w-sm`}>
           <div className="h-1 bg-primary" aria-hidden="true" />
           <DialogHeader className="items-center gap-1.5 px-10 pb-5 pt-5 text-center sm:text-center">
             <DialogTitle className="text-lg">Claim Service</DialogTitle>
@@ -310,6 +311,7 @@ export default function PendingServicesList({
           <DialogFooter className="border-t bg-muted/20 px-5 py-4">
             <Button
               variant="outline"
+              className="min-h-11"
               onClick={() => setSelectedService(null)}
               disabled={!!selectedService && pendingActionIds.has(selectedService.id)}
             >
@@ -317,6 +319,7 @@ export default function PendingServicesList({
             </Button>
             {canClaimServices ? (
               <Button
+                className="min-h-11"
                 onClick={handleClaim}
                 disabled={!!selectedService && pendingActionIds.has(selectedService.id)}
               >

@@ -3,9 +3,11 @@
 Last reviewed: 2026-09-16
 
 This backlog turns the remaining harness-engineering work into bounded slices.
-Complete one slice at a time, preserve observable behavior, and update this
-document and `docs/harness-engineering-todo.md` when priorities or status
-change.
+Complete one coherent slice at a time and preserve observable behavior unless a
+reviewed correctness or security fix is explicitly in scope. Track active status,
+priority, ownership, and dependencies in Linear (see `docs/work-tracking.md`).
+This document records historical evidence and durable completion rules, not
+changing execution status.
 
 ## Priority Model
 
@@ -26,7 +28,7 @@ change.
 | 3 | Done 2026-09-13 | P0 | Extract gift-card issuance, redemption, balance, and audit workflows from `features/gift-cards/actions/gift-cards.ts`. | Financial balance integrity, replay, and tenant leakage. | L | Gift cards | Moved persistence and delivery orchestration to `features/gift-cards/services/gift-cards.ts`; added characterization tests for cross-tenant listing/update denial, tenant-scoped catalog selection, and compare-and-set duplicate-claim prevention. Database integration remains environment-dependent. |
 | 4 | Done 2026-09-13 | P1 | Split `features/social/actions/social-post-requests.ts` and `features/social/actions/social.ts` into request lifecycle, publishing, provider adapters, and retry-safe delivery services. | External provider failure, duplicate publication, entitlement enforcement, and unsafe retries. | XL; split into request and publishing slices | Social | Reduced both action modules to stable wrappers; moved request lifecycle and publishing orchestration under `features/social/services/`; retained dedicated delivery adapters and 40 focused tests covering permissions, rate limits, state transitions, draft failures, reference-image failures, and publishing eligibility. |
 | 5 | Done 2026-09-16 | P1 | Decompose `features/platform/actions/platform-admin.ts` by admin workflow and move Prisma access behind platform queries/repositories. | Broad privileged access, cross-tenant operations, and oversized change surface. | XL; split by workflow | Platform | Removed the monolithic service and split all 23 workflows across business, subscription, invoice, referral, onboarding, impersonation, and outbox services with a shared audit logger. Authorization plus 42 focused platform-service tests cover state transitions, stale requests, compensation, payments, provider delivery, deterministic owner selection, audit logging, and invalidation. |
-| 6 | Done 2026-09-16 | P1 | Extract remaining employee-dashboard commands and decisions from `features/dashboard/actions/employee.ts`; keep read models in `features/dashboard/queries/`. | Role enforcement, queue state, payment handling, and mixed read/write concerns. | L | Dashboard | Reduced the action module to validation/auth/invalidation adapters; moved four queue commands to `features/dashboard/services/employee-queue.ts` and three read models to `features/dashboard/queries/employee-actions.ts`; 13 focused tests cover decisions and transactions. |
+| 6 | Implemented 2026-09-16 | P1 | Extract employee-dashboard queue commands and read models from `features/dashboard/actions/employee.ts`; keep read models in `features/dashboard/queries/`. | Role enforcement, queue state, payment handling, and mixed read/write concerns. | L | Dashboard | Four queue commands live in `features/dashboard/services/employee-queue.ts` and three read models in `features/dashboard/queries/employee-actions.ts`. The residual membership lookup now lives in `queries/employee-membership.ts`, constrained by verified employee, business, and user IDs with an ID/specialties-only selection. Adapters retain authentication, permissions, safe errors, and cache invalidation; no direct runtime Prisma import remains. |
 | 7 | Done 2026-09-16 | P1 | Move the four legacy `app/actions/*.ts` modules identified by the Prisma UI inventory into their owning features and thin the adapters. | Inconsistent boundary validation and feature ownership. | M | Workforce, businesses, leave, platform onboarding | Migrated attendance and leave workflows under `features/workforce/`, business location under `features/businesses/`, and public applications under `features/platform/onboarding/`; removed all four legacy modules and added 33 focused tests covering validation, authentication, authorization, tenant scope, transitions, rate limits, and concurrency. |
 | 8 | Done 2026-09-16 | P1 | Move `components/audit/audit-actions.ts` into the platform/audit feature and separate its UI, action, and persistence concerns. | Privileged audit access from a component-adjacent module. | S | Platform/audit | Split action, repository, and DTO types under `features/platform/audit/`; 11 focused action/repository/UI tests cover access denial, safe selection, filtering, limit clamping, and cursor pagination. |
 | 9 | Done 2026-09-16 | P2 | Replace direct Prisma access in `app/sitemap.ts` with a public-business query DTO. | Architectural regression and accidental exposure of unpublished tenants. | S | Businesses/SEO | Added `features/businesses/queries/public-sitemap.ts`; four focused tests cover eligible subscription states, website entitlement, empty results, ordering, and service routes. |
@@ -48,7 +50,9 @@ For each backlog item:
 5. Make tenant scope and transaction boundaries visible in the extracted code.
 6. Run the focused tests, strict lint, and typecheck. Run database integration,
    E2E, or production build checks when required by `docs/testing.md`.
-7. Update the item status and add a pull request or commit link when available.
+7. Update the Linear issue with verification evidence and a pull request or
+   commit link when available. Update repository documents only when durable
+   guidance or the implemented architecture changes.
 
 ## Definition of Done for Thin Actions
 

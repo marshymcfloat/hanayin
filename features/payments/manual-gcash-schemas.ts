@@ -13,7 +13,7 @@ const optionalText = (max: number) =>
       return cleaned || null;
     });
 
-export const gcashBusinessSlugSchema = z.string();
+export const gcashBusinessSlugSchema = z.string().trim().min(1).max(120);
 
 export const submitGcashPaymentSchema = z.object({
   bookingId: z.number().int(),

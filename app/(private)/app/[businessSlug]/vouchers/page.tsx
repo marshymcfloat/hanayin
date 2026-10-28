@@ -1,19 +1,19 @@
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
 import { Suspense } from "react";
-import { VouchersPageSkeleton } from "./VouchersPageSkeleton";
-import { VouchersContent } from "./VouchersContent";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/auth/auth-options";
+import type { ComponentProps } from "react";
+import LegacyPage from "./LegacyPage";
+import PreviewPage from "@/app/(private-preview)/owner-dashboard-preview/[businessSlug]/vouchers/page";
 
-interface PageProps {
-  params: Promise<{
-    businessSlug: string;
-  }>;
+type Props = ComponentProps<typeof LegacyPage>;
+
+export default function Page(props: Props) {
+  return <Suspense fallback={<OwnerRouteLoading section="vouchers" />}><PageContent {...props} /></Suspense>;
 }
 
-export default async function VouchersPage({ params }: PageProps) {
-  const { businessSlug } = await params;
-
-  return (
-    <Suspense fallback={<VouchersPageSkeleton />}>
-      <VouchersContent businessSlug={businessSlug} />
-    </Suspense>
-  );
+async function PageContent(props: Props) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "OWNER") return <PreviewPage />;
+  return <LegacyPage {...props} />;
 }

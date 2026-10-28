@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { inflateRawSync } from "node:zlib";
 import { read, utils } from "xlsx";
 
 import { serializeReportXlsx } from "@/lib/services/reports/xlsx";
@@ -23,6 +24,32 @@ const baseRange = {
   groupBy: "day" as const,
   isCustom: false,
 };
+
+// Inspect OOXML independently of the spreadsheet writer/reader.
+function readZipXml(buffer: Buffer) {
+  const footer = buffer.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  expect(footer).toBeGreaterThanOrEqual(0);
+  const entries = buffer.readUInt16LE(footer + 10);
+  let cursor = buffer.readUInt32LE(footer + 16);
+  const files: Record<string, string> = {};
+  for (let index = 0; index < entries; index++) {
+    expect(buffer.readUInt32LE(cursor)).toBe(0x02014b50);
+    const method = buffer.readUInt16LE(cursor + 10);
+    const size = buffer.readUInt32LE(cursor + 20);
+    const nameLength = buffer.readUInt16LE(cursor + 28);
+    const extraLength = buffer.readUInt16LE(cursor + 30);
+    const commentLength = buffer.readUInt16LE(cursor + 32);
+    const offset = buffer.readUInt32LE(cursor + 42);
+    const name = buffer.subarray(cursor + 46, cursor + 46 + nameLength).toString();
+    expect(buffer.readUInt32LE(offset)).toBe(0x04034b50);
+    const dataOffset = offset + 30 + buffer.readUInt16LE(offset + 26) + buffer.readUInt16LE(offset + 28);
+    const compressed = buffer.subarray(dataOffset, dataOffset + size);
+    expect([0, 8]).toContain(method);
+    files[name] = (method === 8 ? inflateRawSync(compressed) : compressed).toString("utf8");
+    cursor += 46 + nameLength + extraLength + commentLength;
+  }
+  return files;
+}
 
 const overviewPayload: OverviewReportPayload = {
   range: baseRange,
@@ -287,6 +314,49 @@ const opportunityPayload: OpportunityRoiReportPayload = {
 };
 
 describe("serializeReportXlsx", () => {
+  it("preserves numeric totals and OOXML cell types independently of SheetJS", () => {
+    const output = serializeReportXlsx("overview", overviewPayload);
+    expect(Buffer.isBuffer(output)).toBe(true);
+    const files = readZipXml(output);
+    expect(files["[Content_Types].xml"]).toContain("spreadsheetml.sheet.main+xml");
+    const workbook = new DOMParser().parseFromString(files["xl/workbook.xml"], "application/xml");
+    expect(Array.from(workbook.getElementsByTagName("sheet"), sheet => sheet.getAttribute("name"))).toEqual([
+      "kpi_summary", "booking_volume", "trend", "top_services", "top_customers",
+    ]);
+    const sheet = new DOMParser().parseFromString(files["xl/worksheets/sheet1.xml"], "application/xml");
+    const cells = Array.from(sheet.getElementsByTagName("c"));
+    const total = cells.find(cell => cell.getAttribute("r") === "D2");
+    expect(total?.getAttribute("t")).not.toBe("s");
+    expect(total?.getElementsByTagName("v")[0]?.textContent).toBe("37444.12");
+    expect(sheet.getElementsByTagName("f")).toHaveLength(0);
+    expect(files["xl/styles.xml"]).toContain("cellXfs");
+  });
+
+  it("keeps Unicode and formula-like customer names as literal strings", () => {
+    const payload: CustomersReportPayload = {
+      ...customersPayload,
+      topCustomers: [{ customerId: "fixture", customerName: "=SUM(1,1) — José <&>", bookings: 1, spend: 12.5 }],
+    };
+    const output = serializeReportXlsx("customers", payload);
+    const files = readZipXml(output);
+    const sheet = new DOMParser().parseFromString(files["xl/worksheets/sheet3.xml"], "application/xml");
+    expect(sheet.getElementsByTagName("f")).toHaveLength(0);
+    const workbook = read(output, { type: "buffer" });
+    expect(workbook.Sheets.top_customers.B2).toMatchObject({ t: "s", v: "=SUM(1,1) — José <&>" });
+    expect(workbook.Sheets.top_customers.D2).toMatchObject({ t: "n", v: 12.5 });
+  });
+
+  it("preserves header-only worksheets for empty report collections", () => {
+    const output = serializeReportXlsx("revenue", { ...revenuePayload, trend: [], topCategories: [], paymentMix: [] });
+    const files = readZipXml(output);
+    const sheet = new DOMParser().parseFromString(files["xl/worksheets/sheet2.xml"], "application/xml");
+    expect(sheet.getElementsByTagName("row")).toHaveLength(1);
+    const workbook = read(output, { type: "buffer" });
+    expect(utils.sheet_to_json(workbook.Sheets.trend, { header: 1 })).toEqual([[
+      "date", "bucket_key", "bucket_label", "booked_revenue", "collected_revenue", "discount", "average_ticket", "start_date", "end_date",
+    ]]);
+  });
+
   it("builds overview workbook with one-granularity-per-sheet", () => {
     const workbook = read(serializeReportXlsx("overview", overviewPayload), {
       type: "buffer",

@@ -155,4 +155,13 @@ describe("booking creation service", () => {
     );
     expect(mocks.createBookingInDb).not.toHaveBeenCalled();
   });
+
+  it("forwards public verification to atomic persistence", async () => {
+    await createBookingWorkflow({ ...input, phone: "09171234567", otpVerificationId: 7, otpVerificationToken: "signed-proof" }, {
+      ...context, isPublicBooking: true,
+    });
+    expect(mocks.createBookingInDb).toHaveBeenCalledWith(expect.objectContaining({
+      phone: "09171234567", otpVerificationId: 7, otpVerificationToken: "signed-proof", isPublicBooking: true,
+    }));
+  });
 });

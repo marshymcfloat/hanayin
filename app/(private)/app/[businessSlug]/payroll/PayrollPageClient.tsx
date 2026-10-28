@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Employee, User, Payslip } from "@/prisma/generated/prisma/client";
+import type { Employee, Payslip } from "@/prisma/generated/prisma/client";
+import type { PublicUser } from "@/lib/auth/public-user";
 import { formatPH } from "@/lib/date-utils";
 import { formatCurrency } from "@/lib/utils";
 import { Plus, Wallet, Phone, Search, RefreshCcw, History } from "lucide-react";
@@ -22,7 +23,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 
 type EmployeeWithDetails = Employee & {
-  user: User;
+  user: PublicUser;
   payslips: Payslip[];
 };
 

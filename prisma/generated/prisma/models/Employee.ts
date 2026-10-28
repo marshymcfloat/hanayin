@@ -31,6 +31,7 @@ export type EmployeeAvgAggregateOutputType = {
   salary: number | null
   commission_percentage: number | null
   daily_rate: number | null
+  financial_revision: number | null
   recurring_days_off: number | null
 }
 
@@ -39,6 +40,7 @@ export type EmployeeSumAggregateOutputType = {
   salary: number | null
   commission_percentage: number | null
   daily_rate: number | null
+  financial_revision: number | null
   recurring_days_off: number[]
 }
 
@@ -48,6 +50,10 @@ export type EmployeeMinAggregateOutputType = {
   salary: number | null
   commission_percentage: number | null
   daily_rate: number | null
+  employment_start: Date | null
+  employment_end: Date | null
+  archived_at: Date | null
+  financial_revision: number | null
   profile: $Enums.StaffProfile | null
   business_id: string | null
   is_demo: boolean | null
@@ -59,6 +65,10 @@ export type EmployeeMaxAggregateOutputType = {
   salary: number | null
   commission_percentage: number | null
   daily_rate: number | null
+  employment_start: Date | null
+  employment_end: Date | null
+  archived_at: Date | null
+  financial_revision: number | null
   profile: $Enums.StaffProfile | null
   business_id: string | null
   is_demo: boolean | null
@@ -70,6 +80,10 @@ export type EmployeeCountAggregateOutputType = {
   salary: number
   commission_percentage: number
   daily_rate: number
+  employment_start: number
+  employment_end: number
+  archived_at: number
+  financial_revision: number
   profile: number
   permissions: number
   specialties: number
@@ -85,6 +99,7 @@ export type EmployeeAvgAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  financial_revision?: true
   recurring_days_off?: true
 }
 
@@ -93,6 +108,7 @@ export type EmployeeSumAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  financial_revision?: true
   recurring_days_off?: true
 }
 
@@ -102,6 +118,10 @@ export type EmployeeMinAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  employment_start?: true
+  employment_end?: true
+  archived_at?: true
+  financial_revision?: true
   profile?: true
   business_id?: true
   is_demo?: true
@@ -113,6 +133,10 @@ export type EmployeeMaxAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  employment_start?: true
+  employment_end?: true
+  archived_at?: true
+  financial_revision?: true
   profile?: true
   business_id?: true
   is_demo?: true
@@ -124,6 +148,10 @@ export type EmployeeCountAggregateInputType = {
   salary?: true
   commission_percentage?: true
   daily_rate?: true
+  employment_start?: true
+  employment_end?: true
+  archived_at?: true
+  financial_revision?: true
   profile?: true
   permissions?: true
   specialties?: true
@@ -225,6 +253,10 @@ export type EmployeeGroupByOutputType = {
   salary: number
   commission_percentage: number
   daily_rate: number
+  employment_start: Date | null
+  employment_end: Date | null
+  archived_at: Date | null
+  financial_revision: number
   profile: $Enums.StaffProfile
   permissions: $Enums.StaffPermission[]
   specialties: string[]
@@ -238,7 +270,7 @@ export type EmployeeGroupByOutputType = {
   _max: EmployeeMaxAggregateOutputType | null
 }
 
-type GetEmployeeGroupByPayload<T extends EmployeeGroupByArgs> = Prisma.PrismaPromise<
+export type GetEmployeeGroupByPayload<T extends EmployeeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<EmployeeGroupByOutputType, T['by']> &
       {
@@ -262,6 +294,10 @@ export type EmployeeWhereInput = {
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
   daily_rate?: Prisma.FloatFilter<"Employee"> | number
+  employment_start?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  employment_end?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  archived_at?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  financial_revision?: Prisma.IntFilter<"Employee"> | number
   profile?: Prisma.EnumStaffProfileFilter<"Employee"> | $Enums.StaffProfile
   permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
@@ -269,6 +305,16 @@ export type EmployeeWhereInput = {
   business_id?: Prisma.StringFilter<"Employee"> | string
   is_demo?: Prisma.BoolFilter<"Employee"> | boolean
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  compensation_agreements?: Prisma.CompensationAgreementListRelationFilter
+  payroll_profile?: Prisma.XOR<Prisma.EmployeePayrollProfileNullableScalarRelationFilter, Prisma.EmployeePayrollProfileWhereInput> | null
+  payroll_earnings?: Prisma.PayrollEarningListRelationFilter
+  payroll_statements?: Prisma.PayrollStatementListRelationFilter
+  work_sessions?: Prisma.WorkforceSessionListRelationFilter
+  attendance_revisions?: Prisma.AttendanceRevisionListRelationFilter
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestListRelationFilter
+  leave_entitlements?: Prisma.LeaveEntitlementListRelationFilter
+  leave_allocations?: Prisma.LeaveAllocationListRelationFilter
+  payroll_adjustments?: Prisma.PayrollAdjustmentListRelationFilter
   attendance?: Prisma.EmployeeAttendanceListRelationFilter
   schedule?: Prisma.EmployeeScheduleListRelationFilter
   served_services?: Prisma.AvailedServiceListRelationFilter
@@ -284,6 +330,10 @@ export type EmployeeOrderByWithRelationInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  employment_start?: Prisma.SortOrderInput | Prisma.SortOrder
+  employment_end?: Prisma.SortOrderInput | Prisma.SortOrder
+  archived_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  financial_revision?: Prisma.SortOrder
   profile?: Prisma.SortOrder
   permissions?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
@@ -291,6 +341,16 @@ export type EmployeeOrderByWithRelationInput = {
   business_id?: Prisma.SortOrder
   is_demo?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  compensation_agreements?: Prisma.CompensationAgreementOrderByRelationAggregateInput
+  payroll_profile?: Prisma.EmployeePayrollProfileOrderByWithRelationInput
+  payroll_earnings?: Prisma.PayrollEarningOrderByRelationAggregateInput
+  payroll_statements?: Prisma.PayrollStatementOrderByRelationAggregateInput
+  work_sessions?: Prisma.WorkforceSessionOrderByRelationAggregateInput
+  attendance_revisions?: Prisma.AttendanceRevisionOrderByRelationAggregateInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestOrderByRelationAggregateInput
+  leave_entitlements?: Prisma.LeaveEntitlementOrderByRelationAggregateInput
+  leave_allocations?: Prisma.LeaveAllocationOrderByRelationAggregateInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentOrderByRelationAggregateInput
   attendance?: Prisma.EmployeeAttendanceOrderByRelationAggregateInput
   schedule?: Prisma.EmployeeScheduleOrderByRelationAggregateInput
   served_services?: Prisma.AvailedServiceOrderByRelationAggregateInput
@@ -304,12 +364,17 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   user_id?: string
   business_id_user_id?: Prisma.EmployeeBusiness_idUser_idCompoundUniqueInput
+  id_business_id?: Prisma.EmployeeIdBusiness_idCompoundUniqueInput
   AND?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   OR?: Prisma.EmployeeWhereInput[]
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
   daily_rate?: Prisma.FloatFilter<"Employee"> | number
+  employment_start?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  employment_end?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  archived_at?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  financial_revision?: Prisma.IntFilter<"Employee"> | number
   profile?: Prisma.EnumStaffProfileFilter<"Employee"> | $Enums.StaffProfile
   permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
@@ -317,6 +382,16 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   business_id?: Prisma.StringFilter<"Employee"> | string
   is_demo?: Prisma.BoolFilter<"Employee"> | boolean
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  compensation_agreements?: Prisma.CompensationAgreementListRelationFilter
+  payroll_profile?: Prisma.XOR<Prisma.EmployeePayrollProfileNullableScalarRelationFilter, Prisma.EmployeePayrollProfileWhereInput> | null
+  payroll_earnings?: Prisma.PayrollEarningListRelationFilter
+  payroll_statements?: Prisma.PayrollStatementListRelationFilter
+  work_sessions?: Prisma.WorkforceSessionListRelationFilter
+  attendance_revisions?: Prisma.AttendanceRevisionListRelationFilter
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestListRelationFilter
+  leave_entitlements?: Prisma.LeaveEntitlementListRelationFilter
+  leave_allocations?: Prisma.LeaveAllocationListRelationFilter
+  payroll_adjustments?: Prisma.PayrollAdjustmentListRelationFilter
   attendance?: Prisma.EmployeeAttendanceListRelationFilter
   schedule?: Prisma.EmployeeScheduleListRelationFilter
   served_services?: Prisma.AvailedServiceListRelationFilter
@@ -324,7 +399,7 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   leave_requests?: Prisma.LeaveRequestListRelationFilter
   brand_assets?: Prisma.BrandAssetListRelationFilter
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
-}, "id" | "user_id" | "business_id_user_id">
+}, "id" | "user_id" | "business_id_user_id" | "id_business_id">
 
 export type EmployeeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -332,6 +407,10 @@ export type EmployeeOrderByWithAggregationInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  employment_start?: Prisma.SortOrderInput | Prisma.SortOrder
+  employment_end?: Prisma.SortOrderInput | Prisma.SortOrder
+  archived_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  financial_revision?: Prisma.SortOrder
   profile?: Prisma.SortOrder
   permissions?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
@@ -354,6 +433,10 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   salary?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
   daily_rate?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
+  employment_start?: Prisma.DateTimeNullableWithAggregatesFilter<"Employee"> | Date | string | null
+  employment_end?: Prisma.DateTimeNullableWithAggregatesFilter<"Employee"> | Date | string | null
+  archived_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Employee"> | Date | string | null
+  financial_revision?: Prisma.IntWithAggregatesFilter<"Employee"> | number
   profile?: Prisma.EnumStaffProfileWithAggregatesFilter<"Employee"> | $Enums.StaffProfile
   permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
@@ -366,12 +449,26 @@ export type EmployeeCreateInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -387,12 +484,26 @@ export type EmployeeUncheckedCreateInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -405,12 +516,26 @@ export type EmployeeUpdateInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -426,12 +551,26 @@ export type EmployeeUncheckedUpdateInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -446,6 +585,10 @@ export type EmployeeCreateManyInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
@@ -458,6 +601,10 @@ export type EmployeeUpdateManyMutationInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
@@ -471,6 +618,10 @@ export type EmployeeUncheckedUpdateManyInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
@@ -520,12 +671,21 @@ export type EmployeeBusiness_idUser_idCompoundUniqueInput = {
   user_id: string
 }
 
+export type EmployeeIdBusiness_idCompoundUniqueInput = {
+  id: number
+  business_id: string
+}
+
 export type EmployeeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  employment_start?: Prisma.SortOrder
+  employment_end?: Prisma.SortOrder
+  archived_at?: Prisma.SortOrder
+  financial_revision?: Prisma.SortOrder
   profile?: Prisma.SortOrder
   permissions?: Prisma.SortOrder
   specialties?: Prisma.SortOrder
@@ -539,6 +699,7 @@ export type EmployeeAvgOrderByAggregateInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  financial_revision?: Prisma.SortOrder
   recurring_days_off?: Prisma.SortOrder
 }
 
@@ -548,6 +709,10 @@ export type EmployeeMaxOrderByAggregateInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  employment_start?: Prisma.SortOrder
+  employment_end?: Prisma.SortOrder
+  archived_at?: Prisma.SortOrder
+  financial_revision?: Prisma.SortOrder
   profile?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   is_demo?: Prisma.SortOrder
@@ -559,6 +724,10 @@ export type EmployeeMinOrderByAggregateInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  employment_start?: Prisma.SortOrder
+  employment_end?: Prisma.SortOrder
+  archived_at?: Prisma.SortOrder
+  financial_revision?: Prisma.SortOrder
   profile?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   is_demo?: Prisma.SortOrder
@@ -569,6 +738,7 @@ export type EmployeeSumOrderByAggregateInput = {
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
   daily_rate?: Prisma.SortOrder
+  financial_revision?: Prisma.SortOrder
   recurring_days_off?: Prisma.SortOrder
 }
 
@@ -765,16 +935,170 @@ export type EmployeeUpdateOneWithoutServed_servicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutServed_servicesInput, Prisma.EmployeeUpdateWithoutServed_servicesInput>, Prisma.EmployeeUncheckedUpdateWithoutServed_servicesInput>
 }
 
+export type EmployeeCreateNestedOneWithoutCompensation_agreementsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutCompensation_agreementsInput, Prisma.EmployeeUncheckedCreateWithoutCompensation_agreementsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutCompensation_agreementsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutCompensation_agreementsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutCompensation_agreementsInput, Prisma.EmployeeUncheckedCreateWithoutCompensation_agreementsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutCompensation_agreementsInput
+  upsert?: Prisma.EmployeeUpsertWithoutCompensation_agreementsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutCompensation_agreementsInput, Prisma.EmployeeUpdateWithoutCompensation_agreementsInput>, Prisma.EmployeeUncheckedUpdateWithoutCompensation_agreementsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutPayroll_profileInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_profileInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_profileInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_profileInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutPayroll_profileNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_profileInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_profileInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_profileInput
+  upsert?: Prisma.EmployeeUpsertWithoutPayroll_profileInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPayroll_profileInput, Prisma.EmployeeUpdateWithoutPayroll_profileInput>, Prisma.EmployeeUncheckedUpdateWithoutPayroll_profileInput>
+}
+
+export type EmployeeCreateNestedOneWithoutWork_sessionsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutWork_sessionsInput, Prisma.EmployeeUncheckedCreateWithoutWork_sessionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutWork_sessionsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutWork_sessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutWork_sessionsInput, Prisma.EmployeeUncheckedCreateWithoutWork_sessionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutWork_sessionsInput
+  upsert?: Prisma.EmployeeUpsertWithoutWork_sessionsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutWork_sessionsInput, Prisma.EmployeeUpdateWithoutWork_sessionsInput>, Prisma.EmployeeUncheckedUpdateWithoutWork_sessionsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutAttendance_revisionsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_revisionsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_revisionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAttendance_revisionsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutAttendance_revisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_revisionsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_revisionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAttendance_revisionsInput
+  upsert?: Prisma.EmployeeUpsertWithoutAttendance_revisionsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutAttendance_revisionsInput, Prisma.EmployeeUpdateWithoutAttendance_revisionsInput>, Prisma.EmployeeUncheckedUpdateWithoutAttendance_revisionsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutAttendance_correction_requestsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_correction_requestsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_correction_requestsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAttendance_correction_requestsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutAttendance_correction_requestsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_correction_requestsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_correction_requestsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAttendance_correction_requestsInput
+  upsert?: Prisma.EmployeeUpsertWithoutAttendance_correction_requestsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutAttendance_correction_requestsInput, Prisma.EmployeeUpdateWithoutAttendance_correction_requestsInput>, Prisma.EmployeeUncheckedUpdateWithoutAttendance_correction_requestsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutLeave_entitlementsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_entitlementsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_entitlementsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutLeave_entitlementsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutLeave_entitlementsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_entitlementsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_entitlementsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutLeave_entitlementsInput
+  upsert?: Prisma.EmployeeUpsertWithoutLeave_entitlementsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutLeave_entitlementsInput, Prisma.EmployeeUpdateWithoutLeave_entitlementsInput>, Prisma.EmployeeUncheckedUpdateWithoutLeave_entitlementsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutLeave_allocationsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_allocationsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_allocationsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutLeave_allocationsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutLeave_allocationsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_allocationsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_allocationsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutLeave_allocationsInput
+  upsert?: Prisma.EmployeeUpsertWithoutLeave_allocationsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutLeave_allocationsInput, Prisma.EmployeeUpdateWithoutLeave_allocationsInput>, Prisma.EmployeeUncheckedUpdateWithoutLeave_allocationsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutPayroll_earningsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_earningsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_earningsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_earningsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutPayroll_earningsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_earningsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_earningsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_earningsInput
+  upsert?: Prisma.EmployeeUpsertWithoutPayroll_earningsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPayroll_earningsInput, Prisma.EmployeeUpdateWithoutPayroll_earningsInput>, Prisma.EmployeeUncheckedUpdateWithoutPayroll_earningsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutPayroll_statementsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_statementsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_statementsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_statementsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutPayroll_statementsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_statementsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_statementsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_statementsInput
+  upsert?: Prisma.EmployeeUpsertWithoutPayroll_statementsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPayroll_statementsInput, Prisma.EmployeeUpdateWithoutPayroll_statementsInput>, Prisma.EmployeeUncheckedUpdateWithoutPayroll_statementsInput>
+}
+
+export type EmployeeCreateNestedOneWithoutPayroll_adjustmentsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_adjustmentsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_adjustmentsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_adjustmentsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+}
+
+export type EmployeeUpdateOneRequiredWithoutPayroll_adjustmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_adjustmentsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_adjustmentsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPayroll_adjustmentsInput
+  upsert?: Prisma.EmployeeUpsertWithoutPayroll_adjustmentsInput
+  connect?: Prisma.EmployeeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPayroll_adjustmentsInput, Prisma.EmployeeUpdateWithoutPayroll_adjustmentsInput>, Prisma.EmployeeUncheckedUpdateWithoutPayroll_adjustmentsInput>
+}
+
 export type EmployeeCreateWithoutBusinessInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -789,11 +1113,25 @@ export type EmployeeUncheckedCreateWithoutBusinessInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -837,6 +1175,10 @@ export type EmployeeScalarWhereInput = {
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
   daily_rate?: Prisma.FloatFilter<"Employee"> | number
+  employment_start?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  employment_end?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  archived_at?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
+  financial_revision?: Prisma.IntFilter<"Employee"> | number
   profile?: Prisma.EnumStaffProfileFilter<"Employee"> | $Enums.StaffProfile
   permissions?: Prisma.EnumStaffPermissionNullableListFilter<"Employee">
   specialties?: Prisma.StringNullableListFilter<"Employee">
@@ -849,12 +1191,26 @@ export type EmployeeCreateWithoutLeave_requestsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -869,12 +1225,26 @@ export type EmployeeUncheckedCreateWithoutLeave_requestsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -902,12 +1272,26 @@ export type EmployeeUpdateWithoutLeave_requestsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -922,12 +1306,26 @@ export type EmployeeUncheckedUpdateWithoutLeave_requestsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -939,11 +1337,25 @@ export type EmployeeCreateWithoutUserInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -958,12 +1370,26 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -992,11 +1418,25 @@ export type EmployeeUpdateWithoutUserInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -1011,12 +1451,26 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -1029,12 +1483,26 @@ export type EmployeeCreateWithoutScheduleInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
@@ -1049,12 +1517,26 @@ export type EmployeeUncheckedCreateWithoutScheduleInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1082,12 +1564,26 @@ export type EmployeeUpdateWithoutScheduleInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
@@ -1102,12 +1598,26 @@ export type EmployeeUncheckedUpdateWithoutScheduleInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1119,12 +1629,26 @@ export type EmployeeCreateWithoutAttendanceInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
@@ -1139,12 +1663,26 @@ export type EmployeeUncheckedCreateWithoutAttendanceInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1172,12 +1710,26 @@ export type EmployeeUpdateWithoutAttendanceInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
@@ -1192,12 +1744,26 @@ export type EmployeeUncheckedUpdateWithoutAttendanceInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1209,12 +1775,26 @@ export type EmployeeCreateWithoutPayslipsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -1229,12 +1809,26 @@ export type EmployeeUncheckedCreateWithoutPayslipsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -1262,12 +1856,26 @@ export type EmployeeUpdateWithoutPayslipsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -1282,12 +1890,26 @@ export type EmployeeUncheckedUpdateWithoutPayslipsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -1299,12 +1921,26 @@ export type EmployeeCreateWithoutBrand_assetsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -1319,12 +1955,26 @@ export type EmployeeUncheckedCreateWithoutBrand_assetsInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -1352,12 +2002,26 @@ export type EmployeeUpdateWithoutBrand_assetsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -1372,12 +2036,26 @@ export type EmployeeUncheckedUpdateWithoutBrand_assetsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -1389,12 +2067,26 @@ export type EmployeeCreateWithoutServed_servicesInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   is_demo?: boolean
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
@@ -1409,12 +2101,26 @@ export type EmployeeUncheckedCreateWithoutServed_servicesInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
   business_id: string
   is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
@@ -1442,12 +2148,26 @@ export type EmployeeUpdateWithoutServed_servicesInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
@@ -1462,14 +2182,1488 @@ export type EmployeeUncheckedUpdateWithoutServed_servicesInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutCompensation_agreementsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutCompensation_agreementsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutCompensation_agreementsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutCompensation_agreementsInput, Prisma.EmployeeUncheckedCreateWithoutCompensation_agreementsInput>
+}
+
+export type EmployeeUpsertWithoutCompensation_agreementsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutCompensation_agreementsInput, Prisma.EmployeeUncheckedUpdateWithoutCompensation_agreementsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutCompensation_agreementsInput, Prisma.EmployeeUncheckedCreateWithoutCompensation_agreementsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutCompensation_agreementsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutCompensation_agreementsInput, Prisma.EmployeeUncheckedUpdateWithoutCompensation_agreementsInput>
+}
+
+export type EmployeeUpdateWithoutCompensation_agreementsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutCompensation_agreementsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutPayroll_profileInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutPayroll_profileInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutPayroll_profileInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_profileInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_profileInput>
+}
+
+export type EmployeeUpsertWithoutPayroll_profileInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_profileInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_profileInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_profileInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_profileInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutPayroll_profileInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_profileInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_profileInput>
+}
+
+export type EmployeeUpdateWithoutPayroll_profileInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutPayroll_profileInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutWork_sessionsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutWork_sessionsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutWork_sessionsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutWork_sessionsInput, Prisma.EmployeeUncheckedCreateWithoutWork_sessionsInput>
+}
+
+export type EmployeeUpsertWithoutWork_sessionsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutWork_sessionsInput, Prisma.EmployeeUncheckedUpdateWithoutWork_sessionsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutWork_sessionsInput, Prisma.EmployeeUncheckedCreateWithoutWork_sessionsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutWork_sessionsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutWork_sessionsInput, Prisma.EmployeeUncheckedUpdateWithoutWork_sessionsInput>
+}
+
+export type EmployeeUpdateWithoutWork_sessionsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutWork_sessionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutAttendance_revisionsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutAttendance_revisionsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutAttendance_revisionsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_revisionsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_revisionsInput>
+}
+
+export type EmployeeUpsertWithoutAttendance_revisionsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutAttendance_revisionsInput, Prisma.EmployeeUncheckedUpdateWithoutAttendance_revisionsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_revisionsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_revisionsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutAttendance_revisionsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutAttendance_revisionsInput, Prisma.EmployeeUncheckedUpdateWithoutAttendance_revisionsInput>
+}
+
+export type EmployeeUpdateWithoutAttendance_revisionsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutAttendance_revisionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutAttendance_correction_requestsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutAttendance_correction_requestsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutAttendance_correction_requestsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_correction_requestsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_correction_requestsInput>
+}
+
+export type EmployeeUpsertWithoutAttendance_correction_requestsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutAttendance_correction_requestsInput, Prisma.EmployeeUncheckedUpdateWithoutAttendance_correction_requestsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAttendance_correction_requestsInput, Prisma.EmployeeUncheckedCreateWithoutAttendance_correction_requestsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutAttendance_correction_requestsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutAttendance_correction_requestsInput, Prisma.EmployeeUncheckedUpdateWithoutAttendance_correction_requestsInput>
+}
+
+export type EmployeeUpdateWithoutAttendance_correction_requestsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutAttendance_correction_requestsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutLeave_entitlementsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutLeave_entitlementsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutLeave_entitlementsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_entitlementsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_entitlementsInput>
+}
+
+export type EmployeeUpsertWithoutLeave_entitlementsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutLeave_entitlementsInput, Prisma.EmployeeUncheckedUpdateWithoutLeave_entitlementsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_entitlementsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_entitlementsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutLeave_entitlementsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutLeave_entitlementsInput, Prisma.EmployeeUncheckedUpdateWithoutLeave_entitlementsInput>
+}
+
+export type EmployeeUpdateWithoutLeave_entitlementsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutLeave_entitlementsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutLeave_allocationsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutLeave_allocationsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutLeave_allocationsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_allocationsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_allocationsInput>
+}
+
+export type EmployeeUpsertWithoutLeave_allocationsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutLeave_allocationsInput, Prisma.EmployeeUncheckedUpdateWithoutLeave_allocationsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutLeave_allocationsInput, Prisma.EmployeeUncheckedCreateWithoutLeave_allocationsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutLeave_allocationsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutLeave_allocationsInput, Prisma.EmployeeUncheckedUpdateWithoutLeave_allocationsInput>
+}
+
+export type EmployeeUpdateWithoutLeave_allocationsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutLeave_allocationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutPayroll_earningsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutPayroll_earningsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutPayroll_earningsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_earningsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_earningsInput>
+}
+
+export type EmployeeUpsertWithoutPayroll_earningsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_earningsInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_earningsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_earningsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_earningsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutPayroll_earningsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_earningsInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_earningsInput>
+}
+
+export type EmployeeUpdateWithoutPayroll_earningsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutPayroll_earningsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutPayroll_statementsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutPayroll_statementsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutPayroll_statementsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_statementsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_statementsInput>
+}
+
+export type EmployeeUpsertWithoutPayroll_statementsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_statementsInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_statementsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_statementsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_statementsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutPayroll_statementsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_statementsInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_statementsInput>
+}
+
+export type EmployeeUpdateWithoutPayroll_statementsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutPayroll_statementsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeCreateWithoutPayroll_adjustmentsInput = {
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  is_demo?: boolean
+  user: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  compensation_agreements?: Prisma.CompensationAgreementCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetCreateNestedManyWithoutEmployeeInput
+  business: Prisma.BusinessCreateNestedOneWithoutEmployeesInput
+}
+
+export type EmployeeUncheckedCreateWithoutPayroll_adjustmentsInput = {
+  id?: number
+  user_id: string
+  salary: number
+  commission_percentage?: number
+  daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
+  profile?: $Enums.StaffProfile
+  permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeCreaterecurring_days_offInput | number[]
+  business_id: string
+  is_demo?: boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedCreateNestedOneWithoutEmployeeInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedCreateNestedManyWithoutEmployeeInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedCreateNestedManyWithoutEmployeeInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutEmployeeInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
+  schedule?: Prisma.EmployeeScheduleUncheckedCreateNestedManyWithoutEmployeeInput
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
+  payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutEmployeeInput
+  brand_assets?: Prisma.BrandAssetUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutPayroll_adjustmentsInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_adjustmentsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_adjustmentsInput>
+}
+
+export type EmployeeUpsertWithoutPayroll_adjustmentsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_adjustmentsInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_adjustmentsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPayroll_adjustmentsInput, Prisma.EmployeeUncheckedCreateWithoutPayroll_adjustmentsInput>
+  where?: Prisma.EmployeeWhereInput
+}
+
+export type EmployeeUpdateToOneWithWhereWithoutPayroll_adjustmentsInput = {
+  where?: Prisma.EmployeeWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPayroll_adjustmentsInput, Prisma.EmployeeUncheckedUpdateWithoutPayroll_adjustmentsInput>
+}
+
+export type EmployeeUpdateWithoutPayroll_adjustmentsInput = {
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
+  payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutEmployeeNestedInput
+  brand_assets?: Prisma.BrandAssetUpdateManyWithoutEmployeeNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutEmployeesNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutPayroll_adjustmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
+  profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
+  permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
+  specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
+  recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
+  schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput
   brand_assets?: Prisma.BrandAssetUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -1481,6 +3675,10 @@ export type EmployeeCreateManyBusinessInput = {
   salary: number
   commission_percentage?: number
   daily_rate?: number
+  employment_start?: Date | string | null
+  employment_end?: Date | string | null
+  archived_at?: Date | string | null
+  financial_revision?: number
   profile?: $Enums.StaffProfile
   permissions?: Prisma.EmployeeCreatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeCreatespecialtiesInput | string[]
@@ -1492,12 +3690,26 @@ export type EmployeeUpdateWithoutBusinessInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
+  compensation_agreements?: Prisma.CompensationAgreementUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -1512,11 +3724,25 @@ export type EmployeeUncheckedUpdateWithoutBusinessInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
   recurring_days_off?: Prisma.EmployeeUpdaterecurring_days_offInput | number[]
   is_demo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compensation_agreements?: Prisma.CompensationAgreementUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_profile?: Prisma.EmployeePayrollProfileUncheckedUpdateOneWithoutEmployeeNestedInput
+  payroll_earnings?: Prisma.PayrollEarningUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_statements?: Prisma.PayrollStatementUncheckedUpdateManyWithoutEmployeeNestedInput
+  work_sessions?: Prisma.WorkforceSessionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_revisions?: Prisma.AttendanceRevisionUncheckedUpdateManyWithoutEmployeeNestedInput
+  attendance_correction_requests?: Prisma.AttendanceCorrectionRequestUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_entitlements?: Prisma.LeaveEntitlementUncheckedUpdateManyWithoutEmployeeNestedInput
+  leave_allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutEmployeeNestedInput
+  payroll_adjustments?: Prisma.PayrollAdjustmentUncheckedUpdateManyWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   schedule?: Prisma.EmployeeScheduleUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -1531,6 +3757,10 @@ export type EmployeeUncheckedUpdateManyWithoutBusinessInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
   daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  employment_start?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  employment_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archived_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  financial_revision?: Prisma.IntFieldUpdateOperationsInput | number
   profile?: Prisma.EnumStaffProfileFieldUpdateOperationsInput | $Enums.StaffProfile
   permissions?: Prisma.EmployeeUpdatepermissionsInput | $Enums.StaffPermission[]
   specialties?: Prisma.EmployeeUpdatespecialtiesInput | string[]
@@ -1544,6 +3774,15 @@ export type EmployeeUncheckedUpdateManyWithoutBusinessInput = {
  */
 
 export type EmployeeCountOutputType = {
+  compensation_agreements: number
+  payroll_earnings: number
+  payroll_statements: number
+  work_sessions: number
+  attendance_revisions: number
+  attendance_correction_requests: number
+  leave_entitlements: number
+  leave_allocations: number
+  payroll_adjustments: number
   attendance: number
   schedule: number
   served_services: number
@@ -1553,6 +3792,15 @@ export type EmployeeCountOutputType = {
 }
 
 export type EmployeeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  compensation_agreements?: boolean | EmployeeCountOutputTypeCountCompensation_agreementsArgs
+  payroll_earnings?: boolean | EmployeeCountOutputTypeCountPayroll_earningsArgs
+  payroll_statements?: boolean | EmployeeCountOutputTypeCountPayroll_statementsArgs
+  work_sessions?: boolean | EmployeeCountOutputTypeCountWork_sessionsArgs
+  attendance_revisions?: boolean | EmployeeCountOutputTypeCountAttendance_revisionsArgs
+  attendance_correction_requests?: boolean | EmployeeCountOutputTypeCountAttendance_correction_requestsArgs
+  leave_entitlements?: boolean | EmployeeCountOutputTypeCountLeave_entitlementsArgs
+  leave_allocations?: boolean | EmployeeCountOutputTypeCountLeave_allocationsArgs
+  payroll_adjustments?: boolean | EmployeeCountOutputTypeCountPayroll_adjustmentsArgs
   attendance?: boolean | EmployeeCountOutputTypeCountAttendanceArgs
   schedule?: boolean | EmployeeCountOutputTypeCountScheduleArgs
   served_services?: boolean | EmployeeCountOutputTypeCountServed_servicesArgs
@@ -1569,6 +3817,69 @@ export type EmployeeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
    * Select specific fields to fetch from the EmployeeCountOutputType
    */
   select?: Prisma.EmployeeCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountCompensation_agreementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompensationAgreementWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountPayroll_earningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PayrollEarningWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountPayroll_statementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PayrollStatementWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountWork_sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkforceSessionWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountAttendance_revisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AttendanceRevisionWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountAttendance_correction_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AttendanceCorrectionRequestWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountLeave_entitlementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeaveEntitlementWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountLeave_allocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeaveAllocationWhereInput
+}
+
+/**
+ * EmployeeCountOutputType without action
+ */
+export type EmployeeCountOutputTypeCountPayroll_adjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PayrollAdjustmentWhereInput
 }
 
 /**
@@ -1620,6 +3931,10 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  employment_start?: boolean
+  employment_end?: boolean
+  archived_at?: boolean
+  financial_revision?: boolean
   profile?: boolean
   permissions?: boolean
   specialties?: boolean
@@ -1627,6 +3942,16 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   business_id?: boolean
   is_demo?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  compensation_agreements?: boolean | Prisma.Employee$compensation_agreementsArgs<ExtArgs>
+  payroll_profile?: boolean | Prisma.Employee$payroll_profileArgs<ExtArgs>
+  payroll_earnings?: boolean | Prisma.Employee$payroll_earningsArgs<ExtArgs>
+  payroll_statements?: boolean | Prisma.Employee$payroll_statementsArgs<ExtArgs>
+  work_sessions?: boolean | Prisma.Employee$work_sessionsArgs<ExtArgs>
+  attendance_revisions?: boolean | Prisma.Employee$attendance_revisionsArgs<ExtArgs>
+  attendance_correction_requests?: boolean | Prisma.Employee$attendance_correction_requestsArgs<ExtArgs>
+  leave_entitlements?: boolean | Prisma.Employee$leave_entitlementsArgs<ExtArgs>
+  leave_allocations?: boolean | Prisma.Employee$leave_allocationsArgs<ExtArgs>
+  payroll_adjustments?: boolean | Prisma.Employee$payroll_adjustmentsArgs<ExtArgs>
   attendance?: boolean | Prisma.Employee$attendanceArgs<ExtArgs>
   schedule?: boolean | Prisma.Employee$scheduleArgs<ExtArgs>
   served_services?: boolean | Prisma.Employee$served_servicesArgs<ExtArgs>
@@ -1643,6 +3968,10 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  employment_start?: boolean
+  employment_end?: boolean
+  archived_at?: boolean
+  financial_revision?: boolean
   profile?: boolean
   permissions?: boolean
   specialties?: boolean
@@ -1659,6 +3988,10 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  employment_start?: boolean
+  employment_end?: boolean
+  archived_at?: boolean
+  financial_revision?: boolean
   profile?: boolean
   permissions?: boolean
   specialties?: boolean
@@ -1675,6 +4008,10 @@ export type EmployeeSelectScalar = {
   salary?: boolean
   commission_percentage?: boolean
   daily_rate?: boolean
+  employment_start?: boolean
+  employment_end?: boolean
+  archived_at?: boolean
+  financial_revision?: boolean
   profile?: boolean
   permissions?: boolean
   specialties?: boolean
@@ -1683,9 +4020,19 @@ export type EmployeeSelectScalar = {
   is_demo?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "salary" | "commission_percentage" | "daily_rate" | "profile" | "permissions" | "specialties" | "recurring_days_off" | "business_id" | "is_demo", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "salary" | "commission_percentage" | "daily_rate" | "employment_start" | "employment_end" | "archived_at" | "financial_revision" | "profile" | "permissions" | "specialties" | "recurring_days_off" | "business_id" | "is_demo", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  compensation_agreements?: boolean | Prisma.Employee$compensation_agreementsArgs<ExtArgs>
+  payroll_profile?: boolean | Prisma.Employee$payroll_profileArgs<ExtArgs>
+  payroll_earnings?: boolean | Prisma.Employee$payroll_earningsArgs<ExtArgs>
+  payroll_statements?: boolean | Prisma.Employee$payroll_statementsArgs<ExtArgs>
+  work_sessions?: boolean | Prisma.Employee$work_sessionsArgs<ExtArgs>
+  attendance_revisions?: boolean | Prisma.Employee$attendance_revisionsArgs<ExtArgs>
+  attendance_correction_requests?: boolean | Prisma.Employee$attendance_correction_requestsArgs<ExtArgs>
+  leave_entitlements?: boolean | Prisma.Employee$leave_entitlementsArgs<ExtArgs>
+  leave_allocations?: boolean | Prisma.Employee$leave_allocationsArgs<ExtArgs>
+  payroll_adjustments?: boolean | Prisma.Employee$payroll_adjustmentsArgs<ExtArgs>
   attendance?: boolean | Prisma.Employee$attendanceArgs<ExtArgs>
   schedule?: boolean | Prisma.Employee$scheduleArgs<ExtArgs>
   served_services?: boolean | Prisma.Employee$served_servicesArgs<ExtArgs>
@@ -1708,6 +4055,16 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "Employee"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    compensation_agreements: Prisma.$CompensationAgreementPayload<ExtArgs>[]
+    payroll_profile: Prisma.$EmployeePayrollProfilePayload<ExtArgs> | null
+    payroll_earnings: Prisma.$PayrollEarningPayload<ExtArgs>[]
+    payroll_statements: Prisma.$PayrollStatementPayload<ExtArgs>[]
+    work_sessions: Prisma.$WorkforceSessionPayload<ExtArgs>[]
+    attendance_revisions: Prisma.$AttendanceRevisionPayload<ExtArgs>[]
+    attendance_correction_requests: Prisma.$AttendanceCorrectionRequestPayload<ExtArgs>[]
+    leave_entitlements: Prisma.$LeaveEntitlementPayload<ExtArgs>[]
+    leave_allocations: Prisma.$LeaveAllocationPayload<ExtArgs>[]
+    payroll_adjustments: Prisma.$PayrollAdjustmentPayload<ExtArgs>[]
     attendance: Prisma.$EmployeeAttendancePayload<ExtArgs>[]
     schedule: Prisma.$EmployeeSchedulePayload<ExtArgs>[]
     served_services: Prisma.$AvailedServicePayload<ExtArgs>[]
@@ -1722,6 +4079,10 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     salary: number
     commission_percentage: number
     daily_rate: number
+    employment_start: Date | null
+    employment_end: Date | null
+    archived_at: Date | null
+    financial_revision: number
     profile: $Enums.StaffProfile
     permissions: $Enums.StaffPermission[]
     specialties: string[]
@@ -2123,6 +4484,16 @@ readonly fields: EmployeeFieldRefs;
 export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  compensation_agreements<T extends Prisma.Employee$compensation_agreementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$compensation_agreementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompensationAgreementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payroll_profile<T extends Prisma.Employee$payroll_profileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$payroll_profileArgs<ExtArgs>>): Prisma.Prisma__EmployeePayrollProfileClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayrollProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  payroll_earnings<T extends Prisma.Employee$payroll_earningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$payroll_earningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayrollEarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payroll_statements<T extends Prisma.Employee$payroll_statementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$payroll_statementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayrollStatementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  work_sessions<T extends Prisma.Employee$work_sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$work_sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkforceSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attendance_revisions<T extends Prisma.Employee$attendance_revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$attendance_revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendanceRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attendance_correction_requests<T extends Prisma.Employee$attendance_correction_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$attendance_correction_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendanceCorrectionRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leave_entitlements<T extends Prisma.Employee$leave_entitlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$leave_entitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leave_allocations<T extends Prisma.Employee$leave_allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$leave_allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payroll_adjustments<T extends Prisma.Employee$payroll_adjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$payroll_adjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayrollAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attendance<T extends Prisma.Employee$attendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$attendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedule<T extends Prisma.Employee$scheduleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$scheduleArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   served_services<T extends Prisma.Employee$served_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$served_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailedServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2164,6 +4535,10 @@ export interface EmployeeFieldRefs {
   readonly salary: Prisma.FieldRef<"Employee", 'Float'>
   readonly commission_percentage: Prisma.FieldRef<"Employee", 'Float'>
   readonly daily_rate: Prisma.FieldRef<"Employee", 'Float'>
+  readonly employment_start: Prisma.FieldRef<"Employee", 'DateTime'>
+  readonly employment_end: Prisma.FieldRef<"Employee", 'DateTime'>
+  readonly archived_at: Prisma.FieldRef<"Employee", 'DateTime'>
+  readonly financial_revision: Prisma.FieldRef<"Employee", 'Int'>
   readonly profile: Prisma.FieldRef<"Employee", 'StaffProfile'>
   readonly permissions: Prisma.FieldRef<"Employee", 'StaffPermission[]'>
   readonly specialties: Prisma.FieldRef<"Employee", 'String[]'>
@@ -2366,6 +4741,11 @@ export type EmployeeFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Employees.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Employees.
+   */
   distinct?: Prisma.EmployeeScalarFieldEnum | Prisma.EmployeeScalarFieldEnum[]
 }
 
@@ -2563,6 +4943,241 @@ export type EmployeeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Employees to delete.
    */
   limit?: number
+}
+
+/**
+ * Employee.compensation_agreements
+ */
+export type Employee$compensation_agreementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CompensationAgreement
+   */
+  select?: Prisma.CompensationAgreementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CompensationAgreement
+   */
+  omit?: Prisma.CompensationAgreementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompensationAgreementInclude<ExtArgs> | null
+  where?: Prisma.CompensationAgreementWhereInput
+  orderBy?: Prisma.CompensationAgreementOrderByWithRelationInput | Prisma.CompensationAgreementOrderByWithRelationInput[]
+  cursor?: Prisma.CompensationAgreementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompensationAgreementScalarFieldEnum | Prisma.CompensationAgreementScalarFieldEnum[]
+}
+
+/**
+ * Employee.payroll_profile
+ */
+export type Employee$payroll_profileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeePayrollProfile
+   */
+  select?: Prisma.EmployeePayrollProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeePayrollProfile
+   */
+  omit?: Prisma.EmployeePayrollProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeePayrollProfileInclude<ExtArgs> | null
+  where?: Prisma.EmployeePayrollProfileWhereInput
+}
+
+/**
+ * Employee.payroll_earnings
+ */
+export type Employee$payroll_earningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PayrollEarning
+   */
+  select?: Prisma.PayrollEarningSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PayrollEarning
+   */
+  omit?: Prisma.PayrollEarningOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PayrollEarningInclude<ExtArgs> | null
+  where?: Prisma.PayrollEarningWhereInput
+  orderBy?: Prisma.PayrollEarningOrderByWithRelationInput | Prisma.PayrollEarningOrderByWithRelationInput[]
+  cursor?: Prisma.PayrollEarningWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PayrollEarningScalarFieldEnum | Prisma.PayrollEarningScalarFieldEnum[]
+}
+
+/**
+ * Employee.payroll_statements
+ */
+export type Employee$payroll_statementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PayrollStatement
+   */
+  select?: Prisma.PayrollStatementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PayrollStatement
+   */
+  omit?: Prisma.PayrollStatementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PayrollStatementInclude<ExtArgs> | null
+  where?: Prisma.PayrollStatementWhereInput
+  orderBy?: Prisma.PayrollStatementOrderByWithRelationInput | Prisma.PayrollStatementOrderByWithRelationInput[]
+  cursor?: Prisma.PayrollStatementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PayrollStatementScalarFieldEnum | Prisma.PayrollStatementScalarFieldEnum[]
+}
+
+/**
+ * Employee.work_sessions
+ */
+export type Employee$work_sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkforceSession
+   */
+  select?: Prisma.WorkforceSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkforceSession
+   */
+  omit?: Prisma.WorkforceSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkforceSessionInclude<ExtArgs> | null
+  where?: Prisma.WorkforceSessionWhereInput
+  orderBy?: Prisma.WorkforceSessionOrderByWithRelationInput | Prisma.WorkforceSessionOrderByWithRelationInput[]
+  cursor?: Prisma.WorkforceSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkforceSessionScalarFieldEnum | Prisma.WorkforceSessionScalarFieldEnum[]
+}
+
+/**
+ * Employee.attendance_revisions
+ */
+export type Employee$attendance_revisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AttendanceRevision
+   */
+  select?: Prisma.AttendanceRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AttendanceRevision
+   */
+  omit?: Prisma.AttendanceRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AttendanceRevisionInclude<ExtArgs> | null
+  where?: Prisma.AttendanceRevisionWhereInput
+  orderBy?: Prisma.AttendanceRevisionOrderByWithRelationInput | Prisma.AttendanceRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.AttendanceRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AttendanceRevisionScalarFieldEnum | Prisma.AttendanceRevisionScalarFieldEnum[]
+}
+
+/**
+ * Employee.attendance_correction_requests
+ */
+export type Employee$attendance_correction_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AttendanceCorrectionRequest
+   */
+  select?: Prisma.AttendanceCorrectionRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AttendanceCorrectionRequest
+   */
+  omit?: Prisma.AttendanceCorrectionRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AttendanceCorrectionRequestInclude<ExtArgs> | null
+  where?: Prisma.AttendanceCorrectionRequestWhereInput
+  orderBy?: Prisma.AttendanceCorrectionRequestOrderByWithRelationInput | Prisma.AttendanceCorrectionRequestOrderByWithRelationInput[]
+  cursor?: Prisma.AttendanceCorrectionRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AttendanceCorrectionRequestScalarFieldEnum | Prisma.AttendanceCorrectionRequestScalarFieldEnum[]
+}
+
+/**
+ * Employee.leave_entitlements
+ */
+export type Employee$leave_entitlementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeaveEntitlement
+   */
+  select?: Prisma.LeaveEntitlementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeaveEntitlement
+   */
+  omit?: Prisma.LeaveEntitlementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeaveEntitlementInclude<ExtArgs> | null
+  where?: Prisma.LeaveEntitlementWhereInput
+  orderBy?: Prisma.LeaveEntitlementOrderByWithRelationInput | Prisma.LeaveEntitlementOrderByWithRelationInput[]
+  cursor?: Prisma.LeaveEntitlementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeaveEntitlementScalarFieldEnum | Prisma.LeaveEntitlementScalarFieldEnum[]
+}
+
+/**
+ * Employee.leave_allocations
+ */
+export type Employee$leave_allocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeaveAllocation
+   */
+  select?: Prisma.LeaveAllocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeaveAllocation
+   */
+  omit?: Prisma.LeaveAllocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeaveAllocationInclude<ExtArgs> | null
+  where?: Prisma.LeaveAllocationWhereInput
+  orderBy?: Prisma.LeaveAllocationOrderByWithRelationInput | Prisma.LeaveAllocationOrderByWithRelationInput[]
+  cursor?: Prisma.LeaveAllocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeaveAllocationScalarFieldEnum | Prisma.LeaveAllocationScalarFieldEnum[]
+}
+
+/**
+ * Employee.payroll_adjustments
+ */
+export type Employee$payroll_adjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PayrollAdjustment
+   */
+  select?: Prisma.PayrollAdjustmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PayrollAdjustment
+   */
+  omit?: Prisma.PayrollAdjustmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PayrollAdjustmentInclude<ExtArgs> | null
+  where?: Prisma.PayrollAdjustmentWhereInput
+  orderBy?: Prisma.PayrollAdjustmentOrderByWithRelationInput | Prisma.PayrollAdjustmentOrderByWithRelationInput[]
+  cursor?: Prisma.PayrollAdjustmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PayrollAdjustmentScalarFieldEnum | Prisma.PayrollAdjustmentScalarFieldEnum[]
 }
 
 /**

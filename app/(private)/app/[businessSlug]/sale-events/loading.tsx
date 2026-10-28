@@ -1,6 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
 
 export default function Loading() {
+  return <OwnerRouteLoading section="sale events" staffFallback={<StaffLoading />} />;
+}
+
+function StaffLoading() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
       <div className="space-y-6">

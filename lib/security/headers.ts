@@ -36,7 +36,12 @@ const frameSrc = [
   ...parseCspList(process.env.NEXT_PUBLIC_CSP_FRAME_SRC),
 ];
 
-const scriptSrc = ["'self'", "'unsafe-inline'", ...VERCEL_ANALYTICS_SCRIPTS];
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  ...(isProduction ? [] : ["'unsafe-eval'"]),
+  ...VERCEL_ANALYTICS_SCRIPTS,
+];
 
 const contentSecurityPolicyDirectives = [
   "default-src 'self'",

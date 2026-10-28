@@ -1,15 +1,19 @@
-import { notFound } from "next/navigation";
-import { CustomersClient } from "@/components/dashboard/customers/CustomersClient";
-import { getCustomersWorkspaceData } from "@/features/customers/queries/workspace";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
+import { Suspense } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/auth/auth-options";
+import type { ComponentProps } from "react";
+import LegacyPage from "./LegacyPage";
+import PreviewPage from "@/app/(private-preview)/owner-dashboard-preview/[businessSlug]/customers/page";
 
-export default async function CustomersPage({
-  params,
-}: {
-  params: Promise<{ businessSlug: string }>;
-}) {
-  const { businessSlug } = await params;
+type Props = ComponentProps<typeof LegacyPage>;
 
-  const data = await getCustomersWorkspaceData(businessSlug);
-  if (!data.success) notFound();
-  return <CustomersClient customers={data.customers} businessSlug={businessSlug} />;
+export default function Page(props: Props) {
+  return <Suspense fallback={<OwnerRouteLoading section="customers" />}><PageContent {...props} /></Suspense>;
+}
+
+async function PageContent(props: Props) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "OWNER") return <PreviewPage />;
+  return <LegacyPage {...props} />;
 }

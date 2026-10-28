@@ -1,4 +1,3 @@
-import { getActiveSaleEvents } from "@/features/catalog/actions/sale-event";
 import {
   findAvailedServiceScheduleConflict,
   isAvailedServiceOverlapViolation,
@@ -7,7 +6,6 @@ import {
 import { promoteBookingToCompletedIfEligible } from "@/lib/services/booking-status";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { hasStaffPermission, type TenantActorContext } from "@/lib/auth/staff-access";
-import { getApplicableDiscount } from "@/lib/utils/pricing";
 import {
   AvailedServiceStatus,
   BookingStatus,
@@ -61,6 +59,7 @@ export async function claimEmployeeService(input: {
           package_id: true,
           served_by_id: true,
           served_by_owner_id: true,
+          served_by_type: true,
           booking: { select: { status: true } },
         },
       }),
@@ -103,26 +102,13 @@ export async function claimEmployeeService(input: {
     });
     if (scheduleConflict) return scheduleConflictResult(scheduleConflict);
 
-    const saleEventsResult = await getActiveSaleEvents(businessSlug);
-    const saleEvents =
-      (saleEventsResult.success && saleEventsResult.data) || [];
-    const discountInfo = getApplicableDiscount(
-      serviceToClaim.service_id,
-      serviceToClaim.package_id ?? undefined,
-      serviceToClaim.price,
-      saleEvents,
-    );
-
     const result = await prisma.availedService.updateMany({
       where: {
         id: serviceId,
-        status: {
-          in: [
-            AvailedServiceStatus.PENDING,
-            AvailedServiceStatus.CLAIMED,
-            AvailedServiceStatus.SERVING,
-          ],
-        },
+        status: serviceToClaim.status,
+        served_by_id: serviceToClaim.served_by_id,
+        served_by_owner_id: serviceToClaim.served_by_owner_id,
+        served_by_type: serviceToClaim.served_by_type,
         booking: {
           business: { slug: businessSlug },
           status: BookingStatus.ACCEPTED,
@@ -136,19 +122,6 @@ export async function claimEmployeeService(input: {
         claimed_at: getCurrentDateTimePH(),
         served_at: null,
         completed_at: null,
-        ...(discountInfo
-          ? {
-              final_price: discountInfo.finalPrice,
-              discount: discountInfo.discount,
-              discount_reason: discountInfo.reason,
-              commission_base: discountInfo.finalPrice,
-            }
-          : {
-              final_price: serviceToClaim.price,
-              discount: 0,
-              discount_reason: null,
-              commission_base: serviceToClaim.price,
-            }),
       },
     });
 
@@ -208,7 +181,7 @@ export async function unclaimEmployeeService(input: {
   try {
     const service = await prisma.availedService.findFirst({
       where: { id: serviceId, booking: { business: { slug: businessSlug } } },
-      select: { price: true, served_by_id: true, served_by_owner_id: true },
+      select: { price: true, status: true, served_by_id: true, served_by_owner_id: true, served_by_type: true },
     });
     if (!service) {
       return { success: false as const, error: "Service not found" };
@@ -218,6 +191,9 @@ export async function unclaimEmployeeService(input: {
         success: false as const,
         error: "Owner-claimed services cannot be unclaimed here.",
       };
+    }
+    if (service.status !== AvailedServiceStatus.CLAIMED && service.status !== AvailedServiceStatus.SERVING) {
+      return { success: false as const, error: "Unable to unclaim service." };
     }
 
     const isSelfService =
@@ -230,9 +206,10 @@ export async function unclaimEmployeeService(input: {
     const result = await prisma.availedService.updateMany({
       where: {
         id: serviceId,
-        status: {
-          in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING],
-        },
+        status: service.status,
+        served_by_id: service.served_by_id,
+        served_by_owner_id: service.served_by_owner_id,
+        served_by_type: service.served_by_type,
         booking: { business: { slug: businessSlug } },
       },
       data: {
@@ -240,10 +217,6 @@ export async function unclaimEmployeeService(input: {
         served_by_id: null,
         served_by_type: null,
         claimed_at: null,
-        final_price: service.price,
-        discount: 0,
-        discount_reason: null,
-        commission_base: service.price,
       },
     });
     if (result.count === 0) {
@@ -296,6 +269,7 @@ export async function markEmployeeServiceServed(input: {
           status: true,
           served_by_id: true,
           served_by_owner_id: true,
+          served_by_type: true,
           booking: { select: { status: true } },
         },
       });
@@ -326,21 +300,14 @@ export async function markEmployeeServiceServed(input: {
       });
       if (!employee) throw new Error("Employee not found");
 
-      const baseAmount = service.commission_base ?? service.price;
-      const commissionAmount =
-        (baseAmount * employee.commission_percentage) / 100;
-      await tx.employee.update({
-        where: { id: employeeId },
-        data: { salary: { increment: commissionAmount } },
-      });
-
       const nowPH = getCurrentDateTimePH();
       const updateResult = await tx.availedService.updateMany({
         where: {
           id: serviceId,
-          status: {
-            in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING],
-          },
+          status: service.status,
+          served_by_id: service.served_by_id,
+          served_by_owner_id: service.served_by_owner_id,
+          served_by_type: service.served_by_type,
           booking: {
             business: { slug: businessSlug },
             status: BookingStatus.ACCEPTED,
@@ -404,6 +371,8 @@ export async function unserveEmployeeService(input: {
           price: true,
           served_by_id: true,
           served_by_owner_id: true,
+          served_by_type: true,
+          status: true,
           booking_id: true,
           booking: { select: { status: true } },
         },
@@ -414,6 +383,9 @@ export async function unserveEmployeeService(input: {
       if (service.served_by_owner_id) {
         throw new Error("Owner-served services cannot be updated here");
       }
+      if (service.status !== AvailedServiceStatus.COMPLETED) {
+        throw new Error("Service is not completed");
+      }
 
       const isSelfService =
         context.actorType === "EMPLOYEE" &&
@@ -422,24 +394,19 @@ export async function unserveEmployeeService(input: {
         throw new Error("Forbidden");
       }
 
-      const employee = await tx.employee.findUnique({
-        where: { id: service.served_by_id },
+      const employee = await tx.employee.findFirst({
+        where: { id: service.served_by_id, business: { slug: businessSlug } },
         select: { commission_percentage: true },
       });
       if (!employee) throw new Error("Employee not found");
 
-      const baseAmount = service.commission_base ?? service.price;
-      const commissionAmount =
-        (baseAmount * employee.commission_percentage) / 100;
-      await tx.employee.update({
-        where: { id: service.served_by_id },
-        data: { salary: { decrement: commissionAmount } },
-      });
-
       const updatedService = await tx.availedService.updateMany({
         where: {
           id: serviceId,
-          status: AvailedServiceStatus.COMPLETED,
+          status: service.status,
+          served_by_id: service.served_by_id,
+          served_by_owner_id: service.served_by_owner_id,
+          served_by_type: service.served_by_type,
           booking: { business: { slug: businessSlug } },
         },
         data: {
@@ -451,10 +418,11 @@ export async function unserveEmployeeService(input: {
       if (updatedService.count === 0) throw new Error("Unable to update service");
 
       if (service.booking.status === BookingStatus.COMPLETED) {
-        await tx.booking.update({
-          where: { id: service.booking_id },
+        const reopened = await tx.booking.updateMany({
+          where: { id: service.booking_id, status: BookingStatus.COMPLETED, business: { slug: businessSlug } },
           data: { status: BookingStatus.ACCEPTED },
         });
+        if (reopened.count !== 1) throw new Error("Unable to reopen booking");
       }
       return { id: serviceId };
     });

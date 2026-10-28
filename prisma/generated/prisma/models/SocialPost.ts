@@ -272,7 +272,7 @@ export type SocialPostGroupByOutputType = {
   _max: SocialPostMaxAggregateOutputType | null
 }
 
-type GetSocialPostGroupByPayload<T extends SocialPostGroupByArgs> = Prisma.PrismaPromise<
+export type GetSocialPostGroupByPayload<T extends SocialPostGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SocialPostGroupByOutputType, T['by']> &
       {
@@ -2458,6 +2458,11 @@ export type SocialPostFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` SocialPosts.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SocialPosts.
+   */
   distinct?: Prisma.SocialPostScalarFieldEnum | Prisma.SocialPostScalarFieldEnum[]
 }
 

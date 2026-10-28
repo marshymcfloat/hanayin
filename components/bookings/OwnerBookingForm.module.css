@@ -1,0 +1,16 @@
+.form {
+  --background: #fff;
+  --foreground: #20211f;
+  --card: #fff;
+  --popover: #fff;
+  --primary: #20211f;
+  --primary-foreground: #fff;
+  --muted: #f5f6f3;
+  --muted-foreground: #696c67;
+  --border: #e7e9e4;
+  --input: #dde0d9;
+  --ring: #72cf35;
+  --accent: #eff9e8;
+  --accent-foreground: #315e18;
+  color: #20211f;
+}

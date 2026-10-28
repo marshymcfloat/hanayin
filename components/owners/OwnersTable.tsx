@@ -1,6 +1,7 @@
 "use client";
 
-import { Owner, User } from "@/prisma/generated/prisma/client";
+import type { Owner } from "@/prisma/generated/prisma/client";
+import type { PublicUser } from "@/lib/auth/public-user";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { setPrimaryOwnerAction } from "@/features/workforce/actions/owners";
 
 type OwnerWithUser = Owner & {
-  user: User;
+  user: PublicUser;
 };
 
 interface OwnersTableProps {

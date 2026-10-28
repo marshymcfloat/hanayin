@@ -246,7 +246,7 @@ export type VoucherGroupByOutputType = {
   _max: VoucherMaxAggregateOutputType | null
 }
 
-type GetVoucherGroupByPayload<T extends VoucherGroupByArgs> = Prisma.PrismaPromise<
+export type GetVoucherGroupByPayload<T extends VoucherGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<VoucherGroupByOutputType, T['by']> &
       {
@@ -1547,6 +1547,11 @@ export type VoucherFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Skip the first `n` Vouchers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Vouchers.
+   */
   distinct?: Prisma.VoucherScalarFieldEnum | Prisma.VoucherScalarFieldEnum[]
 }
 

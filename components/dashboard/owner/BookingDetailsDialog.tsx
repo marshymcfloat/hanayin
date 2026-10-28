@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatPH } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getBookingCustomerName } from "@/lib/utils/booking-customer";
 import {
   BOOKING_PAYMENT_STAGE_LABELS,
@@ -20,11 +22,8 @@ import type {
   Customer,
   AvailedService,
   Service,
-  Employee,
   BookingStatus,
-  User,
   Voucher,
-  Owner,
   BookingPayment,
 } from "@/prisma/generated/prisma/client";
 import {
@@ -51,6 +50,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { BookingDialogScroll, useBookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -59,6 +59,7 @@ import { BookingPaymentHistory } from "@/components/bookings/BookingPaymentHisto
 import { markBookingNoShowAction } from "@/features/dashboard/actions/owner";
 import { addBookingServiceOrCreateFollowUpAction } from "@/features/bookings/actions/booking-addons";
 import { removeBookingServiceAction } from "@/features/bookings/actions/booking-modify";
+import { BookingChangesDialog } from "@/components/bookings/BookingChangesDialog";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import { AuditTrail } from "@/components/audit/AuditTrail";
 import { RescheduleDialog } from "@/components/dashboard/owner/booking-actions/RescheduleDialog";
@@ -79,8 +80,8 @@ type BookingWithDetails = Booking & {
   payments?: (BookingPayment & { verified_by?: { name: string } | null })[];
   availed_services: (AvailedService & {
     service: Service;
-    served_by: (Employee & { user: User }) | null;
-    served_by_owner: (Owner & { user: User }) | null;
+    served_by: { id: number; user: { name: string } } | null;
+    served_by_owner: { id: number; user: { name: string } } | null;
   })[];
 };
 
@@ -141,6 +142,8 @@ const DEFAULT_OWNER_VIEWER: BookingViewerContext = {
 };
 
 interface BookingDetailsDialogProps {
+  businessSlug?: string;
+  onCloseAutoFocus?: (event: Event) => void;
   booking: BookingWithDetails | null;
   servicesCatalog?: {
     id: number;
@@ -156,6 +159,8 @@ interface BookingDetailsDialogProps {
    * callers — defaults to a fully-enabled OWNER context.
    */
   viewerContext?: BookingViewerContext;
+  /** Called after a confirmed write. Omit to preserve route refresh for legacy callers. */
+  onBookingChanged?: () => void;
 }
 
 const formatCurrency = (amount: number) =>
@@ -170,15 +175,21 @@ export function BookingDetailsDialog({
   open,
   onOpenChange,
   viewerContext = DEFAULT_OWNER_VIEWER,
+  onBookingChanged,
+  businessSlug,
+  onCloseAutoFocus,
 }: BookingDetailsDialogProps) {
   const router = useRouter();
+  const staffDialogTheme = useBookingDialogTheme();
   const params = useParams<{ businessSlug: string }>();
+  const verifiedBusinessSlug = businessSlug ?? params.businessSlug;
   const [isVerifyingGcash, setIsVerifyingGcash] = useState(false);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [isMarkingNoShow, setIsMarkingNoShow] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [serviceQuantity, setServiceQuantity] = useState(1);
   const [isAddingService, setIsAddingService] = useState(false);
+  const [changesOpen, setChangesOpen] = useState(false);
   const [removingLineId, setRemovingLineId] = useState<number | null>(null);
   const [isAuditOpen, setIsAuditOpen] = useState(false);
   const getStatusColor = (status: BookingStatus) => {
@@ -301,11 +312,13 @@ export function BookingDetailsDialog({
         availedServiceId,
       });
       if (!result.success) {
+        if (result.error === "Use Review services & offers to change this booking.") { setChangesOpen(true); return; }
         showActionErrorToast(result.error, { action: "remove this service" });
         return;
       }
       toast.success("Service removed");
-      router.refresh();
+      if (onBookingChanged) onBookingChanged();
+      else router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
       showActionErrorToast(message, { action: "remove this service" });
@@ -324,19 +337,20 @@ export function BookingDetailsDialog({
       }
       toast.success("Booking marked as no-show.");
       onOpenChange(false);
-      router.refresh();
+      if (onBookingChanged) onBookingChanged();
+      else router.refresh();
     } finally {
       setIsMarkingNoShow(false);
     }
   };
 
   const handleVerifyUnsubmittedGcash = async () => {
-    if (!pendingGcashPayment || !params.businessSlug) return;
+    if (!pendingGcashPayment || !verifiedBusinessSlug) return;
     setIsVerifyingGcash(true);
     try {
       const result = await approveGcashPaymentAction({
         paymentId: pendingGcashPayment.id,
-        businessSlug: params.businessSlug,
+        businessSlug: verifiedBusinessSlug,
         source: "OWNER_VERIFIED_WITHOUT_SUBMISSION",
         attestation: {
           transactionFound: true,
@@ -351,7 +365,8 @@ export function BookingDetailsDialog({
       }
       toast.success("Payment confirmed. The booking is now accepted.");
       onOpenChange(false);
-      router.refresh();
+      if (onBookingChanged) onBookingChanged();
+      else router.refresh();
     } finally {
       setIsVerifyingGcash(false);
     }
@@ -394,8 +409,10 @@ export function BookingDetailsDialog({
       }
 
       onOpenChange(false);
-      router.refresh();
+      if (onBookingChanged) onBookingChanged();
+      else router.refresh();
     } catch (error) {
+      if (error instanceof Error && error.message === "Use Review services & offers to change this booking.") { setChangesOpen(true); return; }
       toast.error(
         error instanceof Error ? error.message : "Unable to add service.",
       );
@@ -406,8 +423,9 @@ export function BookingDetailsDialog({
 
   return (
     <>
+      <BookingChangesDialog bookingId={booking.id} open={changesOpen} onOpenChange={setChangesOpen} onChanged={() => { if (onBookingChanged) onBookingChanged(); else router.refresh(); }} />
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[95vw] max-w-none max-h-[90dvh] rounded-2xl p-0 gap-0 flex flex-col overflow-hidden bg-white shadow-2xl sm:max-w-2xl sm:max-h-[85vh] sm:rounded-3xl">
+        <DialogContent onCloseAutoFocus={onCloseAutoFocus} className={cn("w-[95vw] max-w-none max-h-[90dvh] rounded-2xl p-0 gap-0 flex flex-col overflow-hidden bg-white shadow-2xl sm:max-w-2xl sm:max-h-[85vh] sm:rounded-3xl", staffDialogTheme)}>
           <DialogHeader className="p-4 sm:px-6 sm:py-4 border-b border-border/60 flex shrink-0">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 space-y-1.5">
@@ -417,6 +435,9 @@ export function BookingDetailsDialog({
                     #{booking.id}
                   </span>
                 </DialogTitle>
+                <DialogDescription className="sr-only">
+                  Review this booking, its services, notes, and available actions.
+                </DialogDescription>
                 <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
                   <Calendar className="h-3 w-3 shrink-0" />
                   <span>{formatPH(bookingDateTime, "MMM d, yyyy")}</span>
@@ -454,7 +475,7 @@ export function BookingDetailsDialog({
             </div>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+          <BookingDialogScroll>
             <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
               <section className="space-y-3">
                 <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -585,7 +606,7 @@ export function BookingDetailsDialog({
                           Check GCash
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent className="rounded-3xl">
+                      <AlertDialogContent className={cn("rounded-3xl", staffDialogTheme)}>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
                             Confirm GCash payment?
@@ -651,6 +672,7 @@ export function BookingDetailsDialog({
               <BookingPaymentHistory
                 payments={booking.payments ?? []}
                 canVoid={viewerContext.role === "OWNER"}
+                onChanged={onBookingChanged}
               />
 
               <section className="space-y-3">
@@ -721,15 +743,18 @@ export function BookingDetailsDialog({
                                     null
                                   }
                                   currentEmployeeId={as.served_by_id ?? null}
+                                  onChanged={onBookingChanged}
                                 />
                               )}
                             {viewerContext.canAddService && removable && (
                               <SwapServiceDialog
+                                onReview={() => setChangesOpen(true)}
                                 bookingId={booking.id}
                                 availedServiceId={as.id}
                                 currentServiceName={as.service.name}
                                 currentServiceId={as.service.id}
                                 servicesCatalog={servicesCatalog}
+                                onChanged={onBookingChanged}
                               />
                             )}
                             {viewerContext.canAddService && removable && (
@@ -750,7 +775,7 @@ export function BookingDetailsDialog({
                                     )}
                                   </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="rounded-3xl">
+                                <AlertDialogContent className={cn("rounded-3xl", staffDialogTheme)}>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>
                                       Remove {as.service.name}?
@@ -788,6 +813,7 @@ export function BookingDetailsDialog({
 
               {viewerContext.canAddService && (
                 <section className="space-y-3">
+                  {!bookingHasPayment && booking.status === "ACCEPTED" && booking.availed_services.every(line => line.status === "PENDING") && <Button type="button" className="min-h-11 rounded-full" data-catalog-focus={`booking-changes:${booking.id}`} onClick={() => setChangesOpen(true)}>Review services & offers</Button>}
                   <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     Add Service
                   </h3>
@@ -798,22 +824,21 @@ export function BookingDetailsDialog({
                   ) : (
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-[1fr_5rem] gap-2">
-                        <select
-                          className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
+                        <Select
                           value={selectedServiceId}
-                          onChange={(event) =>
-                            setSelectedServiceId(event.target.value)
-                          }
+                          onValueChange={setSelectedServiceId}
                           disabled={!canAddService || isAddingService}
-                          aria-label="Service"
                         >
+                          <SelectTrigger aria-label="Service" className="min-h-11 w-full"><SelectValue placeholder="Select a service" /></SelectTrigger>
+                          <SelectContent className={staffDialogTheme}>
                           {availableServiceOptions.map((service) => (
-                            <option key={service.id} value={service.id}>
+                            <SelectItem key={service.id} value={String(service.id)}>
                               {service.name} ({service.category}) -{" "}
                               {formatCurrency(service.price)}
-                            </option>
+                            </SelectItem>
                           ))}
-                        </select>
+                          </SelectContent>
+                        </Select>
                         <Input
                           type="number"
                           min={1}
@@ -880,6 +905,7 @@ export function BookingDetailsDialog({
                 <BookingNotesPanel
                   bookingId={booking.id}
                   canAddCustomerVisible={viewerContext.canAddService}
+                  onChanged={onBookingChanged}
                 />
               </section>
 
@@ -972,6 +998,7 @@ export function BookingDetailsDialog({
                           ? booking.scheduled_at.toISOString()
                           : booking.scheduled_at
                       }
+                      onChanged={onBookingChanged}
                     />
                   )}
                 {viewerContext.canAdjustPrice &&
@@ -984,6 +1011,7 @@ export function BookingDetailsDialog({
                         serviceName: as.service.name,
                         finalPrice: as.final_price,
                       }))}
+                      onChanged={onBookingChanged}
                     />
                   )}
                 {viewerContext.canCancel &&
@@ -992,6 +1020,7 @@ export function BookingDetailsDialog({
                     <CancelBookingDialog
                       bookingId={booking.id}
                       customerLabel={getBookingCustomerName(booking)}
+                      onChanged={onBookingChanged}
                     />
                   )}
                 {canMarkNoShow && viewerContext.canMarkNoShow && (
@@ -1012,7 +1041,7 @@ export function BookingDetailsDialog({
                         No-Show
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-3xl">
+                    <AlertDialogContent className={cn("rounded-3xl", staffDialogTheme)}>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Mark as No-Show?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -1042,12 +1071,13 @@ export function BookingDetailsDialog({
                     customerName={getBookingCustomerName(booking)}
                     grandTotal={booking.grand_total}
                     amountPaid={booking.amount_paid}
+                    onRecorded={onBookingChanged}
                     trigger={<Button type="button" size="sm" className="min-h-11 rounded-full bg-primary px-4 text-primary-foreground hover:bg-primary/90">Record payment</Button>}
                   />
                 ) : null}
               </section>
             </div>
-          </div>
+          </BookingDialogScroll>
         </DialogContent>
       </Dialog>
     </>

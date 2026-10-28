@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { deliverPayrollNotification } from "@/features/notifications/public";
 import { render } from "@react-email/render";
 import { BookingCancelledEmail } from "@/components/emails/BookingCancelledEmail";
 
@@ -362,6 +363,12 @@ export async function deliverOutboxEvent<TType extends OutboxEventType>(params: 
   outboxMessageId?: string;
 }) {
   switch (params.eventType) {
+    case "PAYROLL_PUBLISHED": {
+      const result = await deliverPayrollNotification(params.businessId, params.payload as OutboxPayloadMap["PAYROLL_PUBLISHED"]);
+      if (result.status === "NON_RETRYABLE") throw new NonRetryableOutboxError(result.error);
+      if (result.status === "RETRY") throw new Error(result.error);
+      return;
+    }
     case "BOOKING_CREATED":
       return;
     case "BOOKING_CONFIRMED": {
@@ -431,3 +438,4 @@ export async function deliverOutboxEvent<TType extends OutboxEventType>(params: 
       });
   }
 }
+

@@ -41,8 +41,8 @@ import {
 import {
   cancelBookingByCustomerAction,
   rescheduleBookingByCustomerAction,
-  type BookingForManage,
 } from "@/features/bookings/actions/booking-self-serve";
+import type { BookingForManage } from "@/features/bookings/self-serve-types";
 import { cn, formatCurrency } from "@/lib/utils";
 
 interface ManageBookingClientProps {

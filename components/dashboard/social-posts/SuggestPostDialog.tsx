@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/select";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import { submitSocialPostRequestAction } from "@/features/social/actions/social-post-requests";
+import { useOptionalViewer } from "@/lib/auth/viewer-context";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 const TOPIC_MAX = 140;
 const BRIEF_MAX = 600;
@@ -92,6 +94,7 @@ export function SuggestPostDialog({
   onSubmitted,
 }: SuggestPostDialogProps) {
   const router = useRouter();
+  const staffDialogTheme = useOptionalViewer()?.actorType === "EMPLOYEE" ? staffTheme.workspace : "";
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState("");
   const [brief, setBrief] = useState("");
@@ -160,13 +163,13 @@ export function SuggestPostDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button type="button" variant="outline" className="rounded-xl">
+          <Button type="button" variant="outline" className="min-h-11 rounded-xl">
             <MessageSquarePlus className="h-4 w-4 mr-2" />
             Suggest a post
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-2xl max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className={`${staffDialogTheme} rounded-2xl max-w-lg max-h-[90vh] overflow-y-auto`}>
         <DialogHeader>
           <DialogTitle>Suggest a post</DialogTitle>
           <DialogDescription>
@@ -204,7 +207,7 @@ export function SuggestPostDialog({
               <SelectTrigger id="suggest-category" className="rounded-xl">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
+              <SelectContent className={`${staffDialogTheme} rounded-xl`}>
                 {CATEGORY_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     <span className="font-medium">{opt.label}</span>
@@ -240,7 +243,7 @@ export function SuggestPostDialog({
               <SelectTrigger id="suggest-tone" className="rounded-xl">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
+              <SelectContent className={`${staffDialogTheme} rounded-xl`}>
                 {TONE_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}

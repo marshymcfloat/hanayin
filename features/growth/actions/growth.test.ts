@@ -5,6 +5,11 @@ const requireOwnerTenantWriteAccessMock = vi.hoisted(() => vi.fn());
 const requireTenantAccessMock = vi.hoisted(() => vi.fn());
 const refreshGrowthContextSnapshotMock = vi.hoisted(() => vi.fn());
 const getBusinessEntitlementsBySlugMock = vi.hoisted(() => vi.fn());
+const resolveTenantActorContextMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/auth/staff-access", () => ({ resolveTenantActorContext: resolveTenantActorContextMock }));
+vi.mock("@/lib/services/social/promo-image", () => ({ generateAndUploadPromoImage: vi.fn() }));
+vi.mock("@/lib/services/social/reference-image", () => ({ fetchReferenceImageBytes: vi.fn() }));
 
 vi.mock("@/lib/auth/guards", () => ({
   requireOwnerTenantWriteAccess: requireOwnerTenantWriteAccessMock,
@@ -65,6 +70,7 @@ import { generateGrowthCampaignAction, refreshGrowthContextAction } from "./grow
 describe("growth server actions", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    resolveTenantActorContextMock.mockResolvedValue({ success: true, businessId: "business-1", businessSlug: "demo", userId: "owner-1", actorType: "OWNER", role: "OWNER", ownerId: 1, employeeId: null });
     getBusinessEntitlementsBySlugMock.mockResolvedValue({
       website: true,
       growth: true,

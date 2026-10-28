@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import {
   getDailyAttendanceForTenant,
@@ -20,6 +20,7 @@ import type { AttendanceImpactBooking } from "@/features/workforce/types/attenda
 import { requireAuth } from "@/lib/auth/guards";
 import type { AttendanceStatus } from "@/prisma/generated/prisma/enums";
 import { Role } from "@/prisma/generated/prisma/enums";
+import { currentWorkforceOwner } from "@/features/workforce/workforce-access";
 
 async function requireOwnerAccess(write = false) {
   const auth = await requireAuth(write ? { write: true } : undefined);
@@ -27,6 +28,7 @@ async function requireOwnerAccess(write = false) {
   if (auth.session.user.role !== Role.OWNER) {
     return { success: false as const, error: "Forbidden" };
   }
+  if (!await currentWorkforceOwner(auth.businessSlug, auth.session.user.id)) return { success: false as const, error: "Forbidden" };
   return auth;
 }
 
@@ -76,8 +78,12 @@ export async function updateAttendanceStatus(
       input.data.employeeId,
       input.data.date,
       input.data.status,
+      auth.session.user.id,
     );
-    if (result.success) revalidatePath("/", "layout");
+    if (result.success) {
+      updateTag(`attendance-history-${auth.businessSlug}`);
+      revalidatePath("/", "layout");
+    }
     return result;
   } catch (error) {
     console.error("Failed to update attendance status:", error);

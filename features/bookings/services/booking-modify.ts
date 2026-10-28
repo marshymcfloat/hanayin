@@ -107,6 +107,7 @@ export async function removeBookingService(
           payment_status: true,
           grand_total: true,
           total_discount: true,
+          pricing_snapshot: true,
           customer: { select: { name: true, email: true } },
           availed_services: {
             select: {
@@ -120,6 +121,7 @@ export async function removeBookingService(
         },
       });
 
+      if (booking?.pricing_snapshot) return { success: false as const, error: "Use Review services & offers to change this booking." };
       const guard = checkAvailedServiceRemovable({
         bookingId: input.bookingId,
         booking,
@@ -297,6 +299,7 @@ export async function swapBookingService(
             payment_status: true,
             grand_total: true,
             total_discount: true,
+            pricing_snapshot: true,
             customer: { select: { name: true, email: true } },
             availed_services: {
               select: {
@@ -310,6 +313,7 @@ export async function swapBookingService(
           },
         });
 
+        if (booking?.pricing_snapshot) return { success: false as const, error: "Use Review services & offers to change this booking." };
         const guard = checkAvailedServiceRemovable({
           bookingId: input.bookingId,
           booking,

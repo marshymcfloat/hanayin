@@ -5,6 +5,7 @@ import {
   StaffProfile,
 } from "@/prisma/generated/prisma/enums";
 import { prisma } from "@/prisma/prisma";
+import type { Prisma } from "@/prisma/generated/prisma/client";
 import { requireAuth } from "@/lib/auth/guards";
 
 // Default permissions per StaffProfile. Source of truth for new employees
@@ -117,9 +118,10 @@ export function sanitizeStaffPermissions(
 export async function resolveTenantActorContext(
   businessSlug: string,
   userId: string,
+  db: Pick<Prisma.TransactionClient, "business" | "user"> = prisma,
 ): Promise<TenantActorContext> {
   const [business, user] = await Promise.all([
-    prisma.business.findUnique({
+    db.business.findUnique({
       where: { slug: businessSlug },
       select: {
         id: true,
@@ -129,7 +131,7 @@ export async function resolveTenantActorContext(
         manager_can_serve: true,
       },
     }),
-    prisma.user.findUnique({
+    db.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -146,6 +148,7 @@ export async function resolveTenantActorContext(
             business_id: true,
             profile: true,
             permissions: true,
+            archived_at: true,
           },
         },
       },
@@ -185,6 +188,7 @@ export async function resolveTenantActorContext(
   if (
     user.role === Role.EMPLOYEE &&
     user.employee &&
+    !user.employee.archived_at &&
     user.employee.business_id === business.id
   ) {
     const profile = user.employee.profile ?? StaffProfile.STAFF;

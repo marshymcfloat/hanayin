@@ -199,7 +199,7 @@ export type BookingNoteGroupByOutputType = {
   _max: BookingNoteMaxAggregateOutputType | null
 }
 
-type GetBookingNoteGroupByPayload<T extends BookingNoteGroupByArgs> = Prisma.PrismaPromise<
+export type GetBookingNoteGroupByPayload<T extends BookingNoteGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BookingNoteGroupByOutputType, T['by']> &
       {
@@ -1331,6 +1331,11 @@ export type BookingNoteFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` BookingNotes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of BookingNotes.
+   */
   distinct?: Prisma.BookingNoteScalarFieldEnum | Prisma.BookingNoteScalarFieldEnum[]
 }
 

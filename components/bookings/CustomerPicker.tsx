@@ -59,6 +59,7 @@ export interface CustomerPickerProps {
    * can't change the customer and create a race.
    */
   disabled?: boolean;
+  presentation?: "default" | "owner";
 }
 
 function formatLastVisit(date: Date | null) {
@@ -91,7 +92,10 @@ export default function CustomerPicker({
   value,
   onChange,
   disabled,
+  presentation = "default",
 }: CustomerPickerProps) {
+  const owner = presentation === "owner";
+  const searchId = React.useId();
   // Local controlled-input state for the search query — separate from the
   // form's customerName so picking-then-clearing doesn't blow away typed data.
   const [query, setQuery] = useState("");
@@ -137,7 +141,7 @@ export default function CustomerPicker({
     }
   }
 
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, isError } = useQuery({
     queryKey: ["customerPicker", debouncedQuery, businessSlug],
     queryFn: () => searchCustomer(debouncedQuery, businessSlug),
     enabled: debouncedQuery.length > 0 && !!businessSlug && !value,
@@ -180,15 +184,16 @@ export default function CustomerPicker({
   };
 
   const handleStartNew = () => {
+    if (value?.mode === "new") return;
     setShowResults(false);
     // Pre-seed the new-customer name from whatever they typed in search.
-    const seed = query.trim();
-    setNewName(seed);
+    const name = query.trim() || newName;
+    setNewName(name);
     onChange({
       mode: "new",
-      name: seed,
-      email: undefined,
-      phone: undefined,
+      name,
+      email: newEmail || undefined,
+      phone: newPhone || undefined,
     });
   };
 
@@ -206,12 +211,21 @@ export default function CustomerPicker({
     setQuery("");
   };
 
+  const ownerModes = owner ? (
+    <div role="group" aria-label="Customer type" className="grid grid-cols-3 gap-1.5 rounded-[14px] bg-[#F1F2EF] p-1.5">
+      <button type="button" onClick={() => { if (value && value.mode !== "existing") handleClear(); }} disabled={disabled} aria-pressed={!value || value.mode === "existing"} className={cn("min-h-11 cursor-pointer rounded-[10px] px-1 text-[11px] font-semibold focus-visible:ring-2 focus-visible:ring-[#72CF35] sm:text-xs", !value || value.mode === "existing" ? "bg-[#20211F] text-white" : "text-[#696C67] hover:bg-white")}>Existing</button>
+      <button type="button" onClick={handleStartNew} disabled={disabled} aria-pressed={value?.mode === "new"} className={cn("min-h-11 cursor-pointer rounded-[10px] px-1 text-[11px] font-semibold focus-visible:ring-2 focus-visible:ring-[#72CF35] sm:text-xs", value?.mode === "new" ? "bg-[#20211F] text-white" : "text-[#696C67] hover:bg-white")}>New</button>
+      <button type="button" onClick={handleStartAnonymous} disabled={disabled} aria-pressed={value?.mode === "anonymous"} className={cn("min-h-11 cursor-pointer rounded-[10px] px-1 text-[11px] font-semibold focus-visible:ring-2 focus-visible:ring-[#72CF35] sm:text-xs", value?.mode === "anonymous" ? "bg-[#20211F] text-white" : "text-[#696C67] hover:bg-white")}>Walk-in</button>
+    </div>
+  ) : null;
+
   // ─── Render: existing-customer card ──────────────────────────────────────
   if (value?.mode === "existing") {
     const c = value.customer;
     return (
-      <div className="space-y-2">
-        <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] to-card p-3.5 shadow-sm">
+      <div className="space-y-3">
+        {ownerModes}
+        <div className={cn("flex items-center gap-3 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] to-card p-3.5 shadow-sm", owner && "rounded-[16px] border-[#72CF35] bg-[#EFF9E8] bg-none shadow-none")}>
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/15 shrink-0">
             <CheckCircle2 className="h-5 w-5 text-primary" />
           </div>
@@ -248,7 +262,7 @@ export default function CustomerPicker({
             size="sm"
             onClick={handleClear}
             disabled={disabled}
-            className="shrink-0 cursor-pointer text-muted-foreground hover:text-foreground"
+            className={cn("shrink-0 cursor-pointer text-muted-foreground hover:text-foreground", owner && "min-h-11 text-[#343633]")}
           >
             Change
           </Button>
@@ -261,6 +275,7 @@ export default function CustomerPicker({
   if (value?.mode === "new") {
     return (
       <div className="space-y-3">
+        {ownerModes}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <UserPlus className="h-4 w-4 text-primary" />
@@ -289,10 +304,11 @@ export default function CustomerPicker({
 
         <div className="space-y-2.5">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label htmlFor={`${searchId}-new-name`} className="text-xs font-medium text-muted-foreground">
               Full name <span className="text-destructive">*</span>
             </label>
             <Input
+              id={`${searchId}-new-name`}
               value={newName}
               onChange={(e) => {
                 setNewName(e.target.value);
@@ -309,10 +325,11 @@ export default function CustomerPicker({
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label htmlFor={`${searchId}-new-phone`} className="text-xs font-medium text-muted-foreground">
               Phone number
             </label>
             <Input
+              id={`${searchId}-new-phone`}
               type="tel"
               value={newPhone}
               onChange={(e) => {
@@ -329,10 +346,11 @@ export default function CustomerPicker({
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label htmlFor={`${searchId}-new-email`} className="text-xs font-medium text-muted-foreground">
               Email <span className="text-muted-foreground/70">(optional)</span>
             </label>
             <Input
+              id={`${searchId}-new-email`}
               type="email"
               value={newEmail}
               onChange={(e) => {
@@ -357,6 +375,7 @@ export default function CustomerPicker({
   if (value?.mode === "anonymous") {
     return (
       <div className="space-y-3">
+        {ownerModes}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldAlert className="h-4 w-4 text-amber-600" />
@@ -385,11 +404,12 @@ export default function CustomerPicker({
 
         <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-3 space-y-2.5">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-amber-900">
+            <label htmlFor={`${searchId}-walkin-label`} className="text-xs font-medium text-amber-900">
               Label for this booking{" "}
               <span className="text-amber-900/70">(optional)</span>
             </label>
             <Input
+              id={`${searchId}-walkin-label`}
               value={anonLabel}
               onChange={(e) => {
                 setAnonLabel(e.target.value);
@@ -410,10 +430,13 @@ export default function CustomerPicker({
 
   // ─── Render: search mode (default) ───────────────────────────────────────
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={cn("relative", owner && "space-y-3")}>
+      {ownerModes}
+      {owner && <label htmlFor={searchId} className="block text-xs font-semibold text-[#343633]">Find a customer</label>}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
+          id={searchId}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -421,7 +444,7 @@ export default function CustomerPicker({
           }}
           onFocus={() => setShowResults(true)}
           placeholder="Search by name, phone, or email…"
-          className="pl-9 h-11"
+          className={cn("pl-9 h-11", owner && "rounded-[12px] border-[#DDE0D9] bg-[#F8F9F6] focus-visible:ring-[#72CF35]")}
           disabled={disabled}
           autoComplete="off"
         />
@@ -501,14 +524,18 @@ export default function CustomerPicker({
             </div>
           )}
 
-          {!isFetching && hits.length === 0 && query.trim().length > 0 && (
+          {!isFetching && (isError || data?.success === false) && (
+            <div role="alert" className="border-b border-border/40 px-3 py-2.5 text-xs text-[#C74248]">Customer search is unavailable. Try again.</div>
+          )}
+
+          {!isFetching && !isError && data?.success !== false && hits.length === 0 && query.trim().length > 0 && (
             <div className="px-3 py-2.5 text-xs text-muted-foreground border-b border-border/40">
               No matching customers.
             </div>
           )}
 
           {/* Always-visible "create new" + anonymous affordances */}
-          <div className="border-t border-border bg-muted/30">
+          {!owner && <div className="border-t border-border bg-muted/30">
             <button
               type="button"
               onClick={handleStartNew}
@@ -549,7 +576,7 @@ export default function CustomerPicker({
                 </p>
               </div>
             </button>
-          </div>
+          </div>}
         </div>
       )}
     </div>

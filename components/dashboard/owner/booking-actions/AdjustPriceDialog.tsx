@@ -1,4 +1,5 @@
 "use client";
+import { useBookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 
 /**
  * AdjustPriceDialog — apply a manual discount or surcharge to a
@@ -53,7 +54,8 @@ export type AdjustPriceDialogProps = {
    */
   lines?: ReadonlyArray<{ id: number; serviceName: string; finalPrice: number }>;
   /** Optional override for the trigger element. */
-  trigger?: React.ReactNode;
+trigger?: React.ReactNode;
+  onChanged?: () => void;
 };
 
 const formatCurrency = (amount: number) =>
@@ -65,9 +67,11 @@ const formatCurrency = (amount: number) =>
 export function AdjustPriceDialog({
   bookingId,
   lines = [],
-  trigger,
+trigger,
+  onChanged,
 }: AdjustPriceDialogProps) {
   const router = useRouter();
+  const staffDialogTheme = useBookingDialogTheme();
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState<string>("BOOKING"); // "BOOKING" or stringified line id
   const [sign, setSign] = useState<"DISCOUNT" | "SURCHARGE">("DISCOUNT");
@@ -123,7 +127,8 @@ export function AdjustPriceDialog({
         } by ${formatCurrency(Math.abs(numericAmount))}`,
       );
       setOpen(false);
-      router.refresh();
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       showActionErrorToast(msg, { action: "adjust this booking's price" });
@@ -147,7 +152,7 @@ export function AdjustPriceDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-3xl">
+      <DialogContent className={`rounded-3xl ${staffDialogTheme}`}>
         <DialogHeader>
           <DialogTitle>Adjust booking price</DialogTitle>
           <DialogDescription>
@@ -165,7 +170,7 @@ export function AdjustPriceDialog({
                 <SelectTrigger id="adjust-target" className="rounded-xl">
                   <SelectValue placeholder="Whole booking" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectContent className={`rounded-xl ${staffDialogTheme}`}>
                   <SelectItem value="BOOKING">Whole booking</SelectItem>
                   {lines.map((line) => (
                     <SelectItem key={line.id} value={String(line.id)}>
@@ -187,7 +192,7 @@ export function AdjustPriceDialog({
                 <SelectTrigger id="adjust-sign" className="rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectContent className={`rounded-xl ${staffDialogTheme}`}>
                   <SelectItem value="DISCOUNT">Discount</SelectItem>
                   <SelectItem value="SURCHARGE">Surcharge</SelectItem>
                 </SelectContent>

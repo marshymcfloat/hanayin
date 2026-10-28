@@ -5,13 +5,13 @@ import { parseReportDateRange } from "@/lib/services/reports/date-range";
 import { getAdvancedReportPayload, getCoreReportPayload } from "@/lib/services/reports/queries";
 import { recordReportTelemetry } from "@/lib/services/reports/telemetry";
 import { serializeReportXlsx } from "@/lib/services/reports/xlsx";
+import { resolveTenantActorContext } from "@/lib/auth/staff-access";
 import type {
   AdvancedReportTab,
   CoreReportTab,
   ReportPayloadMap,
   ReportTab,
 } from "@/lib/types/reports";
-import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 
 const CORE_TAB_SET = new Set<CoreReportTab>([
@@ -72,17 +72,9 @@ export async function GET(request: Request) {
     return getErrorResponse("Forbidden.", 403);
   }
 
-  const business = await prisma.business.findUnique({
-    where: {
-      slug: businessSlug,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!business) {
-    return getErrorResponse("Business not found.", 404);
+  const context = await resolveTenantActorContext(businessSlug, session.user.id);
+  if (!context.success || context.actorType !== "OWNER") {
+    return getErrorResponse("Forbidden.", 403);
   }
 
   const entitlements = isAdvancedTab
@@ -103,12 +95,12 @@ export async function GET(request: Request) {
   const payload = isCoreTab
     ? await getCoreReportPayload({
         tab: tab as CoreReportTab,
-        businessId: business.id,
+        businessId: context.businessId,
         range,
       })
     : await getAdvancedReportPayload({
         tab: tab as AdvancedReportTab,
-        businessId: business.id,
+        businessId: context.businessId,
         range,
       });
   const responseBody =
@@ -123,7 +115,7 @@ export async function GET(request: Request) {
   await recordReportTelemetry({
     action: "REPORT_EXPORT",
     actorId: session.user.id,
-    businessId: business.id,
+    businessId: context.businessId,
     tab,
     preset: range.preset,
     rangeStart: range.start,

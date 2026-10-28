@@ -1,42 +1,19 @@
-import { SaleEventsPageClient } from "@/components/dashboard/owner/sale-events/SaleEventsPageClient";
-import { redirect } from "next/navigation";
-import { getSaleEventsWorkspaceData } from "@/features/catalog/queries/sale-events";
-import { parseGrowthFlowContext } from "@/components/dashboard/owner/growth/types";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
+import { Suspense } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/auth/auth-options";
+import type { ComponentProps } from "react";
+import LegacyPage from "./LegacyPage";
+import PreviewPage from "@/app/(private-preview)/owner-dashboard-preview/[businessSlug]/sale-events/page";
 
-export default async function SaleEventsPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ businessSlug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const [{ businessSlug }, rawSearchParams] = await Promise.all([
-    params,
-    searchParams,
-  ]);
-  const data = await getSaleEventsWorkspaceData(businessSlug);
-  if (!data.success) {
-    redirect(`/app/${businessSlug}`);
-  }
-  const flowContext = parseGrowthFlowContext(rawSearchParams);
+type Props = ComponentProps<typeof LegacyPage>;
 
-  const { business, initialOpportunity, growthEnabled, growthAiEnabled, socialEnabled } = data;
+export default function Page(props: Props) {
+  return <Suspense fallback={<OwnerRouteLoading section="sale events" />}><PageContent {...props} /></Suspense>;
+}
 
-  return (
-    <SaleEventsPageClient
-      businessSlug={businessSlug}
-      initialEvents={business.sale_events}
-      services={business.services}
-      packages={business.packages}
-      initialOpportunity={initialOpportunity}
-      connectedPlatforms={business.social_connections.map(
-        (connection) => connection.platform,
-      )}
-      socialPublishingEnabled={socialEnabled}
-      growthEnabled={growthEnabled}
-      growthAiEnabled={growthAiEnabled}
-      socialEnabled={socialEnabled}
-      flowContext={flowContext}
-    />
-  );
+async function PageContent(props: Props) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "OWNER") return <PreviewPage />;
+  return <LegacyPage {...props} />;
 }

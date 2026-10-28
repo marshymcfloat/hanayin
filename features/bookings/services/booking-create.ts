@@ -15,6 +15,8 @@ import { createBookingInDb } from "@/features/bookings/services/booking-persiste
 import { prisma } from "@/prisma/prisma";
 
 export type BookingCreationServiceInput = {
+  expectedQuoteFingerprint?: string;
+  requestKey?: string;
   customerId?: string;
   customerName: string;
   businessSlug: string;
@@ -25,11 +27,14 @@ export type BookingCreationServiceInput = {
   paymentType: PaymentType;
   email?: string;
   phone?: string;
+  otpVerificationId?: number;
+  otpVerificationToken?: string;
   services: {
     id: number;
     quantity: number;
     claimedByCurrentEmployee?: boolean;
     packageId?: number;
+    packageInstanceId?: string; packageChoiceId?: string; selectionKey?: string;
   }[];
   voucherCode?: string;
   isWalkIn: boolean;
@@ -39,6 +44,7 @@ export type BookingCreationServiceInput = {
 };
 
 export type BookingCreationContext = {
+  requestScope?: string;
   businessId: string;
   isPublicBooking: boolean;
   allowWalkInCapacityBypass: boolean;
@@ -65,6 +71,10 @@ export async function createBookingWorkflow(
   context: BookingCreationContext,
 ): Promise<BookingCreationOutcome> {
   let assignmentDowngraded = false;
+  if (input.requestKey && context.requestScope && await prisma.booking.findFirst({ where: { business_id: context.businessId, request_scope: context.requestScope, request_key: input.requestKey }, select: { id: true } })) {
+    const existing = await createBookingInDb({ ...input, estimatedEnd: input.scheduledAt, requestScope: context.requestScope, isPublicBooking: context.isPublicBooking, isAnonymousWalkIn: !context.isPublicBooking && input.isAnonymousWalkIn, forceCreateCustomer: !context.isPublicBooking && input.forceCreateCustomer, allowWalkInCapacityBypass: context.allowWalkInCapacityBypass });
+    return { bookingId: existing.id, warnings: [] };
+  }
 
   try {
     if (context.isPublicBooking) {
@@ -149,7 +159,12 @@ export async function createBookingWorkflow(
       paymentType: input.paymentType,
       email: input.email,
       phone: input.phone,
-      voucherCode: pricing.voucher?.code,
+      otpVerificationId: input.otpVerificationId,
+      otpVerificationToken: input.otpVerificationToken,
+      voucherCode: input.voucherCode,
+      expectedQuoteFingerprint: input.expectedQuoteFingerprint,
+      requestKey: input.requestKey,
+      requestScope: context.requestScope,
       totalDiscount: pricing.voucherDiscount,
       isPublicBooking: context.isPublicBooking,
       isWalkIn: input.isWalkIn,

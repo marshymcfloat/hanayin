@@ -7,6 +7,7 @@ import { listSocialPostRequestsAction } from "@/features/social/actions/social-p
 import { hasViewerPermission } from "@/lib/auth/viewer-permissions";
 import { StaffPermission } from "@/prisma/generated/prisma/enums";
 import { MyRequestsPageClient } from "@/components/dashboard/social-posts/MyRequestsPageClient";
+import { Suspense } from "react";
 
 /**
  * Wave E E8: requester's "My Requests" page.
@@ -20,11 +21,30 @@ import { MyRequestsPageClient } from "@/components/dashboard/social-posts/MyRequ
  * place. The client component below handles edit / cancel actions.
  */
 
-export default async function MyRequestsPage({
-  params,
-}: {
+type MyRequestsPageProps = {
   params: Promise<{ businessSlug: string }>;
-}) {
+};
+
+export default function MyRequestsPage({ params }: MyRequestsPageProps) {
+  return (
+    <Suspense fallback={<MyRequestsPageSkeleton />}>
+      <MyRequestsContent params={params} />
+    </Suspense>
+  );
+}
+
+function MyRequestsPageSkeleton() {
+  return (
+    <div className="p-8">
+      <h1 className="text-xl font-semibold text-foreground">My Requests</h1>
+      <p className="mt-2 text-sm text-muted-foreground">Loading requests…</p>
+    </div>
+  );
+}
+
+async function MyRequestsContent({
+  params,
+}: MyRequestsPageProps) {
   const { businessSlug } = await params;
 
   const auth = await requireTenantAccess(businessSlug);

@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import staffTheme from "../StaffWorkspaceTheme.module.css";
 
 /**
  * AccountDropdown — the avatar trigger + menu in the top-right
@@ -46,11 +47,11 @@ export function AccountDropdown({
         <Button
           variant="ghost"
           size="icon"
-          className="size-10 rounded-full p-0 hover:bg-primary/[0.06] focus-visible:ring-primary/30"
+          className="size-11 rounded-full border border-[#E7E9E4] bg-white p-0 text-[#20211F] hover:bg-[#EFF9E8] focus-visible:ring-[#72CF35]"
           aria-label="Account menu"
         >
-          <Avatar className="size-10 ring-1 ring-inset ring-black/[0.06]">
-            <AvatarFallback className="bg-primary text-primary-foreground">
+          <Avatar className="size-10">
+            <AvatarFallback className="bg-[#20211F] text-white">
               <UserIcon className="size-4" />
             </AvatarFallback>
           </Avatar>
@@ -59,20 +60,20 @@ export function AccountDropdown({
       <DropdownMenuContent
         align="end"
         sideOffset={6}
-        className="w-56 rounded-2xl p-1.5"
+        className={`${staffTheme.workspace} w-56 rounded-2xl border-[#E7E9E4] bg-white p-1.5 text-[#20211F] shadow-[0_18px_45px_rgba(32,33,31,0.15)]`}
       >
-        <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#696C67]">
           My account
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+        <DropdownMenuItem asChild className="min-h-11 cursor-pointer rounded-lg focus:bg-[#EFF9E8]">
           <Link href={`/app/${businessSlug}/bookings`}>
             <CalendarIcon className="mr-2 size-4" />
             All bookings
           </Link>
         </DropdownMenuItem>
         {canSubmitSocialPost ? (
-          <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+            <DropdownMenuItem asChild className="min-h-11 cursor-pointer rounded-lg focus:bg-[#EFF9E8]">
             <Link href={`/app/${businessSlug}/social-posts/my-requests`}>
               <MessageSquarePlus className="mr-2 size-4" />
               My post requests
@@ -82,7 +83,7 @@ export function AccountDropdown({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="cursor-pointer rounded-lg text-destructive focus:bg-destructive/10 focus:text-destructive"
+          className="min-h-11 cursor-pointer rounded-lg text-[#C74248] focus:bg-[#FFF0F0] focus:text-[#C74248]"
         >
           <LogOut className="mr-2 size-4" />
           Log out

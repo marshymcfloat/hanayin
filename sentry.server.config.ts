@@ -4,7 +4,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-if (process.env.NODE_ENV !== "development") {
+if (process.env.NODE_ENV !== "development" && process.env.TEST_DATABASE_DISPOSABLE !== "1") {
   Sentry.init({
     dsn: "https://0746c66345fd76fdb762e0b51a5473be@o4509825248985088.ingest.de.sentry.io/4510856311865425",
 

@@ -1,71 +1,19 @@
-import { notFound, redirect } from "next/navigation";
-import { Role } from "@/prisma/generated/prisma/enums";
-import { OwnerAttendanceClient } from "@/components/dashboard/attendance/OwnerAttendanceClient";
-import { EmployeeLeaveClient } from "@/components/dashboard/attendance/EmployeeLeaveClient";
-import {
-  getLeaveRequests,
-  getUserLeaveRequests,
-} from "@/features/workforce/queries/leave-request";
-import { getDailyAttendance } from "@/features/workforce/actions/attendance-admin";
-import { getAttendanceWorkspaceContext } from "@/features/workforce/queries/attendance";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
+import { Suspense } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/auth/auth-options";
+import type { ComponentProps } from "react";
+import LegacyPage from "./LegacyPage";
+import PreviewPage from "@/app/(private-preview)/owner-dashboard-preview/[businessSlug]/attendance/page";
 
-export default async function AttendancePage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ businessSlug: string }>;
-  searchParams: Promise<{ date?: string }>;
-}) {
-  const { businessSlug } = await params;
-  const { date: dateParam } = await searchParams;
-  const contextResult = await getAttendanceWorkspaceContext(businessSlug);
-  if (!contextResult.success) {
-    if (contextResult.error === "Unauthorized") redirect("/auth/login");
-    if (contextResult.error === "Forbidden") redirect("/app");
-    notFound();
-  }
-  const context = contextResult.data;
-  const role = context.role;
+type Props = ComponentProps<typeof LegacyPage>;
 
-  if (role === Role.OWNER) {
-    const requestsResult = await getLeaveRequests(context.businessId);
-    const requests = requestsResult.success ? requestsResult.data || [] : [];
+export default function Page(props: Props) {
+  return <Suspense fallback={<OwnerRouteLoading section="attendance" />}><PageContent {...props} /></Suspense>;
+}
 
-    // Parse date or default to today
-    const date = dateParam ? new Date(dateParam) : new Date();
-    // Validate date?
-
-    const attendanceResult = await getDailyAttendance(context.businessId, date);
-    const dailyAttendance = attendanceResult.success
-      ? attendanceResult.data || []
-      : [];
-
-    return (
-      <OwnerAttendanceClient
-        businessId={context.businessId}
-        businessSlug={businessSlug}
-        leaveRequests={requests}
-        initialDailyAttendance={dailyAttendance}
-        currentDate={date}
-      />
-    );
-  } else if (role === Role.EMPLOYEE) {
-    if (!context.employeeId) {
-      return <div>Employee profile not found.</div>;
-    }
-
-    const requestsResult = await getUserLeaveRequests(context.employeeId);
-    const requests = requestsResult.success ? requestsResult.data || [] : [];
-
-    return (
-      <EmployeeLeaveClient
-        employeeId={context.employeeId}
-        businessId={context.businessId}
-        businessSlug={businessSlug}
-        requests={requests}
-      />
-    );
-  } else {
-    return <div>Access Denied</div>;
-  }
+async function PageContent(props: Props) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "OWNER") return <PreviewPage />;
+  return <LegacyPage {...props} />;
 }

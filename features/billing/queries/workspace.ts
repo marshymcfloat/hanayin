@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma/prisma";
 import { requireTenantAccess } from "@/lib/auth/guards";
-import { ensureBusinessSubscription, ensureDefaultPlans, ensureReferralCode, SUBSCRIPTION_PLAN_CODES } from "@/features/billing/subscription-service";
+import { SUBSCRIPTION_PLAN_CODES } from "@/features/billing/subscription-service";
+import { ownerSubscriptionBusinessFilter, resolveOwnerSubscriptionActor } from "@/features/billing/owner-subscription-access";
 
 function asObject(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -29,9 +30,11 @@ export function getManualPaymentMetadata(metadata: unknown) {
 export async function getBillingWorkspaceData(businessSlug: string) {
   const auth = await requireTenantAccess(businessSlug);
   if (!auth.success) return null;
-  await ensureDefaultPlans();
+  if (auth.session.user.role !== "OWNER" || !auth.session.user.id) return null;
+  const actor = await resolveOwnerSubscriptionActor(businessSlug, auth.session.user.id);
+  if (!actor) return null;
   const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
+    where: { id: actor.businessId, slug: actor.businessSlug },
     select: {
       id: true,
       name: true,
@@ -39,11 +42,8 @@ export async function getBillingWorkspaceData(businessSlug: string) {
   });
   if (!business) return null;
 
-  await ensureBusinessSubscription(business.id);
-  await ensureReferralCode(business.id);
-
-  const subscription = await prisma.businessSubscription.findUnique({
-    where: { business_id: business.id },
+  const subscription = await prisma.businessSubscription.findFirst({
+    where: { business_id: actor.businessId, business: ownerSubscriptionBusinessFilter(actor) },
     include: {
       plan: true,
       credits: {
@@ -51,6 +51,7 @@ export async function getBillingWorkspaceData(businessSlug: string) {
         take: 10,
       },
       invoices: {
+        where: { business_id: actor.businessId },
         orderBy: { created_at: "desc" },
         take: 20,
       },

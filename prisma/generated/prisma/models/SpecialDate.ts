@@ -214,7 +214,7 @@ export type SpecialDateGroupByOutputType = {
   _max: SpecialDateMaxAggregateOutputType | null
 }
 
-type GetSpecialDateGroupByPayload<T extends SpecialDateGroupByArgs> = Prisma.PrismaPromise<
+export type GetSpecialDateGroupByPayload<T extends SpecialDateGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SpecialDateGroupByOutputType, T['by']> &
       {
@@ -1243,6 +1243,11 @@ export type SpecialDateFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` SpecialDates.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SpecialDates.
+   */
   distinct?: Prisma.SpecialDateScalarFieldEnum | Prisma.SpecialDateScalarFieldEnum[]
 }
 

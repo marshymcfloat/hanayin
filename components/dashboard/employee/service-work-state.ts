@@ -37,6 +37,12 @@ export type EmployeeServiceWorkData = {
 
 export type ServiceWorkTransition = "claim" | "unclaim" | "complete" | "unserve";
 
+export type PendingServiceWorkTransition = {
+  serviceId: number;
+  transition: ServiceWorkTransition;
+  patch?: Partial<EmployeeServiceWorkItem>;
+};
+
 const destinationByTransition: Record<ServiceWorkTransition, keyof EmployeeServiceWorkData> = {
   claim: "active",
   unclaim: "pending",
@@ -72,6 +78,22 @@ export function transitionServiceWork(
     { ...item, ...patch, status: statusByTransition[transition] },
     ...next[destination],
   ];
+  return next;
+}
+
+export function applyPendingServiceWorkTransitions(
+  data: EmployeeServiceWorkData,
+  pending: Iterable<PendingServiceWorkTransition>,
+): EmployeeServiceWorkData {
+  let next = data;
+  for (const operation of pending) {
+    next = transitionServiceWork(
+      next,
+      operation.serviceId,
+      operation.transition,
+      operation.patch,
+    );
+  }
   return next;
 }
 

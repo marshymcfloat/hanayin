@@ -13,12 +13,13 @@
  * surface as a "Booking not found" toast and the panel closes.
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import {
   BookingQuickPanel,
   deriveBookingViewerContext,
+  type BookingViewerContext,
 } from "@/components/bookings/BookingQuickPanel";
 import {
   Dialog,
@@ -27,6 +28,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useViewer } from "@/lib/auth/viewer-context";
+import { BookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 import { showActionErrorToast } from "@/components/feedback/permission-toasts";
 import {
   getBookingDetailAction,
@@ -34,6 +36,9 @@ import {
 } from "@/features/bookings/actions/booking-detail";
 
 export type LazyBookingQuickPanelProps = {
+  businessSlug?: string;
+  themeClassName?: string;
+  restoreFocus?: () => void;
   bookingId: number | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -44,6 +49,10 @@ export type LazyBookingQuickPanelProps = {
     price: number;
     duration: number | null;
   }[];
+  /** Invalidate caller-owned booking queries after a confirmed management action. */
+  onBookingChanged?: () => void;
+  /** Supply a verified layout viewer when this panel is outside ViewerContextProvider. */
+  viewerContext?: BookingViewerContext;
 };
 
 /**
@@ -58,23 +67,74 @@ function reviveBooking(payload: BookingDetailPayload) {
     scheduled_at: payload.scheduled_at ? new Date(payload.scheduled_at) : null,
     estimated_end: payload.estimated_end ? new Date(payload.estimated_end) : null,
     created_at: new Date(payload.created_at),
-    // The panel sometimes destructures availed_services with Date-ish fields
-    // (status timestamps); we don't carry those in the payload because the
-    // panel's table doesn't render them. If a future caller needs them we
-    // can widen BookingDetailPayload.
+    hold_expires_at: payload.hold_expires_at ? new Date(payload.hold_expires_at) : null,
+    cancelled_at: payload.cancelled_at ? new Date(payload.cancelled_at) : null,
+    payments: payload.payments.map((payment) => ({
+      ...payment,
+      submitted_at: payment.submitted_at ? new Date(payment.submitted_at) : null,
+      verified_at: payment.verified_at ? new Date(payment.verified_at) : null,
+      paid_at: payment.paid_at ? new Date(payment.paid_at) : null,
+      escalated_at: payment.escalated_at ? new Date(payment.escalated_at) : null,
+    })),
   } as unknown as Parameters<typeof BookingQuickPanel>[0]["booking"];
 }
 
 export function LazyBookingQuickPanel({
+  viewerContext,
+  themeClassName = "",
+  ...props
+}: LazyBookingQuickPanelProps) {
+  return <BookingDialogTheme.Provider value={themeClassName}>{viewerContext
+    ? <LazyBookingQuickPanelContent {...props} themeClassName={themeClassName} viewerContext={viewerContext} />
+    : <LazyBookingQuickPanelWithViewer {...props} themeClassName={themeClassName} />}</BookingDialogTheme.Provider>;
+}
+
+function LazyBookingQuickPanelWithViewer(props: Omit<LazyBookingQuickPanelProps, "viewerContext">) {
+  const viewer = useViewer();
+  return <LazyBookingQuickPanelContent {...props} viewerContext={deriveBookingViewerContext(viewer)} />;
+}
+
+function LazyBookingQuickPanelContent({
   bookingId,
   open,
   onOpenChange,
   servicesCatalog = [],
-}: LazyBookingQuickPanelProps) {
-  const viewer = useViewer();
-  const viewerContext = deriveBookingViewerContext(viewer);
+  onBookingChanged,
+  viewerContext,
+  businessSlug,
+  themeClassName = "",
+  restoreFocus,
+}: Omit<LazyBookingQuickPanelProps, "viewerContext"> & { viewerContext: BookingViewerContext }) {
   const [payload, setPayload] = useState<BookingDetailPayload | null>(null);
   const [loading, setLoading] = useState(false);
+  const activeBookingId = useRef(bookingId);
+  const dialogOpen = useRef(open);
+  useLayoutEffect(() => { dialogOpen.current = open; }, [open]);
+  const onCloseAutoFocus = useCallback((event: Event) => {
+    if (!restoreFocus) return;
+    event.preventDefault();
+    if (!dialogOpen.current) restoreFocus();
+  }, [restoreFocus]);
+  useEffect(() => { activeBookingId.current = bookingId; }, [bookingId]);
+
+  const handleBookingChanged = () => {
+    onBookingChanged?.();
+    if (bookingId == null) return;
+    const changedId = bookingId;
+    void getBookingDetailAction(changedId).then((res) => {
+      if (activeBookingId.current !== changedId) return;
+      if (res.success) setPayload(res.booking);
+      else {
+        toast.error("Booking changed, but its details could not be refreshed.");
+        onOpenChange(false);
+      }
+    }).catch(() => {
+      if (activeBookingId.current === changedId) {
+        toast.error("Booking changed, but its details could not be refreshed.");
+        onOpenChange(false);
+      }
+    });
+  };
 
   // Wave G2 follow-up: react-hooks/set-state-in-effect rejects calling
   // setState synchronously inside a useEffect body. We split the
@@ -136,7 +196,7 @@ export function LazyBookingQuickPanel({
     <>
       {showPlaceholder ? (
         <Dialog open onOpenChange={onOpenChange}>
-          <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-[90vh] rounded-3xl p-0 gap-0 flex flex-col overflow-hidden bg-white border border-zinc-200 shadow-2xl">
+          <DialogContent onCloseAutoFocus={onCloseAutoFocus} aria-describedby={undefined} className={`w-[95vw] max-w-2xl h-[90vh] max-h-[90vh] rounded-3xl p-0 gap-0 flex flex-col overflow-hidden bg-white border border-zinc-200 shadow-2xl ${themeClassName}`}>
             <div className="flex shrink-0 justify-center pt-2 pb-1 bg-zinc-50/50">
               <div className="h-1 w-10 rounded-full bg-zinc-300" />
             </div>
@@ -152,11 +212,14 @@ export function LazyBookingQuickPanel({
         </Dialog>
       ) : null}
       <BookingQuickPanel
+        businessSlug={businessSlug}
+        onCloseAutoFocus={onCloseAutoFocus}
         booking={payload ? reviveBooking(payload) : null}
         servicesCatalog={servicesCatalog}
         open={open && !showPlaceholder}
         onOpenChange={onOpenChange}
         viewerContext={viewerContext}
+        onBookingChanged={onBookingChanged ? handleBookingChanged : undefined}
       />
     </>
   );

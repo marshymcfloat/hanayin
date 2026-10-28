@@ -1,51 +1,19 @@
-import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
-import { getNotificationHistoryAction } from "@/features/notifications/actions/notifications";
-import { NotificationsPageClient } from "@/components/dashboard/owner/notifications/NotificationsPageClient";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
+import { Suspense } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/auth/auth-options";
+import type { ComponentProps } from "react";
+import LegacyPage from "./LegacyPage";
+import PreviewPage from "@/app/(private-preview)/owner-dashboard-preview/[businessSlug]/notifications/page";
 
-export default async function NotificationsPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ businessSlug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const { businessSlug } = await params;
-  const rawParams = await searchParams;
+type Props = ComponentProps<typeof LegacyPage>;
 
-  const auth = await requireOwnerTenantWriteAccess(businessSlug);
-  if (!auth.success) {
-    return (
-      <div className="p-8">
-        <h1 className="text-xl font-semibold">Access Denied</h1>
-        <p className="mt-2 text-sm text-muted-foreground">You do not have access to this page.</p>
-      </div>
-    );
-  }
+export default function Page(props: Props) {
+  return <Suspense fallback={<OwnerRouteLoading section="notifications" />}><PageContent {...props} /></Suspense>;
+}
 
-  const page = typeof rawParams.page === "string" ? Math.max(1, Number.parseInt(rawParams.page, 10) || 1) : 1;
-  const eventType = typeof rawParams.type === "string" ? rawParams.type : undefined;
-
-  const result = await getNotificationHistoryAction(businessSlug, { page, eventType });
-
-  if (!result.success) {
-    return (
-      <div className="p-8">
-        <p className="text-sm text-destructive">{result.error}</p>
-      </div>
-    );
-  }
-
-  return (
-    <NotificationsPageClient
-      businessSlug={businessSlug}
-      notifications={result.notifications.map((n) => ({
-        ...n,
-        sentAt: n.sentAt.toISOString(),
-      }))}
-      totalCount={result.totalCount}
-      page={result.page}
-      totalPages={result.totalPages}
-      currentType={eventType}
-    />
-  );
+async function PageContent(props: Props) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "OWNER") return <PreviewPage />;
+  return <LegacyPage {...props} />;
 }

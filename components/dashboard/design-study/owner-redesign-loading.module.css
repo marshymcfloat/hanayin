@@ -1,0 +1,20 @@
+.card{display:flex;flex-direction:column;min-height:300px}
+.shapes{flex:1;min-height:0;opacity:.8}
+.line,.amount,.avatar,.end,.bar{display:block;background:#e7deef;border-radius:5px}
+.line{width:44%;height:8px;margin-block:8px}.wide{width:74%}
+.amount{width:48%;height:30px;margin-block:19px}
+.metricShapes{opacity:.75}.metricShapes .amount{margin-block:16px;height:28px}.metricShapes .line{margin-block:6px}
+.date{width:130px;min-height:40px}.date .line{margin:0}
+.row{display:flex;align-items:center;gap:12px;min-height:64px;padding:12px 0;border-bottom:1px solid #e9e1ef}
+.row>div{flex:1}.row:last-child{border-bottom:0}.avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0}.end{width:36px;height:10px}.bar{height:4px;width:90%;margin-top:12px}
+.tabs{display:flex;justify-content:space-around;gap:20px;padding:10px;background:#efe9f4;border-radius:8px;margin-bottom:14px}.tabs .line{width:22%}
+.chart{display:flex;min-height:320px;height:100%;gap:18px;background:#fdfbff;border-radius:14px;overflow:hidden}
+.chartSummary{width:32%;padding:22px 16px;background:#e0d1ef;display:flex;flex-direction:column;gap:8px}.chartSummary .line{background:#c9b3e1}.chartSummary .amount{width:85%;background:#c9b3e1}.chartSummary .line:last-child{margin-top:auto}
+.plot{flex:1;display:flex;align-items:flex-end;justify-content:space-around;gap:12px;margin:45px 18px 30px 0;border-bottom:1px solid #e4daec;background:repeating-linear-gradient(to top,transparent 0,transparent calc(33.33% - 1px),#ede6f2 calc(33.33% - 1px),#ede6f2 33.33%)}
+.plot i{width:9%;background:#e1d4ec;border-radius:5px 5px 0 0}.plot i:nth-child(2n){background:#eadde6}
+.growth{padding-top:14px}.team{display:flex;gap:20px;flex:1;min-height:42px;align-items:center}.team .line{max-width:125px}
+.error{display:flex;flex:1;flex-direction:column;align-items:flex-start;justify-content:center;gap:12px;min-height:95px;color:var(--muted);font-size:12px}
+.error button{border:1px solid #d8c6e7;background:#fff;color:#63389d;border-radius:8px;padding:8px 12px;min-height:36px}
+.srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+@media(prefers-reduced-motion:no-preference){.shapes,.metricShapes{animation:breathe 1.8s ease-in-out 3}@keyframes breathe{50%{opacity:.45}}}
+@media(max-width:767px){.card{min-height:280px}.chart{min-height:300px;gap:12px}.chartSummary{padding:18px 10px;width:34%}.plot{gap:8px;margin-right:10px}.team{gap:12px}}

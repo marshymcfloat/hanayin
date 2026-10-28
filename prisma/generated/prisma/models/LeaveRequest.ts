@@ -29,11 +29,13 @@ export type AggregateLeaveRequest = {
 export type LeaveRequestAvgAggregateOutputType = {
   id: number | null
   employee_id: number | null
+  revision: number | null
 }
 
 export type LeaveRequestSumAggregateOutputType = {
   id: number | null
   employee_id: number | null
+  revision: number | null
 }
 
 export type LeaveRequestMinAggregateOutputType = {
@@ -47,6 +49,9 @@ export type LeaveRequestMinAggregateOutputType = {
   status: $Enums.LeaveRequestStatus | null
   admin_comment: string | null
   is_paid: boolean | null
+  revision: number | null
+  cancelled_at: Date | null
+  benefit_code: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -62,6 +67,9 @@ export type LeaveRequestMaxAggregateOutputType = {
   status: $Enums.LeaveRequestStatus | null
   admin_comment: string | null
   is_paid: boolean | null
+  revision: number | null
+  cancelled_at: Date | null
+  benefit_code: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -77,6 +85,9 @@ export type LeaveRequestCountAggregateOutputType = {
   status: number
   admin_comment: number
   is_paid: number
+  revision: number
+  cancelled_at: number
+  benefit_code: number
   created_at: number
   updated_at: number
   _all: number
@@ -86,11 +97,13 @@ export type LeaveRequestCountAggregateOutputType = {
 export type LeaveRequestAvgAggregateInputType = {
   id?: true
   employee_id?: true
+  revision?: true
 }
 
 export type LeaveRequestSumAggregateInputType = {
   id?: true
   employee_id?: true
+  revision?: true
 }
 
 export type LeaveRequestMinAggregateInputType = {
@@ -104,6 +117,9 @@ export type LeaveRequestMinAggregateInputType = {
   status?: true
   admin_comment?: true
   is_paid?: true
+  revision?: true
+  cancelled_at?: true
+  benefit_code?: true
   created_at?: true
   updated_at?: true
 }
@@ -119,6 +135,9 @@ export type LeaveRequestMaxAggregateInputType = {
   status?: true
   admin_comment?: true
   is_paid?: true
+  revision?: true
+  cancelled_at?: true
+  benefit_code?: true
   created_at?: true
   updated_at?: true
 }
@@ -134,6 +153,9 @@ export type LeaveRequestCountAggregateInputType = {
   status?: true
   admin_comment?: true
   is_paid?: true
+  revision?: true
+  cancelled_at?: true
+  benefit_code?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -236,6 +258,9 @@ export type LeaveRequestGroupByOutputType = {
   status: $Enums.LeaveRequestStatus
   admin_comment: string | null
   is_paid: boolean
+  revision: number
+  cancelled_at: Date | null
+  benefit_code: string
   created_at: Date
   updated_at: Date
   _count: LeaveRequestCountAggregateOutputType | null
@@ -245,7 +270,7 @@ export type LeaveRequestGroupByOutputType = {
   _max: LeaveRequestMaxAggregateOutputType | null
 }
 
-type GetLeaveRequestGroupByPayload<T extends LeaveRequestGroupByArgs> = Prisma.PrismaPromise<
+export type GetLeaveRequestGroupByPayload<T extends LeaveRequestGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<LeaveRequestGroupByOutputType, T['by']> &
       {
@@ -274,10 +299,14 @@ export type LeaveRequestWhereInput = {
   status?: Prisma.EnumLeaveRequestStatusFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableFilter<"LeaveRequest"> | string | null
   is_paid?: Prisma.BoolFilter<"LeaveRequest"> | boolean
+  revision?: Prisma.IntFilter<"LeaveRequest"> | number
+  cancelled_at?: Prisma.DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
+  benefit_code?: Prisma.StringFilter<"LeaveRequest"> | string
   created_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  allocations?: Prisma.LeaveAllocationListRelationFilter
 }
 
 export type LeaveRequestOrderByWithRelationInput = {
@@ -291,10 +320,14 @@ export type LeaveRequestOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrderInput | Prisma.SortOrder
   is_paid?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  benefit_code?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
   business?: Prisma.BusinessOrderByWithRelationInput
+  allocations?: Prisma.LeaveAllocationOrderByRelationAggregateInput
 }
 
 export type LeaveRequestWhereUniqueInput = Prisma.AtLeast<{
@@ -311,10 +344,14 @@ export type LeaveRequestWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumLeaveRequestStatusFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableFilter<"LeaveRequest"> | string | null
   is_paid?: Prisma.BoolFilter<"LeaveRequest"> | boolean
+  revision?: Prisma.IntFilter<"LeaveRequest"> | number
+  cancelled_at?: Prisma.DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
+  benefit_code?: Prisma.StringFilter<"LeaveRequest"> | string
   created_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  allocations?: Prisma.LeaveAllocationListRelationFilter
 }, "id">
 
 export type LeaveRequestOrderByWithAggregationInput = {
@@ -328,6 +365,9 @@ export type LeaveRequestOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrderInput | Prisma.SortOrder
   is_paid?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  benefit_code?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.LeaveRequestCountOrderByAggregateInput
@@ -351,6 +391,9 @@ export type LeaveRequestScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumLeaveRequestStatusWithAggregatesFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableWithAggregatesFilter<"LeaveRequest"> | string | null
   is_paid?: Prisma.BoolWithAggregatesFilter<"LeaveRequest"> | boolean
+  revision?: Prisma.IntWithAggregatesFilter<"LeaveRequest"> | number
+  cancelled_at?: Prisma.DateTimeNullableWithAggregatesFilter<"LeaveRequest"> | Date | string | null
+  benefit_code?: Prisma.StringWithAggregatesFilter<"LeaveRequest"> | string
   created_at?: Prisma.DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
 }
@@ -363,10 +406,14 @@ export type LeaveRequestCreateInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutLeave_requestsInput
   business: Prisma.BusinessCreateNestedOneWithoutLeave_requestsInput
+  allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutLeave_requestInput
 }
 
 export type LeaveRequestUncheckedCreateInput = {
@@ -380,8 +427,12 @@ export type LeaveRequestUncheckedCreateInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
+  allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutLeave_requestInput
 }
 
 export type LeaveRequestUpdateInput = {
@@ -392,10 +443,14 @@ export type LeaveRequestUpdateInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutLeave_requestsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutLeave_requestsNestedInput
+  allocations?: Prisma.LeaveAllocationUpdateManyWithoutLeave_requestNestedInput
 }
 
 export type LeaveRequestUncheckedUpdateInput = {
@@ -409,8 +464,12 @@ export type LeaveRequestUncheckedUpdateInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutLeave_requestNestedInput
 }
 
 export type LeaveRequestCreateManyInput = {
@@ -424,6 +483,9 @@ export type LeaveRequestCreateManyInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -436,6 +498,9 @@ export type LeaveRequestUpdateManyMutationInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -451,6 +516,9 @@ export type LeaveRequestUncheckedUpdateManyInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -476,6 +544,9 @@ export type LeaveRequestCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrder
   is_paid?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrder
+  benefit_code?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -483,6 +554,7 @@ export type LeaveRequestCountOrderByAggregateInput = {
 export type LeaveRequestAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   employee_id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
 }
 
 export type LeaveRequestMaxOrderByAggregateInput = {
@@ -496,6 +568,9 @@ export type LeaveRequestMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrder
   is_paid?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrder
+  benefit_code?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -511,6 +586,9 @@ export type LeaveRequestMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrder
   is_paid?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrder
+  benefit_code?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -518,6 +596,12 @@ export type LeaveRequestMinOrderByAggregateInput = {
 export type LeaveRequestSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   employee_id?: Prisma.SortOrder
+  revision?: Prisma.SortOrder
+}
+
+export type LeaveRequestScalarRelationFilter = {
+  is?: Prisma.LeaveRequestWhereInput
+  isNot?: Prisma.LeaveRequestWhereInput
 }
 
 export type LeaveRequestCreateNestedManyWithoutBusinessInput = {
@@ -570,6 +654,10 @@ export type EnumLeaveRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.LeaveRequestStatus
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type LeaveRequestCreateNestedManyWithoutEmployeeInput = {
   create?: Prisma.XOR<Prisma.LeaveRequestCreateWithoutEmployeeInput, Prisma.LeaveRequestUncheckedCreateWithoutEmployeeInput> | Prisma.LeaveRequestCreateWithoutEmployeeInput[] | Prisma.LeaveRequestUncheckedCreateWithoutEmployeeInput[]
   connectOrCreate?: Prisma.LeaveRequestCreateOrConnectWithoutEmployeeInput | Prisma.LeaveRequestCreateOrConnectWithoutEmployeeInput[]
@@ -612,6 +700,20 @@ export type LeaveRequestUncheckedUpdateManyWithoutEmployeeNestedInput = {
   deleteMany?: Prisma.LeaveRequestScalarWhereInput | Prisma.LeaveRequestScalarWhereInput[]
 }
 
+export type LeaveRequestCreateNestedOneWithoutAllocationsInput = {
+  create?: Prisma.XOR<Prisma.LeaveRequestCreateWithoutAllocationsInput, Prisma.LeaveRequestUncheckedCreateWithoutAllocationsInput>
+  connectOrCreate?: Prisma.LeaveRequestCreateOrConnectWithoutAllocationsInput
+  connect?: Prisma.LeaveRequestWhereUniqueInput
+}
+
+export type LeaveRequestUpdateOneRequiredWithoutAllocationsNestedInput = {
+  create?: Prisma.XOR<Prisma.LeaveRequestCreateWithoutAllocationsInput, Prisma.LeaveRequestUncheckedCreateWithoutAllocationsInput>
+  connectOrCreate?: Prisma.LeaveRequestCreateOrConnectWithoutAllocationsInput
+  upsert?: Prisma.LeaveRequestUpsertWithoutAllocationsInput
+  connect?: Prisma.LeaveRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LeaveRequestUpdateToOneWithWhereWithoutAllocationsInput, Prisma.LeaveRequestUpdateWithoutAllocationsInput>, Prisma.LeaveRequestUncheckedUpdateWithoutAllocationsInput>
+}
+
 export type LeaveRequestCreateWithoutBusinessInput = {
   start_date: Date | string
   end_date: Date | string
@@ -620,9 +722,13 @@ export type LeaveRequestCreateWithoutBusinessInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutLeave_requestsInput
+  allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutLeave_requestInput
 }
 
 export type LeaveRequestUncheckedCreateWithoutBusinessInput = {
@@ -635,8 +741,12 @@ export type LeaveRequestUncheckedCreateWithoutBusinessInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
+  allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutLeave_requestInput
 }
 
 export type LeaveRequestCreateOrConnectWithoutBusinessInput = {
@@ -679,6 +789,9 @@ export type LeaveRequestScalarWhereInput = {
   status?: Prisma.EnumLeaveRequestStatusFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableFilter<"LeaveRequest"> | string | null
   is_paid?: Prisma.BoolFilter<"LeaveRequest"> | boolean
+  revision?: Prisma.IntFilter<"LeaveRequest"> | number
+  cancelled_at?: Prisma.DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
+  benefit_code?: Prisma.StringFilter<"LeaveRequest"> | string
   created_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
 }
@@ -691,9 +804,13 @@ export type LeaveRequestCreateWithoutEmployeeInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutLeave_requestsInput
+  allocations?: Prisma.LeaveAllocationCreateNestedManyWithoutLeave_requestInput
 }
 
 export type LeaveRequestUncheckedCreateWithoutEmployeeInput = {
@@ -706,8 +823,12 @@ export type LeaveRequestUncheckedCreateWithoutEmployeeInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
+  allocations?: Prisma.LeaveAllocationUncheckedCreateNestedManyWithoutLeave_requestInput
 }
 
 export type LeaveRequestCreateOrConnectWithoutEmployeeInput = {
@@ -736,6 +857,92 @@ export type LeaveRequestUpdateManyWithWhereWithoutEmployeeInput = {
   data: Prisma.XOR<Prisma.LeaveRequestUpdateManyMutationInput, Prisma.LeaveRequestUncheckedUpdateManyWithoutEmployeeInput>
 }
 
+export type LeaveRequestCreateWithoutAllocationsInput = {
+  start_date: Date | string
+  end_date: Date | string
+  reason: string
+  type?: $Enums.LeaveType
+  status?: $Enums.LeaveRequestStatus
+  admin_comment?: string | null
+  is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  employee: Prisma.EmployeeCreateNestedOneWithoutLeave_requestsInput
+  business: Prisma.BusinessCreateNestedOneWithoutLeave_requestsInput
+}
+
+export type LeaveRequestUncheckedCreateWithoutAllocationsInput = {
+  id?: number
+  employee_id: number
+  business_id: string
+  start_date: Date | string
+  end_date: Date | string
+  reason: string
+  type?: $Enums.LeaveType
+  status?: $Enums.LeaveRequestStatus
+  admin_comment?: string | null
+  is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
+  created_at?: Date | string
+  updated_at?: Date | string
+}
+
+export type LeaveRequestCreateOrConnectWithoutAllocationsInput = {
+  where: Prisma.LeaveRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeaveRequestCreateWithoutAllocationsInput, Prisma.LeaveRequestUncheckedCreateWithoutAllocationsInput>
+}
+
+export type LeaveRequestUpsertWithoutAllocationsInput = {
+  update: Prisma.XOR<Prisma.LeaveRequestUpdateWithoutAllocationsInput, Prisma.LeaveRequestUncheckedUpdateWithoutAllocationsInput>
+  create: Prisma.XOR<Prisma.LeaveRequestCreateWithoutAllocationsInput, Prisma.LeaveRequestUncheckedCreateWithoutAllocationsInput>
+  where?: Prisma.LeaveRequestWhereInput
+}
+
+export type LeaveRequestUpdateToOneWithWhereWithoutAllocationsInput = {
+  where?: Prisma.LeaveRequestWhereInput
+  data: Prisma.XOR<Prisma.LeaveRequestUpdateWithoutAllocationsInput, Prisma.LeaveRequestUncheckedUpdateWithoutAllocationsInput>
+}
+
+export type LeaveRequestUpdateWithoutAllocationsInput = {
+  start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+  status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
+  admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutLeave_requestsNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutLeave_requestsNestedInput
+}
+
+export type LeaveRequestUncheckedUpdateWithoutAllocationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+  status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
+  admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type LeaveRequestCreateManyBusinessInput = {
   id?: number
   employee_id: number
@@ -746,6 +953,9 @@ export type LeaveRequestCreateManyBusinessInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -758,9 +968,13 @@ export type LeaveRequestUpdateWithoutBusinessInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutLeave_requestsNestedInput
+  allocations?: Prisma.LeaveAllocationUpdateManyWithoutLeave_requestNestedInput
 }
 
 export type LeaveRequestUncheckedUpdateWithoutBusinessInput = {
@@ -773,8 +987,12 @@ export type LeaveRequestUncheckedUpdateWithoutBusinessInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutLeave_requestNestedInput
 }
 
 export type LeaveRequestUncheckedUpdateManyWithoutBusinessInput = {
@@ -787,6 +1005,9 @@ export type LeaveRequestUncheckedUpdateManyWithoutBusinessInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -801,6 +1022,9 @@ export type LeaveRequestCreateManyEmployeeInput = {
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
   is_paid?: boolean
+  revision?: number
+  cancelled_at?: Date | string | null
+  benefit_code?: string
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -813,9 +1037,13 @@ export type LeaveRequestUpdateWithoutEmployeeInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutLeave_requestsNestedInput
+  allocations?: Prisma.LeaveAllocationUpdateManyWithoutLeave_requestNestedInput
 }
 
 export type LeaveRequestUncheckedUpdateWithoutEmployeeInput = {
@@ -828,8 +1056,12 @@ export type LeaveRequestUncheckedUpdateWithoutEmployeeInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allocations?: Prisma.LeaveAllocationUncheckedUpdateManyWithoutLeave_requestNestedInput
 }
 
 export type LeaveRequestUncheckedUpdateManyWithoutEmployeeInput = {
@@ -842,10 +1074,42 @@ export type LeaveRequestUncheckedUpdateManyWithoutEmployeeInput = {
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  benefit_code?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type LeaveRequestCountOutputType
+ */
+
+export type LeaveRequestCountOutputType = {
+  allocations: number
+}
+
+export type LeaveRequestCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  allocations?: boolean | LeaveRequestCountOutputTypeCountAllocationsArgs
+}
+
+/**
+ * LeaveRequestCountOutputType without action
+ */
+export type LeaveRequestCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeaveRequestCountOutputType
+   */
+  select?: Prisma.LeaveRequestCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LeaveRequestCountOutputType without action
+ */
+export type LeaveRequestCountOutputTypeCountAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeaveAllocationWhereInput
+}
 
 
 export type LeaveRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -859,10 +1123,15 @@ export type LeaveRequestSelect<ExtArgs extends runtime.Types.Extensions.Internal
   status?: boolean
   admin_comment?: boolean
   is_paid?: boolean
+  revision?: boolean
+  cancelled_at?: boolean
+  benefit_code?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  allocations?: boolean | Prisma.LeaveRequest$allocationsArgs<ExtArgs>
+  _count?: boolean | Prisma.LeaveRequestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["leaveRequest"]>
 
 export type LeaveRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -876,6 +1145,9 @@ export type LeaveRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   status?: boolean
   admin_comment?: boolean
   is_paid?: boolean
+  revision?: boolean
+  cancelled_at?: boolean
+  benefit_code?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -893,6 +1165,9 @@ export type LeaveRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   status?: boolean
   admin_comment?: boolean
   is_paid?: boolean
+  revision?: boolean
+  cancelled_at?: boolean
+  benefit_code?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -910,14 +1185,19 @@ export type LeaveRequestSelectScalar = {
   status?: boolean
   admin_comment?: boolean
   is_paid?: boolean
+  revision?: boolean
+  cancelled_at?: boolean
+  benefit_code?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type LeaveRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "business_id" | "start_date" | "end_date" | "reason" | "type" | "status" | "admin_comment" | "is_paid" | "created_at" | "updated_at", ExtArgs["result"]["leaveRequest"]>
+export type LeaveRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "business_id" | "start_date" | "end_date" | "reason" | "type" | "status" | "admin_comment" | "is_paid" | "revision" | "cancelled_at" | "benefit_code" | "created_at" | "updated_at", ExtArgs["result"]["leaveRequest"]>
 export type LeaveRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  allocations?: boolean | Prisma.LeaveRequest$allocationsArgs<ExtArgs>
+  _count?: boolean | Prisma.LeaveRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LeaveRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -933,6 +1213,7 @@ export type $LeaveRequestPayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     employee: Prisma.$EmployeePayload<ExtArgs>
     business: Prisma.$BusinessPayload<ExtArgs>
+    allocations: Prisma.$LeaveAllocationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -945,6 +1226,9 @@ export type $LeaveRequestPayload<ExtArgs extends runtime.Types.Extensions.Intern
     status: $Enums.LeaveRequestStatus
     admin_comment: string | null
     is_paid: boolean
+    revision: number
+    cancelled_at: Date | null
+    benefit_code: string
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["leaveRequest"]>
@@ -1343,6 +1627,7 @@ export interface Prisma__LeaveRequestClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  allocations<T extends Prisma.LeaveRequest$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LeaveRequest$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1382,6 +1667,9 @@ export interface LeaveRequestFieldRefs {
   readonly status: Prisma.FieldRef<"LeaveRequest", 'LeaveRequestStatus'>
   readonly admin_comment: Prisma.FieldRef<"LeaveRequest", 'String'>
   readonly is_paid: Prisma.FieldRef<"LeaveRequest", 'Boolean'>
+  readonly revision: Prisma.FieldRef<"LeaveRequest", 'Int'>
+  readonly cancelled_at: Prisma.FieldRef<"LeaveRequest", 'DateTime'>
+  readonly benefit_code: Prisma.FieldRef<"LeaveRequest", 'String'>
   readonly created_at: Prisma.FieldRef<"LeaveRequest", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"LeaveRequest", 'DateTime'>
 }
@@ -1580,6 +1868,11 @@ export type LeaveRequestFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` LeaveRequests.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of LeaveRequests.
+   */
   distinct?: Prisma.LeaveRequestScalarFieldEnum | Prisma.LeaveRequestScalarFieldEnum[]
 }
 
@@ -1777,6 +2070,30 @@ export type LeaveRequestDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many LeaveRequests to delete.
    */
   limit?: number
+}
+
+/**
+ * LeaveRequest.allocations
+ */
+export type LeaveRequest$allocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeaveAllocation
+   */
+  select?: Prisma.LeaveAllocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeaveAllocation
+   */
+  omit?: Prisma.LeaveAllocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeaveAllocationInclude<ExtArgs> | null
+  where?: Prisma.LeaveAllocationWhereInput
+  orderBy?: Prisma.LeaveAllocationOrderByWithRelationInput | Prisma.LeaveAllocationOrderByWithRelationInput[]
+  cursor?: Prisma.LeaveAllocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeaveAllocationScalarFieldEnum | Prisma.LeaveAllocationScalarFieldEnum[]
 }
 
 /**

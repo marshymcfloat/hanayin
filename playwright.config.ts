@@ -1,6 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
+import { requireTestDatabase } from './scripts/test-database-target.mjs';
+import { ISOLATED_AUTH_SECRET } from './test/support/e2e-environment';
 
 const PLAYWRIGHT_BASE_URL = 'http://127.0.0.1:3100';
+const testDatabase = process.env.TEST_DATABASE_DISPOSABLE === '1'
+  ? requireTestDatabase()
+  : undefined;
 
 /**
  * Read environment variables from file.
@@ -31,6 +36,7 @@ export default defineConfig({
   use: {
     /* Base URL for relative page.goto('/path') calls in smoke tests. */
     baseURL: PLAYWRIGHT_BASE_URL,
+    serviceWorkers: 'block',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -66,9 +72,37 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev -- --hostname 127.0.0.1 --port 3100',
+    command: process.env.E2E_USE_PRODUCTION === '1'
+      ? 'npm run start -- --hostname 127.0.0.1 --port 3100'
+      : 'npm run dev -- --hostname 127.0.0.1 --port 3100',
     url: PLAYWRIGHT_BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI && process.env.TEST_DATABASE_DISPOSABLE !== "1",
     timeout: 120_000,
+    env: testDatabase ? {
+      DATABASE_URL: testDatabase,
+      DIRECT_DATABASE_URL: testDatabase,
+      E2E_DATABASE_URL: testDatabase,
+      NEXTAUTH_URL: PLAYWRIGHT_BASE_URL,
+      NEXT_PUBLIC_APP_URL: PLAYWRIGHT_BASE_URL,
+      NEXTAUTH_SECRET: ISOLATED_AUTH_SECRET,
+      CRON_SECRET: 'isolated-cron-secret-not-for-production',
+      BOOKING_SUCCESS_TOKEN_SECRET: '',
+      PRISMA_SERVICE_TOKEN: '',
+      UPSTASH_REDIS_REST_URL: '',
+      UPSTASH_REDIS_REST_TOKEN: '',
+      SEMAPHORE_API: '',
+      RESEND_API_KEY: '',
+      OPENAI_KEY: '',
+      OPENAI_API_KEY: '',
+      GEMINI_KEY: '',
+      GEMINI_API_KEY: '',
+      BLOB_READ_WRITE_TOKEN: '',
+      PEXELS_API_KEY: '',
+      META_APP_ID: '',
+      META_APP_SECRET: '',
+      SOCIAL_TOKEN_ENCRYPTION_KEY: '',
+      SOCIAL_PUBLISHING_ENABLED: 'true',
+      SOCIAL_PUBLISHING_PILOT_SLUGS: '',
+    } : undefined,
   },
 });

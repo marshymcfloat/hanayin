@@ -55,7 +55,7 @@ export function PayslipAuditDialog({
         }
         setState({
           kind: "ready",
-          entries: (result.data ?? []) as AuditEntry[],
+          entries: "data" in result ? (result.data as AuditEntry[]) : [],
         });
       })
       .catch((err: unknown) => {

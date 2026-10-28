@@ -3,10 +3,11 @@ import { getOwnersWorkspaceData } from "@/features/businesses/queries/owners";
 import { OwnersPageClient } from "./OwnersPageClient";
 
 interface OwnersContentProps {
-  businessSlug: string;
+  params: Promise<{ businessSlug: string }>;
 }
 
-export async function OwnersContent({ businessSlug }: OwnersContentProps) {
+export async function OwnersContent({ params }: OwnersContentProps) {
+  const { businessSlug } = await params;
   const data = await getOwnersWorkspaceData(businessSlug);
   if (!data.success) {
     redirect(data.error === "Unauthorized" ? "/auth/login" : `/app/${businessSlug}`);

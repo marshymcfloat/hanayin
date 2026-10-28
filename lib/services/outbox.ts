@@ -16,6 +16,7 @@ export const OUTBOX_EVENT_TYPES = [
   "PAYMENT_CONFIRMED",
   "REMINDER_DUE",
   "PAYSLIP_GENERATED",
+  "PAYROLL_PUBLISHED",
   "FLOW_REMINDER_SENT",
   "RE_ENGAGEMENT_REMINDER_SENT",
   "MANUAL_PAYMENT_SUBMITTED",
@@ -34,6 +35,7 @@ export function isOutboxEventType(value: string): value is OutboxEventType {
 }
 
 export type OutboxPayloadMap = {
+  PAYROLL_PUBLISHED: { statementId: string; userId: string };
   BOOKING_CREATED: {
     bookingId: number;
     customerName?: string | null;
@@ -442,6 +444,8 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
   const payload = rawPayload;
 
   switch (eventType) {
+    case "PAYROLL_PUBLISHED":
+      return { statementId: requireString(payload, "statementId", eventType), userId: requireString(payload, "userId", eventType) } as OutboxPayloadMap[TType];
     case "BOOKING_CREATED":
     case "BOOKING_CONFIRMED":
       return {

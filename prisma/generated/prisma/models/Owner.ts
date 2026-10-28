@@ -191,7 +191,7 @@ export type OwnerGroupByOutputType = {
   _max: OwnerMaxAggregateOutputType | null
 }
 
-type GetOwnerGroupByPayload<T extends OwnerGroupByArgs> = Prisma.PrismaPromise<
+export type GetOwnerGroupByPayload<T extends OwnerGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<OwnerGroupByOutputType, T['by']> &
       {
@@ -1425,6 +1425,11 @@ export type OwnerFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Skip the first `n` Owners.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Owners.
+   */
   distinct?: Prisma.OwnerScalarFieldEnum | Prisma.OwnerScalarFieldEnum[]
 }
 

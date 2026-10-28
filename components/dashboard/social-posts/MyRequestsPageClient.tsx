@@ -143,7 +143,7 @@ export function MyRequestsPageClient({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="h-7 text-xs text-muted-foreground hover:text-destructive"
+                          className="min-h-11 text-xs text-muted-foreground hover:text-destructive"
                           onClick={() => handleCancel(req.id)}
                           disabled={busyId === req.id}
                         >

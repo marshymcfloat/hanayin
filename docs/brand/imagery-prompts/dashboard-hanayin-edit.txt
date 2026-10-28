@@ -1,0 +1,8 @@
+Use case: text-localization / precise-object-edit.
+This is an EDIT of the supplied dashboard image, not a redesign.
+Change exactly one embedded text label at the very top left above "Good morning, Andrea":
+Replace "Hanaylo Studio · Sample data" with exactly "HANAYIN Studio · Sample data".
+HANAYIN must be spelled H-A-N-A-Y-I-N and rendered in uppercase; "Studio · Sample data" retains its capitalization and centered dot separator.
+Match the original label's small gray sans-serif font, weight, size, baseline, left position and surrounding background. Accommodate the slightly longer name in the same single line.
+Preserve ALL other pixels and content as faithfully as possible: every other UI label, all graphs and figures, revenue and expense amounts, customer names, booking states and times, chart shapes, icons, sidebar, colors, shadows, white space, card edges, arrangement and proportions.
+Keep the original canvas dimensions, landscape aspect ratio, framing and crop. Do not add any elements, improve the UI, recolor anything, or change any other wording. This is only the brand-name substitution in that one top label.

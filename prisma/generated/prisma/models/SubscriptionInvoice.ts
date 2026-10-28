@@ -291,7 +291,7 @@ export type SubscriptionInvoiceGroupByOutputType = {
   _max: SubscriptionInvoiceMaxAggregateOutputType | null
 }
 
-type GetSubscriptionInvoiceGroupByPayload<T extends SubscriptionInvoiceGroupByArgs> = Prisma.PrismaPromise<
+export type GetSubscriptionInvoiceGroupByPayload<T extends SubscriptionInvoiceGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SubscriptionInvoiceGroupByOutputType, T['by']> &
       {
@@ -2033,6 +2033,11 @@ export type SubscriptionInvoiceFindManyArgs<ExtArgs extends runtime.Types.Extens
    * Skip the first `n` SubscriptionInvoices.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SubscriptionInvoices.
+   */
   distinct?: Prisma.SubscriptionInvoiceScalarFieldEnum | Prisma.SubscriptionInvoiceScalarFieldEnum[]
 }
 

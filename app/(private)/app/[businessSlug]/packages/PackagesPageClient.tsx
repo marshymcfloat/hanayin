@@ -34,6 +34,8 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { useOptionalViewer } from "@/lib/auth/viewer-context";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 type ServicePackageWithItems = ServicePackage & {
   items: {
@@ -61,6 +63,7 @@ export function PackagesPageClient({
   categories,
   businessSlug,
 }: PackagesPageClientProps) {
+  const staffDialogTheme = useOptionalViewer()?.actorType === "EMPLOYEE" ? staffTheme.workspace : "";
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
@@ -165,7 +168,7 @@ export function PackagesPageClient({
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add Package</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0 rounded-3xl">
+            <DialogContent className={`${staffDialogTheme} max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0 rounded-3xl`}>
               <DialogHeader className="p-6 pb-2">
                 <DialogTitle className="text-xl font-bold text-foreground">
                   Create New Package
@@ -216,7 +219,7 @@ export function PackagesPageClient({
                       </span>
                     </div>
                   </SelectTrigger>
-                  <SelectContent position="popper" className="rounded-xl">
+                  <SelectContent position="popper" className={`${staffDialogTheme} rounded-xl`}>
                     <SelectItem value="ALL" className="cursor-pointer">All Categories</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat} value={cat} className="cursor-pointer">
@@ -279,7 +282,7 @@ export function PackagesPageClient({
 
       {/* Edit Dialog */}
       <Dialog open={!!editingPackage} onOpenChange={closeEditDialog}>
-        <DialogContent className="max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0 rounded-3xl">
+        <DialogContent className={`${staffDialogTheme} max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0 rounded-3xl`}>
           <DialogHeader className="p-6 pb-2">
             <DialogTitle className="text-xl font-bold text-foreground">
               Edit Package
@@ -310,7 +313,7 @@ export function PackagesPageClient({
         open={!!packageToDelete}
         onOpenChange={(open) => !open && setPackageToDelete(null)}
       >
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent className={`${staffDialogTheme} rounded-2xl`}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Package?</AlertDialogTitle>
             <AlertDialogDescription>

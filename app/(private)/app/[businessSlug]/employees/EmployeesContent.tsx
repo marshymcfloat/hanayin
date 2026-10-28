@@ -3,12 +3,13 @@ import { getEmployeesWorkspaceData } from "@/features/workforce/queries/employee
 import { EmployeesPageClient } from "./EmployeesPageClient";
 
 interface EmployeesContentProps {
-  businessSlug: string;
+  params: Promise<{ businessSlug: string }>;
 }
 
 export async function EmployeesContent({
-  businessSlug,
+  params,
 }: EmployeesContentProps) {
+  const { businessSlug } = await params;
   const data = await getEmployeesWorkspaceData(businessSlug);
   if (!data.success) {
     redirect(data.error === "Unauthorized" ? "/auth/login" : `/app/${businessSlug}`);
@@ -19,6 +20,8 @@ export async function EmployeesContent({
       employees={data.employees}
       businessSlug={businessSlug}
       categories={data.categories}
+      canAccessPayroll={data.canAccessPayroll}
+      canManageCompensation={data.canManageCompensation}
     />
   );
 }

@@ -1,11 +1,10 @@
 "use client";
+import { useBookingDialogTheme } from "@/components/bookings/BookingDialogTheme";
 
 /**
  * CancelBookingDialog — soft-cancel a booking with a required reason.
- * Distinct from the existing dropdown "Cancel" item in BookingList,
- * which uses updateBookingStatusAction without recording a reason or
- * the cancelling actor. This dialog goes through cancelBookingAction,
- * sets the new soft-cancel fields, and gates by BOOKING_CANCEL.
+ * BookingList and the detail panel both use cancelBookingAction,
+ * which sets soft-cancel fields and gates by BOOKING_CANCEL.
  *
  * The trigger is gated at the call site by viewerContext.canCancel.
  */
@@ -37,15 +36,30 @@ export type CancelBookingDialogProps = {
   customerLabel: string;
   /** Optional override for the trigger element. */
   trigger?: React.ReactNode;
+  /** Controlled mode has no trigger, so it can outlive a closed dropdown. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCloseAutoFocus?: (event: Event) => void;
+  onChanged?: () => void;
 };
 
 export function CancelBookingDialog({
   bookingId,
   customerLabel,
   trigger,
+  open: controlledOpen,
+  onOpenChange,
+  onCloseAutoFocus,
+  onChanged,
 }: CancelBookingDialogProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const staffDialogTheme = useBookingDialogTheme();
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (value: boolean) => {
+    if (controlledOpen === undefined) setInternalOpen(value);
+    onOpenChange?.(value);
+  };
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -69,7 +83,8 @@ export function CancelBookingDialog({
       }
       toast.success("Booking cancelled");
       setOpen(false);
-      router.refresh();
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       showActionErrorToast(msg, { action: "cancel this booking" });
@@ -80,20 +95,22 @@ export function CancelBookingDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-9 rounded-full border-destructive/30 px-4 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
-          >
-            <XCircle className="h-4 w-4 mr-2" />
-            Cancel booking
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="rounded-3xl">
+      {controlledOpen === undefined && (
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-9 rounded-full border-destructive/30 px-4 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Cancel booking
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
+      <DialogContent className={`rounded-3xl ${staffDialogTheme}`} onCloseAutoFocus={onCloseAutoFocus}>
         <DialogHeader>
           <DialogTitle>Cancel this booking?</DialogTitle>
           <DialogDescription>

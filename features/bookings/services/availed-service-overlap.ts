@@ -1,4 +1,6 @@
+import "server-only";
 import { AvailedServiceStatus } from "@/prisma/generated/prisma/client";
+import type { Prisma } from "@/prisma/generated/prisma/client";
 import { prisma } from "@/prisma/prisma";
 
 const OVERLAP_CONSTRAINTS = [
@@ -48,21 +50,23 @@ export async function findAvailedServiceScheduleConflict({
   serviceId: number;
   providerType: "EMPLOYEE" | "OWNER";
   providerId: number;
-}): Promise<ServiceScheduleConflict | null> {
-  const target = await prisma.availedService.findFirst({
+}, db: Pick<Prisma.TransactionClient, "availedService"> = prisma, scope?: Prisma.AvailedServiceWhereInput): Promise<ServiceScheduleConflict | null> {
+  const target = await db.availedService.findFirst({
     where: {
       id: serviceId,
       booking: { business: { slug: businessSlug } },
+      ...(scope ? { AND: [scope] } : {}),
     },
     select: { scheduled_at: true, estimated_end: true },
   });
 
   if (!target?.scheduled_at || !target.estimated_end) return null;
 
-  const conflict = await prisma.availedService.findFirst({
+  const conflict = await db.availedService.findFirst({
     where: {
       id: { not: serviceId },
       booking: { business: { slug: businessSlug } },
+      ...(scope ? { AND: [scope] } : {}),
       ...(providerType === "EMPLOYEE"
         ? { served_by_id: providerId }
         : { served_by_owner_id: providerId }),

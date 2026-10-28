@@ -1,11 +1,13 @@
 // Feature-owned gift-card workflows.
 
 import crypto from "crypto";
+import { giftablePackageWhere } from "@/features/catalog/giftable-packages";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { Prisma } from "@/prisma/generated/prisma/client";
 
 import { requireAuth } from "@/lib/auth/guards";
+import { resolveTenantActorContext, type TenantActorContext } from "@/lib/auth/staff-access";
 import { prisma } from "@/prisma/prisma";
 import { sendGiftCardEmail, sendGiftCardSms } from "@/lib/services/gift-cards";
 import { rateLimit } from "@/lib/rate-limit";
@@ -17,6 +19,8 @@ import { publishEvent } from "@/lib/services/outbox";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/features/auth/auth-options";
 import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/billing/subscription-service";
+import { Role } from "@/prisma/generated/prisma/enums";
+import type { OwnerCatalogPreviewGiftCard } from "@/features/catalog/types/owner-catalog-preview";
 
 export type GiftCardWriteInput = {
   code: string;
@@ -30,6 +34,97 @@ export type GiftCardWriteInput = {
   service_ids: number[];
   package_ids: number[];
 };
+
+type GiftCardActorContext = Extract<TenantActorContext, { success: true }>;
+
+function giftCardBusinessWhere(context: GiftCardActorContext): Prisma.BusinessWhereInput {
+  if (context.actorType === "OWNER" && context.role === Role.OWNER) {
+    return {
+      id: context.businessId,
+      slug: context.businessSlug,
+      owners: {
+        some: {
+          id: context.ownerId,
+          user_id: context.userId,
+          business_id: context.businessId,
+          user: { role: Role.OWNER },
+        },
+      },
+    };
+  }
+  if (context.actorType === "EMPLOYEE" && context.role === Role.EMPLOYEE) {
+    return {
+      id: context.businessId,
+      slug: context.businessSlug,
+      employees: {
+        some: {
+          id: context.employeeId,
+          user_id: context.userId,
+          business_id: context.businessId,
+          user: { role: Role.EMPLOYEE },
+        },
+      },
+    };
+  }
+  return { id: { in: [] } };
+}
+
+async function requireGiftCardWriteAccess() {
+  const auth = await requireAuth({ write: true });
+  if (!auth.success) return auth;
+  if (!auth.session.user.id) return { success: false as const, error: "Unauthorized" };
+  return resolveTenantActorContext(auth.businessSlug, auth.session.user.id);
+}
+
+const giftCardMutationSelect = {
+  id: true,
+  code: true,
+  customer_name: true,
+  customer_email: true,
+  customer_phone: true,
+  expires_at: true,
+  is_claimed: true,
+  claimed_at: true,
+  included_services: {
+    select: { service: { select: { id: true, name: true } } },
+    orderBy: { service: { name: "asc" as const } },
+  },
+  included_packages: {
+    select: { package: { select: { id: true, name: true } } },
+    orderBy: { package: { name: "asc" as const } },
+  },
+} satisfies Prisma.GiftCardSelect;
+
+function toGiftCardMutationData(
+  row: Prisma.GiftCardGetPayload<{ select: typeof giftCardMutationSelect }>,
+  now = new Date(),
+): OwnerCatalogPreviewGiftCard {
+  return {
+    id: row.id,
+    code: row.code,
+    recipientName: row.customer_name,
+    recipientEmail: row.customer_email,
+    recipientPhone: row.customer_phone,
+    expiresAt: row.expires_at.toISOString(),
+    claimedAt: row.claimed_at?.toISOString() ?? null,
+    status: row.is_claimed
+      ? "claimed"
+      : row.expires_at.getTime() < now.getTime()
+        ? "expired"
+        : "active",
+    includedServices: row.included_services.map((item) => item.service),
+    includedPackages: row.included_packages.map((item) => item.package),
+  };
+}
+
+function invalidateGiftCards(slug: string) {
+  for (const path of [
+    `/app/${slug}/gift-cards`,
+    `/owner-dashboard-preview/${slug}/gift-cards`,
+  ]) {
+    try { revalidatePath(path); } catch { /* Persistence already committed. */ }
+  }
+}
 
 const CODE_LENGTH = 5;
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -708,8 +803,8 @@ export async function generateGiftCardCode() {
 }
 
 export async function createGiftCard(input: GiftCardWriteInput) {
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
+  const access = await requireGiftCardWriteAccess();
+  if (!access.success) return access;
 
   const code = normalizeCode(input.code);
   const customerName = input.customer_name.trim();
@@ -720,117 +815,61 @@ export async function createGiftCard(input: GiftCardWriteInput) {
   const packageIds = uniqueNumbers(input.package_ids || []);
 
   if (!code || !customerName || !expiresAt) {
-    return { success: false, error: "Missing required fields" };
+    return { success: false as const, error: "Missing required fields" };
   }
 
   if (!customerEmail && !customerPhone) {
     return {
-      success: false,
+      success: false as const,
       error: "Provide at least an email or phone so the code can be delivered",
     };
   }
 
   if (serviceIds.length === 0 && packageIds.length === 0) {
-    return { success: false, error: "Select at least one service or package" };
+    return { success: false as const, error: "Select at least one service or package" };
   }
 
   try {
-    const business = await prisma.business.findUnique({
-      where: { slug: auth.businessSlug },
-      select: { id: true, name: true, slug: true },
-    });
+    const write = await prisma.$transaction(async (tx) => {
+      const business = await tx.business.findFirst({
+        where: giftCardBusinessWhere(access),
+        select: { id: true, name: true, slug: true },
+      });
+      if (!business) return { success: false as const, error: "Business not found or unauthorized" };
 
-    if (!business) {
-      return { success: false, error: "Business not found" };
-    }
+      const existingCode = await tx.giftCard.findUnique({ where: { code }, select: { id: true } });
+      if (existingCode) return { success: false as const, error: "Gift card code already exists" };
 
-    const existingCode = await prisma.giftCard.findUnique({
-      where: { code },
-      select: { id: true },
-    });
+      const [services, packages] = await Promise.all([
+        serviceIds.length
+          ? tx.service.findMany({ where: { id: { in: serviceIds }, business_id: business.id }, select: { id: true, name: true } })
+          : Promise.resolve([]),
+        packageIds.length
+          ? tx.servicePackage.findMany({ where: { id: { in: packageIds }, business_id: business.id, ...giftablePackageWhere }, select: { id: true, name: true } })
+          : Promise.resolve([]),
+      ]);
+      if (services.length !== serviceIds.length || packages.length !== packageIds.length) {
+        return { success: false as const, error: "Some selected services or packages are invalid for this business" };
+      }
 
-    if (existingCode) {
-      return { success: false, error: "Gift card code already exists" };
-    }
-
-    const [services, packages] = await Promise.all([
-      serviceIds.length
-        ? prisma.service.findMany({
-            where: {
-              id: { in: serviceIds },
-              business_id: business.id,
-            },
-            select: { id: true, name: true },
-          })
-        : Promise.resolve([]),
-      packageIds.length
-        ? prisma.servicePackage.findMany({
-            where: {
-              id: { in: packageIds },
-              business_id: business.id,
-            },
-            select: { id: true, name: true },
-          })
-        : Promise.resolve([]),
-    ]);
-
-    if (services.length !== serviceIds.length || packages.length !== packageIds.length) {
-      return {
-        success: false,
-        error: "Some selected services or packages are invalid for this business",
-      };
-    }
-
-    const card = await prisma.giftCard.create({
-      data: {
-        code,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-        expires_at: expiresAt,
-        // Prisma 7 checked-create rejects the `business_id` scalar when the
-        // statement also drives nested relation writes (included_services /
-        // included_packages). Use the relation form for both consistency
-        // and forward compatibility.
-        business: { connect: { id: business.id } },
-        included_services: {
-          createMany: {
-            data: services.map((service) => ({
-              service_id: service.id,
-            })),
-          },
+      const card = await tx.giftCard.create({
+        data: {
+          code,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone,
+          expires_at: expiresAt,
+          business: { connect: { id: business.id } },
+          included_services: { createMany: { data: services.map((service) => ({ service_id: service.id })) } },
+          included_packages: { createMany: { data: packages.map((pkg) => ({ package_id: pkg.id })) } },
         },
-        included_packages: {
-          createMany: {
-            data: packages.map((pkg) => ({
-              package_id: pkg.id,
-            })),
-          },
-        },
-      },
-      include: {
-        included_services: {
-          include: {
-            service: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-        included_packages: {
-          include: {
-            package: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    });
+        select: giftCardMutationSelect,
+      });
+      return { success: true as const, business, card, services, packages };
+    }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 10000 });
+    if (!write.success) return write;
+
+    const { business, card, services, packages } = write;
 
     // Wave N4: dispatch to whichever channels are present. SMS goes first
     // because gift codes are time-sensitive and the SMS body is the minimum
@@ -846,7 +885,7 @@ export async function createGiftCard(input: GiftCardWriteInput) {
             customerPhone: card.customer_phone,
             giftCardCode: card.code,
             expiresAt: card.expires_at,
-          })
+          }).catch(() => ({ success: false }))
         : Promise.resolve(null),
       card.customer_email
         ? sendGiftCardEmail({
@@ -857,11 +896,11 @@ export async function createGiftCard(input: GiftCardWriteInput) {
             expiresAt: card.expires_at,
             includedServices: includedServiceNames,
             includedPackages: includedPackageNames,
-          })
+          }).catch(() => ({ success: false }))
         : Promise.resolve(null),
     ]);
 
-    revalidatePath(`/app/${business.slug}/gift-cards`);
+    invalidateGiftCards(business.slug);
 
     const smsAttempted = smsResult !== null;
     const emailAttempted = emailResult !== null;
@@ -883,21 +922,27 @@ export async function createGiftCard(input: GiftCardWriteInput) {
       if (smsFailed) failed.push("SMS");
       if (emailFailed) failed.push("email");
       return {
-        success: true,
-        data: card,
+        success: true as const,
+        data: toGiftCardMutationData(card),
         warning: `Gift card created but ${failed.join(" and ")} could not be sent. You can resend manually later.`,
         channelOutcome: { smsAttempted, smsSucceeded, emailAttempted, emailSucceeded },
       };
     }
 
     return {
-      success: true,
-      data: card,
+      success: true as const,
+      data: toGiftCardMutationData(card),
       channelOutcome: { smsAttempted, smsSucceeded, emailAttempted, emailSucceeded },
     };
   } catch (error) {
     console.error("Failed to create gift card:", error);
-    return { success: false, error: "Failed to create gift card" };
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
+      return { success: false as const, error: "Gift card code already exists" };
+    }
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2034") {
+      return { success: false as const, error: "Gift card changed. Refresh and try again." };
+    }
+    return { success: false as const, error: "Failed to create gift card" };
   }
 }
 
@@ -905,8 +950,8 @@ export async function updateGiftCard(
   giftCardId: number,
   input: GiftCardWriteInput,
 ) {
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
+  const access = await requireGiftCardWriteAccess();
+  if (!access.success) return access;
 
   const code = normalizeCode(input.code);
   const customerName = input.customer_name.trim();
@@ -917,79 +962,51 @@ export async function updateGiftCard(
   const packageIds = uniqueNumbers(input.package_ids || []);
 
   if (!code || !customerName || !expiresAt) {
-    return { success: false, error: "Missing required fields" };
+    return { success: false as const, error: "Missing required fields" };
   }
 
   if (!customerEmail && !customerPhone) {
     return {
-      success: false,
+      success: false as const,
       error: "Provide at least an email or phone so the code can be delivered",
     };
   }
 
   if (serviceIds.length === 0 && packageIds.length === 0) {
-    return { success: false, error: "Select at least one service or package" };
+    return { success: false as const, error: "Select at least one service or package" };
   }
 
   try {
-    const existing = await prisma.giftCard.findUnique({
-      where: { id: giftCardId },
-      include: {
-        business: {
-          select: { id: true, slug: true },
-        },
-      },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      const business = await tx.business.findFirst({
+        where: giftCardBusinessWhere(access),
+        select: { id: true, slug: true },
+      });
+      if (!business) return { success: false as const, error: "Gift card not found or unauthorized" };
 
-    if (!existing || existing.business.slug !== auth.businessSlug) {
-      return { success: false, error: "Gift card not found or unauthorized" };
-    }
+      const existing = await tx.giftCard.findFirst({
+        where: { id: giftCardId, business_id: business.id },
+        select: { id: true },
+      });
+      if (!existing) return { success: false as const, error: "Gift card not found or unauthorized" };
 
-    const duplicate = await prisma.giftCard.findFirst({
-      where: {
-        code,
-        NOT: {
-          id: giftCardId,
-        },
-      },
-      select: { id: true },
-    });
+      const duplicate = await tx.giftCard.findFirst({ where: { code, NOT: { id: giftCardId } }, select: { id: true } });
+      if (duplicate) return { success: false as const, error: "Gift card code already exists" };
 
-    if (duplicate) {
-      return { success: false, error: "Gift card code already exists" };
-    }
+      const [services, packages] = await Promise.all([
+        serviceIds.length
+          ? tx.service.findMany({ where: { id: { in: serviceIds }, business_id: business.id }, select: { id: true } })
+          : Promise.resolve([]),
+        packageIds.length
+          ? tx.servicePackage.findMany({ where: { id: { in: packageIds }, business_id: business.id, ...giftablePackageWhere }, select: { id: true } })
+          : Promise.resolve([]),
+      ]);
+      if (services.length !== serviceIds.length || packages.length !== packageIds.length) {
+        return { success: false as const, error: "Some selected services or packages are invalid for this business" };
+      }
 
-    const [services, packages] = await Promise.all([
-      serviceIds.length
-        ? prisma.service.findMany({
-            where: {
-              id: { in: serviceIds },
-              business_id: existing.business.id,
-            },
-            select: { id: true, name: true },
-          })
-        : Promise.resolve([]),
-      packageIds.length
-        ? prisma.servicePackage.findMany({
-            where: {
-              id: { in: packageIds },
-              business_id: existing.business.id,
-            },
-            select: { id: true, name: true },
-          })
-        : Promise.resolve([]),
-    ]);
-
-    if (services.length !== serviceIds.length || packages.length !== packageIds.length) {
-      return {
-        success: false,
-        error: "Some selected services or packages are invalid for this business",
-      };
-    }
-
-    const card = await prisma.$transaction(async (tx) => {
-      const updated = await tx.giftCard.update({
-        where: { id: giftCardId },
+      await tx.giftCard.update({
+        where: { id: giftCardId, business_id: business.id },
         data: {
           code,
           customer_name: customerName,
@@ -1025,43 +1042,52 @@ export async function updateGiftCard(
         });
       }
 
-      return updated;
-    });
+      const card = await tx.giftCard.findFirst({
+        where: { id: giftCardId, business_id: business.id },
+        select: giftCardMutationSelect,
+      });
+      if (!card) return { success: false as const, error: "Gift card not found or unauthorized" };
+      return { success: true as const, data: toGiftCardMutationData(card), businessSlug: business.slug };
+    }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 10000 });
 
-    revalidatePath(`/app/${existing.business.slug}/gift-cards`);
-    return { success: true, data: card };
+    if (!result.success) return result;
+    invalidateGiftCards(result.businessSlug);
+    return { success: true as const, data: result.data };
   } catch (error) {
     console.error("Failed to update gift card:", error);
-    return { success: false, error: "Failed to update gift card" };
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
+      return { success: false as const, error: "Gift card code already exists" };
+    }
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2034") {
+      return { success: false as const, error: "Gift card changed. Refresh and try again." };
+    }
+    return { success: false as const, error: "Failed to update gift card" };
   }
 }
 
 export async function deleteGiftCard(giftCardId: number) {
-  const auth = await requireAuth({ write: true });
-  if (!auth.success) return auth;
+  const access = await requireGiftCardWriteAccess();
+  if (!access.success) return access;
 
   try {
-    const existing = await prisma.giftCard.findUnique({
-      where: { id: giftCardId },
-      include: {
-        business: {
-          select: { slug: true },
-        },
-      },
-    });
-
-    if (!existing || existing.business.slug !== auth.businessSlug) {
-      return { success: false, error: "Gift card not found or unauthorized" };
-    }
-
-    await prisma.giftCard.delete({
-      where: { id: giftCardId },
-    });
-
-    revalidatePath(`/app/${existing.business.slug}/gift-cards`);
-    return { success: true };
+    const result = await prisma.$transaction(async (tx) => {
+      const business = await tx.business.findFirst({
+        where: giftCardBusinessWhere(access),
+        select: { id: true, slug: true },
+      });
+      if (!business) return { success: false as const, error: "Gift card not found or unauthorized" };
+      const deleted = await tx.giftCard.deleteMany({ where: { id: giftCardId, business_id: business.id } });
+      if (deleted.count !== 1) return { success: false as const, error: "Gift card not found or unauthorized" };
+      return { success: true as const, data: { id: giftCardId }, businessSlug: business.slug };
+    }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 10000 });
+    if (!result.success) return result;
+    invalidateGiftCards(result.businessSlug);
+    return { success: true as const, data: result.data };
   } catch (error) {
     console.error("Failed to delete gift card:", error);
-    return { success: false, error: "Failed to delete gift card" };
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "P2034") {
+      return { success: false as const, error: "Gift card changed. Refresh and try again." };
+    }
+    return { success: false as const, error: "Failed to delete gift card" };
   }
 }

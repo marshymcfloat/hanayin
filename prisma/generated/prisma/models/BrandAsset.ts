@@ -245,7 +245,7 @@ export type BrandAssetGroupByOutputType = {
   _max: BrandAssetMaxAggregateOutputType | null
 }
 
-type GetBrandAssetGroupByPayload<T extends BrandAssetGroupByArgs> = Prisma.PrismaPromise<
+export type GetBrandAssetGroupByPayload<T extends BrandAssetGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BrandAssetGroupByOutputType, T['by']> &
       {
@@ -1911,6 +1911,11 @@ export type BrandAssetFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` BrandAssets.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of BrandAssets.
+   */
   distinct?: Prisma.BrandAssetScalarFieldEnum | Prisma.BrandAssetScalarFieldEnum[]
 }
 

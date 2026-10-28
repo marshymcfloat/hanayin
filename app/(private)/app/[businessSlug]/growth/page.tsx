@@ -1,52 +1,19 @@
-import { getGrowthPlannerData } from "@/features/growth/queries/planner";
-import { GrowthPlannerPageClient } from "@/components/dashboard/owner/growth/GrowthPlannerPageClient";
+import { OwnerRouteLoading } from "@/components/dashboard/owner-preview/OwnerRouteLoading";
+import { Suspense } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/features/auth/auth-options";
+import type { ComponentProps } from "react";
+import LegacyPage from "./LegacyPage";
+import PreviewPage from "@/app/(private-preview)/owner-dashboard-preview/[businessSlug]/growth/page";
 
-export default async function GrowthPlannerPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ businessSlug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const { businessSlug } = await params;
-  const rawSearchParams = await searchParams;
+type Props = ComponentProps<typeof LegacyPage>;
 
-  const data = await getGrowthPlannerData(businessSlug, rawSearchParams);
-  if (!data.success && data.error === "Forbidden") {
-    return (
-      <div className="p-8">
-        <h1 className="text-xl font-semibold">Access Denied</h1>
-        <p className="mt-2 text-sm text-muted-foreground">You do not have access to this page.</p>
-      </div>
-    );
-  }
+export default function Page(props: Props) {
+  return <Suspense fallback={<OwnerRouteLoading section="growth" />}><PageContent {...props} /></Suspense>;
+}
 
-  if (!data.success && data.error === "Upgrade required") {
-    return (
-      <div className="p-8">
-        <h1 className="text-xl font-semibold">Growth Planner</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Growth features are available on Plus and Pro plans.
-        </p>
-      </div>
-    );
-  }
-
-  if (!data.success) {
-    return (
-      <div className="p-8">
-        <h1 className="text-xl font-semibold">Business not found</h1>
-      </div>
-    );
-  }
-
-  return (
-    <GrowthPlannerPageClient
-      businessSlug={businessSlug}
-      businessName={data.businessName}
-      events={data.events}
-      year={data.year}
-      month={data.month}
-    />
-  );
+async function PageContent(props: Props) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "OWNER") return <PreviewPage />;
+  return <LegacyPage {...props} />;
 }

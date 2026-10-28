@@ -136,72 +136,72 @@ export default function AuthForm() {
                   <FormLabel className="text-[13px] font-medium tracking-tight text-foreground/70 ml-1">
                     {FIELD_LABELS[input]}
                   </FormLabel>
-                  <FormControl>
-                    <div className="relative group">
-                      <div
-                        className={cn(
-                          "absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 transition-colors duration-300 z-10",
-                          focusedField === input && "text-primary",
-                        )}
-                      >
-                        {input === "contact_number" ? (
-                          <Phone className="h-4 w-4" />
-                        ) : (
-                          <Lock className="h-4 w-4" />
-                        )}
-                      </div>
-                      <Input
-                        {...field}
-                        type={
-                          input === "password"
-                            ? showPassword
-                              ? "text"
-                              : "password"
-                            : "tel"
-                        }
-                        inputMode={
-                          input === "contact_number" ? "tel" : undefined
-                        }
-                        autoComplete={
-                          input === "contact_number"
-                            ? "tel"
-                            : "current-password"
-                        }
-                        onFocus={() => {
-                          setFocusedField(input);
-                          field.onBlur();
-                        }}
-                        onBlur={() => {
-                          setFocusedField(null);
-                          field.onBlur();
-                        }}
-                        className={cn(
-                          "pl-10 h-12 bg-foreground/[0.03] border-black/[0.08] text-base transition-all duration-300",
-                          input === "password" && "pr-10",
-                          "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary focus-visible:bg-background",
-                          "hover:border-primary/30",
-                        )}
-                        placeholder={FIELD_PLACEHOLDERS[input]}
-                      />
-                      {input === "password" ? (
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 transition-colors duration-300 hover:text-foreground"
-                          aria-label={
-                            showPassword ? "Hide password" : "Show password"
-                          }
-                          aria-pressed={showPassword}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      ) : null}
+                  <div className="relative group">
+                    <div
+                      className={cn(
+                        "absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 transition-colors duration-300 z-10",
+                        focusedField === input && "text-primary",
+                      )}
+                    >
+                      {input === "contact_number" ? (
+                        <Phone className="h-4 w-4" />
+                      ) : (
+                        <Lock className="h-4 w-4" />
+                      )}
                     </div>
-                  </FormControl>
+                    <FormControl>
+                      <Input
+                          {...field}
+                          type={
+                            input === "password"
+                              ? showPassword
+                                ? "text"
+                                : "password"
+                              : "tel"
+                          }
+                          inputMode={
+                            input === "contact_number" ? "tel" : undefined
+                          }
+                          autoComplete={
+                            input === "contact_number"
+                              ? "tel"
+                              : "current-password"
+                          }
+                          onFocus={() => {
+                            setFocusedField(input);
+                            field.onBlur();
+                          }}
+                          onBlur={() => {
+                            setFocusedField(null);
+                            field.onBlur();
+                          }}
+                          className={cn(
+                            "pl-10 h-12 bg-foreground/[0.03] border-black/[0.08] text-base transition-all duration-300",
+                            input === "password" && "pr-10",
+                            "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary focus-visible:bg-background",
+                            "hover:border-primary/30",
+                          )}
+                          placeholder={FIELD_PLACEHOLDERS[input]}
+                      />
+                    </FormControl>
+                    {input === "password" ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 transition-colors duration-300 hover:text-foreground"
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        aria-pressed={showPassword}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    ) : null}
+                  </div>
                   <FormMessage className="text-xs ml-1" />
                 </FormItem>
               )}

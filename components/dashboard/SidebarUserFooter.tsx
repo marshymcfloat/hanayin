@@ -27,9 +27,11 @@ import {
 } from "@/components/ui/sidebar";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 interface SidebarUserFooterProps {
   businessSlug: string;
+  staffPresentation?: boolean;
   user: {
     name?: string | null;
     contactNumber?: string | null;
@@ -38,7 +40,7 @@ interface SidebarUserFooterProps {
   };
 }
 
-export function SidebarUserFooter({ user, businessSlug }: SidebarUserFooterProps) {
+export function SidebarUserFooter({ user, businessSlug, staffPresentation = false }: SidebarUserFooterProps) {
   const { isMobile } = useSidebar();
   const avatarSrc = user.image?.trim() || undefined;
 
@@ -71,7 +73,7 @@ export function SidebarUserFooter({ user, businessSlug }: SidebarUserFooterProps
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            className={`${staffPresentation ? `${staffTheme.workspace} border-[#E7E9E4] bg-white text-[#20211F]` : ""} w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg`}
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -93,14 +95,14 @@ export function SidebarUserFooter({ user, businessSlug }: SidebarUserFooterProps
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            {!staffPresentation ? <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles className="mr-2 size-4" />
                 Upgrade to Pro
               </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            </DropdownMenuGroup> : null}
+            {!staffPresentation ? <DropdownMenuSeparator /> : null}
+            {!staffPresentation ? <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck className="mr-2 size-4" />
                 Account
@@ -115,9 +117,9 @@ export function SidebarUserFooter({ user, businessSlug }: SidebarUserFooterProps
                 <Bell className="mr-2 size-4" />
                 Notifications
               </DropdownMenuItem>
-            </DropdownMenuGroup>
+            </DropdownMenuGroup> : null}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
+            <DropdownMenuItem onClick={handleSignOut} className={staffPresentation ? "min-h-11 cursor-pointer rounded-lg" : undefined}>
               <LogOut className="mr-2 size-4" />
               Log out
             </DropdownMenuItem>

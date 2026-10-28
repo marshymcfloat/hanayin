@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyPendingServiceWorkTransitions,
   restoreServiceWorkItem,
   transitionServiceWork,
   type EmployeeServiceWorkData,
@@ -67,5 +68,21 @@ describe("employee service-work optimistic state", () => {
     const rolledBack = restoreServiceWorkItem(optimistic, snapshot, 1);
 
     expect(rolledBack.pending[0]).toEqual(snapshot.pending[0]);
+  });
+
+  it("reapplies only still-pending transitions to a polled server result", () => {
+    const snapshot = initial();
+    const pending = [
+      { serviceId: 1, transition: "claim" as const },
+      { serviceId: 2, transition: "complete" as const },
+    ];
+    const polled = applyPendingServiceWorkTransitions(snapshot, pending);
+    expect(polled.active.some((service) => service.id === 1)).toBe(true);
+    expect(polled.completed.some((service) => service.id === 2)).toBe(true);
+
+    const secondStillPending = applyPendingServiceWorkTransitions(snapshot, pending.slice(1));
+    const rolledBack = restoreServiceWorkItem(secondStillPending, snapshot, 1);
+    expect(rolledBack.pending.some((service) => service.id === 1)).toBe(true);
+    expect(rolledBack.completed.some((service) => service.id === 2)).toBe(true);
   });
 });

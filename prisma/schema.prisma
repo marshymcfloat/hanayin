@@ -64,6 +64,8 @@ model Business {
   social_connections                SocialConnection[]
   social_posts                      SocialPost[]
   social_post_requests              SocialPostRequest[]
+  messaging_channels                MessengerChannel[]
+  messaging_settings                CustomerMessagingSettings?
   vouchers                          Voucher[]
   gift_cards                        GiftCard[]
   special_dates                     SpecialDate[]
@@ -89,6 +91,10 @@ model Business {
   commission_calculation_basis      CommissionCalculationBasis       @default(ORIGINAL_PRICE)
   booking_otp_codes                 BookingOtpCode[]
   expenses                          Expense[]
+  payroll_settings                  PayrollSettings?
+  payroll_runs                      PayrollRun[]
+  service_charge_pools              PayrollServiceChargePool[]
+  payroll_commands                  PayrollCommand[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -189,6 +195,7 @@ enum OwnerPermission {
   SETTINGS_MANAGE
   CATALOG_MANAGE
   PAYROLL_MANAGE
+  WORKFORCE_MANAGE
 }
 
 enum BillingInterval {
@@ -386,6 +393,10 @@ model LeaveRequest {
   status        LeaveRequestStatus @default(PENDING)
   admin_comment String?
   is_paid       Boolean            @default(false)
+  revision      Int                @default(0)
+  cancelled_at  DateTime?
+  benefit_code  String             @default("DISCRETIONARY")
+  allocations   LeaveAllocation[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -412,6 +423,9 @@ model BusinessHours {
 
 model SaleEvent {
   id Int @id @default(autoincrement())
+  revision Int @default(0)
+  conditional_rule Json?
+  applications BookingOfferApplication[]
 
   title       String
   description String?
@@ -461,6 +475,178 @@ model SocialConnection {
 
   @@unique([business_id, platform])
   @@index([business_id, status])
+}
+
+enum CustomerMessagingMode {
+  OFF
+  SUGGEST
+  AUTO
+}
+
+enum CustomerMessagingLanguage {
+  EN
+  FIL
+  TAGLISH
+  UNKNOWN
+}
+
+enum CustomerMessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CustomerMessagingJobStatus {
+  PENDING
+  CLAIMED
+  SUGGESTED
+  SENDING
+  CONFIRMED
+  FAILED
+  UNKNOWN
+  CANCELLED
+}
+
+// Dedicated messaging evidence. Publishing SocialConnection is never consulted.
+// No production setup writer exists until provider verification is reviewed.
+model MessengerChannel {
+  id                      String   @id @default(cuid())
+  business_id             String
+  business                Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  app_id                  String
+  page_id                 String
+  display_name            String
+  token_encrypted         String
+  token_expires_at        DateTime?
+  revision                Int      @default(0)
+  active                  Boolean  @default(false)
+  verified_at             DateTime?
+  permissions_verified_at DateTime?
+  pages_messaging_granted Boolean  @default(false)
+  facebook_login_verified Boolean  @default(false)
+  app_review_verified     Boolean  @default(false)
+  business_verified       Boolean  @default(false)
+  page_message_task       Boolean  @default(false)
+  webhook_subscribed      Boolean  @default(false)
+  echoes_verified         Boolean  @default(false)
+  metadata_echo_verified  Boolean  @default(false)
+  pilot_approved          Boolean  @default(false)
+  conversations           CustomerConversation[]
+  receipts                CustomerMessagingReceipt[]
+  suppressions            CustomerMessagingSuppression[]
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  @@unique([app_id, page_id])
+  @@unique([business_id, id])
+  @@index([business_id, active])
+}
+
+model CustomerMessagingSettings {
+  business_id      String                    @id
+  business         Business                  @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  mode             CustomerMessagingMode     @default(OFF)
+  consent          Boolean                   @default(false)
+  ai_consent       Boolean                   @default(false)
+  consenting_user_id String?
+  paused           Boolean                   @default(false)
+  default_language CustomerMessagingLanguage @default(FIL)
+  revision         Int                       @default(0)
+  updated_at       DateTime                  @updatedAt
+}
+
+model CustomerConversation {
+  id                        String           @id @default(cuid())
+  business_id               String
+  channel_id                String
+  channel                   MessengerChannel @relation(fields: [business_id, channel_id], references: [business_id, id], onDelete: Cascade)
+  recipient_hash            String
+  recipient_encrypted       String
+  revision                  Int              @default(0)
+  latest_inbound_at         DateTime?
+  latest_inbound_message_id String?
+  last_human_reply_at       DateTime?
+  last_activity_at          DateTime
+  takeover                  Boolean          @default(false)
+  opted_out                 Boolean          @default(false)
+  language_preference       CustomerMessagingLanguage?
+  messages                  CustomerMessage[]
+  jobs                      CustomerMessagingJob[]
+  metadata_expires_at       DateTime
+  created_at                DateTime         @default(now())
+
+  @@unique([business_id, id])
+  @@unique([channel_id, recipient_hash])
+  @@index([business_id, last_activity_at])
+  @@index([metadata_expires_at])
+}
+
+model CustomerMessage {
+  id                    String                   @id @default(cuid())
+  business_id           String
+  conversation_id       String
+  conversation          CustomerConversation     @relation(fields: [business_id, conversation_id], references: [business_id, id], onDelete: Cascade)
+  provider_message_hash String                   @unique
+  direction             CustomerMessageDirection
+  text_encrypted        String?
+  text_expires_at       DateTime
+  occurred_at           DateTime
+  metadata_expires_at   DateTime
+
+  @@index([business_id, conversation_id, occurred_at])
+  @@index([text_expires_at])
+  @@index([metadata_expires_at])
+}
+
+model CustomerMessagingReceipt {
+  id                  String           @id @default(cuid())
+  business_id         String
+  channel_id          String
+  channel             MessengerChannel @relation(fields: [business_id, channel_id], references: [business_id, id], onDelete: Cascade)
+  event_hash          String           @unique
+  occurred_at         DateTime
+  metadata_expires_at DateTime
+
+  @@index([metadata_expires_at])
+}
+
+// A keyed identity fingerprint, never a name/recipient ID. Retained while the
+// channel exists so deleting thirty-day conversation data cannot reset opt-out.
+model CustomerMessagingSuppression {
+  business_id    String
+  channel_id     String
+  channel        MessengerChannel @relation(fields: [business_id, channel_id], references: [business_id, id], onDelete: Cascade)
+  recipient_hash String
+
+  @@id([channel_id, recipient_hash])
+}
+
+model CustomerMessagingJob {
+  id                    String                     @id @default(cuid())
+  business_id           String
+  conversation_id       String
+  conversation          CustomerConversation       @relation(fields: [business_id, conversation_id], references: [business_id, id], onDelete: Cascade)
+  revision              Int
+  status                CustomerMessagingJobStatus @default(PENDING)
+  due_at                DateTime
+  origin_event_at       DateTime
+  attempts              Int                        @default(0)
+  lease_token           String?
+  lease_expires_at      DateTime?
+  delivery_key          String                     @unique
+  provider_message_hash String?                    @unique
+  draft_encrypted       String?
+  draft_language        CustomerMessagingLanguage?
+  text_expires_at       DateTime
+  metadata_expires_at   DateTime
+  reason                String?
+  created_at            DateTime                   @default(now())
+  updated_at            DateTime                   @updatedAt
+
+  @@unique([business_id, conversation_id, revision])
+  @@index([status, due_at])
+  @@index([status, lease_expires_at])
+  @@index([text_expires_at])
+  @@index([metadata_expires_at])
 }
 
 model SocialPost {
@@ -574,6 +760,20 @@ model Employee {
   salary                Float
   commission_percentage Float                @default(0)
   daily_rate            Float                @default(0)
+  employment_start      DateTime?            @db.Date
+  employment_end        DateTime?            @db.Date
+  archived_at           DateTime?
+  financial_revision    Int                  @default(0)
+  compensation_agreements CompensationAgreement[]
+  payroll_profile       EmployeePayrollProfile?
+  payroll_earnings       PayrollEarning[]
+  payroll_statements     PayrollStatement[]
+  work_sessions         WorkforceSession[]
+  attendance_revisions  AttendanceRevision[]
+  attendance_correction_requests AttendanceCorrectionRequest[]
+  leave_entitlements    LeaveEntitlement[]
+  leave_allocations     LeaveAllocation[]
+  payroll_adjustments   PayrollAdjustment[]
   profile               StaffProfile         @default(STAFF)
   permissions           StaffPermission[]    @default([BOOKING_CREATE, BOOKING_MODIFY, BOOKING_CANCEL, BOOKING_MARK_NO_SHOW, BOOKING_ADJUST_PRICE, PAYMENT_COLLECT, QUEUE_CLAIM_SELF, QUEUE_SERVE_SELF])
   specialties           String[]             @default([]) // Array of service categories this employee can perform
@@ -602,6 +802,7 @@ model Employee {
   is_demo Boolean @default(false)
 
   @@unique([business_id, user_id])
+  @@unique([id, business_id])
   @@index([business_id])
   @@index([business_id, is_demo])
 }
@@ -649,6 +850,9 @@ model EmployeeAttendance {
   longitude         Float?
 
   is_paid_leave Boolean @default(false)
+  payroll_confirmed_at DateTime?
+  payroll_confirmed_by String?
+  revision Int @default(0)
 
   // Once stamped, this row is locked into a payslip and will not be paid again.
   paid_in_payslip_id Int?
@@ -667,7 +871,7 @@ model Payslip {
   id Int @id @default(autoincrement())
 
   employee_id Int
-  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Restrict)
 
   starting_date DateTime
   ending_date   DateTime
@@ -681,6 +885,7 @@ model Payslip {
 
   attendance_records EmployeeAttendance[] @relation("PayslipAttendance")
   availed_services   AvailedService[]     @relation("PayslipAvailedServices")
+  leave_allocations LeaveAllocation[]
 
   @@unique([employee_id, starting_date, ending_date])
   @@index([employee_id, ending_date])
@@ -794,7 +999,7 @@ model Owner {
   // platform-admin impersonation flow + screens that read this field
   // can gate sub-features (e.g. "Reports — full" vs "Reports — sales
   // only") for co-owners with a restricted set.
-  permissions OwnerPermission[] @default([BILLING_VIEW, BILLING_MANAGE, REPORTS_VIEW_FULL, EMPLOYEES_MANAGE, STAFF_MANAGE, SETTINGS_MANAGE, CATALOG_MANAGE, PAYROLL_MANAGE])
+  permissions OwnerPermission[] @default([BILLING_VIEW, BILLING_MANAGE, REPORTS_VIEW_FULL, EMPLOYEES_MANAGE, STAFF_MANAGE, SETTINGS_MANAGE, CATALOG_MANAGE, PAYROLL_MANAGE, WORKFORCE_MANAGE])
 
   // Exactly one primary per business (enforced by app-level
   // transaction in setPrimaryOwnerAction). The platform-admin
@@ -1122,6 +1327,8 @@ model Service {
 
 model ServicePackage {
   id          Int     @id @default(autoincrement())
+  revision    Int     @default(0)
+  choices     Json?
   name        String
   description String?
   price       Float
@@ -1205,6 +1412,12 @@ model BookingOtpCode {
 
 model Booking {
   id Int @id @default(autoincrement())
+  request_key String?
+  request_scope String?
+  request_payload_hash String?
+  pricing_snapshot Json?
+  offer_applications BookingOfferApplication[]
+  change_commands BookingChangeCommand[]
 
   status      BookingStatus @default(ACCEPTED)
   // customer_id is nullable to support anonymous walk-ins (booking with no
@@ -1291,6 +1504,7 @@ model Booking {
   updated_at DateTime @updatedAt
 
   @@index([business_id, status])
+  @@unique([business_id, request_scope, request_key])
   @@index([business_id, scheduled_at])
   @@index([business_id, created_at])
   @@index([customer_id, business_id, scheduled_at])
@@ -1436,6 +1650,10 @@ model GiftCardPackage {
 
 model AvailedService {
   id Int @id @default(autoincrement())
+  selection_key String?
+  package_instance_id String?
+  package_choice_id String?
+  pricing_snapshot Json?
 
   // Pricing
   price           Float // Original service price at time of booking
@@ -1444,6 +1662,12 @@ model AvailedService {
   discount_reason String? // "SALE_EVENT", "MANUAL", "FAMILY_DISCOUNT", etc.
   final_price     Float // price - discount = what customer pays
   commission_base Float // What the employee's commission is calculated on
+  payroll_commission_rate Decimal? @db.Decimal(9, 6)
+  payroll_commission_base Decimal? @db.Decimal(18, 6)
+  payroll_commission_basis String?
+  payroll_agreement_id String?
+  payroll_payable_at DateTime?
+  payroll_revision Int @default(0)
 
   // Claiming status
   status       AvailedServiceStatus @default(PENDING)
@@ -1500,6 +1724,30 @@ model AvailedService {
   @@index([served_by_id])
   @@index([served_by_owner_id])
   @@index([paid_in_payslip_id])
+}
+
+model BookingOfferApplication {
+  id String @id @default(cuid())
+  booking_id Int
+  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  sale_event_id Int?
+  sale_event SaleEvent? @relation(fields: [sale_event_id], references: [id], onDelete: SetNull)
+  snapshot Json
+  created_at DateTime @default(now())
+  @@unique([booking_id, sale_event_id])
+  @@index([sale_event_id])
+}
+
+model BookingChangeCommand {
+  id String @id @default(cuid())
+  booking_id Int
+  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  actor_id String
+  request_key String
+  payload_hash String
+  snapshot Json
+  created_at DateTime @default(now())
+  @@unique([booking_id, actor_id, request_key])
 }
 
 model ServiceFlow {
@@ -1796,6 +2044,445 @@ model OutboxMessage {
   @@index([processed, attempts, created_at])
   @@index([business_id])
   @@index([event_type])
+}
+
+enum PayrollMode {
+  LEGACY
+  SHADOW
+  ACTIVE
+}
+
+enum PayrollCalculationPolicy {
+  SIMPLE
+  GOVERNMENT
+}
+
+enum PayrollPayBasis {
+  DAILY
+  MONTHLY
+  HOURLY
+}
+
+enum PayrollStatementStatus {
+  DRAFT
+  APPROVED
+  PUBLISHED
+  VOID
+}
+
+enum PayrollPaymentState {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+model PayrollSettings {
+  business_id String @id
+  business Business @relation(fields: [business_id], references: [id], onDelete: Restrict)
+  mode PayrollMode @default(LEGACY)
+  calculation_policy PayrollCalculationPolicy @default(SIMPLE)
+  simple_effective_from DateTime? @db.Date
+  government_effective_from DateTime? @db.Date
+  cadence String @default("SEMIMONTHLY")
+  pay_days Int[] @default([15, 30])
+  sms_enabled Boolean @default(false)
+  employer_identifiers String?
+  rule_package_id String?
+  rule_package PayrollRulePackage? @relation(fields: [rule_package_id], references: [id], onDelete: Restrict)
+  opening_confirmed_at DateTime?
+  reconciliation Json?
+  revision Int @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model PayrollRulePackage {
+  id String @id
+  jurisdiction String @default("PH")
+  effective_from DateTime @db.Date
+  supported_through DateTime @db.Date
+  rules Json
+  sources Json
+  fixture_manifest Json @default("[]")
+  content_hash String
+  certified_by String?
+  certified_at DateTime?
+  certification_evidence String?
+  settings PayrollSettings[]
+  assessments PayrollAssessment[]
+  created_at DateTime @default(now())
+}
+
+model CompensationAgreement {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  effective_from DateTime @db.Date
+  effective_to DateTime? @db.Date
+  basis PayrollPayBasis
+  rate Decimal @db.Decimal(18, 6)
+  normal_hours Decimal @db.Decimal(6, 2)
+  monthly_divisor Decimal? @db.Decimal(8, 3)
+  commission_rate Decimal @db.Decimal(9, 6)
+  commission_basis String
+  created_by String
+  created_at DateTime @default(now())
+  @@index([business_id, employee_id, effective_from])
+}
+
+model EmployeePayrollProfile {
+  employee_id Int @id
+  business_id String
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  encrypted_identifiers String?
+  eligibility Json
+  eligibility_history Json @default("[]")
+  work_region String
+  wage_category String
+  monthly_basic Decimal @db.Decimal(18, 2)
+  monthly_basic_history Json @default("[]")
+  ytd_opening Json
+  opening_history Json @default("{}")
+  opening_confirmed_at DateTime?
+  revision Int @default(0)
+  updated_at DateTime @updatedAt
+  @@unique([employee_id, business_id])
+}
+
+model WorkforceSession {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  work_date DateTime @db.Date
+  started_at DateTime
+  ended_at DateTime?
+  breaks Json @default("[]")
+  confirmed_at DateTime?
+  confirmed_by String?
+  revision Int @default(0)
+  created_at DateTime @default(now())
+  @@index([business_id, employee_id, work_date])
+}
+
+model AttendanceRevision {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  work_date DateTime @db.Date
+  before Json
+  after Json
+  reason String
+  actor_id String
+  command_key String
+  created_at DateTime @default(now())
+  @@unique([business_id, command_key])
+  @@index([business_id, employee_id, work_date])
+}
+
+model AttendanceCorrectionRequest {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  work_date DateTime @db.Date
+  proposed Json
+  source_revision Int
+  reason String
+  status String @default("PENDING")
+  revision Int @default(0)
+  command_key String
+  reviewed_by String?
+  reviewed_at DateTime?
+  review_comment String?
+  created_at DateTime @default(now())
+  @@unique([business_id, command_key])
+  @@index([business_id, employee_id, status])
+}
+
+model LeaveEntitlement {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  benefit_code String
+  period_start DateTime @db.Date
+  period_end DateTime @db.Date
+  granted_units Decimal @db.Decimal(8, 3)
+  converted_units Decimal @default(0) @db.Decimal(8, 3)
+  evidence String
+  award Json?
+  funding String @default("EMPLOYER")
+  allocations LeaveAllocation[]
+  revision Int @default(0)
+  @@unique([employee_id, benefit_code, period_start])
+  @@index([business_id, employee_id])
+}
+
+model PayrollServiceChargePool {
+  id String @id @default(uuid())
+  business_id String
+  business Business @relation(fields: [business_id], references: [id], onDelete: Restrict)
+  reference String
+  from DateTime @db.Date
+  to DateTime @db.Date
+  amount Decimal @db.Decimal(18, 2)
+  revision Int @default(0)
+  review_hash String
+  snapshot Json
+  actor_id String
+  created_at DateTime @default(now())
+  @@unique([business_id, reference])
+  @@unique([id, business_id])
+}
+
+model LeaveAllocation {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  leave_request_id Int
+  leave_request LeaveRequest @relation(fields: [leave_request_id], references: [id], onDelete: Restrict)
+  entitlement_id String?
+  entitlement LeaveEntitlement? @relation(fields: [entitlement_id], references: [id], onDelete: Restrict)
+  work_date DateTime @db.Date
+  units Decimal @db.Decimal(8, 3)
+  paid Boolean
+  benefit_code String
+  funding String @default("EMPLOYER")
+  cancelled_at DateTime?
+  paid_in_payslip_id Int?
+  paid_in_payslip Payslip? @relation(fields: [paid_in_payslip_id], references: [id], onDelete: Restrict)
+  @@unique([leave_request_id, work_date])
+  @@index([business_id, employee_id, work_date])
+}
+
+model PayrollEarning {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  source_type String
+  source_id String
+  source_revision Int
+  earned_on DateTime @db.Date
+  payable_on DateTime? @db.Date
+  code String
+  description String
+  amount Decimal @db.Decimal(18, 2)
+  rate Decimal @db.Decimal(18, 6)
+  units Decimal @db.Decimal(18, 6)
+  taxable Boolean @default(true)
+  tax_category String @default("NORMAL")
+  is_basic Boolean @default(false)
+  snapshot Json
+  reversed_at DateTime?
+  statement_id String?
+  statement PayrollStatement? @relation(fields: [statement_id, business_id], references: [id, business_id], onDelete: Restrict)
+  lines PayrollStatementLine[]
+  created_at DateTime @default(now())
+  @@unique([business_id, source_type, source_id, source_revision, code])
+  @@index([business_id, employee_id, payable_on])
+}
+
+model PayrollRun {
+  id String @id @default(uuid())
+  business_id String
+  business Business @relation(fields: [business_id], references: [id], onDelete: Restrict)
+  start_date DateTime @db.Date
+  end_date DateTime @db.Date
+  payment_date DateTime @db.Date
+  kind String @default("REGULAR")
+  calculation_policy PayrollCalculationPolicy @default(GOVERNMENT)
+  created_by String
+  revision Int @default(0)
+  employee_ids Int[] @default([])
+  statements PayrollStatement[]
+  created_at DateTime @default(now())
+  @@unique([id, business_id])
+  @@index([business_id, start_date, end_date])
+}
+
+model PayrollStatement {
+  id String @id @default(uuid())
+  business_id String
+  run_id String
+  run PayrollRun @relation(fields: [run_id, business_id], references: [id, business_id], onDelete: Restrict)
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  status PayrollStatementStatus @default(DRAFT)
+  payment_state PayrollPaymentState @default(UNPAID)
+  gross Decimal @db.Decimal(18, 2)
+  deductions Decimal @db.Decimal(18, 2)
+  net Decimal @db.Decimal(18, 2)
+  employer_cost Decimal @db.Decimal(18, 2)
+  paid_amount Decimal @default(0) @db.Decimal(18, 2)
+  review_hash String
+  snapshot Json
+  issues Json @default("[]")
+  revision Int @default(0)
+  approved_by String?
+  approved_at DateTime?
+  published_at DateTime?
+  legacy_payslip_id Int? @unique
+  lines PayrollStatementLine[]
+  earnings PayrollEarning[]
+  assessments PayrollAssessment[]
+  payments PayrollPayment[]
+  adjustments PayrollAdjustment[]
+  notifications PayrollNotification[]
+  payment_reconciliations PayrollPaymentReconciliation[]
+  created_at DateTime @default(now())
+  @@unique([id, business_id])
+  @@unique([run_id, employee_id])
+  @@index([business_id, employee_id, published_at])
+}
+
+model PayrollStatementLine {
+  id String @id @default(uuid())
+  business_id String
+  statement_id String
+  statement PayrollStatement @relation(fields: [statement_id, business_id], references: [id, business_id], onDelete: Restrict)
+  earning_id String?
+  earning PayrollEarning? @relation(fields: [earning_id], references: [id], onDelete: Restrict)
+  code String
+  description String
+  amount Decimal @db.Decimal(18, 2)
+  rate Decimal? @db.Decimal(18, 6)
+  units Decimal? @db.Decimal(18, 6)
+  category String
+  source Json
+  payment_allocations PayrollPaymentAllocation[]
+  @@index([statement_id])
+  @@index([earning_id])
+  @@unique([id, statement_id, business_id])
+}
+
+model PayrollAssessment {
+  id String @id @default(uuid())
+  business_id String
+  statement_id String
+  statement PayrollStatement @relation(fields: [statement_id, business_id], references: [id, business_id], onDelete: Restrict)
+  rule_package_id String
+  rule_package PayrollRulePackage @relation(fields: [rule_package_id], references: [id], onDelete: Restrict)
+  agency String
+  assessment_month String
+  employee_share Decimal @db.Decimal(18, 2)
+  employer_share Decimal @db.Decimal(18, 2)
+  basis Decimal @db.Decimal(18, 2)
+  explanation Json
+  @@unique([statement_id, agency, assessment_month])
+  @@index([business_id, assessment_month, agency])
+}
+
+model PayrollPayment {
+  id String @id @default(uuid())
+  business_id String
+  statement_id String
+  statement PayrollStatement @relation(fields: [statement_id, business_id], references: [id, business_id], onDelete: Restrict)
+  amount Decimal @db.Decimal(18, 2)
+  payment_date DateTime @db.Date
+  method String
+  reference String
+  actor_id String
+  command_key String
+  created_at DateTime @default(now())
+  allocations PayrollPaymentAllocation[]
+  reconciliation_id String? @unique
+  reconciliation PayrollPaymentReconciliation? @relation(fields: [reconciliation_id, statement_id, business_id], references: [id, statement_id, business_id], onDelete: Restrict)
+  @@unique([business_id, command_key])
+  @@unique([id, statement_id, business_id])
+  @@unique([reconciliation_id, statement_id, business_id])
+  @@index([business_id, payment_date])
+}
+
+model PayrollPaymentAllocation {
+  id String @id @default(uuid())
+  business_id String
+  statement_id String
+  payment_id String
+  payment PayrollPayment @relation(fields: [payment_id, statement_id, business_id], references: [id, statement_id, business_id], onDelete: Restrict)
+  line_id String
+  line PayrollStatementLine @relation(fields: [line_id, statement_id, business_id], references: [id, statement_id, business_id], onDelete: Restrict)
+  amount Decimal @db.Decimal(18, 2)
+  @@unique([payment_id, line_id])
+  @@index([business_id, statement_id])
+}
+
+model PayrollPaymentReconciliation {
+  id String @id @default(uuid())
+  business_id String
+  statement_id String
+  statement PayrollStatement @relation(fields: [statement_id, business_id], references: [id, business_id], onDelete: Restrict)
+  payment_date DateTime @db.Date
+  amount Decimal @db.Decimal(18, 2)
+  tax_delta Decimal @db.Decimal(18, 2)
+  statement_revision Int
+  source_hash String
+  snapshot Json
+  reason String
+  actor_id String
+  command_key String
+  payment PayrollPayment?
+  created_at DateTime @default(now())
+  @@unique([business_id, command_key])
+  @@unique([business_id, source_hash])
+  @@unique([id, statement_id, business_id])
+  @@index([business_id, statement_id])
+}
+
+model PayrollAdjustment {
+  id String @id @default(uuid())
+  business_id String
+  employee_id Int
+  employee Employee @relation(fields: [employee_id, business_id], references: [id, business_id], onDelete: Restrict)
+  original_statement_id String?
+  original_statement PayrollStatement? @relation(fields: [original_statement_id, business_id], references: [id, business_id], onDelete: Restrict)
+  amount Decimal @db.Decimal(18, 2)
+  code String
+  label String?
+  reason String
+  authorization String
+  effective_on DateTime @db.Date
+  disposition String @default("PENDING")
+  actor_id String
+  revision Int @default(0)
+  earning_id String?
+  source_revision Int @default(0)
+  created_at DateTime @default(now())
+  @@index([business_id, employee_id, disposition])
+  @@unique([earning_id, source_revision])
+}
+
+model PayrollCommand {
+  id String @id @default(uuid())
+  business_id String
+  business Business @relation(fields: [business_id], references: [id], onDelete: Restrict)
+  key String
+  actor_id String
+  operation String
+  payload_hash String
+  result Json
+  created_at DateTime @default(now())
+  @@unique([business_id, key])
+}
+
+model PayrollNotification {
+  id String @id @default(uuid())
+  business_id String
+  statement_id String
+  statement PayrollStatement @relation(fields: [statement_id, business_id], references: [id, business_id], onDelete: Restrict)
+  user_id String
+  read_at DateTime?
+  sms_state String @default("NOT_REQUESTED")
+  sms_message_id String?
+  sms_attempts Int @default(0)
+  sms_last_error String?
+  created_at DateTime @default(now())
+  @@unique([statement_id, user_id])
+  @@index([business_id, user_id, read_at])
 }
 
 // Booking-editor (Phase 1) — see docs/booking-editor-design.md §8.

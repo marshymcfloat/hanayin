@@ -214,7 +214,7 @@ export type BookingPriceAdjustmentGroupByOutputType = {
   _max: BookingPriceAdjustmentMaxAggregateOutputType | null
 }
 
-type GetBookingPriceAdjustmentGroupByPayload<T extends BookingPriceAdjustmentGroupByArgs> = Prisma.PrismaPromise<
+export type GetBookingPriceAdjustmentGroupByPayload<T extends BookingPriceAdjustmentGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BookingPriceAdjustmentGroupByOutputType, T['by']> &
       {
@@ -1512,6 +1512,11 @@ export type BookingPriceAdjustmentFindManyArgs<ExtArgs extends runtime.Types.Ext
    * Skip the first `n` BookingPriceAdjustments.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of BookingPriceAdjustments.
+   */
   distinct?: Prisma.BookingPriceAdjustmentScalarFieldEnum | Prisma.BookingPriceAdjustmentScalarFieldEnum[]
 }
 

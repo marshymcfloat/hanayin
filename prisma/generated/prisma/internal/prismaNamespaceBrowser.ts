@@ -56,6 +56,13 @@ export const ModelName = {
   BusinessHours: 'BusinessHours',
   SaleEvent: 'SaleEvent',
   SocialConnection: 'SocialConnection',
+  MessengerChannel: 'MessengerChannel',
+  CustomerMessagingSettings: 'CustomerMessagingSettings',
+  CustomerConversation: 'CustomerConversation',
+  CustomerMessage: 'CustomerMessage',
+  CustomerMessagingReceipt: 'CustomerMessagingReceipt',
+  CustomerMessagingSuppression: 'CustomerMessagingSuppression',
+  CustomerMessagingJob: 'CustomerMessagingJob',
   SocialPost: 'SocialPost',
   SocialPostTarget: 'SocialPostTarget',
   User: 'User',
@@ -89,6 +96,8 @@ export const ModelName = {
   GiftCardService: 'GiftCardService',
   GiftCardPackage: 'GiftCardPackage',
   AvailedService: 'AvailedService',
+  BookingOfferApplication: 'BookingOfferApplication',
+  BookingChangeCommand: 'BookingChangeCommand',
   ServiceFlow: 'ServiceFlow',
   BusinessGrowthSettings: 'BusinessGrowthSettings',
   GrowthContextSnapshot: 'GrowthContextSnapshot',
@@ -98,6 +107,27 @@ export const ModelName = {
   CampaignEvent: 'CampaignEvent',
   SeasonalCalendar: 'SeasonalCalendar',
   OutboxMessage: 'OutboxMessage',
+  PayrollSettings: 'PayrollSettings',
+  PayrollRulePackage: 'PayrollRulePackage',
+  CompensationAgreement: 'CompensationAgreement',
+  EmployeePayrollProfile: 'EmployeePayrollProfile',
+  WorkforceSession: 'WorkforceSession',
+  AttendanceRevision: 'AttendanceRevision',
+  AttendanceCorrectionRequest: 'AttendanceCorrectionRequest',
+  LeaveEntitlement: 'LeaveEntitlement',
+  PayrollServiceChargePool: 'PayrollServiceChargePool',
+  LeaveAllocation: 'LeaveAllocation',
+  PayrollEarning: 'PayrollEarning',
+  PayrollRun: 'PayrollRun',
+  PayrollStatement: 'PayrollStatement',
+  PayrollStatementLine: 'PayrollStatementLine',
+  PayrollAssessment: 'PayrollAssessment',
+  PayrollPayment: 'PayrollPayment',
+  PayrollPaymentAllocation: 'PayrollPaymentAllocation',
+  PayrollPaymentReconciliation: 'PayrollPaymentReconciliation',
+  PayrollAdjustment: 'PayrollAdjustment',
+  PayrollCommand: 'PayrollCommand',
+  PayrollNotification: 'PayrollNotification',
   BookingNote: 'BookingNote',
   BookingPriceAdjustment: 'BookingPriceAdjustment',
   SocialPostRequest: 'SocialPostRequest',
@@ -167,6 +197,9 @@ export const LeaveRequestScalarFieldEnum = {
   status: 'status',
   admin_comment: 'admin_comment',
   is_paid: 'is_paid',
+  revision: 'revision',
+  cancelled_at: 'cancelled_at',
+  benefit_code: 'benefit_code',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -189,6 +222,8 @@ export type BusinessHoursScalarFieldEnum = (typeof BusinessHoursScalarFieldEnum)
 
 export const SaleEventScalarFieldEnum = {
   id: 'id',
+  revision: 'revision',
+  conditional_rule: 'conditional_rule',
   title: 'title',
   description: 'description',
   start_date: 'start_date',
@@ -221,6 +256,131 @@ export const SocialConnectionScalarFieldEnum = {
 } as const
 
 export type SocialConnectionScalarFieldEnum = (typeof SocialConnectionScalarFieldEnum)[keyof typeof SocialConnectionScalarFieldEnum]
+
+
+export const MessengerChannelScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  app_id: 'app_id',
+  page_id: 'page_id',
+  display_name: 'display_name',
+  token_encrypted: 'token_encrypted',
+  token_expires_at: 'token_expires_at',
+  revision: 'revision',
+  active: 'active',
+  verified_at: 'verified_at',
+  permissions_verified_at: 'permissions_verified_at',
+  pages_messaging_granted: 'pages_messaging_granted',
+  facebook_login_verified: 'facebook_login_verified',
+  app_review_verified: 'app_review_verified',
+  business_verified: 'business_verified',
+  page_message_task: 'page_message_task',
+  webhook_subscribed: 'webhook_subscribed',
+  echoes_verified: 'echoes_verified',
+  metadata_echo_verified: 'metadata_echo_verified',
+  pilot_approved: 'pilot_approved',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type MessengerChannelScalarFieldEnum = (typeof MessengerChannelScalarFieldEnum)[keyof typeof MessengerChannelScalarFieldEnum]
+
+
+export const CustomerMessagingSettingsScalarFieldEnum = {
+  business_id: 'business_id',
+  mode: 'mode',
+  consent: 'consent',
+  ai_consent: 'ai_consent',
+  consenting_user_id: 'consenting_user_id',
+  paused: 'paused',
+  default_language: 'default_language',
+  revision: 'revision',
+  updated_at: 'updated_at'
+} as const
+
+export type CustomerMessagingSettingsScalarFieldEnum = (typeof CustomerMessagingSettingsScalarFieldEnum)[keyof typeof CustomerMessagingSettingsScalarFieldEnum]
+
+
+export const CustomerConversationScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  channel_id: 'channel_id',
+  recipient_hash: 'recipient_hash',
+  recipient_encrypted: 'recipient_encrypted',
+  revision: 'revision',
+  latest_inbound_at: 'latest_inbound_at',
+  latest_inbound_message_id: 'latest_inbound_message_id',
+  last_human_reply_at: 'last_human_reply_at',
+  last_activity_at: 'last_activity_at',
+  takeover: 'takeover',
+  opted_out: 'opted_out',
+  language_preference: 'language_preference',
+  metadata_expires_at: 'metadata_expires_at',
+  created_at: 'created_at'
+} as const
+
+export type CustomerConversationScalarFieldEnum = (typeof CustomerConversationScalarFieldEnum)[keyof typeof CustomerConversationScalarFieldEnum]
+
+
+export const CustomerMessageScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  conversation_id: 'conversation_id',
+  provider_message_hash: 'provider_message_hash',
+  direction: 'direction',
+  text_encrypted: 'text_encrypted',
+  text_expires_at: 'text_expires_at',
+  occurred_at: 'occurred_at',
+  metadata_expires_at: 'metadata_expires_at'
+} as const
+
+export type CustomerMessageScalarFieldEnum = (typeof CustomerMessageScalarFieldEnum)[keyof typeof CustomerMessageScalarFieldEnum]
+
+
+export const CustomerMessagingReceiptScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  channel_id: 'channel_id',
+  event_hash: 'event_hash',
+  occurred_at: 'occurred_at',
+  metadata_expires_at: 'metadata_expires_at'
+} as const
+
+export type CustomerMessagingReceiptScalarFieldEnum = (typeof CustomerMessagingReceiptScalarFieldEnum)[keyof typeof CustomerMessagingReceiptScalarFieldEnum]
+
+
+export const CustomerMessagingSuppressionScalarFieldEnum = {
+  business_id: 'business_id',
+  channel_id: 'channel_id',
+  recipient_hash: 'recipient_hash'
+} as const
+
+export type CustomerMessagingSuppressionScalarFieldEnum = (typeof CustomerMessagingSuppressionScalarFieldEnum)[keyof typeof CustomerMessagingSuppressionScalarFieldEnum]
+
+
+export const CustomerMessagingJobScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  conversation_id: 'conversation_id',
+  revision: 'revision',
+  status: 'status',
+  due_at: 'due_at',
+  origin_event_at: 'origin_event_at',
+  attempts: 'attempts',
+  lease_token: 'lease_token',
+  lease_expires_at: 'lease_expires_at',
+  delivery_key: 'delivery_key',
+  provider_message_hash: 'provider_message_hash',
+  draft_encrypted: 'draft_encrypted',
+  draft_language: 'draft_language',
+  text_expires_at: 'text_expires_at',
+  metadata_expires_at: 'metadata_expires_at',
+  reason: 'reason',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type CustomerMessagingJobScalarFieldEnum = (typeof CustomerMessagingJobScalarFieldEnum)[keyof typeof CustomerMessagingJobScalarFieldEnum]
 
 
 export const SocialPostScalarFieldEnum = {
@@ -284,6 +444,10 @@ export const EmployeeScalarFieldEnum = {
   salary: 'salary',
   commission_percentage: 'commission_percentage',
   daily_rate: 'daily_rate',
+  employment_start: 'employment_start',
+  employment_end: 'employment_end',
+  archived_at: 'archived_at',
+  financial_revision: 'financial_revision',
   profile: 'profile',
   permissions: 'permissions',
   specialties: 'specialties',
@@ -319,6 +483,9 @@ export const EmployeeAttendanceScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   is_paid_leave: 'is_paid_leave',
+  payroll_confirmed_at: 'payroll_confirmed_at',
+  payroll_confirmed_by: 'payroll_confirmed_by',
+  revision: 'revision',
   paid_in_payslip_id: 'paid_in_payslip_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -609,6 +776,8 @@ export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeo
 
 export const ServicePackageScalarFieldEnum = {
   id: 'id',
+  revision: 'revision',
+  choices: 'choices',
   name: 'name',
   description: 'description',
   price: 'price',
@@ -666,6 +835,10 @@ export type BookingOtpCodeScalarFieldEnum = (typeof BookingOtpCodeScalarFieldEnu
 
 export const BookingScalarFieldEnum = {
   id: 'id',
+  request_key: 'request_key',
+  request_scope: 'request_scope',
+  request_payload_hash: 'request_payload_hash',
+  pricing_snapshot: 'pricing_snapshot',
   status: 'status',
   customer_id: 'customer_id',
   is_anonymous_walk_in: 'is_anonymous_walk_in',
@@ -798,12 +971,22 @@ export type GiftCardPackageScalarFieldEnum = (typeof GiftCardPackageScalarFieldE
 
 export const AvailedServiceScalarFieldEnum = {
   id: 'id',
+  selection_key: 'selection_key',
+  package_instance_id: 'package_instance_id',
+  package_choice_id: 'package_choice_id',
+  pricing_snapshot: 'pricing_snapshot',
   price: 'price',
   estimated_cost: 'estimated_cost',
   discount: 'discount',
   discount_reason: 'discount_reason',
   final_price: 'final_price',
   commission_base: 'commission_base',
+  payroll_commission_rate: 'payroll_commission_rate',
+  payroll_commission_base: 'payroll_commission_base',
+  payroll_commission_basis: 'payroll_commission_basis',
+  payroll_agreement_id: 'payroll_agreement_id',
+  payroll_payable_at: 'payroll_payable_at',
+  payroll_revision: 'payroll_revision',
   status: 'status',
   claimed_at: 'claimed_at',
   served_at: 'served_at',
@@ -823,6 +1006,30 @@ export const AvailedServiceScalarFieldEnum = {
 } as const
 
 export type AvailedServiceScalarFieldEnum = (typeof AvailedServiceScalarFieldEnum)[keyof typeof AvailedServiceScalarFieldEnum]
+
+
+export const BookingOfferApplicationScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  sale_event_id: 'sale_event_id',
+  snapshot: 'snapshot',
+  created_at: 'created_at'
+} as const
+
+export type BookingOfferApplicationScalarFieldEnum = (typeof BookingOfferApplicationScalarFieldEnum)[keyof typeof BookingOfferApplicationScalarFieldEnum]
+
+
+export const BookingChangeCommandScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  actor_id: 'actor_id',
+  request_key: 'request_key',
+  payload_hash: 'payload_hash',
+  snapshot: 'snapshot',
+  created_at: 'created_at'
+} as const
+
+export type BookingChangeCommandScalarFieldEnum = (typeof BookingChangeCommandScalarFieldEnum)[keyof typeof BookingChangeCommandScalarFieldEnum]
 
 
 export const ServiceFlowScalarFieldEnum = {
@@ -978,6 +1185,392 @@ export const OutboxMessageScalarFieldEnum = {
 } as const
 
 export type OutboxMessageScalarFieldEnum = (typeof OutboxMessageScalarFieldEnum)[keyof typeof OutboxMessageScalarFieldEnum]
+
+
+export const PayrollSettingsScalarFieldEnum = {
+  business_id: 'business_id',
+  mode: 'mode',
+  calculation_policy: 'calculation_policy',
+  simple_effective_from: 'simple_effective_from',
+  government_effective_from: 'government_effective_from',
+  cadence: 'cadence',
+  pay_days: 'pay_days',
+  sms_enabled: 'sms_enabled',
+  employer_identifiers: 'employer_identifiers',
+  rule_package_id: 'rule_package_id',
+  opening_confirmed_at: 'opening_confirmed_at',
+  reconciliation: 'reconciliation',
+  revision: 'revision',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type PayrollSettingsScalarFieldEnum = (typeof PayrollSettingsScalarFieldEnum)[keyof typeof PayrollSettingsScalarFieldEnum]
+
+
+export const PayrollRulePackageScalarFieldEnum = {
+  id: 'id',
+  jurisdiction: 'jurisdiction',
+  effective_from: 'effective_from',
+  supported_through: 'supported_through',
+  rules: 'rules',
+  sources: 'sources',
+  fixture_manifest: 'fixture_manifest',
+  content_hash: 'content_hash',
+  certified_by: 'certified_by',
+  certified_at: 'certified_at',
+  certification_evidence: 'certification_evidence',
+  created_at: 'created_at'
+} as const
+
+export type PayrollRulePackageScalarFieldEnum = (typeof PayrollRulePackageScalarFieldEnum)[keyof typeof PayrollRulePackageScalarFieldEnum]
+
+
+export const CompensationAgreementScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  effective_from: 'effective_from',
+  effective_to: 'effective_to',
+  basis: 'basis',
+  rate: 'rate',
+  normal_hours: 'normal_hours',
+  monthly_divisor: 'monthly_divisor',
+  commission_rate: 'commission_rate',
+  commission_basis: 'commission_basis',
+  created_by: 'created_by',
+  created_at: 'created_at'
+} as const
+
+export type CompensationAgreementScalarFieldEnum = (typeof CompensationAgreementScalarFieldEnum)[keyof typeof CompensationAgreementScalarFieldEnum]
+
+
+export const EmployeePayrollProfileScalarFieldEnum = {
+  employee_id: 'employee_id',
+  business_id: 'business_id',
+  encrypted_identifiers: 'encrypted_identifiers',
+  eligibility: 'eligibility',
+  eligibility_history: 'eligibility_history',
+  work_region: 'work_region',
+  wage_category: 'wage_category',
+  monthly_basic: 'monthly_basic',
+  monthly_basic_history: 'monthly_basic_history',
+  ytd_opening: 'ytd_opening',
+  opening_history: 'opening_history',
+  opening_confirmed_at: 'opening_confirmed_at',
+  revision: 'revision',
+  updated_at: 'updated_at'
+} as const
+
+export type EmployeePayrollProfileScalarFieldEnum = (typeof EmployeePayrollProfileScalarFieldEnum)[keyof typeof EmployeePayrollProfileScalarFieldEnum]
+
+
+export const WorkforceSessionScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  work_date: 'work_date',
+  started_at: 'started_at',
+  ended_at: 'ended_at',
+  breaks: 'breaks',
+  confirmed_at: 'confirmed_at',
+  confirmed_by: 'confirmed_by',
+  revision: 'revision',
+  created_at: 'created_at'
+} as const
+
+export type WorkforceSessionScalarFieldEnum = (typeof WorkforceSessionScalarFieldEnum)[keyof typeof WorkforceSessionScalarFieldEnum]
+
+
+export const AttendanceRevisionScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  work_date: 'work_date',
+  before: 'before',
+  after: 'after',
+  reason: 'reason',
+  actor_id: 'actor_id',
+  command_key: 'command_key',
+  created_at: 'created_at'
+} as const
+
+export type AttendanceRevisionScalarFieldEnum = (typeof AttendanceRevisionScalarFieldEnum)[keyof typeof AttendanceRevisionScalarFieldEnum]
+
+
+export const AttendanceCorrectionRequestScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  work_date: 'work_date',
+  proposed: 'proposed',
+  source_revision: 'source_revision',
+  reason: 'reason',
+  status: 'status',
+  revision: 'revision',
+  command_key: 'command_key',
+  reviewed_by: 'reviewed_by',
+  reviewed_at: 'reviewed_at',
+  review_comment: 'review_comment',
+  created_at: 'created_at'
+} as const
+
+export type AttendanceCorrectionRequestScalarFieldEnum = (typeof AttendanceCorrectionRequestScalarFieldEnum)[keyof typeof AttendanceCorrectionRequestScalarFieldEnum]
+
+
+export const LeaveEntitlementScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  benefit_code: 'benefit_code',
+  period_start: 'period_start',
+  period_end: 'period_end',
+  granted_units: 'granted_units',
+  converted_units: 'converted_units',
+  evidence: 'evidence',
+  award: 'award',
+  funding: 'funding',
+  revision: 'revision'
+} as const
+
+export type LeaveEntitlementScalarFieldEnum = (typeof LeaveEntitlementScalarFieldEnum)[keyof typeof LeaveEntitlementScalarFieldEnum]
+
+
+export const PayrollServiceChargePoolScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  reference: 'reference',
+  from: 'from',
+  to: 'to',
+  amount: 'amount',
+  revision: 'revision',
+  review_hash: 'review_hash',
+  snapshot: 'snapshot',
+  actor_id: 'actor_id',
+  created_at: 'created_at'
+} as const
+
+export type PayrollServiceChargePoolScalarFieldEnum = (typeof PayrollServiceChargePoolScalarFieldEnum)[keyof typeof PayrollServiceChargePoolScalarFieldEnum]
+
+
+export const LeaveAllocationScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  leave_request_id: 'leave_request_id',
+  entitlement_id: 'entitlement_id',
+  work_date: 'work_date',
+  units: 'units',
+  paid: 'paid',
+  benefit_code: 'benefit_code',
+  funding: 'funding',
+  cancelled_at: 'cancelled_at',
+  paid_in_payslip_id: 'paid_in_payslip_id'
+} as const
+
+export type LeaveAllocationScalarFieldEnum = (typeof LeaveAllocationScalarFieldEnum)[keyof typeof LeaveAllocationScalarFieldEnum]
+
+
+export const PayrollEarningScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  source_type: 'source_type',
+  source_id: 'source_id',
+  source_revision: 'source_revision',
+  earned_on: 'earned_on',
+  payable_on: 'payable_on',
+  code: 'code',
+  description: 'description',
+  amount: 'amount',
+  rate: 'rate',
+  units: 'units',
+  taxable: 'taxable',
+  tax_category: 'tax_category',
+  is_basic: 'is_basic',
+  snapshot: 'snapshot',
+  reversed_at: 'reversed_at',
+  statement_id: 'statement_id',
+  created_at: 'created_at'
+} as const
+
+export type PayrollEarningScalarFieldEnum = (typeof PayrollEarningScalarFieldEnum)[keyof typeof PayrollEarningScalarFieldEnum]
+
+
+export const PayrollRunScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  payment_date: 'payment_date',
+  kind: 'kind',
+  calculation_policy: 'calculation_policy',
+  created_by: 'created_by',
+  revision: 'revision',
+  employee_ids: 'employee_ids',
+  created_at: 'created_at'
+} as const
+
+export type PayrollRunScalarFieldEnum = (typeof PayrollRunScalarFieldEnum)[keyof typeof PayrollRunScalarFieldEnum]
+
+
+export const PayrollStatementScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  run_id: 'run_id',
+  employee_id: 'employee_id',
+  status: 'status',
+  payment_state: 'payment_state',
+  gross: 'gross',
+  deductions: 'deductions',
+  net: 'net',
+  employer_cost: 'employer_cost',
+  paid_amount: 'paid_amount',
+  review_hash: 'review_hash',
+  snapshot: 'snapshot',
+  issues: 'issues',
+  revision: 'revision',
+  approved_by: 'approved_by',
+  approved_at: 'approved_at',
+  published_at: 'published_at',
+  legacy_payslip_id: 'legacy_payslip_id',
+  created_at: 'created_at'
+} as const
+
+export type PayrollStatementScalarFieldEnum = (typeof PayrollStatementScalarFieldEnum)[keyof typeof PayrollStatementScalarFieldEnum]
+
+
+export const PayrollStatementLineScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  statement_id: 'statement_id',
+  earning_id: 'earning_id',
+  code: 'code',
+  description: 'description',
+  amount: 'amount',
+  rate: 'rate',
+  units: 'units',
+  category: 'category',
+  source: 'source'
+} as const
+
+export type PayrollStatementLineScalarFieldEnum = (typeof PayrollStatementLineScalarFieldEnum)[keyof typeof PayrollStatementLineScalarFieldEnum]
+
+
+export const PayrollAssessmentScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  statement_id: 'statement_id',
+  rule_package_id: 'rule_package_id',
+  agency: 'agency',
+  assessment_month: 'assessment_month',
+  employee_share: 'employee_share',
+  employer_share: 'employer_share',
+  basis: 'basis',
+  explanation: 'explanation'
+} as const
+
+export type PayrollAssessmentScalarFieldEnum = (typeof PayrollAssessmentScalarFieldEnum)[keyof typeof PayrollAssessmentScalarFieldEnum]
+
+
+export const PayrollPaymentScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  statement_id: 'statement_id',
+  amount: 'amount',
+  payment_date: 'payment_date',
+  method: 'method',
+  reference: 'reference',
+  actor_id: 'actor_id',
+  command_key: 'command_key',
+  created_at: 'created_at',
+  reconciliation_id: 'reconciliation_id'
+} as const
+
+export type PayrollPaymentScalarFieldEnum = (typeof PayrollPaymentScalarFieldEnum)[keyof typeof PayrollPaymentScalarFieldEnum]
+
+
+export const PayrollPaymentAllocationScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  statement_id: 'statement_id',
+  payment_id: 'payment_id',
+  line_id: 'line_id',
+  amount: 'amount'
+} as const
+
+export type PayrollPaymentAllocationScalarFieldEnum = (typeof PayrollPaymentAllocationScalarFieldEnum)[keyof typeof PayrollPaymentAllocationScalarFieldEnum]
+
+
+export const PayrollPaymentReconciliationScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  statement_id: 'statement_id',
+  payment_date: 'payment_date',
+  amount: 'amount',
+  tax_delta: 'tax_delta',
+  statement_revision: 'statement_revision',
+  source_hash: 'source_hash',
+  snapshot: 'snapshot',
+  reason: 'reason',
+  actor_id: 'actor_id',
+  command_key: 'command_key',
+  created_at: 'created_at'
+} as const
+
+export type PayrollPaymentReconciliationScalarFieldEnum = (typeof PayrollPaymentReconciliationScalarFieldEnum)[keyof typeof PayrollPaymentReconciliationScalarFieldEnum]
+
+
+export const PayrollAdjustmentScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  employee_id: 'employee_id',
+  original_statement_id: 'original_statement_id',
+  amount: 'amount',
+  code: 'code',
+  label: 'label',
+  reason: 'reason',
+  authorization: 'authorization',
+  effective_on: 'effective_on',
+  disposition: 'disposition',
+  actor_id: 'actor_id',
+  revision: 'revision',
+  earning_id: 'earning_id',
+  source_revision: 'source_revision',
+  created_at: 'created_at'
+} as const
+
+export type PayrollAdjustmentScalarFieldEnum = (typeof PayrollAdjustmentScalarFieldEnum)[keyof typeof PayrollAdjustmentScalarFieldEnum]
+
+
+export const PayrollCommandScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  key: 'key',
+  actor_id: 'actor_id',
+  operation: 'operation',
+  payload_hash: 'payload_hash',
+  result: 'result',
+  created_at: 'created_at'
+} as const
+
+export type PayrollCommandScalarFieldEnum = (typeof PayrollCommandScalarFieldEnum)[keyof typeof PayrollCommandScalarFieldEnum]
+
+
+export const PayrollNotificationScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  statement_id: 'statement_id',
+  user_id: 'user_id',
+  read_at: 'read_at',
+  sms_state: 'sms_state',
+  sms_message_id: 'sms_message_id',
+  sms_attempts: 'sms_attempts',
+  sms_last_error: 'sms_last_error',
+  created_at: 'created_at'
+} as const
+
+export type PayrollNotificationScalarFieldEnum = (typeof PayrollNotificationScalarFieldEnum)[keyof typeof PayrollNotificationScalarFieldEnum]
 
 
 export const BookingNoteScalarFieldEnum = {

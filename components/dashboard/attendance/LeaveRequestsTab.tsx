@@ -47,7 +47,7 @@ const getAvatarColor = (name: string) => {
 
 type LeaveRequestWithEmployee = LeaveRequest & {
   employee: Employee & {
-    user: User;
+    user: Pick<User, "name">;
   };
 };
 

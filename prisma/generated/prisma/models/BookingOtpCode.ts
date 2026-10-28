@@ -220,7 +220,7 @@ export type BookingOtpCodeGroupByOutputType = {
   _max: BookingOtpCodeMaxAggregateOutputType | null
 }
 
-type GetBookingOtpCodeGroupByPayload<T extends BookingOtpCodeGroupByArgs> = Prisma.PrismaPromise<
+export type GetBookingOtpCodeGroupByPayload<T extends BookingOtpCodeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BookingOtpCodeGroupByOutputType, T['by']> &
       {
@@ -1301,6 +1301,11 @@ export type BookingOtpCodeFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` BookingOtpCodes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of BookingOtpCodes.
+   */
   distinct?: Prisma.BookingOtpCodeScalarFieldEnum | Prisma.BookingOtpCodeScalarFieldEnum[]
 }
 

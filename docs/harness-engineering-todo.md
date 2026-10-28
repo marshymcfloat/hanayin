@@ -1,6 +1,6 @@
 # Harness Engineering TODO
 
-Last updated: 2026-09-16
+Last updated: 2026-09-18
 
 Update this checklist as work is completed. Add links to pull requests or
 decision records where useful.
@@ -27,7 +27,7 @@ decision records where useful.
   schemas, types, and tests.
 - [x] Resolve overlap between `features/` and `lib/features/`.
 - [x] Migrate `lib/server actions/` into feature-owned action boundaries.
-- [ ] Extract remaining business logic from migrated `features/*/actions/`
+- [x] Extract remaining business logic from migrated `features/*/actions/`
   modules until the Server Action adapters are thin.
 - [x] Migrate `lib/zod schemas/` into the owning feature modules or shared
   validation infrastructure.
@@ -91,8 +91,13 @@ decision records where useful.
 
 ## Progress Log
 
+The structural checklist records implemented architecture, not Linear issue
+approval or release readiness. Dedicated PostgreSQL/browser verification,
+human review and dependency/worker remediation remain tracked in Linear.
+
 | Date | Change | Evidence |
 | --- | --- | --- |
+| 2026-09-18 | Extracted the final booking-deletion, attendance, subscription-owner, employee-administration, reference-candidate and growth action workflows; the runtime Prisma feature-action allowlist is empty | `features/bookings/services/booking-deletion.ts`, `features/workforce/services/`, `features/billing/services/owner-subscription.ts`, `features/social/services/reference-candidates.ts`, `features/growth/services/`, `scripts/architecture-boundaries.json`, `docs/prisma-ui-inventory.md` |
 | 2026-09-06 | Added repository-wide agent instructions | `AGENTS.md` |
 | 2026-09-06 | Refined root guidance and added Prisma/test rules | `AGENTS.md`, `prisma/AGENTS.md`, `test/AGENTS.md` |
 | 2026-09-06 | Documented current and target system architecture | `ARCHITECTURE.md` |

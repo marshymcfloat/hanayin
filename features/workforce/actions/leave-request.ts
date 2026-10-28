@@ -1,11 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import type {
   LeaveRequestStatus,
 } from "@/prisma/generated/prisma/enums";
 import { Role } from "@/prisma/generated/prisma/enums";
 import { requireAuth } from "@/lib/auth/guards";
+import { currentWorkforceOwner } from "@/features/workforce/workforce-access";
 import {
   createLeaveRequestSchema,
   leaveRequestIdSchema,
@@ -16,6 +17,15 @@ import {
   createTenantLeaveRequest,
   updateTenantLeaveRequestStatus,
 } from "@/features/workforce/services/leave-request";
+import { getUserLeaveRequests } from "@/features/workforce/queries/leave-request";
+
+export async function getMyLeaveRequestsAction(employeeId: number) {
+  const validated = leaveRequestIdSchema.safeParse(employeeId);
+  if (!validated.success) {
+    return { success: false as const, error: "Invalid employee" };
+  }
+  return getUserLeaveRequests(validated.data);
+}
 
 export async function createLeaveRequest(data: unknown) {
   const auth = await requireAuth({ write: true });
@@ -91,6 +101,8 @@ export async function updateLeaveRequestStatus(
   }
 
   try {
+    const currentOwner = await currentWorkforceOwner(auth.businessSlug, auth.session.user.id);
+    if (!currentOwner) return { success: false as const, error: "Forbidden" };
     const result = await updateTenantLeaveRequestStatus(
       validated.data.requestId,
       validated.data.status,
@@ -103,6 +115,7 @@ export async function updateLeaveRequestStatus(
       },
     );
     if (!result.success) return result;
+    updateTag(`attendance-history-${auth.businessSlug}`);
     revalidatePath(`/app/${auth.businessSlug}/attendance`);
     return { success: true as const };
   } catch (error) {

@@ -237,7 +237,7 @@ export type OutboxMessageGroupByOutputType = {
   _max: OutboxMessageMaxAggregateOutputType | null
 }
 
-type GetOutboxMessageGroupByPayload<T extends OutboxMessageGroupByArgs> = Prisma.PrismaPromise<
+export type GetOutboxMessageGroupByPayload<T extends OutboxMessageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<OutboxMessageGroupByOutputType, T['by']> &
       {
@@ -1188,6 +1188,11 @@ export type OutboxMessageFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` OutboxMessages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of OutboxMessages.
+   */
   distinct?: Prisma.OutboxMessageScalarFieldEnum | Prisma.OutboxMessageScalarFieldEnum[]
 }
 

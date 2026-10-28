@@ -177,7 +177,7 @@ export type GrowthContextSnapshotGroupByOutputType = {
   _max: GrowthContextSnapshotMaxAggregateOutputType | null
 }
 
-type GetGrowthContextSnapshotGroupByPayload<T extends GrowthContextSnapshotGroupByArgs> = Prisma.PrismaPromise<
+export type GetGrowthContextSnapshotGroupByPayload<T extends GrowthContextSnapshotGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<GrowthContextSnapshotGroupByOutputType, T['by']> &
       {
@@ -1406,6 +1406,11 @@ export type GrowthContextSnapshotFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` GrowthContextSnapshots.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of GrowthContextSnapshots.
+   */
   distinct?: Prisma.GrowthContextSnapshotScalarFieldEnum | Prisma.GrowthContextSnapshotScalarFieldEnum[]
 }
 

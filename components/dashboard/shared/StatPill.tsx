@@ -23,58 +23,53 @@ export function StatPill({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 px-4 py-3 min-w-0",
+        "flex min-h-[104px] min-w-0 items-center gap-3 px-4 py-4 sm:px-5",
         flat
           ? accent
-            ? "bg-primary/5"
-            : "bg-card"
+            ? "bg-[#EFF9E8]"
+            : "bg-white"
           : accent
-            ? "bg-primary text-primary-foreground rounded-2xl"
-            : "bg-card border border-border rounded-2xl",
+            ? "rounded-[24px] bg-[#20211F] text-white shadow-[0_18px_45px_rgba(32,33,31,0.13)]"
+            : "rounded-[24px] border border-[#E7E9E4] bg-white shadow-[0_18px_45px_rgba(32,33,31,0.045)]",
       )}
     >
       <div
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+          "flex size-10 shrink-0 items-center justify-center rounded-[14px]",
           accent
             ? flat
-              ? "bg-primary/15"
-              : "bg-white/20"
-            : "bg-primary/10",
+              ? "bg-[#B9F379]"
+              : "bg-[#B9F379]"
+            : "bg-[#EFF9E8]",
         )}
       >
         <Icon
           className={cn(
-            "h-4 w-4",
-            accent
-              ? flat
-                ? "text-primary"
-                : "text-primary-foreground"
-              : "text-primary",
+            "h-4 w-4 text-[#20211F]",
           )}
         />
       </div>
       <div className="min-w-0">
         <p
           className={cn(
-            "text-[10px] font-semibold uppercase tracking-wider truncate",
+            "truncate text-[10px] font-bold uppercase tracking-[0.14em]",
             accent
               ? flat
-                ? "text-primary/80"
-                : "text-primary-foreground/70"
-              : "text-muted-foreground",
+                ? "text-[#696C67]"
+                : "text-white/70"
+              : "text-[#696C67]",
           )}
         >
           {label}
         </p>
         <p
           className={cn(
-            "text-xl font-bold leading-tight tabular-nums",
+            "font-mono text-2xl font-semibold leading-tight tabular-nums",
             accent
               ? flat
-                ? "text-primary"
-                : "text-primary-foreground"
-              : "text-foreground",
+                ? "text-[#20211F]"
+                : "text-white"
+              : "text-[#20211F]",
           )}
         >
           {typeof value === "number" ? value.toLocaleString() : value}

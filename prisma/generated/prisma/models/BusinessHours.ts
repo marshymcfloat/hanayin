@@ -210,7 +210,7 @@ export type BusinessHoursGroupByOutputType = {
   _max: BusinessHoursMaxAggregateOutputType | null
 }
 
-type GetBusinessHoursGroupByPayload<T extends BusinessHoursGroupByArgs> = Prisma.PrismaPromise<
+export type GetBusinessHoursGroupByPayload<T extends BusinessHoursGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BusinessHoursGroupByOutputType, T['by']> &
       {
@@ -1244,6 +1244,11 @@ export type BusinessHoursFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` BusinessHours.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of BusinessHours.
+   */
   distinct?: Prisma.BusinessHoursScalarFieldEnum | Prisma.BusinessHoursScalarFieldEnum[]
 }
 

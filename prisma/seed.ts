@@ -11,6 +11,9 @@ const OWNER_CONTACT_NUMBER = "09274603088";
 const EMPLOYEE_LOGIN_URL = "http://serviceflow.store/login";
 const TEMP_PASSWORD_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const TEMP_PASSWORD_LENGTH = 6;
+// Temporarily disabled to prevent development seeds from creating employees
+// or sending real invitation SMS messages.
+const SEED_EMPLOYEES = false;
 
 function requiredEnv(name: string) {
   const value = process.env[name]?.trim();
@@ -210,10 +213,13 @@ async function main() {
     requiredEnv("SEED_PLATFORM_ADMIN_CONTACT_NUMBER"),
   );
   const adminPassword = requiredEnv("SEED_PLATFORM_ADMIN_PASSWORD");
-  requiredEnv("SEMAPHORE_API");
+  if (SEED_EMPLOYEES) {
+    requiredEnv("SEMAPHORE_API");
+  }
 
   const ownerContact = normalizePhilippinePhone(OWNER_CONTACT_NUMBER);
-  const normalizedEmployeeContacts = employees.map((employee) =>
+  const employeesToSeed: EmployeeSeed[] = SEED_EMPLOYEES ? employees : [];
+  const normalizedEmployeeContacts = employeesToSeed.map((employee) =>
     normalizePhilippinePhone(employee.contactNumber),
   );
   const uniqueContacts = new Set([
@@ -221,7 +227,7 @@ async function main() {
     ownerContact,
     ...normalizedEmployeeContacts,
   ]);
-  if (uniqueContacts.size !== employees.length + 2) {
+  if (uniqueContacts.size !== employeesToSeed.length + 2) {
     throw new Error(
       "Seed account contact numbers must be unique; database was not reset.",
     );
@@ -330,7 +336,7 @@ async function main() {
     expiresAt: Date;
   }> = [];
 
-  for (const [index, employee] of employees.entries()) {
+  for (const [index, employee] of employeesToSeed.entries()) {
     const contactNumber = normalizedEmployeeContacts[index];
     const tempPassword = generateTempPassword();
     const expiresAt = new Date(Date.now() + TEMP_PASSWORD_TTL_MS);
@@ -395,14 +401,17 @@ async function main() {
   console.log(`Platform admin: ${adminUser.contact_number}`);
   console.log(`Owner: ${ownerUser.contact_number}`);
   console.log(
-    `Services: ${services.length}; employees: ${employees.length}; users: ${employees.length + 2}`,
+    `Services: ${services.length}; employees: ${employeesToSeed.length}; users: ${employeesToSeed.length + 2}`,
   );
-  console.log(`Employee login URL: ${EMPLOYEE_LOGIN_URL}`);
-
-  if (smsFailures.length > 0) {
-    throw new Error(`Employee SMS failures:\n${smsFailures.join("\n")}`);
+  if (SEED_EMPLOYEES) {
+    console.log(`Employee login URL: ${EMPLOYEE_LOGIN_URL}`);
+    if (smsFailures.length > 0) {
+      throw new Error(`Employee SMS failures:\n${smsFailures.join("\n")}`);
+    }
+    console.log(`Employee invite SMS sent: ${employeeInvites.length}`);
+  } else {
+    console.log("Employee seeding and invitation SMS are disabled.");
   }
-  console.log(`Employee invite SMS sent: ${employeeInvites.length}`);
 }
 
 main()

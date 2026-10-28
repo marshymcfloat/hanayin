@@ -1,4 +1,5 @@
 "use client";
+import staffTheme from "@/components/dashboard/employee/StaffWorkspaceTheme.module.css";
 
 import { formatPH } from "@/lib/date-utils";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -261,7 +262,7 @@ export default function EmployeeServedHistory({
                       <Button
                         type="button"
                         size="sm"
-                        className="h-7 shrink-0 rounded-lg px-3 text-[11px] font-semibold"
+                        className="min-h-11 shrink-0 rounded-lg px-3 text-[11px] font-semibold"
                         onClick={() => handleMarkAsServed(item.id)}
                         disabled={busyIds.has(item.id)}
                       >
@@ -284,7 +285,7 @@ export default function EmployeeServedHistory({
         open={!!selectedService}
         onOpenChange={(open) => !open && setSelectedService(null)}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className={`${staffTheme.workspace} sm:max-w-md`}>
           <DialogHeader>
             <DialogTitle>Service Details</DialogTitle>
             <DialogDescription>
@@ -472,7 +473,7 @@ export default function EmployeeServedHistory({
         open={!!pendingAction}
         onOpenChange={(open) => !open && setPendingAction(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className={staffTheme.workspace}>
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingAction?.type === "unclaim"
@@ -486,11 +487,11 @@ export default function EmployeeServedHistory({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="min-h-11 rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmAction}
               className={cn(
-                "rounded-xl",
+                "min-h-11 rounded-xl",
                 pendingAction?.type === "unclaim"
                   ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                   : "bg-amber-600 hover:bg-amber-700 text-white",

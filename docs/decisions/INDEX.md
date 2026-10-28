@@ -47,6 +47,9 @@ link both records.
 
 | ADR | Decision | Status | Date |
 | --- | --- | --- | --- |
+| [0004](0004-simple-payroll-calculation-policy.md) | Simple and government payroll share an immutable ledger | Accepted | 2026-10-17 |
 | [0001](0001-feature-first-modular-monolith.md) | Feature-first modular monolith | Accepted | 2026-09-16 |
+| [0002](0002-guarded-social-conversation-assistant.md) | Guarded customer inbox and Meta conversation delivery | Accepted; live activation gated | 2026-10-04 |
+| [0003](0003-immutable-payroll-and-workforce-ledger.md) | Immutable payroll, workforce evidence, and separate settlement | Accepted; statutory certification and business activation gated | 2026-10-11 |
 
 The numbered template is excluded from the index because it is not a decision.

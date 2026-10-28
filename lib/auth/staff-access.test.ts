@@ -27,6 +27,7 @@ import {
   getDefaultPermissionsForProfile,
   hasStaffPermission,
   requireStaffPermission,
+  resolveTenantActorContext,
   sanitizeStaffPermissions,
 } from "./staff-access";
 
@@ -199,5 +200,27 @@ describe("requireStaffPermission", () => {
     );
 
     expect(result).toEqual({ success: false, error: "Forbidden" });
+  });
+});
+
+describe("transaction-scoped actor resolution", () => {
+  beforeEach(() => vi.resetAllMocks());
+  it.each(["OWNER", "EMPLOYEE"])("uses only the injected transaction for %s without changing the context contract", async role => {
+    const db = {
+      business: { findUnique: vi.fn().mockResolvedValue({ id: "biz-a", slug: "tenant-a", structure: "MANAGER_LED", allow_employee_self_booking: false, manager_can_serve: false }) },
+      user: { findUnique: vi.fn().mockResolvedValue({ id: "user-a", role, owner: role === "OWNER" ? { id: 7, business_id: "biz-a" } : null, employee: role === "EMPLOYEE" ? { id: 9, business_id: "biz-a", profile: "MANAGER", permissions: ["BOOKING_MARK_NO_SHOW"] } : null }) },
+    };
+    expect(await resolveTenantActorContext("tenant-a", "user-a", db as never)).toMatchObject({ success: true, actorType: role, role, businessId: "biz-a", businessSlug: "tenant-a", userId: "user-a", businessPolicy: { structure: "MANAGER_LED", allowEmployeeSelfBooking: false, managerCanServe: false } });
+    expect(db.business.findUnique.mock.calls[0][0].where).toEqual({ slug: "tenant-a" });
+    expect(db.user.findUnique.mock.calls[0][0].where).toEqual({ id: "user-a" });
+    expect(prismaMock.business.findUnique).not.toHaveBeenCalled(); expect(prismaMock.user.findUnique).not.toHaveBeenCalled();
+  });
+  it("preserves safe missing/stale role or membership results with an injected client", async () => {
+    const db = { business: { findUnique: vi.fn().mockResolvedValue({ id: "biz-a" }) }, user: { findUnique: vi.fn().mockResolvedValue(null) } };
+    expect(await resolveTenantActorContext("tenant-a", "user-a", db as never)).toEqual({ success: false, error: "Unauthorized" });
+    db.user.findUnique.mockResolvedValue({ role: "PLATFORM_ADMIN", owner: { id: 7, business_id: "biz-a" } });
+    expect(await resolveTenantActorContext("tenant-a", "user-a", db as never)).toEqual({ success: false, error: "Forbidden" });
+    db.user.findUnique.mockResolvedValue({ role: "OWNER", owner: { id: 7, business_id: "biz-foreign" } });
+    expect(await resolveTenantActorContext("tenant-a", "user-a", db as never)).toEqual({ success: false, error: "Forbidden" });
   });
 });
