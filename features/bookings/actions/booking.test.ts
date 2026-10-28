@@ -314,6 +314,10 @@ describe("createBooking Server Action", () => {
       employeeId: 42,
     });
     mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      appliedOffers: [],
+      packageSnapshots: [],
+      quoteFingerprint: "a".repeat(64),
+      voucherOutcome: "NONE",
       business: {
         id: "biz_1",
         slug: "demo-business",
